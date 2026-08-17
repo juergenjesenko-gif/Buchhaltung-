@@ -82,11 +82,35 @@ flutter build ipa --release         # App Store
 
 ## Dokumentation
 
+Die beiden zentralen Dokumente werden mit jeder Codeänderung mitgeführt:
+
+- [`docs/SPECIFICATION.md`](docs/SPECIFICATION.md) – **Spezifikation.** Was die App
+  tut, mit numerierten Anforderungen, Datenmodell, Zustandsmodellen,
+  Exportformaten und offen benannten Grenzen.
+- [`docs/BENUTZERHANDBUCH.md`](docs/BENUTZERHANDBUCH.md) – **Benutzerhandbuch.**
+  Dieselbe App aus Nutzersicht, mit Schritt-für-Schritt-Anleitungen und
+  Fehlermeldungen.
+
+Dass beide aktuell bleiben, ist nicht Disziplin, sondern erzwungen:
+
+- `test/specification_sync_test.dart` liest die Kennzahlen aus Abschnitt 12 der
+  Spezifikation und vergleicht sie mit dem Code. Weicht ein Steuersatz, eine
+  Umsatzgrenze oder die Schemaversion ab, ist der Test rot. Ein dokumentierter
+  Wert, den keine Prüfung erfasst, ist ebenfalls rot.
+- Die CI verlangt bei jedem Pull Request, der `lib/` anfasst, eine Änderung an
+  `docs/SPECIFICATION.md` (Ausnahme: `[skip-spec]` in der Commit-Nachricht).
+- Die Zuordnung „welche Änderung betrifft welchen Abschnitt" steht in
+  [`CLAUDE.md`](CLAUDE.md).
+
+Weiteres:
+
 - [`docs/BACKLOG.md`](docs/BACKLOG.md) – Product Backlog mit Akzeptanzkriterien
 - [`docs/SPRINT_PLAN.md`](docs/SPRINT_PLAN.md) – Sprintschnitt und Definition of Done
 - [`docs/COMPLIANCE_AT_DE.md`](docs/COMPLIANCE_AT_DE.md) – steuerliche Anforderungen und
   wo die App bewusst an ihre Grenze kommt
 - [`docs/RELEASE_PLAYBOOK.md`](docs/RELEASE_PLAYBOOK.md) – Weg in App Store und Google Play
+- [`docs/PRIVACY.md`](docs/PRIVACY.md) – Datenschutzerklärung (Vorlage)
+- [`docs/STORE_LISTING.md`](docs/STORE_LISTING.md) – Texte für die Store-Einträge
 
 ## Rechtlicher Hinweis
 

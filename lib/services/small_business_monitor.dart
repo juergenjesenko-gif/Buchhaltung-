@@ -67,8 +67,10 @@ class SmallBusinessAssessment {
 class SmallBusinessMonitor {
   const SmallBusinessMonitor._();
 
-  /// Ab diesem Ausnutzungsgrad wird gewarnt.
-  static const _warnThreshold = 0.8;
+  /// Ab diesem Ausnutzungsgrad wird gewarnt. Keine gesetzliche Vorgabe, sondern
+  /// eine Produktentscheidung – öffentlich, damit docs/SPECIFICATION.md und
+  /// test/specification_sync_test.dart denselben Wert prüfen können.
+  static const warnThreshold = 0.8;
 
   static SmallBusinessAssessment assess({
     required TaxProfile taxProfile,
@@ -146,7 +148,7 @@ class SmallBusinessMonitor {
     }
 
     if (limit.cents > 0 &&
-        currentYearTurnover.cents >= limit.cents * _warnThreshold) {
+        currentYearTurnover.cents >= limit.cents * warnThreshold) {
       return SmallBusinessAssessment(
         status: SmallBusinessStatus.approaching,
         currentYearTurnover: currentYearTurnover,

@@ -13,7 +13,10 @@ class AppDatabase {
   static final AppDatabase instance = AppDatabase._();
 
   static const _fileName = 'buchhaltung.db';
-  static const _schemaVersion = 1;
+
+  /// Aktuelle Schemaversion. Öffentlich, weil docs/SPECIFICATION.md sie
+  /// dokumentiert und test/specification_sync_test.dart beide vergleicht.
+  static const schemaVersion = 1;
 
   Database? _db;
 
@@ -24,7 +27,7 @@ class AppDatabase {
     final path = p.join(dir.path, _fileName);
     return openDatabase(
       path,
-      version: _schemaVersion,
+      version: schemaVersion,
       onConfigure: (db) => db.execute('PRAGMA foreign_keys = ON'),
       onCreate: (db, version) async {
         for (var v = 1; v <= version; v++) {
@@ -177,28 +180,30 @@ class AppDatabase {
   /// Startkategorien, damit die App nicht mit einer leeren Auswahlliste startet.
   /// Die Konten folgen SKR03; für Österreich sind sie als Orientierung gedacht
   /// und werden beim Export auf den Einheitskontenrahmen gemappt.
-  static Future<void> _seedCategories(Database db) async {
-    const seeds = <(String, String, String)>[
-      ('Umsatzerlöse', 'income', '8400'),
-      ('Erlöse ermäßigter Steuersatz', 'income', '8300'),
-      ('Sonstige Einnahmen', 'income', '8500'),
-      ('Wareneinkauf', 'expense', '3400'),
-      ('Fremdleistungen', 'expense', '3100'),
-      ('Büromaterial', 'expense', '4930'),
-      ('Telefon & Internet', 'expense', '4920'),
-      ('Reisekosten', 'expense', '4670'),
-      ('Kfz-Kosten', 'expense', '4530'),
-      ('Miete & Betriebskosten', 'expense', '4210'),
-      ('Versicherungen', 'expense', '4360'),
-      ('Beiträge & Gebühren', 'expense', '4380'),
-      ('Fortbildung & Fachliteratur', 'expense', '4945'),
-      ('Werbung & Marketing', 'expense', '4600'),
-      ('Bankspesen', 'expense', '4970'),
-      ('Sonstige Ausgaben', 'expense', '4900'),
-    ];
+  /// Öffentlich, weil docs/SPECIFICATION.md diese Liste dokumentiert und
+  /// test/specification_sync_test.dart beide gegeneinander prüft.
+  static const seedCategories = <(String, String, String)>[
+    ('Umsatzerlöse', 'income', '8400'),
+    ('Erlöse ermäßigter Steuersatz', 'income', '8300'),
+    ('Sonstige Einnahmen', 'income', '8500'),
+    ('Wareneinkauf', 'expense', '3400'),
+    ('Fremdleistungen', 'expense', '3100'),
+    ('Büromaterial', 'expense', '4930'),
+    ('Telefon & Internet', 'expense', '4920'),
+    ('Reisekosten', 'expense', '4670'),
+    ('Kfz-Kosten', 'expense', '4530'),
+    ('Miete & Betriebskosten', 'expense', '4210'),
+    ('Versicherungen', 'expense', '4360'),
+    ('Beiträge & Gebühren', 'expense', '4380'),
+    ('Fortbildung & Fachliteratur', 'expense', '4945'),
+    ('Werbung & Marketing', 'expense', '4600'),
+    ('Bankspesen', 'expense', '4970'),
+    ('Sonstige Ausgaben', 'expense', '4900'),
+  ];
 
+  static Future<void> _seedCategories(Database db) async {
     final batch = db.batch();
-    for (final (name, direction, account) in seeds) {
+    for (final (name, direction, account) in seedCategories) {
       batch.insert('categories', {
         'name': name,
         'direction': direction,

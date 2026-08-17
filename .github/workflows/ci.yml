@@ -39,6 +39,55 @@ jobs:
       - name: Tests
         run: flutter test --reporter=expanded
 
+  dokumentation:
+    name: Dokumentation mitgeführt
+    runs-on: ubuntu-latest
+    # Nur bei Pull Requests: dort ist der Vergleichspunkt (Basis-Branch) klar.
+    if: github.event_name == 'pull_request'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      # Wer Verhalten ändert, muss die Spezifikation mitziehen. Der
+      # specification_sync_test deckt nur die Kennzahlen ab; Anforderungen und
+      # Bildschirme kann kein Test prüfen, deshalb dieser Abgleich.
+      #
+      # Ausnahmen: reines Refactoring oder Teständerungen. Dann "[skip-spec]"
+      # in die Commit-Nachricht oder den PR-Titel schreiben.
+      - name: Spezifikation gegen Codeänderungen prüfen
+        run: |
+          BASE="origin/${{ github.base_ref }}"
+          CHANGED=$(git diff --name-only "$BASE"...HEAD)
+
+          if ! echo "$CHANGED" | grep -q '^lib/'; then
+            echo "Keine Änderung in lib/ – nichts zu prüfen."
+            exit 0
+          fi
+
+          if git log "$BASE"..HEAD --pretty=%B | grep -qF '[skip-spec]'; then
+            echo "[skip-spec] in einer Commit-Nachricht gefunden – übersprungen."
+            exit 0
+          fi
+
+          if echo "$CHANGED" | grep -q '^docs/SPECIFICATION.md$'; then
+            echo "Spezifikation wurde mitgeführt."
+            exit 0
+          fi
+
+          echo "::error::lib/ wurde geändert, docs/SPECIFICATION.md nicht."
+          echo ""
+          echo "Geänderte Dateien in lib/:"
+          echo "$CHANGED" | grep '^lib/' | sed 's/^/  /'
+          echo ""
+          echo "Bitte docs/SPECIFICATION.md anpassen (siehe CLAUDE.md für die"
+          echo "Zuordnung Änderung -> Abschnitt) und die Änderungshistorie"
+          echo "in Abschnitt 13 ergänzen."
+          echo ""
+          echo "Bei reinem Refactoring ohne Verhaltensänderung: [skip-spec]"
+          echo "in die Commit-Nachricht schreiben."
+          exit 1
+
   android-build:
     name: Android-Build
     runs-on: ubuntu-latest
