@@ -1,0 +1,92 @@
+name: CI
+
+on:
+  push:
+    branches: ["**"]
+  pull_request:
+
+concurrency:
+  # Ein laufender Build auf demselben Branch wird abgebrochen, wenn neu gepusht
+  # wird – sonst stehen bei schneller Iteration fünf veraltete Builds in der Queue.
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  FLUTTER_VERSION: "3.47.0"
+
+jobs:
+  analyse-und-test:
+    name: Analyse & Tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: stable
+          cache: true
+
+      - name: Abhängigkeiten
+        run: flutter pub get
+
+      - name: Formatierung
+        run: dart format --output=none --set-exit-if-changed lib test
+
+      - name: Statische Analyse
+        run: flutter analyze
+
+      - name: Tests
+        run: flutter test --reporter=expanded
+
+  android-build:
+    name: Android-Build
+    runs-on: ubuntu-latest
+    needs: analyse-und-test
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: stable
+          cache: true
+
+      - run: flutter pub get
+
+      # Debug-Build, weil ein Release-Build den Upload-Key bräuchte. Er beweist,
+      # dass Gradle, die Plugins und der Kotlin-Teil zusammenpassen – genau die
+      # Fehlerklasse, die `flutter analyze` nicht findet.
+      - name: APK bauen
+        run: flutter build apk --debug
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: app-debug-apk
+          path: build/app/outputs/flutter-apk/app-debug.apk
+          retention-days: 7
+
+  ios-build:
+    name: iOS-Build
+    runs-on: macos-latest
+    needs: analyse-und-test
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: stable
+          cache: true
+
+      - run: flutter pub get
+
+      # --no-codesign: ohne Apple-Zertifikate im Runner. Der Build prüft, dass
+      # CocoaPods, die Plugin-Podspecs und der Xcode-Teil sauber durchlaufen.
+      - name: iOS bauen
+        run: flutter build ios --debug --no-codesign

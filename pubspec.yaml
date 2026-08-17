@@ -1,0 +1,44 @@
+name: buchhaltung
+description: "Buchhaltung für Einzelunternehmen und Kleinunternehmer in Österreich und Deutschland."
+publish_to: "none"
+
+# version: <Store-Versionsname>+<Buildnummer>
+# Die Buildnummer wird in CI aus der Run-Nummer gesetzt, siehe docs/RELEASE_PLAYBOOK.md
+version: 0.1.0+1
+
+environment:
+  sdk: ^3.10.0
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_localizations:
+    sdk: flutter
+
+  # Lokale Datenbank. Offline-first: die Buchhaltungsdaten verlassen das Gerät
+  # nur, wenn der Nutzer aktiv exportiert oder teilt.
+  sqflite: ^2.3.3
+  path: ^1.9.0
+  path_provider: ^2.1.4
+
+  # Belegfotos
+  image_picker: ^1.1.2
+
+  # Rechnungs-PDF
+  pdf: ^3.11.0
+
+  # Export/Teilen von PDF und CSV
+  share_plus: ^10.0.0
+
+  # Datums- und Zahlenformatierung de_AT / de_DE
+  intl: any
+
+  cupertino_icons: ^1.0.8
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^5.0.0
+
+flutter:
+  uses-material-design: true

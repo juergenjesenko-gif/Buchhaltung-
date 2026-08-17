@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Buchhaltungsdaten werden bewusst NICHT in Googles automatisches Backup und
+  nicht in die Gerät-zu-Gerät-Übertragung einbezogen.
+
+  Grund: Die App verspricht, dass Belege und Umsätze das Gerät nur verlassen,
+  wenn der Nutzer selbst exportiert. Ein stilles Auto-Backup in die Google-Cloud
+  würde diesem Versprechen widersprechen und müsste in der Play-Datensicherheits-
+  erklärung als Datenübertragung angegeben werden.
+
+  Die Kehrseite: Bei Geräteverlust sind die Daten weg. Eine ausdrückliche,
+  verschlüsselte Sicherung durch den Nutzer ist deshalb Backlog-Punkt F1 und hat
+  in Sprint 2 die höchste Priorität.
+-->
+<data-extraction-rules>
+    <cloud-backup>
+        <exclude domain="root" />
+        <exclude domain="database" />
+        <exclude domain="sharedpref" />
+        <exclude domain="external" />
+        <exclude domain="file" />
+    </cloud-backup>
+    <device-transfer>
+        <exclude domain="root" />
+        <exclude domain="database" />
+        <exclude domain="sharedpref" />
+        <exclude domain="external" />
+        <exclude domain="file" />
+    </device-transfer>
+</data-extraction-rules>
