@@ -108,17 +108,34 @@ jobs:
 
       - run: flutter pub get
 
-      # Debug-Build, weil ein Release-Build den Upload-Key bräuchte. Er beweist,
-      # dass Gradle, die Plugins und der Kotlin-Teil zusammenpassen – genau die
-      # Fehlerklasse, die `flutter analyze` nicht findet.
-      - name: APK bauen
-        run: flutter build apk --debug
+      # Release-Build, getrennt je CPU-Architektur.
+      #
+      # Warum Release und nicht Debug: ein Debug-APK ist rund 80 MB groß, bündelt
+      # alle Architekturen und läuft deutlich langsamer – zum Ausprobieren der
+      # Bedienung untauglich. Der Release-Build ist klein und schnell und läuft
+      # zusätzlich durch R8/Minify, wo Release-Builds klassischerweise brechen.
+      # Genau die Fehlerklasse, die `flutter analyze` nicht findet.
+      #
+      # Ohne android/key.properties signiert Gradle mit den Debug-Schlüsseln
+      # (siehe android/app/build.gradle.kts). Das APK lässt sich damit auf einem
+      # Telefon installieren, aber nicht bei Google Play einreichen – Absicht,
+      # damit niemand versehentlich debug-signiert veröffentlicht.
+      - name: Test-APK bauen
+        run: flutter build apk --release --split-per-abi
 
+      - name: Größen ausgeben
+        run: ls -lh build/app/outputs/flutter-apk/*.apk
+
+      # arm64-v8a deckt praktisch jedes Telefon ab, das nach 2017 gebaut wurde.
+      # armeabi-v7a liegt für ältere Geräte daneben.
       - uses: actions/upload-artifact@v4
         with:
-          name: app-debug-apk
-          path: build/app/outputs/flutter-apk/app-debug.apk
-          retention-days: 7
+          name: test-apk
+          path: |
+            build/app/outputs/flutter-apk/app-arm64-v8a-release.apk
+            build/app/outputs/flutter-apk/app-armeabi-v7a-release.apk
+          retention-days: 14
+          if-no-files-found: error
 
   ios-build:
     name: iOS-Build

@@ -67,9 +67,18 @@ Voraussetzung: Flutter 3.47 oder neuer.
 ```bash
 flutter pub get
 flutter analyze          # muss ohne Befund durchlaufen
-flutter test             # 94 Tests
+flutter test             # 109 Tests
 flutter run              # auf angeschlossenem Gerät oder Emulator
 ```
+
+## Testen
+
+Die CI baut bei jedem Push ein installierbares Release-APK. Herunterladen unter
+**Actions → letzter Lauf → Artifacts → `test-apk`**, darin
+`app-arm64-v8a-release.apk` – dafür braucht es auf dem eigenen Rechner nichts.
+
+Schritt für Schritt, inklusive lokalem Setup und einem Testlauf, der jede
+Funktion abdeckt: [`docs/TESTEN.md`](docs/TESTEN.md)
 
 ## Release
 
