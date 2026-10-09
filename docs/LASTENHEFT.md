@@ -1,6 +1,6 @@
 # Lastenheft – Buchhaltungsapp für Österreich und Deutschland
 
-**Dokumentversion:** 1.13 · **Stand:** 2026-10-09 · **Status:** Entwurf zur Abstimmung
+**Dokumentversion:** 1.14 · **Stand:** 2026-10-09 · **Status:** Entwurf zur Abstimmung
 **Auftraggeber:** Jürgen Jesenko (privates Vorhaben) · **Umsetzung:** Claude Code
 
 > Ein Lastenheft beschreibt, **was** das Produkt leisten soll und **warum** — nicht,
@@ -786,7 +786,7 @@ Zu entscheiden, bevor die betroffene Anforderung umgesetzt wird:
 | ID | Offener Punkt | Benötigt für |
 |---|---|---|
 | O-1 | **Prüfung der österreichischen Kleinunternehmer-Logik.** Mehrere Quellen beschreiben § 6 Abs 1 Z 27 UStG so, dass **auch der Vorjahresumsatz** unter 55.000 € liegen muss. Die heutige Implementierung prüft nur das laufende Jahr. Amtliche Quellen waren aus der Entwicklungsumgebung nicht erreichbar — Bestätigung durch die Steuerberatung nötig | sofort; betrifft bestehenden Code |
-| O-2 | Produktname und Bundle-ID. **Arbeitstitel seit 2026-10-09: „Jenny Bar"** (Wortspiel aus Jenny Barb und „bar bezahlen"). Endgültig erst nach Markenrecherche. **Richtung festgelegt am 2026-10-09:** weiblicher Vorname, gern mit Anklang an „Jenny Barb" (Wiedererkennung mit jenibarb.com), allein oder verbunden mit dem Thema (z. B. „Jenny bucht"). Markenrecherche AT/DE/EUIPO, Store-Suche und Domainprüfung vor Festlegung | vor dem ersten Store-Upload |
+| O-2 | Produktname und Bundle-ID. **Arbeitstitel seit 2026-10-09: „Jenny Bar"** (Wortspiel aus Jenny Barb und „bar bezahlen"). **Zweite Variante: „Jenni bucht"**. Endgültig erst nach Markenrecherche. **Richtung festgelegt am 2026-10-09:** weiblicher Vorname, gern mit Anklang an „Jenny Barb" (Wiedererkennung mit jenibarb.com), allein oder verbunden mit dem Thema (z. B. „Jenny bucht"). Markenrecherche AT/DE/EUIPO, Store-Suche und Domainprüfung vor Festlegung | vor dem ersten Store-Upload |
 | O-3 | Preispunkte für Basisabo und Premium-Services — Vorschlag und Marktvergleich in [`WETTBEWERB.md`](WETTBEWERB.md) | Stufe B |
 | ~~O-22~~ | **Entschieden am 2026-10-09:** (a) UVA-Übermittlung in den Buchhaltungstarif, Stufe B (L-6.5); (b) Start mit Datei-Import der Kontoauszüge, Live-Anbindung später als Opt-in (L-18); (c) Angebote aufgenommen, Stufe A (L-3.13 ff.) | erledigt |
 | O-4 | Zuschnitt der Premium-Services: Was gehört ins Basisabo, was kostet extra | Stufe B |
@@ -817,6 +817,7 @@ Zu entscheiden, bevor die betroffene Anforderung umgesetzt wird:
 
 | Version | Datum | Änderung |
 |---|---|---|
+| 1.14 | 2026-10-09 | Zweite Namensvariante „Jenni bucht" aufgenommen (O-2). |
 | 1.13 | 2026-10-09 | Arbeitstitel „Jenny Bar" festgelegt (O-2). |
 | 1.12 | 2026-10-09 | O-2: Namensrichtung festgelegt (weiblicher Vorname, Anklang an „Jenny Barb"). |
 | 1.11 | 2026-10-09 | Hauptzielgruppe festgelegt (Abschnitt 3). O-24 entschieden: Produktseite als Einzelseite mit regulatorischem Mindestinhalt (L-17.12). Formatfehler in L-17.3 behoben. |
