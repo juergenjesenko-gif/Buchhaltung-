@@ -1,6 +1,6 @@
 # Lastenheft – Buchhaltungsapp für Österreich und Deutschland
 
-**Dokumentversion:** 1.8 · **Stand:** 2026-10-09 · **Status:** Entwurf zur Abstimmung
+**Dokumentversion:** 1.9 · **Stand:** 2026-10-09 · **Status:** Entwurf zur Abstimmung
 **Auftraggeber:** Jürgen Jesenko (privates Vorhaben) · **Umsetzung:** Claude Code
 
 > Ein Lastenheft beschreibt, **was** das Produkt leisten soll und **warum** — nicht,
@@ -180,7 +180,7 @@ Priorität: **MUSS** = ohne das kein Release · **SOLL** = wichtig, verhandelbar
 | L-3.7 | **Storno- und Gutschriftsrechnung** mit Verweis auf die Ursprungsrechnung; die Ursprungsrechnung bleibt erhalten und wird gekennzeichnet | MUSS | A |
 | L-3.8 | Rechnung als PDF teilen oder versenden | MUSS | A |
 | L-3.9 | Zahlungsstatus pflegen; offene und überfällige Rechnungen sind auf einen Blick erkennbar | MUSS | A |
-| L-3.10 | Zahlungserinnerung aus einer bestehenden Rechnung erzeugen | SOLL | B |
+| L-3.10 | **Zahlungserinnerung** aus einer überfälligen Rechnung erzeugen und versenden (PDF mit Verweis auf Rechnungsnummer, offenen Betrag und neue Frist); Mahnstufen werden an der Rechnung vermerkt | MUSS | A |
 | L-3.11 | Rechnungsvorschau vor dem Ausstellen | SOLL | A |
 | L-3.12 | Wiederkehrende Rechnungen (Abo-Rechnungen an eigene Kunden) | KANN | C |
 | L-3.13 | **Angebote** mit eigenem Nummernkreis, unabhängig vom Rechnungsnummernkreis | MUSS | A |
@@ -188,6 +188,9 @@ Priorität: **MUSS** = ohne das kein Release · **SOLL** = wichtig, verhandelbar
 | L-3.15 | Ein Angebot lässt sich **mit einem Tipp in eine Rechnung umwandeln**; Positionen, Kunde und Preise werden übernommen und bleiben vor dem Ausstellen änderbar | MUSS | A |
 | L-3.16 | Angebotsstatus: offen, angenommen, abgelehnt, abgelaufen; mit Gültigkeitsdatum | MUSS | A |
 | L-3.17 | Angebot als PDF teilen; die PDF trägt sichtbar „Angebot", nie „Rechnung" | MUSS | A |
+| L-3.18 | **Erstattung:** zu einer Gutschrift (L-3.7), auch über einen Teilbetrag oder einzelne Positionen, wird die Rückzahlung an den Kunden als Ausgabe mit Zahlungsdatum erfasst; die Umsatzsteuer wird im Zeitraum der Gutschrift berichtigt | MUSS | A |
+| L-3.19 | Die im Kundenstamm hinterlegte **E-Mail-Adresse ist Standardempfänger** beim Versand von Rechnung, Angebot und Zahlungserinnerung; je Kunde ist eine abweichende Rechnungsadresse für E-Mails möglich | MUSS | A |
+| L-3.20 | **Rücksendeschein** zu einer Rechnung: welche Positionen in welcher Menge zurückgehen, mit Grund; ohne steuerliche Wirkung, bis daraus eine Gutschrift (L-3.7) erzeugt wird | SOLL | B |
 
 ### 5.4 E-Rechnung
 
@@ -210,6 +213,7 @@ Priorität: **MUSS** = ohne das kein Release · **SOLL** = wichtig, verhandelbar
 | L-5.5 | Kleinunternehmer-Grenzwertüberwachung mit den unterschiedlichen Regeln je Land und rechtzeitiger Warnung | MUSS | A |
 | L-5.6 | Liquiditätsübersicht: was ist offen, was ist fällig, was ist zu erwarten | SOLL | C |
 | L-5.7 | Auswertungen auf Basis der **Einnahmen-Ausgaben-Rechnung**; doppelte Buchführung siehe L-9 | MUSS | B |
+| L-5.8 | **Management-Übersicht** als Startseite: Einnahmen, Ausgaben und Ergebnis im laufenden Monat und Jahr, offene Forderungen, Umsatzsteuer-Zahllast, Grenzwert-Ampel | MUSS | A |
 
 ### 5.6 Meldungen und Steuererklärungen
 
@@ -411,6 +415,7 @@ mit, an die er anknüpfen muss.
 | L-16.8 | **Dubletten werden erkannt**, damit ein zweimal ausgeführter Import die Buchhaltung nicht verdoppelt | MUSS | B |
 | L-16.9 | **Offene Rechnungen aus der Vorsoftware** werden als offene Posten übernommen, ohne den eigenen Nummernkreis zu belasten | SOLL | B |
 | L-16.10 | **Altunterlagen als PDF archivieren**: Jahresabschlüsse, Steuerbescheide, Saldenlisten der Vorjahre liegen durchsuchbar beim Unternehmen, ohne maschinell ausgewertet zu werden | SOLL | B |
+| L-16.12 | **Ausgangsrechnungen der Vorsoftware importieren** (CSV, PDF als Anhang): sie zählen zu Umsatz und Auswertung, behalten ihre Fremdnummer und belasten den eigenen Nummernkreis nicht | SOLL | B |
 | L-16.11 | Das Produkt macht transparent, **ab welchem Datum seine Zahlen vollständig sind** — davor übernommene Eröffnungswerte, danach eigene Erfassung | MUSS | A |
 
 > **Warum das keine Komfortfunktion ist.** Die Grenzwertüberwachung rechnet den
@@ -483,6 +488,9 @@ Bündelt, was bisher über die Module verteilt war, und legt die Rollen fest.
 | L-19.1 | **Stufe A und B kommen ohne Nutzerkonto aus.** Das Abonnement läuft über den Kauf im App Store bzw. bei Google Play; die Lizenz hängt am Store-Konto, nicht an einem Konto beim Anbieter | MUSS | A |
 | L-19.2 | **Ein Nutzerkonto entsteht erst mit der Cloud-Synchronisierung (S-8)**, weil es nur dafür gebraucht wird: um sich von weiteren Geräten aus anzumelden | MUSS | C |
 | L-19.3 | Auch mit Konto bleibt die App **ohne Anmeldung nutzbar**; das Konto ist Voraussetzung für die Synchronisierung, nicht für die Buchhaltung | MUSS | C |
+| L-19.12 | **Mehrere Geräte arbeiten parallel** auf denselben Daten; Änderungen werden synchronisiert, Konflikte erkannt und nie stillschweigend überschrieben. Gestellte Rechnungen sind unveränderlich und damit konfliktfrei; der Nummernkreis bleibt auch bei gleichzeitiger Vergabe lückenlos und eindeutig | MUSS | C |
+| L-19.13 | **Passwort zurücksetzen** per Link an die hinterlegte E-Mail-Adresse; wegen Ende-zu-Ende-Verschlüsselung nur mit Wiederherstellungsschlüssel oder einem noch angemeldeten Gerät ohne Datenverlust | MUSS | C |
+| L-19.14 | **Zwei-Faktor-Authentisierung** (TOTP-App, alternativ Passkey); einmalige Wiederherstellungscodes | MUSS | C |
 | L-19.4 | Für das Konto werden nur die zur Anmeldung nötigen Daten erhoben (E-Mail-Adresse, Zugangsdaten). Keine Telefonnummer, kein Geburtsdatum, keine Profilangaben „für später" | MUSS | C |
 
 #### Rollen
@@ -610,7 +618,7 @@ Was das Produkt ausdrücklich **nicht** leistet — und warum:
 | Steuerberatung im Einzelfall | Das Produkt liefert Zahlen und Hinweise, keine Beratung |
 | Vollwertige Warenwirtschaft | Eine schlanke Artikelverwaltung mit Lagerstand ist enthalten (L-11), weil sie das Rechnungschreiben beschleunigt. Was darüber hinausgeht — Stücklisten, Chargen, Seriennummern, Bestellwesen, Lieferantenverwaltung, Mehrlager — ist es nicht |
 | Channel-Management | Die Kanalanbindung übernimmt Verkaufsdaten. Artikel und Lagerstände aktiv in die Kanäle zurückzuschreiben und dort zu synchronisieren ist ausdrücklich nicht Teil des Zielbilds (siehe O-10) |
-| Auftragsbestätigungen, Lieferscheine | Angebote sind enthalten (L-3.13 ff.), weil sie der Markt erwartet. Der übrige Vertriebsbelegfluss bleibt fremde Domäne |
+| Auftragsbestätigungen, Lieferscheine | Angebote (L-3.13 ff.) und Rücksendescheine (L-3.20) sind enthalten. Der übrige Vertriebsbelegfluss bleibt fremde Domäne |
 | Fremdwährungen | Nur Euro. Märkte außerhalb der Eurozone — auch die Schweiz — sind nicht vorgesehen; sie brächen das gemeinsame Grundmuster an jeder Stelle gleichzeitig |
 | Werbekampagnen, Zielgruppenanalyse, Erfolgsmessung | Das Marketing-Modul (L-14) erzeugt Werbemittel. Kampagnensteuerung, Budgetverwaltung und Reichweitenauswertung sind fremde Domänen |
 | Revisionssichere Archivierung | Das Produkt ist Vorerfassung; die revisionssichere Aufbewahrung findet in der Buchhaltung der Kanzlei statt |
@@ -670,14 +678,15 @@ Grobe Schätzung in Personenwochen Vollzeitentwicklung, ohne Puffer:
 | Bestätigungsablauf und Hinweise an den Wirkstellen | A | 1–2 |
 | Store-Reife: Icon, Screenshots, AGB, Impressum, Support | A | 2–3 |
 | Angebote inkl. Umwandlung in Rechnung | A | 1–2 |
-| **Summe Stufe A** | | **15–25** |
+| Zahlungserinnerung, Erstattung, Kunden-E-Mail als Empfänger | A | 1–2 |
+| **Summe Stufe A** | | **16–27** |
 | Belegerkennung on-device | B | 3–5 |
 | E-Rechnung XRechnung/ZUGFeRD/ebInterface | B | 4–6 |
 | Saldenliste und rollender Jahresabschluss | B | 2–3 |
 | UVA-Vorbereitung | B | 2–3 |
 | Einkommensteuer-Vorbereitung | B | 3–4 |
 | Abonnement und Lizenzlogik | B | 2–3 |
-| Belegvorlagen, Zahlungserinnerung | B | 1–2 |
+| Belegvorlagen, Rücksendeschein, Rechnungsimport | B | 2–3 |
 | Lagerstandsführung, Artikel-Import/Export | B | 2–3 |
 | Belegübernahme über den Teilen-Dialog | B | 1 |
 | Altdaten-Import mit Vorschau, Stapel und Dublettenerkennung | B | 3–4 |
@@ -686,8 +695,8 @@ Grobe Schätzung in Personenwochen Vollzeitentwicklung, ohne Puffer:
 | Zeitlich gestaffelte Steuersätze (L-13.5) | B | 1–2 |
 | UVA-Übermittlung FinanzOnline/ELSTER inkl. Herstellerregistrierung | B | 3–4 |
 | Kontoauszug-Import und Zuordnung | B | 2–3 |
-| **Summe Stufe B** | | **31–47** |
-| **Stufe A + B zusammen** | | **46–72 Personenwochen** |
+| **Summe Stufe B** | | **32–48** |
+| **Stufe A + B zusammen** | | **48–75 Personenwochen** |
 | Backend als Voraussetzung der Kanalanbindung | C | 6–10 |
 | Kanalanbindung je Kanal, nur lesend | C | 3–5 |
 | OSS-Erweiterung des Steuerlayers | C | 3–4 |
@@ -789,6 +798,7 @@ Zu entscheiden, bevor die betroffene Anforderung umgesetzt wird:
 | ~~O-19~~ | **Behoben am 2026-10-09** (Umsatzanteile von L-16.1, L-16.2, L-16.11). Ursprünglich: **Bekannter Fehler:** Die Grenzwertüberwachung ermittelt den Vorjahresumsatz ausschließlich aus erfassten Belegen. Für einen neuen Nutzer ist er damit null, und die Ampel steht fälschlich auf Grün — in Deutschland entscheidet er über das ganze laufende Jahr. Behebung über L-16.1/L-16.2 | sofort; betrifft bestehenden Code |
 | O-20 | Welche Vorsoftware-Formate sind beim Import vorrangig zu unterstützen? Richtet sich nach dem, womit die ersten Nutzer tatsächlich kommen | Stufe B |
 | O-21 | Gilt das Barrierefreiheitsstärkungsgesetz für ein B2B-Produkt wie dieses? Zu klären, bevor die Oberfläche festgezurrt wird | vor Stufe B |
+| O-23 | Rücksendeschein: nur Dokument für den Kunden, oder auch Wareneingang in den Lagerstand (L-11)? | Stufe B |
 | O-18 | **Wofür ist die E-Mail-Anbindung vorrangig gedacht** — Rechnungen versenden, Belege hereinholen, oder beides? Davon hängt ab, ob die kostenpflichtige CASA-Prüfung überhaupt nötig wird | vor Stufe C |
 
 ---
@@ -797,6 +807,7 @@ Zu entscheiden, bevor die betroffene Anforderung umgesetzt wird:
 
 | Version | Datum | Änderung |
 |---|---|---|
+| 1.9 | 2026-10-09 | Abgleich mit Nutzerwünschen: Zahlungserinnerung auf MUSS/A (L-3.10), Erstattung (L-3.18), Kunden-E-Mail als Standardempfänger (L-3.19), Rücksendeschein (L-3.20, Abgrenzung angepasst), Management-Übersicht (L-5.8), Import von Ausgangsrechnungen (L-16.12), paralleles Arbeiten mehrerer Geräte, Passwort-Reset und 2FA (L-19.12 bis L-19.14). O-23 neu. Aufwand A+B 48–75 Personenwochen. |
 | 1.8 | 2026-10-09 | Neuer Block L-19 Datenschutz: kein Nutzerkonto bis zur Cloud-Synchronisierung (Stufe C), Rollen, vollständige Tabelle der Datenflüsse, Regel zu Löschung gegen Aufbewahrungspflicht. L-17.1/L-17.3 von „Registrierung" auf „erste Einrichtung" umgestellt; Widerspruch zu NFA-2 der Spezifikation aufgelöst. |
 | 1.7 | 2026-10-09 | O-22 entschieden: UVA-Übermittlung in den Haupttarif (Stufe B), Kontoumsätze per Datei-Import (neuer Block L-18), Angebote aufgenommen (L-3.13 bis L-3.17). Aufwand Stufe A und B auf 46–72 Personenwochen. |
 | 1.6 | 2026-10-09 | O-19 behoben. Umgesetzt sind die Umsatzanteile von L-16.1 sowie L-16.2 und L-16.11; Forderungen, Verbindlichkeiten und Kassenbestand aus L-16.1 bleiben offen. |
