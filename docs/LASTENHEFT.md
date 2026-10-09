@@ -1,6 +1,6 @@
 # Lastenheft – Buchhaltungsapp für Österreich und Deutschland
 
-**Dokumentversion:** 1.11 · **Stand:** 2026-10-09 · **Status:** Entwurf zur Abstimmung
+**Dokumentversion:** 1.12 · **Stand:** 2026-10-09 · **Status:** Entwurf zur Abstimmung
 **Auftraggeber:** Jürgen Jesenko (privates Vorhaben) · **Umsetzung:** Claude Code
 
 > Ein Lastenheft beschreibt, **was** das Produkt leisten soll und **warum** — nicht,
@@ -786,7 +786,7 @@ Zu entscheiden, bevor die betroffene Anforderung umgesetzt wird:
 | ID | Offener Punkt | Benötigt für |
 |---|---|---|
 | O-1 | **Prüfung der österreichischen Kleinunternehmer-Logik.** Mehrere Quellen beschreiben § 6 Abs 1 Z 27 UStG so, dass **auch der Vorjahresumsatz** unter 55.000 € liegen muss. Die heutige Implementierung prüft nur das laufende Jahr. Amtliche Quellen waren aus der Entwicklungsumgebung nicht erreichbar — Bestätigung durch die Steuerberatung nötig | sofort; betrifft bestehenden Code |
-| O-2 | Produktname und Bundle-ID; Namensvorschläge werden erarbeitet, Markenrecherche AT/DE/EUIPO vor Festlegung | vor dem ersten Store-Upload |
+| O-2 | Produktname und Bundle-ID. **Richtung festgelegt am 2026-10-09:** weiblicher Vorname, gern mit Anklang an „Jenny Barb" (Wiedererkennung mit jenibarb.com), allein oder verbunden mit dem Thema (z. B. „Jenny bucht"). Markenrecherche AT/DE/EUIPO, Store-Suche und Domainprüfung vor Festlegung | vor dem ersten Store-Upload |
 | O-3 | Preispunkte für Basisabo und Premium-Services — Vorschlag und Marktvergleich in [`WETTBEWERB.md`](WETTBEWERB.md) | Stufe B |
 | ~~O-22~~ | **Entschieden am 2026-10-09:** (a) UVA-Übermittlung in den Buchhaltungstarif, Stufe B (L-6.5); (b) Start mit Datei-Import der Kontoauszüge, Live-Anbindung später als Opt-in (L-18); (c) Angebote aufgenommen, Stufe A (L-3.13 ff.) | erledigt |
 | O-4 | Zuschnitt der Premium-Services: Was gehört ins Basisabo, was kostet extra | Stufe B |
@@ -817,6 +817,7 @@ Zu entscheiden, bevor die betroffene Anforderung umgesetzt wird:
 
 | Version | Datum | Änderung |
 |---|---|---|
+| 1.12 | 2026-10-09 | O-2: Namensrichtung festgelegt (weiblicher Vorname, Anklang an „Jenny Barb"). |
 | 1.11 | 2026-10-09 | Hauptzielgruppe festgelegt (Abschnitt 3). O-24 entschieden: Produktseite als Einzelseite mit regulatorischem Mindestinhalt (L-17.12). Formatfehler in L-17.3 behoben. |
 | 1.10 | 2026-10-09 | O-5, O-8, O-9 entschieden (fortlaufende Entwicklung; E-Mail-Support mit 3 Werktagen, FAQ in der App, keine Website; eigene Steuerberatung ab sofort). O-24 neu: Hosting der Pflichttexte ohne Website. |
 | 1.9 | 2026-10-09 | Abgleich mit Nutzerwünschen: Zahlungserinnerung auf MUSS/A (L-3.10), Erstattung (L-3.18), Kunden-E-Mail als Standardempfänger (L-3.19), Rücksendeschein (L-3.20, Abgrenzung angepasst), Management-Übersicht (L-5.8), Import von Ausgangsrechnungen (L-16.12), paralleles Arbeiten mehrerer Geräte, Passwort-Reset und 2FA (L-19.12 bis L-19.14). O-23 neu. Aufwand A+B 48–75 Personenwochen. |
