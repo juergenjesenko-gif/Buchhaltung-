@@ -1,6 +1,6 @@
 # Lastenheft – Buchhaltungsapp für Österreich und Deutschland
 
-**Dokumentversion:** 1.15 · **Stand:** 2026-10-09 · **Status:** Entwurf zur Abstimmung
+**Dokumentversion:** 1.16 · **Stand:** 2026-10-09 · **Status:** Entwurf zur Abstimmung
 **Auftraggeber:** Jürgen Jesenko (privates Vorhaben) · **Umsetzung:** Claude Code
 
 > Ein Lastenheft beschreibt, **was** das Produkt leisten soll und **warum** — nicht,
@@ -363,20 +363,24 @@ Instagram-Beiträge, Banner, Broschüren.
 
 ### 5.15 E-Mail-Anbindung
 
-Zwei getrennte Zwecke, die nur auf den ersten Blick dasselbe sind: Rechnungen
-**hinausschicken**, und eingehende Lieferantenrechnungen **hereinholen**.
+**Entscheidung vom 2026-10-09 (O-18): Es gibt keine Postfach-Anbindung.**
+Rechnungen werden ausschließlich über die Mail-App des Smartphones versendet
+(L-15.1); die App greift weder schreibend noch lesend auf Gmail oder Microsoft 365
+zu. Damit entfallen Anbieterprüfungen, Herausgeberverifizierung und
+Auftragsverarbeitung für Postfachdaten. Belege kommen über den Teilen-Dialog
+herein (L-15.2). Die Erläuterung unten bleibt als Begründung stehen.
 
 | ID | Anforderung | Prio | Stufe |
 |---|---|---|---|
-| L-15.1 | Eine Rechnung lässt sich aus der App heraus per E-Mail versenden | MUSS | A |
+| L-15.1 | Eine Rechnung lässt sich aus der App heraus per E-Mail versenden: die App öffnet die Mail-App des Smartphones mit PDF im Anhang, Empfänger aus dem Kundenstamm (L-3.19) und vorbereitetem Text; gesendet wird von der Nutzerin selbst | MUSS | A |
 | L-15.2 | **Die App ist Ziel des Teilen-Dialogs:** ein PDF oder eine E-Rechnung aus der Mail-App wird per „Teilen" direkt als Beleg übernommen | MUSS | B |
 | L-15.3 | **Eigene Beleg-Eingangsadresse:** der Nutzer leitet Rechnungen an eine persönliche Adresse weiter, Anhänge werden automatisch zu Belegentwürfen | SOLL | C |
-| L-15.4 | **Versand über das eigene Postfach** des Nutzers (Gmail bzw. Microsoft Outlook), damit die Rechnung im gesendeten Ordner liegt und vom Empfänger als von ihm kommend erkannt wird | SOLL | C |
-| L-15.5 | **Abholen aus dem Postfach:** eingehende Rechnungen und E-Rechnungen werden erkannt und als Belegentwürfe vorgeschlagen | KANN | C |
-| L-15.6 | **Zugriff nur auf einen abgegrenzten Bereich.** Wird L-15.5 umgesetzt, liest das Produkt ausschließlich ein vom Nutzer bestimmtes Label bzw. einen Ordner — niemals das gesamte Postfach | MUSS | C |
-| L-15.7 | Jeder übernommene Beleg wird dem Nutzer **zur Bestätigung vorgelegt**, nie ungeprüft gebucht | MUSS | C |
-| L-15.8 | Die Anbindung ist je Postfach einzeln zu aktivieren und jederzeit widerrufbar; beim Einschalten wird benannt, worauf zugegriffen wird | MUSS | C |
-| L-15.9 | **E-Mail-Inhalte werden nicht gespeichert**, außer dem Anhang, der zum Beleg wird | MUSS | C |
+| ~~L-15.4~~ | **Entfällt (O-18, 2026-10-09).** Ursprünglich: **Versand über das eigene Postfach** des Nutzers (Gmail bzw. Microsoft Outlook), damit die Rechnung im gesendeten Ordner liegt und vom Empfänger als von ihm kommend erkannt wird | — | — |
+| ~~L-15.5~~ | **Entfällt (O-18, 2026-10-09).** Ursprünglich: **Abholen aus dem Postfach:** eingehende Rechnungen und E-Rechnungen werden erkannt und als Belegentwürfe vorgeschlagen | — | — |
+| ~~L-15.6~~ | **Entfällt (O-18, 2026-10-09).** Ursprünglich: **Zugriff nur auf einen abgegrenzten Bereich.** Wird L-15.5 umgesetzt, liest das Produkt ausschließlich ein vom Nutzer bestimmtes Label bzw. einen Ordner — niemals das gesamte Postfach | — | — |
+| ~~L-15.7~~ | **Entfällt (O-18, 2026-10-09).** Ursprünglich: Jeder übernommene Beleg wird dem Nutzer **zur Bestätigung vorgelegt**, nie ungeprüft gebucht | — | — |
+| ~~L-15.8~~ | **Entfällt (O-18, 2026-10-09).** Ursprünglich: Die Anbindung ist je Postfach einzeln zu aktivieren und jederzeit widerrufbar; beim Einschalten wird benannt, worauf zugegriffen wird | — | — |
+| ~~L-15.9~~ | **Entfällt (O-18, 2026-10-09).** Ursprünglich: **E-Mail-Inhalte werden nicht gespeichert**, außer dem Anhang, der zum Beleg wird | — | — |
 
 > **Warum Senden billig und Lesen teuer ist.** Technisch ist beides über die
 > vorhandenen Schnittstellen möglich — die Annahme stimmt. Der Aufwand liegt
@@ -509,7 +513,7 @@ Bündelt, was bisher über die Module verteilt war, und legt die Rollen fest.
 | Buchhaltungsdaten am Gerät (Belege, Rechnungen, Kunden) | **der Nutzer** — er erfasst Daten seiner Kunden | nicht beteiligt; liefert nur Software |
 | Kontodaten (Stufe C) | **der Anbieter** | Verantwortlicher |
 | Synchronisierte Buchhaltungsdaten (Stufe C) | der Nutzer | **Auftragsverarbeiter**; Vertrag nach Art. 28 DSGVO mit jedem Nutzer |
-| Daten an Marketing- und Postfach-Dienste (L-14, L-15) | der Nutzer | Auftragsverarbeiter mit Unterauftragnehmer |
+| Daten an Marketing-Dienste (L-14) | der Nutzer | Auftragsverarbeiter mit Unterauftragnehmer |
 
 #### Datenflüsse
 
@@ -526,7 +530,7 @@ Jede Übertragung vom Gerät weg, auch die unscheinbaren:
 | UVA-Übermittlung (L-6.5) | FinanzOnline bzw. ELSTER | Kennzahlen der Voranmeldung | Freigabe der Meldung | je Vorgang | B |
 | Cloud-Synchronisierung (S-8) | Server des Anbieters | alle Buchhaltungsdaten, verschlüsselt | Konto anlegen | ja | C |
 | Marketing (L-14) | Dienst zur Inhaltserzeugung | nur Unternehmens- und Artikeldaten | Modul einschalten | ja | C |
-| Postfach, Kanäle (L-15, L-12) | Google, Microsoft, Amazon, Shopify | je nach Modul | Modul einschalten | ja | C |
+| Kanäle (L-12) | Amazon, Shopify, Google Merchant Center | je nach Modul | Modul einschalten | ja | C |
 
 | ID | Anforderung | Prio | Stufe |
 |---|---|---|---|
@@ -587,7 +591,7 @@ Jede Übertragung vom Gerät weg, auch die unscheinbaren:
 | R-13 | **Werberecht:** erzeugte Inhalte dürfen nicht irreführend sein (UWG). Preis-, Wirkungs- und Vergleichsaussagen verantwortet der Nutzer und müssen von ihm gesetzt sein |
 | R-14 | **Kennzeichnung und Urheberrecht** bei erzeugten Bildmitteln: Nutzungsrechte für kommerzielle Verwendung sind nachweisbar zu klären |
 | R-15b | **Berufsrechtliche Grenze:** Hilfeleistung in Steuersachen ist den Berufsberechtigten vorbehalten (StBerG in Deutschland, WTBG in Österreich). Das Produkt rechnet und bereitet vor, es berät nicht im Einzelfall |
-| R-15 | **Postfachzugriff (L-15.4 ff.):** Auftragsverarbeitungsvertrag, Zweckbindung auf Belegübernahme, Löschkonzept für nicht übernommene Nachrichten; Googles jährliche CASA-Prüfung und Microsofts Herausgeberverifizierung sind einzuplanen |
+| ~~R-15~~ | Entfällt mit O-18: keine Postfach-Anbindung |
 
 ---
 
@@ -609,8 +613,8 @@ Jede Übertragung vom Gerät weg, auch die unscheinbaren:
 | S-12 | Fotobibliothek des Geräts | Zweitablage der Belegfotos in eigenem Album | A |
 | S-13 | Dienst zur Inhaltserzeugung (Text und Bild) | Marketing-Modul L-14; Auftragsverarbeiter | C |
 | S-14 | LinkedIn, Instagram | Direktes Veröffentlichen von Werbemitteln (L-14.10) | C |
-| S-15 | Gmail API | Versand über das Postfach des Nutzers; optional Lesen eines Labels | C |
-| S-16 | Microsoft Graph (Outlook) | Versand über das Postfach des Nutzers; optional Lesen eines Ordners | C |
+| ~~S-15~~ | Gmail API | Entfällt (O-18) | — |
+| ~~S-16~~ | Microsoft Graph (Outlook) | Entfällt (O-18) | — |
 | S-17 | Teilen-Dialog des Betriebssystems | Beleg aus beliebiger App übernehmen (L-15.2) | B |
 | S-18 | CSV, DATEV, BMD (lesend) | Übernahme von Altdaten aus der Vorsoftware (L-16.5) | B |
 
@@ -711,8 +715,6 @@ Grobe Schätzung in Personenwochen Vollzeitentwicklung, ohne Puffer:
 | OSS-Erweiterung des Steuerlayers | C | 3–4 |
 | Marketing-Modul inkl. Auftragsverarbeitung und Freigabeablauf | C | 4–6 |
 | Beleg-Eingangsadresse (Backend) | C | 2–3 |
-| Gmail- und Graph-Versand inkl. Verifizierung | C | 2–3 |
-| Postfachzugriff lesend inkl. CASA-Prüfung | C | 3–4 zzgl. Prüfkosten |
 
 Das entspricht etwa **elf bis siebzehn Monaten** durchgehender Entwicklung.
 Der Rückgang gegenüber Version 1.2 geht vollständig auf den Entfall der Schweiz
@@ -773,8 +775,8 @@ bis sechs Wochen hinzu.
 | RK-17 | **Falsche Entwarnung beim Einstieg.** Ohne Eröffnungswerte rechnet die Grenzwertüberwachung mit null Vorjahresumsatz und meldet „ok", wo sie warnen müsste | hoch | L-16.1 und L-16.2 in Stufe A; bis dahin als bekannte Grenze dokumentiert (O-19) |
 | RK-18 | **Fehlerhafter Altdaten-Import** verfälscht die gesamte Buchhaltung rückwirkend und fällt oft erst beim Jahresabschluss auf | hoch | Vorschau vor der Übernahme (L-16.6), Importstapel rücknehmbar (L-16.7), Dublettenerkennung (L-16.8) |
 | RK-19 | **Haftungsabgrenzung wird als Freibrief missverstanden.** Sie deckt die steuerliche Würdigung ab, nicht Rechenfehler im Produkt | hoch | Testpflicht für jede steuerwirksame Berechnung (NFA-3); Rechtstexte anwaltlich erstellen (L-17.11) |
-| RK-15 | **Wiederkehrende Kosten für den Postfachzugriff.** Googles CASA-Prüfung fällt jährlich an und ist unabhängig vom Umsatz des Produkts | mittel | Lesenden Zugriff nur umsetzen, wenn er sich gegen die Prüfkosten rechnet; Teilen-Dialog und Eingangsadresse decken den Nutzen weitgehend ab |
-| RK-16 | **Postfachzugriff ist der invasivste Punkt im ganzen Produkt** und beschädigt bei falscher Auslegung das Datenschutzversprechen am nachhaltigsten | hoch | L-15.6 beschränkt auf ein einzelnes Label, L-15.9 verbietet das Speichern von Nachrichteninhalten |
+| ~~RK-15~~ | Entfällt mit O-18: keine Postfach-Anbindung | — | — |
+| ~~RK-16~~ | Entfällt mit O-18: keine Postfach-Anbindung | — | — |
 | RK-14 | **Das Marketing-Modul verwässert das Produkt.** Buchhaltung und Werbung sind verschiedene Domänen; ein Modul, das weder gut buchhaltet noch gut wirbt, schadet beidem | mittel | Bewusst Stufe C, nach belegtem Kernnutzen; als eigenständiger Premium-Service kündbar |
 
 ---
@@ -809,7 +811,7 @@ Zu entscheiden, bevor die betroffene Anforderung umgesetzt wird:
 | O-21 | Gilt das Barrierefreiheitsstärkungsgesetz für ein B2B-Produkt wie dieses? Zu klären, bevor die Oberfläche festgezurrt wird | vor Stufe B |
 | ~~O-23~~ | **Entschieden am 2026-10-09:** wählbar je Rücksendung über den Schalter „Ware wieder verkaufbar?" (L-3.20) | erledigt |
 | ~~O-24~~ | **Entschieden am 2026-10-09:** eigene Einzelseite auf einer neuen Domain, die mit dem Produktnamen festgelegt wird (L-17.12) | erledigt |
-| O-18 | **Wofür ist die E-Mail-Anbindung vorrangig gedacht** — Rechnungen versenden, Belege hereinholen, oder beides? Davon hängt ab, ob die kostenpflichtige CASA-Prüfung überhaupt nötig wird | vor Stufe C |
+| ~~O-18~~ | **Entschieden am 2026-10-09:** nur Versand über die Mail-App des Smartphones; keine Gmail- oder Microsoft-365-Anbindung, L-15.4 bis L-15.9 entfallen | erledigt |
 
 ---
 
@@ -817,6 +819,7 @@ Zu entscheiden, bevor die betroffene Anforderung umgesetzt wird:
 
 | Version | Datum | Änderung |
 |---|---|---|
+| 1.16 | 2026-10-09 | O-18 entschieden: E-Mail nur über die Mail-App des Smartphones. L-15.4 bis L-15.9, S-15, S-16, R-15, RK-15, RK-16 und die zugehörigen Aufwandszeilen in Stufe C entfallen. |
 | 1.15 | 2026-10-09 | O-23 entschieden: Lagerzubuchung beim Rücksendeschein wählbar je Rücksendung (L-3.20). |
 | 1.14 | 2026-10-09 | Zweite Namensvariante „Jenni bucht" aufgenommen (O-2). |
 | 1.13 | 2026-10-09 | Arbeitstitel „Jenny Bar" festgelegt (O-2). |
