@@ -41,7 +41,10 @@ gemeinsame Implementierung nur falsch sein könnte.
   bestehen, entfällt aber ab dem Folgejahr
 - Über 60.500 € entfällt die Befreiung **sofort** – ab dem Umsatz, der die
   Toleranz reißt, ist Umsatzsteuer auszuweisen
-- Es gibt **keine** gesonderte Vorjahresgrenze
+- Nach der bisherigen Umsetzung gibt es **keine** gesonderte Vorjahresgrenze.
+  **Dieser Punkt ist offen:** mehrere Sekundärquellen (Stand 10/2026) beschreiben
+  die Regelung so, dass auch der Vorjahresumsatz unter 55.000 € liegen muss.
+  Bestätigung durch eine Steuerberatung steht aus — siehe `LASTENHEFT.md` O-1
 
 ### Deutschland – § 19 UStG (Fassung ab 1.1.2025)
 

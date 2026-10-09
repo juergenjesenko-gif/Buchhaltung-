@@ -1,8 +1,11 @@
 # Spezifikation – Buchhaltung
 
-**Dokumentversion:** 1.0 · **App-Version:** 0.1.0 · **Stand:** 2026-08-17
+**Dokumentversion:** 1.1 · **App-Version:** 0.1.0 · **Stand:** 2026-10-09
 **Status:** Sprint 1 umgesetzt und verifiziert
 
+> Das **Zielbild** des Produkts steht im [`LASTENHEFT.md`](LASTENHEFT.md); dieses
+> Dokument beschreibt, was die App **heute tatsächlich tut**.
+>
 > Dieses Dokument ist die verbindliche Beschreibung dessen, was die App tut. Es
 > wird **mit jeder Änderung am Code mitgeführt** – nicht im Nachhinein. Die
 > Regeln dafür stehen in [`CLAUDE.md`](../CLAUDE.md), und
@@ -255,6 +258,18 @@ zusätzlich zwingend die UID.
 | FA-4.6 | Deutschland: Vorjahresumsatz über der Vorjahresgrenze → *überschritten* für das ganze laufende Jahr |
 | FA-4.7 | Deutschland: keine Toleranz; der Status *in Toleranz* darf dort nie auftreten |
 | FA-4.8 | Jeder Status trägt eine Erklärung der Rechtsfolge im Klartext |
+
+> **⚠ Offener Prüfpunkt (Stand 2026-10-09): Vorjahresgrenze Österreich.**
+> FA-4.1 bis FA-4.5 bilden für Österreich **nur das laufende Jahr** ab. Mehrere
+> Sekundärquellen beschreiben § 6 Abs 1 Z 27 UStG dagegen so, dass auch der
+> **Vorjahresumsatz** die Grenze von 55.000 € nicht überschritten haben darf.
+> Trifft das zu, meldet die App derzeit „ok", obwohl die Befreiung bereits
+> weggefallen ist — die gefährliche Fehlerrichtung.
+>
+> Amtliche Quellen (RIS, WKO, USP, BMF) waren aus der Entwicklungsumgebung nicht
+> erreichbar, die Prüfung stützt sich daher allein auf Sekundärquellen. Vor einer
+> Änderung des Rechtslayers ist die Bestätigung durch eine Steuerberatung
+> einzuholen. Siehe [`LASTENHEFT.md`](LASTENHEFT.md) Punkt O-1.
 
 Grenzwerte siehe Abschnitt 12.
 
@@ -528,6 +543,7 @@ Umrechnung: Beträge in Cent. `5500000` Cent = 55.000,00 €.
 
 | Version | Datum | App-Version | Änderung |
 |---|---|---|---|
+| 1.1 | 2026-10-09 | 0.1.0 | Offener Prüfpunkt zur österreichischen Vorjahresgrenze in Abschnitt 5.4 vermerkt. Verweis auf das neue Lastenheft ergänzt. Keine Code- oder Kennwertänderung. |
 | 1.0 | 2026-08-17 | 0.1.0 | Erstfassung nach Sprint 1. Beschreibt Firmenprofil, Belege, Kassabuch, Grenzwertüberwachung, Rechnungen mit PDF und die vier Exportformate. |
 
 ### Pflege dieses Dokuments

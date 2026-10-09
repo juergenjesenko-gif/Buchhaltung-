@@ -56,8 +56,13 @@ void main() {
     });
 
     test('der Vorjahresumsatz spielt in Österreich keine Rolle', () {
-      // Österreich kennt keine Vorjahresgrenze – ein hohes Vorjahr allein
-      // beendet die Befreiung nicht.
+      // ACHTUNG, OFFENER PRÜFPUNKT (Stand 2026-10-09):
+      // Dieser Test schreibt das heutige Verhalten fest, nicht gesicherte
+      // Rechtslage. Mehrere Sekundärquellen beschreiben § 6 Abs 1 Z 27 UStG so,
+      // dass auch der Vorjahresumsatz unter 55.000 € liegen muss. Trifft das zu,
+      // ist dieser Test – und die Implementierung dahinter – falsch.
+      // Bestätigung durch eine Steuerberatung steht aus, siehe
+      // docs/LASTENHEFT.md Punkt O-1. Ein grüner Test ist hier kein Beleg.
       expect(
         assessAt(10000, previousEuro: 90000).status,
         SmallBusinessStatus.ok,

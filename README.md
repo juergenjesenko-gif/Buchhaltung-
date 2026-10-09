@@ -93,6 +93,9 @@ flutter build ipa --release         # App Store
 
 Die beiden zentralen Dokumente werden mit jeder Codeänderung mitgeführt:
 
+- [`docs/LASTENHEFT.md`](docs/LASTENHEFT.md) – **Lastenheft.** Das Zielbild des
+  Produkts: Geschäftsziele, Zielgruppe, numerierte Anforderungen mit Priorität
+  und Ausbaustufe, Abgrenzung, Risiken und offene Punkte.
 - [`docs/SPECIFICATION.md`](docs/SPECIFICATION.md) – **Spezifikation.** Was die App
   tut, mit numerierten Anforderungen, Datenmodell, Zustandsmodellen,
   Exportformaten und offen benannten Grenzen.
