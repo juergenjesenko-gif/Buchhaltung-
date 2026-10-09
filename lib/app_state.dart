@@ -7,6 +7,7 @@ import 'domain/company_profile.dart';
 import 'domain/money.dart';
 import 'domain/receipt.dart';
 import 'services/small_business_monitor.dart';
+import 'services/turnover_basis.dart';
 
 /// Anwendungszustand. Bewusst ein einziger [ChangeNotifier] statt eines
 /// State-Management-Pakets: der Zustand dieser App ist klein und
@@ -84,14 +85,40 @@ class AppState extends ChangeNotifier {
     final profile = _profile;
     if (profile == null) return;
     final now = DateTime.now();
-    final current = await repositories.receipts.turnoverForYear(now.year);
-    final previous = await repositories.receipts.turnoverForYear(now.year - 1);
+    final current = await _yearTurnover(now.year, profile.trackingStart);
+    final previous = await _yearTurnover(now.year - 1, profile.trackingStart);
     _smallBusiness = SmallBusinessMonitor.assess(
       taxProfile: profile.taxProfile,
       isSmallBusiness: profile.isSmallBusiness,
-      currentYearTurnover: current,
-      previousYearTurnover: previous,
+      currentYearTurnover: current.amount,
+      previousYearTurnover: previous.isComplete ? previous.amount : null,
+      currentYearComplete: current.isComplete,
     );
+  }
+
+  Future<YearTurnover> _yearTurnover(int year, DateTime? trackingStart) async {
+    return TurnoverBasis.forYear(
+      year: year,
+      fromReceipts: await repositories.receipts.turnoverForYear(year),
+      opening: await repositories.openingTurnover.forYear(year),
+      trackingStart: trackingStart,
+    );
+  }
+
+  /// Eröffnungswert eines Jahres, `null` wenn nicht erfasst.
+  Future<Money?> openingTurnover(int year) =>
+      repositories.openingTurnover.forYear(year);
+
+  /// Speichert Eröffnungswerte und Profil gemeinsam, damit die Ampel danach
+  /// sofort auf vollständiger Grundlage bewertet.
+  Future<void> saveProfileWithOpenings(
+    CompanyProfile profile,
+    Map<int, Money?> openings,
+  ) async {
+    for (final entry in openings.entries) {
+      await repositories.openingTurnover.save(entry.key, entry.value);
+    }
+    await saveProfile(profile);
   }
 
   /// Der Umsatzsteuersatz, der bei neuen Belegen vorausgewählt wird.

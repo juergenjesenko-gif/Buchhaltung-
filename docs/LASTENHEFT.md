@@ -1,6 +1,6 @@
 # Lastenheft – Buchhaltungsapp für Österreich und Deutschland
 
-**Dokumentversion:** 1.5 · **Stand:** 2026-10-09 · **Status:** Entwurf zur Abstimmung
+**Dokumentversion:** 1.6 · **Stand:** 2026-10-09 · **Status:** Entwurf zur Abstimmung
 **Auftraggeber:** Jürgen Jesenko (privates Vorhaben) · **Umsetzung:** Claude Code
 
 > Ein Lastenheft beschreibt, **was** das Produkt leisten soll und **warum** — nicht,
@@ -701,7 +701,7 @@ Zu entscheiden, bevor die betroffene Anforderung umgesetzt wird:
 | O-15 | **Welcher Dienst erzeugt die Marketing-Inhalte?** Davon hängen Auftragsverarbeitungsvertrag, Kosten je Erzeugung und die Frage ab, ob der Betrieb in der EU erfolgt | Stufe C |
 | O-16 | Fließt das Marketing-Modul ins Basisabo oder ist es ein eigener Premium-Service mit eigenem Preis? | Stufe C |
 | O-17 | Sollen erzeugte Werbemittel versioniert und wiederverwendbar abgelegt werden, oder sind sie Wegwerfware? | Stufe C |
-| O-19 | **Bekannter Fehler:** Die Grenzwertüberwachung ermittelt den Vorjahresumsatz ausschließlich aus erfassten Belegen. Für einen neuen Nutzer ist er damit null, und die Ampel steht fälschlich auf Grün — in Deutschland entscheidet er über das ganze laufende Jahr. Behebung über L-16.1/L-16.2 | sofort; betrifft bestehenden Code |
+| ~~O-19~~ | **Behoben am 2026-10-09** (Umsatzanteile von L-16.1, L-16.2, L-16.11). Ursprünglich: **Bekannter Fehler:** Die Grenzwertüberwachung ermittelt den Vorjahresumsatz ausschließlich aus erfassten Belegen. Für einen neuen Nutzer ist er damit null, und die Ampel steht fälschlich auf Grün — in Deutschland entscheidet er über das ganze laufende Jahr. Behebung über L-16.1/L-16.2 | sofort; betrifft bestehenden Code |
 | O-20 | Welche Vorsoftware-Formate sind beim Import vorrangig zu unterstützen? Richtet sich nach dem, womit die ersten Nutzer tatsächlich kommen | Stufe B |
 | O-21 | Gilt das Barrierefreiheitsstärkungsgesetz für ein B2B-Produkt wie dieses? Zu klären, bevor die Oberfläche festgezurrt wird | vor Stufe B |
 | O-18 | **Wofür ist die E-Mail-Anbindung vorrangig gedacht** — Rechnungen versenden, Belege hereinholen, oder beides? Davon hängt ab, ob die kostenpflichtige CASA-Prüfung überhaupt nötig wird | vor Stufe C |
@@ -712,6 +712,7 @@ Zu entscheiden, bevor die betroffene Anforderung umgesetzt wird:
 
 | Version | Datum | Änderung |
 |---|---|---|
+| 1.6 | 2026-10-09 | O-19 behoben. Umgesetzt sind die Umsatzanteile von L-16.1 sowie L-16.2 und L-16.11; Forderungen, Verbindlichkeiten und Kassenbestand aus L-16.1 bleiben offen. |
 | 1.5 | 2026-10-09 | Neuer Block L-16 Datenübernahme beim Einstieg mit Eröffnungswerten, Altdaten-Import und Archivierung von Altunterlagen. Neuer Block L-17 Rechtlicher Rahmen und Haftungsabgrenzung mit ausdrücklicher Bestätigung bei der Registrierung. Zweiter bekannter Fehler derselben Art wie O-1 aufgenommen (O-19): der Vorjahresumsatz wird nur aus erfassten Belegen ermittelt und ist für neue Nutzer null. Drei neue Risiken. Aufwand Stufe A und B auf 40–63 Personenwochen angehoben. |
 | 1.4 | 2026-10-09 | Google als Merchant Center präzisiert (O-11 erledigt). Neuer Block L-15 E-Mail-Anbindung mit gestuftem Zuschnitt: Teilen-Dialog und Beleg-Eingangsadresse vor dem direkten Postfachzugriff, weil Googles eingeschränkte Bereiche eine jährlich kostenpflichtige Sicherheitsprüfung auslösen. Zwei neue Risiken, R-15, vier neue Schnittstellen. |
 | 1.3 | 2026-10-09 | Schweiz als Zielmarkt gestrichen; Fokus auf Österreich und Deutschland, Erweiterung auf EU-Länder der Eurozone. Block L-13 auf EU-Erweiterbarkeit zurückgeschnitten, Mehrwährung und QR-Rechnung entfallen. Neuer Block L-14 Marketing-Modul als Premium-Service mit harter Grenze gegen die Übertragung von Kundendaten. Aufwand Stufe A und B zurück auf 32–50 Personenwochen. |

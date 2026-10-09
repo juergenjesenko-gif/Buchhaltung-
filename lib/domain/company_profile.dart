@@ -24,6 +24,7 @@ class CompanyProfile {
     this.defaultPaymentTermDays = 14,
     this.invoiceFooter = '',
     this.fiscalYearStartMonth = 1,
+    this.trackingStart,
   });
 
   final String companyName;
@@ -65,6 +66,11 @@ class CompanyProfile {
   /// 1 = Kalenderjahr. Abweichende Wirtschaftsjahre sind bei
   /// Einzelunternehmern selten, aber möglich.
   final int fiscalYearStartMonth;
+
+  /// Tag, ab dem die App die Buchhaltung führt. Umsätze davor kennt sie nur
+  /// aus den Eröffnungswerten (Lastenheft L-16.1, L-16.11). `null` bei Profilen,
+  /// die vor Einführung dieses Felds angelegt und noch nicht migriert wurden.
+  final DateTime? trackingStart;
 
   TaxProfile get taxProfile => country.taxProfile;
 
@@ -117,6 +123,7 @@ class CompanyProfile {
     int? defaultPaymentTermDays,
     String? invoiceFooter,
     int? fiscalYearStartMonth,
+    DateTime? trackingStart,
   }) {
     return CompanyProfile(
       companyName: companyName ?? this.companyName,
@@ -141,6 +148,7 @@ class CompanyProfile {
           defaultPaymentTermDays ?? this.defaultPaymentTermDays,
       invoiceFooter: invoiceFooter ?? this.invoiceFooter,
       fiscalYearStartMonth: fiscalYearStartMonth ?? this.fiscalYearStartMonth,
+      trackingStart: trackingStart ?? this.trackingStart,
     );
   }
 
@@ -167,6 +175,7 @@ class CompanyProfile {
     'default_payment_term_days': defaultPaymentTermDays,
     'invoice_footer': invoiceFooter,
     'fiscal_year_start_month': fiscalYearStartMonth,
+    'tracking_start': trackingStart?.toIso8601String().substring(0, 10),
   };
 
   static CompanyProfile fromMap(Map<String, Object?> map) => CompanyProfile(
@@ -195,7 +204,11 @@ class CompanyProfile {
     defaultPaymentTermDays: map['default_payment_term_days'] as int? ?? 14,
     invoiceFooter: map['invoice_footer'] as String? ?? '',
     fiscalYearStartMonth: map['fiscal_year_start_month'] as int? ?? 1,
+    trackingStart: _parseDate(map['tracking_start']),
   );
+
+  static DateTime? _parseDate(Object? value) =>
+      value is String && value.isNotEmpty ? DateTime.tryParse(value) : null;
 }
 
 enum LegalForm {

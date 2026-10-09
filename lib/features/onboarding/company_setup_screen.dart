@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 
 import '../../app_state.dart';
+import '../../core/formatting.dart';
 import '../../domain/company_profile.dart';
 import '../../domain/country.dart';
+import '../../domain/money.dart';
 import '../../services/invoice_numbering.dart';
+import '../../services/turnover_basis.dart';
 import '../../widgets/common.dart';
 
 /// Firmenprofil anlegen und bearbeiten.
@@ -27,6 +30,10 @@ class _CompanySetupScreenState extends State<CompanySetupScreen> {
   Country _country = Country.at;
   LegalForm _legalForm = LegalForm.soleTrader;
   bool _isSmallBusiness = true;
+
+  /// Beginn der Erfassung in der App. Bei neuen Profilen heute; bestehende
+  /// behalten ihren Wert, damit Eröffnungswerte nicht verrutschen.
+  DateTime _trackingStart = DateTime.now();
   bool _saving = false;
   bool _initialized = false;
 
@@ -51,6 +58,8 @@ class _CompanySetupScreenState extends State<CompanySetupScreen> {
         'invoicePattern',
         'paymentTerm',
         'invoiceFooter',
+        'openingPrevious',
+        'openingCurrent',
       ])
         key: TextEditingController(),
     };
@@ -72,6 +81,8 @@ class _CompanySetupScreenState extends State<CompanySetupScreen> {
     _country = profile.country;
     _legalForm = profile.legalForm;
     _isSmallBusiness = profile.isSmallBusiness;
+    _trackingStart = profile.trackingStart ?? DateTime.now();
+    _loadOpenings();
     _fields['companyName']!.text = profile.companyName;
     _fields['ownerName']!.text = profile.ownerName;
     _fields['street']!.text = profile.street;
@@ -99,6 +110,43 @@ class _CompanySetupScreenState extends State<CompanySetupScreen> {
   }
 
   String _text(String key) => _fields[key]!.text.trim();
+
+  int get _currentYear => DateTime.now().year;
+
+  bool get _asksPrevious => TurnoverBasis.needsOpening(
+    year: _currentYear - 1,
+    trackingStart: _trackingStart,
+  );
+
+  bool get _asksCurrent => TurnoverBasis.needsOpening(
+    year: _currentYear,
+    trackingStart: _trackingStart,
+  );
+
+  Future<void> _loadOpenings() async {
+    final state = AppScope.read(context);
+    final previous = await state.openingTurnover(_currentYear - 1);
+    final current = await state.openingTurnover(_currentYear);
+    if (!mounted) return;
+    if (previous != null) {
+      _fields['openingPrevious']!.text = Fmt.amount(previous);
+    }
+    if (current != null) {
+      _fields['openingCurrent']!.text = Fmt.amount(current);
+    }
+  }
+
+  /// Eröffnungswerte sind Pflicht, solange die Kleinunternehmerregelung aktiv
+  /// ist (Lastenheft L-16.2). Leer ist nicht dasselbe wie 0 – wer noch keinen
+  /// Umsatz hatte, trägt ausdrücklich 0 ein.
+  String? _validateOpening(String? value) {
+    final text = (value ?? '').trim();
+    if (text.isEmpty) return 'Bitte angeben – 0, wenn es keinen Umsatz gab';
+    final money = Money.tryParse(text);
+    if (money == null) return 'Bitte einen Betrag eingeben';
+    if (money.isNegative) return 'Der Umsatz kann nicht negativ sein';
+    return null;
+  }
 
   Future<void> _save() async {
     if (!_formKey.currentState!.validate()) return;
@@ -130,9 +178,19 @@ class _CompanySetupScreenState extends State<CompanySetupScreen> {
       defaultPaymentTermDays: int.tryParse(_text('paymentTerm')) ?? 14,
       invoiceFooter: _text('invoiceFooter'),
       fiscalYearStartMonth: existing?.fiscalYearStartMonth ?? 1,
+      trackingStart: existing?.trackingStart ?? _trackingStart,
     );
 
-    await state.saveProfile(profile);
+    // Eröffnungswerte nur schreiben, wenn sie abgefragt wurden. Wer auf
+    // Regelbesteuerung wechselt, verliert seine erfassten Werte nicht.
+    final openings = <int, Money?>{
+      if (_isSmallBusiness && _asksPrevious)
+        _currentYear - 1: Money.tryParse(_text('openingPrevious')),
+      if (_isSmallBusiness && _asksCurrent)
+        _currentYear: Money.tryParse(_text('openingCurrent')),
+    };
+
+    await state.saveProfileWithOpenings(profile, openings);
     if (!mounted) return;
     setState(() => _saving = false);
     // Beim Onboarding wechselt _Root automatisch zur Hauptansicht, sobald das
@@ -326,6 +384,38 @@ class _CompanySetupScreenState extends State<CompanySetupScreen> {
                         : 'Steuersätze in ${_country.label}: '
                               '${tax.vatRates.map((r) => r.display).join(', ')}.',
                   ),
+                  if (_isSmallBusiness && (_asksPrevious || _asksCurrent)) ...[
+                    const SizedBox(height: 16),
+                    Text(
+                      'Umsatz vor Nutzung der App',
+                      style: Theme.of(context).textTheme.titleSmall,
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      'Die App kennt deine Umsätze erst ab dem '
+                      '${Fmt.date(_trackingStart)}. Für die Kleinunternehmergrenze '
+                      'braucht sie auch die Zeit davor – sonst würde sie dich '
+                      'womöglich in falscher Sicherheit wiegen.',
+                      style: Theme.of(context).textTheme.bodySmall,
+                    ),
+                    if (_asksPrevious) ...[
+                      const SizedBox(height: 12),
+                      MoneyField(
+                        controller: _fields['openingPrevious']!,
+                        label: 'Umsatz ${_currentYear - 1} gesamt *',
+                        validator: _validateOpening,
+                      ),
+                    ],
+                    if (_asksCurrent) ...[
+                      const SizedBox(height: 12),
+                      MoneyField(
+                        controller: _fields['openingCurrent']!,
+                        label:
+                            'Umsatz $_currentYear vor dem ${Fmt.date(_trackingStart)} *',
+                        validator: _validateOpening,
+                      ),
+                    ],
+                  ],
                 ],
               ),
             ),

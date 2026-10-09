@@ -18,6 +18,11 @@ enum SmallBusinessStatus {
 
   /// Grenze endgültig überschritten – ab sofort ist Umsatzsteuer auszuweisen.
   exceeded,
+
+  /// Für eine Aussage fehlen Umsatzangaben: der Vorjahresumsatz oder der Umsatz
+  /// dieses Jahres vor Beginn der Erfassung. Bewusst kein „ok" – eine
+  /// Entwarnung auf unvollständiger Grundlage war genau der Fehler O-19.
+  incomplete,
 }
 
 class SmallBusinessAssessment {
@@ -48,7 +53,8 @@ class SmallBusinessAssessment {
   bool get needsAttention =>
       status == SmallBusinessStatus.approaching ||
       status == SmallBusinessStatus.withinTolerance ||
-      status == SmallBusinessStatus.exceeded;
+      status == SmallBusinessStatus.exceeded ||
+      status == SmallBusinessStatus.incomplete;
 }
 
 /// Überwacht die Umsatzgrenzen der Kleinunternehmerregelung.
@@ -72,11 +78,18 @@ class SmallBusinessMonitor {
   /// test/specification_sync_test.dart denselben Wert prüfen können.
   static const warnThreshold = 0.8;
 
+  /// [previousYearTurnover] ist `null`, wenn der Vorjahresumsatz unbekannt ist.
+  /// Es gibt bewusst keinen Standardwert: ein stillschweigend angenommener
+  /// Vorjahresumsatz von null war die Ursache von O-19.
+  ///
+  /// [currentYearComplete] ist `false`, wenn für den Teil des laufenden Jahres
+  /// vor Beginn der Erfassung kein Umsatz bekannt ist.
   static SmallBusinessAssessment assess({
     required TaxProfile taxProfile,
     required bool isSmallBusiness,
     required Money currentYearTurnover,
-    Money previousYearTurnover = const Money.zero(),
+    required Money? previousYearTurnover,
+    required bool currentYearComplete,
   }) {
     final limit = taxProfile.currentYearTurnoverLimit;
 
@@ -95,7 +108,9 @@ class SmallBusinessMonitor {
 
     // Deutschland: die Vorjahresgrenze entscheidet vorab über das ganze Jahr.
     final previousLimit = taxProfile.previousYearTurnoverLimit;
-    if (previousLimit != null && previousYearTurnover > previousLimit) {
+    if (previousLimit != null &&
+        previousYearTurnover != null &&
+        previousYearTurnover > previousLimit) {
       return SmallBusinessAssessment(
         status: SmallBusinessStatus.exceeded,
         currentYearTurnover: currentYearTurnover,
@@ -144,6 +159,34 @@ class SmallBusinessMonitor {
             'Die Grenze von ${_euro(limit)} ist überschritten. '
             'Ab dem Umsatz, der die Grenze reißt, ist Umsatzsteuer auszuweisen '
             '(${taxProfile.smallBusinessLegalRef}).',
+      );
+    }
+
+    // Ab hier würde die Ampel beruhigen. Das darf sie nur auf vollständiger
+    // Grundlage. Eine Überschreitung oben gilt dagegen auch bei unvollständigen
+    // Zahlen – mehr Umsatz als erfasst kann es nicht weniger machen.
+    if (previousLimit != null && previousYearTurnover == null) {
+      return SmallBusinessAssessment(
+        status: SmallBusinessStatus.incomplete,
+        currentYearTurnover: currentYearTurnover,
+        limit: limit,
+        headroom: headroom,
+        message:
+            'Der Umsatz des Vorjahres fehlt. Er entscheidet darüber, ob die '
+            'Kleinunternehmerregelung in diesem Jahr überhaupt gilt '
+            '(${taxProfile.smallBusinessLegalRef}). Bitte in den Stammdaten ergänzen.',
+      );
+    }
+
+    if (!currentYearComplete) {
+      return SmallBusinessAssessment(
+        status: SmallBusinessStatus.incomplete,
+        currentYearTurnover: currentYearTurnover,
+        limit: limit,
+        headroom: headroom,
+        message:
+            'Der Umsatz dieses Jahres vor Beginn der Erfassung fehlt. Ohne ihn '
+            'ist der Abstand zur Grenze nicht bekannt. Bitte in den Stammdaten ergänzen.',
       );
     }
 

@@ -66,6 +66,13 @@ Trag sie gleich vollständig ein, dann musst du später nicht nachbessern.
 **Bankverbindung** – IBAN, BIC und Bank erscheinen im Zahlungsblock deiner
 Rechnungen. Ohne IBAN fehlt dieser Block.
 
+**Umsatz vor Nutzung der App** — nur bei aktiver Kleinunternehmerregelung. Die
+App kennt deine Umsätze erst ab dem Tag, an dem du sie einrichtest. Für die
+Umsatzgrenze braucht sie aber auch das Vorjahr und — wenn du mitten im Jahr
+startest — den Umsatz dieses Jahres bis dahin. Beides sind Pflichtfelder.
+Hattest du noch keinen Umsatz, trag ausdrücklich **0** ein: ein leeres Feld
+heißt für die App „unbekannt", nicht „null".
+
 **Rechnungen**
 - **Muster der Rechnungsnummer** – Standard ist `RE-{YYYY}-{NNNN}`, das ergibt
   `RE-2026-0001`. Mehr dazu in [Abschnitt 7](#7-rechnungen-schreiben).
@@ -235,6 +242,7 @@ und die App kennt beide.
 | Orange, Pfeil nach oben | Über 80 % der Grenze | Mit der Steuerberatung über den Wechsel zur Regelbesteuerung sprechen |
 | Orange, Warndreieck | Grenze überschritten, Toleranz greift noch (nur AT) | Wechsel für das Folgejahr vorbereiten |
 | Rot, Ausrufezeichen | Grenze endgültig überschritten | Sofort handeln: ab jetzt musst du Umsatzsteuer ausweisen |
+| Orange, Fragezeichen | **Angaben fehlen** — Vorjahresumsatz oder Umsatz vor dem Start unbekannt | Auf „Umsatz ergänzen" tippen. Bis dahin sagt die App bewusst nicht „alles in Ordnung" |
 
 Unter der Ampel steht immer im Klartext, was der Status für dich bedeutet.
 
@@ -496,6 +504,10 @@ Ziffern, Komma, Punkt und ein Minus.
 
 **„Bitte positiv eingeben und oben Einnahme/Ausgabe wählen"** – die Richtung
 steuert das Vorzeichen, nicht ein Minus im Betrag.
+
+**„Bitte angeben – 0, wenn es keinen Umsatz gab"** — beim Umsatz vor Nutzung
+der App. Ein leeres Feld ist für die App „unbekannt"; trag 0 ein, wenn es
+keinen Umsatz gab.
 
 **„Eine Beschreibung ist Pflicht"** – ohne Bezeichnung ist der Beleg später nicht
 nachvollziehbar. Ein Wort genügt.

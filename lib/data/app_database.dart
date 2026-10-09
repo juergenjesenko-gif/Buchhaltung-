@@ -16,7 +16,7 @@ class AppDatabase {
 
   /// Aktuelle Schemaversion. Öffentlich, weil docs/SPECIFICATION.md sie
   /// dokumentiert und test/specification_sync_test.dart beide vergleicht.
-  static const schemaVersion = 1;
+  static const schemaVersion = 2;
 
   Database? _db;
 
@@ -29,22 +29,37 @@ class AppDatabase {
       path,
       version: schemaVersion,
       onConfigure: (db) => db.execute('PRAGMA foreign_keys = ON'),
-      onCreate: (db, version) async {
-        for (var v = 1; v <= version; v++) {
-          for (final statement in _migrations[v] ?? const []) {
-            await db.execute(statement);
-          }
-        }
-        await _seedCategories(db);
-      },
-      onUpgrade: (db, oldVersion, newVersion) async {
-        for (var v = oldVersion + 1; v <= newVersion; v++) {
-          for (final statement in _migrations[v] ?? const []) {
-            await db.execute(statement);
-          }
-        }
-      },
+      onCreate: createSchema,
+      onUpgrade: upgradeSchema,
     );
+  }
+
+  /// Legt das Schema einer neuen Datenbank in der Version [version] an.
+  /// Öffentlich, damit Tests es gegen eine In-Memory-Datenbank ausführen
+  /// können – Migrationen sind unveränderlich und müssen deshalb vor der
+  /// Auslieferung stimmen.
+  static Future<void> createSchema(Database db, int version) async {
+    await _runMigrations(db, from: 1, to: version);
+    await _seedCategories(db);
+  }
+
+  /// Hebt eine bestehende Datenbank von [oldVersion] auf [newVersion].
+  static Future<void> upgradeSchema(
+    Database db,
+    int oldVersion,
+    int newVersion,
+  ) => _runMigrations(db, from: oldVersion + 1, to: newVersion);
+
+  static Future<void> _runMigrations(
+    Database db, {
+    required int from,
+    required int to,
+  }) async {
+    for (var v = from; v <= to; v++) {
+      for (final statement in _migrations[v] ?? const []) {
+        await db.execute(statement);
+      }
+    }
   }
 
   /// Nur für Tests: erlaubt das Einhängen einer In-Memory-Datenbank.
@@ -173,6 +188,27 @@ class AppDatabase {
         detail TEXT NOT NULL DEFAULT '',
         created_at TEXT NOT NULL
       )
+      ''',
+    ],
+    // Version 2: Eröffnungswerte (Lastenheft L-16.1, L-16.2, L-16.11; O-19).
+    2: [
+      // Umsatz eines Jahres vor Beginn der Erfassung in der App. Ein Eintrag je
+      // Jahr. Ohne ihn hielt die Grenzwertüberwachung den Vorjahresumsatz
+      // neuer Nutzer für null.
+      '''
+      CREATE TABLE opening_turnover (
+        year INTEGER PRIMARY KEY,
+        net_cents INTEGER NOT NULL,
+        updated_at TEXT NOT NULL
+      )
+      ''',
+      'ALTER TABLE company_profile ADD COLUMN tracking_start TEXT',
+      // Bestehende Installationen: als Erfassungsbeginn gilt der älteste Beleg,
+      // ohne Belege der Tag der Migration. Damit gilt ein Jahr nur dann als
+      // vollständig, wenn die App es tatsächlich ab dem 1. Jänner kennt.
+      '''
+      UPDATE company_profile
+      SET tracking_start = COALESCE((SELECT MIN(date) FROM receipts), date('now'))
       ''',
     ],
   };

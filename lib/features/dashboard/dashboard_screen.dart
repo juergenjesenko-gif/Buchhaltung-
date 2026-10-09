@@ -408,8 +408,14 @@ class _SmallBusinessCard extends StatelessWidget {
         Icons.warning_amber_rounded,
       ),
       SmallBusinessStatus.approaching => (AppTheme.warning, Icons.trending_up),
-      _ => (scheme.primary, Icons.check_circle_outline),
+      // Unvollständige Zahlen sind nie ein Grund zur Entwarnung (O-19).
+      SmallBusinessStatus.incomplete => (AppTheme.warning, Icons.help_outline),
+      SmallBusinessStatus.ok => (scheme.primary, Icons.check_circle_outline),
+      // Wird oben gar nicht angezeigt; steht hier, damit der switch vollständig
+      // bleibt. Ein neuer Status soll den Build brechen, nicht still grün sein.
+      SmallBusinessStatus.notApplicable => (scheme.outline, Icons.remove),
     };
+    final incomplete = assessment.status == SmallBusinessStatus.incomplete;
 
     final fraction = (assessment.utilizationPercent / 100).clamp(0.0, 1.0);
 
@@ -425,6 +431,7 @@ class _SmallBusinessCard extends StatelessWidget {
               const SizedBox(width: 10),
               Expanded(
                 child: Text(
+                  '${incomplete ? 'mind. ' : ''}'
                   '${Fmt.money(assessment.currentYearTurnover)} von '
                   '${Fmt.money(assessment.limit)}',
                   style: Theme.of(context).textTheme.titleMedium?.copyWith(
@@ -433,7 +440,9 @@ class _SmallBusinessCard extends StatelessWidget {
                 ),
               ),
               Text(
-                '${assessment.utilizationPercent.toStringAsFixed(0)} %',
+                incomplete
+                    ? '?'
+                    : '${assessment.utilizationPercent.toStringAsFixed(0)} %',
                 style: TextStyle(color: color, fontWeight: FontWeight.w700),
               ),
             ],
@@ -455,6 +464,19 @@ class _SmallBusinessCard extends StatelessWidget {
               context,
             ).textTheme.bodySmall?.copyWith(color: scheme.onSurfaceVariant),
           ),
+          if (incomplete) ...[
+            const SizedBox(height: 8),
+            Align(
+              alignment: Alignment.centerRight,
+              child: TextButton.icon(
+                onPressed: () => Navigator.of(context).push(
+                  MaterialPageRoute(builder: (_) => const CompanySetupScreen()),
+                ),
+                icon: const Icon(Icons.edit_outlined, size: 18),
+                label: const Text('Umsatz ergänzen'),
+              ),
+            ),
+          ],
         ],
       ),
     );

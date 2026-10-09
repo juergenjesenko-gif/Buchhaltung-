@@ -334,6 +334,50 @@ class ReceiptRepository {
   static String _day(DateTime date) => date.toIso8601String().substring(0, 10);
 }
 
+/// Umsatz eines Jahres vor Beginn der Erfassung in der App (Eröffnungswert).
+class OpeningTurnoverRepository {
+  const OpeningTurnoverRepository(this._db);
+
+  final Database _db;
+
+  /// `null`, wenn für [year] kein Eröffnungswert erfasst ist. Das ist bewusst
+  /// etwas anderes als ein erfasster Wert von 0 €.
+  Future<Money?> forYear(int year) async {
+    final rows = await _db.query(
+      'opening_turnover',
+      columns: ['net_cents'],
+      where: 'year = ?',
+      whereArgs: [year],
+      limit: 1,
+    );
+    if (rows.isEmpty) return null;
+    return Money(rows.first['net_cents'] as int);
+  }
+
+  /// Setzt den Eröffnungswert für [year]; `null` entfernt ihn.
+  Future<void> save(int year, Money? amount) async {
+    if (amount == null) {
+      await _db.delete(
+        'opening_turnover',
+        where: 'year = ?',
+        whereArgs: [year],
+      );
+    } else {
+      await _db.insert('opening_turnover', {
+        'year': year,
+        'net_cents': amount.cents,
+        'updated_at': DateTime.now().toIso8601String(),
+      }, conflictAlgorithm: ConflictAlgorithm.replace);
+    }
+    await AuditLog(_db).record(
+      entity: 'opening_turnover',
+      entityId: year,
+      action: amount == null ? 'delete' : 'save',
+      detail: amount?.toString() ?? '',
+    );
+  }
+}
+
 /// Aggregierte Zahlen für einen Zeitraum.
 class PeriodTotals {
   const PeriodTotals({
@@ -505,6 +549,7 @@ class Repositories {
       categories = CategoryRepository(db),
       customers = CustomerRepository(db),
       receipts = ReceiptRepository(db),
+      openingTurnover = OpeningTurnoverRepository(db),
       invoices = InvoiceRepository(db),
       audit = AuditLog(db);
 
@@ -512,6 +557,7 @@ class Repositories {
   final CategoryRepository categories;
   final CustomerRepository customers;
   final ReceiptRepository receipts;
+  final OpeningTurnoverRepository openingTurnover;
   final InvoiceRepository invoices;
   final AuditLog audit;
 }

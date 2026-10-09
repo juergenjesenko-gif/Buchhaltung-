@@ -10,6 +10,7 @@ void main() {
         isSmallBusiness: true,
         currentYearTurnover: Money.fromEuro(euro),
         previousYearTurnover: Money.fromEuro(previousEuro),
+        currentYearComplete: true,
       );
 
   SmallBusinessAssessment assessDe(int euro, {int previousEuro = 0}) =>
@@ -18,6 +19,7 @@ void main() {
         isSmallBusiness: true,
         currentYearTurnover: Money.fromEuro(euro),
         previousYearTurnover: Money.fromEuro(previousEuro),
+        currentYearComplete: true,
       );
 
   group('Österreich – 55.000 € mit 10 % Toleranz', () {
@@ -113,9 +115,87 @@ void main() {
         taxProfile: TaxProfile.austria,
         isSmallBusiness: false,
         currentYearTurnover: Money.fromEuro(500000),
+        previousYearTurnover: null,
+        currentYearComplete: false,
       );
       expect(result.status, SmallBusinessStatus.notApplicable);
       expect(result.needsAttention, isFalse);
+    });
+  });
+
+  group('Unvollständige Umsatzangaben (O-19)', () {
+    SmallBusinessAssessment assess(
+      TaxProfile profile, {
+      required int currentEuro,
+      int? previousEuro,
+      bool currentComplete = true,
+    }) => SmallBusinessMonitor.assess(
+      taxProfile: profile,
+      isSmallBusiness: true,
+      currentYearTurnover: Money.fromEuro(currentEuro),
+      previousYearTurnover: previousEuro == null
+          ? null
+          : Money.fromEuro(previousEuro),
+      currentYearComplete: currentComplete,
+    );
+
+    test('Deutschland: fehlender Vorjahresumsatz ist kein "ok"', () {
+      // Genau der Fehler O-19: ein neuer Nutzer mit 30.000 € Vorjahresumsatz
+      // hatte keine Belege aus dem Vorjahr und bekam eine grüne Ampel.
+      final result = assess(TaxProfile.germany, currentEuro: 5000);
+      expect(result.status, SmallBusinessStatus.incomplete);
+      expect(result.needsAttention, isTrue);
+      expect(result.message, contains('Vorjahres'));
+    });
+
+    test('Deutschland: mit erfasstem Vorjahresumsatz greift die Grenze', () {
+      final result = assess(
+        TaxProfile.germany,
+        currentEuro: 5000,
+        previousEuro: 30000,
+      );
+      expect(result.status, SmallBusinessStatus.exceeded);
+    });
+
+    test('ein erfasster Vorjahresumsatz von 0 € ist vollständig', () {
+      // Leer und 0 sind verschieden: wer im Vorjahr gegründet hat, trägt 0 ein.
+      final result = assess(
+        TaxProfile.germany,
+        currentEuro: 5000,
+        previousEuro: 0,
+      );
+      expect(result.status, SmallBusinessStatus.ok);
+    });
+
+    test('Überschreitung gilt auch bei unvollständigen Zahlen', () {
+      // Mehr Umsatz als erfasst kann es nicht weniger machen.
+      final result = assess(
+        TaxProfile.germany,
+        currentEuro: 100001,
+        currentComplete: false,
+      );
+      expect(result.status, SmallBusinessStatus.exceeded);
+    });
+
+    test('unvollständiges laufendes Jahr ist kein "ok"', () {
+      final result = assess(
+        TaxProfile.austria,
+        currentEuro: 10000,
+        previousEuro: 0,
+        currentComplete: false,
+      );
+      expect(result.status, SmallBusinessStatus.incomplete);
+      expect(result.message, contains('vor Beginn der Erfassung'));
+    });
+
+    test('Österreich: fehlender Vorjahresumsatz ändert heute nichts', () {
+      // ACHTUNG, OFFENER PRÜFPUNKT O-1: Dieser Test schreibt das heutige
+      // Verhalten fest, nicht gesicherte Rechtslage. Bestätigt sich, dass auch
+      // in Österreich der Vorjahresumsatz zählt, genügt es, im TaxProfile die
+      // Vorjahresgrenze zu setzen – dann liefert dieser Fall "incomplete" und
+      // der Test ist anzupassen.
+      final result = assess(TaxProfile.austria, currentEuro: 10000);
+      expect(result.status, SmallBusinessStatus.ok);
     });
   });
 

@@ -1,6 +1,6 @@
 # Spezifikation – Buchhaltung
 
-**Dokumentversion:** 1.2 · **App-Version:** 0.1.0 · **Stand:** 2026-10-09
+**Dokumentversion:** 1.3 · **App-Version:** 0.1.0 · **Stand:** 2026-10-09
 **Status:** Sprint 1 umgesetzt und verifiziert
 
 > Das **Zielbild** des Produkts steht im [`LASTENHEFT.md`](LASTENHEFT.md); dieses
@@ -132,7 +132,7 @@ Empfängerdaten werden zum Zeitpunkt der Rechnungslegung als JSON eingefroren.
 ## 4. Datenmodell
 
 **Speicher:** SQLite auf dem Gerät, Datei `buchhaltung.db` im
-Anwendungsdokumentenverzeichnis. Aktuelle Schemaversion: **1**.
+Anwendungsdokumentenverzeichnis. Aktuelle Schemaversion: **2**.
 
 ### 4.1 Tabellen
 
@@ -145,6 +145,7 @@ Anwendungsdokumentenverzeichnis. Aktuelle Schemaversion: **1**.
 | `invoices` | Ausgangsrechnungen | `UNIQUE INDEX` auf `number` |
 | `invoice_items` | Rechnungspositionen | `ON DELETE CASCADE` |
 | `audit_log` | Änderungsprotokoll | Nur Einfügen, kein Löschen durch die App |
+| `opening_turnover` | Umsatz je Jahr vor Beginn der Erfassung (Eröffnungswert) | Ein Eintrag je Jahr; fehlend ≠ 0 € (seit Schema 2) |
 
 ### 4.2 Datenwörterbuch – zentrale Felder
 
@@ -160,6 +161,7 @@ Anwendungsdokumentenverzeichnis. Aktuelle Schemaversion: **1**.
 | `is_small_business` | INTEGER | 1 = Kleinunternehmerregelung wird genutzt |
 | `invoice_number_pattern` | TEXT | Muster, Standard `RE-{YYYY}-{NNNN}` |
 | `next_invoice_sequence` | INTEGER | Nächste laufende Nummer. Wird nur erhöht, nie zurückgesetzt |
+| `tracking_start` | TEXT | Tag, ab dem die App die Buchhaltung führt. Neue Profile: Tag des Onboardings; bei Migration auf Schema 2: ältester Beleg, sonst Tag der Migration |
 
 **`receipts`**
 
@@ -213,6 +215,8 @@ Eigene Kategorien sind ergänzbar und löschbar; die vorgegebenen nicht.
 | FA-1.5 | Das Rechnungsnummernmuster muss eine laufende Nummer enthalten, sonst wird das Formular abgelehnt |
 | FA-1.6 | Ein Bearbeiten der Stammdaten setzt `next_invoice_sequence` nie zurück |
 | FA-1.7 | Die App benennt fehlende Pflichtangaben für Rechnungen und verlinkt in die Stammdaten |
+| FA-1.8 | Bei aktiver Kleinunternehmerregelung fragt das Profil den **Umsatz des Vorjahres** und den **Umsatz des laufenden Jahres vor Beginn der Erfassung** ab, soweit die App diese Zeiträume nicht selbst kennt. Pflichtfelder; leer ist nicht 0 |
+| FA-1.9 | Beim Wechsel zur Regelbesteuerung bleiben erfasste Eröffnungswerte erhalten |
 
 **Pflichtangaben für Rechnungsfähigkeit** (`CompanyProfile.missingInvoiceFields`):
 Firmenname, Straße, PLZ, Ort, Steuernummer **oder** UID; bei Regelbesteuerung
@@ -258,6 +262,10 @@ zusätzlich zwingend die UID.
 | FA-4.6 | Deutschland: Vorjahresumsatz über der Vorjahresgrenze → *überschritten* für das ganze laufende Jahr |
 | FA-4.7 | Deutschland: keine Toleranz; der Status *in Toleranz* darf dort nie auftreten |
 | FA-4.8 | Jeder Status trägt eine Erklärung der Rechtsfolge im Klartext |
+| FA-4.9 | Der Jahresumsatz setzt sich aus erfassten Einnahmen und dem Eröffnungswert des Jahres zusammen. Ein Jahr ist **vollständig**, wenn die Erfassung spätestens am 1. Jänner begann oder ein Eröffnungswert vorliegt; bei voll erfasstem Jahr wird ein Eröffnungswert ignoriert |
+| FA-4.10 | Ist der Vorjahresumsatz unbekannt und kennt das Land eine Vorjahresgrenze, lautet der Status *Angaben fehlen* — nie *ok* |
+| FA-4.11 | Ist das laufende Jahr unvollständig, lautet der Status *Angaben fehlen* — außer die Grenze ist bereits überschritten, dann *überschritten* |
+| FA-4.12 | Der Status *Angaben fehlen* führt in der Übersicht direkt zur Ergänzung in den Stammdaten | 
 
 > **⚠ Offener Prüfpunkt (Stand 2026-10-09): Vorjahresgrenze Österreich.**
 > FA-4.1 bis FA-4.5 bilden für Österreich **nur das laufende Jahr** ab. Mehrere
@@ -271,19 +279,10 @@ zusätzlich zwingend die UID.
 > Änderung des Rechtslayers ist die Bestätigung durch eine Steuerberatung
 > einzuholen. Siehe [`LASTENHEFT.md`](LASTENHEFT.md) Punkt O-1.
 
-> **⚠ Bekannter Fehler (Stand 2026-10-09): Vorjahresumsatz neuer Nutzer.**
-> `AppState._refreshSmallBusiness` ermittelt den Vorjahresumsatz über
-> `ReceiptRepository.turnoverForYear` — also **ausschließlich aus den in der App
-> erfassten Belegen**. Wer die App mitten im Jahr installiert, hat keine Belege
-> aus dem Vorjahr; die Summe ist null.
->
-> Für Deutschland entscheidet der Vorjahresumsatz nach FA-4.6 über das **ganze
-> laufende Jahr**. Ein Nutzer, der im Vorjahr über 25.000 € umgesetzt hat, ist
-> kein Kleinunternehmer mehr — die App meldet ihm aber „ok". Falls sich der
-> offene Prüfpunkt oben bestätigt, gilt dasselbe für Österreich.
->
-> Behebung: Erfassung von Eröffnungswerten beim Anlegen des Profils,
-> [`LASTENHEFT.md`](LASTENHEFT.md) L-16.1 und L-16.2, offener Punkt O-19.
+> **Behoben in Dokumentversion 1.3: Vorjahresumsatz neuer Nutzer (O-19).**
+> Bis dahin wurde der Vorjahresumsatz ausschließlich aus erfassten Belegen
+> ermittelt und war für Neueinsteiger null — die Ampel stand fälschlich auf
+> Grün. Seither gelten FA-4.9 bis FA-4.12.
 
 Grenzwerte siehe Abschnitt 12.
 
@@ -356,6 +355,8 @@ Alle Zustände außer *Entwurf* sind schreibgeschützt (`InvoiceStatus.isLocked`
 
 ```
 Regelbesteuerung ──────────────────────► nicht anwendbar
+
+Kleinunternehmer, Umsatz unvollständig ─► angaben fehlen (außer überschritten)
 
 Kleinunternehmer:
   Umsatz < 80 % der Grenze ────────────► ok
@@ -494,7 +495,6 @@ Offen benannt, weil eine Spezifikation, die ihre Lücken verschweigt, wertlos is
 
 | Grenze | Auswirkung | Geplant |
 |---|---|---|
-| **Vorjahresumsatz wird nur aus erfassten Belegen ermittelt** | Für neue Nutzer ist er null; die Kleinunternehmer-Ampel gibt dann eine falsche Entwarnung. Siehe die Warnung in Abschnitt 5.4 | Backlog L-16.1/L-16.2, offener Punkt O-19 |
 | **Kein Backup** | Geräteverlust bedeutet Datenverlust bei laufender Aufbewahrungspflicht | Backlog F1, Sprint 2, **vor** dem öffentlichen Release |
 | **Keine revisionssichere Archivierung** | Das `audit_log` schafft Nachvollziehbarkeit im Alltag, ist aber keine manipulationssichere Protokollierung im Sinne einer Verfahrensdokumentation. Die App ist die Vorerfassung; die revisionssichere Aufbewahrung findet in der Kanzlei statt | – |
 | **Keine Registrierkasse** | Wer die RKSV-Grenzen (15.000 € Umsatz und 7.500 € Barumsätze) überschreitet, braucht zusätzlich eine registrierkassenpflichtige Lösung | Nicht geplant |
@@ -513,7 +513,7 @@ Offen benannt, weil eine Spezifikation, die ihre Lücken verschweigt, wertlos is
 > Das ist der Mechanismus, der dieses Dokument aktuell hält.
 
 ```properties
-spec.schema_version = 1
+spec.schema_version = 2
 spec.seed_category_count = 16
 spec.seed_category_income_count = 3
 spec.seed_category_expense_count = 13
@@ -558,6 +558,7 @@ Umrechnung: Beträge in Cent. `5500000` Cent = 55.000,00 €.
 
 | Version | Datum | App-Version | Änderung |
 |---|---|---|---|
+| 1.3 | 2026-10-09 | 0.1.0 | O-19 behoben: Eröffnungswerte für den Umsatz (Tabelle `opening_turnover`, Spalte `tracking_start`, Schema 2), neuer Status *Angaben fehlen* der Grenzwertüberwachung. FA-1.8, FA-1.9, FA-4.9 bis FA-4.12 neu. |
 | 1.2 | 2026-10-09 | 0.1.0 | Zweiter bekannter Fehler dokumentiert: der Vorjahresumsatz wird ausschließlich aus erfassten Belegen ermittelt und ist für neue Nutzer null. In Abschnitt 5.4 und in den bekannten Grenzen vermerkt. Keine Code- oder Kennwertänderung. |
 | 1.1 | 2026-10-09 | 0.1.0 | Offener Prüfpunkt zur österreichischen Vorjahresgrenze in Abschnitt 5.4 vermerkt. Verweis auf das neue Lastenheft ergänzt. Keine Code- oder Kennwertänderung. |
 | 1.0 | 2026-08-17 | 0.1.0 | Erstfassung nach Sprint 1. Beschreibt Firmenprofil, Belege, Kassabuch, Grenzwertüberwachung, Rechnungen mit PDF und die vier Exportformate. |
