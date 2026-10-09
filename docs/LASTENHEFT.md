@@ -1,6 +1,6 @@
 # Lastenheft – Buchhaltungsapp für Österreich und Deutschland
 
-**Dokumentversion:** 1.9 · **Stand:** 2026-10-09 · **Status:** Entwurf zur Abstimmung
+**Dokumentversion:** 1.10 · **Stand:** 2026-10-09 · **Status:** Entwurf zur Abstimmung
 **Auftraggeber:** Jürgen Jesenko (privates Vorhaben) · **Umsetzung:** Claude Code
 
 > Ein Lastenheft beschreibt, **was** das Produkt leisten soll und **warum** — nicht,
@@ -777,15 +777,15 @@ Zu entscheiden, bevor die betroffene Anforderung umgesetzt wird:
 | ID | Offener Punkt | Benötigt für |
 |---|---|---|
 | O-1 | **Prüfung der österreichischen Kleinunternehmer-Logik.** Mehrere Quellen beschreiben § 6 Abs 1 Z 27 UStG so, dass **auch der Vorjahresumsatz** unter 55.000 € liegen muss. Die heutige Implementierung prüft nur das laufende Jahr. Amtliche Quellen waren aus der Entwicklungsumgebung nicht erreichbar — Bestätigung durch die Steuerberatung nötig | sofort; betrifft bestehenden Code |
-| O-2 | Produktname und Bundle-ID | vor dem ersten Store-Upload |
+| O-2 | Produktname und Bundle-ID; Namensvorschläge werden erarbeitet, Markenrecherche AT/DE/EUIPO vor Festlegung | vor dem ersten Store-Upload |
 | O-3 | Preispunkte für Basisabo und Premium-Services — Vorschlag und Marktvergleich in [`WETTBEWERB.md`](WETTBEWERB.md) | Stufe B |
 | ~~O-22~~ | **Entschieden am 2026-10-09:** (a) UVA-Übermittlung in den Buchhaltungstarif, Stufe B (L-6.5); (b) Start mit Datei-Import der Kontoauszüge, Live-Anbindung später als Opt-in (L-18); (c) Angebote aufgenommen, Stufe A (L-3.13 ff.) | erledigt |
 | O-4 | Zuschnitt der Premium-Services: Was gehört ins Basisabo, was kostet extra | Stufe B |
-| O-5 | Zeitrahmen und verfügbare Arbeitszeit pro Woche | Planung |
+| ~~O-5~~ | **Entschieden am 2026-10-09:** Entwicklung fortlaufend ohne feste Wochenstunden; Planung nach Stufen, nicht nach Kalenderdaten | erledigt |
 | O-6 | Weitere Plattformen (Web, Desktop) gewünscht? | Stufe C |
 | O-7 | Englische Oberfläche für nicht deutschsprachige Unternehmer in AT/DE? | Stufe C |
-| O-8 | Wie wird Support geleistet, und mit welcher Reaktionszeit? | vor Release |
-| O-9 | Steuerberatung als fachlicher Prüfer — wer, und ab wann eingebunden? | Stufe A |
+| ~~O-8~~ | **Entschieden am 2026-10-09:** Support per E-Mail, Antwort innerhalb von 3 Werktagen; FAQ in der App; Chatbot in einer späteren Version. **Keine Website** — siehe O-24 | erledigt |
+| ~~O-9~~ | **Entschieden am 2026-10-09:** eigene Steuerberatung, ab sofort eingebunden; erster Auftrag ist O-1 | erledigt |
 | ~~O-10~~ | ~~Übertragungsrichtung der Kanalanbindung~~ — **entschieden am 2026-10-09:** ausschließlich lesend, Bestellungen und Rechnungen, keine Lagerverwaltung (L-12.9) | erledigt |
 | ~~O-11~~ | ~~Was ist mit „Google" gemeint?~~ — **entschieden am 2026-10-09:** Google Merchant Center | erledigt |
 | O-12 | Ab wann wird OSS gebraucht — verkaufst du bereits grenzüberschreitend an Privatkunden? | vor Stufe C |
@@ -799,6 +799,7 @@ Zu entscheiden, bevor die betroffene Anforderung umgesetzt wird:
 | O-20 | Welche Vorsoftware-Formate sind beim Import vorrangig zu unterstützen? Richtet sich nach dem, womit die ersten Nutzer tatsächlich kommen | Stufe B |
 | O-21 | Gilt das Barrierefreiheitsstärkungsgesetz für ein B2B-Produkt wie dieses? Zu klären, bevor die Oberfläche festgezurrt wird | vor Stufe B |
 | O-23 | Rücksendeschein: nur Dokument für den Kunden, oder auch Wareneingang in den Lagerstand (L-11)? | Stufe B |
+| O-24 | **Ohne Website:** Beide Stores verlangen eine öffentlich abrufbare URL für die Datenschutzerklärung, Google Play zusätzlich eine für die Kontodatenlöschung (ab Stufe C); dazu Impressumspflicht (§ 5 ECG AT, § 5 DDG DE) und Support-Kontakt. Wo werden diese Texte gehostet? | vor dem ersten Store-Upload |
 | O-18 | **Wofür ist die E-Mail-Anbindung vorrangig gedacht** — Rechnungen versenden, Belege hereinholen, oder beides? Davon hängt ab, ob die kostenpflichtige CASA-Prüfung überhaupt nötig wird | vor Stufe C |
 
 ---
@@ -807,6 +808,7 @@ Zu entscheiden, bevor die betroffene Anforderung umgesetzt wird:
 
 | Version | Datum | Änderung |
 |---|---|---|
+| 1.10 | 2026-10-09 | O-5, O-8, O-9 entschieden (fortlaufende Entwicklung; E-Mail-Support mit 3 Werktagen, FAQ in der App, keine Website; eigene Steuerberatung ab sofort). O-24 neu: Hosting der Pflichttexte ohne Website. |
 | 1.9 | 2026-10-09 | Abgleich mit Nutzerwünschen: Zahlungserinnerung auf MUSS/A (L-3.10), Erstattung (L-3.18), Kunden-E-Mail als Standardempfänger (L-3.19), Rücksendeschein (L-3.20, Abgrenzung angepasst), Management-Übersicht (L-5.8), Import von Ausgangsrechnungen (L-16.12), paralleles Arbeiten mehrerer Geräte, Passwort-Reset und 2FA (L-19.12 bis L-19.14). O-23 neu. Aufwand A+B 48–75 Personenwochen. |
 | 1.8 | 2026-10-09 | Neuer Block L-19 Datenschutz: kein Nutzerkonto bis zur Cloud-Synchronisierung (Stufe C), Rollen, vollständige Tabelle der Datenflüsse, Regel zu Löschung gegen Aufbewahrungspflicht. L-17.1/L-17.3 von „Registrierung" auf „erste Einrichtung" umgestellt; Widerspruch zu NFA-2 der Spezifikation aufgelöst. |
 | 1.7 | 2026-10-09 | O-22 entschieden: UVA-Übermittlung in den Haupttarif (Stufe B), Kontoumsätze per Datei-Import (neuer Block L-18), Angebote aufgenommen (L-3.13 bis L-3.17). Aufwand Stufe A und B auf 46–72 Personenwochen. |
