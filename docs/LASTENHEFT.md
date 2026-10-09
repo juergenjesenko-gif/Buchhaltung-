@@ -1,6 +1,6 @@
 # Lastenheft – Buchhaltungsapp für Österreich und Deutschland
 
-**Dokumentversion:** 1.0 · **Stand:** 2026-10-09 · **Status:** Entwurf zur Abstimmung
+**Dokumentversion:** 1.1 · **Stand:** 2026-10-09 · **Status:** Entwurf zur Abstimmung
 **Auftraggeber:** Jürgen Jesenko (privates Vorhaben) · **Umsetzung:** Claude Code
 
 > Ein Lastenheft beschreibt, **was** das Produkt leisten soll und **warum** — nicht,
@@ -83,6 +83,7 @@ grundlegend — der bestehende Code bleibt Grundlage, ist aber nicht das Ziel.
 | Z-2 | Kleinbetriebe mit wenigen Mitarbeitern, weiterhin EAR, aber höherem Belegaufkommen und Regelbesteuerung |
 | Z-3 | Fachlich sind keine Buchhaltungskenntnisse vorauszusetzen. Wer „Soll und Haben" nicht kennt, muss das Produkt trotzdem korrekt bedienen können |
 | Z-4 | Bilanzierende Betriebe sind **nicht** Zielgruppe des Markteintritts, aber als spätere Ausbaustufe vorgesehen (siehe L-9) |
+| Z-5 | **Händler mit eigenen Produkten** sind ausdrücklich eingeschlossen: sie brauchen Artikelstamm und Lagerstand (L-11), später die Anbindung ihrer Verkaufskanäle (L-12) |
 
 ### Leitbild des typischen Nutzers
 
@@ -136,6 +137,10 @@ Priorität: **MUSS** = ohne das kein Release · **SOLL** = wichtig, verhandelbar
 | L-2.8 | Belege sind durchsuchbar, filterbar und nach Zeitraum gruppiert | MUSS | A |
 | L-2.9 | Wiederkehrende Belege als Vorlage speicherbar | SOLL | B |
 | L-2.10 | Änderungen und Löschungen werden nachvollziehbar protokolliert | MUSS | A |
+| L-2.11 | **Zweitablage der Belegfotos** in einem eigenen Album der Fotobibliothek des Geräts (Apple Fotos bzw. Google Fotos) — als zusätzliche Sicherheit und weil der Nutzer dort ohnehin sucht | SOLL | A |
+| L-2.12 | Die Zweitablage ist **standardmäßig ausgeschaltet** und muss vom Nutzer bewusst aktiviert werden; beim Einschalten wird erklärt, dass die Fotodienste automatisch in die Cloud synchronisieren | MUSS | A |
+| L-2.13 | Die Zweitablage nutzt ein **eigenes Album** ("Buchhaltung") und mischt Belege nicht unter die privaten Fotos | MUSS | A |
+| L-2.14 | Die Zweitablage ersetzt die Datensicherung nach L-7.1 nicht und wird im Produkt auch nicht als Sicherung bezeichnet — sie enthält nur Bilder, keine Buchungsdaten | MUSS | A |
 
 ### 5.3 Ausgangsrechnungen
 
@@ -226,6 +231,47 @@ Priorität: **MUSS** = ohne das kein Release · **SOLL** = wichtig, verhandelbar
 | L-10.4 | **Bei abgelaufenem Abo bleiben die Daten des Nutzers lesbar und exportierbar.** Buchhaltungsdaten dürfen nie hinter einer Paywall verschwinden — sie unterliegen einer gesetzlichen Aufbewahrungspflicht | MUSS | B |
 | L-10.5 | Lizenzprüfung funktioniert offline über einen angemessenen Zeitraum | MUSS | B |
 
+### 5.11 Artikelverwaltung
+
+Bewusst **kein Warenwirtschaftssystem**, sondern eine schlanke Artikelliste mit
+einem Zweck: Rechnungen schneller und fehlerfreier schreiben, ohne Bezeichnung
+und Preis jedes Mal neu zu tippen.
+
+| ID | Anforderung | Prio | Stufe |
+|---|---|---|---|
+| L-11.1 | Artikel anlegen mit **Artikelnummer, Bezeichnung, kurzer Beschreibung, Nettopreis, Einheit und Steuersatz** | MUSS | A |
+| L-11.2 | Die Artikelnummer ist eindeutig; das Produkt verhindert Doppelvergabe | MUSS | A |
+| L-11.3 | **Lagerstand** je Artikel erfassen und fortschreiben, für Nutzer mit physischen Produkten | MUSS | B |
+| L-11.4 | Lagerstand ist optional: Dienstleister führen Artikel ohne Bestandsführung | MUSS | B |
+| L-11.5 | Artikel beim Schreiben einer Rechnung auswählen; Bezeichnung, Preis und Steuersatz werden übernommen und bleiben in der Rechnung **änderbar** | MUSS | A |
+| L-11.6 | **Freitextpositionen bleiben jederzeit möglich** — für Dienstleistungen, Sonderanfertigungen und einmalige Leistungen. Niemand wird gezwungen, vorher einen Artikel anzulegen | MUSS | A |
+| L-11.7 | Beim Ausstellen einer Rechnung wird der Lagerstand der enthaltenen Artikel fortgeschrieben; bei Storno entsprechend zurück | SOLL | B |
+| L-11.8 | Warnung bei Unterschreiten eines je Artikel hinterlegten Mindestbestands | KANN | B |
+| L-11.9 | Artikel suchen und nach Artikelnummer oder Bezeichnung finden | MUSS | A |
+| L-11.10 | Artikelliste importieren und exportieren (CSV), damit ein bestehender Bestand nicht abgetippt werden muss | SOLL | B |
+| L-11.11 | Ein Artikel, der in einer gestellten Rechnung verwendet wurde, bleibt erhalten; Rechnungen dürfen ihre Positionen nicht verlieren | MUSS | A |
+
+### 5.12 Verkaufskanäle
+
+| ID | Anforderung | Prio | Stufe |
+|---|---|---|---|
+| L-12.1 | Anbindung an **Amazon Seller** zur Übernahme von Verkaufsdaten | SOLL | C |
+| L-12.2 | Anbindung an **Shopify** | SOLL | C |
+| L-12.3 | Anbindung an **Google** (vermutlich Merchant Center / Shopping — siehe O-11) | KANN | C |
+| L-12.4 | Übernommene Verkäufe erzeugen Buchungen in der Einnahmenseite, ohne dass der Nutzer sie abtippt | SOLL | C |
+| L-12.5 | Doppelverbuchung ist ausgeschlossen: jeder Kanalvorgang wird eindeutig identifiziert und nur einmal übernommen | MUSS | C |
+| L-12.6 | Retouren und Gutschriften aus den Kanälen werden ebenso übernommen wie Verkäufe | MUSS | C |
+| L-12.7 | Kanalgebühren und Provisionen werden als Ausgaben erfasst, damit das Ergebnis stimmt | SOLL | C |
+| L-12.8 | Der Nutzer sieht vor der Übernahme, was gebucht wird, und kann einzelne Vorgänge ausschließen | MUSS | C |
+| L-12.9 | Die Übertragungsrichtung ist noch festzulegen — siehe O-10. Empfohlen wird zunächst **nur lesend** | MUSS | C |
+
+> **Architektonische Folge:** Kanalanbindungen brauchen dauerhaft gültige
+> Zugangstoken, Webhooks und zeitgesteuerte Abgleiche. Ein Telefon kann das nicht
+> leisten — es ist offline, der Akku leer, oder das Betriebssystem beendet den
+> Hintergrundprozess. Damit wird das **eigene Backend (S-8) zur Voraussetzung**
+> dieses Blocks und rückt aus der Kür in die Pflicht der Stufe C. Die
+> Buchhaltungsdaten bleiben weiterhin lokal; die Kanaldaten laufen über den Server.
+
 ---
 
 ## 6. Nichtfunktionale Anforderungen
@@ -233,7 +279,7 @@ Priorität: **MUSS** = ohne das kein Release · **SOLL** = wichtig, verhandelbar
 | ID | Anforderung |
 |---|---|
 | NF-1 | **Offline-first.** Alle Kernfunktionen ohne Netzverbindung nutzbar |
-| NF-2 | **Datensparsamkeit.** Keine Analyse-, Tracking- oder Werbebibliotheken. Erhobene Daten verlassen das Gerät nur auf ausdrückliche Handlung |
+| NF-2 | **Datensparsamkeit.** Keine Analyse-, Tracking- oder Werbebibliotheken. Erhobene Daten verlassen das Gerät nur auf ausdrückliche Handlung des Nutzers. Jede Funktion, die diese Zusage einschränkt — Zweitablage in der Foto-Cloud (L-2.11), Kanalanbindung (L-12) — ist abschaltbar, standardmäßig aus und wird beim Einschalten erklärt |
 | NF-3 | **Korrektheit vor Funktionsumfang.** Jede Berechnung mit steuerlicher Wirkung ist durch automatisierte Tests abgedeckt. Beträge werden ganzzahlig in Cent geführt |
 | NF-4 | **Nachvollziehbarkeit.** Jede Änderung an gebuchten Daten ist protokolliert |
 | NF-5 | **Antwortzeit.** Jede Bedienhandlung reagiert in unter 200 ms; ein Beleg ist in unter 30 Sekunden erfasst |
@@ -258,6 +304,8 @@ Priorität: **MUSS** = ohne das kein Release · **SOLL** = wichtig, verhandelbar
 | R-7 | Das Produkt ist **keine Registrierkasse** nach RKSV und sagt das unmissverständlich |
 | R-8 | Das Produkt ist **keine Steuerberatung**; Verantwortung für Buchhaltung und Erklärungen bleibt beim Nutzer |
 | R-9 | Alle steuerlichen Grenzwerte im Produkt tragen ihre Fundstelle und werden jährlich überprüft |
+| R-10 | **Grenzüberschreitender Verkauf an Privatkunden in der EU** (relevant ab L-12): oberhalb der Lieferschwelle von 10.000 € gilt der Steuersatz des Bestimmungslandes, die Meldung läuft über den One-Stop-Shop. Der Steuerlayer kennt heute nur AT und DE im Inland und ist dafür zu erweitern |
+| R-11 | Die Zweitablage von Belegen in der Fotobibliothek (L-2.11) ist in Datenschutzerklärung und Store-Datensicherheitsangaben auszuweisen, sobald sie verfügbar ist |
 
 ---
 
@@ -272,7 +320,11 @@ Priorität: **MUSS** = ohne das kein Release · **SOLL** = wichtig, verhandelbar
 | S-5 | App Store / Google Play Billing | Abonnement und Premium-Services | B |
 | S-6 | FinanzOnline-Webservice, ELSTER/ERiC | Elektronische Übermittlung von Meldungen | C |
 | S-7 | Bankkonto (CAMT, EBICS oder PSD2) | Kontoumsätze einlesen und Belegen zuordnen | C |
-| S-8 | Eigenes Backend | Synchronisierung mehrerer Geräte | C |
+| S-8 | Eigenes Backend | Synchronisierung mehrerer Geräte; **Voraussetzung für S-9 bis S-11** | C |
+| S-9 | Amazon Selling Partner API | Verkaufsdaten aus dem Amazon-Seller-Konto | C |
+| S-10 | Shopify Admin API | Verkaufsdaten aus dem Shopify-Shop | C |
+| S-11 | Google (Merchant Center, zu bestätigen) | Verkaufs- bzw. Produktdaten | C |
+| S-12 | Fotobibliothek des Geräts | Zweitablage der Belegfotos in eigenem Album | A |
 
 ---
 
@@ -285,7 +337,9 @@ Was das Produkt ausdrücklich **nicht** leistet — und warum:
 | Registrierkasse nach RKSV | Signatureinrichtung, Datenerfassungsprotokoll und Jahresbelegmeldung sind ein eigenes, zertifizierungspflichtiges Produkt |
 | Lohnverrechnung | Eigene Domäne mit eigener Haftung und eigenem Pflegeaufwand |
 | Steuerberatung im Einzelfall | Das Produkt liefert Zahlen und Hinweise, keine Beratung |
-| Warenwirtschaft, Lager, Angebote | Fremde Domäne; Fokus ist Buchhaltung |
+| Vollwertige Warenwirtschaft | Eine schlanke Artikelverwaltung mit Lagerstand ist enthalten (L-11), weil sie das Rechnungschreiben beschleunigt. Was darüber hinausgeht — Stücklisten, Chargen, Seriennummern, Bestellwesen, Lieferantenverwaltung, Mehrlager — ist es nicht |
+| Channel-Management | Die Kanalanbindung übernimmt Verkaufsdaten. Artikel und Lagerstände aktiv in die Kanäle zurückzuschreiben und dort zu synchronisieren ist ausdrücklich nicht Teil des Zielbilds (siehe O-10) |
+| Angebote und Auftragsbestätigungen | Fremde Domäne; Fokus bleibt Buchhaltung und Rechnungslegung |
 | Fremdwährungen | Nur Euro. Mehrwährungsfähigkeit erst mit einem Markt außerhalb der Eurozone |
 | Revisionssichere Archivierung | Das Produkt ist Vorerfassung; die revisionssichere Aufbewahrung findet in der Buchhaltung der Kanzlei statt |
 
@@ -302,7 +356,8 @@ Möglichkeit, früher Rückmeldung von echten Nutzern zu bekommen.
 
 Das Produkt ist verkaufbar und löst das Kernproblem. Enthält alles aus Sprint 1
 plus: Datensicherung, Storno/Gutschrift, Spracheingabe, UID-Prüfung,
-Rechnungsvorschau, Logo.
+Rechnungsvorschau, Logo, **Artikelverwaltung ohne Bestandsführung** und die
+**Zweitablage der Belegfotos**.
 
 **Warum dieser Schnitt:** Datensicherung schließt die einzige echte Lücke des
 heutigen Stands. Storno schließt die einzige fachliche Sackgasse. Beides zusammen
@@ -311,13 +366,15 @@ ergibt ein Produkt, das man guten Gewissens verkaufen kann.
 ### Stufe B — vollwertige Buchhaltung
 
 Belegerkennung, E-Rechnung, Saldenliste, rollender Jahresabschluss, UVA- und
-Einkommensteuer-Vorbereitung, Abonnement, Belegvorlagen, Zahlungserinnerung.
+Einkommensteuer-Vorbereitung, Abonnement, Belegvorlagen, Zahlungserinnerung,
+**Lagerstandsführung und Artikel-Import/Export**.
 
 ### Stufe C — Premium und Ausbau
 
 Elektronische Übermittlung an FinanzOnline und ELSTER, doppelte Buchführung mit
 Bilanz, Cloud-Synchronisierung mit Konto, Bankabgleich, mehrere Mandanten,
-Liquiditätsvorschau, Peppol.
+Liquiditätsvorschau, Peppol, **Kanalanbindung an Amazon, Shopify und Google**
+samt dem dafür nötigen Backend und der OSS-Erweiterung des Steuerlayers.
 
 ### Aufwandseinschätzung
 
@@ -330,8 +387,10 @@ Grobe Schätzung in Personenwochen Vollzeitentwicklung, ohne Puffer:
 | Spracheingabe durchgängig | A | 1–2 |
 | UID-Prüfung inkl. Protokoll | A | 1–2 |
 | Rechnungsvorschau, Logo, Feinschliff | A | 1–2 |
+| Artikelverwaltung inkl. Auswahl in der Rechnung | A | 2–3 |
+| Zweitablage Belegfotos (Opt-in, eigenes Album) | A | 1 |
 | Store-Reife: Icon, Screenshots, AGB, Impressum, Support | A | 2–3 |
-| **Summe Stufe A** | | **9–15** |
+| **Summe Stufe A** | | **12–19** |
 | Belegerkennung on-device | B | 3–5 |
 | E-Rechnung XRechnung/ZUGFeRD/ebInterface | B | 4–6 |
 | Saldenliste und rollender Jahresabschluss | B | 2–3 |
@@ -339,11 +398,17 @@ Grobe Schätzung in Personenwochen Vollzeitentwicklung, ohne Puffer:
 | Einkommensteuer-Vorbereitung | B | 3–4 |
 | Abonnement und Lizenzlogik | B | 2–3 |
 | Belegvorlagen, Zahlungserinnerung | B | 1–2 |
-| **Summe Stufe B** | | **17–26** |
-| **Stufe A + B zusammen** | | **26–41 Personenwochen** |
+| Lagerstandsführung, Artikel-Import/Export | B | 2–3 |
+| **Summe Stufe B** | | **19–29** |
+| **Stufe A + B zusammen** | | **31–48 Personenwochen** |
+| Backend als Voraussetzung der Kanalanbindung | C | 6–10 |
+| Kanalanbindung je Kanal, nur lesend | C | 3–5 |
+| OSS-Erweiterung des Steuerlayers | C | 3–4 |
 
-Das entspricht etwa **sechs bis zehn Monaten** durchgehender Entwicklung. Stufe C
-ist darin nicht enthalten und dürfte denselben Umfang noch einmal haben.
+Das entspricht etwa **sieben bis elf Monaten** durchgehender Entwicklung. Stufe C
+kommt in ähnlicher Größenordnung hinzu; allein Backend, drei Kanäle und die
+OSS-Erweiterung summieren sich auf 18–29 Personenwochen, bevor eine einzige der
+übrigen Stufe-C-Anforderungen umgesetzt ist.
 
 ---
 
@@ -387,6 +452,10 @@ ist darin nicht enthalten und dürfte denselben Umfang noch einmal haben.
 | RK-5 | **Elektronische Übermittlung** erfordert Registrierung als Softwarehersteller und laufende Formularpflege | mittel | Bewusst erst Stufe C, als Premium-Service mit eigener Preisgestaltung |
 | RK-6 | **Store-Ablehnung** wegen fehlender Angaben oder unklarer Berechtigungstexte | mittel | Release-Playbook abarbeiten, frühe TestFlight- und interne Tests |
 | RK-7 | **Abhängigkeit von Drittbibliotheken**, die vor einem Store-Release aktualisiert werden müssen | niedrig | Abhängigkeiten bewusst knapp halten |
+| RK-8 | **Zulassungsverfahren der Kanäle.** Amazon verlangt eine Entwicklerregistrierung mit Freigabeprozess, Shopify eine App-Prüfung. Beides dauert Wochen und ist nicht durch Entwicklungsarbeit abzukürzen | mittel | Registrierung früh anstoßen, mit dem technisch einfachsten Kanal beginnen |
+| RK-9 | **Grenzüberschreitende Umsatzsteuer (OSS)** wird bei Kanalverkäufen unterschätzt; falsche Steuersätze je Bestimmungsland führen zu falschen Meldungen | hoch | OSS-Erweiterung als eigene Anforderung (R-10) vor der ersten Kanalanbindung umsetzen |
+| RK-10 | **Datenschutzversprechen wird verwässert.** Foto-Zweitablage und Kanalanbindung widersprechen der Zusage „keine Datenübertragung" | mittel | Beides standardmäßig aus, beim Einschalten erklärt, Datenschutzerklärung und Store-Angaben gleichzeitig anpassen |
+| RK-11 | **Falscher Lagerstand** führt zu Überverkauf oder falscher Bewertung | mittel | Bestandsführung bleibt bewusst einfach und einkanalig; kein Rückschreiben in die Kanäle (siehe Abgrenzung) |
 
 ---
 
@@ -405,6 +474,10 @@ Zu entscheiden, bevor die betroffene Anforderung umgesetzt wird:
 | O-7 | Englische Oberfläche für nicht deutschsprachige Unternehmer in AT/DE? | Stufe C |
 | O-8 | Wie wird Support geleistet, und mit welcher Reaktionszeit? | vor Release |
 | O-9 | Steuerberatung als fachlicher Prüfer — wer, und ab wann eingebunden? | Stufe A |
+| O-10 | **Übertragungsrichtung der Kanalanbindung.** Nur Verkaufsdaten lesen, oder auch Artikel und Lagerstände in die Kanäle zurückschreiben? Die zweite Variante macht das Produkt zum Channel-Manager und vervielfacht Aufwand und Haftung | vor Stufe C |
+| O-11 | **Was ist mit „Google" gemeint?** Merchant Center / Google Shopping, Google Ads oder etwas anderes | vor Stufe C |
+| O-12 | Ab wann wird OSS gebraucht — verkaufst du bereits grenzüberschreitend an Privatkunden? | vor Stufe C |
+| O-13 | Soll die Artikelverwaltung auch Einkaufspreise führen, um Rohertrag je Artikel zu zeigen? | Stufe B |
 
 ---
 
@@ -412,6 +485,7 @@ Zu entscheiden, bevor die betroffene Anforderung umgesetzt wird:
 
 | Version | Datum | Änderung |
 |---|---|---|
+| 1.1 | 2026-10-09 | Artikelverwaltung (L-11) und Verkaufskanäle (L-12) aufgenommen, Zweitablage der Belegfotos (L-2.11 bis L-2.14) ergänzt. Abgrenzung korrigiert: Warenwirtschaft war bisher vollständig ausgeschlossen. OSS-Pflicht (R-10) und vier neue Risiken aufgenommen, Aufwandsschätzung auf 31–48 Personenwochen für Stufe A und B angehoben. |
 | 1.0 | 2026-10-09 | Erstfassung. Festlegung auf kommerzielles Produkt mit Abonnement und Premium-Services, Zielgruppe Einzelunternehmen und Kleinbetriebe in AT und DE, Datenhaltung lokal mit Sicherung in den Cloud-Speicher des Nutzers und späterem Cloud-Sync, Meldungen zunächst vorbereitend mit späterer elektronischer Übermittlung, Auswertungen auf EAR-Basis mit späterer doppelter Buchführung. |
 
 ### Pflege dieses Dokuments
