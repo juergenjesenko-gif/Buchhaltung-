@@ -1,6 +1,6 @@
 # Lastenheft – Buchhaltungsapp für Österreich und Deutschland
 
-**Dokumentversion:** 1.14 · **Stand:** 2026-10-09 · **Status:** Entwurf zur Abstimmung
+**Dokumentversion:** 1.15 · **Stand:** 2026-10-09 · **Status:** Entwurf zur Abstimmung
 **Auftraggeber:** Jürgen Jesenko (privates Vorhaben) · **Umsetzung:** Claude Code
 
 > Ein Lastenheft beschreibt, **was** das Produkt leisten soll und **warum** — nicht,
@@ -198,7 +198,7 @@ Priorität: **MUSS** = ohne das kein Release · **SOLL** = wichtig, verhandelbar
 | L-3.17 | Angebot als PDF teilen; die PDF trägt sichtbar „Angebot", nie „Rechnung" | MUSS | A |
 | L-3.18 | **Erstattung:** zu einer Gutschrift (L-3.7), auch über einen Teilbetrag oder einzelne Positionen, wird die Rückzahlung an den Kunden als Ausgabe mit Zahlungsdatum erfasst; die Umsatzsteuer wird im Zeitraum der Gutschrift berichtigt | MUSS | A |
 | L-3.19 | Die im Kundenstamm hinterlegte **E-Mail-Adresse ist Standardempfänger** beim Versand von Rechnung, Angebot und Zahlungserinnerung; je Kunde ist eine abweichende Rechnungsadresse für E-Mails möglich | MUSS | A |
-| L-3.20 | **Rücksendeschein** zu einer Rechnung: welche Positionen in welcher Menge zurückgehen, mit Grund; ohne steuerliche Wirkung, bis daraus eine Gutschrift (L-3.7) erzeugt wird | SOLL | B |
+| L-3.20 | **Rücksendeschein** zu einer Rechnung: welche Positionen in welcher Menge zurückgehen, mit Grund; ohne steuerliche Wirkung, bis daraus eine Gutschrift (L-3.7) erzeugt wird. Je Rücksendung wählbar „Ware wieder verkaufbar? Ja / Nein"; bei Ja wird die Menge dem Lagerstand (L-11) wieder zugebucht, bei Nein nicht | SOLL | B |
 
 ### 5.4 E-Rechnung
 
@@ -807,7 +807,7 @@ Zu entscheiden, bevor die betroffene Anforderung umgesetzt wird:
 | ~~O-19~~ | **Behoben am 2026-10-09** (Umsatzanteile von L-16.1, L-16.2, L-16.11). Ursprünglich: **Bekannter Fehler:** Die Grenzwertüberwachung ermittelt den Vorjahresumsatz ausschließlich aus erfassten Belegen. Für einen neuen Nutzer ist er damit null, und die Ampel steht fälschlich auf Grün — in Deutschland entscheidet er über das ganze laufende Jahr. Behebung über L-16.1/L-16.2 | sofort; betrifft bestehenden Code |
 | O-20 | Welche Vorsoftware-Formate sind beim Import vorrangig zu unterstützen? Richtet sich nach dem, womit die ersten Nutzer tatsächlich kommen | Stufe B |
 | O-21 | Gilt das Barrierefreiheitsstärkungsgesetz für ein B2B-Produkt wie dieses? Zu klären, bevor die Oberfläche festgezurrt wird | vor Stufe B |
-| O-23 | Rücksendeschein: nur Dokument für den Kunden, oder auch Wareneingang in den Lagerstand (L-11)? | Stufe B |
+| ~~O-23~~ | **Entschieden am 2026-10-09:** wählbar je Rücksendung über den Schalter „Ware wieder verkaufbar?" (L-3.20) | erledigt |
 | ~~O-24~~ | **Entschieden am 2026-10-09:** eigene Einzelseite auf einer neuen Domain, die mit dem Produktnamen festgelegt wird (L-17.12) | erledigt |
 | O-18 | **Wofür ist die E-Mail-Anbindung vorrangig gedacht** — Rechnungen versenden, Belege hereinholen, oder beides? Davon hängt ab, ob die kostenpflichtige CASA-Prüfung überhaupt nötig wird | vor Stufe C |
 
@@ -817,6 +817,7 @@ Zu entscheiden, bevor die betroffene Anforderung umgesetzt wird:
 
 | Version | Datum | Änderung |
 |---|---|---|
+| 1.15 | 2026-10-09 | O-23 entschieden: Lagerzubuchung beim Rücksendeschein wählbar je Rücksendung (L-3.20). |
 | 1.14 | 2026-10-09 | Zweite Namensvariante „Jenni bucht" aufgenommen (O-2). |
 | 1.13 | 2026-10-09 | Arbeitstitel „Jenny Bar" festgelegt (O-2). |
 | 1.12 | 2026-10-09 | O-2: Namensrichtung festgelegt (weiblicher Vorname, Anklang an „Jenny Barb"). |
