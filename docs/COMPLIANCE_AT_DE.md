@@ -1,11 +1,11 @@
 # Steuerlicher Rahmen Österreich und Deutschland
 
-> **Die Schweiz ist hier noch nicht abgebildet.** Seit Lastenheft 1.2 gehört sie
-> zu den Zielmärkten (siehe [`LASTENHEFT.md`](LASTENHEFT.md) Abschnitt 3.1 und
-> L-13). Sie folgt MWSTG und OR statt UStG und BAO/AO, rechnet in Franken und
-> kennt weder UID-Prüfung über VIES noch OSS. Dieses Dokument ist mit der
-> Umsetzung von L-13 um einen Schweizer Teil zu erweitern und dann passend
-> umzubenennen.
+> **Weitere Märkte.** Zielmärkte sind Österreich und Deutschland, später
+> weitere EU-Länder der Eurozone (siehe [`LASTENHEFT.md`](LASTENHEFT.md)
+> Abschnitt 3.1). Die Schweiz war zwischenzeitlich vorgesehen und wurde am
+> 2026-10-09 gestrichen, weil sie weder EU-Mitglied noch Euro-Land ist. Kommt
+> ein EU-Markt dazu, ist dieses Dokument um einen Länderteil zu erweitern und
+> passend umzubenennen.
 
 Diese Datei dokumentiert, welche rechtlichen Annahmen im Code stecken, wo sie
 stehen und wo die App bewusst an ihre Grenze kommt.
