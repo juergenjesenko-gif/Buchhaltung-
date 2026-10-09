@@ -127,6 +127,10 @@ bei allen Suiten Standard. Unser Lastenheft schließt Angebote aus. Technisch w�
 ein kleiner Schritt — ein Angebot ist eine Rechnung ohne Nummernkreis-Verbrauch und
 ohne Steuerwirkung, die sich in eine Rechnung umwandeln lässt.
 
+**Entschieden am 2026-10-09** (Lastenheft O-22): (1) UVA-Übermittlung kommt in
+den Buchhaltungstarif, Stufe B. (2) Start mit Datei-Import der Kontoauszüge,
+Live-Anbindung später als Opt-in. (3) Angebote werden in Stufe A aufgenommen.
+
 ### 5.3 Preisvorschlag zur Diskussion
 
 Abgeleitet aus den Preisbändern, nicht als Entscheidung:

@@ -1,6 +1,6 @@
 # Lastenheft – Buchhaltungsapp für Österreich und Deutschland
 
-**Dokumentversion:** 1.6 · **Stand:** 2026-10-09 · **Status:** Entwurf zur Abstimmung
+**Dokumentversion:** 1.7 · **Stand:** 2026-10-09 · **Status:** Entwurf zur Abstimmung
 **Auftraggeber:** Jürgen Jesenko (privates Vorhaben) · **Umsetzung:** Claude Code
 
 > Ein Lastenheft beschreibt, **was** das Produkt leisten soll und **warum** — nicht,
@@ -183,6 +183,11 @@ Priorität: **MUSS** = ohne das kein Release · **SOLL** = wichtig, verhandelbar
 | L-3.10 | Zahlungserinnerung aus einer bestehenden Rechnung erzeugen | SOLL | B |
 | L-3.11 | Rechnungsvorschau vor dem Ausstellen | SOLL | A |
 | L-3.12 | Wiederkehrende Rechnungen (Abo-Rechnungen an eigene Kunden) | KANN | C |
+| L-3.13 | **Angebote** mit eigenem Nummernkreis, unabhängig vom Rechnungsnummernkreis | MUSS | A |
+| L-3.14 | Ein Angebot hat **keine steuerliche Wirkung**: es erscheint weder im Kassabuch noch in der UVA, noch in der Grenzwertüberwachung | MUSS | A |
+| L-3.15 | Ein Angebot lässt sich **mit einem Tipp in eine Rechnung umwandeln**; Positionen, Kunde und Preise werden übernommen und bleiben vor dem Ausstellen änderbar | MUSS | A |
+| L-3.16 | Angebotsstatus: offen, angenommen, abgelehnt, abgelaufen; mit Gültigkeitsdatum | MUSS | A |
+| L-3.17 | Angebot als PDF teilen; die PDF trägt sichtbar „Angebot", nie „Rechnung" | MUSS | A |
 
 ### 5.4 E-Rechnung
 
@@ -214,8 +219,8 @@ Priorität: **MUSS** = ohne das kein Release · **SOLL** = wichtig, verhandelbar
 | L-6.2 | Monatliche UVA für Nutzer, die dazu verpflichtet sind | MUSS | B |
 | L-6.3 | **Einkommensteuererklärung vorbereiten:** Zuordnung der Jahreszahlen zu den Feldern der Beilage (AT: E1a, DE: Anlage EÜR) | MUSS | B |
 | L-6.4 | Fristenkalender mit Erinnerung an Melde- und Zahlungstermine | SOLL | B |
-| L-6.5 | **Elektronische Übermittlung** der UVA über FinanzOnline-Webservice bzw. ELSTER — als kostenpflichtiger Premium-Service | SOLL | C |
-| L-6.6 | Elektronische Übermittlung der Einkommensteuererklärung — Premium-Service | KANN | C |
+| L-6.5 | **Elektronische Übermittlung** der UVA über FinanzOnline-Webservice bzw. ELSTER — **im Buchhaltungstarif enthalten**, weil sie bei allen ernsthaften Mitbewerbern Standard ist (siehe [`WETTBEWERB.md`](WETTBEWERB.md)) | MUSS | B |
+| L-6.6 | Elektronische Übermittlung der Einkommensteuererklärung — bleibt Premium-Service | KANN | C |
 | L-6.7 | Das Produkt stellt an jeder Stelle klar, dass die Verantwortung für die Richtigkeit der Erklärung beim Unternehmer bleibt | MUSS | B |
 
 ### 5.7 Datensicherung
@@ -451,6 +456,22 @@ mit, an die er anknüpfen muss.
 > Sache. Das ist der Grund, warum NFA-3 jede steuerwirksame Berechnung unter
 > Testpflicht stellt.
 
+### 5.18 Kontoumsätze
+
+| ID | Anforderung | Prio | Stufe |
+|---|---|---|---|
+| L-18.1 | **Import von Kontoauszügen als Datei** (CSV und CAMT.053), die der Nutzer aus seinem Onlinebanking herunterlädt. Kein Bankzugang, kein Server, das Offline-Prinzip bleibt ungebrochen | MUSS | B |
+| L-18.2 | Importierte Umsätze werden **Belegen und Rechnungen zugeordnet**; Vorschläge nach Betrag, Datum und Verwendungszweck, Bestätigung durch den Nutzer | MUSS | B |
+| L-18.3 | Eine Zahlung zu einer offenen Rechnung setzt diese auf *bezahlt* | SOLL | B |
+| L-18.4 | Umsätze ohne Beleg werden als offene Punkte sichtbar — die häufigste Lücke vor dem Jahresabschluss | MUSS | B |
+| L-18.5 | Wiederholter Import desselben Auszugs erzeugt keine Dubletten | MUSS | B |
+| L-18.6 | **Live-Bankanbindung** über einen lizenzierten Kontoinformationsdienst (PSD2) — später, als ausdrücklich einzuschaltende Ausnahme vom Offline-Prinzip | KANN | C |
+
+> **Entscheidung vom 2026-10-09:** Start mit Datei-Import. Gegenüber deutschen
+> Suiten, die eine Live-Anbindung schon im Einstiegstarif haben, ist das
+> umständlicher — dafür bleibt das Datenschutzversprechen vollständig intakt, und
+> es braucht keinen Server. L-18.6 hält die Tür für später offen.
+
 ---
 
 ## 6. Nichtfunktionale Anforderungen
@@ -502,8 +523,8 @@ mit, an die er anknüpfen muss.
 | S-3 | DATEV, BMD | Übergabe an die Steuerberatung | A |
 | S-4 | XRechnung, ZUGFeRD, ebInterface | E-Rechnung | B |
 | S-5 | App Store / Google Play Billing | Abonnement und Premium-Services | B |
-| S-6 | FinanzOnline-Webservice, ELSTER/ERiC | Elektronische Übermittlung von Meldungen | C |
-| S-7 | Bankkonto (CAMT, EBICS oder PSD2) | Kontoumsätze einlesen und Belegen zuordnen | C |
+| S-6 | FinanzOnline-Webservice, ELSTER/ERiC | Elektronische Übermittlung der UVA (Stufe B), der Einkommensteuer (Stufe C) | B |
+| S-7 | Kontoauszug als Datei (CSV, CAMT.053) | Kontoumsätze einlesen und Belegen zuordnen — **ohne Server, ohne Bankzugang** (L-18) | B |
 | S-8 | Eigenes Backend | Synchronisierung mehrerer Geräte; **Voraussetzung für S-9 bis S-11** | C |
 | S-9 | Amazon Selling Partner API | Verkaufsdaten aus dem Amazon-Seller-Konto | C |
 | S-10 | Shopify Admin API | Verkaufsdaten aus dem Shopify-Shop | C |
@@ -529,7 +550,7 @@ Was das Produkt ausdrücklich **nicht** leistet — und warum:
 | Steuerberatung im Einzelfall | Das Produkt liefert Zahlen und Hinweise, keine Beratung |
 | Vollwertige Warenwirtschaft | Eine schlanke Artikelverwaltung mit Lagerstand ist enthalten (L-11), weil sie das Rechnungschreiben beschleunigt. Was darüber hinausgeht — Stücklisten, Chargen, Seriennummern, Bestellwesen, Lieferantenverwaltung, Mehrlager — ist es nicht |
 | Channel-Management | Die Kanalanbindung übernimmt Verkaufsdaten. Artikel und Lagerstände aktiv in die Kanäle zurückzuschreiben und dort zu synchronisieren ist ausdrücklich nicht Teil des Zielbilds (siehe O-10) |
-| Angebote und Auftragsbestätigungen | Fremde Domäne; Fokus bleibt Buchhaltung und Rechnungslegung |
+| Auftragsbestätigungen, Lieferscheine | Angebote sind enthalten (L-3.13 ff.), weil sie der Markt erwartet. Der übrige Vertriebsbelegfluss bleibt fremde Domäne |
 | Fremdwährungen | Nur Euro. Märkte außerhalb der Eurozone — auch die Schweiz — sind nicht vorgesehen; sie brächen das gemeinsame Grundmuster an jeder Stelle gleichzeitig |
 | Werbekampagnen, Zielgruppenanalyse, Erfolgsmessung | Das Marketing-Modul (L-14) erzeugt Werbemittel. Kampagnensteuerung, Budgetverwaltung und Reichweitenauswertung sind fremde Domänen |
 | Revisionssichere Archivierung | Das Produkt ist Vorerfassung; die revisionssichere Aufbewahrung findet in der Buchhaltung der Kanzlei statt |
@@ -588,7 +609,8 @@ Grobe Schätzung in Personenwochen Vollzeitentwicklung, ohne Puffer:
 | Eröffnungswerte und Anschluss des Nummernkreises | A | 1–2 |
 | Bestätigungsablauf und Hinweise an den Wirkstellen | A | 1–2 |
 | Store-Reife: Icon, Screenshots, AGB, Impressum, Support | A | 2–3 |
-| **Summe Stufe A** | | **14–23** |
+| Angebote inkl. Umwandlung in Rechnung | A | 1–2 |
+| **Summe Stufe A** | | **15–25** |
 | Belegerkennung on-device | B | 3–5 |
 | E-Rechnung XRechnung/ZUGFeRD/ebInterface | B | 4–6 |
 | Saldenliste und rollender Jahresabschluss | B | 2–3 |
@@ -602,8 +624,10 @@ Grobe Schätzung in Personenwochen Vollzeitentwicklung, ohne Puffer:
 | Anlagevermögen übernehmen, Altunterlagen archivieren | B | 1–2 |
 | Rechtstexte und DSGVO-Dokumentation (ohne Anwaltskosten) | B | 1–2 |
 | Zeitlich gestaffelte Steuersätze (L-13.5) | B | 1–2 |
-| **Summe Stufe B** | | **26–40** |
-| **Stufe A + B zusammen** | | **40–63 Personenwochen** |
+| UVA-Übermittlung FinanzOnline/ELSTER inkl. Herstellerregistrierung | B | 3–4 |
+| Kontoauszug-Import und Zuordnung | B | 2–3 |
+| **Summe Stufe B** | | **31–47** |
+| **Stufe A + B zusammen** | | **46–72 Personenwochen** |
 | Backend als Voraussetzung der Kanalanbindung | C | 6–10 |
 | Kanalanbindung je Kanal, nur lesend | C | 3–5 |
 | OSS-Erweiterung des Steuerlayers | C | 3–4 |
@@ -612,7 +636,7 @@ Grobe Schätzung in Personenwochen Vollzeitentwicklung, ohne Puffer:
 | Gmail- und Graph-Versand inkl. Verifizierung | C | 2–3 |
 | Postfachzugriff lesend inkl. CASA-Prüfung | C | 3–4 zzgl. Prüfkosten |
 
-Das entspricht etwa **neun bis fünfzehn Monaten** durchgehender Entwicklung.
+Das entspricht etwa **elf bis siebzehn Monaten** durchgehender Entwicklung.
 Der Rückgang gegenüber Version 1.2 geht vollständig auf den Entfall der Schweiz
 zurück. Stufe C
 kommt in ähnlicher Größenordnung hinzu; allein Backend, drei Kanäle und die
@@ -686,7 +710,7 @@ Zu entscheiden, bevor die betroffene Anforderung umgesetzt wird:
 | O-1 | **Prüfung der österreichischen Kleinunternehmer-Logik.** Mehrere Quellen beschreiben § 6 Abs 1 Z 27 UStG so, dass **auch der Vorjahresumsatz** unter 55.000 € liegen muss. Die heutige Implementierung prüft nur das laufende Jahr. Amtliche Quellen waren aus der Entwicklungsumgebung nicht erreichbar — Bestätigung durch die Steuerberatung nötig | sofort; betrifft bestehenden Code |
 | O-2 | Produktname und Bundle-ID | vor dem ersten Store-Upload |
 | O-3 | Preispunkte für Basisabo und Premium-Services — Vorschlag und Marktvergleich in [`WETTBEWERB.md`](WETTBEWERB.md) | Stufe B |
-| O-22 | **Aus der Wettbewerbsanalyse:** (a) elektronische UVA-Übermittlung ist bei allen ernsthaften Mitbewerbern Standard, nicht Premium; (b) Bankanbindung ist im deutschen Markt Einstiegsausstattung und steht im Zielkonflikt mit „offline first"; (c) Angebote sind Markterwartung, im Lastenheft aber ausgeschlossen. Alle drei sind zu entscheiden | vor Stufe B |
+| ~~O-22~~ | **Entschieden am 2026-10-09:** (a) UVA-Übermittlung in den Buchhaltungstarif, Stufe B (L-6.5); (b) Start mit Datei-Import der Kontoauszüge, Live-Anbindung später als Opt-in (L-18); (c) Angebote aufgenommen, Stufe A (L-3.13 ff.) | erledigt |
 | O-4 | Zuschnitt der Premium-Services: Was gehört ins Basisabo, was kostet extra | Stufe B |
 | O-5 | Zeitrahmen und verfügbare Arbeitszeit pro Woche | Planung |
 | O-6 | Weitere Plattformen (Web, Desktop) gewünscht? | Stufe C |
@@ -713,6 +737,7 @@ Zu entscheiden, bevor die betroffene Anforderung umgesetzt wird:
 
 | Version | Datum | Änderung |
 |---|---|---|
+| 1.7 | 2026-10-09 | O-22 entschieden: UVA-Übermittlung in den Haupttarif (Stufe B), Kontoumsätze per Datei-Import (neuer Block L-18), Angebote aufgenommen (L-3.13 bis L-3.17). Aufwand Stufe A und B auf 46–72 Personenwochen. |
 | 1.6 | 2026-10-09 | O-19 behoben. Umgesetzt sind die Umsatzanteile von L-16.1 sowie L-16.2 und L-16.11; Forderungen, Verbindlichkeiten und Kassenbestand aus L-16.1 bleiben offen. |
 | 1.5 | 2026-10-09 | Neuer Block L-16 Datenübernahme beim Einstieg mit Eröffnungswerten, Altdaten-Import und Archivierung von Altunterlagen. Neuer Block L-17 Rechtlicher Rahmen und Haftungsabgrenzung mit ausdrücklicher Bestätigung bei der Registrierung. Zweiter bekannter Fehler derselben Art wie O-1 aufgenommen (O-19): der Vorjahresumsatz wird nur aus erfassten Belegen ermittelt und ist für neue Nutzer null. Drei neue Risiken. Aufwand Stufe A und B auf 40–63 Personenwochen angehoben. |
 | 1.4 | 2026-10-09 | Google als Merchant Center präzisiert (O-11 erledigt). Neuer Block L-15 E-Mail-Anbindung mit gestuftem Zuschnitt: Teilen-Dialog und Beleg-Eingangsadresse vor dem direkten Postfachzugriff, weil Googles eingeschränkte Bereiche eine jährlich kostenpflichtige Sicherheitsprüfung auslösen. Zwei neue Risiken, R-15, vier neue Schnittstellen. |
