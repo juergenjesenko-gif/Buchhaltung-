@@ -37,6 +37,13 @@ beide Richtungen fehl:
 Wer einen neuen Kennwert in die Spezifikation schreibt, ergänzt also auch die
 Prüfung. Wer einen Wert im Code ändert, merkt es beim nächsten `flutter test`.
 
+### Datenschutz mitführen
+
+Eine Änderung, die Daten vom Gerät wegüberträgt, ist erst fertig, wenn sie im
+selben Commit in drei Stellen eingetragen ist: Datenflusstabelle in
+`docs/LASTENHEFT.md` Abschnitt 5.19, `docs/PRIVACY.md` und die
+Store-Datensicherheitsangaben in `docs/STORE_LISTING.md` (Lastenheft L-19.5).
+
 ## Fachliche Grundregeln
 
 Diese sind nicht verhandelbar. Ausführlich in `docs/SPECIFICATION.md` Abschnitt 3.

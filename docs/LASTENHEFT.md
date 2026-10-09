@@ -1,6 +1,6 @@
 # Lastenheft – Buchhaltungsapp für Österreich und Deutschland
 
-**Dokumentversion:** 1.7 · **Stand:** 2026-10-09 · **Status:** Entwurf zur Abstimmung
+**Dokumentversion:** 1.8 · **Stand:** 2026-10-09 · **Status:** Entwurf zur Abstimmung
 **Auftraggeber:** Jürgen Jesenko (privates Vorhaben) · **Umsetzung:** Claude Code
 
 > Ein Lastenheft beschreibt, **was** das Produkt leisten soll und **warum** — nicht,
@@ -430,9 +430,9 @@ mit, an die er anknüpfen muss.
 
 | ID | Anforderung | Prio | Stufe |
 |---|---|---|---|
-| L-17.1 | Bei der Registrierung **bestätigt der Nutzer ausdrücklich**, dass das Produkt Informationen bereitstellt, sie aber **nicht steuerrechtlich validiert**, und dass die Prüfung durch eine Steuerberatung erforderlich bleibt | MUSS | A |
+| L-17.1 | Bei der **ersten Einrichtung** der App — ab Stufe C bei der Anlage des Nutzerkontos — **bestätigt der Nutzer ausdrücklich**, dass das Produkt Informationen bereitstellt, sie aber **nicht steuerrechtlich validiert**, und dass die Prüfung durch eine Steuerberatung erforderlich bleibt | MUSS | A |
 | L-17.2 | Diese Bestätigung ist **von den AGB getrennt**, eigenständig, nicht vorausgewählt und nicht überspringbar | MUSS | A |
-| L-17.3 | Die Bestätigung wird mit **Zeitstempel und Fassung des Textes nachweisbar** gespeichert | MUSS | A |
+| L-17.3 | Die Bestätigung wird mit **Zeitstempel und Fassung des Textes nachweisbar* gespeichert — ohne Konto lokal auf dem Gerät und in jeder Sicherung enthalten, mit Konto zusätzlich beim Anbieter. Ursprünglicher Wortlaut: ** gespeichert | MUSS | A |
 | L-17.4 | Ändert sich der Text wesentlich, wird die Bestätigung **erneut eingeholt** | MUSS | A |
 | L-17.5 | Der Hinweis erscheint zusätzlich **dort, wo er zählt**: vor dem Export an die Steuerberatung, bei der Vorbereitung von Meldungen und Steuererklärungen, beim Jahresabschluss | MUSS | A |
 | L-17.6 | **Erzeugte Auswertungen und Meldungsvorbereitungen tragen den Hinweis im Dokument selbst** — nicht nur auf dem Bildschirm, auf dem sie entstanden sind | MUSS | A |
@@ -472,6 +472,66 @@ mit, an die er anknüpfen muss.
 > umständlicher — dafür bleibt das Datenschutzversprechen vollständig intakt, und
 > es braucht keinen Server. L-18.6 hält die Tür für später offen.
 
+### 5.19 Datenschutz
+
+Bündelt, was bisher über die Module verteilt war, und legt die Rollen fest.
+
+#### Nutzerkonto
+
+| ID | Anforderung | Prio | Stufe |
+|---|---|---|---|
+| L-19.1 | **Stufe A und B kommen ohne Nutzerkonto aus.** Das Abonnement läuft über den Kauf im App Store bzw. bei Google Play; die Lizenz hängt am Store-Konto, nicht an einem Konto beim Anbieter | MUSS | A |
+| L-19.2 | **Ein Nutzerkonto entsteht erst mit der Cloud-Synchronisierung (S-8)**, weil es nur dafür gebraucht wird: um sich von weiteren Geräten aus anzumelden | MUSS | C |
+| L-19.3 | Auch mit Konto bleibt die App **ohne Anmeldung nutzbar**; das Konto ist Voraussetzung für die Synchronisierung, nicht für die Buchhaltung | MUSS | C |
+| L-19.4 | Für das Konto werden nur die zur Anmeldung nötigen Daten erhoben (E-Mail-Adresse, Zugangsdaten). Keine Telefonnummer, kein Geburtsdatum, keine Profilangaben „für später" | MUSS | C |
+
+#### Rollen
+
+| Datenkategorie | Verantwortlicher | Anbieter ist |
+|---|---|---|
+| Buchhaltungsdaten am Gerät (Belege, Rechnungen, Kunden) | **der Nutzer** — er erfasst Daten seiner Kunden | nicht beteiligt; liefert nur Software |
+| Kontodaten (Stufe C) | **der Anbieter** | Verantwortlicher |
+| Synchronisierte Buchhaltungsdaten (Stufe C) | der Nutzer | **Auftragsverarbeiter**; Vertrag nach Art. 28 DSGVO mit jedem Nutzer |
+| Daten an Marketing- und Postfach-Dienste (L-14, L-15) | der Nutzer | Auftragsverarbeiter mit Unterauftragnehmer |
+
+#### Datenflüsse
+
+Jede Übertragung vom Gerät weg, auch die unscheinbaren:
+
+| Datenfluss | Empfänger | Was | Ausgelöst durch | Opt-in | Stufe |
+|---|---|---|---|---|---|
+| Rechnung/Export teilen | vom Nutzer gewählt | PDF, CSV | Tippen auf Teilen | je Vorgang | vorhanden |
+| Sicherung (L-7.2) | iCloud bzw. Google Drive des Nutzers | verschlüsselte Vollsicherung | Einschalten | ja | A |
+| Foto-Zweitablage (L-2.11) | Fotobibliothek, ggf. deren Cloud | Belegfotos | Einschalten | ja | A |
+| UID-Prüfung (L-1.3) | EU-Kommission (VIES) | UID-Nummer | Prüfauftrag | je Vorgang | A |
+| Rechnungsversand (L-15.1) | Mail-App des Nutzers | PDF | Tippen auf Senden | je Vorgang | A |
+| Abo-Kauf (L-10.1) | Apple bzw. Google | Kaufvorgang | Kauf | je Vorgang | B |
+| UVA-Übermittlung (L-6.5) | FinanzOnline bzw. ELSTER | Kennzahlen der Voranmeldung | Freigabe der Meldung | je Vorgang | B |
+| Cloud-Synchronisierung (S-8) | Server des Anbieters | alle Buchhaltungsdaten, verschlüsselt | Konto anlegen | ja | C |
+| Marketing (L-14) | Dienst zur Inhaltserzeugung | nur Unternehmens- und Artikeldaten | Modul einschalten | ja | C |
+| Postfach, Kanäle (L-15, L-12) | Google, Microsoft, Amazon, Shopify | je nach Modul | Modul einschalten | ja | C |
+
+| ID | Anforderung | Prio | Stufe |
+|---|---|---|---|
+| L-19.5 | **Jeder neue Datenfluss wird im selben Schritt in diese Tabelle, in die Datenschutzerklärung und in die Store-Datensicherheitsangaben eingetragen.** Eine Funktion, die Daten überträgt, ist ohne diese drei Einträge nicht fertig | MUSS | A |
+| L-19.6 | Daten, die beim Anbieter landen (Stufe C), werden **in der EU** verarbeitet und gespeichert | MUSS | C |
+| L-19.7 | Synchronisierte Daten sind **Ende-zu-Ende verschlüsselt**; der Anbieter kann Buchhaltungsdaten nicht lesen | SOLL | C |
+
+#### Löschung und Aufbewahrungspflicht
+
+| ID | Anforderung | Prio | Stufe |
+|---|---|---|---|
+| L-19.8 | Die App **löscht keine Buchungsbelege vor Ablauf der Aufbewahrungsfrist** (AT 7, DE 8 Jahre) ohne ausdrückliche Warnung; die Frist hat Vorrang vor dem Löschwunsch (Art. 17 Abs. 3 lit. b DSGVO) | MUSS | A |
+| L-19.9 | Die Löschung des **Nutzerkontos** (Stufe C) entfernt Kontodaten und synchronisierte Kopien beim Anbieter; die Daten am Gerät bleiben, damit die Aufbewahrungspflicht erfüllbar bleibt | MUSS | C |
+| L-19.10 | Der Nutzer kann **Daten seiner Kunden** auf deren Anfrage auskunftsfähig zusammenstellen (alle Rechnungen und Stammdaten eines Kunden als Export) | SOLL | B |
+| L-19.11 | Kundenstammdaten ohne aufbewahrungspflichtige Rechnungen sind löschbar; mit solchen Rechnungen wird auf die Frist verwiesen | MUSS | B |
+
+> **Die Leitlinie.** Bis Stufe C gibt es beim Anbieter schlicht keine
+> Nutzerdaten: kein Konto, kein Server, keine Kopie. Das ist die stärkste
+> Datenschutzposition, die ein Produkt einnehmen kann, und sie ist nur so lange zu
+> halten, wie L-19.5 ernst genommen wird. Rechtsgrundlagen und Rollen sind vor
+> Stufe C anwaltlich zu bestätigen (L-17.11).
+
 ---
 
 ## 6. Nichtfunktionale Anforderungen
@@ -498,7 +558,7 @@ mit, an die er anknüpfen muss.
 | R-1 | Rechnungen erfüllen § 11 UStG (AT) bzw. § 14 UStG (DE) einschließlich Kleinbetragsregelung |
 | R-2 | Kleinunternehmerregelung nach § 6 Abs 1 Z 27 UStG (AT) und § 19 UStG (DE) korrekt abgebildet, inklusive der unterschiedlichen Grenzen und Toleranzen |
 | R-3 | Aufbewahrungsfristen werden dem Nutzer kommuniziert (AT 7 Jahre, DE 8 Jahre für Buchungsbelege) |
-| R-4 | DSGVO: Datenschutzerklärung, Auskunfts- und Löschkonzept. Für Stufe C zusätzlich Auftragsverarbeitungsvertrag und Verzeichnis der Verarbeitungstätigkeiten |
+| R-4 | DSGVO: siehe Block L-19 |
 | R-5 | E-Rechnung nach EN 16931 für den deutschen B2B-Verkehr; Empfangspflicht besteht seit 2025, Versandpflicht gestaffelt bis 2028 |
 | R-6 | Als kommerzielles Produkt zusätzlich: Impressum, AGB, Widerrufsbelehrung, Preisangaben, und eine eigene Rechnungslegung für die Aboerlöse |
 | R-7 | Das Produkt ist **keine Registrierkasse** nach RKSV und sagt das unmissverständlich |
@@ -737,6 +797,7 @@ Zu entscheiden, bevor die betroffene Anforderung umgesetzt wird:
 
 | Version | Datum | Änderung |
 |---|---|---|
+| 1.8 | 2026-10-09 | Neuer Block L-19 Datenschutz: kein Nutzerkonto bis zur Cloud-Synchronisierung (Stufe C), Rollen, vollständige Tabelle der Datenflüsse, Regel zu Löschung gegen Aufbewahrungspflicht. L-17.1/L-17.3 von „Registrierung" auf „erste Einrichtung" umgestellt; Widerspruch zu NFA-2 der Spezifikation aufgelöst. |
 | 1.7 | 2026-10-09 | O-22 entschieden: UVA-Übermittlung in den Haupttarif (Stufe B), Kontoumsätze per Datei-Import (neuer Block L-18), Angebote aufgenommen (L-3.13 bis L-3.17). Aufwand Stufe A und B auf 46–72 Personenwochen. |
 | 1.6 | 2026-10-09 | O-19 behoben. Umgesetzt sind die Umsatzanteile von L-16.1 sowie L-16.2 und L-16.11; Forderungen, Verbindlichkeiten und Kassenbestand aus L-16.1 bleiben offen. |
 | 1.5 | 2026-10-09 | Neuer Block L-16 Datenübernahme beim Einstieg mit Eröffnungswerten, Altdaten-Import und Archivierung von Altunterlagen. Neuer Block L-17 Rechtlicher Rahmen und Haftungsabgrenzung mit ausdrücklicher Bestätigung bei der Registrierung. Zweiter bekannter Fehler derselben Art wie O-1 aufgenommen (O-19): der Vorjahresumsatz wird nur aus erfassten Belegen ermittelt und ist für neue Nutzer null. Drei neue Risiken. Aufwand Stufe A und B auf 40–63 Personenwochen angehoben. |
