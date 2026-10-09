@@ -116,6 +116,7 @@ Dass beide aktuell bleiben, ist nicht Disziplin, sondern erzwungen:
 
 Weiteres:
 
+- [`docs/WETTBEWERB.md`](docs/WETTBEWERB.md) – Wettbewerbsanalyse mit Preisbändern und Preisvorschlag
 - [`docs/BACKLOG.md`](docs/BACKLOG.md) – Product Backlog mit Akzeptanzkriterien
 - [`docs/SPRINT_PLAN.md`](docs/SPRINT_PLAN.md) – Sprintschnitt und Definition of Done
 - [`docs/COMPLIANCE_AT_DE.md`](docs/COMPLIANCE_AT_DE.md) – steuerliche Anforderungen und

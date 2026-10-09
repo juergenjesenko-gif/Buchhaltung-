@@ -685,7 +685,8 @@ Zu entscheiden, bevor die betroffene Anforderung umgesetzt wird:
 |---|---|---|
 | O-1 | **Prüfung der österreichischen Kleinunternehmer-Logik.** Mehrere Quellen beschreiben § 6 Abs 1 Z 27 UStG so, dass **auch der Vorjahresumsatz** unter 55.000 € liegen muss. Die heutige Implementierung prüft nur das laufende Jahr. Amtliche Quellen waren aus der Entwicklungsumgebung nicht erreichbar — Bestätigung durch die Steuerberatung nötig | sofort; betrifft bestehenden Code |
 | O-2 | Produktname und Bundle-ID | vor dem ersten Store-Upload |
-| O-3 | Preispunkte für Basisabo und Premium-Services | Stufe B |
+| O-3 | Preispunkte für Basisabo und Premium-Services — Vorschlag und Marktvergleich in [`WETTBEWERB.md`](WETTBEWERB.md) | Stufe B |
+| O-22 | **Aus der Wettbewerbsanalyse:** (a) elektronische UVA-Übermittlung ist bei allen ernsthaften Mitbewerbern Standard, nicht Premium; (b) Bankanbindung ist im deutschen Markt Einstiegsausstattung und steht im Zielkonflikt mit „offline first"; (c) Angebote sind Markterwartung, im Lastenheft aber ausgeschlossen. Alle drei sind zu entscheiden | vor Stufe B |
 | O-4 | Zuschnitt der Premium-Services: Was gehört ins Basisabo, was kostet extra | Stufe B |
 | O-5 | Zeitrahmen und verfügbare Arbeitszeit pro Woche | Planung |
 | O-6 | Weitere Plattformen (Web, Desktop) gewünscht? | Stufe C |
