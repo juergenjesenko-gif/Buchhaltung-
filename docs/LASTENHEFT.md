@@ -1,6 +1,6 @@
 # Lastenheft – Buchhaltungsapp für Österreich und Deutschland
 
-**Dokumentversion:** 1.4 · **Stand:** 2026-10-09 · **Status:** Entwurf zur Abstimmung
+**Dokumentversion:** 1.5 · **Stand:** 2026-10-09 · **Status:** Entwurf zur Abstimmung
 **Auftraggeber:** Jürgen Jesenko (privates Vorhaben) · **Umsetzung:** Claude Code
 
 > Ein Lastenheft beschreibt, **was** das Produkt leisten soll und **warum** — nicht,
@@ -70,6 +70,7 @@ grundlegend — der bestehende Code bleibt Grundlage, ist aber nicht das Ziel.
 | E-2 | Eine Steuerberatung kann den Jahresexport ohne Rückfragen einlesen |
 | E-3 | Das Produkt übersteht einen vollständigen Jahreszyklus inklusive Jahresabschluss im Echtbetrieb |
 | E-4 | Keine Rechnung, die wegen fehlender Pflichtangaben beanstandet wird |
+| E-5 | Ein Nutzer, der mitten im Jahr von einer anderen Lösung wechselt, kann ohne Bruch weiterarbeiten |
 
 ---
 
@@ -387,6 +388,69 @@ Zwei getrennte Zwecke, die nur auf den ersten Blick dasselbe sind: Rechnungen
 > Alle Angaben zu Prüfverfahren und Kosten stammen aus Sekundärquellen und sind
 > vor einer Umsetzung gegen die Angaben von Google und Microsoft zu prüfen.
 
+### 5.16 Datenübernahme beim Einstieg
+
+Kaum ein Nutzer beginnt am 1. Jänner bei null. Er wechselt mitten im Jahr von
+Excel, einer anderen App oder vom Schuhkarton — und bringt eine Vorgeschichte
+mit, an die er anknüpfen muss.
+
+| ID | Anforderung | Prio | Stufe |
+|---|---|---|---|
+| L-16.1 | Beim Anlegen des Profils werden **Eröffnungswerte** erfasst: Umsatz des Vorjahres, Umsatz des laufenden Jahres bis zum Einstiegsdatum, offene Forderungen, offene Verbindlichkeiten, Kassen- und Bankbestand | MUSS | A |
+| L-16.2 | Der **Vorjahresumsatz ist Pflichtangabe**, solange die Kleinunternehmerregelung aktiv ist. Ohne ihn ist die Grenzwertüberwachung wertlos oder — schlimmer — falsch beruhigend | MUSS | A |
+| L-16.3 | Der **Rechnungsnummernkreis knüpft an den bestehenden Stand an**: wer aus einer Vorsoftware mit `RE-2026-0087` kommt, darf nicht wieder bei `0001` beginnen | MUSS | A |
+| L-16.4 | **Anlagevermögen übernehmen** mit Anschaffungsdatum, Anschaffungskosten, Nutzungsdauer und Restbuchwert, damit die Abschreibung fortgeführt werden kann | SOLL | B |
+| L-16.5 | **Belege und Buchungen importieren** aus CSV sowie aus DATEV- und BMD-Formaten der Vorsoftware | SOLL | B |
+| L-16.6 | Jeder Import läuft über eine **Vorschau mit Spaltenzuordnung**; nichts wird ungeprüft übernommen | MUSS | B |
+| L-16.7 | Importe sind als **Stapel gekennzeichnet und als Ganzes zurücknehmbar**, solange nichts darauf aufbaut | MUSS | B |
+| L-16.8 | **Dubletten werden erkannt**, damit ein zweimal ausgeführter Import die Buchhaltung nicht verdoppelt | MUSS | B |
+| L-16.9 | **Offene Rechnungen aus der Vorsoftware** werden als offene Posten übernommen, ohne den eigenen Nummernkreis zu belasten | SOLL | B |
+| L-16.10 | **Altunterlagen als PDF archivieren**: Jahresabschlüsse, Steuerbescheide, Saldenlisten der Vorjahre liegen durchsuchbar beim Unternehmen, ohne maschinell ausgewertet zu werden | SOLL | B |
+| L-16.11 | Das Produkt macht transparent, **ab welchem Datum seine Zahlen vollständig sind** — davor übernommene Eröffnungswerte, danach eigene Erfassung | MUSS | A |
+
+> **Warum das keine Komfortfunktion ist.** Die Grenzwertüberwachung rechnet den
+> Vorjahresumsatz heute aus den erfassten Belegen. Ein Nutzer, der die App im
+> Oktober installiert, hat keine Belege aus dem Vorjahr — die Summe ist null, und
+> die Ampel steht auf Grün, auch wenn er die Grenze längst gerissen hat. In
+> Deutschland entscheidet der Vorjahresumsatz über das ganze laufende Jahr. Ohne
+> L-16.1 und L-16.2 gibt das Produkt also eine falsche Entwarnung. Siehe O-19.
+>
+> **Was nicht geht, und zwar grundsätzlich:** einen beliebigen Jahresabschluss als
+> PDF einlesen und daraus Buchungen gewinnen. Solche Dokumente haben kein
+> einheitliches Format. L-16.10 legt sie deshalb bewusst nur ab; die wenigen
+> Zahlen, die wirklich weitergetragen werden müssen, erfasst der Nutzer geführt
+> über L-16.1.
+
+### 5.17 Rechtlicher Rahmen und Haftungsabgrenzung
+
+| ID | Anforderung | Prio | Stufe |
+|---|---|---|---|
+| L-17.1 | Bei der Registrierung **bestätigt der Nutzer ausdrücklich**, dass das Produkt Informationen bereitstellt, sie aber **nicht steuerrechtlich validiert**, und dass die Prüfung durch eine Steuerberatung erforderlich bleibt | MUSS | A |
+| L-17.2 | Diese Bestätigung ist **von den AGB getrennt**, eigenständig, nicht vorausgewählt und nicht überspringbar | MUSS | A |
+| L-17.3 | Die Bestätigung wird mit **Zeitstempel und Fassung des Textes nachweisbar** gespeichert | MUSS | A |
+| L-17.4 | Ändert sich der Text wesentlich, wird die Bestätigung **erneut eingeholt** | MUSS | A |
+| L-17.5 | Der Hinweis erscheint zusätzlich **dort, wo er zählt**: vor dem Export an die Steuerberatung, bei der Vorbereitung von Meldungen und Steuererklärungen, beim Jahresabschluss | MUSS | A |
+| L-17.6 | **Erzeugte Auswertungen und Meldungsvorbereitungen tragen den Hinweis im Dokument selbst** — nicht nur auf dem Bildschirm, auf dem sie entstanden sind | MUSS | A |
+| L-17.7 | Das Produkt gibt **keine individuelle steuerliche Beratung**. Hinweise sind allgemeine Erläuterungen mit Angabe der Fundstelle, nie eine Empfehlung für den Einzelfall | MUSS | A |
+| L-17.8 | Das Produkt bezeichnet sich **nirgends als geprüfte, zertifizierte oder validierte Steuersoftware**; es ist ein Werkzeug für das eigene Büro | MUSS | A |
+| L-17.9 | **Pflichten als Anbieter nach DSGVO**: Verzeichnis der Verarbeitungstätigkeiten, Auftragsverarbeitungsverträge mit allen Unterauftragnehmern, technische und organisatorische Maßnahmen, Auskunfts- und Löschkonzept, Meldewege bei Datenschutzverletzungen | MUSS | B |
+| L-17.10 | **Pflichtangaben als kommerzieller Anbieter**: Impressum, AGB, Widerrufsbelehrung, Preisangaben, Hinweise zur Vertragslaufzeit und Kündigung | MUSS | B |
+| L-17.11 | Alle Rechtstexte werden **von einer Rechtsanwältin oder einem Rechtsanwalt erstellt oder geprüft**, nicht aus Vorlagen zusammengesetzt | MUSS | B |
+
+> **Was der Hinweis leistet — und was nicht.** Die Abgrenzung trifft eine reale
+> Rechtsgrenze: Hilfeleistung in Steuersachen ist in Deutschland nach dem
+> Steuerberatungsgesetz und in Österreich nach dem WTBG den Berufsberechtigten
+> vorbehalten. Eine Software, die rechnet, Formulare vorbereitet und Fundstellen
+> nennt, bleibt diesseits dieser Grenze. Eine Software, die dem einzelnen Nutzer
+> sagt, was er tun soll, überschreitet sie. L-17.7 zieht genau diese Linie.
+>
+> **Die Grenze des Hinweises:** Er deckt die *steuerliche Würdigung* ab, nicht die
+> *Fehlerfreiheit der Software*. Rechnet das Produkt die Umsatzsteuer falsch,
+> hilft kein Bestätigungshaken — dafür haftet der Anbieter. Haftungsabgrenzung und
+> Testdisziplin sind deshalb keine Alternativen, sondern zwei Hälften derselben
+> Sache. Das ist der Grund, warum NFA-3 jede steuerwirksame Berechnung unter
+> Testpflicht stellt.
+
 ---
 
 ## 6. Nichtfunktionale Anforderungen
@@ -424,6 +488,7 @@ Zwei getrennte Zwecke, die nur auf den ersten Blick dasselbe sind: Rechnungen
 | R-12 | **Marketing-Modul (L-14):** Auftragsverarbeitungsvertrag nach Art. 28 DSGVO mit dem Anbieter der Inhaltserzeugung; Anpassung von Datenschutzerklärung und Store-Datensicherheitsangaben |
 | R-13 | **Werberecht:** erzeugte Inhalte dürfen nicht irreführend sein (UWG). Preis-, Wirkungs- und Vergleichsaussagen verantwortet der Nutzer und müssen von ihm gesetzt sein |
 | R-14 | **Kennzeichnung und Urheberrecht** bei erzeugten Bildmitteln: Nutzungsrechte für kommerzielle Verwendung sind nachweisbar zu klären |
+| R-15b | **Berufsrechtliche Grenze:** Hilfeleistung in Steuersachen ist den Berufsberechtigten vorbehalten (StBerG in Deutschland, WTBG in Österreich). Das Produkt rechnet und bereitet vor, es berät nicht im Einzelfall |
 | R-15 | **Postfachzugriff (L-15.4 ff.):** Auftragsverarbeitungsvertrag, Zweckbindung auf Belegübernahme, Löschkonzept für nicht übernommene Nachrichten; Googles jährliche CASA-Prüfung und Microsofts Herausgeberverifizierung sind einzuplanen |
 
 ---
@@ -449,6 +514,7 @@ Zwei getrennte Zwecke, die nur auf den ersten Blick dasselbe sind: Rechnungen
 | S-15 | Gmail API | Versand über das Postfach des Nutzers; optional Lesen eines Labels | C |
 | S-16 | Microsoft Graph (Outlook) | Versand über das Postfach des Nutzers; optional Lesen eines Ordners | C |
 | S-17 | Teilen-Dialog des Betriebssystems | Beleg aus beliebiger App übernehmen (L-15.2) | B |
+| S-18 | CSV, DATEV, BMD (lesend) | Übernahme von Altdaten aus der Vorsoftware (L-16.5) | B |
 
 ---
 
@@ -482,8 +548,9 @@ Möglichkeit, früher Rückmeldung von echten Nutzern zu bekommen.
 Das Produkt ist verkaufbar und löst das Kernproblem. Enthält alles aus Sprint 1
 plus: Datensicherung, Storno/Gutschrift, Spracheingabe, UID-Prüfung,
 Rechnungsvorschau, Logo, **Artikelverwaltung ohne Bestandsführung** und die
-**Zweitablage der Belegfotos**; Rechnungsversand per E-Mail ist bereits
-enthalten.
+**Zweitablage der Belegfotos**, **Eröffnungswerte beim Einstieg** und der
+**Bestätigungsablauf zur Haftungsabgrenzung**; Rechnungsversand per E-Mail ist
+bereits enthalten.
 
 **Warum dieser Schnitt:** Datensicherung schließt die einzige echte Lücke des
 heutigen Stands. Storno schließt die einzige fachliche Sackgasse. Beides zusammen
@@ -493,8 +560,9 @@ ergibt ein Produkt, das man guten Gewissens verkaufen kann.
 
 Belegerkennung, E-Rechnung, Saldenliste, rollender Jahresabschluss, UVA- und
 Einkommensteuer-Vorbereitung, Abonnement, Belegvorlagen, Zahlungserinnerung,
-**Lagerstandsführung, Artikel-Import/Export** und die **Belegübernahme über den
-Teilen-Dialog**.
+**Lagerstandsführung, Artikel-Import/Export**, die **Belegübernahme über den
+Teilen-Dialog**, der **Altdaten-Import** und die **Rechtstexte samt
+Datenschutz-Dokumentation**.
 
 ### Stufe C — Premium und Ausbau
 
@@ -517,8 +585,10 @@ Grobe Schätzung in Personenwochen Vollzeitentwicklung, ohne Puffer:
 | Rechnungsvorschau, Logo, Feinschliff | A | 1–2 |
 | Artikelverwaltung inkl. Auswahl in der Rechnung | A | 2–3 |
 | Zweitablage Belegfotos (Opt-in, eigenes Album) | A | 1 |
+| Eröffnungswerte und Anschluss des Nummernkreises | A | 1–2 |
+| Bestätigungsablauf und Hinweise an den Wirkstellen | A | 1–2 |
 | Store-Reife: Icon, Screenshots, AGB, Impressum, Support | A | 2–3 |
-| **Summe Stufe A** | | **12–19** |
+| **Summe Stufe A** | | **14–23** |
 | Belegerkennung on-device | B | 3–5 |
 | E-Rechnung XRechnung/ZUGFeRD/ebInterface | B | 4–6 |
 | Saldenliste und rollender Jahresabschluss | B | 2–3 |
@@ -528,9 +598,12 @@ Grobe Schätzung in Personenwochen Vollzeitentwicklung, ohne Puffer:
 | Belegvorlagen, Zahlungserinnerung | B | 1–2 |
 | Lagerstandsführung, Artikel-Import/Export | B | 2–3 |
 | Belegübernahme über den Teilen-Dialog | B | 1 |
+| Altdaten-Import mit Vorschau, Stapel und Dublettenerkennung | B | 3–4 |
+| Anlagevermögen übernehmen, Altunterlagen archivieren | B | 1–2 |
+| Rechtstexte und DSGVO-Dokumentation (ohne Anwaltskosten) | B | 1–2 |
 | Zeitlich gestaffelte Steuersätze (L-13.5) | B | 1–2 |
-| **Summe Stufe B** | | **21–32** |
-| **Stufe A + B zusammen** | | **33–51 Personenwochen** |
+| **Summe Stufe B** | | **26–40** |
+| **Stufe A + B zusammen** | | **40–63 Personenwochen** |
 | Backend als Voraussetzung der Kanalanbindung | C | 6–10 |
 | Kanalanbindung je Kanal, nur lesend | C | 3–5 |
 | OSS-Erweiterung des Steuerlayers | C | 3–4 |
@@ -539,7 +612,7 @@ Grobe Schätzung in Personenwochen Vollzeitentwicklung, ohne Puffer:
 | Gmail- und Graph-Versand inkl. Verifizierung | C | 2–3 |
 | Postfachzugriff lesend inkl. CASA-Prüfung | C | 3–4 zzgl. Prüfkosten |
 
-Das entspricht etwa **sieben bis zwölf Monaten** durchgehender Entwicklung.
+Das entspricht etwa **neun bis fünfzehn Monaten** durchgehender Entwicklung.
 Der Rückgang gegenüber Version 1.2 geht vollständig auf den Entfall der Schweiz
 zurück. Stufe C
 kommt in ähnlicher Größenordnung hinzu; allein Backend, drei Kanäle und die
@@ -595,6 +668,9 @@ bis sechs Wochen hinzu.
 | RK-11 | **Falscher Lagerstand** führt zu Überverkauf oder falscher Bewertung | mittel | Bestandsführung bleibt bewusst einfach und einkanalig; kein Rückschreiben in die Kanäle (L-12.9) |
 | RK-12 | **Datenschutzversprechen bricht am Marketing-Modul.** Es ist das erste Modul, das Geschäftsdaten an einen Dritten gibt | hoch | L-14.5 verbietet die Übertragung von Kundendaten; Modul standardmäßig aus, Auftragsverarbeitungsvertrag vor der ersten Nutzung |
 | RK-13 | **Erzeugte Werbung ist rechtswidrig** — irreführende Aussagen, fremde Marken, ungeklärte Bildrechte | mittel | L-14.8 und L-14.9; Freigabe durch den Nutzer ist verpflichtend (L-14.4) |
+| RK-17 | **Falsche Entwarnung beim Einstieg.** Ohne Eröffnungswerte rechnet die Grenzwertüberwachung mit null Vorjahresumsatz und meldet „ok", wo sie warnen müsste | hoch | L-16.1 und L-16.2 in Stufe A; bis dahin als bekannte Grenze dokumentiert (O-19) |
+| RK-18 | **Fehlerhafter Altdaten-Import** verfälscht die gesamte Buchhaltung rückwirkend und fällt oft erst beim Jahresabschluss auf | hoch | Vorschau vor der Übernahme (L-16.6), Importstapel rücknehmbar (L-16.7), Dublettenerkennung (L-16.8) |
+| RK-19 | **Haftungsabgrenzung wird als Freibrief missverstanden.** Sie deckt die steuerliche Würdigung ab, nicht Rechenfehler im Produkt | hoch | Testpflicht für jede steuerwirksame Berechnung (NFA-3); Rechtstexte anwaltlich erstellen (L-17.11) |
 | RK-15 | **Wiederkehrende Kosten für den Postfachzugriff.** Googles CASA-Prüfung fällt jährlich an und ist unabhängig vom Umsatz des Produkts | mittel | Lesenden Zugriff nur umsetzen, wenn er sich gegen die Prüfkosten rechnet; Teilen-Dialog und Eingangsadresse decken den Nutzen weitgehend ab |
 | RK-16 | **Postfachzugriff ist der invasivste Punkt im ganzen Produkt** und beschädigt bei falscher Auslegung das Datenschutzversprechen am nachhaltigsten | hoch | L-15.6 beschränkt auf ein einzelnes Label, L-15.9 verbietet das Speichern von Nachrichteninhalten |
 | RK-14 | **Das Marketing-Modul verwässert das Produkt.** Buchhaltung und Werbung sind verschiedene Domänen; ein Modul, das weder gut buchhaltet noch gut wirbt, schadet beidem | mittel | Bewusst Stufe C, nach belegtem Kernnutzen; als eigenständiger Premium-Service kündbar |
@@ -625,6 +701,9 @@ Zu entscheiden, bevor die betroffene Anforderung umgesetzt wird:
 | O-15 | **Welcher Dienst erzeugt die Marketing-Inhalte?** Davon hängen Auftragsverarbeitungsvertrag, Kosten je Erzeugung und die Frage ab, ob der Betrieb in der EU erfolgt | Stufe C |
 | O-16 | Fließt das Marketing-Modul ins Basisabo oder ist es ein eigener Premium-Service mit eigenem Preis? | Stufe C |
 | O-17 | Sollen erzeugte Werbemittel versioniert und wiederverwendbar abgelegt werden, oder sind sie Wegwerfware? | Stufe C |
+| O-19 | **Bekannter Fehler:** Die Grenzwertüberwachung ermittelt den Vorjahresumsatz ausschließlich aus erfassten Belegen. Für einen neuen Nutzer ist er damit null, und die Ampel steht fälschlich auf Grün — in Deutschland entscheidet er über das ganze laufende Jahr. Behebung über L-16.1/L-16.2 | sofort; betrifft bestehenden Code |
+| O-20 | Welche Vorsoftware-Formate sind beim Import vorrangig zu unterstützen? Richtet sich nach dem, womit die ersten Nutzer tatsächlich kommen | Stufe B |
+| O-21 | Gilt das Barrierefreiheitsstärkungsgesetz für ein B2B-Produkt wie dieses? Zu klären, bevor die Oberfläche festgezurrt wird | vor Stufe B |
 | O-18 | **Wofür ist die E-Mail-Anbindung vorrangig gedacht** — Rechnungen versenden, Belege hereinholen, oder beides? Davon hängt ab, ob die kostenpflichtige CASA-Prüfung überhaupt nötig wird | vor Stufe C |
 
 ---
@@ -633,6 +712,7 @@ Zu entscheiden, bevor die betroffene Anforderung umgesetzt wird:
 
 | Version | Datum | Änderung |
 |---|---|---|
+| 1.5 | 2026-10-09 | Neuer Block L-16 Datenübernahme beim Einstieg mit Eröffnungswerten, Altdaten-Import und Archivierung von Altunterlagen. Neuer Block L-17 Rechtlicher Rahmen und Haftungsabgrenzung mit ausdrücklicher Bestätigung bei der Registrierung. Zweiter bekannter Fehler derselben Art wie O-1 aufgenommen (O-19): der Vorjahresumsatz wird nur aus erfassten Belegen ermittelt und ist für neue Nutzer null. Drei neue Risiken. Aufwand Stufe A und B auf 40–63 Personenwochen angehoben. |
 | 1.4 | 2026-10-09 | Google als Merchant Center präzisiert (O-11 erledigt). Neuer Block L-15 E-Mail-Anbindung mit gestuftem Zuschnitt: Teilen-Dialog und Beleg-Eingangsadresse vor dem direkten Postfachzugriff, weil Googles eingeschränkte Bereiche eine jährlich kostenpflichtige Sicherheitsprüfung auslösen. Zwei neue Risiken, R-15, vier neue Schnittstellen. |
 | 1.3 | 2026-10-09 | Schweiz als Zielmarkt gestrichen; Fokus auf Österreich und Deutschland, Erweiterung auf EU-Länder der Eurozone. Block L-13 auf EU-Erweiterbarkeit zurückgeschnitten, Mehrwährung und QR-Rechnung entfallen. Neuer Block L-14 Marketing-Modul als Premium-Service mit harter Grenze gegen die Übertragung von Kundendaten. Aufwand Stufe A und B zurück auf 32–50 Personenwochen. |
 | 1.2 | 2026-10-09 | Zielmärkte festgelegt: Österreich, Deutschland und Schweiz zum Start, weitere europäische Märkte als Erweiterung. Neuer Anforderungsblock L-13 Märkte und Internationalisierung mit Mehrwährung, Schweizer Länderprofil, QR-Rechnung und zeitlich gestaffelten Steuersätzen. Kanalanbindung auf ausschließlich lesend festgelegt (O-10 erledigt). Abgrenzung zur Währung korrigiert. Aufwand Stufe A und B auf 39–60 Personenwochen angehoben. |

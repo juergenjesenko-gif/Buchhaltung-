@@ -1,6 +1,6 @@
 # Spezifikation – Buchhaltung
 
-**Dokumentversion:** 1.1 · **App-Version:** 0.1.0 · **Stand:** 2026-10-09
+**Dokumentversion:** 1.2 · **App-Version:** 0.1.0 · **Stand:** 2026-10-09
 **Status:** Sprint 1 umgesetzt und verifiziert
 
 > Das **Zielbild** des Produkts steht im [`LASTENHEFT.md`](LASTENHEFT.md); dieses
@@ -271,6 +271,20 @@ zusätzlich zwingend die UID.
 > Änderung des Rechtslayers ist die Bestätigung durch eine Steuerberatung
 > einzuholen. Siehe [`LASTENHEFT.md`](LASTENHEFT.md) Punkt O-1.
 
+> **⚠ Bekannter Fehler (Stand 2026-10-09): Vorjahresumsatz neuer Nutzer.**
+> `AppState._refreshSmallBusiness` ermittelt den Vorjahresumsatz über
+> `ReceiptRepository.turnoverForYear` — also **ausschließlich aus den in der App
+> erfassten Belegen**. Wer die App mitten im Jahr installiert, hat keine Belege
+> aus dem Vorjahr; die Summe ist null.
+>
+> Für Deutschland entscheidet der Vorjahresumsatz nach FA-4.6 über das **ganze
+> laufende Jahr**. Ein Nutzer, der im Vorjahr über 25.000 € umgesetzt hat, ist
+> kein Kleinunternehmer mehr — die App meldet ihm aber „ok". Falls sich der
+> offene Prüfpunkt oben bestätigt, gilt dasselbe für Österreich.
+>
+> Behebung: Erfassung von Eröffnungswerten beim Anlegen des Profils,
+> [`LASTENHEFT.md`](LASTENHEFT.md) L-16.1 und L-16.2, offener Punkt O-19.
+
 Grenzwerte siehe Abschnitt 12.
 
 ### 5.5 Rechnungen
@@ -480,6 +494,7 @@ Offen benannt, weil eine Spezifikation, die ihre Lücken verschweigt, wertlos is
 
 | Grenze | Auswirkung | Geplant |
 |---|---|---|
+| **Vorjahresumsatz wird nur aus erfassten Belegen ermittelt** | Für neue Nutzer ist er null; die Kleinunternehmer-Ampel gibt dann eine falsche Entwarnung. Siehe die Warnung in Abschnitt 5.4 | Backlog L-16.1/L-16.2, offener Punkt O-19 |
 | **Kein Backup** | Geräteverlust bedeutet Datenverlust bei laufender Aufbewahrungspflicht | Backlog F1, Sprint 2, **vor** dem öffentlichen Release |
 | **Keine revisionssichere Archivierung** | Das `audit_log` schafft Nachvollziehbarkeit im Alltag, ist aber keine manipulationssichere Protokollierung im Sinne einer Verfahrensdokumentation. Die App ist die Vorerfassung; die revisionssichere Aufbewahrung findet in der Kanzlei statt | – |
 | **Keine Registrierkasse** | Wer die RKSV-Grenzen (15.000 € Umsatz und 7.500 € Barumsätze) überschreitet, braucht zusätzlich eine registrierkassenpflichtige Lösung | Nicht geplant |
@@ -543,6 +558,7 @@ Umrechnung: Beträge in Cent. `5500000` Cent = 55.000,00 €.
 
 | Version | Datum | App-Version | Änderung |
 |---|---|---|---|
+| 1.2 | 2026-10-09 | 0.1.0 | Zweiter bekannter Fehler dokumentiert: der Vorjahresumsatz wird ausschließlich aus erfassten Belegen ermittelt und ist für neue Nutzer null. In Abschnitt 5.4 und in den bekannten Grenzen vermerkt. Keine Code- oder Kennwertänderung. |
 | 1.1 | 2026-10-09 | 0.1.0 | Offener Prüfpunkt zur österreichischen Vorjahresgrenze in Abschnitt 5.4 vermerkt. Verweis auf das neue Lastenheft ergänzt. Keine Code- oder Kennwertänderung. |
 | 1.0 | 2026-08-17 | 0.1.0 | Erstfassung nach Sprint 1. Beschreibt Firmenprofil, Belege, Kassabuch, Grenzwertüberwachung, Rechnungen mit PDF und die vier Exportformate. |
 
