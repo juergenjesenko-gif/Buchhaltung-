@@ -1,6 +1,6 @@
 # Lastenheft – Buchhaltungsapp für Österreich und Deutschland
 
-**Dokumentversion:** 1.1 · **Stand:** 2026-10-09 · **Status:** Entwurf zur Abstimmung
+**Dokumentversion:** 1.2 · **Stand:** 2026-10-09 · **Status:** Entwurf zur Abstimmung
 **Auftraggeber:** Jürgen Jesenko (privates Vorhaben) · **Umsetzung:** Claude Code
 
 > Ein Lastenheft beschreibt, **was** das Produkt leisten soll und **warum** — nicht,
@@ -58,7 +58,7 @@ grundlegend — der bestehende Code bleibt Grundlage, ist aber nicht das Ziel.
 |---|---|
 | G-1 | Kommerzielles Produkt mit wiederkehrenden Einnahmen über ein **Abonnement** |
 | G-2 | Zusätzliche **Premium-Services** als separat buchbare Module über dem Basisabo |
-| G-3 | Markteintritt in **Österreich und Deutschland** gleichzeitig; die Zweisprachigkeit des Steuerrechts ist bewusst Alleinstellungsmerkmal, nicht Last |
+| G-3 | Markteintritt in **Österreich, Deutschland und der Schweiz**; die Mehrsprachigkeit des Steuerrechts ist bewusst Alleinstellungsmerkmal, nicht Last. Mittelfristig alle europäischen Märkte |
 | G-4 | Datenschutz als Verkaufsargument: Buchhaltungsdaten bleiben beim Nutzer, solange er nichts anderes will |
 | G-5 | Die Einnahmen finanzieren den Ausbau — insbesondere die laufende Pflege der Steuerwerte und Formulare, die jährlich anfällt |
 
@@ -85,6 +85,27 @@ grundlegend — der bestehende Code bleibt Grundlage, ist aber nicht das Ziel.
 | Z-4 | Bilanzierende Betriebe sind **nicht** Zielgruppe des Markteintritts, aber als spätere Ausbaustufe vorgesehen (siehe L-9) |
 | Z-5 | **Händler mit eigenen Produkten** sind ausdrücklich eingeschlossen: sie brauchen Artikelstamm und Lagerstand (L-11), später die Anbindung ihrer Verkaufskanäle (L-12) |
 
+### 3.1 Zielmärkte
+
+| ID | Markt | Status |
+|---|---|---|
+| M-1 | **Österreich** | Markteintritt |
+| M-2 | **Deutschland** | Markteintritt |
+| M-3 | **Schweiz** | Markteintritt |
+| M-4 | Weitere europäische Märkte | Erweiterung, Reihenfolge offen (O-14) |
+
+Die Schweiz ist **kein EU-Mitglied und hat nicht den Euro**. Sie ist damit kein
+viertes Länderprofil derselben Art, sondern der Prüfstein dafür, ob die
+Abstraktion überhaupt trägt. Was sie mitbringt, steht in [L-13](#513-märkte-und-internationalisierung).
+
+> **Empfehlung zur Reihenfolge:** Drei Rechtsordnungen gleichzeitig zu starten
+> verdreifacht die steuerrechtliche Angriffsfläche, bevor ein einziger zahlender
+> Kunde das Produkt bestätigt hat. Fachlich spricht nichts dagegen, mit Österreich
+> und Deutschland zu beginnen und die Schweiz als erste Erweiterung kurz danach
+> nachzuziehen — die Vorarbeit (Mehrwährung, Länderabstraktion) fällt ohnehin an.
+> Die Entscheidung liegt beim Auftraggeber; im Lastenheft steht die Schweiz wie
+> gewünscht als Markteintritt.
+
 ### Leitbild des typischen Nutzers
 
 Handwerker, Berater, Kreative oder Dienstleister. Zwischen 20 und 200 Belegen im
@@ -102,6 +123,7 @@ machen — und genau diese Angst muss das Produkt nehmen, nicht verstärken.
 | U-2 | Einsatz unterwegs: Baustelle, Auto, Kassa — oft mit schlechter oder ohne Netzverbindung |
 | U-3 | Vollständige Nutzbarkeit **ohne Internetverbindung**; Netz wird nur für ausdrücklich angestoßene Vorgänge gebraucht (UID-Prüfung, Sicherung, später Sync) |
 | U-4 | Bedienung mit schmutzigen Händen und bei Sonnenlicht muss möglich sein: große Ziele, hoher Kontrast, Spracheingabe als Alternative zum Tippen |
+| U-5 | Das Produkt wird in Märkten mit **unterschiedlichen Währungen und Rechtsordnungen** eingesetzt; die Oberfläche richtet sich nach dem Sitz des Unternehmens |
 
 ---
 
@@ -255,7 +277,7 @@ und Preis jedes Mal neu zu tippen.
 
 | ID | Anforderung | Prio | Stufe |
 |---|---|---|---|
-| L-12.1 | Anbindung an **Amazon Seller** zur Übernahme von Verkaufsdaten | SOLL | C |
+| L-12.1 | Anbindung an **Amazon Seller** zur Übernahme von Bestellungen und Rechnungen | SOLL | C |
 | L-12.2 | Anbindung an **Shopify** | SOLL | C |
 | L-12.3 | Anbindung an **Google** (vermutlich Merchant Center / Shopping — siehe O-11) | KANN | C |
 | L-12.4 | Übernommene Verkäufe erzeugen Buchungen in der Einnahmenseite, ohne dass der Nutzer sie abtippt | SOLL | C |
@@ -263,7 +285,8 @@ und Preis jedes Mal neu zu tippen.
 | L-12.6 | Retouren und Gutschriften aus den Kanälen werden ebenso übernommen wie Verkäufe | MUSS | C |
 | L-12.7 | Kanalgebühren und Provisionen werden als Ausgaben erfasst, damit das Ergebnis stimmt | SOLL | C |
 | L-12.8 | Der Nutzer sieht vor der Übernahme, was gebucht wird, und kann einzelne Vorgänge ausschließen | MUSS | C |
-| L-12.9 | Die Übertragungsrichtung ist noch festzulegen — siehe O-10. Empfohlen wird zunächst **nur lesend** | MUSS | C |
+| L-12.9 | Die Anbindung arbeitet **ausschließlich lesend**: Bestellungen und Rechnungen werden übernommen. **Lagerstände und Artikel werden nicht in die Kanäle zurückgeschrieben** — die dafür nötige Konfliktauflösung und das Überverkaufsrisiko stehen in keinem Verhältnis zum Nutzen | MUSS | C |
+| L-12.10 | Der in L-11.3 geführte Lagerstand ist bewusst **einkanalig** und wird von der Kanalanbindung nicht verändert | MUSS | C |
 
 > **Architektonische Folge:** Kanalanbindungen brauchen dauerhaft gültige
 > Zugangstoken, Webhooks und zeitgesteuerte Abgleiche. Ein Telefon kann das nicht
@@ -271,6 +294,30 @@ und Preis jedes Mal neu zu tippen.
 > Hintergrundprozess. Damit wird das **eigene Backend (S-8) zur Voraussetzung**
 > dieses Blocks und rückt aus der Kür in die Pflicht der Stufe C. Die
 > Buchhaltungsdaten bleiben weiterhin lokal; die Kanaldaten laufen über den Server.
+
+### 5.13 Märkte und Internationalisierung
+
+| ID | Anforderung | Prio | Stufe |
+|---|---|---|---|
+| L-13.1 | **Mehrwährungsfähigkeit.** Das Produkt rechnet und zeigt in Euro und Schweizer Franken; die Währung ergibt sich aus dem Sitz des Unternehmens | MUSS | A |
+| L-13.2 | Beträge werden weiterhin ganzzahlig in der kleinsten Einheit geführt (Cent, Rappen); eine Währung ohne Nachkommastellen muss später ergänzbar sein | MUSS | A |
+| L-13.3 | **Zahlen- und Datumsformat je Markt.** Die Schweiz schreibt `1'234.56` mit Apostroph als Tausender- und Punkt als Dezimaltrenner — anders als Österreich und Deutschland | MUSS | A |
+| L-13.4 | **Schweizer Mehrwertsteuersätze:** 8,1 % Normalsatz, 2,6 % reduziert, 3,8 % Beherbergung. Die Promille-Darstellung der Steuersätze trägt diese Werte bereits | MUSS | A |
+| L-13.5 | **Schweizer Steuerpflichtgrenze** von CHF 100'000 Jahresumsatz, mit der Besonderheit, dass auch Auslandsumsätze zählen. Sie tritt an die Stelle der Kleinunternehmerregelung | MUSS | A |
+| L-13.6 | **Schweizer Rechnungs-Pflichtangaben** nach OR Art. 957 und MWSTG Art. 26; MWST-Nummer im Format `CHE-123.456.789 MWST` | MUSS | A |
+| L-13.7 | **QR-Rechnung** nach SIX-Standard: Zahlteil mit Swiss QR Code, QR-IBAN, Betrag, Währung und Referenz. Seit Oktober 2022 der einzige gültige Zahlschein-Standard in der Schweiz | MUSS | A |
+| L-13.8 | **Aufbewahrungsfrist Schweiz** 10 Jahre nach OR Art. 958f, bei Grundstücken 20 Jahre | MUSS | A |
+| L-13.9 | Die Länderabstraktion muss **Nicht-EU-Märkte** tragen: keine UID-Prüfung über VIES, kein OSS, keine E-Rechnungspflicht nach EN 16931, stattdessen Einfuhr- und Ausfuhrsachverhalte | MUSS | A |
+| L-13.10 | **Datenschutzrecht je Markt:** in der Schweiz gilt das revidierte DSG, nicht die DSGVO; die Datenschutzerklärung muss beides abdecken | MUSS | A |
+| L-13.11 | Ein weiterer europäischer Markt darf **überwiegend Konfiguration** sein: Steuersätze, Grenzwerte, Pflichtangaben, Fristen, Formate und Rechtsverweise an einer Stelle | MUSS | A |
+| L-13.12 | **Mehrsprachige Oberfläche**, sobald ein nicht deutschsprachiger Markt dazukommt. Bis dahin Deutsch | SOLL | C |
+| L-13.13 | Die Schweizer Sätze sind **in Bewegung**: der Beherbergungssatz ist bis 31.12.2027 befristet, eine Erhöhung des Normalsatzes auf 8,5 % ab 2028 ist beschlossen, aber noch nicht in Kraft. Das Produkt muss **zeitlich gestaffelte Steuersätze** abbilden können | MUSS | B |
+
+> **Was die Schweiz architektonisch bedeutet.** Bisher war ein Land eine Variante
+> desselben Musters: EU, Euro, UID, zwei bis vier Steuersätze. Die Schweiz bricht
+> drei dieser vier Annahmen. Zusammen mit L-13.13 kommt eine weitere Dimension
+> dazu: ein Steuersatz gilt nicht einfach, er gilt **ab einem Datum**. Diese
+> Erweiterung ist günstiger, wenn sie vor dem dritten Markt geschieht als danach.
 
 ---
 
@@ -284,7 +331,7 @@ und Preis jedes Mal neu zu tippen.
 | NF-4 | **Nachvollziehbarkeit.** Jede Änderung an gebuchten Daten ist protokolliert |
 | NF-5 | **Antwortzeit.** Jede Bedienhandlung reagiert in unter 200 ms; ein Beleg ist in unter 30 Sekunden erfasst |
 | NF-6 | **Barrierefreiheit.** Bedienbar mit Screenreader und vergrößerter Schrift; Farbe ist nie der einzige Informationsträger |
-| NF-7 | **Sprache.** Oberfläche Deutsch, Zahlen- und Datumsformat nach Firmensitz (de_AT / de_DE) |
+| NF-7 | **Sprache.** Oberfläche Deutsch, Zahlen- und Datumsformat nach Firmensitz (de_AT / de_DE / de_CH). Weitere Sprachen mit weiteren Märkten |
 | NF-8 | **Wartbarkeit.** Länderspezifisches Steuerrecht ist an einer Stelle gebündelt, damit die jährliche Anpassung eine Konfigurationsänderung bleibt |
 | NF-9 | **Verständlichkeit.** Fehlermeldungen benennen, was zu tun ist — nicht, was schiefging |
 | NF-10 | **Verfügbarkeit der Daten.** Datenverlust ist der schwerste denkbare Fehler. Jede Architekturentscheidung wird daran gemessen |
@@ -306,6 +353,9 @@ und Preis jedes Mal neu zu tippen.
 | R-9 | Alle steuerlichen Grenzwerte im Produkt tragen ihre Fundstelle und werden jährlich überprüft |
 | R-10 | **Grenzüberschreitender Verkauf an Privatkunden in der EU** (relevant ab L-12): oberhalb der Lieferschwelle von 10.000 € gilt der Steuersatz des Bestimmungslandes, die Meldung läuft über den One-Stop-Shop. Der Steuerlayer kennt heute nur AT und DE im Inland und ist dafür zu erweitern |
 | R-11 | Die Zweitablage von Belegen in der Fotobibliothek (L-2.11) ist in Datenschutzerklärung und Store-Datensicherheitsangaben auszuweisen, sobald sie verfügbar ist |
+| R-12 | **Schweiz:** MWSTG und OR statt UStG und BAO/AO; Steuerpflicht ab CHF 100'000, Aufbewahrung 10 Jahre nach OR 958f, QR-Rechnung nach SIX-Standard |
+| R-13 | **Schweizer Datenschutzrecht (revDSG)** zusätzlich zur DSGVO abdecken |
+| R-14 | Alle in diesem Dokument genannten Schweizer Werte stammen aus Sekundärquellen und sind **vor der Umsetzung gegen ESTV, MWSTG und OR zu prüfen** — amtliche Quellen waren aus der Entwicklungsumgebung nicht erreichbar |
 
 ---
 
@@ -313,7 +363,8 @@ und Preis jedes Mal neu zu tippen.
 
 | ID | Schnittstelle | Zweck | Stufe |
 |---|---|---|---|
-| S-1 | EU-MIAS/VIES | Prüfung von UID-Nummern | A |
+| S-1 | EU-MIAS/VIES | Prüfung von UID-Nummern (**nur EU-Märkte**) | A |
+| S-1b | UID-Register (BFS, Schweiz) | Prüfung schweizerischer UID/MWST-Nummern | A |
 | S-2 | iCloud Drive / Google Drive | Sicherung in den Speicher des Nutzers | A |
 | S-3 | DATEV, BMD | Übergabe an die Steuerberatung | A |
 | S-4 | XRechnung, ZUGFeRD, ebInterface | E-Rechnung | B |
@@ -325,6 +376,7 @@ und Preis jedes Mal neu zu tippen.
 | S-10 | Shopify Admin API | Verkaufsdaten aus dem Shopify-Shop | C |
 | S-11 | Google (Merchant Center, zu bestätigen) | Verkaufs- bzw. Produktdaten | C |
 | S-12 | Fotobibliothek des Geräts | Zweitablage der Belegfotos in eigenem Album | A |
+| S-13 | Swiss QR Code (SIX-Standard) | Zahlteil auf schweizerischen Rechnungen | A |
 
 ---
 
@@ -340,7 +392,7 @@ Was das Produkt ausdrücklich **nicht** leistet — und warum:
 | Vollwertige Warenwirtschaft | Eine schlanke Artikelverwaltung mit Lagerstand ist enthalten (L-11), weil sie das Rechnungschreiben beschleunigt. Was darüber hinausgeht — Stücklisten, Chargen, Seriennummern, Bestellwesen, Lieferantenverwaltung, Mehrlager — ist es nicht |
 | Channel-Management | Die Kanalanbindung übernimmt Verkaufsdaten. Artikel und Lagerstände aktiv in die Kanäle zurückzuschreiben und dort zu synchronisieren ist ausdrücklich nicht Teil des Zielbilds (siehe O-10) |
 | Angebote und Auftragsbestätigungen | Fremde Domäne; Fokus bleibt Buchhaltung und Rechnungslegung |
-| Fremdwährungen | Nur Euro. Mehrwährungsfähigkeit erst mit einem Markt außerhalb der Eurozone |
+| Beliebige Fremdwährungen | Euro und Schweizer Franken werden unterstützt (L-13.1). Eine frei wählbare Rechnungswährung mit Kursumrechnung und Kursdifferenzbuchung ist **nicht** vorgesehen |
 | Revisionssichere Archivierung | Das Produkt ist Vorerfassung; die revisionssichere Aufbewahrung findet in der Buchhaltung der Kanzlei statt |
 
 ---
@@ -356,8 +408,9 @@ Möglichkeit, früher Rückmeldung von echten Nutzern zu bekommen.
 
 Das Produkt ist verkaufbar und löst das Kernproblem. Enthält alles aus Sprint 1
 plus: Datensicherung, Storno/Gutschrift, Spracheingabe, UID-Prüfung,
-Rechnungsvorschau, Logo, **Artikelverwaltung ohne Bestandsführung** und die
-**Zweitablage der Belegfotos**.
+Rechnungsvorschau, Logo, **Artikelverwaltung ohne Bestandsführung**, die
+**Zweitablage der Belegfotos** sowie **Mehrwährung, Schweizer Länderprofil und
+QR-Rechnung**.
 
 **Warum dieser Schnitt:** Datensicherung schließt die einzige echte Lücke des
 heutigen Stands. Storno schließt die einzige fachliche Sackgasse. Beides zusammen
@@ -389,8 +442,11 @@ Grobe Schätzung in Personenwochen Vollzeitentwicklung, ohne Puffer:
 | Rechnungsvorschau, Logo, Feinschliff | A | 1–2 |
 | Artikelverwaltung inkl. Auswahl in der Rechnung | A | 2–3 |
 | Zweitablage Belegfotos (Opt-in, eigenes Album) | A | 1 |
+| Mehrwährungsfähigkeit (EUR/CHF) | A | 2–3 |
+| Schweizer Länderprofil inkl. Formate und Pflichtangaben | A | 3–4 |
+| QR-Rechnung nach SIX-Standard | A | 2–3 |
 | Store-Reife: Icon, Screenshots, AGB, Impressum, Support | A | 2–3 |
-| **Summe Stufe A** | | **12–19** |
+| **Summe Stufe A** | | **19–29** |
 | Belegerkennung on-device | B | 3–5 |
 | E-Rechnung XRechnung/ZUGFeRD/ebInterface | B | 4–6 |
 | Saldenliste und rollender Jahresabschluss | B | 2–3 |
@@ -399,13 +455,16 @@ Grobe Schätzung in Personenwochen Vollzeitentwicklung, ohne Puffer:
 | Abonnement und Lizenzlogik | B | 2–3 |
 | Belegvorlagen, Zahlungserinnerung | B | 1–2 |
 | Lagerstandsführung, Artikel-Import/Export | B | 2–3 |
-| **Summe Stufe B** | | **19–29** |
-| **Stufe A + B zusammen** | | **31–48 Personenwochen** |
+| Zeitlich gestaffelte Steuersätze (L-13.13) | B | 1–2 |
+| **Summe Stufe B** | | **20–31** |
+| **Stufe A + B zusammen** | | **39–60 Personenwochen** |
 | Backend als Voraussetzung der Kanalanbindung | C | 6–10 |
 | Kanalanbindung je Kanal, nur lesend | C | 3–5 |
 | OSS-Erweiterung des Steuerlayers | C | 3–4 |
 
-Das entspricht etwa **sieben bis elf Monaten** durchgehender Entwicklung. Stufe C
+Das entspricht etwa **neun bis vierzehn Monaten** durchgehender Entwicklung.
+Der Sprung gegenüber Version 1.1 geht fast vollständig auf die Schweiz zurück —
+siehe die Empfehlung zur Reihenfolge in Abschnitt 3.1. Stufe C
 kommt in ähnlicher Größenordnung hinzu; allein Backend, drei Kanäle und die
 OSS-Erweiterung summieren sich auf 18–29 Personenwochen, bevor eine einzige der
 übrigen Stufe-C-Anforderungen umgesetzt ist.
@@ -455,7 +514,10 @@ OSS-Erweiterung summieren sich auf 18–29 Personenwochen, bevor eine einzige de
 | RK-8 | **Zulassungsverfahren der Kanäle.** Amazon verlangt eine Entwicklerregistrierung mit Freigabeprozess, Shopify eine App-Prüfung. Beides dauert Wochen und ist nicht durch Entwicklungsarbeit abzukürzen | mittel | Registrierung früh anstoßen, mit dem technisch einfachsten Kanal beginnen |
 | RK-9 | **Grenzüberschreitende Umsatzsteuer (OSS)** wird bei Kanalverkäufen unterschätzt; falsche Steuersätze je Bestimmungsland führen zu falschen Meldungen | hoch | OSS-Erweiterung als eigene Anforderung (R-10) vor der ersten Kanalanbindung umsetzen |
 | RK-10 | **Datenschutzversprechen wird verwässert.** Foto-Zweitablage und Kanalanbindung widersprechen der Zusage „keine Datenübertragung" | mittel | Beides standardmäßig aus, beim Einschalten erklärt, Datenschutzerklärung und Store-Angaben gleichzeitig anpassen |
-| RK-11 | **Falscher Lagerstand** führt zu Überverkauf oder falscher Bewertung | mittel | Bestandsführung bleibt bewusst einfach und einkanalig; kein Rückschreiben in die Kanäle (siehe Abgrenzung) |
+| RK-11 | **Falscher Lagerstand** führt zu Überverkauf oder falscher Bewertung | mittel | Bestandsführung bleibt bewusst einfach und einkanalig; kein Rückschreiben in die Kanäle (L-12.9) |
+| RK-12 | **Drei Rechtsordnungen zum Start** verdreifachen die Fehleroberfläche und den jährlichen Pflegeaufwand, bevor der Markt das Produkt bestätigt hat | hoch | Empfehlung in Abschnitt 3.1; je Markt eine fachliche Prüfung durch eine dort ansässige Treuhand bzw. Steuerberatung |
+| RK-13 | **Schweizer Steuersätze ändern sich absehbar** (Beherbergung befristet bis 2027, Normalsatz ab 2028 beschlossen) | mittel | Zeitlich gestaffelte Steuersätze (L-13.13) als Anforderung, nicht als Nachbesserung |
+| RK-14 | **Mehrwährung nachträglich einzuziehen** ist teuer, weil sie jede Berechnung, Anzeige und jeden Export berührt | mittel | L-13.1 und L-13.2 in Stufe A, bevor Nutzerdaten in größerem Umfang existieren |
 
 ---
 
@@ -474,10 +536,14 @@ Zu entscheiden, bevor die betroffene Anforderung umgesetzt wird:
 | O-7 | Englische Oberfläche für nicht deutschsprachige Unternehmer in AT/DE? | Stufe C |
 | O-8 | Wie wird Support geleistet, und mit welcher Reaktionszeit? | vor Release |
 | O-9 | Steuerberatung als fachlicher Prüfer — wer, und ab wann eingebunden? | Stufe A |
-| O-10 | **Übertragungsrichtung der Kanalanbindung.** Nur Verkaufsdaten lesen, oder auch Artikel und Lagerstände in die Kanäle zurückschreiben? Die zweite Variante macht das Produkt zum Channel-Manager und vervielfacht Aufwand und Haftung | vor Stufe C |
+| ~~O-10~~ | ~~Übertragungsrichtung der Kanalanbindung~~ — **entschieden am 2026-10-09:** ausschließlich lesend, Bestellungen und Rechnungen, keine Lagerverwaltung (L-12.9) | erledigt |
 | O-11 | **Was ist mit „Google" gemeint?** Merchant Center / Google Shopping, Google Ads oder etwas anderes | vor Stufe C |
 | O-12 | Ab wann wird OSS gebraucht — verkaufst du bereits grenzüberschreitend an Privatkunden? | vor Stufe C |
 | O-13 | Soll die Artikelverwaltung auch Einkaufspreise führen, um Rohertrag je Artikel zu zeigen? | Stufe B |
+| O-14 | **Welche europäischen Märkte als nächste**, und in welcher Reihenfolge? Davon hängt ab, ab wann eine mehrsprachige Oberfläche gebraucht wird | Stufe C |
+| O-15 | **Schweiz zum Start oder als erste Erweiterung?** Siehe Empfehlung in Abschnitt 3.1 — der Unterschied beträgt rund sieben bis zehn Personenwochen auf dem Weg zur ersten verkaufbaren Version | sofort |
+| O-16 | Fachliche Prüfung der Schweizer Werte durch eine Treuhandstelle — wer, und ab wann? | vor Stufe A |
+| O-17 | Wird bei Verkäufen in die Schweiz bzw. aus der Schweiz heraus die Einfuhrsteuer relevant, und muss das Produkt sie abbilden? | Stufe B |
 
 ---
 
@@ -485,6 +551,7 @@ Zu entscheiden, bevor die betroffene Anforderung umgesetzt wird:
 
 | Version | Datum | Änderung |
 |---|---|---|
+| 1.2 | 2026-10-09 | Zielmärkte festgelegt: Österreich, Deutschland und Schweiz zum Start, weitere europäische Märkte als Erweiterung. Neuer Anforderungsblock L-13 Märkte und Internationalisierung mit Mehrwährung, Schweizer Länderprofil, QR-Rechnung und zeitlich gestaffelten Steuersätzen. Kanalanbindung auf ausschließlich lesend festgelegt (O-10 erledigt). Abgrenzung zur Währung korrigiert. Aufwand Stufe A und B auf 39–60 Personenwochen angehoben. |
 | 1.1 | 2026-10-09 | Artikelverwaltung (L-11) und Verkaufskanäle (L-12) aufgenommen, Zweitablage der Belegfotos (L-2.11 bis L-2.14) ergänzt. Abgrenzung korrigiert: Warenwirtschaft war bisher vollständig ausgeschlossen. OSS-Pflicht (R-10) und vier neue Risiken aufgenommen, Aufwandsschätzung auf 31–48 Personenwochen für Stufe A und B angehoben. |
 | 1.0 | 2026-10-09 | Erstfassung. Festlegung auf kommerzielles Produkt mit Abonnement und Premium-Services, Zielgruppe Einzelunternehmen und Kleinbetriebe in AT und DE, Datenhaltung lokal mit Sicherung in den Cloud-Speicher des Nutzers und späterem Cloud-Sync, Meldungen zunächst vorbereitend mit späterer elektronischer Übermittlung, Auswertungen auf EAR-Basis mit späterer doppelter Buchführung. |
 
