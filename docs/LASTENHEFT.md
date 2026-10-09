@@ -1,6 +1,6 @@
 # Lastenheft – Buchhaltungsapp für Österreich und Deutschland
 
-**Dokumentversion:** 1.3 · **Stand:** 2026-10-09 · **Status:** Entwurf zur Abstimmung
+**Dokumentversion:** 1.4 · **Stand:** 2026-10-09 · **Status:** Entwurf zur Abstimmung
 **Auftraggeber:** Jürgen Jesenko (privates Vorhaben) · **Umsetzung:** Claude Code
 
 > Ein Lastenheft beschreibt, **was** das Produkt leisten soll und **warum** — nicht,
@@ -281,7 +281,7 @@ und Preis jedes Mal neu zu tippen.
 |---|---|---|---|
 | L-12.1 | Anbindung an **Amazon Seller** zur Übernahme von Bestellungen und Rechnungen | SOLL | C |
 | L-12.2 | Anbindung an **Shopify** | SOLL | C |
-| L-12.3 | Anbindung an **Google** (vermutlich Merchant Center / Shopping — siehe O-11) | KANN | C |
+| L-12.3 | Anbindung an **Google Merchant Center** | KANN | C |
 | L-12.4 | Übernommene Verkäufe erzeugen Buchungen in der Einnahmenseite, ohne dass der Nutzer sie abtippt | SOLL | C |
 | L-12.5 | Doppelverbuchung ist ausgeschlossen: jeder Kanalvorgang wird eindeutig identifiziert und nur einmal übernommen | MUSS | C |
 | L-12.6 | Retouren und Gutschriften aus den Kanälen werden ebenso übernommen wie Verkäufe | MUSS | C |
@@ -343,6 +343,50 @@ Instagram-Beiträge, Banner, Broschüren.
 > **Kundendaten bleiben auf dem Gerät.** Was ein Werbetext über das Unternehmen und
 > seine Produkte sagen kann, braucht keinen einzigen Kundennamen.
 
+### 5.15 E-Mail-Anbindung
+
+Zwei getrennte Zwecke, die nur auf den ersten Blick dasselbe sind: Rechnungen
+**hinausschicken**, und eingehende Lieferantenrechnungen **hereinholen**.
+
+| ID | Anforderung | Prio | Stufe |
+|---|---|---|---|
+| L-15.1 | Eine Rechnung lässt sich aus der App heraus per E-Mail versenden | MUSS | A |
+| L-15.2 | **Die App ist Ziel des Teilen-Dialogs:** ein PDF oder eine E-Rechnung aus der Mail-App wird per „Teilen" direkt als Beleg übernommen | MUSS | B |
+| L-15.3 | **Eigene Beleg-Eingangsadresse:** der Nutzer leitet Rechnungen an eine persönliche Adresse weiter, Anhänge werden automatisch zu Belegentwürfen | SOLL | C |
+| L-15.4 | **Versand über das eigene Postfach** des Nutzers (Gmail bzw. Microsoft Outlook), damit die Rechnung im gesendeten Ordner liegt und vom Empfänger als von ihm kommend erkannt wird | SOLL | C |
+| L-15.5 | **Abholen aus dem Postfach:** eingehende Rechnungen und E-Rechnungen werden erkannt und als Belegentwürfe vorgeschlagen | KANN | C |
+| L-15.6 | **Zugriff nur auf einen abgegrenzten Bereich.** Wird L-15.5 umgesetzt, liest das Produkt ausschließlich ein vom Nutzer bestimmtes Label bzw. einen Ordner — niemals das gesamte Postfach | MUSS | C |
+| L-15.7 | Jeder übernommene Beleg wird dem Nutzer **zur Bestätigung vorgelegt**, nie ungeprüft gebucht | MUSS | C |
+| L-15.8 | Die Anbindung ist je Postfach einzeln zu aktivieren und jederzeit widerrufbar; beim Einschalten wird benannt, worauf zugegriffen wird | MUSS | C |
+| L-15.9 | **E-Mail-Inhalte werden nicht gespeichert**, außer dem Anhang, der zum Beleg wird | MUSS | C |
+
+> **Warum Senden billig und Lesen teuer ist.** Technisch ist beides über die
+> vorhandenen Schnittstellen möglich — die Annahme stimmt. Der Aufwand liegt
+> jedoch nicht im Programmieren, sondern in den Auflagen der Anbieter, und die
+> unterscheiden sich erheblich:
+>
+> **Senden** nutzt bei Google den Bereich `gmail.send`, der als *sensitiv* gilt:
+> einmalige Überprüfung, keine laufenden Kosten. Microsoft verlangt für
+> `Mail.Send` eine Herausgeberverifizierung über eine selbst kontrollierte Domain.
+> Beides ist überschaubar.
+>
+> **Lesen** nutzt bei Google `gmail.readonly` und fällt damit unter die
+> *eingeschränkten* Bereiche. Dafür verlangt Google eine **jährlich zu
+> wiederholende Sicherheitsüberprüfung (CASA)** durch ein zugelassenes Labor.
+> Die Angaben zu den Kosten schwanken je nach Quelle und Prüftiefe zwischen rund
+> 500 und 5.000 US-Dollar pro Jahr, die Dauer zwischen vier und acht Wochen.
+> Google legt die Prüftiefe fest, nicht der Entwickler. Microsoft ist hier
+> deutlich zurückhaltender und kennt keine gleichwertige jährliche Pflichtprüfung.
+>
+> **Konsequenz für den Zuschnitt:** L-15.2 und L-15.3 liefern den Großteil des
+> Nutzens ohne jede Anbieterprüfung — der Nutzer teilt oder leitet weiter, statt
+> der App sein Postfach zu öffnen. Der direkte Postfachzugriff (L-15.5) steht
+> deshalb bewusst als KANN am Ende der Kette, und zwar erst dann, wenn er sich
+> gegen wiederkehrende vierstellige Kosten rechnet.
+>
+> Alle Angaben zu Prüfverfahren und Kosten stammen aus Sekundärquellen und sind
+> vor einer Umsetzung gegen die Angaben von Google und Microsoft zu prüfen.
+
 ---
 
 ## 6. Nichtfunktionale Anforderungen
@@ -380,6 +424,7 @@ Instagram-Beiträge, Banner, Broschüren.
 | R-12 | **Marketing-Modul (L-14):** Auftragsverarbeitungsvertrag nach Art. 28 DSGVO mit dem Anbieter der Inhaltserzeugung; Anpassung von Datenschutzerklärung und Store-Datensicherheitsangaben |
 | R-13 | **Werberecht:** erzeugte Inhalte dürfen nicht irreführend sein (UWG). Preis-, Wirkungs- und Vergleichsaussagen verantwortet der Nutzer und müssen von ihm gesetzt sein |
 | R-14 | **Kennzeichnung und Urheberrecht** bei erzeugten Bildmitteln: Nutzungsrechte für kommerzielle Verwendung sind nachweisbar zu klären |
+| R-15 | **Postfachzugriff (L-15.4 ff.):** Auftragsverarbeitungsvertrag, Zweckbindung auf Belegübernahme, Löschkonzept für nicht übernommene Nachrichten; Googles jährliche CASA-Prüfung und Microsofts Herausgeberverifizierung sind einzuplanen |
 
 ---
 
@@ -401,6 +446,9 @@ Instagram-Beiträge, Banner, Broschüren.
 | S-12 | Fotobibliothek des Geräts | Zweitablage der Belegfotos in eigenem Album | A |
 | S-13 | Dienst zur Inhaltserzeugung (Text und Bild) | Marketing-Modul L-14; Auftragsverarbeiter | C |
 | S-14 | LinkedIn, Instagram | Direktes Veröffentlichen von Werbemitteln (L-14.10) | C |
+| S-15 | Gmail API | Versand über das Postfach des Nutzers; optional Lesen eines Labels | C |
+| S-16 | Microsoft Graph (Outlook) | Versand über das Postfach des Nutzers; optional Lesen eines Ordners | C |
+| S-17 | Teilen-Dialog des Betriebssystems | Beleg aus beliebiger App übernehmen (L-15.2) | B |
 
 ---
 
@@ -434,7 +482,8 @@ Möglichkeit, früher Rückmeldung von echten Nutzern zu bekommen.
 Das Produkt ist verkaufbar und löst das Kernproblem. Enthält alles aus Sprint 1
 plus: Datensicherung, Storno/Gutschrift, Spracheingabe, UID-Prüfung,
 Rechnungsvorschau, Logo, **Artikelverwaltung ohne Bestandsführung** und die
-**Zweitablage der Belegfotos**.
+**Zweitablage der Belegfotos**; Rechnungsversand per E-Mail ist bereits
+enthalten.
 
 **Warum dieser Schnitt:** Datensicherung schließt die einzige echte Lücke des
 heutigen Stands. Storno schließt die einzige fachliche Sackgasse. Beides zusammen
@@ -444,7 +493,8 @@ ergibt ein Produkt, das man guten Gewissens verkaufen kann.
 
 Belegerkennung, E-Rechnung, Saldenliste, rollender Jahresabschluss, UVA- und
 Einkommensteuer-Vorbereitung, Abonnement, Belegvorlagen, Zahlungserinnerung,
-**Lagerstandsführung und Artikel-Import/Export**.
+**Lagerstandsführung, Artikel-Import/Export** und die **Belegübernahme über den
+Teilen-Dialog**.
 
 ### Stufe C — Premium und Ausbau
 
@@ -452,7 +502,7 @@ Elektronische Übermittlung an FinanzOnline und ELSTER, doppelte Buchführung mi
 Bilanz, Cloud-Synchronisierung mit Konto, Bankabgleich, mehrere Mandanten,
 Liquiditätsvorschau, Peppol, **Kanalanbindung an Amazon, Shopify und Google**
 samt dem dafür nötigen Backend und der OSS-Erweiterung des Steuerlayers, dazu
-das **Marketing-Modul (L-14)**.
+das **Marketing-Modul (L-14)** und die **E-Mail-Anbindung (L-15)**.
 
 ### Aufwandseinschätzung
 
@@ -477,13 +527,17 @@ Grobe Schätzung in Personenwochen Vollzeitentwicklung, ohne Puffer:
 | Abonnement und Lizenzlogik | B | 2–3 |
 | Belegvorlagen, Zahlungserinnerung | B | 1–2 |
 | Lagerstandsführung, Artikel-Import/Export | B | 2–3 |
+| Belegübernahme über den Teilen-Dialog | B | 1 |
 | Zeitlich gestaffelte Steuersätze (L-13.5) | B | 1–2 |
-| **Summe Stufe B** | | **20–31** |
-| **Stufe A + B zusammen** | | **32–50 Personenwochen** |
+| **Summe Stufe B** | | **21–32** |
+| **Stufe A + B zusammen** | | **33–51 Personenwochen** |
 | Backend als Voraussetzung der Kanalanbindung | C | 6–10 |
 | Kanalanbindung je Kanal, nur lesend | C | 3–5 |
 | OSS-Erweiterung des Steuerlayers | C | 3–4 |
 | Marketing-Modul inkl. Auftragsverarbeitung und Freigabeablauf | C | 4–6 |
+| Beleg-Eingangsadresse (Backend) | C | 2–3 |
+| Gmail- und Graph-Versand inkl. Verifizierung | C | 2–3 |
+| Postfachzugriff lesend inkl. CASA-Prüfung | C | 3–4 zzgl. Prüfkosten |
 
 Das entspricht etwa **sieben bis zwölf Monaten** durchgehender Entwicklung.
 Der Rückgang gegenüber Version 1.2 geht vollständig auf den Entfall der Schweiz
@@ -541,6 +595,8 @@ bis sechs Wochen hinzu.
 | RK-11 | **Falscher Lagerstand** führt zu Überverkauf oder falscher Bewertung | mittel | Bestandsführung bleibt bewusst einfach und einkanalig; kein Rückschreiben in die Kanäle (L-12.9) |
 | RK-12 | **Datenschutzversprechen bricht am Marketing-Modul.** Es ist das erste Modul, das Geschäftsdaten an einen Dritten gibt | hoch | L-14.5 verbietet die Übertragung von Kundendaten; Modul standardmäßig aus, Auftragsverarbeitungsvertrag vor der ersten Nutzung |
 | RK-13 | **Erzeugte Werbung ist rechtswidrig** — irreführende Aussagen, fremde Marken, ungeklärte Bildrechte | mittel | L-14.8 und L-14.9; Freigabe durch den Nutzer ist verpflichtend (L-14.4) |
+| RK-15 | **Wiederkehrende Kosten für den Postfachzugriff.** Googles CASA-Prüfung fällt jährlich an und ist unabhängig vom Umsatz des Produkts | mittel | Lesenden Zugriff nur umsetzen, wenn er sich gegen die Prüfkosten rechnet; Teilen-Dialog und Eingangsadresse decken den Nutzen weitgehend ab |
+| RK-16 | **Postfachzugriff ist der invasivste Punkt im ganzen Produkt** und beschädigt bei falscher Auslegung das Datenschutzversprechen am nachhaltigsten | hoch | L-15.6 beschränkt auf ein einzelnes Label, L-15.9 verbietet das Speichern von Nachrichteninhalten |
 | RK-14 | **Das Marketing-Modul verwässert das Produkt.** Buchhaltung und Werbung sind verschiedene Domänen; ein Modul, das weder gut buchhaltet noch gut wirbt, schadet beidem | mittel | Bewusst Stufe C, nach belegtem Kernnutzen; als eigenständiger Premium-Service kündbar |
 
 ---
@@ -561,7 +617,7 @@ Zu entscheiden, bevor die betroffene Anforderung umgesetzt wird:
 | O-8 | Wie wird Support geleistet, und mit welcher Reaktionszeit? | vor Release |
 | O-9 | Steuerberatung als fachlicher Prüfer — wer, und ab wann eingebunden? | Stufe A |
 | ~~O-10~~ | ~~Übertragungsrichtung der Kanalanbindung~~ — **entschieden am 2026-10-09:** ausschließlich lesend, Bestellungen und Rechnungen, keine Lagerverwaltung (L-12.9) | erledigt |
-| O-11 | **Was ist mit „Google" gemeint?** Merchant Center / Google Shopping, Google Ads oder etwas anderes | vor Stufe C |
+| ~~O-11~~ | ~~Was ist mit „Google" gemeint?~~ — **entschieden am 2026-10-09:** Google Merchant Center | erledigt |
 | O-12 | Ab wann wird OSS gebraucht — verkaufst du bereits grenzüberschreitend an Privatkunden? | vor Stufe C |
 | O-13 | Soll die Artikelverwaltung auch Einkaufspreise führen, um Rohertrag je Artikel zu zeigen? | Stufe B |
 | O-14 | **Welche europäischen Märkte als nächste**, und in welcher Reihenfolge? Davon hängt ab, ab wann eine mehrsprachige Oberfläche gebraucht wird | Stufe C |
@@ -569,6 +625,7 @@ Zu entscheiden, bevor die betroffene Anforderung umgesetzt wird:
 | O-15 | **Welcher Dienst erzeugt die Marketing-Inhalte?** Davon hängen Auftragsverarbeitungsvertrag, Kosten je Erzeugung und die Frage ab, ob der Betrieb in der EU erfolgt | Stufe C |
 | O-16 | Fließt das Marketing-Modul ins Basisabo oder ist es ein eigener Premium-Service mit eigenem Preis? | Stufe C |
 | O-17 | Sollen erzeugte Werbemittel versioniert und wiederverwendbar abgelegt werden, oder sind sie Wegwerfware? | Stufe C |
+| O-18 | **Wofür ist die E-Mail-Anbindung vorrangig gedacht** — Rechnungen versenden, Belege hereinholen, oder beides? Davon hängt ab, ob die kostenpflichtige CASA-Prüfung überhaupt nötig wird | vor Stufe C |
 
 ---
 
@@ -576,6 +633,7 @@ Zu entscheiden, bevor die betroffene Anforderung umgesetzt wird:
 
 | Version | Datum | Änderung |
 |---|---|---|
+| 1.4 | 2026-10-09 | Google als Merchant Center präzisiert (O-11 erledigt). Neuer Block L-15 E-Mail-Anbindung mit gestuftem Zuschnitt: Teilen-Dialog und Beleg-Eingangsadresse vor dem direkten Postfachzugriff, weil Googles eingeschränkte Bereiche eine jährlich kostenpflichtige Sicherheitsprüfung auslösen. Zwei neue Risiken, R-15, vier neue Schnittstellen. |
 | 1.3 | 2026-10-09 | Schweiz als Zielmarkt gestrichen; Fokus auf Österreich und Deutschland, Erweiterung auf EU-Länder der Eurozone. Block L-13 auf EU-Erweiterbarkeit zurückgeschnitten, Mehrwährung und QR-Rechnung entfallen. Neuer Block L-14 Marketing-Modul als Premium-Service mit harter Grenze gegen die Übertragung von Kundendaten. Aufwand Stufe A und B zurück auf 32–50 Personenwochen. |
 | 1.2 | 2026-10-09 | Zielmärkte festgelegt: Österreich, Deutschland und Schweiz zum Start, weitere europäische Märkte als Erweiterung. Neuer Anforderungsblock L-13 Märkte und Internationalisierung mit Mehrwährung, Schweizer Länderprofil, QR-Rechnung und zeitlich gestaffelten Steuersätzen. Kanalanbindung auf ausschließlich lesend festgelegt (O-10 erledigt). Abgrenzung zur Währung korrigiert. Aufwand Stufe A und B auf 39–60 Personenwochen angehoben. |
 | 1.1 | 2026-10-09 | Artikelverwaltung (L-11) und Verkaufskanäle (L-12) aufgenommen, Zweitablage der Belegfotos (L-2.11 bis L-2.14) ergänzt. Abgrenzung korrigiert: Warenwirtschaft war bisher vollständig ausgeschlossen. OSS-Pflicht (R-10) und vier neue Risiken aufgenommen, Aufwandsschätzung auf 31–48 Personenwochen für Stufe A und B angehoben. |
