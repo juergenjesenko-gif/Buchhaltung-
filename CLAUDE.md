@@ -3,6 +3,36 @@
 Buchhaltungsapp für Einzelunternehmen und Kleinunternehmer in Österreich und
 Deutschland. Flutter, Android und iOS, offline-first.
 
+## Oberstes Gesetz: Drei unabhängige Prüfinstanzen
+
+Festgelegt vom Auftraggeber am 2026-10-10. Geht allen anderen Regeln vor.
+
+Jede fachliche, rechtliche oder technische Frage, die nicht allein der
+Auftraggeber entscheidet, wird von **drei unabhängigen Prüfinstanzen** bearbeitet:
+
+| Instanz | Zuständig für |
+|---|---|
+| **Rechtsanwalt** | IT-, Datenschutz-, Wettbewerbs-, Verbraucher- und Markenrecht AT/DE, Store-Vorgaben |
+| **Steuerberater** | Umsatz- und Ertragsteuer AT/DE, Grenzwerte, Fristen, Rechnungspflichtangaben |
+| **Softwareentwickler** | Code, Architektur, Sicherheit, Store-Release, Aufwand |
+
+Vorgehen:
+
+1. Jede Instanz **recherchiert selbstständig** (eigener Agent), übernimmt Aussagen
+   aus Code und Dokumenten nicht ungeprüft und liefert je Frage: Antwort,
+   Quellen, Sicherheit und ob eine Prüfung in der realen Welt nötig ist.
+2. Die Ergebnisse werden **strukturiert eingearbeitet**: gesicherte Befunde in
+   Code und Dokumente, nach den übrigen Regeln dieser Datei.
+3. Alles, was eine echte Fachperson, ein Amt oder ein echtes Gerät bestätigen
+   muss, steht **ausschließlich in einer Sektion**: `docs/SPECIFICATION.md`
+   Abschnitt 14 „Prüfung in der realen Welt". Nirgendwo sonst werden solche
+   Prüfpunkte verstreut; andere Stellen verweisen nur auf die ID dort.
+4. Danach wird **selbstständig weitergearbeitet**. Dem Auftraggeber werden nur
+   Entscheidungen vorgelegt, die wirklich seine sind, Schritt für Schritt.
+
+Eine Prüfinstanz ersetzt keine echte Rechts- oder Steuerberatung. Sie bereitet
+sie vor, damit die echte Prüfung kurz, gezielt und billig wird.
+
 ## Die wichtigste Regel: Dokumentation ist Teil der Änderung
 
 `docs/SPECIFICATION.md` und `docs/BENUTZERHANDBUCH.md` werden **im selben Commit**
