@@ -6,6 +6,7 @@ import '../domain/customer.dart';
 import '../domain/invoice.dart';
 import '../domain/money.dart';
 import '../domain/receipt.dart';
+import 'vat_check_repository.dart';
 
 /// Schreibt Änderungen an buchungsrelevanten Daten mit. Löschen und Ändern
 /// bleiben in der App möglich, hinterlassen aber eine Spur.
@@ -585,6 +586,7 @@ class Repositories {
       receipts = ReceiptRepository(db),
       openingTurnover = OpeningTurnoverRepository(db),
       invoices = InvoiceRepository(db),
+      vatChecks = VatCheckRepository(db),
       audit = AuditLog(db);
 
   final CompanyRepository company;
@@ -593,6 +595,7 @@ class Repositories {
   final ReceiptRepository receipts;
   final OpeningTurnoverRepository openingTurnover;
   final InvoiceRepository invoices;
+  final VatCheckRepository vatChecks;
   final AuditLog audit;
 }
 

@@ -42,6 +42,11 @@ nächsten Versionssprung in den neuen Eintrag.
 | Geändert | Umsatzsteuer ganzzahlig gerundet, ohne `double` | CLAUDE.md Regel 1 | 077ca5d |
 | Behoben | Österreich: Kleinunternehmergrenze auf Bruttobasis, ausgewiesene Umsatzsteuer zählt mit | FA-4.1, P-S1 (a) | 7ad6b69 |
 | Geändert | Österreich: harte Grenze 55.000 € zur Sicherheit, Toleranz nur noch als Warnung mit Verweis an die Steuerberatung; Status „in Toleranz“ entfällt | FA-4.4, P-S1 (b) | c30dc9d |
+| Neu | UID-Prüfung: Formatprüfung offline, VIES auf Tippen, wöchentlich nach Opt-in, Protokoll, Ergebnis an der Rechnung eingefroren | L-1.3, L-1.4, FA-1.4a–d | COMMIT5 |
+| Neu | Firmenbuch-/Handelsregisternummer und Gericht, auf jeder Rechnung | FA-1.4e | COMMIT5 |
+| Geändert | Steuernummer und UID im Profil optional; Rechnungspflichten je Land (DE Steuernummer oder USt-IdNr., AT UID beider Seiten ab 10.000 €) | FA-1.4 | COMMIT5 |
+| Datenbank | Schema 4 → 5: Register- und Prüffelder, Tabelle `vat_id_checks` | Spezifikation 4 | COMMIT5 |
+| Berechtigung | Android `INTERNET` | VIES | COMMIT5 |
 | Neu | Verschlüsselte Datensicherung samt Fotos, Ablage über den Teilen-Dialog, Wiederherstellung mit Vorschau, Erinnerung nach 30 Tagen | L-7.1, L-7.3, L-7.4, FA-7.1–7.8 | 21682c9 |
 | Datenbank | Schema 3 → 4: `company_profile.last_backup_at` | Spezifikation 4 | 21682c9 |
 | Abhängigkeit | Neu: `cryptography`, `archive`, `file_picker` | Datensicherung | 21682c9 |

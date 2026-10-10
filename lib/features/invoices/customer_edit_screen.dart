@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../../services/vat_id/vat_id_format.dart';
+import '../../widgets/vat_check_status.dart';
 import '../../app_state.dart';
 import '../../domain/country.dart';
 import '../../domain/customer.dart';
@@ -213,6 +215,13 @@ class _CustomerEditScreenState extends State<CustomerEditScreen> {
                           'Bei Kunden aus dem EU-Ausland für Reverse Charge nötig',
                     ),
                     textCapitalization: TextCapitalization.characters,
+                    onChanged: (_) => setState(() {}),
+                    validator: (value) => VatIdFormat.check(value ?? ''),
+                  ),
+                  VatCheckStatus(
+                    vatId: _vatId.text,
+                    subject: 'customer',
+                    subjectId: widget.existing?.id,
                   ),
                   const SizedBox(height: 12),
                   TextFormField(

@@ -1,6 +1,6 @@
 # Spezifikation – Buchhaltung
 
-**Dokumentversion:** 1.12 · **App-Version:** 0.1.0 · **Stand:** 2026-10-10
+**Dokumentversion:** 1.13 · **App-Version:** 0.1.0 · **Stand:** 2026-10-10
 **Status:** Sprint 1 umgesetzt und verifiziert
 
 > Das **Zielbild** des Produkts steht im [`LASTENHEFT.md`](LASTENHEFT.md); dieses
@@ -146,6 +146,7 @@ Anwendungsdokumentenverzeichnis. Aktuelle Schemaversion: **2**.
 | `invoices` | Ausgangsrechnungen | `UNIQUE INDEX` auf `number` |
 | `invoice_items` | Rechnungspositionen | `ON DELETE CASCADE` |
 | `audit_log` | Änderungsprotokoll | Nur Einfügen, kein Löschen durch die App |
+| `vat_id_checks` | Protokoll der UID-Abfragen: UID, Ergebnis, Zeitpunkt, Name/Anschrift laut VIES, Abfragenummer, Fehlercode | Nur Einfügen (Schema 5) |
 | `opening_turnover` | Umsatz je Jahr vor Beginn der Erfassung (Eröffnungswert) | Ein Eintrag je Jahr; fehlend ≠ 0 € (seit Schema 2) |
 
 ### 4.2 Datenwörterbuch – zentrale Felder
@@ -158,12 +159,15 @@ Anwendungsdokumentenverzeichnis. Aktuelle Schemaversion: **2**.
 | `country_code` | TEXT | `AT` oder `DE`. Bestimmt Steuersätze und Rechtsverweise |
 | `legal_form` | TEXT | `soleTrader`, `freelancer`, `gbr`, `gmbh` |
 | `tax_number` | TEXT | Steuernummer beim Finanzamt |
-| `vat_id` | TEXT | UID (AT) bzw. USt-IdNr. (DE). Pflicht bei Regelbesteuerung |
+| `vat_id` | TEXT | UID (AT) bzw. USt-IdNr. (DE). Optional, Pflicht nur je Rechnung (FA-1.4) |
 | `is_small_business` | INTEGER | 1 = Kleinunternehmerregelung wird genutzt |
 | `invoice_number_pattern` | TEXT | Muster, Standard `RE-{YYYY}-{NNNN}` |
 | `next_invoice_sequence` | INTEGER | Nächste laufende Nummer. Wird nur erhöht, nie zurückgesetzt |
 | `tracking_start` | TEXT | Tag, ab dem die App die Buchhaltung führt. Neue Profile: Tag des Onboardings; bei Migration auf Schema 2: ältester Beleg, sonst Tag der Migration |
 | `founding_year` | INTEGER | Gründungsjahr, `NULL` wenn nicht angegeben (Schema 3) |
+| `register_number`, `register_court` | TEXT | Firmenbuch-/Handelsregisternummer und Gericht (Schema 5) |
+| `vat_check_enabled` | INTEGER | 1 = wöchentliche UID-Prüfung eingeschaltet (Opt-in, Standard 0; Schema 5) |
+| `vat_check_last_run` | TEXT | Zeitpunkt der letzten Prüfrunde (Schema 5) |
 | `last_backup_at` | TEXT | Zeitpunkt der letzten Datensicherung bzw. der wiederhergestellten Sicherung; nur vom Sicherungsdienst geschrieben (Schema 4) |
 
 **`receipts`** — zusätzlich seit Schema 3: `cancelled_at` (TEXT, Zeitpunkt der Stornierung, `NULL` = gültig)
@@ -215,7 +219,12 @@ Eigene Kategorien sind ergänzbar und löschbar; die vorgegebenen nicht.
 | FA-1.1 | Beim ersten Start zeigt die App das Onboarding, bis Firmenname und Land erfasst sind |
 | FA-1.2 | Land ist Österreich oder Deutschland; die Auswahl bestimmt Steuersätze, Feldbezeichnungen und Rechtsverweise |
 | FA-1.3 | Die Kleinunternehmerregelung ist ein Schalter; die App erklärt beide Folgen im Klartext |
-| FA-1.4 | Bei Regelbesteuerung ist eine UID/USt-IdNr. Pflicht (Formularvalidierung) |
+| FA-1.4 | Steuernummer und UID sind im Profil **optional** (Steuernummer kann noch beantragt sein). Für Rechnungen gilt: DE Steuernummer **oder** USt-IdNr. auf jeder Rechnung (`spec.de.invoice_requires_tax_id`); AT ab 10.000 € brutto mit Steuerausweis UID des Ausstellers **und** des Empfängers (`spec.at.large_invoice_vat_id_limit_cents`, `InvoiceRequirements`) |
+| FA-1.4a | UID-Felder (Profil und Kunde) werden **offline** auf Format und Prüfziffer geprüft (AT: ATU + 8 Ziffern; DE: DE + 9 Ziffern, ISO 7064 MOD 11,10; übrige EU-Länder: Länderkennung und Muster) |
+| FA-1.4b | **UID-Prüfung über VIES** direkt vom Gerät an die REST-Schnittstelle der EU-Kommission, auf Tippen „Jetzt prüfen“; die eigene UID wird als Anfragende mitgesendet, damit VIES eine Abfragenummer als Nachweis liefert. Ergebnis dreiwertig: gültig / ungültig / nicht prüfbar – ein Ausfall ist nie „ungültig“ |
+| FA-1.4c | **Wöchentliche Prüfung nur nach Opt-in** (`vat_check_enabled`, Schalter in den Stammdaten): eigene UID und UIDs von Kunden mit Rechnung in den letzten 12 Monaten, seriell mit 1 s Pause; ausgelöst beim Start und bei Rückkehr in die App, wenn die letzte Runde ≥ 7 Tage zurückliegt (`spec.vat_check_interval_days`). Eine echte Hintergrundausführung gibt es nicht |
+| FA-1.4d | Jede VIES-Abfrage wird in `vat_id_checks` protokolliert (nur Einfügen). Bei eingeschalteter Prüfung wird die Kunden-UID vor dem Ausstellen geprüft und das Ergebnis im `customer_snapshot` der Rechnung eingefroren; ein negatives Ergebnis warnt, blockiert aber nie |
+| FA-1.4e | Firmenbuch-/Handelsregisternummer optional; ist sie gesetzt, ist das Gericht Pflicht. Beide erscheinen in der Fußzeile jeder Rechnung (§ 14 UGB, § 37a HGB) |
 | FA-1.5 | Das Rechnungsnummernmuster muss eine laufende Nummer enthalten, sonst wird das Formular abgelehnt |
 | FA-1.6 | Ein Bearbeiten der Stammdaten setzt `next_invoice_sequence` nie zurück |
 | FA-1.7 | Die App benennt fehlende Pflichtangaben für Rechnungen und verlinkt in die Stammdaten |
@@ -223,8 +232,9 @@ Eigene Kategorien sind ergänzbar und löschbar; die vorgegebenen nicht.
 | FA-1.9 | Beim Wechsel zur Regelbesteuerung bleiben erfasste Eröffnungswerte erhalten |
 
 **Pflichtangaben für Rechnungsfähigkeit** (`CompanyProfile.missingInvoiceFields`):
-Firmenname, Straße, PLZ, Ort, Steuernummer **oder** UID; bei Regelbesteuerung
-zusätzlich zwingend die UID.
+Firmenname, Straße, PLZ, Ort; in Deutschland Steuernummer **oder** USt-IdNr.;
+bei gesetzter Registernummer das Registergericht. Betragsabhängige Angaben
+prüft `InvoiceRequirements` (FA-1.4).
 
 ### 5.2 Belege
 
@@ -525,7 +535,8 @@ Offen benannt, weil eine Spezifikation, die ihre Lücken verschweigt, wertlos is
 > Das ist der Mechanismus, der dieses Dokument aktuell hält.
 
 ```properties
-spec.schema_version = 4
+spec.schema_version = 5
+spec.vat_check_interval_days = 7
 spec.backup_reminder_days = 30
 spec.seed_category_count = 16
 spec.seed_category_income_count = 3
@@ -548,6 +559,8 @@ spec.at.small_amount_invoice_limit_cents = 40000
 spec.at.retention_years = 7
 spec.at.turnover_basis = brutto
 spec.at.founding_year_limit_cents = none
+spec.at.invoice_requires_tax_id = nein
+spec.at.large_invoice_vat_id_limit_cents = 1000000
 spec.at.vat_id_label = UID-Nummer
 spec.at.invoice_legal_ref = § 11 UStG
 spec.at.small_business_legal_ref = § 6 Abs 1 Z 27 UStG
@@ -562,6 +575,8 @@ spec.de.small_amount_invoice_limit_cents = 25000
 spec.de.retention_years = 8
 spec.de.turnover_basis = netto
 spec.de.founding_year_limit_cents = 2500000
+spec.de.invoice_requires_tax_id = ja
+spec.de.large_invoice_vat_id_limit_cents = none
 spec.de.vat_id_label = USt-IdNr.
 spec.de.invoice_legal_ref = § 14 UStG
 spec.de.small_business_legal_ref = § 19 UStG
@@ -575,6 +590,7 @@ Umrechnung: Beträge in Cent. `5500000` Cent = 55.000,00 €.
 
 | Version | Datum | App-Version | Änderung |
 |---|---|---|---|
+| 1.13 | 2026-10-10 | 0.1.0 | Stammdaten und UID-Prüfung (FA-1.4 bis FA-1.4e): Steuernummer und UID optional, Rechnungspflichten je Land, Firmenbuch-/Registerangaben, Formatprüfung offline, VIES-Prüfung mit Protokoll, wöchentliche Prüfung nach Opt-in, Prüfergebnis an der Rechnung eingefroren. Schema 5, neue Kennwerte, Prüfpunkte P-U1 bis P-U4. |
 | 1.12 | 2026-10-10 | 0.1.0 | Datensicherung (Abschnitt 5.5a, FA-7.1 bis FA-7.8): verschlüsselte Vollsicherung samt Fotos, Ablage über den Teilen-Dialog, Wiederherstellung mit Vorschau, Erinnerung nach 30 Tagen. Schema 4 (`last_backup_at`), neuer Bildschirm, Kennwert `spec.backup_reminder_days`. Bekannte Grenze „Kein Backup" ersetzt durch „Sicherung nur von Hand". |
 | 1.11 | 2026-10-10 | 0.1.0 | Schema 3: Belegstorno statt Löschen (`receipts.cancelled_at`, FA-2.11, FA-2.12) und Gründungsjahr (`company_profile.founding_year`, FA-4.13, `spec.*.founding_year_limit_cents`). P-S2 und P-S10 aktualisiert. |
 | 1.10 | 2026-10-10 | 0.1.0 | Prüfpunkte P-K1 bis P-K8 zur KI-Anbindung an Anthropic (Lastenheft L-21). Keine Codeänderung. |
@@ -682,4 +698,8 @@ Status: *offen* · *bestätigt* (mit Datum und Prüfer) · *widerlegt* (mit Folg
 | P-D5 | iOS Privacy Manifest, Data-Safety- und Privacy-Label-Angaben inkl. aller SDKs | Manifest fehlt | erster Upload | offen |
 | P-D6 | Android targetSdk-Vorgabe 2026, Signing, Bundle-ID `at.jesenko.buchhaltung` endgültig | Bundle-ID personenbezogen, nach Release unveränderlich | erster Upload | offen |
 | P-D7 | Kamera, Fotoablage, Spracheingabe auf echten Geräten | — | Release | offen |
+| P-U1 | VIES-Schnittstelle live auf echten Android- und iOS-Geräten: gültige, ungültige Nummer, Ausfall eines Mitgliedstaats; Abfragenummer kommt zurück | Endpunkt und Antwortformat aus Fachwissen, nicht live getestet | Release | offen |
+| P-U2 | Nachweiswert von VIES mit Abfragenummer gegenüber FinanzOnline Stufe 2 (AT) und qualifizierter Bestätigungsabfrage § 18e UStG (DE) | VIES schwächer, aber als Hilfsnachweis anerkannt | Release | offen |
+| P-U3 | Steuernummer auf österreichischen Rechnungen nicht nötig; DE Steuernummer oder USt-IdNr. genügt | beide Prüfinstanzen | Release | offen |
+| P-U4 | Datenschutzerklärung und Store-Formulare (Google Data Safety, Apple Label) zur VIES-Abfrage durch Fachperson | Nutzerin Verantwortliche, Kommission Empfängerin, Anbieter unbeteiligt | erster Upload | offen |
 | P-D8 | Zusatzsicherung unter Windows (`tool/sicherung/sicherung.ps1`): Erstlauf, Aufgabenplanung, Wiederherstellung | Linux-Variante getestet, Windows-Skript nie ausgeführt | sofort | offen |

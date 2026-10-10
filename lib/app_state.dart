@@ -7,6 +7,7 @@ import 'domain/company_profile.dart';
 import 'domain/money.dart';
 import 'domain/receipt.dart';
 import 'services/small_business_monitor.dart';
+import 'services/vat_id/vat_check_service.dart';
 import 'services/turnover_basis.dart';
 
 /// Anwendungszustand. Bewusst ein einziger [ChangeNotifier] statt eines
@@ -24,6 +25,30 @@ class AppState extends ChangeNotifier {
   }
 
   final Repositories repositories;
+
+  late final VatCheckService vatCheckService = VatCheckService(
+    repositories.vatChecks,
+  );
+
+  bool _vatCheckRunning = false;
+
+  /// Wöchentliche UID-Prüfung, wenn eingeschaltet und fällig. Läuft im
+  /// Hintergrund und blockiert nie die Oberfläche; Fehler bleiben folgenlos.
+  Future<void> runVatChecksIfDue() async {
+    final profile = _profile;
+    if (profile == null || _vatCheckRunning) return;
+    if (!profile.vatCheckDue(DateTime.now())) return;
+    _vatCheckRunning = true;
+    try {
+      await vatCheckService.runIfDue(profile);
+      _profile = await repositories.company.load();
+      notifyListeners();
+    } catch (_) {
+      // Netz weg o. Ä.: beim nächsten Start erneut.
+    } finally {
+      _vatCheckRunning = false;
+    }
+  }
 
   CompanyProfile? _profile;
   List<ExpenseCategory> _categories = const [];

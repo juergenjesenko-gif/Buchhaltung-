@@ -42,7 +42,19 @@ deinem Gerät. Andere Apps haben darauf keinen Zugriff.
 
 Die App überträgt **keine** dieser Daten an den Anbieter oder an Dritte. Sie
 enthält keine Analyse-Bibliothek, kein Crash-Reporting und keine Werbe-SDKs. Die
-App baut von sich aus **keine Netzwerkverbindungen** auf.
+App baut von sich aus **keine Netzwerkverbindungen** auf – mit einer Ausnahme,
+die du selbst einschaltest:
+
+**UID-Prüfung über VIES:** Tippst du bei einer UID-Nummer auf „Jetzt prüfen",
+oder hast du die wöchentliche Prüfung eingeschaltet, sendet die App die
+UID-Nummer (und deine eigene UID als Anfragende) direkt an das
+Mehrwertsteuer-Informationsaustauschsystem VIES der Europäischen Kommission.
+Dabei wird technisch auch deine IP-Adresse übertragen. Zweck ist die Prüfung der
+Gültigkeit, wie sie das Umsatzsteuerrecht verlangt (Art. 6 Abs. 1 lit. c DSGVO).
+Verantwortlich für diese Abfrage bist du; die Kommission verarbeitet die Daten
+nach ihren eigenen Datenschutzbestimmungen. Der Anbieter der App erhält dabei
+nichts. Die wöchentliche Prüfung ist standardmäßig aus und jederzeit
+abschaltbar.
 
 **Datensicherung:** Auf deinen Wunsch erstellt die App eine mit deinem Kennwort
 verschlüsselte Sicherungsdatei (AES-256-GCM). Wohin sie geht, bestimmst du im

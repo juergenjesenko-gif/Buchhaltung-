@@ -16,7 +16,7 @@ class AppDatabase {
 
   /// Aktuelle Schemaversion. Öffentlich, weil docs/SPECIFICATION.md sie
   /// dokumentiert und test/specification_sync_test.dart beide vergleicht.
-  static const schemaVersion = 4;
+  static const schemaVersion = 5;
 
   Database? _db;
 
@@ -221,6 +221,31 @@ class AppDatabase {
     // Version 4: Zeitpunkt der letzten Datensicherung für die Erinnerung
     // (Lastenheft L-7.4).
     4: ['ALTER TABLE company_profile ADD COLUMN last_backup_at TEXT'],
+    // Version 5: Firmenbuch-/Registerangaben (§ 14 UGB, § 37a HGB) und
+    // UID-Prüfung über VIES mit Prüfprotokoll als Nachweis.
+    5: [
+      "ALTER TABLE company_profile ADD COLUMN register_number TEXT NOT NULL DEFAULT ''",
+      "ALTER TABLE company_profile ADD COLUMN register_court TEXT NOT NULL DEFAULT ''",
+      // Automatische Prüfung nur nach ausdrücklichem Einschalten (Opt-in).
+      'ALTER TABLE company_profile ADD COLUMN vat_check_enabled INTEGER NOT NULL DEFAULT 0',
+      'ALTER TABLE company_profile ADD COLUMN vat_check_last_run TEXT',
+      // Nur Einfügen: jede Abfrage bleibt als Nachweis erhalten.
+      '''
+      CREATE TABLE vat_id_checks (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        subject TEXT NOT NULL,
+        subject_id INTEGER,
+        vat_id TEXT NOT NULL,
+        result TEXT NOT NULL,
+        checked_at TEXT NOT NULL,
+        name TEXT NOT NULL DEFAULT '',
+        address TEXT NOT NULL DEFAULT '',
+        request_identifier TEXT NOT NULL DEFAULT '',
+        error_code TEXT NOT NULL DEFAULT ''
+      )
+      ''',
+      'CREATE INDEX idx_vat_id_checks_vat ON vat_id_checks(vat_id, checked_at)',
+    ],
   };
 
   /// Startkategorien, damit die App nicht mit einer leeren Auswahlliste startet.

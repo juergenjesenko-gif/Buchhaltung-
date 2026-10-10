@@ -58,10 +58,25 @@ Trag sie gleich vollständig ein, dann musst du später nicht nachbessern.
 
 **Steuer**
 - **Kleinunternehmerregelung** – der wichtigste Schalter in der App. Siehe unten.
-- **Steuernummer** – deine Nummer beim Finanzamt
-- **UID-Nummer / USt-IdNr.** – bei Kleinunternehmern oft leer. Wenn du
-  Umsatzsteuer ausweist, ist sie Pflicht, und die App lässt dich ohne sie nicht
-  weiter.
+- **Steuernummer** – deine Nummer beim Finanzamt. Noch beantragt? Leer lassen
+  und später nachtragen. In **Deutschland** braucht jede Rechnung Steuernummer
+  **oder** USt-IdNr.; in **Österreich** steht die Steuernummer nicht auf der
+  Rechnung.
+- **UID-Nummer / USt-IdNr.** – freiwillig. Die App prüft beim Tippen, ob Format
+  und Prüfziffer stimmen. In **Österreich** brauchst du sie für Rechnungen über
+  10.000 € brutto mit Umsatzsteuer – dann auch die UID deines Kunden.
+- **Jetzt prüfen** – fragt das EU-Prüfsystem VIES, ob die UID gültig ist. Dabei
+  geht die Nummer an die EU-Kommission. „Nicht prüfbar" heißt nur, dass das
+  System gerade nicht erreichbar war – nicht, dass die Nummer falsch ist.
+- **UID-Nummern wöchentlich prüfen** – Schalter, standardmäßig aus. Eingeschaltet
+  prüft die App deine UID und die deiner Kunden aus den letzten 12 Monaten
+  einmal pro Woche (beim ersten Öffnen nach sieben Tagen) und vor jeder
+  Rechnung an einen Kunden mit UID. Das Ergebnis wird mit der Rechnung
+  gespeichert. Ist eine UID ungültig, warnt die App – ausstellen kannst du
+  trotzdem.
+- **Firmenbuchnummer / Handelsregisternummer** – nur wenn dein Unternehmen
+  eingetragen ist (z. B. e.U. bzw. e.K.). Dann ist auch das Gericht Pflicht;
+  beides steht auf jeder Rechnung.
 
 **Bankverbindung** – IBAN, BIC und Bank erscheinen im Zahlungsblock deiner
 Rechnungen. Ohne IBAN fehlt dieser Block.
@@ -551,9 +566,18 @@ Jahr gegründet hast und es nicht angeben willst.
 **„Eine Beschreibung ist Pflicht"** – ohne Bezeichnung ist der Beleg später nicht
 nachvollziehbar. Ein Wort genügt.
 
-**„Wer Umsatzsteuer ausweist, braucht eine UID-Nummer"** – du hast die
-Kleinunternehmerregelung abgeschaltet. Trag die UID ein oder schalte sie wieder
-ein.
+**„Die Prüfziffer der UID stimmt nicht – bitte Tippfehler prüfen"** – die
+Nummer hat das richtige Muster, aber eine Ziffer ist vermutlich vertippt.
+
+**„Österreichische UID: ATU und 8 Ziffern"** / **„Deutsche USt-IdNr.: DE und 9
+Ziffern"** / **„Die Nummer beginnt nicht mit einem EU-Ländercode"** – Format
+prüfen; Leerzeichen und Punkte sind egal.
+
+**„Mit Firmenbuchnummer ist auch das Gericht Pflicht"** – trag das
+Firmenbuch- bzw. Registergericht ein oder lass die Nummer leer.
+
+**„Eigene UID-Nummer (Rechnung über 10000 € brutto)"** – in Österreich braucht
+eine Rechnung über 10.000 € mit Umsatzsteuer deine UID und die deines Kunden.
 
 **„Das Muster braucht eine laufende Nummer, z. B. {NNNN}"** – siehe
 [Rechnungsnummern](#rechnungsnummern).

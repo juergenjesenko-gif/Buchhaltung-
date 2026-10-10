@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:intl/date_symbol_data_local.dart';
@@ -12,8 +14,18 @@ Future<void> main() async {
   // Ohne die Locale-Daten wirft DateFormat('dd.MM.yyyy', 'de_AT') zur Laufzeit.
   await initializeDateFormatting('de');
   final state = await AppState.open();
+  // Wöchentliche UID-Prüfung (Opt-in): beim Start und bei jeder Rückkehr in
+  // die App, sobald sie fällig ist.
+  unawaited(state.runVatChecksIfDue());
+  _lifecycle = AppLifecycleListener(
+    onResume: () => unawaited(state.runVatChecksIfDue()),
+  );
   runApp(BuchhaltungApp(state: state));
 }
+
+// Hält den Listener für die Lebensdauer der App.
+// ignore: unused_element
+late final AppLifecycleListener _lifecycle;
 
 class BuchhaltungApp extends StatelessWidget {
   const BuchhaltungApp({super.key, required this.state});

@@ -59,7 +59,8 @@ Bemessungsgrundlagen. Zeitraum wählen, Vorschau prüfen, teilen.
 
 DEINE DATEN BLEIBEN DEINE
 Alles liegt auf deinem Gerät. Kein Server, kein Nutzerkonto, keine Werbung, keine
-Analyse. Daten verlassen das Telefon nur, wenn du selbst auf Teilen tippst.
+Analyse. Daten verlassen das Telefon nur, wenn du selbst teilst oder eine
+UID-Nummer beim EU-Prüfsystem prüfen lässt.
 
 Hinweis: Diese App unterstützt bei der Buchhaltung, ist aber keine
 Steuerberatung und keine Registrierkasse nach RKSV.
@@ -99,9 +100,13 @@ Kundennamen oder Beträge.
 
 ## Datensicherheit / App-Datenschutz
 
-Beide Formulare lassen sich mit „keine Datenerhebung, keine Datenübertragung"
-beantworten. Das ist belegbar: die App enthält keine Analyse- oder Werbe-SDKs,
-baut von sich aus keine Netzwerkverbindungen auf, und Androids Auto-Backup ist
+Die App enthält keine Analyse- oder Werbe-SDKs. **Einzige Netzwerkverbindung**
+ist die UID-Prüfung über VIES: auf Tippen oder nach Opt-in wöchentlich gehen
+UID-Nummern direkt an die EU-Kommission, nicht an den Anbieter. Google Data
+Safety: „Finanzinformationen – andere“, geteilt mit Dritten, verschlüsselt
+übertragen, für die App-Funktion, vom Nutzer ausgelöst. Apple: „Sonstige
+Finanzinfos“, nicht verknüpft, App-Funktionalität (Prüfpunkt P-U4).
+Alles andere bleibt auf dem Gerät, und Androids Auto-Backup ist
 per `data_extraction_rules.xml` deaktiviert. Die Datensicherung ist eine von
 der Nutzerin ausgelöste, mit ihrem Kennwort verschlüsselte Datei, die sie selbst
 über den Teilen-Dialog ablegt; sie erreicht weder den Anbieter noch einen

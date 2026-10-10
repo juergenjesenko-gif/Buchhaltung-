@@ -9,6 +9,9 @@ import '../../domain/customer.dart';
 import '../../domain/invoice.dart';
 import '../../domain/money.dart';
 import '../../services/invoice_numbering.dart';
+import '../../services/invoice_requirements.dart';
+import '../../services/vat_id/vies_client.dart';
+import '../../widgets/vat_check_status.dart';
 import '../../theme.dart';
 import '../../widgets/common.dart';
 import 'customer_edit_screen.dart';
@@ -155,6 +158,21 @@ class _InvoiceEditScreenState extends State<InvoiceEditScreen> {
       errors.addAll(
         profile.missingInvoiceFields.map((field) => 'Stammdaten: $field'),
       );
+      if (_customer != null) {
+        final gross = _items
+            .where((item) => !item.isEmpty)
+            .map((item) => item.toItem().gross)
+            .fold(const Money.zero(), (a, b) => a + b);
+        errors.addAll(
+          InvoiceRequirements.missing(
+            profile: profile,
+            customer: _customer!,
+            gross: gross,
+            isSmallBusiness:
+                widget.existing?.isSmallBusiness ?? profile.isSmallBusiness,
+          ),
+        );
+      }
     }
     return errors;
   }
@@ -169,6 +187,45 @@ class _InvoiceEditScreenState extends State<InvoiceEditScreen> {
     setState(() => _saving = true);
     final state = AppScope.read(context);
     final profile = state.profile!;
+
+    // Vor dem Ausstellen die Kunden-UID prüfen, wenn die Prüfung eingeschaltet
+    // ist. Das Ergebnis wird mit der Rechnung eingefroren (Nachweis); ein
+    // negatives Ergebnis warnt nur, es blockiert nie.
+    VatCheck? vatCheck;
+    if (issue &&
+        profile.vatCheckEnabled &&
+        _customer!.vatId.trim().isNotEmpty) {
+      vatCheck = await state.vatCheckService.check(
+        _customer!.vatId,
+        profile: profile,
+        subject: 'customer',
+        subjectId: _customer!.id,
+      );
+      if (!mounted) return;
+      if (vatCheck.result != VatCheckResult.valid) {
+        final proceed = await showDialog<bool>(
+          context: context,
+          builder: (context) => AlertDialog(
+            title: const Text('UID des Kunden nicht bestätigt'),
+            content: Text(vatCheckMessage(vatCheck!)),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(false),
+                child: const Text('Abbrechen'),
+              ),
+              FilledButton(
+                onPressed: () => Navigator.of(context).pop(true),
+                child: const Text('Trotzdem ausstellen'),
+              ),
+            ],
+          ),
+        );
+        if (proceed != true || !mounted) {
+          if (mounted) setState(() => _saving = false);
+          return;
+        }
+      }
+    }
 
     var number = widget.existing?.number ?? '';
     // Endgültige Nummer erst beim Ausstellen ziehen, und zwar beim Speichern in
@@ -200,7 +257,11 @@ class _InvoiceEditScreenState extends State<InvoiceEditScreen> {
       sellerSnapshot:
           widget.existing?.sellerSnapshot ?? jsonEncode(profile.toMap()),
       customerSnapshot:
-          widget.existing?.customerSnapshot ?? jsonEncode(_customer!.toMap()),
+          widget.existing?.customerSnapshot ??
+          jsonEncode({
+            ..._customer!.toMap(),
+            if (vatCheck != null) 'vat_check': vatCheck.toJson(),
+          }),
       createdAt: widget.existing?.createdAt,
     );
 

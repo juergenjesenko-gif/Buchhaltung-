@@ -72,6 +72,13 @@ void main() {
       value(key).split(',').map((part) => int.parse(part.trim())).toList();
 
   group('Allgemeine Kenndaten', () {
+    test('Abstand der UID-Prüfung stimmt', () {
+      expect(
+        intValue('spec.vat_check_interval_days'),
+        CompanyProfile.vatCheckIntervalDays,
+      );
+    });
+
     test('Erinnerung an die Datensicherung stimmt', () {
       expect(
         intValue('spec.backup_reminder_days'),
@@ -210,6 +217,14 @@ void main() {
         profile.smallAmountInvoiceLimit,
       );
       expect(intValue('spec.$prefix.retention_years'), profile.retentionYears);
+      expect(
+        value('spec.$prefix.invoice_requires_tax_id'),
+        profile.invoiceRequiresTaxId ? 'ja' : 'nein',
+      );
+      expect(
+        moneyValue('spec.$prefix.large_invoice_vat_id_limit_cents'),
+        profile.largeInvoiceVatIdLimit,
+      );
       expect(
         moneyValue('spec.$prefix.founding_year_limit_cents'),
         profile.foundingYearTurnoverLimit,

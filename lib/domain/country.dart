@@ -67,6 +67,10 @@ class TaxProfile {
     required this.smallBusinessLegalRef,
     required this.smallBusinessInvoiceNote,
     required this.vatIdExample,
+    required this.invoiceRequiresTaxId,
+    required this.largeInvoiceVatIdLimit,
+    required this.registerNumberLabel,
+    required this.registerCourtLabel,
     required this.invoiceLegalRef,
     required this.smallAmountInvoiceLimit,
     required this.currentYearTurnoverLimit,
@@ -96,6 +100,20 @@ class TaxProfile {
 
   /// Beispiel einer gültigen UID als Eingabehilfe.
   final String vatIdExample;
+
+  /// Muss die Rechnung Steuernummer oder UID des Ausstellers tragen,
+  /// unabhängig vom Betrag? DE: § 14 Abs 4 Nr 2 UStG. AT: nein, dort ist die
+  /// UID erst ab [largeInvoiceVatIdLimit] Pflicht.
+  final bool invoiceRequiresTaxId;
+
+  /// Ab diesem Bruttobetrag braucht eine Rechnung mit Steuerausweis die UID
+  /// des Ausstellers und des Empfängers. `null`, wenn es keine solche Grenze
+  /// gibt.
+  final Money? largeInvoiceVatIdLimit;
+
+  /// Bezeichnungen für die Registerangaben eingetragener Unternehmen.
+  final String registerNumberLabel;
+  final String registerCourtLabel;
 
   /// Fundstelle für die Rechnungs-Pflichtangaben.
   final String invoiceLegalRef;
@@ -152,6 +170,12 @@ class TaxProfile {
     ],
     vatIdLabel: 'UID-Nummer',
     vatIdExample: 'ATU12345678',
+    invoiceRequiresTaxId: false,
+    // § 11 Abs 1 Z 3 lit i UStG: über 10.000 EUR brutto UID des Empfängers.
+    largeInvoiceVatIdLimit: Money(1000000), // 10.000,00 EUR brutto
+    // § 14 UGB: eingetragene Unternehmer geben Firmenbuchnummer und -gericht an.
+    registerNumberLabel: 'Firmenbuchnummer',
+    registerCourtLabel: 'Firmenbuchgericht',
     taxNumberLabel: 'Steuernummer',
     smallBusinessLabel: 'Kleinunternehmerregelung',
     smallBusinessLegalRef: '§ 6 Abs 1 Z 27 UStG',
@@ -182,6 +206,12 @@ class TaxProfile {
     ],
     vatIdLabel: 'USt-IdNr.',
     vatIdExample: 'DE123456789',
+    // § 14 Abs 4 Nr 2 UStG: Steuernummer oder USt-IdNr. auf jeder Rechnung.
+    invoiceRequiresTaxId: true,
+    largeInvoiceVatIdLimit: null,
+    // § 37a HGB: eingetragene Kaufleute geben Registergericht und -nummer an.
+    registerNumberLabel: 'Handelsregisternummer',
+    registerCourtLabel: 'Registergericht',
     taxNumberLabel: 'Steuernummer',
     smallBusinessLabel: 'Kleinunternehmerregelung',
     smallBusinessLegalRef: '§ 19 UStG',

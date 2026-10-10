@@ -1,4 +1,6 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- UID-Prüfung über VIES (Lastenheft L-1.3), nur nach Opt-in bzw. auf Tippen -->
+    <uses-permission android:name="android.permission.INTERNET"/>
     <application
         android:label="Buchhaltung"
         android:name="${applicationName}"

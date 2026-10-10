@@ -27,6 +27,10 @@ class CompanyProfile {
     this.trackingStart,
     this.foundingYear,
     this.lastBackupAt,
+    this.registerNumber = '',
+    this.registerCourt = '',
+    this.vatCheckEnabled = false,
+    this.vatCheckLastRun,
   });
 
   final String companyName;
@@ -92,6 +96,23 @@ class CompanyProfile {
       lastBackupAt == null ||
       now.difference(lastBackupAt!).inDays >= backupReminderDays;
 
+  /// Firmenbuch-/Handelsregisternummer und Gericht; nur bei eingetragenen
+  /// Unternehmen. Ist die Nummer gesetzt, ist auch das Gericht Pflicht.
+  final String registerNumber;
+  final String registerCourt;
+
+  /// Automatische UID-Prüfung über VIES eingeschaltet (Opt-in).
+  final bool vatCheckEnabled;
+  final DateTime? vatCheckLastRun;
+
+  /// Abstand der automatischen UID-Prüfung in Tagen.
+  static const vatCheckIntervalDays = 7;
+
+  bool vatCheckDue(DateTime now) =>
+      vatCheckEnabled &&
+      (vatCheckLastRun == null ||
+          now.difference(vatCheckLastRun!).inDays >= vatCheckIntervalDays);
+
   TaxProfile get taxProfile => country.taxProfile;
 
   String get addressLine => [
@@ -111,12 +132,15 @@ class CompanyProfile {
     if (street.trim().isEmpty) missing.add('Straße');
     if (postalCode.trim().isEmpty) missing.add('PLZ');
     if (city.trim().isEmpty) missing.add('Ort');
-    if (taxNumber.trim().isEmpty && vatId.trim().isEmpty) {
+    // Steuernummer bzw. UID nur, wo das Land sie auf jeder Rechnung verlangt;
+    // die UID-Pflicht für große Rechnungen prüft InvoiceRequirements.
+    if (taxProfile.invoiceRequiresTaxId &&
+        taxNumber.trim().isEmpty &&
+        vatId.trim().isEmpty) {
       missing.add('${taxProfile.taxNumberLabel} oder ${taxProfile.vatIdLabel}');
     }
-    // Wer Umsatzsteuer ausweist, braucht zwingend eine UID/USt-IdNr.
-    if (!isSmallBusiness && vatId.trim().isEmpty) {
-      missing.add(taxProfile.vatIdLabel);
+    if (registerNumber.trim().isNotEmpty && registerCourt.trim().isEmpty) {
+      missing.add(taxProfile.registerCourtLabel);
     }
     return missing;
   }
@@ -146,6 +170,10 @@ class CompanyProfile {
     DateTime? trackingStart,
     int? foundingYear,
     DateTime? lastBackupAt,
+    String? registerNumber,
+    String? registerCourt,
+    bool? vatCheckEnabled,
+    DateTime? vatCheckLastRun,
   }) {
     return CompanyProfile(
       companyName: companyName ?? this.companyName,
@@ -173,6 +201,10 @@ class CompanyProfile {
       trackingStart: trackingStart ?? this.trackingStart,
       foundingYear: foundingYear ?? this.foundingYear,
       lastBackupAt: lastBackupAt ?? this.lastBackupAt,
+      registerNumber: registerNumber ?? this.registerNumber,
+      registerCourt: registerCourt ?? this.registerCourt,
+      vatCheckEnabled: vatCheckEnabled ?? this.vatCheckEnabled,
+      vatCheckLastRun: vatCheckLastRun ?? this.vatCheckLastRun,
     );
   }
 
@@ -202,6 +234,10 @@ class CompanyProfile {
     'tracking_start': trackingStart?.toIso8601String().substring(0, 10),
     'founding_year': foundingYear,
     'last_backup_at': lastBackupAt?.toIso8601String(),
+    'register_number': registerNumber,
+    'register_court': registerCourt,
+    'vat_check_enabled': vatCheckEnabled ? 1 : 0,
+    'vat_check_last_run': vatCheckLastRun?.toIso8601String(),
   };
 
   static CompanyProfile fromMap(Map<String, Object?> map) => CompanyProfile(
@@ -235,6 +271,12 @@ class CompanyProfile {
     lastBackupAt: map['last_backup_at'] == null
         ? null
         : DateTime.tryParse(map['last_backup_at'] as String),
+    registerNumber: map['register_number'] as String? ?? '',
+    registerCourt: map['register_court'] as String? ?? '',
+    vatCheckEnabled: (map['vat_check_enabled'] as int? ?? 0) == 1,
+    vatCheckLastRun: map['vat_check_last_run'] == null
+        ? null
+        : DateTime.tryParse(map['vat_check_last_run'] as String),
   );
 
   static DateTime? _parseDate(Object? value) =>

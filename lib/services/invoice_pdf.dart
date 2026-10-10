@@ -399,6 +399,10 @@ class InvoicePdf {
         '${profile.taxProfile.taxNumberLabel} ${profile.taxNumber}',
       if (profile.vatId.isNotEmpty)
         '${profile.taxProfile.vatIdLabel} ${profile.vatId}',
+      // § 14 UGB / § 37a HGB: eingetragene Unternehmen auf jeder Rechnung.
+      if (profile.registerNumber.isNotEmpty)
+        '${profile.taxProfile.registerNumberLabel} ${profile.registerNumber}, '
+            '${profile.registerCourt}',
     ].where((s) => s.isNotEmpty).join('  ·  ');
 
     return pw.Column(

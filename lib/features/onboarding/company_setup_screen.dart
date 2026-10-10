@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../../services/vat_id/vat_id_format.dart';
+import '../../widgets/vat_check_status.dart';
 import '../backup/backup_screen.dart';
 import '../../app_state.dart';
 import '../../core/formatting.dart';
@@ -35,6 +37,7 @@ class _CompanySetupScreenState extends State<CompanySetupScreen> {
   /// Beginn der Erfassung in der App. Bei neuen Profilen heute; bestehende
   /// behalten ihren Wert, damit Eröffnungswerte nicht verrutschen.
   DateTime _trackingStart = DateTime.now();
+  bool _vatCheckEnabled = false;
   bool _saving = false;
   bool _initialized = false;
 
@@ -61,6 +64,8 @@ class _CompanySetupScreenState extends State<CompanySetupScreen> {
         'invoiceFooter',
         'openingPrevious',
         'foundingYear',
+        'registerNumber',
+        'registerCourt',
         'openingCurrent',
       ])
         key: TextEditingController(),
@@ -95,6 +100,9 @@ class _CompanySetupScreenState extends State<CompanySetupScreen> {
     _fields['website']!.text = profile.website;
     _fields['taxNumber']!.text = profile.taxNumber;
     _fields['vatId']!.text = profile.vatId;
+    _fields['registerNumber']!.text = profile.registerNumber;
+    _fields['registerCourt']!.text = profile.registerCourt;
+    _vatCheckEnabled = profile.vatCheckEnabled;
     _fields['iban']!.text = profile.iban;
     _fields['bic']!.text = profile.bic;
     _fields['bankName']!.text = profile.bankName;
@@ -190,6 +198,10 @@ class _CompanySetupScreenState extends State<CompanySetupScreen> {
       foundingYear: _foundingYear,
       // Wird nur von der Datensicherung geschrieben; beim Bearbeiten erhalten.
       lastBackupAt: existing?.lastBackupAt,
+      registerNumber: _text('registerNumber'),
+      registerCourt: _text('registerCourt'),
+      vatCheckEnabled: _vatCheckEnabled,
+      vatCheckLastRun: existing?.vatCheckLastRun,
     );
 
     // Eröffnungswerte nur schreiben, wenn sie abgefragt wurden. Wer auf
@@ -380,7 +392,14 @@ class _CompanySetupScreenState extends State<CompanySetupScreen> {
                   const SizedBox(height: 8),
                   TextFormField(
                     controller: _fields['taxNumber'],
-                    decoration: InputDecoration(labelText: tax.taxNumberLabel),
+                    decoration: InputDecoration(
+                      labelText: tax.taxNumberLabel,
+                      helperText: tax.invoiceRequiresTaxId
+                          ? 'Noch beantragt? Leer lassen – für Rechnungen ist '
+                                '${tax.taxNumberLabel} oder ${tax.vatIdLabel} nötig.'
+                          : 'Noch beantragt? Einfach später nachtragen.',
+                      helperMaxLines: 2,
+                    ),
                   ),
                   const SizedBox(height: 12),
                   TextFormField(
@@ -390,14 +409,49 @@ class _CompanySetupScreenState extends State<CompanySetupScreen> {
                       hintText: tax.vatIdExample,
                     ),
                     textCapitalization: TextCapitalization.characters,
-                    validator: (value) {
-                      final text = (value ?? '').trim();
-                      if (!_isSmallBusiness && text.isEmpty) {
-                        return 'Wer Umsatzsteuer ausweist, braucht eine ${tax.vatIdLabel}';
-                      }
-                      return null;
-                    },
+                    onChanged: (_) => setState(() {}),
+                    // Optional; geprüft wird nur das Format, offline.
+                    validator: (value) => VatIdFormat.check(value ?? ''),
                   ),
+                  VatCheckStatus(
+                    vatId: _text('vatId'),
+                    subject: 'company',
+                    subjectId: 1,
+                  ),
+                  SwitchListTile(
+                    contentPadding: EdgeInsets.zero,
+                    value: _vatCheckEnabled,
+                    onChanged: (value) =>
+                        setState(() => _vatCheckEnabled = value),
+                    title: const Text('UID-Nummern wöchentlich prüfen'),
+                    subtitle: const Text(
+                      'Prüft deine UID und die deiner aktiven Kunden über das '
+                      'EU-Prüfsystem VIES, dazu vor jeder Rechnung an einen '
+                      'Kunden mit UID. Dabei werden die Nummern an die '
+                      'EU-Kommission gesendet. Jederzeit abschaltbar.',
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  TextFormField(
+                    controller: _fields['registerNumber'],
+                    decoration: InputDecoration(
+                      labelText: tax.registerNumberLabel,
+                      helperText: 'Nur wenn du eingetragen bist',
+                    ),
+                    onChanged: (_) => setState(() {}),
+                  ),
+                  if (_text('registerNumber').isNotEmpty) ...[
+                    const SizedBox(height: 12),
+                    TextFormField(
+                      controller: _fields['registerCourt'],
+                      decoration: InputDecoration(
+                        labelText: '${tax.registerCourtLabel} *',
+                      ),
+                      validator: (value) => (value ?? '').trim().isEmpty
+                          ? 'Mit ${tax.registerNumberLabel} ist auch das Gericht Pflicht'
+                          : null,
+                    ),
+                  ],
                   const SizedBox(height: 12),
                   NoticeBanner(
                     icon: Icons.gavel_outlined,

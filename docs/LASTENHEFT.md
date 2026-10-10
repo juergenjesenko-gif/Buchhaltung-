@@ -563,7 +563,8 @@ Jede Übertragung vom Gerät weg, auch die unscheinbaren:
 | Rechnung/Export teilen | vom Nutzer gewählt | PDF, CSV | Tippen auf Teilen | je Vorgang | vorhanden |
 | Sicherung (L-7.1, L-7.2) | vom Nutzer gewählt (iCloud Drive, Google Drive, Dateien) | mit Kennwort verschlüsselte Vollsicherung samt Fotos | Tippen auf „Sicherung erstellen“ (von Hand; automatisch geplant) | je Vorgang | vorhanden |
 | Foto-Zweitablage (L-2.11) | Fotobibliothek, ggf. deren Cloud | Belegfotos | Einschalten | ja | A |
-| UID-Prüfung (L-1.3) | EU-Kommission (VIES) | UID-Nummer | Prüfauftrag | je Vorgang | A |
+| UID-Prüfung auf Tippen (L-1.3) | EU-Kommission (VIES), direkt vom Gerät | UID, eigene UID als Anfragende, IP-Adresse | Tippen auf „Jetzt prüfen“ | je Vorgang | vorhanden |
+| UID-Prüfung automatisch (L-1.3, L-1.4) | EU-Kommission (VIES), direkt vom Gerät | wie oben, für eigene UID und Kunden mit Rechnung in den letzten 12 Monaten; vor jeder Rechnung an Kunden mit UID | wöchentlich beim Öffnen der App | **ja**, Schalter, standardmäßig aus | vorhanden |
 | Rechnungsversand (L-15.1) | Mail-App des Nutzers | PDF | Tippen auf Senden | je Vorgang | A |
 | Abo-Kauf (L-10.1) | Apple bzw. Google | Kaufvorgang | Kauf | je Vorgang | B |
 | UVA-Übermittlung (L-6.5) | FinanzOnline bzw. ELSTER | Kennzahlen der Voranmeldung | Freigabe der Meldung | je Vorgang | B |
