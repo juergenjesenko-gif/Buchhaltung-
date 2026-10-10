@@ -44,6 +44,20 @@ steigend und übersteht Reruns. Lokal:
 flutter build appbundle --release --build-name=0.2.0 --build-number=17
 ```
 
+### Release Notes
+
+Vor jedem Build, der das Haus verlässt (Testbuild, TestFlight, interner Track,
+Store), wird in `docs/RELEASE_NOTES.md` ein Eintrag angelegt: Abschnitt
+*Unveröffentlicht* übernehmen, Pflichtfelder ausfüllen, `version` in
+`pubspec.yaml` im selben Commit erhöhen. Setzt die CI eine abweichende
+Buildnummer (`github.run_number`), wird sie im Feld *Prüfung* mit Link zum
+CI-Lauf vermerkt. Nach dem Build:
+
+```bash
+git tag -a v0.2.0+2 -m "Release 0.2.0+2, siehe docs/RELEASE_NOTES.md"
+git push origin v0.2.0+2
+```
+
 ## Android: Google Play
 
 ### Einmalig: Upload-Keystore

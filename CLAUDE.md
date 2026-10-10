@@ -74,6 +74,25 @@ selben Commit in drei Stellen eingetragen ist: Datenflusstabelle in
 `docs/LASTENHEFT.md` Abschnitt 5.19, `docs/PRIVACY.md` und die
 Store-Datensicherheitsangaben in `docs/STORE_LISTING.md` (Lastenheft L-19.5).
 
+## Release Notes und Nachverfolgbarkeit
+
+Jede ausgelieferte Version – auch ein Testbuild – hat einen Eintrag in
+`docs/RELEASE_NOTES.md`, geschrieben **im selben Commit**, der `version` in
+`pubspec.yaml` erhöht. Pflichtfelder: Art, Commit, Branch, Dokumentstände,
+Datenbankschema, Prüfung; Änderungen jeweils mit Anforderungs-ID und Commit.
+`test/release_notes_test.dart` erzwingt das. Nach dem Build wird der Commit als
+`v<Version>` getaggt.
+
+Änderungen zwischen zwei Versionen sammeln sich im Abschnitt *Unveröffentlicht*:
+jeder Commit mit Verhaltensänderung trägt dort eine Zeile ein.
+
+## Zusatzsicherung
+
+Code und Dokumente werden zusätzlich zu GitHub regelmäßig auf die lokale SSD
+des Auftraggebers gesichert: `tool/sicherung/`, Anleitung in
+`docs/SICHERUNG.md`. Wer die Repository-Struktur oder den Branchnamen ändert,
+prüft, dass die Sicherung weiter läuft.
+
 ## Fachliche Grundregeln
 
 Diese sind nicht verhandelbar. Ausführlich in `docs/SPECIFICATION.md` Abschnitt 3.

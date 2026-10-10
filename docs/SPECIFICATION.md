@@ -1,6 +1,6 @@
 # Spezifikation – Buchhaltung
 
-**Dokumentversion:** 1.5 · **App-Version:** 0.1.0 · **Stand:** 2026-10-10
+**Dokumentversion:** 1.6 · **App-Version:** 0.1.0 · **Stand:** 2026-10-10
 **Status:** Sprint 1 umgesetzt und verifiziert
 
 > Das **Zielbild** des Produkts steht im [`LASTENHEFT.md`](LASTENHEFT.md); dieses
@@ -552,6 +552,7 @@ Umrechnung: Beträge in Cent. `5500000` Cent = 55.000,00 €.
 
 | Version | Datum | App-Version | Änderung |
 |---|---|---|---|
+| 1.6 | 2026-10-10 | 0.1.0 | Prüfpunkt P-D8 für die Zusatzsicherung unter Windows. Keine Verhaltensänderung der App. |
 | 1.5 | 2026-10-10 | 0.1.0 | Befunde der Prüfinstanzen: Nummernvergabe in derselben Transaktion wie das Speichern (FA-5.5), Schreibschutz gestellter Rechnungen in der Datenschicht (FA-5.5a), DE-Rechnungshinweis „Steuerbefreiung nach § 19 UStG", Umsatzsteuerberechnung ohne `double`. Neuer Abschnitt 14 „Prüfung in der realen Welt" als einzige Sammelstelle für reale Prüfpunkte. |
 | 1.4 | 2026-10-10 | 0.1.0 | O-1 erledigt: Vorjahresgrenze Österreich 55.000 € ohne Toleranz (`spec.at.previous_year_limit_cents`). FA-4.6 gilt für beide Länder, Warnhinweis in 5.4 entfernt. |
 | 1.3 | 2026-10-09 | 0.1.0 | O-19 behoben: Eröffnungswerte für den Umsatz (Tabelle `opening_turnover`, Spalte `tracking_start`, Schema 2), neuer Status *Angaben fehlen* der Grenzwertüberwachung. FA-1.8, FA-1.9, FA-4.9 bis FA-4.12 neu. |
@@ -625,3 +626,4 @@ Status: *offen* · *bestätigt* (mit Datum und Prüfer) · *widerlegt* (mit Folg
 | P-D5 | iOS Privacy Manifest, Data-Safety- und Privacy-Label-Angaben inkl. aller SDKs | Manifest fehlt | erster Upload | offen |
 | P-D6 | Android targetSdk-Vorgabe 2026, Signing, Bundle-ID `at.jesenko.buchhaltung` endgültig | Bundle-ID personenbezogen, nach Release unveränderlich | erster Upload | offen |
 | P-D7 | Kamera, Fotoablage, Spracheingabe auf echten Geräten | — | Release | offen |
+| P-D8 | Zusatzsicherung unter Windows (`tool/sicherung/sicherung.ps1`): Erstlauf, Aufgabenplanung, Wiederherstellung | Linux-Variante getestet, Windows-Skript nie ausgeführt | sofort | offen |
