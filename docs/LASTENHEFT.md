@@ -1,6 +1,6 @@
 # Lastenheft – Buchhaltungsapp für Österreich und Deutschland
 
-**Dokumentversion:** 1.20 · **Stand:** 2026-10-09 · **Status:** Entwurf zur Abstimmung
+**Dokumentversion:** 1.21 · **Stand:** 2026-10-09 · **Status:** Entwurf zur Abstimmung
 **Auftraggeber:** Jürgen Jesenko (privates Vorhaben) · **Umsetzung:** Claude Code
 
 > Ein Lastenheft beschreibt, **was** das Produkt leisten soll und **warum** — nicht,
@@ -292,6 +292,7 @@ und Preis jedes Mal neu zu tippen.
 | L-11.9 | Artikel suchen und nach Artikelnummer oder Bezeichnung finden | MUSS | A |
 | L-11.10 | Artikelliste importieren und exportieren (CSV), damit ein bestehender Bestand nicht abgetippt werden muss | SOLL | B |
 | L-11.11 | Ein Artikel, der in einer gestellten Rechnung verwendet wurde, bleibt erhalten; Rechnungen dürfen ihre Positionen nicht verlieren | MUSS | A |
+| L-11.12 | **Einkaufspreis als freiwilliges Feld** je Artikel; ist er gesetzt, zeigt die App den Rohertrag je Stück und je Rechnung in Alltagssprache („Bei der Kerze bleiben dir 4,20 € pro Stück"). Ohne Einkaufspreis erscheint nichts davon | SOLL | B |
 
 ### 5.12 Verkaufskanäle
 
@@ -805,7 +806,7 @@ Zu entscheiden, bevor die betroffene Anforderung umgesetzt wird:
 | ~~O-10~~ | ~~Übertragungsrichtung der Kanalanbindung~~ — **entschieden am 2026-10-09:** ausschließlich lesend, Bestellungen und Rechnungen, keine Lagerverwaltung (L-12.9) | erledigt |
 | ~~O-11~~ | ~~Was ist mit „Google" gemeint?~~ — **entschieden am 2026-10-09:** Google Merchant Center | erledigt |
 | ~~O-12~~ | **Entschieden am 2026-10-10:** zum Start nur Warnung vor der OSS-Lieferschwelle (L-13.9, Stufe B); volle OSS-Unterstützung (L-13.7) später je nach Nachfrage | erledigt |
-| O-13 | Soll die Artikelverwaltung auch Einkaufspreise führen, um Rohertrag je Artikel zu zeigen? | Stufe B |
+| ~~O-13~~ | **Entschieden am 2026-10-10:** Einkaufspreis als freiwilliges Feld mit Rohertragsanzeige (L-11.12, Stufe B) | erledigt |
 | O-14 | **Welche europäischen Märkte als nächste**, und in welcher Reihenfolge? Davon hängt ab, ab wann eine mehrsprachige Oberfläche gebraucht wird. **Vertagt am 2026-10-10:** Entscheidung nach dem Start in AT/DE anhand der Nachfrage | nach Release Stufe A/B |
 | ~~O-15~~ | ~~Schweiz zum Start oder als erste Erweiterung?~~ — **entschieden am 2026-10-09:** die Schweiz entfällt, Fokus auf EU und Eurozone | erledigt |
 | O-15 | **Welcher Dienst erzeugt die Marketing-Inhalte?** Davon hängen Auftragsverarbeitungsvertrag, Kosten je Erzeugung und die Frage ab, ob der Betrieb in der EU erfolgt | Stufe C |
@@ -824,6 +825,7 @@ Zu entscheiden, bevor die betroffene Anforderung umgesetzt wird:
 
 | Version | Datum | Änderung |
 |---|---|---|
+| 1.21 | 2026-10-10 | O-13 entschieden: freiwilliger Einkaufspreis mit Rohertrag (L-11.12). |
 | 1.20 | 2026-10-10 | O-12 entschieden: OSS-Warnung (neu L-13.9, Stufe B), volle OSS-Unterstützung L-13.7 auf KANN herabgestuft. Aufwand A+B 50–77 Personenwochen. |
 | 1.19 | 2026-10-10 | O-14 vertagt: nächste EU-Märkte nach dem Start je nach Nachfrage. |
 | 1.18 | 2026-10-10 | O-7 entschieden: Deutsch zum Start, Landessprache je weiterem EU-Land (L-13.6). Neu L-13.8: Oberflächentexte von Anfang an in Sprachdateien. |
