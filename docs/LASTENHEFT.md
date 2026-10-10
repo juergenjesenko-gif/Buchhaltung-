@@ -1,6 +1,6 @@
 # Lastenheft – Buchhaltungsapp für Österreich und Deutschland
 
-**Dokumentversion:** 1.27 · **Stand:** 2026-10-09 · **Status:** Entwurf zur Abstimmung
+**Dokumentversion:** 1.28 · **Stand:** 2026-10-09 · **Status:** Entwurf zur Abstimmung
 **Auftraggeber:** Jürgen Jesenko (privates Vorhaben) · **Umsetzung:** Claude Code
 
 > Ein Lastenheft beschreibt, **was** das Produkt leisten soll und **warum** — nicht,
@@ -676,6 +676,25 @@ Pakete erscheinen anlassbezogen, etwa 2–6 im Jahr.
 
 **Bis Stufe B** kommen geänderte Werte wie bisher per App-Update.
 
+### 5.21 Anbindung an Claude (KI-Dienst)
+
+Entscheidung vom 2026-10-10: Der Start erfolgt auf der heutigen
+Claude-Anbindung; **innerhalb von sechs Monaten nach dem Launch** wird auf eine
+andere Claude API umgestellt. Betroffen sind alle Stellen, an denen das Produkt
+oder seine Werkzeuge ein Sprachmodell nutzen: Rechtsstand-Agent (L-20),
+Marketing-Modul (L-14, S-13) sowie künftige KI-Funktionen wie Belegerkennung,
+falls sie ein Sprachmodell statt einer Erkennung auf dem Gerät verwenden.
+
+| ID | Anforderung | Prio | Stufe |
+|---|---|---|---|
+| L-21.1 | **Austauschbare Anbindung:** jeder Zugriff auf ein Sprachmodell läuft über genau eine Adapterschicht; Endpunkt, Modellname, Region und Zugangsdaten sind Konfiguration, nie im Code verstreut | MUSS | A |
+| L-21.2 | **Kein API-Schlüssel in der App.** Aufrufe laufen ausschließlich beim Anbieter (Rechtsstand-Agent, Marketing-Backend); die App selbst spricht kein Sprachmodell direkt an | MUSS | A |
+| L-21.3 | **Umstellung innerhalb von sechs Monaten nach dem Launch** auf die Ziel-API (O-28), ohne App-Update für die Nutzerinnen, soweit die Aufrufe beim Anbieter liegen | MUSS | C |
+| L-21.4 | **Validierung der Umstellung:** dieselben Prüfungen laufen vor und nach dem Wechsel und müssen gleich gut bestehen — beim Rechtsstand-Agenten der Rückspieltest (L-20.24) und die Zitatprüfung (L-20.3), beim Marketing-Modul eine feste Sammlung von Testaufträgen | MUSS | C |
+| L-21.5 | Paralleler Probebetrieb: die neue API läuft vor der Umschaltung mindestens zwei Wochen mit, ihre Ergebnisse werden verglichen, aber nicht verwendet | SOLL | C |
+| L-21.6 | **Datenschutz:** der Wechsel des Anbieters bzw. der Region wird vor der Umschaltung in Datenflusstabelle (5.19), Datenschutzerklärung, Store-Angaben und Liste der Unterauftragsverarbeiter eingetragen; Auftragsverarbeitungsvertrag mit dem neuen Vertragspartner liegt vor | MUSS | C |
+| L-21.7 | Rückweg: die bisherige Anbindung bleibt bis zum Abschluss der Validierung umschaltbar erhalten | SOLL | C |
+
 ---
 
 ## 6. Nichtfunktionale Anforderungen
@@ -940,6 +959,7 @@ Zu entscheiden, bevor die betroffene Anforderung umgesetzt wird:
 | O-25 | **Markenrecherche** zu „Jenny Bar" und „Jenni bucht" durch Markenanwältin (TMview, Klassen 9, 35, 36, 42), danach Unionsmarke anmelden — vor Domain und Store-Eintrag. Siehe Spezifikation Abschnitt 14, P-R7 | vor dem ersten Store-Upload |
 | O-26 | **Rechtsform und Absicherung des Anbieters:** Einzelunternehmen haftet persönlich — GmbH, Vermögensschaden- und Produkthaftpflicht prüfen (P-R8) | vor Release |
 | O-27 | **Laufende Kosten der Rechtsstand-Überwachung:** API-Kosten des Agenten (Annahme 30–90 €/Monat) und Bereitschaft plus Freigaben der Steuerberaterin (0,5–2 h je Änderung). Angebot einholen | vor Stufe B |
+| O-28 | **Ziel der Claude-Umstellung (L-21):** welche API genau — direkt bei Anthropic, über AWS Bedrock, über Google Vertex AI, eigenes Firmenkonto? Und muss die Verarbeitung in der EU stattfinden? Davon hängen Auftragsverarbeitungsvertrag, Datenschutzerklärung und Kosten ab | vor Launch |
 | O-20 | Welche Vorsoftware-Formate sind beim Import vorrangig zu unterstützen? Richtet sich nach dem, womit die ersten Nutzer tatsächlich kommen | Stufe B |
 | ~~O-21~~ | **Vorläufig beantwortet am 2026-10-10 (Prüfinstanz Rechtsanwalt):** BFSG/BaFG voraussichtlich nicht anwendbar (B2B, Kleinstunternehmen). Grundbarrierefreiheit trotzdem als NF-Anforderung; Bestätigung siehe Spezifikation Abschnitt 14, P-R3 | erledigt |
 | ~~O-23~~ | **Entschieden am 2026-10-09:** wählbar je Rücksendung über den Schalter „Ware wieder verkaufbar?" (L-3.20) | erledigt |
@@ -952,6 +972,7 @@ Zu entscheiden, bevor die betroffene Anforderung umgesetzt wird:
 
 | Version | Datum | Änderung |
 |---|---|---|
+| 1.28 | 2026-10-10 | Neuer Block L-21: Start auf der heutigen Claude-Anbindung, Umstellung auf eine andere Claude API innerhalb von sechs Monaten nach Launch; austauschbare Adapterschicht, kein Schlüssel in der App, Validierung vor und nach dem Wechsel. O-28 neu. |
 | 1.27 | 2026-10-10 | Neuer Block L-20 Rechtsstand-Überwachung (Abschnitt 5.20), mit den drei Prüfinstanzen ausgearbeitet: Agent nur als Vorschlagsgeber beim Anbieter, Vier-Augen-Freigabe, signierte Regelpakete, Prüfung auf dem Gerät, Validierung mit Rückspieltest. Neuer Datenfluss Regelpaket-Abruf. O-27 neu. Aufwand Stufe B 39–57, A+B 64–97 Personenwochen. |
 | 1.26 | 2026-10-10 | Ergebnisse der drei Prüfinstanzen eingearbeitet: „Gutschrift" durch Stornorechnung/Rechnungskorrektur ersetzt, Ist-Versteuerung bei Erstattung (L-3.7, L-3.18); E-Rechnungsempfang MUSS/A (L-4.3); OSS-Warnung mit Vorjahr (L-13.9); Probeabo-Pflichtangaben (L-10.3); Rabattwerbung (5.10); Rollen um Anbieter- und Store-Daten ergänzt (L-19); Apple-Kontolöschung (L-17.12); R-6 präzisiert; O-21 vorläufig beantwortet; O-25, O-26 neu. Aufwand Stufe A 25–40 inkl. Puffer. Punkte für die reale Prüfung stehen ausschließlich in Spezifikation Abschnitt 14. |
 | 1.25 | 2026-10-10 | O-1 erledigt: Vorjahresgrenze Österreich 55.000 € umgesetzt. |
