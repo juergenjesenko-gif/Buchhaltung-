@@ -1,6 +1,6 @@
 # Spezifikation – Buchhaltung
 
-**Dokumentversion:** 1.14 · **App-Version:** 0.1.0 · **Stand:** 2026-10-10
+**Dokumentversion:** 1.15 · **App-Version:** 0.1.0 · **Stand:** 2026-10-10
 **Status:** Sprint 1 umgesetzt und verifiziert
 
 > Das **Zielbild** des Produkts steht im [`LASTENHEFT.md`](LASTENHEFT.md); dieses
@@ -601,6 +601,7 @@ Umrechnung: Beträge in Cent. `5500000` Cent = 55.000,00 €.
 
 | Version | Datum | App-Version | Änderung |
 |---|---|---|---|
+| 1.15 | 2026-10-10 | 0.1.0 | Prüfpunkte P-M1 bis P-M6 für den Mehrgeräte- und Mehrpersonenbetrieb ohne Server (Lastenheft L-19.12 ff.). Keine Codeänderung. |
 | 1.14 | 2026-10-10 | 0.1.0 | Automatische Sicherung (FA-7.9 bis FA-7.15): Ordnerwahl je Plattform, Geräteschlüssel mit Wiederherstellungscode, Sicherungsformat 2, Fälligkeit, Probe nach dem Schreiben, Rotation 7/12/je Jahr, „Sicherung prüfen". Schema 6, neue Kennwerte, Prüfpunkte P-B1 bis P-B5, Grenze aktualisiert. |
 | 1.13 | 2026-10-10 | 0.1.0 | Stammdaten und UID-Prüfung (FA-1.4 bis FA-1.4e): Steuernummer und UID optional, Rechnungspflichten je Land, Firmenbuch-/Registerangaben, Formatprüfung offline, VIES-Prüfung mit Protokoll, wöchentliche Prüfung nach Opt-in, Prüfergebnis an der Rechnung eingefroren. Schema 5, neue Kennwerte, Prüfpunkte P-U1 bis P-U4. |
 | 1.12 | 2026-10-10 | 0.1.0 | Datensicherung (Abschnitt 5.5a, FA-7.1 bis FA-7.8): verschlüsselte Vollsicherung samt Fotos, Ablage über den Teilen-Dialog, Wiederherstellung mit Vorschau, Erinnerung nach 30 Tagen. Schema 4 (`last_backup_at`), neuer Bildschirm, Kennwert `spec.backup_reminder_days`. Bekannte Grenze „Kein Backup" ersetzt durch „Sicherung nur von Hand". |
@@ -719,4 +720,10 @@ Status: *offen* · *bestätigt* (mit Datum und Prüfer) · *widerlegt* (mit Folg
 | P-B3 | Laufzeit einer großen Sicherung (viele Fotos) beim Öffnen der App; Verhalten bei Wechsel in den Hintergrund | — | vor Release | offen |
 | P-B4 | Steuerberatung: verschlüsselte Sicherungskopie in einer US-Cloud neben den Originaldaten am Gerät ist kein „Führen der Bücher im Ausland“ (§ 146 Abs 2a/2b AO, § 131 BAO); Fristen nach BEG IV (8/10 Jahre) | beide Instanzen: nach h. M. unkritisch, kippt wenn die Cloud-Kopie die einzige wird | Release | offen |
 | P-B5 | Store-Angaben zur automatischen Sicherung (gehört zu P-U4) | keine Erhebung durch den Anbieter | erster Upload | offen |
+| P-M1 | Steuerberatung AT bestätigt Nummernkreise je Gerät/Person mit Präfix (UStR Rz 1565); DE nach UStAE 14.5 Abs 10 | Prüfinstanzen: zulässig, wenn Präfix fest und dokumentiert | Stufe C | offen |
+| P-M2 | Steuerberatung: Ordnungsmäßigkeit, wenn Buchhaltungsdaten im (privaten) Cloud-Konto liegen; § 131 Abs 1 BAO bei Ablage außerhalb Österreichs; Umgang mit doppeltem Storno | — | Stufe C | offen |
+| P-M3 | Arbeitsrecht AT: § 96/96a ArbVG bei Erfasser-Kennung mit Zeitstempel; DE § 87 BetrVG | Erfasser-Vermerk ohne Auswertung berührt Menschenwürde in der Regel nicht | Stufe C | offen |
+| P-M4 | Verhalten von iCloud-Freigabeordnern, Google Drive, OneDrive, Nextcloud bei Synchronisierung (Verzögerung, ausgelagerte Dateien, Konfliktkopien, Umbenennen) auf echten Geräten, auch gemischt iOS/Android | hohes Risiko | Stufe C | offen |
+| P-M5 | Externes Sicherheitsreview der Schlüsselverteilung (X25519, Ed25519, AES-GCM, Schlüsselwechsel) vor Release | — | Release Stufe C | offen |
+| P-M6 | Anwältin: Mustertext Art. 13 für Beschäftigte, Haftung und Formulierung „kein harter Zugriffsschutz“ | — | Stufe C | offen |
 | P-D8 | Zusatzsicherung unter Windows (`tool/sicherung/sicherung.ps1`): Erstlauf, Aufgabenplanung, Wiederherstellung | Linux-Variante getestet, Windows-Skript nie ausgeführt | sofort | offen |

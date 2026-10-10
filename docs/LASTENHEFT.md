@@ -1,6 +1,6 @@
 # Lastenheft – Buchhaltungsapp für Österreich und Deutschland
 
-**Dokumentversion:** 1.30 · **Stand:** 2026-10-09 · **Status:** Entwurf zur Abstimmung
+**Dokumentversion:** 1.31 · **Stand:** 2026-10-09 · **Status:** Entwurf zur Abstimmung
 **Auftraggeber:** Jürgen Jesenko (privates Vorhaben) · **Umsetzung:** Claude Code
 
 > Ein Lastenheft beschreibt, **was** das Produkt leisten soll und **warum** — nicht,
@@ -534,25 +534,43 @@ mit, an die er anknüpfen muss.
 
 Bündelt, was bisher über die Module verteilt war, und legt die Rollen fest.
 
-#### Nutzerkonto
+#### Nutzerkonto und Mehrgerätebetrieb
+
+**Entscheidung vom 2026-10-10 (O-29):** Es gibt **keinen Server des Anbieters**,
+auch nicht für die Synchronisierung. Mehrere Geräte einer Person und mehrere
+Personen eines Unternehmens arbeiten über einen **Ordner in der Cloud der
+Unternehmerin** zusammen. Damit entfällt das Nutzerkonto beim Anbieter ganz.
+Ausgearbeitet mit den drei Prüfinstanzen.
 
 | ID | Anforderung | Prio | Stufe |
 |---|---|---|---|
 | L-19.1 | **Stufe A und B kommen ohne Nutzerkonto aus.** Das Abonnement läuft über den Kauf im App Store bzw. bei Google Play; die Lizenz hängt am Store-Konto, nicht an einem Konto beim Anbieter | MUSS | A |
-| L-19.2 | **Ein Nutzerkonto entsteht erst mit der Cloud-Synchronisierung (S-8)**, weil es nur dafür gebraucht wird: um sich von weiteren Geräten aus anzumelden | MUSS | C |
-| L-19.3 | Auch mit Konto bleibt die App **ohne Anmeldung nutzbar**; das Konto ist Voraussetzung für die Synchronisierung, nicht für die Buchhaltung | MUSS | C |
-| L-19.12 | **Mehrere Geräte arbeiten parallel** auf denselben Daten; Änderungen werden synchronisiert, Konflikte erkannt und nie stillschweigend überschrieben. Gestellte Rechnungen sind unveränderlich und damit konfliktfrei; der Nummernkreis bleibt auch bei gleichzeitiger Vergabe lückenlos und eindeutig | MUSS | C |
-| L-19.13 | **Passwort zurücksetzen** per Link an die hinterlegte E-Mail-Adresse; wegen Ende-zu-Ende-Verschlüsselung nur mit Wiederherstellungsschlüssel oder einem noch angemeldeten Gerät ohne Datenverlust | MUSS | C |
-| L-19.14 | **Zwei-Faktor-Authentisierung** (TOTP-App, alternativ Passkey); einmalige Wiederherstellungscodes | MUSS | C |
-| L-19.4 | Für das Konto werden nur die zur Anmeldung nötigen Daten erhoben (E-Mail-Adresse, Zugangsdaten). Keine Telefonnummer, kein Geburtsdatum, keine Profilangaben „für später" | MUSS | C |
+| L-19.2 | **Kein Nutzerkonto beim Anbieter**, auch nicht in Stufe C. Geräte und Personen werden über einen gemeinsamen Cloud-Ordner und Schlüssel verbunden (L-19.15 ff.) | MUSS | C |
+| L-19.3 | Die App bleibt ohne Synchronisierung voll nutzbar; der Mehrgerätebetrieb ist Opt-in | MUSS | C |
+| L-19.12 | **Mehrere Geräte und Personen arbeiten parallel**; Änderungen werden synchronisiert, Konflikte erkannt und nie stillschweigend überschrieben. Gestellte Rechnungen und Stornos sind unveränderlich und werden nur angehängt. **Rechnungsnummern sind über alle Geräte eindeutig und je Nummernkreis fortlaufend:** jedes Gerät bzw. jede ausstellende Person hat einen eigenen Kreis mit festem Präfix (z. B. `2026-A-0001`), das nie wiederverwendet wird (UStAE 14.5 Abs 10; UStR Rz 1565). Alternativ ein einziges Ausstellgerät | MUSS | C |
+| L-19.13 | **Wiederherstellung ohne Server:** Zugang zu den Daten auf einem neuen Gerät über den Wiederherstellungscode (L-7.7) oder die Freigabe durch ein bereits verbundenes Gerät; kein Passwort-Reset per E-Mail | MUSS | C |
+| L-19.14 | ~~Zwei-Faktor-Anmeldung~~ entfällt mit L-19.2 (kein Konto). Schutz der Daten über Geräteschlüssel, Gerätesperre und die Bestätigung jedes neuen Geräts per QR-Code (L-19.18) | — | — |
+| L-19.4 | ~~Kontodaten~~ entfällt mit L-19.2; es werden keine Kontodaten erhoben | — | — |
+| L-19.15 | **Synchronisierung über ein Änderungsjournal je Gerät** im gemeinsamen Ordner: jedes Gerät schreibt nur eigene, einmal geschriebene Dateien (verschlüsselt, signiert); kein gemeinsames Bearbeiten einer Datenbankdatei. Zusammenführen deterministisch je Feld nach Zeitstempel (Hybrid Logical Clock); Belegfotos inhaltsadressiert. IDs geräteübergreifend als UUID | MUSS | C |
+| L-19.16 | **Konfliktliste:** gleichzeitige Änderungen desselben Felds, Bearbeiten gegen Löschen, doppeltes Storno erscheinen mit beiden Fassungen, Person und Zeit; die verworfene Fassung bleibt im Protokoll. Gestellte Rechnungen haben nie Konflikte – tritt doch einer auf, ist es ein gemeldeter Integritätsfehler | MUSS | C |
+| L-19.17 | **Präfix-Register der Nummernkreise** (Präfix, Person, Gerät, angelegt, stillgelegt), vergeben von der Inhaberin; Doppelvergabe oder ein auf zwei Geräten aktives Präfix wird beim Abgleich erkannt, gemeldet und über Storno und Neuausstellung korrigiert – nie automatisch umnummeriert. Lückenbericht je Kreis, exportierbar | MUSS | C |
+| L-19.18 | **Einladen per QR-Code:** gemeinsamer Datenschlüssel, je Gerät bzw. Person mit deren Schlüsselpaar (X25519) eingewickelt; das neue Gerät wird auf dem Gerät der Inhaberin mit Fingerabdruck bestätigt. Kein Anbieter-Server, auch nicht für Einladung, Schlüsseltausch oder Push | MUSS | C |
+| L-19.19 | **Nachvollziehbarkeit:** jeder Eintrag trägt Person, Gerät, Rolle und Zeitstempel (UTC) und ist je Gerät signiert (Ed25519); Einträge mit ungültiger Signatur werden verworfen und gemeldet. **Keine Auswertung je Person** (keine Statistik, kein Ranking, keine Aktivitätsübersicht) | MUSS | C |
+| L-19.20 | **Rollen:** Inhaberin (alles, Zugänge, Nummernkreise), Mitarbeiterin mit Fakturierung (eigener Nummernkreis, keine Stammdaten, keine Meldungen), Mitarbeiterin Erfassung (Belege, Entwürfe), Steuerberatung (lesen, exportieren). Die Rollenliste ist von der Inhaberin signiert und wird beim Zusammenführen auf jedem Gerät geprüft. Die App sagt offen: ohne Server ist das kein harter Zugriffsschutz | MUSS | C |
+| L-19.21 | **Hinweis für Beschäftigte** (Art. 13 DSGVO) beim Einladen, von der Mitarbeiterin vor dem ersten Eintrag bestätigt; mit Hinweis auf Betriebsrat (§ 87 Abs 1 Nr 6 BetrVG) bzw. § 96/96a ArbVG, § 10 AVRAG | MUSS | C |
+| L-19.22 | **Zugang entziehen** in einem Schritt: Mitgliederliste ändern, Schlüssel wechseln, Kennung als „ausgeschieden" markieren, nicht löschen. Die App erklärt die Grenzen: bereits übertragene Daten bleiben auf dem Gerät der Person lesbar; die Cloud-Freigabe entzieht die Inhaberin selbst; Löschbestätigung arbeitsrechtlich einfordern | MUSS | C |
+| L-19.23 | Warnung, wenn der Ordner an ein offensichtlich privates Konto freigegeben wird; Empfehlung eines Geschäftskontos | SOLL | C |
+| L-19.24 | **Synchronisierung ist keine Sicherung:** die automatische Sicherung (L-7) bleibt getrennt, mit eigenem Ordner und Schlüssel | MUSS | C |
+| L-19.25 | Gemischte Teams aus iOS und Android brauchen einen Cloud-Dienst, den beide Systeme als Ordner anbieten; die App benennt das beim Einrichten | MUSS | C |
+| L-19.26 | **Vorlage der Verfahrensdokumentation** aus den Einstellungen: Berechtigungskonzept, Nummernkreise, Synchronisationsverfahren, Ablageort, Datensicherung, Ablauf beim Ausscheiden (ergänzt L-7.11) | SOLL | C |
 
 #### Rollen
 
 | Datenkategorie | Verantwortlicher | Anbieter ist |
 |---|---|---|
 | Buchhaltungsdaten am Gerät (Belege, Rechnungen, Kunden) | **der Nutzer** — er erfasst Daten seiner Kunden | nicht beteiligt; liefert nur Software |
-| Kontodaten (Stufe C) | **der Anbieter** | Verantwortlicher |
-| Synchronisierte Buchhaltungsdaten (Stufe C) | der Nutzer | **Auftragsverarbeiter**; Vertrag nach Art. 28 DSGVO mit jedem Nutzer |
+| Synchronisierte Buchhaltungsdaten (Stufe C) | **die Unternehmerin**; Cloud-Dienst (Apple/Google …) ist ihr Auftragsverarbeiter nach dessen Bedingungen | **nicht beteiligt**: kein Server, kein Schlüssel, kein Zugriff (EuGH C-683/21) |
+| Beschäftigte der Unternehmerin | handeln auf ihre Weisung (Art. 29 DSGVO), keine Dritten | nicht beteiligt |
 | Daten an Marketing-Dienste (L-14) | der Nutzer | Auftragsverarbeiter mit Unterauftragnehmer |
 | Abo-, Support- und Diagnosedaten | **der Anbieter** | Verantwortlicher; eigenes Verzeichnis, Datenschutzerklärung nach Art. 13 |
 | Kaufabwicklung im Store | Apple bzw. Google | nicht beteiligt; Stores sind eigene Verantwortliche |
@@ -576,22 +594,22 @@ Jede Übertragung vom Gerät weg, auch die unscheinbaren:
 | Abo-Kauf (L-10.1) | Apple bzw. Google | Kaufvorgang | Kauf | je Vorgang | B |
 | UVA-Übermittlung (L-6.5) | FinanzOnline bzw. ELSTER | Kennzahlen der Voranmeldung | Freigabe der Meldung | je Vorgang | B |
 | Regelpaket-Abruf (L-20.22) | Hosting des Anbieters (EU) | nur Abruf: IP-Adresse, Zeitpunkt, App-Version; keine Nutzdaten | automatisch, täglich | nein, technisch notwendig; in der Datenschutzerklärung offengelegt | B |
-| Cloud-Synchronisierung (S-8) | Server des Anbieters | alle Buchhaltungsdaten, verschlüsselt | Konto anlegen | ja | C |
+| Synchronisierung (L-19.15 ff.) | gemeinsamer Ordner in der Cloud der Unternehmerin; freigegebene Personen und Geräte | alle Buchhaltungsdaten, Ende-zu-Ende verschlüsselt, signiert, mit Kennung der erfassenden Person | Einrichten bzw. Einladung per QR-Code | **ja** | C |
 | Marketing (L-14) | Dienst zur Inhaltserzeugung | nur Unternehmens- und Artikeldaten | Modul einschalten | ja | C |
 | Kanäle (L-12) | Amazon, Shopify, Google Merchant Center | je nach Modul | Modul einschalten | ja | C |
 
 | ID | Anforderung | Prio | Stufe |
 |---|---|---|---|
 | L-19.5 | **Jeder neue Datenfluss wird im selben Schritt in diese Tabelle, in die Datenschutzerklärung und in die Store-Datensicherheitsangaben eingetragen.** Eine Funktion, die Daten überträgt, ist ohne diese drei Einträge nicht fertig | MUSS | A |
-| L-19.6 | Daten, die beim Anbieter landen (Stufe C), werden **in der EU** verarbeitet und gespeichert | MUSS | C |
-| L-19.7 | Synchronisierte Daten sind **Ende-zu-Ende verschlüsselt**; der Anbieter kann Buchhaltungsdaten nicht lesen | SOLL | C |
+| L-19.6 | ~~Daten beim Anbieter in der EU~~ entfällt: beim Anbieter landen keine Buchhaltungsdaten (O-29). Ausnahme: Marketing-Modul nach L-21 | — | — |
+| L-19.7 | Synchronisierte Daten sind **Ende-zu-Ende verschlüsselt**; weder Cloud-Dienst noch Anbieter können sie lesen | MUSS | C |
 
 #### Löschung und Aufbewahrungspflicht
 
 | ID | Anforderung | Prio | Stufe |
 |---|---|---|---|
 | L-19.8 | Die App **löscht keine Buchungsbelege vor Ablauf der Aufbewahrungsfrist** (AT 7, DE 8 Jahre) ohne ausdrückliche Warnung; die Frist hat Vorrang vor dem Löschwunsch (Art. 17 Abs. 3 lit. b DSGVO) | MUSS | A |
-| L-19.9 | Die Löschung des **Nutzerkontos** (Stufe C) entfernt Kontodaten und synchronisierte Kopien beim Anbieter; die Daten am Gerät bleiben, damit die Aufbewahrungspflicht erfüllbar bleibt | MUSS | C |
+| L-19.9 | ~~Löschung des Nutzerkontos~~ entfällt mit L-19.2. Beim Verlassen eines Teams bleiben die Daten der Unternehmerin vollständig erhalten | — | — |
 | L-19.10 | Der Nutzer kann **Daten seiner Kunden** auf deren Anfrage auskunftsfähig zusammenstellen (alle Rechnungen und Stammdaten eines Kunden als Export) | SOLL | B |
 | L-19.11 | Kundenstammdaten ohne aufbewahrungspflichtige Rechnungen sind löschbar; mit solchen Rechnungen wird auf die Frist verwiesen | MUSS | B |
 
@@ -806,7 +824,7 @@ Werden mit Messdaten aus dem Probebetrieb ersetzt.
 | S-5 | App Store / Google Play Billing | Abonnement und Premium-Services | B |
 | S-6 | FinanzOnline-Webservice, ELSTER/ERiC | Elektronische Übermittlung der UVA (Stufe B), der Einkommensteuer (Stufe C) | B |
 | S-7 | Kontoauszug als Datei (CSV, CAMT.053) | Kontoumsätze einlesen und Belegen zuordnen — **ohne Server, ohne Bankzugang** (L-18) | B |
-| S-8 | Eigenes Backend | Synchronisierung mehrerer Geräte; **Voraussetzung für S-9 bis S-11** | C |
+| S-8 | Eigenes Backend | **Nicht** für die Synchronisierung (O-29); nur noch Voraussetzung für die Kanalanbindung S-9 bis S-11 und das Marketing-Modul | C |
 | S-9 | Amazon Selling Partner API | Verkaufsdaten aus dem Amazon-Seller-Konto | C |
 | S-10 | Shopify Admin API | Verkaufsdaten aus dem Shopify-Shop | C |
 | S-11 | Google (Merchant Center, zu bestätigen) | Verkaufs- bzw. Produktdaten | C |
@@ -917,6 +935,7 @@ Grobe Schätzung in Personenwochen Vollzeitentwicklung, ohne Puffer:
 | Rechtsstand-Überwachung: Staffelung, Paket, Pipeline, Validierung (L-20) | B | 6–8 |
 | **Summe Stufe B** | | **39–57** |
 | **Stufe A + B zusammen** | | **64–97 Personenwochen** |
+| Synchronisierung ohne Server: Journal, UUID-Migration, Konflikte, Nummernkreise je Gerät, Schlüssel und Einladung, Rollen, Zugangsentzug, Tests (L-19.12 ff.) | C | 56–83 |
 | Backend als Voraussetzung der Kanalanbindung | C | 6–10 |
 | Kanalanbindung je Kanal, nur lesend | C | 3–5 |
 | OSS-Erweiterung des Steuerlayers | C | 3–4 |
@@ -1018,6 +1037,7 @@ Zu entscheiden, bevor die betroffene Anforderung umgesetzt wird:
 | O-26 | **Rechtsform und Absicherung des Anbieters:** Einzelunternehmen haftet persönlich — GmbH, Vermögensschaden- und Produkthaftpflicht prüfen (P-R8) | vor Release |
 | O-27 | **Laufende Kosten der Rechtsstand-Überwachung:** API-Kosten des Agenten (Annahme 30–90 €/Monat) und Bereitschaft plus Freigaben der Steuerberaterin (0,5–2 h je Änderung). Angebot einholen | vor Stufe B |
 | ~~O-28~~ | **Entschieden am 2026-10-10:** direkt Anthropic API, ein eigenes neues Konto. EU-Verarbeitung von den Prüfinstanzen geprüft: nicht vorgeschrieben; Buchhaltungsdaten und Belege dürfen trotzdem nicht über die US-Route laufen (L-21.8 bis L-21.12) | erledigt |
+| ~~O-29~~ | **Entschieden am 2026-10-10:** Sicherung und Synchronisierung bleiben in der Cloud der Nutzerin; kein Server und kein Konto beim Anbieter. Mehrere Geräte und mehrere Personen über gemeinsamen Ordner (L-19.12 ff.) | erledigt |
 | O-20 | Welche Vorsoftware-Formate sind beim Import vorrangig zu unterstützen? Richtet sich nach dem, womit die ersten Nutzer tatsächlich kommen | Stufe B |
 | ~~O-21~~ | **Vorläufig beantwortet am 2026-10-10 (Prüfinstanz Rechtsanwalt):** BFSG/BaFG voraussichtlich nicht anwendbar (B2B, Kleinstunternehmen). Grundbarrierefreiheit trotzdem als NF-Anforderung; Bestätigung siehe Spezifikation Abschnitt 14, P-R3 | erledigt |
 | ~~O-23~~ | **Entschieden am 2026-10-09:** wählbar je Rücksendung über den Schalter „Ware wieder verkaufbar?" (L-3.20) | erledigt |
@@ -1030,6 +1050,7 @@ Zu entscheiden, bevor die betroffene Anforderung umgesetzt wird:
 
 | Version | Datum | Änderung |
 |---|---|---|
+| 1.31 | 2026-10-10 | O-29 entschieden: kein Server und kein Konto beim Anbieter. Mehrgeräte- und Mehrpersonenbetrieb über einen Cloud-Ordner der Unternehmerin, mit den drei Prüfinstanzen ausgearbeitet (L-19.12 neu, L-19.13 ersetzt, L-19.15 bis L-19.26 neu; L-19.4, L-19.6, L-19.9, L-19.14 entfallen). Rollen- und Datenflusstabelle angepasst, S-8 nur noch für Kanäle. Aufwand Stufe C +56–83 PW. |
 | 1.30 | 2026-10-10 | Automatische Sicherung mit den drei Prüfinstanzen ausgearbeitet und umgesetzt: L-7.6 bis L-7.11 (Opt-in mit Erklärseite, Geräteschlüssel mit Wiederherstellungscode, Ordnerwahl ohne Konto, Probe nach jedem Schreiben, Aufbewahrung 7/12/je Jahr dauerhaft). Datenflusstabelle geteilt. |
 | 1.29 | 2026-10-10 | L-21 überarbeitet nach Entscheidung „direkt Anthropic API, eigenes Konto" und Prüfung durch die drei Instanzen: Verarbeitungsort je Datenkategorie (L-21.8 bis L-21.12), Betrieb rund um die Uhr ohne Zusatzdienst, gesichert durch eigenes Design (L-21.13 bis L-21.23), Kostenannahmen. S-13 auf Anthropic festgelegt, O-28 erledigt. |
 | 1.28 | 2026-10-10 | Neuer Block L-21: Start auf der heutigen Claude-Anbindung, Umstellung auf eine andere Claude API innerhalb von sechs Monaten nach Launch; austauschbare Adapterschicht, kein Schlüssel in der App, Validierung vor und nach dem Wechsel. O-28 neu. |
