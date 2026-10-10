@@ -32,6 +32,7 @@ class BackupFolderChannel(
     override fun onMethodCall(call: MethodCall, result: MethodChannel.Result) {
         when (call.method) {
             "pick" -> pick(result)
+            "pickFile" -> pickFile(result)
             else -> io.execute {
                 try {
                     val tree = Uri.parse(call.argument<String>("folder")!!)
@@ -68,7 +69,38 @@ class BackupFolderChannel(
         activity.startActivityForResult(intent, REQUEST_CODE)
     }
 
+    /** Eine Datei wählen und ihren Inhalt liefern (Wiederherstellung). */
+    private fun pickFile(result: MethodChannel.Result) {
+        if (pending != null) {
+            result.error("BUSY", "Auswahl läuft bereits", null)
+            return
+        }
+        pending = result
+        val intent = Intent(Intent.ACTION_OPEN_DOCUMENT)
+            .addCategory(Intent.CATEGORY_OPENABLE)
+            .setType("*/*")
+        activity.startActivityForResult(intent, REQUEST_FILE)
+    }
+
     fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?): Boolean {
+        if (requestCode == REQUEST_FILE) {
+            val result = pending ?: return true
+            pending = null
+            val uri = data?.data
+            if (resultCode != Activity.RESULT_OK || uri == null) {
+                result.success(null)
+                return true
+            }
+            io.execute {
+                try {
+                    val bytes = activity.contentResolver.openInputStream(uri)?.use { it.readBytes() }
+                    activity.runOnUiThread { result.success(bytes) }
+                } catch (e: Exception) {
+                    activity.runOnUiThread { result.error("IO", e.message, null) }
+                }
+            }
+            return true
+        }
         if (requestCode != REQUEST_CODE) return false
         val result = pending ?: return true
         pending = null
@@ -148,5 +180,6 @@ class BackupFolderChannel(
 
     companion object {
         private const val REQUEST_CODE = 4711
+        private const val REQUEST_FILE = 4712
     }
 }

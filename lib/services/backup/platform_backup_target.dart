@@ -24,6 +24,11 @@ class PlatformBackupTarget implements BackupTarget {
     );
   }
 
+  /// Wählt eine Datei (z. B. eine Sicherung) und liefert ihren Inhalt;
+  /// `null`, wenn abgebrochen.
+  static Future<Uint8List?> pickFile() =>
+      _channel.invokeMethod<Uint8List>('pickFile');
+
   @override
   Future<bool> isAvailable() async {
     try {

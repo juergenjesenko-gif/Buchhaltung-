@@ -44,6 +44,7 @@ nächsten Versionssprung in den neuen Eintrag.
 | Geändert | Österreich: harte Grenze 55.000 € zur Sicherheit, Toleranz nur noch als Warnung mit Verweis an die Steuerberatung; Status „in Toleranz“ entfällt | FA-4.4, P-S1 (b) | c30dc9d |
 | Neu | Automatische Sicherung in einen gewählten Ordner (iCloud Drive, Google Drive …), Wiederherstellungscode, Probe nach jedem Schreiben, Aufbewahrung 7/12/je Jahr dauerhaft, „Sicherung prüfen“ | L-7.2, L-7.6–7.10, FA-7.9–7.15 | 1cae349 |
 | Datenbank | Schema 5 → 6: Spalten der automatischen Sicherung | Spezifikation 4 | 1cae349 |
+| Abhängigkeit | Entfernt: `file_picker` (brach den Android-Build unter AGP 9; Dateiauswahl jetzt über `BackupFolderChannel`) | CI | COMMIT7 |
 | Abhängigkeit | Neu: `flutter_secure_storage`; eigener Plattformcode `BackupFolderChannel` (Kotlin, Swift) | FA-7.9 | 1cae349 |
 | Neu | UID-Prüfung: Formatprüfung offline, VIES auf Tippen, wöchentlich nach Opt-in, Protokoll, Ergebnis an der Rechnung eingefroren | L-1.3, L-1.4, FA-1.4a–d | 30ef78e |
 | Neu | Firmenbuch-/Handelsregisternummer und Gericht, auf jeder Rechnung | FA-1.4e | 30ef78e |

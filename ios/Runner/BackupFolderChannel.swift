@@ -24,6 +24,10 @@ final class BackupFolderChannel: NSObject, UIDocumentPickerDelegate {
       pick(result)
       return
     }
+    if call.method == "pickFile" {
+      pickFile(result)
+      return
+    }
     guard let args = call.arguments as? [String: Any],
           let folder = args["folder"] as? String
     else {
@@ -70,6 +74,20 @@ final class BackupFolderChannel: NSObject, UIDocumentPickerDelegate {
     }
   }
 
+  private var pickingFile = false
+
+  private func pickFile(_ result: @escaping FlutterResult) {
+    guard pending == nil, let root = Self.topViewController() else {
+      result(FlutterError(code: "BUSY", message: "Auswahl nicht möglich", details: nil))
+      return
+    }
+    pending = result
+    pickingFile = true
+    let picker = UIDocumentPickerViewController(forOpeningContentTypes: [.data], asCopy: true)
+    picker.delegate = self
+    root.present(picker, animated: true)
+  }
+
   private func pick(_ result: @escaping FlutterResult) {
     guard pending == nil, let root = Self.topViewController() else {
       result(FlutterError(code: "BUSY", message: "Auswahl nicht möglich", details: nil))
@@ -86,6 +104,15 @@ final class BackupFolderChannel: NSObject, UIDocumentPickerDelegate {
     guard let result = pending else { return }
     pending = nil
     guard let url = urls.first else { result(nil); return }
+    if pickingFile {
+      pickingFile = false
+      do {
+        result(FlutterStandardTypedData(bytes: try Data(contentsOf: url)))
+      } catch {
+        result(FlutterError(code: "IO", message: error.localizedDescription, details: nil))
+      }
+      return
+    }
     let access = url.startAccessingSecurityScopedResource()
     defer { if access { url.stopAccessingSecurityScopedResource() } }
     do {
@@ -97,6 +124,7 @@ final class BackupFolderChannel: NSObject, UIDocumentPickerDelegate {
   }
 
   func documentPickerWasCancelled(_ controller: UIDocumentPickerViewController) {
+    pickingFile = false
     pending?(nil)
     pending = nil
   }
