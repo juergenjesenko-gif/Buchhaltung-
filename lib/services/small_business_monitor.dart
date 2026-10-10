@@ -85,8 +85,14 @@ class SmallBusinessMonitor {
     required Money currentYearTurnover,
     required Money? previousYearTurnover,
     required bool currentYearComplete,
+    bool isFoundingYear = false,
   }) {
-    final limit = taxProfile.currentYearTurnoverLimit;
+    // Im Gründungsjahr gibt es kein Vorjahr; manche Länder setzen eine
+    // niedrigere Grenze (DE, § 19 Abs 1 UStG).
+    final limit = isFoundingYear
+        ? taxProfile.foundingYearTurnoverLimit ??
+              taxProfile.currentYearTurnoverLimit
+        : taxProfile.currentYearTurnoverLimit;
 
     if (!isSmallBusiness) {
       return SmallBusinessAssessment(
@@ -102,7 +108,9 @@ class SmallBusinessMonitor {
     final headroom = limit - currentYearTurnover;
 
     // Die Vorjahresgrenze entscheidet vorab über das ganze Jahr.
-    final previousLimit = taxProfile.previousYearTurnoverLimit;
+    final previousLimit = isFoundingYear
+        ? null
+        : taxProfile.previousYearTurnoverLimit;
     if (previousLimit != null &&
         previousYearTurnover != null &&
         previousYearTurnover > previousLimit) {

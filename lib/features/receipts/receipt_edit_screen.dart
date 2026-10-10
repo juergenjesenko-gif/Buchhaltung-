@@ -185,10 +185,12 @@ class _ReceiptEditScreenState extends State<ReceiptEditScreen> {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Beleg löschen?'),
+        title: const Text('Beleg stornieren?'),
         content: const Text(
-          'Der Beleg wird aus der Buchhaltung entfernt. Die Löschung wird im '
-          'Änderungsprotokoll vermerkt.',
+          'Der Beleg zählt danach in keiner Auswertung mehr. Er wird aber nicht '
+          'gelöscht, sondern bleibt mit Foto aufbewahrt, weil Belege einer '
+          'gesetzlichen Aufbewahrungspflicht unterliegen. Die Stornierung wird '
+          'im Änderungsprotokoll vermerkt.',
         ),
         actions: [
           TextButton(
@@ -197,7 +199,7 @@ class _ReceiptEditScreenState extends State<ReceiptEditScreen> {
           ),
           FilledButton(
             onPressed: () => Navigator.of(context).pop(true),
-            child: const Text('Löschen'),
+            child: const Text('Stornieren'),
           ),
         ],
       ),
@@ -205,8 +207,7 @@ class _ReceiptEditScreenState extends State<ReceiptEditScreen> {
     if (confirmed != true || !mounted) return;
 
     final state = AppScope.read(context);
-    await state.repositories.receipts.delete(id);
-    await ReceiptImageStore.delete(_imagePath);
+    await state.repositories.receipts.cancel(id);
     await state.onBookingsChanged();
     if (!mounted) return;
     Navigator.of(context).pop(true);

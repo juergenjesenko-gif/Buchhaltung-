@@ -93,6 +93,7 @@ class AppState extends ChangeNotifier {
       currentYearTurnover: current.amount,
       previousYearTurnover: previous.isComplete ? previous.amount : null,
       currentYearComplete: current.isComplete,
+      isFoundingYear: profile.isFoundingYear(now.year),
     );
   }
 

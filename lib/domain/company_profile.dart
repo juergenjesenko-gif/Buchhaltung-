@@ -25,6 +25,7 @@ class CompanyProfile {
     this.invoiceFooter = '',
     this.fiscalYearStartMonth = 1,
     this.trackingStart,
+    this.foundingYear,
   });
 
   final String companyName;
@@ -71,6 +72,13 @@ class CompanyProfile {
   /// aus den Eröffnungswerten (Lastenheft L-16.1, L-16.11). `null` bei Profilen,
   /// die vor Einführung dieses Felds angelegt und noch nicht migriert wurden.
   final DateTime? trackingStart;
+
+  /// Jahr der Unternehmensgründung, `null` wenn nicht angegeben. Im
+  /// Gründungsjahr gibt es keinen Vorjahresumsatz, und in Deutschland gilt
+  /// eine niedrigere Grenze (`TaxProfile.foundingYearTurnoverLimit`).
+  final int? foundingYear;
+
+  bool isFoundingYear(int year) => foundingYear == year;
 
   TaxProfile get taxProfile => country.taxProfile;
 
@@ -124,6 +132,7 @@ class CompanyProfile {
     String? invoiceFooter,
     int? fiscalYearStartMonth,
     DateTime? trackingStart,
+    int? foundingYear,
   }) {
     return CompanyProfile(
       companyName: companyName ?? this.companyName,
@@ -149,6 +158,7 @@ class CompanyProfile {
       invoiceFooter: invoiceFooter ?? this.invoiceFooter,
       fiscalYearStartMonth: fiscalYearStartMonth ?? this.fiscalYearStartMonth,
       trackingStart: trackingStart ?? this.trackingStart,
+      foundingYear: foundingYear ?? this.foundingYear,
     );
   }
 
@@ -176,6 +186,7 @@ class CompanyProfile {
     'invoice_footer': invoiceFooter,
     'fiscal_year_start_month': fiscalYearStartMonth,
     'tracking_start': trackingStart?.toIso8601String().substring(0, 10),
+    'founding_year': foundingYear,
   };
 
   static CompanyProfile fromMap(Map<String, Object?> map) => CompanyProfile(
@@ -205,6 +216,7 @@ class CompanyProfile {
     invoiceFooter: map['invoice_footer'] as String? ?? '',
     fiscalYearStartMonth: map['fiscal_year_start_month'] as int? ?? 1,
     trackingStart: _parseDate(map['tracking_start']),
+    foundingYear: map['founding_year'] as int?,
   );
 
   static DateTime? _parseDate(Object? value) =>

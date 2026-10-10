@@ -219,4 +219,42 @@ void main() {
       expect(assessAt(100000000).utilizationPercent, 999);
     });
   });
+
+  group('Gründungsjahr (FA-4.13)', () {
+    SmallBusinessAssessment founding(TaxProfile profile, int euro) =>
+        SmallBusinessMonitor.assess(
+          taxProfile: profile,
+          isSmallBusiness: true,
+          currentYearTurnover: Money.fromEuro(euro),
+          previousYearTurnover: null,
+          currentYearComplete: true,
+          isFoundingYear: true,
+        );
+
+    test('Deutschland: im Gründungsjahr gilt 25.000 €', () {
+      expect(
+        founding(TaxProfile.germany, 25000).status,
+        SmallBusinessStatus.approaching,
+      );
+      final result = founding(TaxProfile.germany, 25001);
+      expect(result.status, SmallBusinessStatus.exceeded);
+      expect(result.limit, Money.fromEuro(25000));
+    });
+
+    test('ohne Vorjahr ist das Gründungsjahr nicht unvollständig', () {
+      expect(founding(TaxProfile.germany, 1000).status, SmallBusinessStatus.ok);
+      expect(founding(TaxProfile.austria, 1000).status, SmallBusinessStatus.ok);
+    });
+
+    test('Österreich: im Gründungsjahr gilt die normale Grenze', () {
+      expect(
+        founding(TaxProfile.austria, 55001).status,
+        SmallBusinessStatus.exceeded,
+      );
+      expect(
+        founding(TaxProfile.austria, 30000).status,
+        SmallBusinessStatus.ok,
+      );
+    });
+  });
 }

@@ -1,6 +1,6 @@
 # Spezifikation – Buchhaltung
 
-**Dokumentversion:** 1.10 · **App-Version:** 0.1.0 · **Stand:** 2026-10-10
+**Dokumentversion:** 1.11 · **App-Version:** 0.1.0 · **Stand:** 2026-10-10
 **Status:** Sprint 1 umgesetzt und verifiziert
 
 > Das **Zielbild** des Produkts steht im [`LASTENHEFT.md`](LASTENHEFT.md); dieses
@@ -142,7 +142,7 @@ Anwendungsdokumentenverzeichnis. Aktuelle Schemaversion: **2**.
 | `company_profile` | Firmenstammdaten | Genau eine Zeile, erzwungen durch `CHECK (id = 1)` |
 | `categories` | Buchhaltungskategorien | 16 Startkategorien, `is_system = 1` schützt vor Löschen |
 | `customers` | Rechnungsempfänger | Löschen blockiert, solange Rechnungen bestehen |
-| `receipts` | Belege | Index auf `date` und `direction` |
+| `receipts` | Belege | Index auf `date` und `direction`. Werden nie gelöscht, nur storniert (`cancelled_at`) |
 | `invoices` | Ausgangsrechnungen | `UNIQUE INDEX` auf `number` |
 | `invoice_items` | Rechnungspositionen | `ON DELETE CASCADE` |
 | `audit_log` | Änderungsprotokoll | Nur Einfügen, kein Löschen durch die App |
@@ -163,8 +163,10 @@ Anwendungsdokumentenverzeichnis. Aktuelle Schemaversion: **2**.
 | `invoice_number_pattern` | TEXT | Muster, Standard `RE-{YYYY}-{NNNN}` |
 | `next_invoice_sequence` | INTEGER | Nächste laufende Nummer. Wird nur erhöht, nie zurückgesetzt |
 | `tracking_start` | TEXT | Tag, ab dem die App die Buchhaltung führt. Neue Profile: Tag des Onboardings; bei Migration auf Schema 2: ältester Beleg, sonst Tag der Migration |
+| `founding_year` | INTEGER | Gründungsjahr, `NULL` wenn nicht angegeben (Schema 3) |
 
-**`receipts`**
+**`receipts`** — zusätzlich seit Schema 3: `cancelled_at` (TEXT, Zeitpunkt der Stornierung, `NULL` = gültig)
+
 
 | Feld | Typ | Bedeutung |
 |---|---|---|
@@ -237,8 +239,8 @@ zusätzlich zwingend die UID.
 | FA-2.8 | Ist Kleinunternehmer aktiv und ein Satz > 0 gewählt, warnt die App |
 | FA-2.9 | Liste gruppiert nach Monat, Suche über Beschreibung, Partner und Notiz |
 | FA-2.10 | Filter Alle/Einnahmen/Ausgaben, Jahresauswahl über die Aufbewahrungsfrist |
-| FA-2.11 | Bearbeiten und Löschen möglich; Löschen nur nach Rückfrage |
-| FA-2.12 | Anlegen, Ändern und Löschen werden im `audit_log` protokolliert |
+| FA-2.11 | Bearbeiten möglich. **Belege werden nicht gelöscht, sondern storniert** (nach Rückfrage): sie bleiben samt Foto gespeichert, erscheinen in keiner Liste und zählen in keiner Auswertung, keinem Export und nicht zur Umsatzgrenze (Aufbewahrungspflicht § 132 BAO, § 147 AO; GoBD) |
+| FA-2.12 | Anlegen, Ändern und Stornieren werden im `audit_log` protokolliert |
 
 ### 5.3 Kassabuch und Auswertung
 
@@ -266,7 +268,8 @@ zusätzlich zwingend die UID.
 | FA-4.9 | Der Jahresumsatz setzt sich aus erfassten Einnahmen und dem Eröffnungswert des Jahres zusammen. Ein Jahr ist **vollständig**, wenn die Erfassung spätestens am 1. Jänner begann oder ein Eröffnungswert vorliegt; bei voll erfasstem Jahr wird ein Eröffnungswert ignoriert |
 | FA-4.10 | Ist der Vorjahresumsatz unbekannt und kennt das Land eine Vorjahresgrenze, lautet der Status *Angaben fehlen* — nie *ok* |
 | FA-4.11 | Ist das laufende Jahr unvollständig, lautet der Status *Angaben fehlen* — außer die Grenze ist bereits überschritten, dann *überschritten* |
-| FA-4.12 | Der Status *Angaben fehlen* führt in der Übersicht direkt zur Ergänzung in den Stammdaten | 
+| FA-4.12 | Der Status *Angaben fehlen* führt in der Übersicht direkt zur Ergänzung in den Stammdaten |
+| FA-4.13 | **Gründungsjahr:** Ist das laufende Jahr das Gründungsjahr, gibt es keine Vorjahresprüfung und keinen Vorjahres-Eröffnungswert; Deutschland prüft gegen 25.000 € statt 100.000 € (`spec.de.founding_year_limit_cents`, § 19 Abs 1 UStG) | 
 
 > **Erledigt in Dokumentversion 1.4: Vorjahresgrenze Österreich (O-1).** Auch
 > in Österreich darf der Vorjahresumsatz 55.000 € nicht überschritten haben
@@ -507,7 +510,7 @@ Offen benannt, weil eine Spezifikation, die ihre Lücken verschweigt, wertlos is
 > Das ist der Mechanismus, der dieses Dokument aktuell hält.
 
 ```properties
-spec.schema_version = 2
+spec.schema_version = 3
 spec.seed_category_count = 16
 spec.seed_category_income_count = 3
 spec.seed_category_expense_count = 13
@@ -528,6 +531,7 @@ spec.at.previous_year_limit_cents = 5500000
 spec.at.small_amount_invoice_limit_cents = 40000
 spec.at.retention_years = 7
 spec.at.turnover_basis = brutto
+spec.at.founding_year_limit_cents = none
 spec.at.vat_id_label = UID-Nummer
 spec.at.invoice_legal_ref = § 11 UStG
 spec.at.small_business_legal_ref = § 6 Abs 1 Z 27 UStG
@@ -541,6 +545,7 @@ spec.de.previous_year_limit_cents = 2500000
 spec.de.small_amount_invoice_limit_cents = 25000
 spec.de.retention_years = 8
 spec.de.turnover_basis = netto
+spec.de.founding_year_limit_cents = 2500000
 spec.de.vat_id_label = USt-IdNr.
 spec.de.invoice_legal_ref = § 14 UStG
 spec.de.small_business_legal_ref = § 19 UStG
@@ -554,6 +559,7 @@ Umrechnung: Beträge in Cent. `5500000` Cent = 55.000,00 €.
 
 | Version | Datum | App-Version | Änderung |
 |---|---|---|---|
+| 1.11 | 2026-10-10 | 0.1.0 | Schema 3: Belegstorno statt Löschen (`receipts.cancelled_at`, FA-2.11, FA-2.12) und Gründungsjahr (`company_profile.founding_year`, FA-4.13, `spec.*.founding_year_limit_cents`). P-S2 und P-S10 aktualisiert. |
 | 1.10 | 2026-10-10 | 0.1.0 | Prüfpunkte P-K1 bis P-K8 zur KI-Anbindung an Anthropic (Lastenheft L-21). Keine Codeänderung. |
 | 1.9 | 2026-10-10 | 0.1.0 | Österreich: harte Grenze zur Sicherheit, Status *in Toleranz* entfällt; über 55.000 € *überschritten* mit Hinweis auf mögliche Toleranz und Steuerberatung (FA-4.4, FA-4.7). |
 | 1.8 | 2026-10-10 | 0.1.0 | Österreich: Kleinunternehmergrenze auf Bruttobasis, ausgewiesene Umsatzsteuer zählt mit (FA-4.1, `spec.*.turnover_basis`); P-S1 (a) bestätigt. |
@@ -611,7 +617,7 @@ Status: *offen* · *bestätigt* (mit Datum und Prüfer) · *widerlegt* (mit Folg
 | ID | Prüfpunkt | Vorbefund der Prüfinstanz | Benötigt vor | Status |
 |---|---|---|---|---|
 | P-S1 | AT Kleinunternehmer: (a) brutto oder netto? (b) Gilt die Toleranz **unbeschränkt oder nur einmal in 5 Jahren?** (c) Welche Umsätze zählen nicht (Hilfsgeschäfte, bestimmte steuerfreie Umsätze)? | (a) **bestätigt vom Auftraggeber am 2026-10-10: brutto** — ohne Steuerausweis gleich netto, ausgewiesene Umsatzsteuer zählt mit; umgesetzt (FA-4.1). (b) **entschieden vom Auftraggeber am 2026-10-10:** App rechnet mit der harten Grenze, Toleranz nur als Warnung mit Verweis an die Steuerberatung (FA-4.4); damit für die App ohne Bedeutung. (c) App zählt alle Einnahmen | **sofort** (c) | teilweise bestätigt |
-| P-S2 | DE Gründungsjahr: Grenze 25.000 € statt 100.000 € im laufenden Jahr | **noch nicht im Code** — das Gründungsjahr wird im Firmenprofil nicht erfasst; Umsetzung mit Schema 3 geplant | Release | offen |
+| P-S2 | DE Gründungsjahr: Grenze 25.000 € statt 100.000 € im laufenden Jahr | seit Spezifikation 1.11 im Code (FA-4.13, Schema 3) | Release | offen |
 | P-S3 | DE Zuordnung des Umsatzes nach Zahlungseingang statt Belegdatum | Abweichung möglich über den Jahreswechsel | Stufe B | offen |
 | P-S4 | AT ermäßigter Satz 4,9 % für Grundnahrungsmittel ab 1.7.2026 | angekündigt, Beschluss unbekannt; nicht im Code | sofort | offen |
 | P-S5 | DE Aufbewahrung: 8 Jahre Belege, 10 Jahre Bücher; AT 7 Jahre, 22 Jahre Grundstücke | Code führt nur eine Frist je Land; Löschung findet nicht statt | vor Löschfunktion | offen |
@@ -619,7 +625,7 @@ Status: *offen* · *bestätigt* (mit Datum und Prüfer) · *widerlegt* (mit Folg
 | P-S7 | UVA-Schwellen und Befreiungen AT/DE, DE-Neugründerregel ab 2027 | AT-Befreiungsgrenze ab 2025 unsicher | Stufe B | offen |
 | P-S8 | Rechnungshinweis DE Kleinunternehmer | „Steuerbefreiung nach § 19 UStG (Kleinunternehmer)" empfohlen; seit Spezifikation 1.5 im Code | Release | offen |
 | P-S9 | AT Rechnung über 10.000 € brutto braucht UID des Empfängers | Prüfung im Formular fehlt | Release | offen |
-| P-S10 | GoBD/BAO: Unveränderbarkeit, Verfahrensdokumentation, RKSV-Abgrenzung bei Bareinnahmen | Belege werden heute endgültig gelöscht | Release | offen |
+| P-S10 | GoBD/BAO: Unveränderbarkeit, Verfahrensdokumentation, RKSV-Abgrenzung bei Bareinnahmen | Belege werden seit Spezifikation 1.11 storniert statt gelöscht (FA-2.11); Unveränderbarkeit des `audit_log` und Verfahrensdokumentation offen | Release | offen |
 
 ### Rechtsstand-Überwachung (Validierung, Lastenheft L-20)
 

@@ -259,4 +259,43 @@ void main() {
       await db.close();
     });
   });
+
+  group('Belegstorno', () {
+    test('stornierter Beleg bleibt gespeichert, zählt aber nicht', () async {
+      final db = await openFresh();
+      const now = '2026-10-10T00:00:00';
+      final id = await db.insert('receipts', {
+        'date': '2026-05-01',
+        'direction': 'income',
+        'net_cents': 50000,
+        'gross_cents': 50000,
+        'created_at': now,
+        'updated_at': now,
+      });
+      final repo = ReceiptRepository(db);
+      await repo.cancel(id);
+
+      expect(await repo.query(), isEmpty);
+      expect(
+        await repo.turnoverForYear(2026, includeVat: true),
+        const Money.zero(),
+      );
+      final totals = await repo.totals(
+        from: DateTime(2026, 1, 1),
+        to: DateTime(2026, 12, 31),
+      );
+      expect(totals.incomeGross, const Money.zero());
+      // Aufbewahrungspflicht: der Datensatz existiert weiter.
+      final rows = await db.query('receipts');
+      expect(rows, hasLength(1));
+      expect(rows.first['cancelled_at'], isNotNull);
+      final log = await db.query(
+        'audit_log',
+        where: 'action = ?',
+        whereArgs: ['cancel'],
+      );
+      expect(log, hasLength(1));
+      await db.close();
+    });
+  });
 }

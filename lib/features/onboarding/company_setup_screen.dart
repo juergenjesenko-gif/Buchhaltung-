@@ -59,6 +59,7 @@ class _CompanySetupScreenState extends State<CompanySetupScreen> {
         'paymentTerm',
         'invoiceFooter',
         'openingPrevious',
+        'foundingYear',
         'openingCurrent',
       ])
         key: TextEditingController(),
@@ -99,6 +100,7 @@ class _CompanySetupScreenState extends State<CompanySetupScreen> {
     _fields['invoicePattern']!.text = profile.invoiceNumberPattern;
     _fields['paymentTerm']!.text = profile.defaultPaymentTermDays.toString();
     _fields['invoiceFooter']!.text = profile.invoiceFooter;
+    _fields['foundingYear']!.text = profile.foundingYear?.toString() ?? '';
   }
 
   @override
@@ -113,10 +115,15 @@ class _CompanySetupScreenState extends State<CompanySetupScreen> {
 
   int get _currentYear => DateTime.now().year;
 
-  bool get _asksPrevious => TurnoverBasis.needsOpening(
-    year: _currentYear - 1,
-    trackingStart: _trackingStart,
-  );
+  int? get _foundingYear => int.tryParse(_text('foundingYear'));
+
+  // Wer dieses Jahr gegründet hat, hatte kein Vorjahr.
+  bool get _asksPrevious =>
+      _foundingYear != _currentYear &&
+      TurnoverBasis.needsOpening(
+        year: _currentYear - 1,
+        trackingStart: _trackingStart,
+      );
 
   bool get _asksCurrent => TurnoverBasis.needsOpening(
     year: _currentYear,
@@ -179,6 +186,7 @@ class _CompanySetupScreenState extends State<CompanySetupScreen> {
       invoiceFooter: _text('invoiceFooter'),
       fiscalYearStartMonth: existing?.fiscalYearStartMonth ?? 1,
       trackingStart: existing?.trackingStart ?? _trackingStart,
+      foundingYear: _foundingYear,
     );
 
     // Eröffnungswerte nur schreiben, wenn sie abgefragt wurden. Wer auf
@@ -382,6 +390,31 @@ class _CompanySetupScreenState extends State<CompanySetupScreen> {
                         : 'Steuersätze in ${_country.label}: '
                               '${tax.vatRates.map((r) => r.display).join(', ')}.',
                   ),
+                  if (_isSmallBusiness) ...[
+                    const SizedBox(height: 12),
+                    TextFormField(
+                      controller: _fields['foundingYear'],
+                      decoration: const InputDecoration(
+                        labelText: 'Gründungsjahr',
+                        helperText:
+                            'Im Jahr der Gründung gelten eigene Regeln für die '
+                            'Umsatzgrenze.',
+                      ),
+                      keyboardType: TextInputType.number,
+                      onChanged: (_) => setState(() {}),
+                      validator: (value) {
+                        final text = (value ?? '').trim();
+                        if (text.isEmpty) return null;
+                        final year = int.tryParse(text);
+                        if (year == null ||
+                            year < 1900 ||
+                            year > _currentYear) {
+                          return 'Bitte ein Jahr bis $_currentYear eingeben';
+                        }
+                        return null;
+                      },
+                    ),
+                  ],
                   if (_isSmallBusiness && (_asksPrevious || _asksCurrent)) ...[
                     const SizedBox(height: 16),
                     Text(

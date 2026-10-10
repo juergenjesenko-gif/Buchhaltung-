@@ -154,7 +154,9 @@ class ReceiptRepository {
     String? search,
     int? limit,
   }) async {
-    final where = <String>[];
+    // Stornierte Belege bleiben gespeichert (Aufbewahrungspflicht), zählen
+    // aber nirgends mehr mit.
+    final where = <String>['cancelled_at IS NULL'];
     final args = <Object?>[];
 
     if (from != null) {
@@ -177,7 +179,7 @@ class ReceiptRepository {
 
     final rows = await _db.query(
       'receipts',
-      where: where.isEmpty ? null : where.join(' AND '),
+      where: where.join(' AND '),
       whereArgs: args.isEmpty ? null : args,
       orderBy: 'date DESC, id DESC',
       limit: limit,
@@ -221,13 +223,22 @@ class ReceiptRepository {
     return receipt.id!;
   }
 
-  Future<void> delete(int id) async {
+  /// Storniert einen Beleg. Er wird nicht gelöscht: Belege unterliegen der
+  /// Aufbewahrungspflicht (§ 132 BAO, § 147 AO) und dürfen nicht spurlos
+  /// verschwinden (GoBD, § 131 Abs 1 Z 8 BAO). Der Beleg samt Foto bleibt
+  /// erhalten, zählt aber in keiner Auswertung mehr.
+  Future<void> cancel(int id) async {
     final existing = await byId(id);
-    await _db.delete('receipts', where: 'id = ?', whereArgs: [id]);
+    await _db.update(
+      'receipts',
+      {'cancelled_at': DateTime.now().toIso8601String()},
+      where: 'id = ? AND cancelled_at IS NULL',
+      whereArgs: [id],
+    );
     await AuditLog(_db).record(
       entity: 'receipt',
       entityId: id,
-      action: 'delete',
+      action: 'cancel',
       detail: existing == null
           ? ''
           : '${existing.date.toIso8601String()} ${existing.gross}',
@@ -244,7 +255,7 @@ class ReceiptRepository {
       SELECT direction, vat_permille,
              SUM(net_cents) AS net, SUM(vat_cents) AS vat, SUM(gross_cents) AS gross
       FROM receipts
-      WHERE date >= ? AND date <= ?
+      WHERE date >= ? AND date <= ? AND cancelled_at IS NULL
       GROUP BY direction, vat_permille
       ''',
       [_day(from), _day(to)],
@@ -307,6 +318,7 @@ class ReceiptRepository {
       '''
       SELECT SUM($column) AS total FROM receipts
       WHERE direction = 'income' AND date >= ? AND date <= ?
+        AND cancelled_at IS NULL
       ''',
       ['$year-01-01', '$year-12-31'],
     );

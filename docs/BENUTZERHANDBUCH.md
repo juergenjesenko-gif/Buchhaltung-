@@ -66,6 +66,11 @@ Trag sie gleich vollständig ein, dann musst du später nicht nachbessern.
 **Bankverbindung** – IBAN, BIC und Bank erscheinen im Zahlungsblock deiner
 Rechnungen. Ohne IBAN fehlt dieser Block.
 
+**Gründungsjahr** — nur bei aktiver Kleinunternehmerregelung, freiwillig. Hast
+du dein Unternehmen dieses Jahr gegründet, trag das Jahr ein: Dann fragt die App
+nicht nach einem Vorjahresumsatz, und in Deutschland gilt im Gründungsjahr eine
+Grenze von **25.000 €** statt 100.000 €.
+
 **Umsatz vor Nutzung der App** — nur bei aktiver Kleinunternehmerregelung. Die
 App kennt deine Umsätze erst ab dem Tag, an dem du sie einrichtest. Für die
 Umsatzgrenze braucht sie aber auch das Vorjahr und — wenn du mitten im Jahr
@@ -170,11 +175,14 @@ Im Bereich **Belege**:
 Ein Beleg mit Foto trägt ein Bildsymbol – so siehst du auf einen Blick, wo ein
 Nachweis fehlt.
 
-### Beleg ändern oder löschen
+### Beleg ändern oder stornieren
 
-Beleg antippen, ändern, speichern. Zum Löschen das Papierkorbsymbol oben rechts;
-die App fragt nach. Jede Änderung und jede Löschung wird intern protokolliert –
-das ist Absicht und dient der Nachvollziehbarkeit deiner Buchhaltung.
+Beleg antippen, ändern, speichern. Einen falschen Beleg stornierst du über das
+Papierkorbsymbol oben rechts; die App fragt nach. Der Beleg verschwindet aus
+allen Listen und Auswertungen, wird aber **nicht gelöscht**: Belege musst du
+sieben (Österreich) bzw. acht Jahre (Deutschland) aufbewahren, deshalb bleibt er
+samt Foto gespeichert. Jede Änderung und jede Stornierung wird intern
+protokolliert – das dient der Nachvollziehbarkeit deiner Buchhaltung.
 
 > **Aufbewahrungsfrist:** In Österreich 7 Jahre, in Deutschland 8 Jahre für
 > Buchungsbelege. Die Frist gilt unabhängig von der App. Lies dazu
@@ -239,6 +247,7 @@ und die App kennt beide.
 
 - Vorjahr höchstens **25.000 €**
 - Laufendes Jahr höchstens **100.000 €**
+- **Im Gründungsjahr** höchstens **25.000 €** – dafür gibt es kein Vorjahr
 - **Keine Toleranz.** Reißt du die Grenze, ist ab diesem Umsatz Umsatzsteuer
   auszuweisen.
 - War dein Vorjahr über 25.000 €, gilt die Regelung im ganzen laufenden Jahr
@@ -517,6 +526,10 @@ steuert das Vorzeichen, nicht ein Minus im Betrag.
 **„Bitte angeben – 0, wenn es keinen Umsatz gab"** — beim Umsatz vor Nutzung
 der App. Ein leeres Feld ist für die App „unbekannt"; trag 0 ein, wenn es
 keinen Umsatz gab.
+
+**„Bitte ein Jahr bis … eingeben"** — beim Gründungsjahr. Erlaubt ist eine
+Jahreszahl ab 1900 bis zum laufenden Jahr; leer lassen, wenn du nicht dieses
+Jahr gegründet hast und es nicht angeben willst.
 
 **„Eine Beschreibung ist Pflicht"** – ohne Bezeichnung ist der Beleg später nicht
 nachvollziehbar. Ein Wort genügt.

@@ -204,6 +204,10 @@ void main() {
       );
       expect(intValue('spec.$prefix.retention_years'), profile.retentionYears);
       expect(
+        moneyValue('spec.$prefix.founding_year_limit_cents'),
+        profile.foundingYearTurnoverLimit,
+      );
+      expect(
         value('spec.$prefix.turnover_basis'),
         profile.turnoverIncludesVat ? 'brutto' : 'netto',
       );

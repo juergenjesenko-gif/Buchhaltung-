@@ -16,7 +16,7 @@ class AppDatabase {
 
   /// Aktuelle Schemaversion. Öffentlich, weil docs/SPECIFICATION.md sie
   /// dokumentiert und test/specification_sync_test.dart beide vergleicht.
-  static const schemaVersion = 2;
+  static const schemaVersion = 3;
 
   Database? _db;
 
@@ -210,6 +210,13 @@ class AppDatabase {
       UPDATE company_profile
       SET tracking_start = COALESCE((SELECT MIN(date) FROM receipts), date('now'))
       ''',
+    ],
+    // Version 3: Belegstorno statt Löschen (GoBD, § 131 BAO; Spezifikation 14,
+    // P-S10) und Gründungsjahr für die deutsche Grenze im Gründungsjahr
+    // (§ 19 Abs 1 UStG; P-S2).
+    3: [
+      'ALTER TABLE receipts ADD COLUMN cancelled_at TEXT',
+      'ALTER TABLE company_profile ADD COLUMN founding_year INTEGER',
     ],
   };
 

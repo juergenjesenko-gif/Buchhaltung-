@@ -73,6 +73,7 @@ class TaxProfile {
     required this.previousYearTurnoverLimit,
     required this.toleranceLimit,
     required this.turnoverIncludesVat,
+    required this.foundingYearTurnoverLimit,
     required this.retentionYears,
   });
 
@@ -120,6 +121,10 @@ class TaxProfile {
   /// Österreich auch diese Steuer zur Grenze.
   final bool turnoverIncludesVat;
 
+  /// Grenze für das laufende Jahr im Jahr der Gründung. `null`, wenn das Land
+  /// keine eigene Gründungsjahrgrenze kennt; dann gilt die normale Grenze.
+  final Money? foundingYearTurnoverLimit;
+
   /// Aufbewahrungsfrist für Buchungsbelege in Jahren.
   final int retentionYears;
 
@@ -163,6 +168,7 @@ class TaxProfile {
     // § 6 Abs 1 Z 27 UStG: Bruttobetrag; ausgewiesene Umsatzsteuer zählt mit.
     // Vom Auftraggeber bestätigt am 2026-10-10 (Spezifikation 14, P-S1).
     turnoverIncludesVat: true,
+    foundingYearTurnoverLimit: null,
     retentionYears: 7, // § 132 BAO
   );
 
@@ -191,6 +197,9 @@ class TaxProfile {
         null, // DE kennt keine Toleranz: bei Überschreiten sofortiger Wegfall
     // § 19 Abs 2 UStG: Gesamtumsatz nach vereinnahmten Entgelten, also netto.
     turnoverIncludesVat: false,
+    // § 19 Abs 1 UStG: im Jahr der Aufnahme der Tätigkeit darf der Umsatz
+    // 25.000 EUR nicht überschreiten (statt 100.000 EUR).
+    foundingYearTurnoverLimit: Money(2500000), // 25.000,00 EUR
     retentionYears: 8, // § 147 AO, Buchungsbelege ab 2025 verkürzt
   );
 }
