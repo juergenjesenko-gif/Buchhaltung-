@@ -99,7 +99,7 @@ Wer die Kleinunternehmerregelung nutzt, **darf keine Umsatzsteuer ausweisen** un
 **muss** den Grund der Befreiung angeben. Die App setzt den Text automatisch:
 
 - Österreich: *„Umsatzsteuerbefreit – Kleinunternehmer gemäß § 6 Abs 1 Z 27 UStG."*
-- Deutschland: *„Gemäß § 19 UStG wird keine Umsatzsteuer berechnet (Kleinunternehmer)."*
+- Deutschland: *„Steuerbefreiung nach § 19 UStG (Kleinunternehmer)."* (seit 2025 sind die Umsätze steuerfrei; § 34a UStDV)
 
 Wird trotzdem Umsatzsteuer ausgewiesen, schuldet man sie dem Finanzamt – auch
 wenn man sie nie einnehmen durfte. Deshalb blendet die App die Steuerspalte für

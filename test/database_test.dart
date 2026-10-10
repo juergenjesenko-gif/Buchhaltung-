@@ -1,5 +1,6 @@
 import 'package:buchhaltung/data/app_database.dart';
 import 'package:buchhaltung/data/repositories.dart';
+import 'package:buchhaltung/domain/invoice.dart';
 import 'package:buchhaltung/domain/money.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
@@ -151,6 +152,80 @@ void main() {
       );
       expect(log, hasLength(1));
       expect(log.single['entity_id'], 2025);
+      await db.close();
+    });
+  });
+
+  group('InvoiceRepository', () {
+    Future<(Database, int)> openWithCustomer() async {
+      final db = await openFresh();
+      await db.insert('company_profile', {'id': 1, 'company_name': 'Test'});
+      final customerId = await db.insert('customers', {'name': 'Kundin'});
+      return (db, customerId);
+    }
+
+    Invoice draft(int customerId) => Invoice(
+      number: 'ENTWURF-1',
+      issueDate: DateTime(2026, 10, 10),
+      customerId: customerId,
+      items: [
+        InvoiceItem(
+          position: 1,
+          description: 'Beratung',
+          quantityMilli: 1000,
+          unitPrice: const Money(10000),
+          vatPermille: 200,
+        ),
+      ],
+    );
+
+    test(
+      'vergibt die Nummer beim Ausstellen in derselben Transaktion',
+      () async {
+        final (db, customerId) = await openWithCustomer();
+        final repo = InvoiceRepository(db);
+
+        final first = await repo.save(
+          draft(customerId).copyWith(status: InvoiceStatus.issued),
+          assignNumber: (n) => 'RE-$n',
+        );
+        final second = await repo.save(
+          draft(customerId).copyWith(status: InvoiceStatus.issued),
+          assignNumber: (n) => 'RE-$n',
+        );
+
+        expect((await repo.byId(first))!.number, 'RE-1');
+        expect((await repo.byId(second))!.number, 'RE-2');
+        await db.close();
+      },
+    );
+
+    test('gestellte Rechnungen lassen sich nicht überschreiben', () async {
+      final (db, customerId) = await openWithCustomer();
+      final repo = InvoiceRepository(db);
+      final id = await repo.save(
+        draft(customerId).copyWith(status: InvoiceStatus.issued),
+        assignNumber: (n) => 'RE-$n',
+      );
+      final issued = (await repo.byId(id))!;
+
+      await expectLater(
+        repo.save(issued.copyWith(notes: 'nachträglich geändert')),
+        throwsStateError,
+      );
+      expect((await repo.byId(id))!.notes, isNot('nachträglich geändert'));
+      await db.close();
+    });
+
+    test('ein Entwurf bleibt änderbar und verbraucht keine Nummer', () async {
+      final (db, customerId) = await openWithCustomer();
+      final repo = InvoiceRepository(db);
+      final id = await repo.save(draft(customerId));
+      await repo.save((await repo.byId(id))!.copyWith(notes: 'neu'));
+
+      expect((await repo.byId(id))!.notes, 'neu');
+      final profile = await db.query('company_profile');
+      expect(profile.first['next_invoice_sequence'], 1);
       await db.close();
     });
   });

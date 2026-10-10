@@ -171,19 +171,12 @@ class _InvoiceEditScreenState extends State<InvoiceEditScreen> {
     final profile = state.profile!;
 
     var number = widget.existing?.number ?? '';
-    if (issue &&
-        (widget.existing == null || !widget.existing!.status.isLocked)) {
-      // Endgültige Nummer erst beim Ausstellen ziehen. Würde jeder Entwurf eine
-      // verbrauchen, hätte der Nummernkreis Lücken für nie gestellte Rechnungen.
-      final sequence = await state.repositories.company
-          .reserveNextInvoiceSequence();
-      number = InvoiceNumbering.format(
-        pattern: profile.invoiceNumberPattern,
-        sequence: sequence,
-        date: _issueDate,
-      );
-      await state.reload();
-    } else if (number.isEmpty) {
+    // Endgültige Nummer erst beim Ausstellen ziehen, und zwar beim Speichern in
+    // derselben Transaktion. Würde jeder Entwurf eine verbrauchen, hätte der
+    // Nummernkreis Lücken für nie gestellte Rechnungen.
+    final assignsNumber =
+        issue && (widget.existing == null || !widget.existing!.status.isLocked);
+    if (number.isEmpty) {
       number = 'ENTWURF-${DateTime.now().millisecondsSinceEpoch}';
     }
 
@@ -211,7 +204,17 @@ class _InvoiceEditScreenState extends State<InvoiceEditScreen> {
       createdAt: widget.existing?.createdAt,
     );
 
-    await state.repositories.invoices.save(invoice);
+    await state.repositories.invoices.save(
+      invoice,
+      assignNumber: assignsNumber
+          ? (sequence) => InvoiceNumbering.format(
+              pattern: profile.invoiceNumberPattern,
+              sequence: sequence,
+              date: _issueDate,
+            )
+          : null,
+    );
+    if (assignsNumber) await state.reload();
     if (!mounted) return;
     Navigator.of(context).pop(true);
   }

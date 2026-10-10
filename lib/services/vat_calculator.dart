@@ -28,7 +28,7 @@ class VatCalculator {
 
   /// Aus einem Nettobetrag. `vat = round(net × permille / 1000)`.
   static VatSplit fromNet(Money net, int permille) {
-    final vat = Money((net.cents * permille / 1000).round());
+    final vat = Money(_divideRounded(net.cents * permille, 1000));
     return VatSplit(net: net, vat: vat, gross: net + vat, permille: permille);
   }
 
@@ -38,13 +38,20 @@ class VatCalculator {
   /// gebildet. Dadurch bleibt der Bruttobetrag exakt der eingegebene Wert,
   /// auch wenn die Division nicht aufgeht.
   static VatSplit fromGross(Money gross, int permille) {
-    final net = Money((gross.cents * 1000 / (1000 + permille)).round());
+    final net = Money(_divideRounded(gross.cents * 1000, 1000 + permille));
     return VatSplit(
       net: net,
       vat: gross - net,
       gross: gross,
       permille: permille,
     );
+  }
+
+  /// Ganzzahlige Division mit kaufmännischer Rundung (halbe Cent von der Null
+  /// weg), ohne Umweg über `double`.
+  static int _divideRounded(int numerator, int denominator) {
+    final magnitude = (2 * numerator.abs() + denominator) ~/ (2 * denominator);
+    return numerator < 0 ? -magnitude : magnitude;
   }
 
   /// Für Kleinunternehmer und steuerfreie Umsätze: keine Steuer, netto = brutto.

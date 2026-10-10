@@ -362,9 +362,7 @@ class _CompanySetupScreenState extends State<CompanySetupScreen> {
                     controller: _fields['vatId'],
                     decoration: InputDecoration(
                       labelText: tax.vatIdLabel,
-                      hintText: _country == Country.at
-                          ? 'ATU12345678'
-                          : 'DE123456789',
+                      hintText: tax.vatIdExample,
                     ),
                     textCapitalization: TextCapitalization.characters,
                     validator: (value) {

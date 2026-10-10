@@ -1,6 +1,6 @@
 # Spezifikation – Buchhaltung
 
-**Dokumentversion:** 1.4 · **App-Version:** 0.1.0 · **Stand:** 2026-10-10
+**Dokumentversion:** 1.5 · **App-Version:** 0.1.0 · **Stand:** 2026-10-10
 **Status:** Sprint 1 umgesetzt und verifiziert
 
 > Das **Zielbild** des Produkts steht im [`LASTENHEFT.md`](LASTENHEFT.md); dieses
@@ -28,6 +28,7 @@
 11. [Bekannte Grenzen](#11-bekannte-grenzen)
 12. [Maschinenlesbare Kenndaten](#12-maschinenlesbare-kenndaten)
 13. [Änderungshistorie](#13-änderungshistorie)
+14. [Prüfung in der realen Welt](#14-prüfung-in-der-realen-welt)
 
 ---
 
@@ -286,7 +287,8 @@ Grenzwerte siehe Abschnitt 12.
 | FA-5.2 | Kunde löschen ist blockiert, solange Rechnungen darauf verweisen |
 | FA-5.3 | Positionen mit Bezeichnung, Menge, Einheit, Einzelpreis netto, Steuersatz |
 | FA-5.4 | Die Rechnungsnummer wird **erst beim Ausstellen** vergeben, nicht beim Entwurf |
-| FA-5.5 | Die Nummernvergabe läuft in einer Transaktion; zwei gleichzeitige Ausstellungen erhalten verschiedene Nummern |
+| FA-5.5 | Die Nummer wird beim Ausstellen **in derselben Transaktion** gezogen, in der die Rechnung gespeichert wird; ein Abbruch hinterlässt keine Lücke, zwei gleichzeitige Ausstellungen erhalten verschiedene Nummern |
+| FA-5.5a | Der Schreibschutz gestellter Rechnungen gilt auch in der Datenschicht: `InvoiceRepository.save` lehnt das Überschreiben einer gestellten Rechnung ab |
 | FA-5.6 | Vor dem Ausstellen prüft die App: Kunde, vollständige Kundenanschrift, mindestens eine Position, Bezeichnung je Position, Liefer-/Leistungsdatum, Stammdaten-Pflichtangaben |
 | FA-5.7 | Fehlt etwas, ist der Knopf *Rechnung ausstellen* gesperrt und die Liste des Fehlenden sichtbar |
 | FA-5.8 | Bei Kleinunternehmern entfällt die Steuerspalte vollständig und der gesetzliche Hinweistext erscheint |
@@ -550,6 +552,7 @@ Umrechnung: Beträge in Cent. `5500000` Cent = 55.000,00 €.
 
 | Version | Datum | App-Version | Änderung |
 |---|---|---|---|
+| 1.5 | 2026-10-10 | 0.1.0 | Befunde der Prüfinstanzen: Nummernvergabe in derselben Transaktion wie das Speichern (FA-5.5), Schreibschutz gestellter Rechnungen in der Datenschicht (FA-5.5a), DE-Rechnungshinweis „Steuerbefreiung nach § 19 UStG", Umsatzsteuerberechnung ohne `double`. Neuer Abschnitt 14 „Prüfung in der realen Welt" als einzige Sammelstelle für reale Prüfpunkte. |
 | 1.4 | 2026-10-10 | 0.1.0 | O-1 erledigt: Vorjahresgrenze Österreich 55.000 € ohne Toleranz (`spec.at.previous_year_limit_cents`). FA-4.6 gilt für beide Länder, Warnhinweis in 5.4 entfernt. |
 | 1.3 | 2026-10-09 | 0.1.0 | O-19 behoben: Eröffnungswerte für den Umsatz (Tabelle `opening_turnover`, Spalte `tracking_start`, Schema 2), neuer Status *Angaben fehlen* der Grenzwertüberwachung. FA-1.8, FA-1.9, FA-4.9 bis FA-4.12 neu. |
 | 1.2 | 2026-10-09 | 0.1.0 | Zweiter bekannter Fehler dokumentiert: der Vorjahresumsatz wird ausschließlich aus erfassten Belegen ermittelt und ist für neue Nutzer null. In Abschnitt 5.4 und in den bekannten Grenzen vermerkt. Keine Code- oder Kennwertänderung. |
@@ -568,3 +571,57 @@ Bei jeder Änderung am Code:
    [`BENUTZERHANDBUCH.md`](BENUTZERHANDBUCH.md) anpassen
 
 Verbindliche Regeln dazu: [`CLAUDE.md`](../CLAUDE.md).
+
+---
+
+## 14. Prüfung in der realen Welt
+
+**Einzige Stelle** für alles, was eine echte Fachperson, ein Amt oder ein echtes
+Gerät bestätigen muss (Oberstes Gesetz in [`CLAUDE.md`](../CLAUDE.md)). Andere
+Dokumente verweisen nur auf die ID. Die Vorbefunde stammen von den drei
+Prüfinstanzen (Rechtsanwalt, Steuerberater, Softwareentwickler) vom 2026-10-10.
+Diese konnten amtliche Quellen nicht abrufen; die Befunde stützen sich auf
+Fachwissen und Sekundärquellen. **Ein Vorbefund ist keine Bestätigung.**
+
+Status: *offen* · *bestätigt* (mit Datum und Prüfer) · *widerlegt* (mit Folge)
+
+### Rechtsanwältin / Rechtsanwalt
+
+| ID | Prüfpunkt | Vorbefund der Prüfinstanz | Benötigt vor | Status |
+|---|---|---|---|---|
+| P-R1 | Impressum und Offenlegung für Produktseite und App | § 5 ECG und § 25 Abs 5 MedienG (AT, „kleine Website"); § 5 DDG greift über das Herkunftslandprinzip nur mittelbar; Verbraucherschlichtungshinweis prüfen; ODR-Link entfallen seit 07/2025 | Produktseite | offen |
+| P-R2 | Rabatt- und Streichpreiswerbung für Store-Abos | 30-Tage-Regel (§ 11 PAngV, § 9a PrAG) für Dienstleistungen streitig; Irreführungsverbot gilt immer; ohne vorher verlangten Listenpreis nur „Einführungspreis bis …" | erste Werbung | offen |
+| P-R3 | BFSG (DE) / BaFG (AT) | voraussichtlich nicht anwendbar (B2B, Kleinstunternehmen); Unternehmensgröße bestätigen | vor Stufe B | offen |
+| P-R4 | Tragweite der Bestätigung „keine Steuerberatung" und Haftungsbegrenzung in den AGB | begrenzt wirksam; Vorsatz, grobe Fahrlässigkeit, Personenschäden nicht ausschließbar | Release | offen |
+| P-R5 | Abgrenzung zur Hilfeleistung in Steuersachen (StBerG, WTBG) bei UVA-Übermittlung und ESt-Vorbereitung | zulässig als Werkzeug, Übermittlung nur im Namen und mit Zugang der Nutzerin; keine Einzelfallempfehlung | Stufe B | offen |
+| P-R6 | DSGVO: Datenschutzerklärung, Verzeichnis, TOM, Datenpannenprozess; ab Stufe C AVV und Unterauftragsverarbeiter | Rollen laut Lastenheft L-19 im Kern richtig, um Anbieter- und Store-Daten ergänzt | Release / Stufe C | offen |
+| P-R7 | Markenrecherche „Jenny Bar" / „Jenni bucht" (TMview, Klassen 9, 35, 36, 42) | eine Websuche ohne Kollision — **keine** Recherche; „Jenni bucht" teilweise beschreibend | Store-Eintrag | offen |
+| P-R8 | Rechtsform, Haftung, Versicherung des Anbieters | Einzelunternehmen haftet persönlich | Release | offen |
+| P-R9 | AI Act Art. 50 (Kennzeichnung KI-Inhalte) und Urheberrecht im Marketing-Modul; Produkthaftungsrichtlinie (EU) 2024/2853 | Pflichten wahrscheinlich | Stufe C | offen |
+
+### Steuerberaterin / Steuerberater
+
+| ID | Prüfpunkt | Vorbefund der Prüfinstanz | Benötigt vor | Status |
+|---|---|---|---|---|
+| P-S1 | AT Kleinunternehmer: netto, Vorjahr ohne Toleranz, ausgenommene Umsätze (Hilfsgeschäfte, bestimmte steuerfreie Umsätze) | netto bestätigt; die App zählt heute **alle** Einnahmen, auch Hilfsgeschäfte (FA-4.1) | Release | offen |
+| P-S2 | DE Gründungsjahr: Grenze 25.000 € statt 100.000 € im laufenden Jahr | **noch nicht im Code** — das Gründungsjahr wird im Firmenprofil nicht erfasst; Umsetzung mit Schema 3 geplant | Release | offen |
+| P-S3 | DE Zuordnung des Umsatzes nach Zahlungseingang statt Belegdatum | Abweichung möglich über den Jahreswechsel | Stufe B | offen |
+| P-S4 | AT ermäßigter Satz 4,9 % für Grundnahrungsmittel ab 1.7.2026 | angekündigt, Beschluss unbekannt; nicht im Code | sofort | offen |
+| P-S5 | DE Aufbewahrung: 8 Jahre Belege, 10 Jahre Bücher; AT 7 Jahre, 22 Jahre Grundstücke | Code führt nur eine Frist je Land; Löschung findet nicht statt | vor Löschfunktion | offen |
+| P-S6 | AT E-Rechnung B2B | keine nationale Pflicht bekannt | Stufe B | offen |
+| P-S7 | UVA-Schwellen und Befreiungen AT/DE, DE-Neugründerregel ab 2027 | AT-Befreiungsgrenze ab 2025 unsicher | Stufe B | offen |
+| P-S8 | Rechnungshinweis DE Kleinunternehmer | „Steuerbefreiung nach § 19 UStG (Kleinunternehmer)" empfohlen; seit Spezifikation 1.5 im Code | Release | offen |
+| P-S9 | AT Rechnung über 10.000 € brutto braucht UID des Empfängers | Prüfung im Formular fehlt | Release | offen |
+| P-S10 | GoBD/BAO: Unveränderbarkeit, Verfahrensdokumentation, RKSV-Abgrenzung bei Bareinnahmen | Belege werden heute endgültig gelöscht | Release | offen |
+
+### Softwareentwicklung (echte Geräte und Stores)
+
+| ID | Prüfpunkt | Vorbefund der Prüfinstanz | Benötigt vor | Status |
+|---|---|---|---|---|
+| P-D1 | Update einer echten v1-Installation auf Schema 2 und folgende | Upgrade-Test mit ffi vorhanden; echtes Gerät fehlt | Release | offen |
+| P-D2 | PDF mit Umlauten, CSV in Excel/Numbers | nicht verifiziert | Release | offen |
+| P-D3 | Datensicherung und Wiederherstellung über iCloud Drive / Google Drive | noch nicht gebaut | Release | offen |
+| P-D4 | Abo-Testkäufe in Sandbox beider Stores (Test, Basis/Pro, Angebote, Jahresabo, Offline-Lizenz) | noch nicht gebaut | Stufe B | offen |
+| P-D5 | iOS Privacy Manifest, Data-Safety- und Privacy-Label-Angaben inkl. aller SDKs | Manifest fehlt | erster Upload | offen |
+| P-D6 | Android targetSdk-Vorgabe 2026, Signing, Bundle-ID `at.jesenko.buchhaltung` endgültig | Bundle-ID personenbezogen, nach Release unveränderlich | erster Upload | offen |
+| P-D7 | Kamera, Fotoablage, Spracheingabe auf echten Geräten | — | Release | offen |

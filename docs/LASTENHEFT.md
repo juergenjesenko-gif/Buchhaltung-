@@ -1,6 +1,6 @@
 # Lastenheft – Buchhaltungsapp für Österreich und Deutschland
 
-**Dokumentversion:** 1.25 · **Stand:** 2026-10-09 · **Status:** Entwurf zur Abstimmung
+**Dokumentversion:** 1.26 · **Stand:** 2026-10-09 · **Status:** Entwurf zur Abstimmung
 **Auftraggeber:** Jürgen Jesenko (privates Vorhaben) · **Umsetzung:** Claude Code
 
 > Ein Lastenheft beschreibt, **was** das Produkt leisten soll und **warum** — nicht,
@@ -185,7 +185,7 @@ Priorität: **MUSS** = ohne das kein Release · **SOLL** = wichtig, verhandelbar
 | L-3.4 | Das Produkt prüft alle Pflichtangaben nach § 11 UStG (AT) bzw. § 14 UStG (DE) vor dem Ausstellen und benennt Fehlendes | MUSS | A |
 | L-3.5 | Kleinunternehmer: keine Umsatzsteuer, stattdessen der gesetzlich vorgeschriebene Hinweis | MUSS | A |
 | L-3.6 | Gestellte Rechnungen sind unveränderlich | MUSS | A |
-| L-3.7 | **Storno- und Gutschriftsrechnung** mit Verweis auf die Ursprungsrechnung; die Ursprungsrechnung bleibt erhalten und wird gekennzeichnet | MUSS | A |
+| L-3.7 | **Stornorechnung bzw. Rechnungskorrektur** mit Verweis auf die Ursprungsrechnung; die Ursprungsrechnung bleibt erhalten und wird gekennzeichnet. Das Wort „Gutschrift" wird auf dem Beleg nicht verwendet, weil es umsatzsteuerlich die Abrechnung durch den Leistungsempfänger bezeichnet (§ 14 Abs 2 UStG DE, § 11 Abs 7 UStG AT) | MUSS | A |
 | L-3.8 | Rechnung als PDF teilen oder versenden | MUSS | A |
 | L-3.9 | Zahlungsstatus pflegen; offene und überfällige Rechnungen sind auf einen Blick erkennbar | MUSS | A |
 | L-3.10 | **Zahlungserinnerung** aus einer überfälligen Rechnung erzeugen und versenden (PDF mit Verweis auf Rechnungsnummer, offenen Betrag und neue Frist); Mahnstufen werden an der Rechnung vermerkt | MUSS | A |
@@ -196,7 +196,7 @@ Priorität: **MUSS** = ohne das kein Release · **SOLL** = wichtig, verhandelbar
 | L-3.15 | Ein Angebot lässt sich **mit einem Tipp in eine Rechnung umwandeln**; Positionen, Kunde und Preise werden übernommen und bleiben vor dem Ausstellen änderbar | MUSS | A |
 | L-3.16 | Angebotsstatus: offen, angenommen, abgelehnt, abgelaufen; mit Gültigkeitsdatum | MUSS | A |
 | L-3.17 | Angebot als PDF teilen; die PDF trägt sichtbar „Angebot", nie „Rechnung" | MUSS | A |
-| L-3.18 | **Erstattung:** zu einer Gutschrift (L-3.7), auch über einen Teilbetrag oder einzelne Positionen, wird die Rückzahlung an den Kunden als Ausgabe mit Zahlungsdatum erfasst; die Umsatzsteuer wird im Zeitraum der Gutschrift berichtigt | MUSS | A |
+| L-3.18 | **Erstattung:** zu einer Rechnungskorrektur (L-3.7), auch über einen Teilbetrag oder einzelne Positionen, wird die Rückzahlung an den Kunden als Ausgabe mit Zahlungsdatum erfasst. Die Umsatzsteuer wird bei **Ist-Versteuerung im Zeitraum der Rückzahlung**, bei Soll-Versteuerung im Zeitraum der Korrektur berichtigt (§ 17 UStG DE, § 16 UStG AT) | MUSS | A |
 | L-3.19 | Die im Kundenstamm hinterlegte **E-Mail-Adresse ist Standardempfänger** beim Versand von Rechnung, Angebot und Zahlungserinnerung; je Kunde ist eine abweichende Rechnungsadresse für E-Mails möglich | MUSS | A |
 | L-3.20 | **Rücksendeschein** zu einer Rechnung: welche Positionen in welcher Menge zurückgehen, mit Grund; ohne steuerliche Wirkung, bis daraus eine Gutschrift (L-3.7) erzeugt wird. Je Rücksendung wählbar „Ware wieder verkaufbar? Ja / Nein"; bei Ja wird die Menge dem Lagerstand (L-11) wieder zugebucht, bei Nein nicht | SOLL | B |
 
@@ -206,7 +206,7 @@ Priorität: **MUSS** = ohne das kein Release · **SOLL** = wichtig, verhandelbar
 |---|---|---|---|
 | L-4.1 | Ausgangsrechnungen als **XRechnung** und **ZUGFeRD** (Deutschland, EN 16931) erzeugen | MUSS | B |
 | L-4.2 | Ausgangsrechnungen als **ebInterface** (Österreich) erzeugen | MUSS | B |
-| L-4.3 | Eingehende strukturierte E-Rechnungen einlesen und als Beleg übernehmen | SOLL | B |
+| L-4.3 | Eingehende strukturierte E-Rechnungen einlesen und als Beleg übernehmen; in Deutschland seit 2025 **Empfangspflicht für alle Unternehmen, auch Kleinunternehmer** — daher Basis-Tarif | MUSS | A |
 | L-4.4 | Das Produkt erklärt dem Nutzer, wann er welches Format braucht — die Pflichten sind gestaffelt und schwer zu durchschauen | MUSS | B |
 | L-4.5 | Versand über Peppol | KANN | C |
 
@@ -269,7 +269,7 @@ Priorität: **MUSS** = ohne das kein Release · **SOLL** = wichtig, verhandelbar
 |---|---|---|---|
 | L-10.1 | **Zwei Tarife:** ein Abo **Basis** und als Option **Pro** mit zusätzlichen Funktionen, jeweils monatlich und jährlich über die App Stores. Keine weiteren Stufen, kein Gratis-Tarif auf Dauer | MUSS | B |
 | L-10.2 | Premium-Funktionen sind **in Pro gebündelt**, nicht einzeln buchbar; Pro ist jederzeit zu- und abwählbar | MUSS | B |
-| L-10.3 | **14 Tage gratis mit vollem Funktionsumfang (Pro).** Die App zeigt deutlich, wann der Test endet und was danach kostet; Erinnerung 3 Tage vor Ablauf. Umsetzung über die Probezeiträume der Stores | MUSS | B |
+| L-10.3 | **14 Tage gratis mit vollem Funktionsumfang (Pro).** Vor dem Abschluss nennt die App Testdauer, Preis danach, automatische Verlängerung und Kündigungsweg über die Store-Einstellungen (Apple Guideline 3.1.2); Erinnerung 3 Tage vor Ablauf. Umsetzung über die Probezeiträume der Stores | MUSS | B |
 | L-10.4 | **Bei abgelaufenem Abo bleiben die Daten des Nutzers lesbar und exportierbar.** Buchhaltungsdaten dürfen nie hinter einer Paywall verschwinden — sie unterliegen einer gesetzlichen Aufbewahrungspflicht | MUSS | B |
 | L-10.5 | Lizenzprüfung funktioniert offline über einen angemessenen Zeitraum | MUSS | B |
 
@@ -294,9 +294,12 @@ ordentliche Buchhaltung braucht; Pro ist Komfort und Wachstum.
 | Pro | 24,90 € | 19,90 € | 239,04 € rechnerisch, Store-Preisstufe ≈ 238,90 € |
 
 Rabatte laufen über die Angebotsmechanik der Stores (Einführungs- und
-Aktionsangebote). Bei Werbung mit Streichpreisen gilt die Preisangabenrichtlinie:
-als Vergleichspreis ist der niedrigste Preis der letzten 30 Tage anzugeben
-(§ 11 PAngV DE; in AT § 9a PrAG — beide noch rechtlich zu bestätigen, L-17.11).
+Aktionsangebote). Ein Rabattpreis darf **nur beworben werden, wenn der
+Listenpreis vorher tatsächlich und für einen nennenswerten Zeitraum verlangt
+wurde**; sonst heißt er „Einführungspreis bis [Datum]" mit echter Befristung
+(Irreführungsverbot § 5 UWG DE, § 2 UWG AT). Ob die 30-Tage-Regel (§ 11 PAngV,
+§ 9a PrAG) auf Abo-Dienstleistungen anwendbar ist, ist streitig — siehe
+Spezifikation Abschnitt 14, P-R2.
 
 Eine gesetzliche Pflicht darf nie nur in Pro erfüllbar sein. Wird eine Funktion
 zur Pflicht für die Zielgruppe, wandert sie nach Basis.
@@ -356,7 +359,7 @@ und Preis jedes Mal neu zu tippen.
 | L-13.6 | **Landessprache je Markt:** Start nur auf Deutsch; mit jedem weiteren EU-Land kommt dessen Landessprache hinzu (O-7) | SOLL | C |
 | L-13.8 | **Texte von Anfang an übersetzbar anlegen:** alle Oberflächentexte liegen in Sprachdateien (Flutter-Lokalisierung), nicht im Code. Eine neue Landessprache ist dann Übersetzung, kein Umbau | MUSS | A |
 | L-13.7 | **OSS-Verfahren** für grenzüberschreitende Verkäufe an EU-Privatkunden oberhalb der Lieferschwelle — Voraussetzung für die Kanalanbindung (L-12), siehe R-10. **Je nach Nachfrage (O-12)** | KANN | C |
-| L-13.9 | **OSS-Warnung:** Rechnungen an Privatkundinnen in anderen EU-Ländern werden erkannt und summiert; ab 80 % der EU-weiten Lieferschwelle von 10.000 € (Art. 59c MwStSystRL; noch amtlich zu bestätigen) warnt die App und rät, die Steuerberatung einzubinden. Keine Berechnung ausländischer Steuersätze | MUSS | B |
+| L-13.9 | **OSS-Warnung:** Rechnungen an Privatkundinnen in anderen EU-Ländern (Fernverkäufe und elektronische Dienstleistungen) werden erkannt und summiert; maßgeblich sind **Vorjahr und laufendes Jahr**. Ab 80 % der EU-weiten Schwelle von 10.000 € (Art. 59c MwStSystRL, § 3c UStG DE, Art. 3 Abs 5 UStG AT) warnt die App und rät, die Steuerberatung einzubinden. Keine Berechnung ausländischer Steuersätze | MUSS | B |
 
 > **Warum die Beschränkung auf EU und Euro trägt.** Die Länderabstraktion
 > unterstellt heute ein gemeinsames Mehrwertsteuersystem. Innerhalb der Eurozone
@@ -488,7 +491,7 @@ mit, an die er anknüpfen muss.
 | L-17.8 | Das Produkt bezeichnet sich **nirgends als geprüfte, zertifizierte oder validierte Steuersoftware**; es ist ein Werkzeug für das eigene Büro | MUSS | A |
 | L-17.9 | **Pflichten als Anbieter nach DSGVO**: Verzeichnis der Verarbeitungstätigkeiten, Auftragsverarbeitungsverträge mit allen Unterauftragnehmern, technische und organisatorische Maßnahmen, Auskunfts- und Löschkonzept, Meldewege bei Datenschutzverletzungen | MUSS | B |
 | L-17.10 | **Pflichtangaben als kommerzieller Anbieter**: Impressum, AGB, Widerrufsbelehrung, Preisangaben, Hinweise zur Vertragslaufzeit und Kündigung | MUSS | B |
-| L-17.12 | **Produktseite** auf eigener Domain (Name folgt mit dem Produktnamen, O-2): eine einfache Einzelseite mit Links zu Google Play und App Store. Mindestinhalt: Impressum (§ 5 ECG, § 25 MedienG AT bzw. § 5 DDG DE), Datenschutzerklärung (Art. 13 DSGVO) mit eigener URL für beide Stores, Support-E-Mail, ab Stufe C Anleitung und Link zur Kontolöschung (Google-Play-Vorgabe), Hinweis „keine Steuerberatung" (L-17.8). Ohne Tracking und ohne Cookies, damit kein Einwilligungsbanner nötig ist | MUSS | A |
+| L-17.12 | **Produktseite** auf eigener Domain (Name folgt mit dem Produktnamen, O-2): eine einfache Einzelseite mit Links zu Google Play und App Store. Mindestinhalt: Impressum (§ 5 ECG, § 25 MedienG AT bzw. § 5 DDG DE), Datenschutzerklärung (Art. 13 DSGVO) mit eigener URL für beide Stores, Support-E-Mail, ab Stufe C Anleitung und Link zur Kontolöschung (Vorgabe von Google Play und Apple Guideline 5.1.1(v)), Hinweis auf Verbraucherschlichtung, Hinweis „keine Steuerberatung" (L-17.8). Ohne Tracking und ohne Cookies, damit kein Einwilligungsbanner nötig ist | MUSS | A |
 | L-17.11 | Alle Rechtstexte werden **von einer Rechtsanwältin oder einem Rechtsanwalt erstellt oder geprüft**, nicht aus Vorlagen zusammengesetzt | MUSS | B |
 
 > **Was der Hinweis leistet — und was nicht.** Die Abgrenzung trifft eine reale
@@ -545,6 +548,11 @@ Bündelt, was bisher über die Module verteilt war, und legt die Rollen fest.
 | Kontodaten (Stufe C) | **der Anbieter** | Verantwortlicher |
 | Synchronisierte Buchhaltungsdaten (Stufe C) | der Nutzer | **Auftragsverarbeiter**; Vertrag nach Art. 28 DSGVO mit jedem Nutzer |
 | Daten an Marketing-Dienste (L-14) | der Nutzer | Auftragsverarbeiter mit Unterauftragnehmer |
+| Abo-, Support- und Diagnosedaten | **der Anbieter** | Verantwortlicher; eigenes Verzeichnis, Datenschutzerklärung nach Art. 13 |
+| Kaufabwicklung im Store | Apple bzw. Google | nicht beteiligt; Stores sind eigene Verantwortliche |
+
+Ende-zu-Ende-Verschlüsselung hebt die Rolle als Auftragsverarbeiter nicht auf:
+verschlüsselte personenbezogene Daten bleiben personenbezogen.
 
 #### Datenflüsse
 
@@ -612,7 +620,7 @@ Jede Übertragung vom Gerät weg, auch die unscheinbaren:
 | R-3 | Aufbewahrungsfristen werden dem Nutzer kommuniziert (AT 7 Jahre, DE 8 Jahre für Buchungsbelege) |
 | R-4 | DSGVO: siehe Block L-19 |
 | R-5 | E-Rechnung nach EN 16931 für den deutschen B2B-Verkehr; Empfangspflicht besteht seit 2025, Versandpflicht gestaffelt bis 2028 |
-| R-6 | Als kommerzielles Produkt zusätzlich: Impressum, AGB, Widerrufsbelehrung, Preisangaben, und eine eigene Rechnungslegung für die Aboerlöse |
+| R-6 | Als kommerzielles Produkt zusätzlich: Impressum, AGB mit Haftungsbegrenzung (Vorsatz, grobe Fahrlässigkeit und Personenschäden sind nicht ausschließbar), Preisangaben. Bei Store-Abos regeln die Stores Widerruf und stellen die Rechnung an die Käuferin; eigene Widerrufsbelehrung und Kündigungsbutton (§ 312k BGB) erst bei Direktvertrieb |
 | R-7 | Das Produkt ist **keine Registrierkasse** nach RKSV und sagt das unmissverständlich |
 | R-8 | Das Produkt ist **keine Steuerberatung**; Verantwortung für Buchhaltung und Erklärungen bleibt beim Nutzer |
 | R-9 | Alle steuerlichen Grenzwerte im Produkt tragen ihre Fundstelle und werden jährlich überprüft |
@@ -725,7 +733,10 @@ Grobe Schätzung in Personenwochen Vollzeitentwicklung, ohne Puffer:
 | Angebote inkl. Umwandlung in Rechnung | A | 1–2 |
 | Oberflächentexte in Sprachdateien auslagern (L-13.8) | A | 1 |
 | Zahlungserinnerung, Erstattung, Kunden-E-Mail als Empfänger | A | 1–2 |
-| **Summe Stufe A** | | **17–28** |
+| Fehlerbehebungen aus der Prüfung (Schreibschutz, Nummernkreis, Belegstorno) | A | 1–2 |
+| Lokalisierung realistisch statt 1 PW (Prüfinstanz Softwareentwickler) | A | +0,5–1 |
+| Puffer 30 % (Prüfinstanz Softwareentwickler) | A | 6–9 |
+| **Summe Stufe A** | | **25–40** |
 | Belegerkennung on-device | B | 3–5 |
 | E-Rechnung XRechnung/ZUGFeRD/ebInterface | B | 4–6 |
 | Saldenliste und rollender Jahresabschluss | B | 2–3 |
@@ -743,7 +754,7 @@ Grobe Schätzung in Personenwochen Vollzeitentwicklung, ohne Puffer:
 | Kontoauszug-Import und Zuordnung | B | 2–3 |
 | OSS-Warnung (L-13.9) | B | 1 |
 | **Summe Stufe B** | | **33–49** |
-| **Stufe A + B zusammen** | | **50–77 Personenwochen** |
+| **Stufe A + B zusammen** | | **58–89 Personenwochen** |
 | Backend als Voraussetzung der Kanalanbindung | C | 6–10 |
 | Kanalanbindung je Kanal, nur lesend | C | 3–5 |
 | OSS-Erweiterung des Steuerlayers | C | 3–4 |
@@ -841,8 +852,10 @@ Zu entscheiden, bevor die betroffene Anforderung umgesetzt wird:
 | ~~O-16~~ | Mit O-4 erledigt: es gibt keine einzeln buchbaren Module; das Marketing-Modul ist Teil von Pro | erledigt |
 | O-17 | Sollen erzeugte Werbemittel versioniert und wiederverwendbar abgelegt werden, oder sind sie Wegwerfware? | Stufe C |
 | ~~O-19~~ | **Behoben am 2026-10-09** (Umsatzanteile von L-16.1, L-16.2, L-16.11). Ursprünglich: **Bekannter Fehler:** Die Grenzwertüberwachung ermittelt den Vorjahresumsatz ausschließlich aus erfassten Belegen. Für einen neuen Nutzer ist er damit null, und die Ampel steht fälschlich auf Grün — in Deutschland entscheidet er über das ganze laufende Jahr. Behebung über L-16.1/L-16.2 | sofort; betrifft bestehenden Code |
+| O-25 | **Markenrecherche** zu „Jenny Bar" und „Jenni bucht" durch Markenanwältin (TMview, Klassen 9, 35, 36, 42), danach Unionsmarke anmelden — vor Domain und Store-Eintrag. Siehe Spezifikation Abschnitt 14, P-R7 | vor dem ersten Store-Upload |
+| O-26 | **Rechtsform und Absicherung des Anbieters:** Einzelunternehmen haftet persönlich — GmbH, Vermögensschaden- und Produkthaftpflicht prüfen (P-R8) | vor Release |
 | O-20 | Welche Vorsoftware-Formate sind beim Import vorrangig zu unterstützen? Richtet sich nach dem, womit die ersten Nutzer tatsächlich kommen | Stufe B |
-| O-21 | Gilt das Barrierefreiheitsstärkungsgesetz für ein B2B-Produkt wie dieses? Zu klären, bevor die Oberfläche festgezurrt wird | vor Stufe B |
+| ~~O-21~~ | **Vorläufig beantwortet am 2026-10-10 (Prüfinstanz Rechtsanwalt):** BFSG/BaFG voraussichtlich nicht anwendbar (B2B, Kleinstunternehmen). Grundbarrierefreiheit trotzdem als NF-Anforderung; Bestätigung siehe Spezifikation Abschnitt 14, P-R3 | erledigt |
 | ~~O-23~~ | **Entschieden am 2026-10-09:** wählbar je Rücksendung über den Schalter „Ware wieder verkaufbar?" (L-3.20) | erledigt |
 | ~~O-24~~ | **Entschieden am 2026-10-09:** eigene Einzelseite auf einer neuen Domain, die mit dem Produktnamen festgelegt wird (L-17.12) | erledigt |
 | ~~O-18~~ | **Entschieden am 2026-10-09:** nur Versand über die Mail-App des Smartphones; keine Gmail- oder Microsoft-365-Anbindung, L-15.4 bis L-15.9 entfallen | erledigt |
@@ -853,6 +866,7 @@ Zu entscheiden, bevor die betroffene Anforderung umgesetzt wird:
 
 | Version | Datum | Änderung |
 |---|---|---|
+| 1.26 | 2026-10-10 | Ergebnisse der drei Prüfinstanzen eingearbeitet: „Gutschrift" durch Stornorechnung/Rechnungskorrektur ersetzt, Ist-Versteuerung bei Erstattung (L-3.7, L-3.18); E-Rechnungsempfang MUSS/A (L-4.3); OSS-Warnung mit Vorjahr (L-13.9); Probeabo-Pflichtangaben (L-10.3); Rabattwerbung (5.10); Rollen um Anbieter- und Store-Daten ergänzt (L-19); Apple-Kontolöschung (L-17.12); R-6 präzisiert; O-21 vorläufig beantwortet; O-25, O-26 neu. Aufwand Stufe A 25–40 inkl. Puffer. Punkte für die reale Prüfung stehen ausschließlich in Spezifikation Abschnitt 14. |
 | 1.25 | 2026-10-10 | O-1 erledigt: Vorjahresgrenze Österreich 55.000 € umgesetzt. |
 | 1.24 | 2026-10-10 | O-3 entschieden: Preise Basis/Pro mit Rabatt- und Jahresoption, Hinweis auf Streichpreisregeln. |
 | 1.23 | 2026-10-10 | O-4 entschieden: Funktionsschnitt Basis/Pro in Abschnitt 5.10, E-Rechnung empfangen in Basis; Regel „gesetzliche Pflicht nie nur in Pro". |

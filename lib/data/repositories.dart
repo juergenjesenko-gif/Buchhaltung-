@@ -53,27 +53,6 @@ class CompanyRepository {
       _db,
     ).record(entity: 'company_profile', entityId: 1, action: 'save');
   }
-
-  /// Reserviert die nächste Rechnungsnummer und erhöht den Zähler atomar.
-  /// Läuft in einer Transaktion, damit zwei gleichzeitige Ausstellungen nicht
-  /// dieselbe Nummer bekommen.
-  Future<int> reserveNextInvoiceSequence() async {
-    return _db.transaction<int>((txn) async {
-      final rows = await txn.query(
-        'company_profile',
-        columns: ['next_invoice_sequence'],
-        where: 'id = 1',
-        limit: 1,
-      );
-      final current = rows.isEmpty
-          ? 1
-          : (rows.first['next_invoice_sequence'] as int? ?? 1);
-      await txn.update('company_profile', {
-        'next_invoice_sequence': current + 1,
-      }, where: 'id = 1');
-      return current;
-    });
-  }
 }
 
 class CategoryRepository {
@@ -460,8 +439,48 @@ class InvoiceRepository {
 
   /// Speichert Rechnung samt Positionen in einer Transaktion. Positionen werden
   /// ersetzt, nicht gemergt – das hält die Positionsnummern lückenlos.
-  Future<int> save(Invoice invoice) async {
+  ///
+  /// Mit [assignNumber] wird die Rechnung ausgestellt: die nächste Nummer wird
+  /// in **derselben** Transaktion gezogen, damit ein Abbruch keine Lücke im
+  /// Nummernkreis hinterlässt.
+  ///
+  /// Eine bereits gestellte Rechnung wird nie überschrieben (CLAUDE.md Regel 7);
+  /// Statuswechsel laufen über [setStatus].
+  Future<int> save(
+    Invoice invoice, {
+    String Function(int sequence)? assignNumber,
+  }) async {
     return _db.transaction<int>((txn) async {
+      if (invoice.id != null) {
+        final rows = await txn.query(
+          'invoices',
+          columns: ['status'],
+          where: 'id = ?',
+          whereArgs: [invoice.id],
+          limit: 1,
+        );
+        if (rows.isNotEmpty &&
+            InvoiceStatus.fromName(rows.first['status'] as String).isLocked) {
+          throw StateError(
+            'Rechnung ${invoice.number} ist gestellt und schreibgeschützt.',
+          );
+        }
+      }
+      if (assignNumber != null) {
+        final rows = await txn.query(
+          'company_profile',
+          columns: ['next_invoice_sequence'],
+          where: 'id = 1',
+          limit: 1,
+        );
+        final sequence = rows.isEmpty
+            ? 1
+            : (rows.first['next_invoice_sequence'] as int? ?? 1);
+        await txn.update('company_profile', {
+          'next_invoice_sequence': sequence + 1,
+        }, where: 'id = 1');
+        invoice = invoice.copyWith(number: assignNumber(sequence));
+      }
       final int invoiceId;
       if (invoice.id == null) {
         invoiceId = await txn.insert('invoices', invoice.toMap());

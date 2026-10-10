@@ -66,6 +66,7 @@ class TaxProfile {
     required this.smallBusinessLabel,
     required this.smallBusinessLegalRef,
     required this.smallBusinessInvoiceNote,
+    required this.vatIdExample,
     required this.invoiceLegalRef,
     required this.smallAmountInvoiceLimit,
     required this.currentYearTurnoverLimit,
@@ -90,6 +91,9 @@ class TaxProfile {
 
   /// Pflichthinweis, der auf jeder Rechnung eines Kleinunternehmers stehen muss.
   final String smallBusinessInvoiceNote;
+
+  /// Beispiel einer gültigen UID als Eingabehilfe.
+  final String vatIdExample;
 
   /// Fundstelle für die Rechnungs-Pflichtangaben.
   final String invoiceLegalRef;
@@ -135,6 +139,7 @@ class TaxProfile {
       VatRate(permille: 0, label: 'Steuerfrei / 0 %'),
     ],
     vatIdLabel: 'UID-Nummer',
+    vatIdExample: 'ATU12345678',
     taxNumberLabel: 'Steuernummer',
     smallBusinessLabel: 'Kleinunternehmerregelung',
     smallBusinessLegalRef: '§ 6 Abs 1 Z 27 UStG',
@@ -160,11 +165,14 @@ class TaxProfile {
       VatRate(permille: 0, label: 'Steuerfrei / 0 %'),
     ],
     vatIdLabel: 'USt-IdNr.',
+    vatIdExample: 'DE123456789',
     taxNumberLabel: 'Steuernummer',
     smallBusinessLabel: 'Kleinunternehmerregelung',
     smallBusinessLegalRef: '§ 19 UStG',
     smallBusinessInvoiceNote:
-        'Gemäß § 19 UStG wird keine Umsatzsteuer berechnet (Kleinunternehmer).',
+        // Seit 2025 sind Kleinunternehmerumsätze steuerfrei; Hinweis auf die
+        // Steuerbefreiung nach § 34a UStDV (Spezifikation 14, P-S8).
+        'Steuerbefreiung nach § 19 UStG (Kleinunternehmer).',
     invoiceLegalRef: '§ 14 UStG',
     smallAmountInvoiceLimit: Money(25000), // 250,00 EUR brutto, § 33 UStDV
     currentYearTurnoverLimit: Money(10000000), // 100.000,00 EUR
