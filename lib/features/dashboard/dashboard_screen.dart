@@ -403,10 +403,6 @@ class _SmallBusinessCard extends StatelessWidget {
     final scheme = Theme.of(context).colorScheme;
     final (color, icon) = switch (assessment.status) {
       SmallBusinessStatus.exceeded => (AppTheme.expense, Icons.error_outline),
-      SmallBusinessStatus.withinTolerance => (
-        AppTheme.warning,
-        Icons.warning_amber_rounded,
-      ),
       SmallBusinessStatus.approaching => (AppTheme.warning, Icons.trending_up),
       // Unvollständige Zahlen sind nie ein Grund zur Entwarnung (O-19).
       SmallBusinessStatus.incomplete => (AppTheme.warning, Icons.help_outline),

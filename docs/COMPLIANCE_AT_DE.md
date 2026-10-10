@@ -48,6 +48,7 @@ gemeinsame Implementierung nur falsch sein könnte.
   bestehen, entfällt aber ab dem Folgejahr
 - Über 60.500 € entfällt die Befreiung **sofort** – ab dem Umsatz, der die
   Toleranz reißt, ist Umsatzsteuer auszuweisen
+- **Umsetzung in der App (Entscheidung 2026-10-10):** zur Sicherheit harte Grenze 55.000 €. Die Toleranz wird nur als Warnung angezeigt, mit der Aufforderung, die Steuerberatung zu fragen
 - **Auch der Vorjahresumsatz** darf 55.000 € nicht überschritten haben, ohne
   Toleranz. Sonst gilt die Befreiung im ganzen laufenden Jahr nicht (O-1,
   bestätigt am 2026-10-10)

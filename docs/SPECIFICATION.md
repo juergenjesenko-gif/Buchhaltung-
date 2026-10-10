@@ -1,6 +1,6 @@
 # Spezifikation – Buchhaltung
 
-**Dokumentversion:** 1.8 · **App-Version:** 0.1.0 · **Stand:** 2026-10-10
+**Dokumentversion:** 1.9 · **App-Version:** 0.1.0 · **Stand:** 2026-10-10
 **Status:** Sprint 1 umgesetzt und verifiziert
 
 > Das **Zielbild** des Produkts steht im [`LASTENHEFT.md`](LASTENHEFT.md); dieses
@@ -258,10 +258,10 @@ zusätzlich zwingend die UID.
 | FA-4.1 | Maßgeblich sind die Einnahmen des Kalenderjahres: in Österreich **brutto** (ausgewiesene Umsatzsteuer zählt mit, z. B. bei versehentlichem Ausweis oder Auslandslieferungen; ohne Ausweis ist brutto gleich netto), in Deutschland netto (`spec.*.turnover_basis`). Alle Einnahmen zählen, auch Hilfsgeschäfte (siehe P-S1) |
 | FA-4.2 | Bei Regelbesteuerung wird nicht bewertet (Status *nicht anwendbar*) |
 | FA-4.3 | Warnung ab 80 % Ausnutzung der Grenze |
-| FA-4.4 | Österreich: über der Grenze, aber innerhalb der 10-%-Toleranz → Status *in Toleranz*, Befreiung gilt bis Jahresende |
+| FA-4.4 | Österreich: über der Grenze, aber innerhalb der 10-%-Toleranz → Status *überschritten* (**harte Grenze zur Sicherheit**, Entscheidung des Auftraggebers 2026-10-10). Die Meldung weist auf die mögliche Toleranz hin und verlangt, die Steuerberatung zu fragen |
 | FA-4.5 | Österreich: über der Toleranz → Status *überschritten*, sofortiger Wegfall |
 | FA-4.6 | Vorjahresumsatz über der Vorjahresgrenze → *überschritten* für das ganze laufende Jahr. Deutschland 25.000 €, Österreich 55.000 €; die österreichische Toleranz gilt nicht für das Vorjahr |
-| FA-4.7 | Deutschland: keine Toleranz; der Status *in Toleranz* darf dort nie auftreten |
+| FA-4.7 | Deutschland: keine Toleranz; die Meldung erwähnt keine |
 | FA-4.8 | Jeder Status trägt eine Erklärung der Rechtsfolge im Klartext |
 | FA-4.9 | Der Jahresumsatz setzt sich aus erfassten Einnahmen und dem Eröffnungswert des Jahres zusammen. Ein Jahr ist **vollständig**, wenn die Erfassung spätestens am 1. Jänner begann oder ein Eröffnungswert vorliegt; bei voll erfasstem Jahr wird ein Eröffnungswert ignoriert |
 | FA-4.10 | Ist der Vorjahresumsatz unbekannt und kennt das Land eine Vorjahresgrenze, lautet der Status *Angaben fehlen* — nie *ok* |
@@ -355,9 +355,8 @@ Kleinunternehmer, Umsatz unvollständig ─► angaben fehlen (außer überschri
 Kleinunternehmer:
   Umsatz < 80 % der Grenze ────────────► ok
   Umsatz ≥ 80 % ≤ Grenze ──────────────► nähert sich
-  Grenze < Umsatz ≤ Toleranz (nur AT) ─► in Toleranz
-  Umsatz > Toleranz (AT)             ──┐
-  Umsatz > Grenze (DE, ohne Toleranz)──┼─► überschritten
+  Umsatz > Grenze (AT: Hinweis Toleranz)──┐
+                                          ├─► überschritten
   Vorjahr > Vorjahresgrenze         ──┘
 ```
 
@@ -555,6 +554,7 @@ Umrechnung: Beträge in Cent. `5500000` Cent = 55.000,00 €.
 
 | Version | Datum | App-Version | Änderung |
 |---|---|---|---|
+| 1.9 | 2026-10-10 | 0.1.0 | Österreich: harte Grenze zur Sicherheit, Status *in Toleranz* entfällt; über 55.000 € *überschritten* mit Hinweis auf mögliche Toleranz und Steuerberatung (FA-4.4, FA-4.7). |
 | 1.8 | 2026-10-10 | 0.1.0 | Österreich: Kleinunternehmergrenze auf Bruttobasis, ausgewiesene Umsatzsteuer zählt mit (FA-4.1, `spec.*.turnover_basis`); P-S1 (a) bestätigt. |
 | 1.7 | 2026-10-10 | 0.1.0 | Rechtsstand-Überwachung (Lastenheft L-20) als geplante Funktion: bekannte Grenze „Steuerwerte fest im Code", Validierungspunkte P-V1 bis P-V9. P-S1 um den Widerspruch der Prüfinstanzen (brutto/netto, Toleranzregel) ergänzt. Keine Codeänderung. |
 | 1.6 | 2026-10-10 | 0.1.0 | Prüfpunkt P-D8 für die Zusatzsicherung unter Windows. Keine Verhaltensänderung der App. |
@@ -609,7 +609,7 @@ Status: *offen* · *bestätigt* (mit Datum und Prüfer) · *widerlegt* (mit Folg
 
 | ID | Prüfpunkt | Vorbefund der Prüfinstanz | Benötigt vor | Status |
 |---|---|---|---|---|
-| P-S1 | AT Kleinunternehmer: (a) brutto oder netto? (b) Gilt die Toleranz **unbeschränkt oder nur einmal in 5 Jahren?** (c) Welche Umsätze zählen nicht (Hilfsgeschäfte, bestimmte steuerfreie Umsätze)? | (a) **bestätigt vom Auftraggeber am 2026-10-10: brutto** — ohne Steuerausweis gleich netto, ausgewiesene Umsatzsteuer zählt mit; umgesetzt (FA-4.1). (b) Prüfinstanzen widersprechen sich; App rechnet ohne 5-Jahres-Regel. (c) App zählt alle Einnahmen | **sofort** (b, c) | teilweise bestätigt |
+| P-S1 | AT Kleinunternehmer: (a) brutto oder netto? (b) Gilt die Toleranz **unbeschränkt oder nur einmal in 5 Jahren?** (c) Welche Umsätze zählen nicht (Hilfsgeschäfte, bestimmte steuerfreie Umsätze)? | (a) **bestätigt vom Auftraggeber am 2026-10-10: brutto** — ohne Steuerausweis gleich netto, ausgewiesene Umsatzsteuer zählt mit; umgesetzt (FA-4.1). (b) **entschieden vom Auftraggeber am 2026-10-10:** App rechnet mit der harten Grenze, Toleranz nur als Warnung mit Verweis an die Steuerberatung (FA-4.4); damit für die App ohne Bedeutung. (c) App zählt alle Einnahmen | **sofort** (c) | teilweise bestätigt |
 | P-S2 | DE Gründungsjahr: Grenze 25.000 € statt 100.000 € im laufenden Jahr | **noch nicht im Code** — das Gründungsjahr wird im Firmenprofil nicht erfasst; Umsetzung mit Schema 3 geplant | Release | offen |
 | P-S3 | DE Zuordnung des Umsatzes nach Zahlungseingang statt Belegdatum | Abweichung möglich über den Jahreswechsel | Stufe B | offen |
 | P-S4 | AT ermäßigter Satz 4,9 % für Grundnahrungsmittel ab 1.7.2026 | angekündigt, Beschluss unbekannt; nicht im Code | sofort | offen |

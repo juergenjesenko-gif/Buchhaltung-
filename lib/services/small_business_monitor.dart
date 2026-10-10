@@ -12,10 +12,6 @@ enum SmallBusinessStatus {
   /// Über 80 % der Grenze – ab hier sollte man planen.
   approaching,
 
-  /// Grenze überschritten, aber noch in der Toleranz (nur Österreich).
-  /// Die Befreiung gilt bis Jahresende weiter, fällt aber im Folgejahr weg.
-  withinTolerance,
-
   /// Grenze endgültig überschritten – ab sofort ist Umsatzsteuer auszuweisen.
   exceeded,
 
@@ -52,7 +48,6 @@ class SmallBusinessAssessment {
 
   bool get needsAttention =>
       status == SmallBusinessStatus.approaching ||
-      status == SmallBusinessStatus.withinTolerance ||
       status == SmallBusinessStatus.exceeded ||
       status == SmallBusinessStatus.incomplete;
 }
@@ -138,16 +133,22 @@ class SmallBusinessMonitor {
     }
 
     if (currentYearTurnover > limit) {
+      // Zur Sicherheit gilt die harte Grenze (Entscheidung des Auftraggebers
+      // vom 2026-10-10): ob die Toleranz greift, hängt von Umständen ab, die
+      // die App nicht kennt. Sie warnt nur und verweist an die Steuerberatung.
       if (tolerance != null) {
         return SmallBusinessAssessment(
-          status: SmallBusinessStatus.withinTolerance,
+          status: SmallBusinessStatus.exceeded,
           currentYearTurnover: currentYearTurnover,
           limit: limit,
           headroom: headroom,
           message:
-              'Die Grenze von ${_euro(limit)} ist überschritten, die 10-%-Toleranz '
-              'bis ${_euro(tolerance)} greift aber noch. Die Befreiung gilt bis Jahresende, '
-              'ab dem Folgejahr nicht mehr.',
+              'Die Grenze von ${_euro(limit)} ist überschritten. Zur Sicherheit '
+              'rechnet die App mit der harten Grenze: Weise ab jetzt '
+              'Umsatzsteuer aus. Möglicherweise greift eine Toleranz bis '
+              '${_euro(tolerance)} – ob sie für dich gilt, kann nur deine '
+              'Steuerberatung beurteilen. Bitte vor der nächsten Rechnung '
+              'nachfragen (${taxProfile.smallBusinessLegalRef}).',
         );
       }
       return SmallBusinessAssessment(

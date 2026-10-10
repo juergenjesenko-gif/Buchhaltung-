@@ -41,14 +41,20 @@ void main() {
       expect(assessAt(55000).status, SmallBusinessStatus.approaching);
     });
 
-    test('knapp darüber greift die Toleranz', () {
-      final result = assessAt(56000);
-      expect(result.status, SmallBusinessStatus.withinTolerance);
-      expect(result.message, contains('Toleranz'));
-    });
+    test(
+      'knapp darüber gilt die harte Grenze, die Toleranz nur als Warnung',
+      () {
+        // Entscheidung des Auftraggebers vom 2026-10-10: zur Sicherheit harte
+        // Grenze, Toleranz nur als Hinweis an die Steuerberatung.
+        final result = assessAt(56000);
+        expect(result.status, SmallBusinessStatus.exceeded);
+        expect(result.message, contains('Toleranz'));
+        expect(result.message, contains('Steuerberatung'));
+      },
+    );
 
-    test('an der Toleranzgrenze gilt die Befreiung noch', () {
-      expect(assessAt(60500).status, SmallBusinessStatus.withinTolerance);
+    test('auch an der Toleranzgrenze gilt die harte Grenze', () {
+      expect(assessAt(60500).status, SmallBusinessStatus.exceeded);
     });
 
     test('über der Toleranz fällt die Befreiung sofort weg', () {
@@ -113,9 +119,8 @@ void main() {
     test('über 100.000 fällt die Befreiung ohne Toleranz weg', () {
       final result = assessDe(100001);
       expect(result.status, SmallBusinessStatus.exceeded);
-      // Deutschland hat keine Toleranzregel – der Status darf nie
-      // withinTolerance sein.
-      expect(result.status, isNot(SmallBusinessStatus.withinTolerance));
+      // Deutschland hat keine Toleranzregel – kein Hinweis darauf.
+      expect(result.message, isNot(contains('Toleranz')));
     });
   });
 

@@ -225,9 +225,12 @@ und die App kennt beide.
   aus, dann ist brutto gleich netto. Steht auf einer Rechnung doch
   Umsatzsteuer (versehentlich oder bei Lieferungen ins Ausland), zählt sie zur
   Grenze dazu
-- **Toleranz von 10 %**: bis 60.500 € bleibt die Befreiung bis Jahresende
-  bestehen, entfällt aber ab dem Folgejahr
-- Über 60.500 €: die Befreiung entfällt **sofort**
+- **Über 55.000 € zeigt die App Rot.** Das Gesetz kennt eine Toleranz von
+  10 % (bis 60.500 €), aber ob sie für dich gilt, hängt von Umständen ab, die
+  die App nicht kennt. Deshalb rechnet sie zur Sicherheit mit der harten
+  Grenze und sagt dir, dass du ab jetzt Umsatzsteuer ausweisen sollst. Frag
+  vor der nächsten Rechnung deine Steuerberatung, ob die Toleranz bei dir
+  greift
 - War dein Vorjahr über 55.000 €, gilt die Regelung im ganzen laufenden Jahr
   nicht. Erst wenn ein ganzes Jahr unter 55.000 € geblieben ist, kannst du im
   Folgejahr wieder Kleinunternehmerin sein
@@ -247,7 +250,6 @@ und die App kennt beide.
 |---|---|---|
 | Blau, Häkchen | Deutlich unter der Grenze | Nichts |
 | Orange, Pfeil nach oben | Über 80 % der Grenze | Mit der Steuerberatung über den Wechsel zur Regelbesteuerung sprechen |
-| Orange, Warndreieck | Grenze überschritten, Toleranz greift noch (nur AT) | Wechsel für das Folgejahr vorbereiten |
 | Rot, Ausrufezeichen | Grenze endgültig überschritten | Sofort handeln: ab jetzt musst du Umsatzsteuer ausweisen |
 | Orange, Fragezeichen | **Angaben fehlen** — Vorjahresumsatz oder Umsatz vor dem Start unbekannt | Auf „Umsatz ergänzen" tippen. Bis dahin sagt die App bewusst nicht „alles in Ordnung" |
 
