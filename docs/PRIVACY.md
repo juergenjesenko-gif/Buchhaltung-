@@ -20,9 +20,10 @@ E-Mail: <E-Mail-Adresse>
 
 ## Kurzfassung
 
-Die App **Buchhaltung** verarbeitet alle Daten ausschließlich auf deinem Gerät.
-Es gibt keinen Server, an den Daten gesendet werden. Es gibt keine Nutzerkonten,
-keine Analyse-Werkzeuge, keine Werbung und keine Weitergabe an Dritte.
+Die App **Buchhaltung** verarbeitet deine Daten auf deinem Gerät. Der Anbieter
+betreibt keinen Server und erhält keine deiner Daten. Es gibt keine
+Nutzerkonten, keine Analyse-Werkzeuge und keine Werbung. Daten verlassen das
+Gerät nur in den unten genannten Fällen, die du selbst auslöst oder einschaltest.
 
 ## Welche Daten die App verarbeitet
 
@@ -78,13 +79,19 @@ Zutun in eine Cloud gelangen.
 
 ## Wann Daten das Gerät verlassen
 
-Nur dann, wenn du es aktiv auslöst:
+Nur in diesen Fällen, die du auslöst oder einschaltest:
 
 - **Rechnung als PDF teilen** – du wählst im Systemdialog selbst das Ziel
   (E-Mail, Messenger, Cloud-Ordner)
 - **Export für die Steuerberatung** – gleiches Prinzip
+- **Datensicherung von Hand** – verschlüsselte Datei, Ziel wählst du im
+  Teilen-Dialog
+- **Automatische Sicherung** (standardmäßig aus) – verschlüsselte Datei in einen
+  Ordner, den du einmal gewählt hast, z. B. iCloud Drive oder Google Drive
+- **UID-Prüfung über VIES** – auf Tippen, oder wöchentlich, wenn du es
+  eingeschaltet hast: UID-Nummern gehen an die EU-Kommission
 
-In beiden Fällen bestimmst du, wohin die Datei geht. Ab diesem Zeitpunkt gilt die
+In allen Fällen bestimmst du, wohin die Daten gehen; der Anbieter erhält nichts. Ab diesem Zeitpunkt gilt die
 Datenschutzerklärung des jeweiligen Dienstes.
 
 ## Berechtigungen und wozu sie dienen
