@@ -44,12 +44,18 @@ class CompanyRepository {
     return CompanyProfile.fromMap(rows.first);
   }
 
+  /// Aktualisiert nur die Spalten des Profils. Kein `REPLACE`: das hätte
+  /// Spalten, die nicht im Formular stehen (z. B. Einstellungen der
+  /// automatischen Sicherung), auf ihre Standardwerte zurückgesetzt.
   Future<void> save(CompanyProfile profile) async {
-    await _db.insert(
+    final updated = await _db.update(
       'company_profile',
       profile.toMap(),
-      conflictAlgorithm: ConflictAlgorithm.replace,
+      where: 'id = 1',
     );
+    if (updated == 0) {
+      await _db.insert('company_profile', {'id': 1, ...profile.toMap()});
+    }
     await AuditLog(
       _db,
     ).record(entity: 'company_profile', entityId: 1, action: 'save');

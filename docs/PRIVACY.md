@@ -62,6 +62,15 @@ Teilen-Dialog, etwa in deinen eigenen Cloud-Speicher; dort gelten die
 Bedingungen dieses Dienstes. Der Anbieter erhält weder die Datei noch das
 Kennwort und kann die Sicherung nicht öffnen.
 
+**Automatische Sicherung:** Schaltest du sie ein, schreibt die App die
+verschlüsselte Sicherung regelmäßig in einen Ordner, den du einmal gewählt
+hast (z. B. in iCloud Drive oder Google Drive). Die Übertragung in die Cloud
+übernimmt das Betriebssystem bzw. der jeweilige Dienst unter dessen
+Bedingungen; viele speichern außerhalb der EU. Der Schlüssel liegt nur auf
+deinem Gerät (Schlüsselbund bzw. Keystore, nicht synchronisiert); du erhältst
+einen Wiederherstellungscode. Der Anbieter erhält weder Datei noch Schlüssel.
+Die Funktion ist standardmäßig aus.
+
 Die automatische Sicherung von Android (Google Drive) und die
 Gerät-zu-Gerät-Übertragung sind für diese App **deaktiviert**
 (`data_extraction_rules.xml`), damit deine Buchhaltungsdaten nicht ohne dein

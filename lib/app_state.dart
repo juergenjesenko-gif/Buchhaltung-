@@ -1,4 +1,5 @@
 import 'package:flutter/widgets.dart';
+import 'package:path_provider/path_provider.dart';
 
 import 'core/formatting.dart';
 import 'data/app_database.dart';
@@ -8,6 +9,10 @@ import 'domain/money.dart';
 import 'domain/receipt.dart';
 import 'services/small_business_monitor.dart';
 import 'services/vat_id/vat_check_service.dart';
+import 'data/auto_backup_settings.dart';
+import 'services/backup/auto_backup_service.dart';
+import 'services/backup/backup_service.dart';
+import 'services/backup/platform_backup_target.dart';
 import 'services/turnover_basis.dart';
 
 /// Anwendungszustand. Bewusst ein einziger [ChangeNotifier] statt eines
@@ -31,6 +36,53 @@ class AppState extends ChangeNotifier {
   );
 
   bool _vatCheckRunning = false;
+  bool _autoBackupRunning = false;
+  String? _autoBackupError;
+
+  /// Fehler der letzten automatischen Sicherung; wird auf der Übersicht
+  /// angezeigt, damit kein Fehlschlag unbemerkt bleibt (L-7.9).
+  String? get autoBackupError => _autoBackupError;
+
+  /// Dienst der automatischen Sicherung für den gewählten Ordner; `null`,
+  /// solange keiner gewählt ist.
+  Future<AutoBackupService?> autoBackupService() async {
+    final db = await AppDatabase.instance.database;
+    final settings = await AutoBackupSettings.load(db);
+    final folder = settings.folder;
+    if (folder == null) return null;
+    return AutoBackupService(
+      db: db,
+      backups: BackupService(
+        db: db,
+        documentsDir: await getApplicationDocumentsDirectory(),
+        tempDir: await getTemporaryDirectory(),
+      ),
+      target: PlatformBackupTarget(folder),
+      keys: const SecureBackupKeyStore(),
+    );
+  }
+
+  /// Automatische Sicherung, wenn eingeschaltet und fällig (L-7.2). Läuft
+  /// beim Start und bei Rückkehr in die App; Ergebnis und Fehler stehen danach
+  /// in den Einstellungen und auf der Übersicht.
+  Future<void> runAutoBackupIfDue() async {
+    if (_autoBackupRunning || _profile == null) return;
+    _autoBackupRunning = true;
+    try {
+      final service = await autoBackupService();
+      final outcome = await service?.runIfDue();
+      if (outcome?.ran ?? false) {
+        _autoBackupError = outcome!.error;
+        _profile = await repositories.company.load();
+        notifyListeners();
+      }
+    } catch (_) {
+      // Fehler speichert der Dienst selbst; hier nichts verschlucken außer
+      // dem Fall, dass gar kein Dienst entstehen konnte.
+    } finally {
+      _autoBackupRunning = false;
+    }
+  }
 
   /// Wöchentliche UID-Prüfung, wenn eingeschaltet und fällig. Läuft im
   /// Hintergrund und blockiert nie die Oberfläche; Fehler bleiben folgenlos.

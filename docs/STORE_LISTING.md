@@ -109,7 +109,8 @@ Finanzinfos“, nicht verknüpft, App-Funktionalität (Prüfpunkt P-U4).
 Alles andere bleibt auf dem Gerät, und Androids Auto-Backup ist
 per `data_extraction_rules.xml` deaktiviert. Die Datensicherung ist eine von
 der Nutzerin ausgelöste, mit ihrem Kennwort verschlüsselte Datei, die sie selbst
-über den Teilen-Dialog ablegt; sie erreicht weder den Anbieter noch einen
+über den Teilen-Dialog oder – automatisch nach Opt-in – in einem selbst
+gewählten Ordner ablegt; sie erreicht weder den Anbieter noch einen
 Partner und gilt daher nicht als Datenerhebung.
 
 ## Altersfreigabe

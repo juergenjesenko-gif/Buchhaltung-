@@ -38,6 +38,12 @@ class BackupCrypto {
 
   static const _magic = [0x4A, 0x42, 0x42, 0x4B]; // "JBBK"
   static const formatVersion = 1;
+
+  /// Formatversion 2: mit zufälligem Sicherungsschlüssel statt Kennwort, für
+  /// die automatische Sicherung. Kopf: Kennung, Version 2, Modus 1, Nonce.
+  /// Version 1 bleibt über die gesamte Aufbewahrungsfrist lesbar.
+  static const keyFormatVersion = 2;
+  static const _keyMode = 1;
   static const _headerLength = 4 + 1 + 4 + 4 + 1 + 16 + 12;
 
   /// Mindestlänge des Kennworts.
@@ -71,13 +77,46 @@ class BackupCrypto {
         .toBytes();
   }
 
+  /// Verschlüsselt mit einem 256-Bit-Schlüssel (automatische Sicherung).
+  static Future<Uint8List> encryptWithKey(
+    List<int> plain,
+    List<int> key,
+  ) async {
+    if (key.length != 32) throw ArgumentError('Schlüssel muss 32 Byte haben');
+    final aes = AesGcm.with256bits();
+    final nonce = aes.newNonce();
+    final box = await aes.encrypt(
+      plain,
+      secretKey: SecretKey(key),
+      nonce: nonce,
+    );
+    return (BytesBuilder()
+          ..add(_magic)
+          ..addByte(keyFormatVersion)
+          ..addByte(_keyMode)
+          ..add(nonce)
+          ..add(box.cipherText)
+          ..add(box.mac.bytes))
+        .toBytes();
+  }
+
   /// Wirft [BackupFormatException] bei fremden oder beschädigten Dateien und
-  /// [BackupPassphraseException] bei falschem Kennwort.
-  static Future<Uint8List> decrypt(Uint8List data, String passphrase) async {
-    if (data.length < _headerLength + 16 || !_startsWith(data, _magic)) {
+  /// [BackupPassphraseException] bei falschem Kennwort. [secret] ist bei
+  /// Version 1 das Kennwort, bei Version 2 der Wiederherstellungscode.
+  static Future<Uint8List> decrypt(Uint8List data, String secret) async {
+    if (data.length < 4 + 2 + 12 + 16 || !_startsWith(data, _magic)) {
       throw const BackupFormatException('Keine Datensicherung dieser App.');
     }
     final version = data[4];
+    if (version == keyFormatVersion && data[5] == _keyMode) {
+      final key = RecoveryCode.tryDecode(secret);
+      if (key == null) throw const BackupPassphraseException();
+      return decryptWithKey(data, key);
+    }
+    final passphrase = secret;
+    if (data.length < _headerLength + 16) {
+      throw const BackupFormatException('Keine Datensicherung dieser App.');
+    }
     if (version != formatVersion) {
       throw BackupFormatException(
         'Sicherungsformat $version wird von dieser App-Version nicht unterstützt.',
@@ -103,6 +142,27 @@ class BackupCrypto {
       final plain = await AesGcm.with256bits().decrypt(
         SecretBox(cipherText, nonce: nonce, mac: mac),
         secretKey: key,
+      );
+      return Uint8List.fromList(plain);
+    } on SecretBoxAuthenticationError {
+      throw const BackupPassphraseException();
+    }
+  }
+
+  /// Entschlüsselt eine Sicherung der Version 2 mit dem Schlüssel selbst.
+  static Future<Uint8List> decryptWithKey(Uint8List data, List<int> key) async {
+    if (data.length < 4 + 2 + 12 + 16 ||
+        !_startsWith(data, _magic) ||
+        data[4] != keyFormatVersion) {
+      throw const BackupFormatException('Keine automatische Sicherung.');
+    }
+    final nonce = data.sublist(6, 18);
+    final cipherText = data.sublist(18, data.length - 16);
+    final mac = Mac(data.sublist(data.length - 16));
+    try {
+      final plain = await AesGcm.with256bits().decrypt(
+        SecretBox(cipherText, nonce: nonce, mac: mac),
+        secretKey: SecretKey(key),
       );
       return Uint8List.fromList(plain);
     } on SecretBoxAuthenticationError {
@@ -148,4 +208,66 @@ class BackupPassphraseException implements Exception {
   @override
   String toString() =>
       'Das Kennwort passt nicht zu dieser Sicherung, oder die Datei ist beschädigt.';
+}
+
+/// Wiederherstellungscode für die automatische Sicherung: der 256-Bit-Schlüssel
+/// in Base32 (RFC 4648, ohne Polsterung), in Vierergruppen. 52 Zeichen; wird
+/// einmal angezeigt und muss von der Nutzerin aufbewahrt werden.
+class RecoveryCode {
+  const RecoveryCode._();
+
+  static const _alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ234567';
+
+  static Uint8List newKey() {
+    final random = Random.secure();
+    return Uint8List.fromList(
+      List<int>.generate(32, (_) => random.nextInt(256)),
+    );
+  }
+
+  static String encode(List<int> key) {
+    final out = StringBuffer();
+    var buffer = 0;
+    var bits = 0;
+    for (final byte in key) {
+      buffer = (buffer << 8) | byte;
+      bits += 8;
+      while (bits >= 5) {
+        out.write(_alphabet[(buffer >> (bits - 5)) & 31]);
+        bits -= 5;
+      }
+    }
+    if (bits > 0) out.write(_alphabet[(buffer << (5 - bits)) & 31]);
+    final text = out.toString();
+    return [
+      for (var i = 0; i < text.length; i += 4)
+        text.substring(i, min(i + 4, text.length)),
+    ].join('-');
+  }
+
+  /// `null`, wenn der Code kein gültiger 256-Bit-Schlüssel ist. Leerzeichen,
+  /// Bindestriche und Kleinschreibung sind egal; 0/1/8 werden als O/I/B gelesen.
+  static Uint8List? tryDecode(String code) {
+    final clean = code
+        .toUpperCase()
+        .replaceAll(RegExp(r'[\s\-]'), '')
+        .replaceAll('0', 'O')
+        .replaceAll('1', 'I')
+        .replaceAll('8', 'B');
+    if (clean.length != 52) return null;
+    final bytes = <int>[];
+    var buffer = 0;
+    var bits = 0;
+    for (final char in clean.split('')) {
+      final value = _alphabet.indexOf(char);
+      if (value < 0) return null;
+      buffer = ((buffer << 5) | value) & 0xFFFF;
+      bits += 5;
+      if (bits >= 8) {
+        bytes.add((buffer >> (bits - 8)) & 0xFF);
+        bits -= 8;
+      }
+    }
+    return bytes.length == 32 ? Uint8List.fromList(bytes) : null;
+  }
 }

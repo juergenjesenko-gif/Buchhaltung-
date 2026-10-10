@@ -1,6 +1,6 @@
 # Lastenheft – Buchhaltungsapp für Österreich und Deutschland
 
-**Dokumentversion:** 1.29 · **Stand:** 2026-10-09 · **Status:** Entwurf zur Abstimmung
+**Dokumentversion:** 1.30 · **Stand:** 2026-10-09 · **Status:** Entwurf zur Abstimmung
 **Auftraggeber:** Jürgen Jesenko (privates Vorhaben) · **Umsetzung:** Claude Code
 
 > Ein Lastenheft beschreibt, **was** das Produkt leisten soll und **warum** — nicht,
@@ -244,6 +244,12 @@ Priorität: **MUSS** = ohne das kein Release · **SOLL** = wichtig, verhandelbar
 | L-7.3 | Wiederherstellung auf einem neuen Gerät mit Vorschau, was eingelesen wird | MUSS | A |
 | L-7.4 | Warnung, wenn seit der letzten Sicherung zu viel Zeit vergangen ist | MUSS | A |
 | L-7.5 | Keine Datenübertragung ohne ausdrückliche Zustimmung des Nutzers | MUSS | A |
+| L-7.6 | Die automatische Sicherung ist **standardmäßig aus** und wird erst nach einer Erklärseite eingeschaltet: Inhalt samt Daten Dritter, Ziel beim gewählten Dienst unter dessen Bedingungen (oft außerhalb der EU), Verschlüsselung, Folge eines Code-Verlusts, Aufbewahrungspflicht | MUSS | A |
+| L-7.7 | Der Schlüssel der automatischen Sicherung ist zufällig (256 Bit), liegt nur geräteintern (iOS-Schlüsselbund „nur dieses Gerät", Android Keystore) und wird beim Ausschalten gelöscht; die Nutzerin erhält einmal einen **Wiederherstellungscode** und bestätigt, ihn aufbewahrt zu haben | MUSS | A |
+| L-7.8 | Ablage in einem **einmal gewählten Ordner** über die Dateiauswahl des Systems (Security-Scoped Bookmark bzw. Storage Access Framework); kein voreingestellter Dienst, kein Konto, kein OAuth | MUSS | A |
+| L-7.9 | Jede automatische Sicherung wird nach dem Schreiben zurückgelesen und entschlüsselt; erst dann gilt sie als erfolgreich. Zeitpunkt der letzten geprüften Sicherung und jeder Fehlschlag mit Grund sind sichtbar, auch auf der Übersicht. Funktion „Sicherung prüfen" ohne Wiederherstellung | MUSS | A |
+| L-7.10 | **Aufbewahrung im Ordner:** letzte 7 Sicherungen, je Monat eine für 12 Monate, **je Kalenderjahr eine dauerhaft**; fremde Dateien im Ordner werden nie angefasst. Hinweis: die Sicherung ersetzt die gesetzliche Aufbewahrung nicht | MUSS | A |
+| L-7.11 | Vorlage für die Verfahrensdokumentation (Abschnitt Datensicherung), die die Nutzerin ergänzt | SOLL | B |
 
 ### 5.8 Übergabe an die Steuerberatung
 
@@ -561,7 +567,8 @@ Jede Übertragung vom Gerät weg, auch die unscheinbaren:
 | Datenfluss | Empfänger | Was | Ausgelöst durch | Opt-in | Stufe |
 |---|---|---|---|---|---|
 | Rechnung/Export teilen | vom Nutzer gewählt | PDF, CSV | Tippen auf Teilen | je Vorgang | vorhanden |
-| Sicherung (L-7.1, L-7.2) | vom Nutzer gewählt (iCloud Drive, Google Drive, Dateien) | mit Kennwort verschlüsselte Vollsicherung samt Fotos | Tippen auf „Sicherung erstellen“ (von Hand; automatisch geplant) | je Vorgang | vorhanden |
+| Sicherung von Hand (L-7.1) | vom Nutzer gewählt (Teilen-Dialog) | mit Kennwort verschlüsselte Vollsicherung samt Fotos | Tippen auf „Sicherung erstellen“ | je Vorgang | vorhanden |
+| Sicherung automatisch (L-7.2, L-7.6 ff.) | einmal gewählter Ordner, z. B. iCloud Drive oder Google Drive; Upload durch das Betriebssystem bzw. den Dokumentanbieter | mit Schlüssel verschlüsselte Vollsicherung samt Fotos | nach jeder Änderung höchstens täglich, beim Öffnen der App | **ja**, standardmäßig aus | vorhanden |
 | Foto-Zweitablage (L-2.11) | Fotobibliothek, ggf. deren Cloud | Belegfotos | Einschalten | ja | A |
 | UID-Prüfung auf Tippen (L-1.3) | EU-Kommission (VIES), direkt vom Gerät | UID, eigene UID als Anfragende, IP-Adresse | Tippen auf „Jetzt prüfen“ | je Vorgang | vorhanden |
 | UID-Prüfung automatisch (L-1.3, L-1.4) | EU-Kommission (VIES), direkt vom Gerät | wie oben, für eigene UID und Kunden mit Rechnung in den letzten 12 Monaten; vor jeder Rechnung an Kunden mit UID | wöchentlich beim Öffnen der App | **ja**, Schalter, standardmäßig aus | vorhanden |
@@ -1023,6 +1030,7 @@ Zu entscheiden, bevor die betroffene Anforderung umgesetzt wird:
 
 | Version | Datum | Änderung |
 |---|---|---|
+| 1.30 | 2026-10-10 | Automatische Sicherung mit den drei Prüfinstanzen ausgearbeitet und umgesetzt: L-7.6 bis L-7.11 (Opt-in mit Erklärseite, Geräteschlüssel mit Wiederherstellungscode, Ordnerwahl ohne Konto, Probe nach jedem Schreiben, Aufbewahrung 7/12/je Jahr dauerhaft). Datenflusstabelle geteilt. |
 | 1.29 | 2026-10-10 | L-21 überarbeitet nach Entscheidung „direkt Anthropic API, eigenes Konto" und Prüfung durch die drei Instanzen: Verarbeitungsort je Datenkategorie (L-21.8 bis L-21.12), Betrieb rund um die Uhr ohne Zusatzdienst, gesichert durch eigenes Design (L-21.13 bis L-21.23), Kostenannahmen. S-13 auf Anthropic festgelegt, O-28 erledigt. |
 | 1.28 | 2026-10-10 | Neuer Block L-21: Start auf der heutigen Claude-Anbindung, Umstellung auf eine andere Claude API innerhalb von sechs Monaten nach Launch; austauschbare Adapterschicht, kein Schlüssel in der App, Validierung vor und nach dem Wechsel. O-28 neu. |
 | 1.27 | 2026-10-10 | Neuer Block L-20 Rechtsstand-Überwachung (Abschnitt 5.20), mit den drei Prüfinstanzen ausgearbeitet: Agent nur als Vorschlagsgeber beim Anbieter, Vier-Augen-Freigabe, signierte Regelpakete, Prüfung auf dem Gerät, Validierung mit Rückspieltest. Neuer Datenfluss Regelpaket-Abruf. O-27 neu. Aufwand Stufe B 39–57, A+B 64–97 Personenwochen. |

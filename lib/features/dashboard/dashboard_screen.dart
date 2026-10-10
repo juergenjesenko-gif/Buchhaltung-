@@ -137,6 +137,20 @@ class _DashboardScreenState extends State<DashboardScreen> {
               const SizedBox(height: 16),
             ],
 
+            if (state.autoBackupError != null) ...[
+              NoticeBanner(
+                icon: Icons.cloud_off_outlined,
+                color: AppTheme.expense,
+                message:
+                    'Automatische Sicherung fehlgeschlagen: '
+                    '${state.autoBackupError}',
+                onTap: () => Navigator.of(
+                  context,
+                ).push(MaterialPageRoute(builder: (_) => const BackupScreen())),
+              ),
+              const SizedBox(height: 16),
+            ],
+
             if (profile != null &&
                 !state.isLoading &&
                 profile.needsBackup(DateTime.now())) ...[

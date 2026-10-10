@@ -480,13 +480,40 @@ Die Datei heißt zum Beispiel `Sicherung_2026-10-10_1800.jbbackup`. Sie enthält
 alle Daten und Belegfotos und ist verschlüsselt.
 
 Hast du noch nie oder seit **30 Tagen** nicht gesichert, erinnert dich die
-Übersicht daran. Eine **automatische** Sicherung gibt es noch nicht.
+Übersicht daran – oder du richtest die automatische Sicherung ein.
+
+### Automatisch sichern
+
+Statt von Hand kann die App selbst sichern – in einen Ordner deiner Wahl, etwa
+in iCloud Drive oder Google Drive. Das ist **standardmäßig aus**.
+
+1. **Einstellungen → Datensicherung → Automatische Sicherung → Einrichten**
+2. Die Erklärung lesen und **Ordner wählen**.
+3. Die App zeigt dir einen **Wiederherstellungscode** (52 Zeichen). Schreib ihn
+   ab oder speichere ihn im Passwortmanager – **getrennt von deinem Handy**. Er
+   wird nur dieses eine Mal angezeigt. Ohne ihn kann niemand eine automatische
+   Sicherung auf einem anderen Gerät öffnen, auch du nicht.
+
+Danach sichert die App nach jeder Änderung höchstens einmal am Tag, wenn du sie
+öffnest. Jede Sicherung wird nach dem Speichern zur Probe wieder geöffnet; erst
+dann gilt sie als gelungen. Klappt etwas nicht – Ordner nicht erreichbar,
+Zugriff entzogen –, siehst du es auf der Übersicht.
+
+Im Ordner bleiben die letzten 7 Sicherungen, je Monat eine für ein Jahr und
+**je Jahr eine dauerhaft** – damit du über die Aufbewahrungsfrist hinweg
+zurückgreifen kannst. Andere Dateien im Ordner fasst die App nicht an.
+
+**Sicherung prüfen** öffnet die jüngste Sicherung zur Probe, ohne etwas zu
+ändern. Mach das ab und zu, mindestens einmal im Jahr.
+
+Die Sicherung ersetzt nicht deine gesetzliche Aufbewahrungspflicht. Geht dein
+Handy verloren, stell die Daten bald auf einem neuen Gerät wieder her.
 
 ### Auf einem neuen Telefon weitermachen
 
 Beim ersten Start auf **„Aus einer Datensicherung wiederherstellen"** tippen
 (oder später unter Einstellungen → Datensicherung). Datei auswählen, Kennwort
-eingeben. Die App zeigt dir, was die Sicherung enthält – Unternehmen, Datum,
+– bei einer automatischen Sicherung den Wiederherstellungscode – eingeben. Die App zeigt dir, was die Sicherung enthält – Unternehmen, Datum,
 Anzahl der Belege, Rechnungen, Kunden und Fotos. Erst nach deiner Bestätigung
 werden die Daten eingelesen. **Alles, was vorher auf dem Gerät war, wird dabei
 ersetzt.**
@@ -534,6 +561,13 @@ deiner Steuerberatung.
 
 ## 13. Wenn etwas nicht geht
 
+
+**„Der Sicherungsordner ist nicht erreichbar. Bitte den Ordner neu wählen."** —
+der Ordner wurde gelöscht oder die App hat keinen Zugriff mehr. Unter
+Datensicherung auf „Ordner ändern" tippen.
+
+**„Kein Sicherungsschlüssel auf diesem Gerät"** — die automatische Sicherung
+neu einrichten; du bekommst einen neuen Wiederherstellungscode.
 
 **„Mindestens 10 Zeichen"** / **„Die Kennwörter stimmen nicht überein"** — beim
 Kennwort der Datensicherung.
@@ -603,7 +637,6 @@ neues Foto hinzufügen.
 
 Damit du nicht darauf wartest:
 
-- **Keine automatische Sicherung.** Die Sicherung erstellst du von Hand – siehe [Abschnitt 11](#11-deine-daten-und-ihre-sicherung)
 - **Keine Registrierkasse.** Die App erfüllt die österreichische
   Registrierkassensicherheitsverordnung nicht. Wer mehr als 15.000 € Umsatz und
   7.500 € Barumsätze im Jahr hat, braucht zusätzlich eine

@@ -16,7 +16,7 @@ class AppDatabase {
 
   /// Aktuelle Schemaversion. Öffentlich, weil docs/SPECIFICATION.md sie
   /// dokumentiert und test/specification_sync_test.dart beide vergleicht.
-  static const schemaVersion = 5;
+  static const schemaVersion = 6;
 
   Database? _db;
 
@@ -245,6 +245,16 @@ class AppDatabase {
       )
       ''',
       'CREATE INDEX idx_vat_id_checks_vat ON vat_id_checks(vat_id, checked_at)',
+    ],
+    // Version 6: automatische Sicherung in einen gewählten Ordner (L-7.2).
+    // Der Ordnerzugriff (SAF-URI bzw. Bookmark) ist kein Geheimnis; der
+    // Schlüssel liegt nicht hier, sondern im Schlüsselbund/Keystore.
+    6: [
+      'ALTER TABLE company_profile ADD COLUMN auto_backup_enabled INTEGER NOT NULL DEFAULT 0',
+      'ALTER TABLE company_profile ADD COLUMN auto_backup_target TEXT',
+      'ALTER TABLE company_profile ADD COLUMN auto_backup_target_label TEXT',
+      'ALTER TABLE company_profile ADD COLUMN auto_backup_last_at TEXT',
+      'ALTER TABLE company_profile ADD COLUMN auto_backup_last_error TEXT',
     ],
   };
 

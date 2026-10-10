@@ -1,6 +1,6 @@
 # Spezifikation – Buchhaltung
 
-**Dokumentversion:** 1.13 · **App-Version:** 0.1.0 · **Stand:** 2026-10-10
+**Dokumentversion:** 1.14 · **App-Version:** 0.1.0 · **Stand:** 2026-10-10
 **Status:** Sprint 1 umgesetzt und verifiziert
 
 > Das **Zielbild** des Produkts steht im [`LASTENHEFT.md`](LASTENHEFT.md); dieses
@@ -168,6 +168,7 @@ Anwendungsdokumentenverzeichnis. Aktuelle Schemaversion: **2**.
 | `register_number`, `register_court` | TEXT | Firmenbuch-/Handelsregisternummer und Gericht (Schema 5) |
 | `vat_check_enabled` | INTEGER | 1 = wöchentliche UID-Prüfung eingeschaltet (Opt-in, Standard 0; Schema 5) |
 | `vat_check_last_run` | TEXT | Zeitpunkt der letzten Prüfrunde (Schema 5) |
+| `auto_backup_enabled`, `auto_backup_target`, `auto_backup_target_label`, `auto_backup_last_at`, `auto_backup_last_error` | INTEGER/TEXT | Automatische Sicherung: eingeschaltet, Ordnerzugriff (SAF-URI bzw. Bookmark), Anzeigename, letzte geprüfte Sicherung, letzter Fehler (Schema 6). Nicht Teil des Stammdatenformulars |
 | `last_backup_at` | TEXT | Zeitpunkt der letzten Datensicherung bzw. der wiederhergestellten Sicherung; nur vom Sicherungsdienst geschrieben (Schema 4) |
 
 **`receipts`** — zusätzlich seit Schema 3: `cancelled_at` (TEXT, Zeitpunkt der Stornierung, `NULL` = gültig)
@@ -331,6 +332,13 @@ Liefer-/Leistungsdatum, Entgelt je Steuersatz, Steuersatz und Steuerbetrag oder
 | FA-7.6 | Pfade im Archiv außerhalb von `belege/` werden verworfen |
 | FA-7.7 | Erinnerung auf der Übersicht, wenn noch nie oder seit **30 Tagen** nicht gesichert wurde (`spec.backup_reminder_days`) |
 | FA-7.8 | Wiederherstellung auch direkt aus der Ersteinrichtung auf einem neuen Gerät; sie wird im `audit_log` vermerkt |
+| FA-7.9 | **Automatische Sicherung** (Opt-in nach Erklärseite): Ordner einmal wählen (iOS `UIDocumentPicker` + Security-Scoped Bookmark, `ios/Runner/BackupFolderChannel.swift`; Android Storage Access Framework mit dauerhafter Berechtigung, `BackupFolderChannel.kt`); Kanal `buchhaltung/backup_folder` |
+| FA-7.10 | Schlüssel: 256 Bit zufällig, gespeichert über `flutter_secure_storage` (iOS `first_unlock_this_device`, nicht synchronisiert); Anzeige einmal als **Wiederherstellungscode** (Base32, 52 Zeichen in Vierergruppen), Bestätigung „aufbewahrt" Pflicht. Ausschalten löscht den Schlüssel |
+| FA-7.11 | Sicherungsformat 2 (`JBBK`, Version 2, Modus 1, Nonce, Chiffrat, Tag) für Schlüssel-Sicherungen; Format 1 (Kennwort) bleibt lesbar. Wiederherstellen akzeptiert Kennwort **oder** Wiederherstellungscode |
+| FA-7.12 | Fällig, wenn eingeschaltet, Ordner gewählt und seit der letzten automatischen Sicherung eine Änderung im `audit_log` steht, frühestens nach **24 Stunden** (`spec.auto_backup_min_interval_hours`); ausgelöst beim Start und bei Rückkehr in die App |
+| FA-7.13 | Nach dem Schreiben: zurücklesen, SHA-256 vergleichen, entschlüsseln, entpacken. Erst dann `auto_backup_last_at` und Protokoll `auto_backup` mit Prüfsumme; sonst `auto_backup_last_error` und Banner auf der Übersicht |
+| FA-7.14 | Rotation im Ordner nur für eigene Dateien `Auto-Sicherung_JJJJ-MM-TT_HHMMSS.jbbackup`: die letzten **7**, je Monat die jüngste der letzten **12** Monate, **je Kalenderjahr die jüngste dauerhaft** (`spec.auto_backup_keep_daily`, `spec.auto_backup_keep_monthly`) |
+| FA-7.15 | „Sicherung prüfen" entschlüsselt die jüngste automatische Sicherung, ohne etwas zu ersetzen; Protokoll `verify` |
 
 ### 5.6 Export
 
@@ -516,7 +524,7 @@ Offen benannt, weil eine Spezifikation, die ihre Lücken verschweigt, wertlos is
 
 | Grenze | Auswirkung | Geplant |
 |---|---|---|
-| **Sicherung nur von Hand** | Die Sicherung entsteht auf Knopfdruck und wird über den Teilen-Dialog abgelegt; eine **automatische** Sicherung in den Cloud-Speicher (Lastenheft L-7.2) gibt es noch nicht. Die Erinnerung nach 30 Tagen mildert das | Automatische Ablage, Stufe A |
+| **Automatische Sicherung nicht auf Gerät erprobt** | Ordnerwahl und Schreiben laufen über eigenen Kotlin- bzw. Swift-Code, der hier nur kompiliert (CI), nicht auf einem Gerät getestet ist. Ob die Google-Drive-App unter Android Ordner zur Auswahl anbietet, ist offen (P-B1) | vor Release |
 | **Keine revisionssichere Archivierung** | Das `audit_log` schafft Nachvollziehbarkeit im Alltag, ist aber keine manipulationssichere Protokollierung im Sinne einer Verfahrensdokumentation. Die App ist die Vorerfassung; die revisionssichere Aufbewahrung findet in der Kanzlei statt | – |
 | **Keine Registrierkasse** | Wer die RKSV-Grenzen (15.000 € Umsatz und 7.500 € Barumsätze) überschreitet, braucht zusätzlich eine registrierkassenpflichtige Lösung | Nicht geplant |
 | **Keine E-Rechnung** | Ein PDF ist keine E-Rechnung nach EN 16931. In Deutschland gilt die Empfangspflicht seit 1.1.2025, die Versandpflicht kommt gestaffelt bis 2028 | Backlog G1 |
@@ -535,9 +543,12 @@ Offen benannt, weil eine Spezifikation, die ihre Lücken verschweigt, wertlos is
 > Das ist der Mechanismus, der dieses Dokument aktuell hält.
 
 ```properties
-spec.schema_version = 5
+spec.schema_version = 6
 spec.vat_check_interval_days = 7
 spec.backup_reminder_days = 30
+spec.auto_backup_min_interval_hours = 24
+spec.auto_backup_keep_daily = 7
+spec.auto_backup_keep_monthly = 12
 spec.seed_category_count = 16
 spec.seed_category_income_count = 3
 spec.seed_category_expense_count = 13
@@ -590,6 +601,7 @@ Umrechnung: Beträge in Cent. `5500000` Cent = 55.000,00 €.
 
 | Version | Datum | App-Version | Änderung |
 |---|---|---|---|
+| 1.14 | 2026-10-10 | 0.1.0 | Automatische Sicherung (FA-7.9 bis FA-7.15): Ordnerwahl je Plattform, Geräteschlüssel mit Wiederherstellungscode, Sicherungsformat 2, Fälligkeit, Probe nach dem Schreiben, Rotation 7/12/je Jahr, „Sicherung prüfen". Schema 6, neue Kennwerte, Prüfpunkte P-B1 bis P-B5, Grenze aktualisiert. |
 | 1.13 | 2026-10-10 | 0.1.0 | Stammdaten und UID-Prüfung (FA-1.4 bis FA-1.4e): Steuernummer und UID optional, Rechnungspflichten je Land, Firmenbuch-/Registerangaben, Formatprüfung offline, VIES-Prüfung mit Protokoll, wöchentliche Prüfung nach Opt-in, Prüfergebnis an der Rechnung eingefroren. Schema 5, neue Kennwerte, Prüfpunkte P-U1 bis P-U4. |
 | 1.12 | 2026-10-10 | 0.1.0 | Datensicherung (Abschnitt 5.5a, FA-7.1 bis FA-7.8): verschlüsselte Vollsicherung samt Fotos, Ablage über den Teilen-Dialog, Wiederherstellung mit Vorschau, Erinnerung nach 30 Tagen. Schema 4 (`last_backup_at`), neuer Bildschirm, Kennwert `spec.backup_reminder_days`. Bekannte Grenze „Kein Backup" ersetzt durch „Sicherung nur von Hand". |
 | 1.11 | 2026-10-10 | 0.1.0 | Schema 3: Belegstorno statt Löschen (`receipts.cancelled_at`, FA-2.11, FA-2.12) und Gründungsjahr (`company_profile.founding_year`, FA-4.13, `spec.*.founding_year_limit_cents`). P-S2 und P-S10 aktualisiert. |
@@ -702,4 +714,9 @@ Status: *offen* · *bestätigt* (mit Datum und Prüfer) · *widerlegt* (mit Folg
 | P-U2 | Nachweiswert von VIES mit Abfragenummer gegenüber FinanzOnline Stufe 2 (AT) und qualifizierter Bestätigungsabfrage § 18e UStG (DE) | VIES schwächer, aber als Hilfsnachweis anerkannt | Release | offen |
 | P-U3 | Steuernummer auf österreichischen Rechnungen nicht nötig; DE Steuernummer oder USt-IdNr. genügt | beide Prüfinstanzen | Release | offen |
 | P-U4 | Datenschutzerklärung und Store-Formulare (Google Data Safety, Apple Label) zur VIES-Abfrage durch Fachperson | Nutzerin Verantwortliche, Kommission Empfängerin, Anbieter unbeteiligt | erster Upload | offen |
+| P-B1 | Android: bietet die Google-Drive-App bei der Ordnerwahl (Storage Access Framework) Ordner an? Test auf Pixel und Samsung mit aktueller Drive-App. Wenn nein: Entscheidung über Anbindung der Drive-Schnittstelle | Drive bot lange keine Ordner an; unsicher | vor Release | offen |
+| P-B2 | iOS: Bookmark auf einen iCloud-Drive-Ordner nach Neustart, Update und offline; Upload durch das System | — | vor Release | offen |
+| P-B3 | Laufzeit einer großen Sicherung (viele Fotos) beim Öffnen der App; Verhalten bei Wechsel in den Hintergrund | — | vor Release | offen |
+| P-B4 | Steuerberatung: verschlüsselte Sicherungskopie in einer US-Cloud neben den Originaldaten am Gerät ist kein „Führen der Bücher im Ausland“ (§ 146 Abs 2a/2b AO, § 131 BAO); Fristen nach BEG IV (8/10 Jahre) | beide Instanzen: nach h. M. unkritisch, kippt wenn die Cloud-Kopie die einzige wird | Release | offen |
+| P-B5 | Store-Angaben zur automatischen Sicherung (gehört zu P-U4) | keine Erhebung durch den Anbieter | erster Upload | offen |
 | P-D8 | Zusatzsicherung unter Windows (`tool/sicherung/sicherung.ps1`): Erstlauf, Aufgabenplanung, Wiederherstellung | Linux-Variante getestet, Windows-Skript nie ausgeführt | sofort | offen |

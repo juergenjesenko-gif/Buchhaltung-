@@ -42,6 +42,9 @@ nächsten Versionssprung in den neuen Eintrag.
 | Geändert | Umsatzsteuer ganzzahlig gerundet, ohne `double` | CLAUDE.md Regel 1 | 077ca5d |
 | Behoben | Österreich: Kleinunternehmergrenze auf Bruttobasis, ausgewiesene Umsatzsteuer zählt mit | FA-4.1, P-S1 (a) | 7ad6b69 |
 | Geändert | Österreich: harte Grenze 55.000 € zur Sicherheit, Toleranz nur noch als Warnung mit Verweis an die Steuerberatung; Status „in Toleranz“ entfällt | FA-4.4, P-S1 (b) | c30dc9d |
+| Neu | Automatische Sicherung in einen gewählten Ordner (iCloud Drive, Google Drive …), Wiederherstellungscode, Probe nach jedem Schreiben, Aufbewahrung 7/12/je Jahr dauerhaft, „Sicherung prüfen“ | L-7.2, L-7.6–7.10, FA-7.9–7.15 | COMMIT6 |
+| Datenbank | Schema 5 → 6: Spalten der automatischen Sicherung | Spezifikation 4 | COMMIT6 |
+| Abhängigkeit | Neu: `flutter_secure_storage`; eigener Plattformcode `BackupFolderChannel` (Kotlin, Swift) | FA-7.9 | COMMIT6 |
 | Neu | UID-Prüfung: Formatprüfung offline, VIES auf Tippen, wöchentlich nach Opt-in, Protokoll, Ergebnis an der Rechnung eingefroren | L-1.3, L-1.4, FA-1.4a–d | 30ef78e |
 | Neu | Firmenbuch-/Handelsregisternummer und Gericht, auf jeder Rechnung | FA-1.4e | 30ef78e |
 | Geändert | Steuernummer und UID im Profil optional; Rechnungspflichten je Land (DE Steuernummer oder USt-IdNr., AT UID beider Seiten ab 10.000 €) | FA-1.4 | 30ef78e |

@@ -44,6 +44,30 @@ class BackupService {
   /// Erstellt die verschlüsselte Sicherung und gibt die Datei zurück.
   Future<File> create(String passphrase, {DateTime? now}) async {
     final createdAt = now ?? DateTime.now();
+    final zip = await _pack(createdAt);
+    final encrypted = await crypto.encrypt(zip, passphrase);
+    final file = File(p.join(tempDir.path, fileNameFor(createdAt)));
+    await file.writeAsBytes(encrypted, flush: true);
+    await _markBackedUp(createdAt);
+    return file;
+  }
+
+  /// Automatische Sicherung: verschlüsselt mit dem Sicherungsschlüssel und
+  /// gibt die Bytes zurück; das Ziel schreibt [AutoBackupService].
+  Future<Uint8List> createWithKey(
+    List<int> key, {
+    required DateTime now,
+  }) async {
+    final zip = await _pack(now);
+    final encrypted = await BackupCrypto.encryptWithKey(zip, key);
+    await _markBackedUp(now);
+    return encrypted;
+  }
+
+  Future<void> _markBackedUp(DateTime at) =>
+      _db.update('company_profile', {'last_backup_at': at.toIso8601String()});
+
+  Future<Uint8List> _pack(DateTime createdAt) async {
     final snapshotPath = p.join(tempDir.path, 'sicherung_snapshot.db');
     await _repository.snapshot(snapshotPath);
     final snapshot = File(snapshotPath);
@@ -75,17 +99,9 @@ class BackupService {
       imageCount: images.length,
     );
 
-    final zip = BackupArchive.pack(
+    return BackupArchive.pack(
       BackupContent(manifest: manifest, database: database, images: images),
     );
-    final encrypted = await crypto.encrypt(zip, passphrase);
-    final file = File(p.join(tempDir.path, fileNameFor(createdAt)));
-    await file.writeAsBytes(encrypted, flush: true);
-
-    await _db.update('company_profile', {
-      'last_backup_at': createdAt.toIso8601String(),
-    });
-    return file;
   }
 
   /// Entschlüsselt und entpackt eine Sicherung, ohne etwas zu verändern –

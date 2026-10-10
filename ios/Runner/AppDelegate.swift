@@ -10,7 +10,12 @@ import UIKit
     return super.application(application, didFinishLaunchingWithOptions: launchOptions)
   }
 
+  private var backupFolder: BackupFolderChannel?
+
   func didInitializeImplicitFlutterEngine(_ engineBridge: FlutterImplicitEngineBridge) {
     GeneratedPluginRegistrant.register(with: engineBridge.pluginRegistry)
+    if let registrar = engineBridge.pluginRegistry.registrar(forPlugin: "BackupFolderChannel") {
+      backupFolder = BackupFolderChannel(messenger: registrar.messenger())
+    }
   }
 }

@@ -16,9 +16,14 @@ Future<void> main() async {
   final state = await AppState.open();
   // Wöchentliche UID-Prüfung (Opt-in): beim Start und bei jeder Rückkehr in
   // die App, sobald sie fällig ist.
+  // Ebenso die automatische Sicherung (L-7.2), wenn eingeschaltet.
   unawaited(state.runVatChecksIfDue());
+  unawaited(state.runAutoBackupIfDue());
   _lifecycle = AppLifecycleListener(
-    onResume: () => unawaited(state.runVatChecksIfDue()),
+    onResume: () {
+      unawaited(state.runVatChecksIfDue());
+      unawaited(state.runAutoBackupIfDue());
+    },
   );
   runApp(BuchhaltungApp(state: state));
 }

@@ -2,6 +2,8 @@ import 'dart:io';
 
 import 'package:buchhaltung/data/app_database.dart';
 import 'package:buchhaltung/domain/company_profile.dart';
+import 'package:buchhaltung/services/backup/auto_backup_service.dart';
+import 'package:buchhaltung/services/backup/backup_retention.dart';
 import 'package:buchhaltung/domain/country.dart';
 import 'package:buchhaltung/domain/money.dart';
 import 'package:buchhaltung/domain/receipt.dart';
@@ -72,6 +74,16 @@ void main() {
       value(key).split(',').map((part) => int.parse(part.trim())).toList();
 
   group('Allgemeine Kenndaten', () {
+    test('Automatische Sicherung stimmt', () {
+      const retention = BackupRetention();
+      expect(intValue('spec.auto_backup_keep_daily'), retention.daily);
+      expect(intValue('spec.auto_backup_keep_monthly'), retention.monthly);
+      expect(
+        intValue('spec.auto_backup_min_interval_hours'),
+        AutoBackupService.defaultMinInterval.inHours,
+      );
+    });
+
     test('Abstand der UID-Prüfung stimmt', () {
       expect(
         intValue('spec.vat_check_interval_days'),
