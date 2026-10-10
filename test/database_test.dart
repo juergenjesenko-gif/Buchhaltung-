@@ -229,4 +229,34 @@ void main() {
       await db.close();
     });
   });
+
+  group('Umsatz für die Kleinunternehmergrenze', () {
+    test('zählt in Österreich brutto, in Deutschland netto', () async {
+      final db = await openFresh();
+      const now = '2026-10-10T00:00:00';
+      Future<void> income(int net, int gross) => db.insert('receipts', {
+        'date': '2026-05-01',
+        'direction': 'income',
+        'net_cents': net,
+        'gross_cents': gross,
+        'created_at': now,
+        'updated_at': now,
+      });
+      // Ohne Steuerausweis ist brutto gleich netto ...
+      await income(1000000, 1000000);
+      // ... mit versehentlich ausgewiesener Umsatzsteuer zählt sie in AT mit.
+      await income(100000, 120000);
+      final repo = ReceiptRepository(db);
+
+      expect(
+        await repo.turnoverForYear(2026, includeVat: true),
+        const Money(1120000),
+      );
+      expect(
+        await repo.turnoverForYear(2026, includeVat: false),
+        const Money(1100000),
+      );
+      await db.close();
+    });
+  });
 }

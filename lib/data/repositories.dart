@@ -299,10 +299,13 @@ class ReceiptRepository {
   ///
   /// Maßgeblich ist der Umsatz, also die Einnahmenseite. Für Kleinunternehmer
   /// ist netto gleich brutto; wer regelbesteuert ist, rechnet ohnehin netto.
-  Future<Money> turnoverForYear(int year) async {
+  /// Einnahmen eines Kalenderjahres für die Kleinunternehmergrenze; mit
+  /// [includeVat] brutto, sonst netto (`TaxProfile.turnoverIncludesVat`).
+  Future<Money> turnoverForYear(int year, {required bool includeVat}) async {
+    final column = includeVat ? 'gross_cents' : 'net_cents';
     final rows = await _db.rawQuery(
       '''
-      SELECT SUM(net_cents) AS total FROM receipts
+      SELECT SUM($column) AS total FROM receipts
       WHERE direction = 'income' AND date >= ? AND date <= ?
       ''',
       ['$year-01-01', '$year-12-31'],

@@ -43,7 +43,7 @@ gemeinsame Implementierung nur falsch sein könnte.
 
 ### Österreich – § 6 Abs 1 Z 27 UStG (Fassung ab 1.1.2025)
 
-- Umsatzgrenze **55.000 €** im laufenden Kalenderjahr
+- Umsatzgrenze **55.000 €** im laufenden Kalenderjahr, **brutto**: ohne Steuerausweis gleich netto; ausgewiesene Umsatzsteuer (versehentlich oder bei Auslandslieferungen) zählt mit (bestätigt vom Auftraggeber 2026-10-10)
 - **Toleranz von 10 %**: bis 60.500 € bleibt die Befreiung bis zum Jahresende
   bestehen, entfällt aber ab dem Folgejahr
 - Über 60.500 € entfällt die Befreiung **sofort** – ab dem Umsatz, der die

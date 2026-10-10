@@ -1,6 +1,6 @@
 # Spezifikation – Buchhaltung
 
-**Dokumentversion:** 1.7 · **App-Version:** 0.1.0 · **Stand:** 2026-10-10
+**Dokumentversion:** 1.8 · **App-Version:** 0.1.0 · **Stand:** 2026-10-10
 **Status:** Sprint 1 umgesetzt und verifiziert
 
 > Das **Zielbild** des Produkts steht im [`LASTENHEFT.md`](LASTENHEFT.md); dieses
@@ -255,7 +255,7 @@ zusätzlich zwingend die UID.
 
 | ID | Anforderung |
 |---|---|
-| FA-4.1 | Maßgeblich ist der Netto-Umsatz der Einnahmen des Kalenderjahres |
+| FA-4.1 | Maßgeblich sind die Einnahmen des Kalenderjahres: in Österreich **brutto** (ausgewiesene Umsatzsteuer zählt mit, z. B. bei versehentlichem Ausweis oder Auslandslieferungen; ohne Ausweis ist brutto gleich netto), in Deutschland netto (`spec.*.turnover_basis`). Alle Einnahmen zählen, auch Hilfsgeschäfte (siehe P-S1) |
 | FA-4.2 | Bei Regelbesteuerung wird nicht bewertet (Status *nicht anwendbar*) |
 | FA-4.3 | Warnung ab 80 % Ausnutzung der Grenze |
 | FA-4.4 | Österreich: über der Grenze, aber innerhalb der 10-%-Toleranz → Status *in Toleranz*, Befreiung gilt bis Jahresende |
@@ -528,6 +528,7 @@ spec.at.tolerance_limit_cents = 6050000
 spec.at.previous_year_limit_cents = 5500000
 spec.at.small_amount_invoice_limit_cents = 40000
 spec.at.retention_years = 7
+spec.at.turnover_basis = brutto
 spec.at.vat_id_label = UID-Nummer
 spec.at.invoice_legal_ref = § 11 UStG
 spec.at.small_business_legal_ref = § 6 Abs 1 Z 27 UStG
@@ -540,6 +541,7 @@ spec.de.tolerance_limit_cents = none
 spec.de.previous_year_limit_cents = 2500000
 spec.de.small_amount_invoice_limit_cents = 25000
 spec.de.retention_years = 8
+spec.de.turnover_basis = netto
 spec.de.vat_id_label = USt-IdNr.
 spec.de.invoice_legal_ref = § 14 UStG
 spec.de.small_business_legal_ref = § 19 UStG
@@ -553,6 +555,7 @@ Umrechnung: Beträge in Cent. `5500000` Cent = 55.000,00 €.
 
 | Version | Datum | App-Version | Änderung |
 |---|---|---|---|
+| 1.8 | 2026-10-10 | 0.1.0 | Österreich: Kleinunternehmergrenze auf Bruttobasis, ausgewiesene Umsatzsteuer zählt mit (FA-4.1, `spec.*.turnover_basis`); P-S1 (a) bestätigt. |
 | 1.7 | 2026-10-10 | 0.1.0 | Rechtsstand-Überwachung (Lastenheft L-20) als geplante Funktion: bekannte Grenze „Steuerwerte fest im Code", Validierungspunkte P-V1 bis P-V9. P-S1 um den Widerspruch der Prüfinstanzen (brutto/netto, Toleranzregel) ergänzt. Keine Codeänderung. |
 | 1.6 | 2026-10-10 | 0.1.0 | Prüfpunkt P-D8 für die Zusatzsicherung unter Windows. Keine Verhaltensänderung der App. |
 | 1.5 | 2026-10-10 | 0.1.0 | Befunde der Prüfinstanzen: Nummernvergabe in derselben Transaktion wie das Speichern (FA-5.5), Schreibschutz gestellter Rechnungen in der Datenschicht (FA-5.5a), DE-Rechnungshinweis „Steuerbefreiung nach § 19 UStG", Umsatzsteuerberechnung ohne `double`. Neuer Abschnitt 14 „Prüfung in der realen Welt" als einzige Sammelstelle für reale Prüfpunkte. |
@@ -606,7 +609,7 @@ Status: *offen* · *bestätigt* (mit Datum und Prüfer) · *widerlegt* (mit Folg
 
 | ID | Prüfpunkt | Vorbefund der Prüfinstanz | Benötigt vor | Status |
 |---|---|---|---|---|
-| P-S1 | AT Kleinunternehmer: **brutto oder netto?** Gilt die Toleranz **unbeschränkt oder nur einmal in 5 Jahren?** Welche Umsätze zählen nicht (Hilfsgeschäfte, bestimmte steuerfreie Umsätze)? | **Die Prüfinstanzen widersprechen sich:** erster Bericht netto und keine 5-Jahres-Beschränkung mehr, zweiter Bericht brutto und einmal in 5 Jahren. Die App rechnet netto ohne 5-Jahres-Regel und zählt **alle** Einnahmen, auch Hilfsgeschäfte (FA-4.1) | **sofort** | offen |
+| P-S1 | AT Kleinunternehmer: (a) brutto oder netto? (b) Gilt die Toleranz **unbeschränkt oder nur einmal in 5 Jahren?** (c) Welche Umsätze zählen nicht (Hilfsgeschäfte, bestimmte steuerfreie Umsätze)? | (a) **bestätigt vom Auftraggeber am 2026-10-10: brutto** — ohne Steuerausweis gleich netto, ausgewiesene Umsatzsteuer zählt mit; umgesetzt (FA-4.1). (b) Prüfinstanzen widersprechen sich; App rechnet ohne 5-Jahres-Regel. (c) App zählt alle Einnahmen | **sofort** (b, c) | teilweise bestätigt |
 | P-S2 | DE Gründungsjahr: Grenze 25.000 € statt 100.000 € im laufenden Jahr | **noch nicht im Code** — das Gründungsjahr wird im Firmenprofil nicht erfasst; Umsetzung mit Schema 3 geplant | Release | offen |
 | P-S3 | DE Zuordnung des Umsatzes nach Zahlungseingang statt Belegdatum | Abweichung möglich über den Jahreswechsel | Stufe B | offen |
 | P-S4 | AT ermäßigter Satz 4,9 % für Grundnahrungsmittel ab 1.7.2026 | angekündigt, Beschluss unbekannt; nicht im Code | sofort | offen |

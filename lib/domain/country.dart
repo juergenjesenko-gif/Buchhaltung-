@@ -72,6 +72,7 @@ class TaxProfile {
     required this.currentYearTurnoverLimit,
     required this.previousYearTurnoverLimit,
     required this.toleranceLimit,
+    required this.turnoverIncludesVat,
     required this.retentionYears,
   });
 
@@ -113,6 +114,12 @@ class TaxProfile {
   /// Kleinunternehmerbefreiung sofort weg. `null`, wenn es keine Toleranz gibt.
   final Money? toleranceLimit;
 
+  /// Zählt für die Kleinunternehmergrenze der Bruttobetrag? Bei einer
+  /// Kleinunternehmerin ist brutto gleich netto; weist sie dennoch
+  /// Umsatzsteuer aus (versehentlich oder bei Auslandslieferungen), zählt in
+  /// Österreich auch diese Steuer zur Grenze.
+  final bool turnoverIncludesVat;
+
   /// Aufbewahrungsfrist für Buchungsbelege in Jahren.
   final int retentionYears;
 
@@ -153,6 +160,9 @@ class TaxProfile {
     // 2026-10-10 (LASTENHEFT.md O-1).
     previousYearTurnoverLimit: Money(5500000), // 55.000,00 EUR
     toleranceLimit: Money(6050000), // 55.000 + 10 % Toleranz
+    // § 6 Abs 1 Z 27 UStG: Bruttobetrag; ausgewiesene Umsatzsteuer zählt mit.
+    // Vom Auftraggeber bestätigt am 2026-10-10 (Spezifikation 14, P-S1).
+    turnoverIncludesVat: true,
     retentionYears: 7, // § 132 BAO
   );
 
@@ -179,6 +189,8 @@ class TaxProfile {
     previousYearTurnoverLimit: Money(2500000), // 25.000,00 EUR
     toleranceLimit:
         null, // DE kennt keine Toleranz: bei Überschreiten sofortiger Wegfall
+    // § 19 Abs 2 UStG: Gesamtumsatz nach vereinnahmten Entgelten, also netto.
+    turnoverIncludesVat: false,
     retentionYears: 8, // § 147 AO, Buchungsbelege ab 2025 verkürzt
   );
 }

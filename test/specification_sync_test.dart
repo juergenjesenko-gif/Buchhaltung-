@@ -203,6 +203,10 @@ void main() {
         profile.smallAmountInvoiceLimit,
       );
       expect(intValue('spec.$prefix.retention_years'), profile.retentionYears);
+      expect(
+        value('spec.$prefix.turnover_basis'),
+        profile.turnoverIncludesVat ? 'brutto' : 'netto',
+      );
       expect(value('spec.$prefix.vat_id_label'), profile.vatIdLabel);
       expect(value('spec.$prefix.invoice_legal_ref'), profile.invoiceLegalRef);
       expect(

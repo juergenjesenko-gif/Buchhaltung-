@@ -221,6 +221,10 @@ und die App kennt beide.
 
 - Vorjahr höchstens **55.000 €** — ohne Toleranz
 - Laufendes Jahr: Grenze **55.000 €**
+- Gezählt wird **brutto**. Als Kleinunternehmerin weist du keine Umsatzsteuer
+  aus, dann ist brutto gleich netto. Steht auf einer Rechnung doch
+  Umsatzsteuer (versehentlich oder bei Lieferungen ins Ausland), zählt sie zur
+  Grenze dazu
 - **Toleranz von 10 %**: bis 60.500 € bleibt die Befreiung bis Jahresende
   bestehen, entfällt aber ab dem Folgejahr
 - Über 60.500 €: die Befreiung entfällt **sofort**

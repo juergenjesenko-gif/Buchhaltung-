@@ -99,7 +99,10 @@ class AppState extends ChangeNotifier {
   Future<YearTurnover> _yearTurnover(int year, DateTime? trackingStart) async {
     return TurnoverBasis.forYear(
       year: year,
-      fromReceipts: await repositories.receipts.turnoverForYear(year),
+      fromReceipts: await repositories.receipts.turnoverForYear(
+        year,
+        includeVat: profile!.taxProfile.turnoverIncludesVat,
+      ),
       opening: await repositories.openingTurnover.forYear(year),
       trackingStart: trackingStart,
     );
