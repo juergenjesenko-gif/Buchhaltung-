@@ -1,6 +1,6 @@
 # Lastenheft – Buchhaltungsapp für Österreich und Deutschland
 
-**Dokumentversion:** 1.18 · **Stand:** 2026-10-09 · **Status:** Entwurf zur Abstimmung
+**Dokumentversion:** 1.19 · **Stand:** 2026-10-09 · **Status:** Entwurf zur Abstimmung
 **Auftraggeber:** Jürgen Jesenko (privates Vorhaben) · **Umsetzung:** Claude Code
 
 > Ein Lastenheft beschreibt, **was** das Produkt leisten soll und **warum** — nicht,
@@ -804,7 +804,7 @@ Zu entscheiden, bevor die betroffene Anforderung umgesetzt wird:
 | ~~O-11~~ | ~~Was ist mit „Google" gemeint?~~ — **entschieden am 2026-10-09:** Google Merchant Center | erledigt |
 | O-12 | Ab wann wird OSS gebraucht — verkaufst du bereits grenzüberschreitend an Privatkunden? | vor Stufe C |
 | O-13 | Soll die Artikelverwaltung auch Einkaufspreise führen, um Rohertrag je Artikel zu zeigen? | Stufe B |
-| O-14 | **Welche europäischen Märkte als nächste**, und in welcher Reihenfolge? Davon hängt ab, ab wann eine mehrsprachige Oberfläche gebraucht wird | Stufe C |
+| O-14 | **Welche europäischen Märkte als nächste**, und in welcher Reihenfolge? Davon hängt ab, ab wann eine mehrsprachige Oberfläche gebraucht wird. **Vertagt am 2026-10-10:** Entscheidung nach dem Start in AT/DE anhand der Nachfrage | nach Release Stufe A/B |
 | ~~O-15~~ | ~~Schweiz zum Start oder als erste Erweiterung?~~ — **entschieden am 2026-10-09:** die Schweiz entfällt, Fokus auf EU und Eurozone | erledigt |
 | O-15 | **Welcher Dienst erzeugt die Marketing-Inhalte?** Davon hängen Auftragsverarbeitungsvertrag, Kosten je Erzeugung und die Frage ab, ob der Betrieb in der EU erfolgt | Stufe C |
 | O-16 | Fließt das Marketing-Modul ins Basisabo oder ist es ein eigener Premium-Service mit eigenem Preis? | Stufe C |
@@ -822,6 +822,7 @@ Zu entscheiden, bevor die betroffene Anforderung umgesetzt wird:
 
 | Version | Datum | Änderung |
 |---|---|---|
+| 1.19 | 2026-10-10 | O-14 vertagt: nächste EU-Märkte nach dem Start je nach Nachfrage. |
 | 1.18 | 2026-10-10 | O-7 entschieden: Deutsch zum Start, Landessprache je weiterem EU-Land (L-13.6). Neu L-13.8: Oberflächentexte von Anfang an in Sprachdateien. |
 | 1.17 | 2026-10-10 | O-6 entschieden: nur Smartphone und Tablet, keine Browser- oder Desktop-Version; in die Abgrenzung aufgenommen. |
 | 1.16 | 2026-10-09 | O-18 entschieden: E-Mail nur über die Mail-App des Smartphones. L-15.4 bis L-15.9, S-15, S-16, R-15, RK-15, RK-16 und die zugehörigen Aufwandszeilen in Stufe C entfallen. |
