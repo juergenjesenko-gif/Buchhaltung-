@@ -42,10 +42,10 @@ nächsten Versionssprung in den neuen Eintrag.
 | Geändert | Umsatzsteuer ganzzahlig gerundet, ohne `double` | CLAUDE.md Regel 1 | 077ca5d |
 | Behoben | Österreich: Kleinunternehmergrenze auf Bruttobasis, ausgewiesene Umsatzsteuer zählt mit | FA-4.1, P-S1 (a) | 7ad6b69 |
 | Geändert | Österreich: harte Grenze 55.000 € zur Sicherheit, Toleranz nur noch als Warnung mit Verweis an die Steuerberatung; Status „in Toleranz“ entfällt | FA-4.4, P-S1 (b) | c30dc9d |
-| Behoben | Belege werden storniert statt gelöscht; bleiben samt Foto erhalten | FA-2.11, P-S10 | COMMIT3 |
-| Neu | Gründungsjahr im Firmenprofil; DE-Grenze 25.000 € im Gründungsjahr, keine Vorjahresprüfung | FA-4.13, P-S2 | COMMIT3 |
-| Datenbank | Schema 2 → 3: `receipts.cancelled_at`, `company_profile.founding_year` | Spezifikation 4 | COMMIT3 |
-| Kennwert | `spec.*.founding_year_limit_cents`: neu (DE 2500000, AT none) | Spezifikation 12 | COMMIT3 |
+| Behoben | Belege werden storniert statt gelöscht; bleiben samt Foto erhalten | FA-2.11, P-S10 | d05d639 |
+| Neu | Gründungsjahr im Firmenprofil; DE-Grenze 25.000 € im Gründungsjahr, keine Vorjahresprüfung | FA-4.13, P-S2 | d05d639 |
+| Datenbank | Schema 2 → 3: `receipts.cancelled_at`, `company_profile.founding_year` | Spezifikation 4 | d05d639 |
+| Kennwert | `spec.*.founding_year_limit_cents`: neu (DE 2500000, AT none) | Spezifikation 12 | d05d639 |
 | Datenbank | Schema 1 → 2: Tabelle `opening_turnover`, Spalte `company_profile.tracking_start` | Spezifikation 4 | 2918bfd |
 | Kennwert | `spec.at.previous_year_limit_cents`: none → 5500000 | Spezifikation 12 | 8fb5547 |
 
