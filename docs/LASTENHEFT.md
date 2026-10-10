@@ -1,6 +1,6 @@
 # Lastenheft – Buchhaltungsapp für Österreich und Deutschland
 
-**Dokumentversion:** 1.21 · **Stand:** 2026-10-09 · **Status:** Entwurf zur Abstimmung
+**Dokumentversion:** 1.22 · **Stand:** 2026-10-09 · **Status:** Entwurf zur Abstimmung
 **Auftraggeber:** Jürgen Jesenko (privates Vorhaben) · **Umsetzung:** Claude Code
 
 > Ein Lastenheft beschreibt, **was** das Produkt leisten soll und **warum** — nicht,
@@ -267,9 +267,9 @@ Priorität: **MUSS** = ohne das kein Release · **SOLL** = wichtig, verhandelbar
 
 | ID | Anforderung | Prio | Stufe |
 |---|---|---|---|
-| L-10.1 | **Basisabonnement** (monatlich und jährlich) über die App Stores | MUSS | B |
-| L-10.2 | Zusätzlich buchbare **Premium-Services** über dem Basisabo | MUSS | C |
-| L-10.3 | Testzeitraum vor dem ersten Kauf | SOLL | B |
+| L-10.1 | **Zwei Tarife:** ein Abo **Basis** und als Option **Pro** mit zusätzlichen Funktionen, jeweils monatlich und jährlich über die App Stores. Keine weiteren Stufen, kein Gratis-Tarif auf Dauer | MUSS | B |
+| L-10.2 | Premium-Funktionen sind **in Pro gebündelt**, nicht einzeln buchbar; Pro ist jederzeit zu- und abwählbar | MUSS | B |
+| L-10.3 | **14 Tage gratis mit vollem Funktionsumfang (Pro).** Die App zeigt deutlich, wann der Test endet und was danach kostet; Erinnerung 3 Tage vor Ablauf. Umsetzung über die Probezeiträume der Stores | MUSS | B |
 | L-10.4 | **Bei abgelaufenem Abo bleiben die Daten des Nutzers lesbar und exportierbar.** Buchhaltungsdaten dürfen nie hinter einer Paywall verschwinden — sie unterliegen einer gesetzlichen Aufbewahrungspflicht | MUSS | B |
 | L-10.5 | Lizenzprüfung funktioniert offline über einen angemessenen Zeitraum | MUSS | B |
 
@@ -797,7 +797,7 @@ Zu entscheiden, bevor die betroffene Anforderung umgesetzt wird:
 | O-2 | Produktname und Bundle-ID. **Arbeitstitel seit 2026-10-09: „Jenny Bar"** (Wortspiel aus Jenny Barb und „bar bezahlen"). **Zweite Variante: „Jenni bucht"**. Endgültig erst nach Markenrecherche. **Richtung festgelegt am 2026-10-09:** weiblicher Vorname, gern mit Anklang an „Jenny Barb" (Wiedererkennung mit jenibarb.com), allein oder verbunden mit dem Thema (z. B. „Jenny bucht"). Markenrecherche AT/DE/EUIPO, Store-Suche und Domainprüfung vor Festlegung | vor dem ersten Store-Upload |
 | O-3 | Preispunkte für Basisabo und Premium-Services — Vorschlag und Marktvergleich in [`WETTBEWERB.md`](WETTBEWERB.md) | Stufe B |
 | ~~O-22~~ | **Entschieden am 2026-10-09:** (a) UVA-Übermittlung in den Buchhaltungstarif, Stufe B (L-6.5); (b) Start mit Datei-Import der Kontoauszüge, Live-Anbindung später als Opt-in (L-18); (c) Angebote aufgenommen, Stufe A (L-3.13 ff.) | erledigt |
-| O-4 | Zuschnitt der Premium-Services: Was gehört ins Basisabo, was kostet extra | Stufe B |
+| O-4 | **Teilweise entschieden am 2026-10-10:** 14 Tage gratis alles, danach Basis-Abo, optional Pro (L-10.1 bis L-10.3). Offen: welche Funktionen gehören in Basis, welche in Pro | Stufe B |
 | ~~O-5~~ | **Entschieden am 2026-10-09:** Entwicklung fortlaufend ohne feste Wochenstunden; Planung nach Stufen, nicht nach Kalenderdaten | erledigt |
 | ~~O-6~~ | **Entschieden am 2026-10-10:** nur Android und iOS (Smartphone und Tablet); keine Browser- oder Desktop-Version | erledigt |
 | ~~O-7~~ | **Entschieden am 2026-10-10:** Start nur auf Deutsch; mit jedem EU-Land dessen Landessprache (L-13.6), Texte dafür von Anfang an übersetzbar (L-13.8) | erledigt |
@@ -810,7 +810,7 @@ Zu entscheiden, bevor die betroffene Anforderung umgesetzt wird:
 | O-14 | **Welche europäischen Märkte als nächste**, und in welcher Reihenfolge? Davon hängt ab, ab wann eine mehrsprachige Oberfläche gebraucht wird. **Vertagt am 2026-10-10:** Entscheidung nach dem Start in AT/DE anhand der Nachfrage | nach Release Stufe A/B |
 | ~~O-15~~ | ~~Schweiz zum Start oder als erste Erweiterung?~~ — **entschieden am 2026-10-09:** die Schweiz entfällt, Fokus auf EU und Eurozone | erledigt |
 | O-15 | **Welcher Dienst erzeugt die Marketing-Inhalte?** Davon hängen Auftragsverarbeitungsvertrag, Kosten je Erzeugung und die Frage ab, ob der Betrieb in der EU erfolgt | Stufe C |
-| O-16 | Fließt das Marketing-Modul ins Basisabo oder ist es ein eigener Premium-Service mit eigenem Preis? | Stufe C |
+| ~~O-16~~ | Mit O-4 erledigt: es gibt keine einzeln buchbaren Module; das Marketing-Modul ist Teil von Pro | erledigt |
 | O-17 | Sollen erzeugte Werbemittel versioniert und wiederverwendbar abgelegt werden, oder sind sie Wegwerfware? | Stufe C |
 | ~~O-19~~ | **Behoben am 2026-10-09** (Umsatzanteile von L-16.1, L-16.2, L-16.11). Ursprünglich: **Bekannter Fehler:** Die Grenzwertüberwachung ermittelt den Vorjahresumsatz ausschließlich aus erfassten Belegen. Für einen neuen Nutzer ist er damit null, und die Ampel steht fälschlich auf Grün — in Deutschland entscheidet er über das ganze laufende Jahr. Behebung über L-16.1/L-16.2 | sofort; betrifft bestehenden Code |
 | O-20 | Welche Vorsoftware-Formate sind beim Import vorrangig zu unterstützen? Richtet sich nach dem, womit die ersten Nutzer tatsächlich kommen | Stufe B |
@@ -825,6 +825,7 @@ Zu entscheiden, bevor die betroffene Anforderung umgesetzt wird:
 
 | Version | Datum | Änderung |
 |---|---|---|
+| 1.22 | 2026-10-10 | Tarifmodell (O-4 teilweise, O-16): 14 Tage gratis mit vollem Umfang, danach Basis, optional Pro; keine Einzelmodule (L-10.1 bis L-10.3). |
 | 1.21 | 2026-10-10 | O-13 entschieden: freiwilliger Einkaufspreis mit Rohertrag (L-11.12). |
 | 1.20 | 2026-10-10 | O-12 entschieden: OSS-Warnung (neu L-13.9, Stufe B), volle OSS-Unterstützung L-13.7 auf KANN herabgestuft. Aufwand A+B 50–77 Personenwochen. |
 | 1.19 | 2026-10-10 | O-14 vertagt: nächste EU-Märkte nach dem Start je nach Nachfrage. |
