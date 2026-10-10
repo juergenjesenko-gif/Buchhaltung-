@@ -57,17 +57,27 @@ void main() {
       expect(result.headroom.isNegative, isTrue);
     });
 
-    test('der Vorjahresumsatz spielt in Österreich keine Rolle', () {
-      // ACHTUNG, OFFENER PRÜFPUNKT (Stand 2026-10-09):
-      // Dieser Test schreibt das heutige Verhalten fest, nicht gesicherte
-      // Rechtslage. Mehrere Sekundärquellen beschreiben § 6 Abs 1 Z 27 UStG so,
-      // dass auch der Vorjahresumsatz unter 55.000 € liegen muss. Trifft das zu,
-      // ist dieser Test – und die Implementierung dahinter – falsch.
-      // Bestätigung durch eine Steuerberatung steht aus, siehe
-      // docs/LASTENHEFT.md Punkt O-1. Ein grüner Test ist hier kein Beleg.
+    test(
+      'zu hoher Vorjahresumsatz beendet die Regelung für das ganze Jahr',
+      () {
+        // O-1: auch in Österreich zählt das Vorjahr, ohne Toleranz.
+        final result = assessAt(10000, previousEuro: 55001);
+        expect(result.status, SmallBusinessStatus.exceeded);
+        expect(result.message, contains('Vorjahresumsatz'));
+      },
+    );
+
+    test('genau 55.000 im Vorjahr ist noch zulässig', () {
       expect(
-        assessAt(10000, previousEuro: 90000).status,
+        assessAt(10000, previousEuro: 55000).status,
         SmallBusinessStatus.ok,
+      );
+    });
+
+    test('Toleranz gilt nicht für das Vorjahr', () {
+      expect(
+        assessAt(10000, previousEuro: 60000).status,
+        SmallBusinessStatus.exceeded,
       );
     });
   });
@@ -188,14 +198,9 @@ void main() {
       expect(result.message, contains('vor Beginn der Erfassung'));
     });
 
-    test('Österreich: fehlender Vorjahresumsatz ändert heute nichts', () {
-      // ACHTUNG, OFFENER PRÜFPUNKT O-1: Dieser Test schreibt das heutige
-      // Verhalten fest, nicht gesicherte Rechtslage. Bestätigt sich, dass auch
-      // in Österreich der Vorjahresumsatz zählt, genügt es, im TaxProfile die
-      // Vorjahresgrenze zu setzen – dann liefert dieser Fall "incomplete" und
-      // der Test ist anzupassen.
+    test('Österreich: fehlender Vorjahresumsatz ist kein "ok"', () {
       final result = assess(TaxProfile.austria, currentEuro: 10000);
-      expect(result.status, SmallBusinessStatus.ok);
+      expect(result.status, SmallBusinessStatus.incomplete);
     });
   });
 

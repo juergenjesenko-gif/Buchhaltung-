@@ -1,6 +1,6 @@
 # Spezifikation – Buchhaltung
 
-**Dokumentversion:** 1.3 · **App-Version:** 0.1.0 · **Stand:** 2026-10-09
+**Dokumentversion:** 1.4 · **App-Version:** 0.1.0 · **Stand:** 2026-10-10
 **Status:** Sprint 1 umgesetzt und verifiziert
 
 > Das **Zielbild** des Produkts steht im [`LASTENHEFT.md`](LASTENHEFT.md); dieses
@@ -259,7 +259,7 @@ zusätzlich zwingend die UID.
 | FA-4.3 | Warnung ab 80 % Ausnutzung der Grenze |
 | FA-4.4 | Österreich: über der Grenze, aber innerhalb der 10-%-Toleranz → Status *in Toleranz*, Befreiung gilt bis Jahresende |
 | FA-4.5 | Österreich: über der Toleranz → Status *überschritten*, sofortiger Wegfall |
-| FA-4.6 | Deutschland: Vorjahresumsatz über der Vorjahresgrenze → *überschritten* für das ganze laufende Jahr |
+| FA-4.6 | Vorjahresumsatz über der Vorjahresgrenze → *überschritten* für das ganze laufende Jahr. Deutschland 25.000 €, Österreich 55.000 €; die österreichische Toleranz gilt nicht für das Vorjahr |
 | FA-4.7 | Deutschland: keine Toleranz; der Status *in Toleranz* darf dort nie auftreten |
 | FA-4.8 | Jeder Status trägt eine Erklärung der Rechtsfolge im Klartext |
 | FA-4.9 | Der Jahresumsatz setzt sich aus erfassten Einnahmen und dem Eröffnungswert des Jahres zusammen. Ein Jahr ist **vollständig**, wenn die Erfassung spätestens am 1. Jänner begann oder ein Eröffnungswert vorliegt; bei voll erfasstem Jahr wird ein Eröffnungswert ignoriert |
@@ -267,17 +267,9 @@ zusätzlich zwingend die UID.
 | FA-4.11 | Ist das laufende Jahr unvollständig, lautet der Status *Angaben fehlen* — außer die Grenze ist bereits überschritten, dann *überschritten* |
 | FA-4.12 | Der Status *Angaben fehlen* führt in der Übersicht direkt zur Ergänzung in den Stammdaten | 
 
-> **⚠ Offener Prüfpunkt (Stand 2026-10-09): Vorjahresgrenze Österreich.**
-> FA-4.1 bis FA-4.5 bilden für Österreich **nur das laufende Jahr** ab. Mehrere
-> Sekundärquellen beschreiben § 6 Abs 1 Z 27 UStG dagegen so, dass auch der
-> **Vorjahresumsatz** die Grenze von 55.000 € nicht überschritten haben darf.
-> Trifft das zu, meldet die App derzeit „ok", obwohl die Befreiung bereits
-> weggefallen ist — die gefährliche Fehlerrichtung.
->
-> Amtliche Quellen (RIS, WKO, USP, BMF) waren aus der Entwicklungsumgebung nicht
-> erreichbar, die Prüfung stützt sich daher allein auf Sekundärquellen. Vor einer
-> Änderung des Rechtslayers ist die Bestätigung durch eine Steuerberatung
-> einzuholen. Siehe [`LASTENHEFT.md`](LASTENHEFT.md) Punkt O-1.
+> **Erledigt in Dokumentversion 1.4: Vorjahresgrenze Österreich (O-1).** Auch
+> in Österreich darf der Vorjahresumsatz 55.000 € nicht überschritten haben
+> (§ 6 Abs 1 Z 27 UStG). Bis dahin prüfte die App nur das laufende Jahr.
 
 > **Behoben in Dokumentversion 1.3: Vorjahresumsatz neuer Nutzer (O-19).**
 > Bis dahin wurde der Vorjahresumsatz ausschließlich aus erfassten Belegen
@@ -364,7 +356,7 @@ Kleinunternehmer:
   Grenze < Umsatz ≤ Toleranz (nur AT) ─► in Toleranz
   Umsatz > Toleranz (AT)             ──┐
   Umsatz > Grenze (DE, ohne Toleranz)──┼─► überschritten
-  Vorjahr > Vorjahresgrenze (DE)     ──┘
+  Vorjahr > Vorjahresgrenze         ──┘
 ```
 
 ---
@@ -530,7 +522,7 @@ spec.at.vat_permille = 200,130,100,0
 spec.at.default_vat_permille = 200
 spec.at.turnover_limit_cents = 5500000
 spec.at.tolerance_limit_cents = 6050000
-spec.at.previous_year_limit_cents = none
+spec.at.previous_year_limit_cents = 5500000
 spec.at.small_amount_invoice_limit_cents = 40000
 spec.at.retention_years = 7
 spec.at.vat_id_label = UID-Nummer
@@ -558,6 +550,7 @@ Umrechnung: Beträge in Cent. `5500000` Cent = 55.000,00 €.
 
 | Version | Datum | App-Version | Änderung |
 |---|---|---|---|
+| 1.4 | 2026-10-10 | 0.1.0 | O-1 erledigt: Vorjahresgrenze Österreich 55.000 € ohne Toleranz (`spec.at.previous_year_limit_cents`). FA-4.6 gilt für beide Länder, Warnhinweis in 5.4 entfernt. |
 | 1.3 | 2026-10-09 | 0.1.0 | O-19 behoben: Eröffnungswerte für den Umsatz (Tabelle `opening_turnover`, Spalte `tracking_start`, Schema 2), neuer Status *Angaben fehlen* der Grenzwertüberwachung. FA-1.8, FA-1.9, FA-4.9 bis FA-4.12 neu. |
 | 1.2 | 2026-10-09 | 0.1.0 | Zweiter bekannter Fehler dokumentiert: der Vorjahresumsatz wird ausschließlich aus erfassten Belegen ermittelt und ist für neue Nutzer null. In Abschnitt 5.4 und in den bekannten Grenzen vermerkt. Keine Code- oder Kennwertänderung. |
 | 1.1 | 2026-10-09 | 0.1.0 | Offener Prüfpunkt zur österreichischen Vorjahresgrenze in Abschnitt 5.4 vermerkt. Verweis auf das neue Lastenheft ergänzt. Keine Code- oder Kennwertänderung. |

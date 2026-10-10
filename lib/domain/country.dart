@@ -102,7 +102,7 @@ class TaxProfile {
   final Money currentYearTurnoverLimit;
 
   /// Umsatzgrenze für das Vorjahr. `null`, wenn das Land keine getrennte
-  /// Vorjahresgrenze kennt (Österreich).
+  /// Vorjahresgrenze kennt.
   final Money? previousYearTurnoverLimit;
 
   /// Grenze inklusive Toleranz. Wird sie überschritten, fällt die
@@ -143,7 +143,10 @@ class TaxProfile {
     invoiceLegalRef: '§ 11 UStG',
     smallAmountInvoiceLimit: Money(40000), // 400,00 EUR brutto, § 11 Abs 6 UStG
     currentYearTurnoverLimit: Money(5500000), // 55.000,00 EUR
-    previousYearTurnoverLimit: null,
+    // § 6 Abs 1 Z 27 UStG: auch der Vorjahresumsatz darf 55.000 EUR nicht
+    // überschritten haben; ohne Toleranz. Vom Auftraggeber bestätigt am
+    // 2026-10-10 (LASTENHEFT.md O-1).
+    previousYearTurnoverLimit: Money(5500000), // 55.000,00 EUR
     toleranceLimit: Money(6050000), // 55.000 + 10 % Toleranz
     retentionYears: 7, // § 132 BAO
   );

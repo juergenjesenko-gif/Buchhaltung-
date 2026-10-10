@@ -1,6 +1,6 @@
 # Lastenheft – Buchhaltungsapp für Österreich und Deutschland
 
-**Dokumentversion:** 1.24 · **Stand:** 2026-10-09 · **Status:** Entwurf zur Abstimmung
+**Dokumentversion:** 1.25 · **Stand:** 2026-10-09 · **Status:** Entwurf zur Abstimmung
 **Auftraggeber:** Jürgen Jesenko (privates Vorhaben) · **Umsetzung:** Claude Code
 
 > Ein Lastenheft beschreibt, **was** das Produkt leisten soll und **warum** — nicht,
@@ -821,7 +821,7 @@ Zu entscheiden, bevor die betroffene Anforderung umgesetzt wird:
 
 | ID | Offener Punkt | Benötigt für |
 |---|---|---|
-| O-1 | **Prüfung der österreichischen Kleinunternehmer-Logik.** Mehrere Quellen beschreiben § 6 Abs 1 Z 27 UStG so, dass **auch der Vorjahresumsatz** unter 55.000 € liegen muss. Die heutige Implementierung prüft nur das laufende Jahr. Amtliche Quellen waren aus der Entwicklungsumgebung nicht erreichbar — Bestätigung durch die Steuerberatung nötig | sofort; betrifft bestehenden Code |
+| ~~O-1~~ | **Erledigt am 2026-10-10:** auch in Österreich darf der Vorjahresumsatz 55.000 € nicht überschritten haben, ohne Toleranz; vom Auftraggeber bestätigt, im Code umgesetzt (Spezifikation 1.4). Schriftliche Bestätigung der Steuerberatung zu Brutto/Netto und ausgenommenen Umsätzen bleibt empfohlen | erledigt |
 | O-2 | Produktname und Bundle-ID. **Arbeitstitel seit 2026-10-09: „Jenny Bar"** (Wortspiel aus Jenny Barb und „bar bezahlen"). **Zweite Variante: „Jenni bucht"**. Endgültig erst nach Markenrecherche. **Richtung festgelegt am 2026-10-09:** weiblicher Vorname, gern mit Anklang an „Jenny Barb" (Wiedererkennung mit jenibarb.com), allein oder verbunden mit dem Thema (z. B. „Jenny bucht"). Markenrecherche AT/DE/EUIPO, Store-Suche und Domainprüfung vor Festlegung | vor dem ersten Store-Upload |
 | ~~O-3~~ | **Entschieden am 2026-10-10:** Basis 14,90 € (Rabatt 12,90 €), Pro 24,90 € (Rabatt 19,90 €), Jahresabo mit 20 % Rabatt; Details in Abschnitt 5.10 | erledigt |
 | ~~O-22~~ | **Entschieden am 2026-10-09:** (a) UVA-Übermittlung in den Buchhaltungstarif, Stufe B (L-6.5); (b) Start mit Datei-Import der Kontoauszüge, Live-Anbindung später als Opt-in (L-18); (c) Angebote aufgenommen, Stufe A (L-3.13 ff.) | erledigt |
@@ -853,6 +853,7 @@ Zu entscheiden, bevor die betroffene Anforderung umgesetzt wird:
 
 | Version | Datum | Änderung |
 |---|---|---|
+| 1.25 | 2026-10-10 | O-1 erledigt: Vorjahresgrenze Österreich 55.000 € umgesetzt. |
 | 1.24 | 2026-10-10 | O-3 entschieden: Preise Basis/Pro mit Rabatt- und Jahresoption, Hinweis auf Streichpreisregeln. |
 | 1.23 | 2026-10-10 | O-4 entschieden: Funktionsschnitt Basis/Pro in Abschnitt 5.10, E-Rechnung empfangen in Basis; Regel „gesetzliche Pflicht nie nur in Pro". |
 | 1.22 | 2026-10-10 | Tarifmodell (O-4 teilweise, O-16): 14 Tage gratis mit vollem Umfang, danach Basis, optional Pro; keine Einzelmodule (L-10.1 bis L-10.3). |

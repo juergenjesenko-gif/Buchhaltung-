@@ -61,10 +61,10 @@ class SmallBusinessAssessment {
 ///
 /// Die Regeln unterscheiden sich zwischen den Ländern deutlich:
 ///
-/// **Österreich** (§ 6 Abs 1 Z 27 UStG, Fassung ab 2025): eine Grenze von
-/// 55.000 EUR für das laufende Jahr. Wird sie um nicht mehr als 10 %
-/// überschritten, bleibt die Befreiung bis Jahresende bestehen; darüber fällt
-/// sie sofort weg.
+/// **Österreich** (§ 6 Abs 1 Z 27 UStG, Fassung ab 2025): der Vorjahresumsatz
+/// darf 55.000 EUR nicht überschritten haben. Im laufenden Jahr gilt dieselbe
+/// Grenze; wird sie um nicht mehr als 10 % überschritten, bleibt die Befreiung
+/// bis Jahresende bestehen, darüber fällt sie sofort weg.
 ///
 /// **Deutschland** (§ 19 UStG, Fassung ab 2025): zwei Grenzen. Der Vorjahres-
 /// umsatz darf 25.000 EUR nicht überschritten haben, der laufende Umsatz nicht
@@ -106,7 +106,7 @@ class SmallBusinessMonitor {
 
     final headroom = limit - currentYearTurnover;
 
-    // Deutschland: die Vorjahresgrenze entscheidet vorab über das ganze Jahr.
+    // Die Vorjahresgrenze entscheidet vorab über das ganze Jahr.
     final previousLimit = taxProfile.previousYearTurnoverLimit;
     if (previousLimit != null &&
         previousYearTurnover != null &&

@@ -219,11 +219,14 @@ und die App kennt beide.
 
 ### Österreich
 
-- Grenze: **55.000 €** Umsatz im Kalenderjahr
+- Vorjahr höchstens **55.000 €** — ohne Toleranz
+- Laufendes Jahr: Grenze **55.000 €**
 - **Toleranz von 10 %**: bis 60.500 € bleibt die Befreiung bis Jahresende
   bestehen, entfällt aber ab dem Folgejahr
 - Über 60.500 €: die Befreiung entfällt **sofort**
-- Der Vorjahresumsatz spielt keine Rolle
+- War dein Vorjahr über 55.000 €, gilt die Regelung im ganzen laufenden Jahr
+  nicht. Erst wenn ein ganzes Jahr unter 55.000 € geblieben ist, kannst du im
+  Folgejahr wieder Kleinunternehmerin sein
 
 ### Deutschland
 
