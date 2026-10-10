@@ -1,6 +1,6 @@
 # Lastenheft – Buchhaltungsapp für Österreich und Deutschland
 
-**Dokumentversion:** 1.28 · **Stand:** 2026-10-09 · **Status:** Entwurf zur Abstimmung
+**Dokumentversion:** 1.29 · **Stand:** 2026-10-09 · **Status:** Entwurf zur Abstimmung
 **Auftraggeber:** Jürgen Jesenko (privates Vorhaben) · **Umsetzung:** Claude Code
 
 > Ein Lastenheft beschreibt, **was** das Produkt leisten soll und **warum** — nicht,
@@ -678,22 +678,72 @@ Pakete erscheinen anlassbezogen, etwa 2–6 im Jahr.
 
 ### 5.21 Anbindung an Claude (KI-Dienst)
 
-Entscheidung vom 2026-10-10: Der Start erfolgt auf der heutigen
-Claude-Anbindung; **innerhalb von sechs Monaten nach dem Launch** wird auf eine
-andere Claude API umgestellt. Betroffen sind alle Stellen, an denen das Produkt
-oder seine Werkzeuge ein Sprachmodell nutzen: Rechtsstand-Agent (L-20),
-Marketing-Modul (L-14, S-13) sowie künftige KI-Funktionen wie Belegerkennung,
-falls sie ein Sprachmodell statt einer Erkennung auf dem Gerät verwenden.
+**Entscheidungen vom 2026-10-10:** Der Start erfolgt auf der heutigen
+Claude-Anbindung; **innerhalb von sechs Monaten nach dem Launch** wird
+**direkt auf die Anthropic API** umgestellt, unter **einem eigenen, neuen
+Konto** des Anbieters. Betroffen sind Rechtsstand-Agent (L-20),
+Marketing-Modul (L-14, S-13) und künftige KI-Funktionen. Ausgearbeitet mit den
+drei Prüfinstanzen.
+
+#### Grundsätze
 
 | ID | Anforderung | Prio | Stufe |
 |---|---|---|---|
-| L-21.1 | **Austauschbare Anbindung:** jeder Zugriff auf ein Sprachmodell läuft über genau eine Adapterschicht; Endpunkt, Modellname, Region und Zugangsdaten sind Konfiguration, nie im Code verstreut | MUSS | A |
-| L-21.2 | **Kein API-Schlüssel in der App.** Aufrufe laufen ausschließlich beim Anbieter (Rechtsstand-Agent, Marketing-Backend); die App selbst spricht kein Sprachmodell direkt an | MUSS | A |
-| L-21.3 | **Umstellung innerhalb von sechs Monaten nach dem Launch** auf die Ziel-API (O-28), ohne App-Update für die Nutzerinnen, soweit die Aufrufe beim Anbieter liegen | MUSS | C |
-| L-21.4 | **Validierung der Umstellung:** dieselben Prüfungen laufen vor und nach dem Wechsel und müssen gleich gut bestehen — beim Rechtsstand-Agenten der Rückspieltest (L-20.24) und die Zitatprüfung (L-20.3), beim Marketing-Modul eine feste Sammlung von Testaufträgen | MUSS | C |
-| L-21.5 | Paralleler Probebetrieb: die neue API läuft vor der Umschaltung mindestens zwei Wochen mit, ihre Ergebnisse werden verglichen, aber nicht verwendet | SOLL | C |
-| L-21.6 | **Datenschutz:** der Wechsel des Anbieters bzw. der Region wird vor der Umschaltung in Datenflusstabelle (5.19), Datenschutzerklärung, Store-Angaben und Liste der Unterauftragsverarbeiter eingetragen; Auftragsverarbeitungsvertrag mit dem neuen Vertragspartner liegt vor | MUSS | C |
-| L-21.7 | Rückweg: die bisherige Anbindung bleibt bis zum Abschluss der Validierung umschaltbar erhalten | SOLL | C |
+| L-21.1 | **Austauschbare Anbindung:** jeder Zugriff auf ein Sprachmodell läuft über genau eine Adapterschicht; Endpunkt, Modell, Region und Zugangsdaten sind Konfiguration, nie im Code verstreut. Der Adapter kann je Datenkategorie eine eigene Route haben (L-21.12) | MUSS | A |
+| L-21.2 | **Kein API-Schlüssel in der App.** Aufrufe laufen ausschließlich beim Anbieter: Rechtsstand-Agent als geplanter Job, Marketing-Modul über ein eigenes kleines Backend. Die App spricht kein Sprachmodell direkt an | MUSS | A |
+| L-21.3 | **Umstellung innerhalb von sechs Monaten nach dem Launch** auf die Anthropic API mit eigenem Konto, ohne App-Update für die Nutzerinnen | MUSS | C |
+| L-21.4 | **Validierung der Umstellung:** dieselben Prüfungen laufen vor und nach dem Wechsel und müssen gleich gut bestehen — Rückspieltest (L-20.24) und Zitatprüfung (L-20.3) beim Agenten, eine feste Sammlung von Testaufträgen beim Marketing-Modul | MUSS | C |
+| L-21.5 | Paralleler Probebetrieb: die neue Anbindung läuft vor der Umschaltung mindestens zwei Wochen mit, ihre Ergebnisse werden verglichen, aber nicht verwendet | SOLL | C |
+| L-21.6 | **Datenschutz vor der Umschaltung:** Datenflusstabelle (5.19), Datenschutzerklärung, Store-Angaben, Liste der Unterauftragsverarbeiter und Verzeichnis der Verarbeitungstätigkeiten nennen Anthropic und die Verarbeitung in den USA; Auftragsverarbeitungsvertrag (Anthropic-DPA mit Standardvertragsklauseln) ist abgeschlossen und archiviert | MUSS | C |
+| L-21.7 | Rückweg: die bisherige Anbindung bleibt bis zum Abschluss der Validierung umschaltbar; ebenso eine Ausweichroute, falls die Rechtsgrundlage für den US-Transfer wegfällt | SOLL | C |
+
+#### Verarbeitungsort: muss es die EU sein?
+
+Die Anthropic API erlaubt als Verarbeitungsort (`inference_geo`) nur „USA" oder
+„global", **keine reine EU-Verarbeitung**. Ergebnis der Prüfinstanzen: Die
+DSGVO verlangt keine EU-Verarbeitung, wenn der Transfer abgesichert ist
+(Angemessenheitsbeschluss EU-US Data Privacy Framework oder
+Standardvertragsklauseln mit Transfer-Folgenabschätzung). §§ 146 AO und 131 BAO
+regeln den Ort der Bücher, nicht eine flüchtige Verarbeitung. Entscheidend ist
+daher, **welche Daten** die KI erreichen:
+
+| ID | Datenkategorie | Über die Anthropic API (USA/global)? | Prio | Stufe |
+|---|---|---|---|---|
+| L-21.8 | **Rechtsstand-Agent:** nur öffentliche Rechtsquellen | **Ja.** Prompts und Protokolle enthalten keine Nutzer- oder Personendaten | MUSS | B |
+| L-21.9 | **Marketing-Modul:** Angaben der Nutzerin zu Firma und Produkten. Bei Einzelunternehmen ist der Firmenname ein Personenname, also personenbezogen | **Ja, mit Auflagen:** Opt-in mit Nennung von Anthropic und USA (L-14.6), Auftragsverarbeitungsvertrag, Datenschutzerklärung; das Backend lässt nur eine feste Liste von Feldern durch, Kundendaten der Nutzerin werden technisch abgewiesen (L-14.5) | MUSS | C |
+| L-21.10 | **Buchhaltungsdaten und Belege** (Daten Dritter, auch besonders schützenswerte wie Arztrechnungen) | **Nein.** Bevorzugt Erkennung auf dem Gerät. Falls doch ein Sprachmodell nötig wird: eigene Route mit EU-Verarbeitung (Claude über Google Vertex AI „eu" oder AWS Bedrock EU) nach Datenschutz-Folgenabschätzung, oder Anthropic API nur mit vereinbarter Null-Speicherung (Zero Data Retention), Transfer-Folgenabschätzung und ausdrücklicher Information der Nutzerin | MUSS | — |
+| L-21.11 | **Belegerkennung per KI** liefert nur einen Vorschlag; gebucht wird erst nach Bestätigung durch die Nutzerin. Das Original bleibt unverändert auf dem Gerät; je Beleg werden Modell, Vorschlag und bestätigter Wert protokolliert (GoBD, § 131 BAO); Verfahrensdokumentation beschreibt den KI-Schritt | MUSS | — |
+| L-21.12 | Die Regel, welche Kategorie welche Route nimmt, ist **im Backend technisch erzwungen**, nicht nur dokumentiert | MUSS | C |
+
+#### Betrieb rund um die Uhr (24/7)
+
+Empfehlung der Prüfinstanz Softwareentwickler: **Für 24/7 ist kein zusätzlicher
+Anthropic-Dienst nötig.** Das Self-Serve-Konto mit ausreichender Nutzungsstufe
+genügt zum Launch. Ein vertragliches Verfügbarkeits-SLA gibt es dort nach
+Kenntnisstand nicht; der „Priority Tier" ist für die aktuellen Modelle (Opus 5.5,
+Sonnet 5.5) nicht verfügbar. **Die Verfügbarkeit sichert das eigene Design.**
+Rund um die Uhr nötig ist nur das Marketing-Backend; der Rechtsstand-Agent ist
+ein täglicher Job, der einen Ausfall am Folgetag nachholt. Die Buchhaltung
+selbst hängt nie von der KI ab (NF-1, offline-first).
+
+| ID | Anforderung | Prio | Stufe |
+|---|---|---|---|
+| L-21.13 | **Konto:** eigene Organisation mit Firmen-E-Mail, mindestens zwei Administratoren mit Zwei-Faktor-Anmeldung, Firmendaten und UID in der Abrechnung; kommerzielle Bedingungen und DPA angenommen und archiviert | MUSS | C |
+| L-21.14 | **Getrennte Workspaces** `prod`, `staging`, `rechtsstand-agent` mit eigenen Schlüsseln und Ausgabenlimits; Menschen nur mit den nötigen Rollen | MUSS | C |
+| L-21.15 | **Zugang ohne langlebige Schlüssel:** Workload Identity Federation (z. B. GitHub-Actions-OIDC für den Agenten), sonst Service Account mit Schlüssel im Secret-Store und Rotation alle 90 Tage | MUSS | C |
+| L-21.16 | **Ausgabenlimits** je Organisation und Workspace großzügig, Alarmschwellen bei 50 % und 80 % eng; im Backend ein Kontingent je Nutzerin und Tag | MUSS | C |
+| L-21.17 | **Nutzungsstufe rechtzeitig vor dem Launch** durch Vorauszahlung anheben, damit die Rate Limits reichen; Limits danach in der Console prüfen | MUSS | C |
+| L-21.18 | **Rechtsstand-Agent** als täglicher Job (z. B. GitHub Actions) mit Messages API, Websuche und Webabruf nur auf freigegebenen amtlichen Domains; Ergebnis als Änderungsantrag. Managed Agents erst nach Ende der Beta prüfen | MUSS | B |
+| L-21.19 | **Marketing-Backend** in der EU gehostet: Anmeldung über das Store-Abo, Kontingent, Protokolle ohne Inhalte, Adapter, Feld-Allowlist (L-21.9), Warteschlange | MUSS | C |
+| L-21.20 | **Wiederholung und Ausweichmodell:** bei Überlast und Serverfehlern Wiederholung mit wachsendem Abstand (Retry-After beachten), danach Wechsel auf ein kleineres Modell mit Kennzeichnung „vereinfachte Variante"; Aufträge in einer Warteschlange statt Fehlermeldung | MUSS | C |
+| L-21.21 | **Überwachung:** Statusseite von Anthropic abonniert, eigene Kennzahlen (Fehlerquote, Antwortzeit, Kosten je Tag), externer Verfügbarkeitstest des Backends, Alarm per E-Mail oder Push; Fehlschlag des Agenten erzeugt eine Meldung | MUSS | C |
+| L-21.22 | **Modellwahl:** Sonnet 5.5 als Standard, Haiku 5.5 als Ausweichmodell und Vorfilter, Opus 5.5 nur zur Zweitprüfung erkannter Rechtsänderungen; Prompt Caching für feste Anweisungen. Vor jeder Analyse ein Hash-Vergleich der Quelle, damit unveränderte Seiten keine KI-Kosten erzeugen | SOLL | B |
+| L-21.23 | Ein Enterprise-Vertrag mit SLA wird erst angefragt, wenn Umsatz oder Last es rechtfertigen | KANN | — |
+
+**Kostenannahmen (nicht verifiziert, aus Listenpreisen):** Rechtsstand-Agent
+etwa 30–60 USD im Monat; Marketing-Modul etwa 250–350 USD je 1.000 aktive
+Pro-Nutzerinnen mit 20 Aufträgen im Monat; Backend-Hosting 5–30 € im Monat.
+Werden mit Messdaten aus dem Probebetrieb ersetzt.
 
 ---
 
@@ -753,7 +803,7 @@ falls sie ein Sprachmodell statt einer Erkennung auf dem Gerät verwenden.
 | S-10 | Shopify Admin API | Verkaufsdaten aus dem Shopify-Shop | C |
 | S-11 | Google (Merchant Center, zu bestätigen) | Verkaufs- bzw. Produktdaten | C |
 | S-12 | Fotobibliothek des Geräts | Zweitablage der Belegfotos in eigenem Album | A |
-| S-13 | Dienst zur Inhaltserzeugung (Text und Bild) | Marketing-Modul L-14; Auftragsverarbeiter | C |
+| S-13 | Anthropic API (Claude), eigenes Konto, über das Marketing-Backend | Marketing-Modul L-14, Rechtsstand-Agent L-20; Auftragsverarbeiter, Verarbeitung USA/global (L-21) | C |
 | S-14 | LinkedIn, Instagram | Direktes Veröffentlichen von Werbemitteln (L-14.10) | C |
 | ~~S-15~~ | Gmail API | Entfällt (O-18) | — |
 | ~~S-16~~ | Microsoft Graph (Outlook) | Entfällt (O-18) | — |
@@ -959,7 +1009,7 @@ Zu entscheiden, bevor die betroffene Anforderung umgesetzt wird:
 | O-25 | **Markenrecherche** zu „Jenny Bar" und „Jenni bucht" durch Markenanwältin (TMview, Klassen 9, 35, 36, 42), danach Unionsmarke anmelden — vor Domain und Store-Eintrag. Siehe Spezifikation Abschnitt 14, P-R7 | vor dem ersten Store-Upload |
 | O-26 | **Rechtsform und Absicherung des Anbieters:** Einzelunternehmen haftet persönlich — GmbH, Vermögensschaden- und Produkthaftpflicht prüfen (P-R8) | vor Release |
 | O-27 | **Laufende Kosten der Rechtsstand-Überwachung:** API-Kosten des Agenten (Annahme 30–90 €/Monat) und Bereitschaft plus Freigaben der Steuerberaterin (0,5–2 h je Änderung). Angebot einholen | vor Stufe B |
-| O-28 | **Ziel der Claude-Umstellung (L-21):** welche API genau — direkt bei Anthropic, über AWS Bedrock, über Google Vertex AI, eigenes Firmenkonto? Und muss die Verarbeitung in der EU stattfinden? Davon hängen Auftragsverarbeitungsvertrag, Datenschutzerklärung und Kosten ab | vor Launch |
+| ~~O-28~~ | **Entschieden am 2026-10-10:** direkt Anthropic API, ein eigenes neues Konto. EU-Verarbeitung von den Prüfinstanzen geprüft: nicht vorgeschrieben; Buchhaltungsdaten und Belege dürfen trotzdem nicht über die US-Route laufen (L-21.8 bis L-21.12) | erledigt |
 | O-20 | Welche Vorsoftware-Formate sind beim Import vorrangig zu unterstützen? Richtet sich nach dem, womit die ersten Nutzer tatsächlich kommen | Stufe B |
 | ~~O-21~~ | **Vorläufig beantwortet am 2026-10-10 (Prüfinstanz Rechtsanwalt):** BFSG/BaFG voraussichtlich nicht anwendbar (B2B, Kleinstunternehmen). Grundbarrierefreiheit trotzdem als NF-Anforderung; Bestätigung siehe Spezifikation Abschnitt 14, P-R3 | erledigt |
 | ~~O-23~~ | **Entschieden am 2026-10-09:** wählbar je Rücksendung über den Schalter „Ware wieder verkaufbar?" (L-3.20) | erledigt |
@@ -972,6 +1022,7 @@ Zu entscheiden, bevor die betroffene Anforderung umgesetzt wird:
 
 | Version | Datum | Änderung |
 |---|---|---|
+| 1.29 | 2026-10-10 | L-21 überarbeitet nach Entscheidung „direkt Anthropic API, eigenes Konto" und Prüfung durch die drei Instanzen: Verarbeitungsort je Datenkategorie (L-21.8 bis L-21.12), Betrieb rund um die Uhr ohne Zusatzdienst, gesichert durch eigenes Design (L-21.13 bis L-21.23), Kostenannahmen. S-13 auf Anthropic festgelegt, O-28 erledigt. |
 | 1.28 | 2026-10-10 | Neuer Block L-21: Start auf der heutigen Claude-Anbindung, Umstellung auf eine andere Claude API innerhalb von sechs Monaten nach Launch; austauschbare Adapterschicht, kein Schlüssel in der App, Validierung vor und nach dem Wechsel. O-28 neu. |
 | 1.27 | 2026-10-10 | Neuer Block L-20 Rechtsstand-Überwachung (Abschnitt 5.20), mit den drei Prüfinstanzen ausgearbeitet: Agent nur als Vorschlagsgeber beim Anbieter, Vier-Augen-Freigabe, signierte Regelpakete, Prüfung auf dem Gerät, Validierung mit Rückspieltest. Neuer Datenfluss Regelpaket-Abruf. O-27 neu. Aufwand Stufe B 39–57, A+B 64–97 Personenwochen. |
 | 1.26 | 2026-10-10 | Ergebnisse der drei Prüfinstanzen eingearbeitet: „Gutschrift" durch Stornorechnung/Rechnungskorrektur ersetzt, Ist-Versteuerung bei Erstattung (L-3.7, L-3.18); E-Rechnungsempfang MUSS/A (L-4.3); OSS-Warnung mit Vorjahr (L-13.9); Probeabo-Pflichtangaben (L-10.3); Rabattwerbung (5.10); Rollen um Anbieter- und Store-Daten ergänzt (L-19); Apple-Kontolöschung (L-17.12); R-6 präzisiert; O-21 vorläufig beantwortet; O-25, O-26 neu. Aufwand Stufe A 25–40 inkl. Puffer. Punkte für die reale Prüfung stehen ausschließlich in Spezifikation Abschnitt 14. |

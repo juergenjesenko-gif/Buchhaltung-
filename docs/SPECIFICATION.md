@@ -1,6 +1,6 @@
 # Spezifikation – Buchhaltung
 
-**Dokumentversion:** 1.9 · **App-Version:** 0.1.0 · **Stand:** 2026-10-10
+**Dokumentversion:** 1.10 · **App-Version:** 0.1.0 · **Stand:** 2026-10-10
 **Status:** Sprint 1 umgesetzt und verifiziert
 
 > Das **Zielbild** des Produkts steht im [`LASTENHEFT.md`](LASTENHEFT.md); dieses
@@ -554,6 +554,7 @@ Umrechnung: Beträge in Cent. `5500000` Cent = 55.000,00 €.
 
 | Version | Datum | App-Version | Änderung |
 |---|---|---|---|
+| 1.10 | 2026-10-10 | 0.1.0 | Prüfpunkte P-K1 bis P-K8 zur KI-Anbindung an Anthropic (Lastenheft L-21). Keine Codeänderung. |
 | 1.9 | 2026-10-10 | 0.1.0 | Österreich: harte Grenze zur Sicherheit, Status *in Toleranz* entfällt; über 55.000 € *überschritten* mit Hinweis auf mögliche Toleranz und Steuerberatung (FA-4.4, FA-4.7). |
 | 1.8 | 2026-10-10 | 0.1.0 | Österreich: Kleinunternehmergrenze auf Bruttobasis, ausgewiesene Umsatzsteuer zählt mit (FA-4.1, `spec.*.turnover_basis`); P-S1 (a) bestätigt. |
 | 1.7 | 2026-10-10 | 0.1.0 | Rechtsstand-Überwachung (Lastenheft L-20) als geplante Funktion: bekannte Grenze „Steuerwerte fest im Code", Validierungspunkte P-V1 bis P-V9. P-S1 um den Widerspruch der Prüfinstanzen (brutto/netto, Toleranzregel) ergänzt. Keine Codeänderung. |
@@ -633,6 +634,19 @@ Status: *offen* · *bestätigt* (mit Datum und Prüfer) · *widerlegt* (mit Folg
 | P-V7 | Datenschutz des Paketabrufs: EU-Hosting, Protokollkonfiguration des CDN, Datenschutzerklärung, Store-Angaben | IP-Adresse ist personenbezogen; Anbieter ist Verantwortlicher | Stufe B | offen |
 | P-V8 | Nutzungsbedingungen und Text-und-Data-Mining-Vorbehalte aller beobachteten Quellen; RIS-OGD mit CC-BY-Nennung | amtliche Texte gemeinfrei, Datenbanken teils geschützt | Stufe B | offen |
 | P-V9 | Feed-Adressen der amtlichen Quellen technisch prüfen (RIS, recht.bund.de, BMF, Findok, DIP) | — | Stufe B | offen |
+
+### KI-Anbindung an Anthropic (Lastenheft L-21)
+
+| ID | Prüfpunkt | Vorbefund der Prüfinstanz | Benötigt vor | Status |
+|---|---|---|---|---|
+| P-K1 | Ist Anthropic, PBC unter dem EU-US Data Privacy Framework zertifiziert? (dataprivacyframework.gov) Prüfdatum festhalten | unbekannt; sonst Standardvertragsklauseln aus dem DPA plus Transfer-Folgenabschätzung | Umschaltung | offen |
+| P-K2 | Aktuelle Fassungen von Commercial Terms, DPA und Zero-Data-Retention-Bedingungen: Aufbewahrungsdauer, kein Training mit API-Daten, Unterauftragsverarbeiter | nach Kenntnisstand ca. 30 Tage Aufbewahrung, kein Training; zu verifizieren | Umschaltung | offen |
+| P-K3 | Anwältin gibt Auftragsverarbeitungskette, Transfer-Folgenabschätzung und Datenschutzerklärung für Marketing-Modul und Rechtsstand-Agent frei | DSGVO verlangt keine EU-Verarbeitung bei abgesichertem Transfer | Umschaltung | offen |
+| P-K4 | Steuerberatung bestätigt: flüchtige KI-Verarbeitung ohne Speicherung ist kein „Führen der Bücher" im Ausland (§ 146 Abs 2 AO, § 131 BAO) | beide Prüfinstanzen: kein Verlagerungsantrag nötig, solange Ablage auf dem Gerät | vor KI-Belegerkennung | offen |
+| P-K5 | Datenschutz-Folgenabschätzung (Schwellwertprüfung) und Verfahrensdokumentation für eine KI-Belegerkennung | hohes Risiko; Erkennung auf dem Gerät bevorzugt | vor KI-Belegerkennung | offen |
+| P-K6 | Preise, Websuche-Gebühren, Nutzungsstufen, Rate Limits und SLA-Lage auf docs.claude.com / anthropic.com verifizieren; Kostenannahmen mit Messdaten aus dem Probebetrieb ersetzen | Annahmen: Agent 30–60 USD/Monat, Marketing 250–350 USD je 1.000 Pro-Nutzerinnen | Umschaltung | offen |
+| P-K7 | Funktioniert Workload Identity Federation mit dem gewählten Hosting (GitHub Actions, Backend)? | — | Umschaltung | offen |
+| P-K8 | Ausfalltest: Backend bei gesperrter KI-Anbindung (Warteschlange, Ausweichmodell, Meldung in der App); Buchhaltung im Flugmodus voll nutzbar | — | Launch Marketing-Modul | offen |
 
 ### Softwareentwicklung (echte Geräte und Stores)
 
