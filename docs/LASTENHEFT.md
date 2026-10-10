@@ -1,6 +1,6 @@
 # Lastenheft – Buchhaltungsapp für Österreich und Deutschland
 
-**Dokumentversion:** 1.16 · **Stand:** 2026-10-09 · **Status:** Entwurf zur Abstimmung
+**Dokumentversion:** 1.17 · **Stand:** 2026-10-09 · **Status:** Entwurf zur Abstimmung
 **Auftraggeber:** Jürgen Jesenko (privates Vorhaben) · **Umsetzung:** Claude Code
 
 > Ein Lastenheft beschreibt, **was** das Produkt leisten soll und **warum** — nicht,
@@ -627,6 +627,7 @@ Was das Produkt ausdrücklich **nicht** leistet — und warum:
 | Nicht enthalten | Begründung |
 |---|---|
 | Registrierkasse nach RKSV | Signatureinrichtung, Datenerfassungsprotokoll und Jahresbelegmeldung sind ein eigenes, zertifizierungspflichtiges Produkt |
+| Browser- und Desktop-Version | Die Zielgruppe arbeitet am Smartphone; eine zweite Oberfläche verdoppelt Pflege und Tests (O-6) |
 | Lohnverrechnung | Eigene Domäne mit eigener Haftung und eigenem Pflegeaufwand |
 | Steuerberatung im Einzelfall | Das Produkt liefert Zahlen und Hinweise, keine Beratung |
 | Vollwertige Warenwirtschaft | Eine schlanke Artikelverwaltung mit Lagerstand ist enthalten (L-11), weil sie das Rechnungschreiben beschleunigt. Was darüber hinausgeht — Stücklisten, Chargen, Seriennummern, Bestellwesen, Lieferantenverwaltung, Mehrlager — ist es nicht |
@@ -793,7 +794,7 @@ Zu entscheiden, bevor die betroffene Anforderung umgesetzt wird:
 | ~~O-22~~ | **Entschieden am 2026-10-09:** (a) UVA-Übermittlung in den Buchhaltungstarif, Stufe B (L-6.5); (b) Start mit Datei-Import der Kontoauszüge, Live-Anbindung später als Opt-in (L-18); (c) Angebote aufgenommen, Stufe A (L-3.13 ff.) | erledigt |
 | O-4 | Zuschnitt der Premium-Services: Was gehört ins Basisabo, was kostet extra | Stufe B |
 | ~~O-5~~ | **Entschieden am 2026-10-09:** Entwicklung fortlaufend ohne feste Wochenstunden; Planung nach Stufen, nicht nach Kalenderdaten | erledigt |
-| O-6 | Weitere Plattformen (Web, Desktop) gewünscht? | Stufe C |
+| ~~O-6~~ | **Entschieden am 2026-10-10:** nur Android und iOS (Smartphone und Tablet); keine Browser- oder Desktop-Version | erledigt |
 | O-7 | Englische Oberfläche für nicht deutschsprachige Unternehmer in AT/DE? | Stufe C |
 | ~~O-8~~ | **Entschieden am 2026-10-09:** Support per E-Mail, Antwort innerhalb von 3 Werktagen; FAQ in der App; Chatbot in einer späteren Version. **Keine Website** — siehe O-24 | erledigt |
 | ~~O-9~~ | **Entschieden am 2026-10-09:** eigene Steuerberatung, ab sofort eingebunden; erster Auftrag ist O-1 | erledigt |
@@ -819,6 +820,7 @@ Zu entscheiden, bevor die betroffene Anforderung umgesetzt wird:
 
 | Version | Datum | Änderung |
 |---|---|---|
+| 1.17 | 2026-10-10 | O-6 entschieden: nur Smartphone und Tablet, keine Browser- oder Desktop-Version; in die Abgrenzung aufgenommen. |
 | 1.16 | 2026-10-09 | O-18 entschieden: E-Mail nur über die Mail-App des Smartphones. L-15.4 bis L-15.9, S-15, S-16, R-15, RK-15, RK-16 und die zugehörigen Aufwandszeilen in Stufe C entfallen. |
 | 1.15 | 2026-10-09 | O-23 entschieden: Lagerzubuchung beim Rücksendeschein wählbar je Rücksendung (L-3.20). |
 | 1.14 | 2026-10-09 | Zweite Namensvariante „Jenni bucht" aufgenommen (O-2). |
