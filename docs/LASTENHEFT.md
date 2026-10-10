@@ -1,6 +1,6 @@
 # Lastenheft – Buchhaltungsapp für Österreich und Deutschland
 
-**Dokumentversion:** 1.19 · **Stand:** 2026-10-09 · **Status:** Entwurf zur Abstimmung
+**Dokumentversion:** 1.20 · **Stand:** 2026-10-09 · **Status:** Entwurf zur Abstimmung
 **Auftraggeber:** Jürgen Jesenko (privates Vorhaben) · **Umsetzung:** Claude Code
 
 > Ein Lastenheft beschreibt, **was** das Produkt leisten soll und **warum** — nicht,
@@ -326,7 +326,8 @@ und Preis jedes Mal neu zu tippen.
 | L-13.5 | **Zeitlich gestaffelte Steuersätze.** Ein Steuersatz gilt nicht einfach, er gilt *ab einem Datum*. Befristete Satzänderungen hat es in beiden Zielmärkten bereits gegeben; eine Rechnung aus dem Vorjahr muss mit dem damals gültigen Satz darstellbar bleiben | MUSS | B |
 | L-13.6 | **Landessprache je Markt:** Start nur auf Deutsch; mit jedem weiteren EU-Land kommt dessen Landessprache hinzu (O-7) | SOLL | C |
 | L-13.8 | **Texte von Anfang an übersetzbar anlegen:** alle Oberflächentexte liegen in Sprachdateien (Flutter-Lokalisierung), nicht im Code. Eine neue Landessprache ist dann Übersetzung, kein Umbau | MUSS | A |
-| L-13.7 | **OSS-Verfahren** für grenzüberschreitende Verkäufe an EU-Privatkunden oberhalb der Lieferschwelle — Voraussetzung für die Kanalanbindung (L-12), siehe R-10 | MUSS | C |
+| L-13.7 | **OSS-Verfahren** für grenzüberschreitende Verkäufe an EU-Privatkunden oberhalb der Lieferschwelle — Voraussetzung für die Kanalanbindung (L-12), siehe R-10. **Je nach Nachfrage (O-12)** | KANN | C |
+| L-13.9 | **OSS-Warnung:** Rechnungen an Privatkundinnen in anderen EU-Ländern werden erkannt und summiert; ab 80 % der EU-weiten Lieferschwelle von 10.000 € (Art. 59c MwStSystRL; noch amtlich zu bestätigen) warnt die App und rät, die Steuerberatung einzubinden. Keine Berechnung ausländischer Steuersätze | MUSS | B |
 
 > **Warum die Beschränkung auf EU und Euro trägt.** Die Länderabstraktion
 > unterstellt heute ein gemeinsames Mehrwertsteuersystem. Innerhalb der Eurozone
@@ -711,8 +712,9 @@ Grobe Schätzung in Personenwochen Vollzeitentwicklung, ohne Puffer:
 | Zeitlich gestaffelte Steuersätze (L-13.5) | B | 1–2 |
 | UVA-Übermittlung FinanzOnline/ELSTER inkl. Herstellerregistrierung | B | 3–4 |
 | Kontoauszug-Import und Zuordnung | B | 2–3 |
-| **Summe Stufe B** | | **32–48** |
-| **Stufe A + B zusammen** | | **49–76 Personenwochen** |
+| OSS-Warnung (L-13.9) | B | 1 |
+| **Summe Stufe B** | | **33–49** |
+| **Stufe A + B zusammen** | | **50–77 Personenwochen** |
 | Backend als Voraussetzung der Kanalanbindung | C | 6–10 |
 | Kanalanbindung je Kanal, nur lesend | C | 3–5 |
 | OSS-Erweiterung des Steuerlayers | C | 3–4 |
@@ -802,7 +804,7 @@ Zu entscheiden, bevor die betroffene Anforderung umgesetzt wird:
 | ~~O-9~~ | **Entschieden am 2026-10-09:** eigene Steuerberatung, ab sofort eingebunden; erster Auftrag ist O-1 | erledigt |
 | ~~O-10~~ | ~~Übertragungsrichtung der Kanalanbindung~~ — **entschieden am 2026-10-09:** ausschließlich lesend, Bestellungen und Rechnungen, keine Lagerverwaltung (L-12.9) | erledigt |
 | ~~O-11~~ | ~~Was ist mit „Google" gemeint?~~ — **entschieden am 2026-10-09:** Google Merchant Center | erledigt |
-| O-12 | Ab wann wird OSS gebraucht — verkaufst du bereits grenzüberschreitend an Privatkunden? | vor Stufe C |
+| ~~O-12~~ | **Entschieden am 2026-10-10:** zum Start nur Warnung vor der OSS-Lieferschwelle (L-13.9, Stufe B); volle OSS-Unterstützung (L-13.7) später je nach Nachfrage | erledigt |
 | O-13 | Soll die Artikelverwaltung auch Einkaufspreise führen, um Rohertrag je Artikel zu zeigen? | Stufe B |
 | O-14 | **Welche europäischen Märkte als nächste**, und in welcher Reihenfolge? Davon hängt ab, ab wann eine mehrsprachige Oberfläche gebraucht wird. **Vertagt am 2026-10-10:** Entscheidung nach dem Start in AT/DE anhand der Nachfrage | nach Release Stufe A/B |
 | ~~O-15~~ | ~~Schweiz zum Start oder als erste Erweiterung?~~ — **entschieden am 2026-10-09:** die Schweiz entfällt, Fokus auf EU und Eurozone | erledigt |
@@ -822,6 +824,7 @@ Zu entscheiden, bevor die betroffene Anforderung umgesetzt wird:
 
 | Version | Datum | Änderung |
 |---|---|---|
+| 1.20 | 2026-10-10 | O-12 entschieden: OSS-Warnung (neu L-13.9, Stufe B), volle OSS-Unterstützung L-13.7 auf KANN herabgestuft. Aufwand A+B 50–77 Personenwochen. |
 | 1.19 | 2026-10-10 | O-14 vertagt: nächste EU-Märkte nach dem Start je nach Nachfrage. |
 | 1.18 | 2026-10-10 | O-7 entschieden: Deutsch zum Start, Landessprache je weiterem EU-Land (L-13.6). Neu L-13.8: Oberflächentexte von Anfang an in Sprachdateien. |
 | 1.17 | 2026-10-10 | O-6 entschieden: nur Smartphone und Tablet, keine Browser- oder Desktop-Version; in die Abgrenzung aufgenommen. |
