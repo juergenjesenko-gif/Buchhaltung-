@@ -1,6 +1,6 @@
 # Lastenheft – Buchhaltungsapp für Österreich und Deutschland
 
-**Dokumentversion:** 1.22 · **Stand:** 2026-10-09 · **Status:** Entwurf zur Abstimmung
+**Dokumentversion:** 1.23 · **Stand:** 2026-10-09 · **Status:** Entwurf zur Abstimmung
 **Auftraggeber:** Jürgen Jesenko (privates Vorhaben) · **Umsetzung:** Claude Code
 
 > Ein Lastenheft beschreibt, **was** das Produkt leisten soll und **warum** — nicht,
@@ -272,6 +272,22 @@ Priorität: **MUSS** = ohne das kein Release · **SOLL** = wichtig, verhandelbar
 | L-10.3 | **14 Tage gratis mit vollem Funktionsumfang (Pro).** Die App zeigt deutlich, wann der Test endet und was danach kostet; Erinnerung 3 Tage vor Ablauf. Umsetzung über die Probezeiträume der Stores | MUSS | B |
 | L-10.4 | **Bei abgelaufenem Abo bleiben die Daten des Nutzers lesbar und exportierbar.** Buchhaltungsdaten dürfen nie hinter einer Paywall verschwinden — sie unterliegen einer gesetzlichen Aufbewahrungspflicht | MUSS | B |
 | L-10.5 | Lizenzprüfung funktioniert offline über einen angemessenen Zeitraum | MUSS | B |
+
+**Tarifschnitt (entschieden am 2026-10-10, O-4).** Basis ist alles, was eine
+ordentliche Buchhaltung braucht; Pro ist Komfort und Wachstum.
+
+| Basis | Pro (zusätzlich) |
+|---|---|
+| Rechnungen, Angebote, Zahlungserinnerungen, Gutschriften, Rücksendescheine | Belegerkennung per Kamera (L-2) |
+| Kunden und Artikel | E-Rechnung **ausstellen** (L-4) |
+| **E-Rechnung empfangen und lesen** (L-4.3) | Kontoauszug-Import mit Zuordnung (L-18) |
+| Belege fotografieren, Kassabuch | UVA-Übermittlung FinanzOnline/ELSTER (L-6.5) |
+| Management-Übersicht, Kleinunternehmer-Ampel, OSS-Warnung | Einkommensteuer-Vorbereitung, Saldenliste, rollender Jahresabschluss |
+| Export an die Steuerberatung | Shop-Anbindung (L-12), Marketing-Modul (L-14) |
+| Datensicherung, Spracheingabe | Cloud-Synchronisierung über mehrere Geräte (S-8) |
+
+Eine gesetzliche Pflicht darf nie nur in Pro erfüllbar sein. Wird eine Funktion
+zur Pflicht für die Zielgruppe, wandert sie nach Basis.
 
 ### 5.11 Artikelverwaltung
 
@@ -797,7 +813,7 @@ Zu entscheiden, bevor die betroffene Anforderung umgesetzt wird:
 | O-2 | Produktname und Bundle-ID. **Arbeitstitel seit 2026-10-09: „Jenny Bar"** (Wortspiel aus Jenny Barb und „bar bezahlen"). **Zweite Variante: „Jenni bucht"**. Endgültig erst nach Markenrecherche. **Richtung festgelegt am 2026-10-09:** weiblicher Vorname, gern mit Anklang an „Jenny Barb" (Wiedererkennung mit jenibarb.com), allein oder verbunden mit dem Thema (z. B. „Jenny bucht"). Markenrecherche AT/DE/EUIPO, Store-Suche und Domainprüfung vor Festlegung | vor dem ersten Store-Upload |
 | O-3 | Preispunkte für Basisabo und Premium-Services — Vorschlag und Marktvergleich in [`WETTBEWERB.md`](WETTBEWERB.md) | Stufe B |
 | ~~O-22~~ | **Entschieden am 2026-10-09:** (a) UVA-Übermittlung in den Buchhaltungstarif, Stufe B (L-6.5); (b) Start mit Datei-Import der Kontoauszüge, Live-Anbindung später als Opt-in (L-18); (c) Angebote aufgenommen, Stufe A (L-3.13 ff.) | erledigt |
-| O-4 | **Teilweise entschieden am 2026-10-10:** 14 Tage gratis alles, danach Basis-Abo, optional Pro (L-10.1 bis L-10.3). Offen: welche Funktionen gehören in Basis, welche in Pro | Stufe B |
+| ~~O-4~~ | **Entschieden am 2026-10-10:** 14 Tage gratis alles, danach Basis, optional Pro; Funktionsschnitt in Abschnitt 5.10 | erledigt |
 | ~~O-5~~ | **Entschieden am 2026-10-09:** Entwicklung fortlaufend ohne feste Wochenstunden; Planung nach Stufen, nicht nach Kalenderdaten | erledigt |
 | ~~O-6~~ | **Entschieden am 2026-10-10:** nur Android und iOS (Smartphone und Tablet); keine Browser- oder Desktop-Version | erledigt |
 | ~~O-7~~ | **Entschieden am 2026-10-10:** Start nur auf Deutsch; mit jedem EU-Land dessen Landessprache (L-13.6), Texte dafür von Anfang an übersetzbar (L-13.8) | erledigt |
@@ -825,6 +841,7 @@ Zu entscheiden, bevor die betroffene Anforderung umgesetzt wird:
 
 | Version | Datum | Änderung |
 |---|---|---|
+| 1.23 | 2026-10-10 | O-4 entschieden: Funktionsschnitt Basis/Pro in Abschnitt 5.10, E-Rechnung empfangen in Basis; Regel „gesetzliche Pflicht nie nur in Pro". |
 | 1.22 | 2026-10-10 | Tarifmodell (O-4 teilweise, O-16): 14 Tage gratis mit vollem Umfang, danach Basis, optional Pro; keine Einzelmodule (L-10.1 bis L-10.3). |
 | 1.21 | 2026-10-10 | O-13 entschieden: freiwilliger Einkaufspreis mit Rohertrag (L-11.12). |
 | 1.20 | 2026-10-10 | O-12 entschieden: OSS-Warnung (neu L-13.9, Stufe B), volle OSS-Unterstützung L-13.7 auf KANN herabgestuft. Aufwand A+B 50–77 Personenwochen. |
