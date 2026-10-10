@@ -1,6 +1,6 @@
 # Lastenheft – Buchhaltungsapp für Österreich und Deutschland
 
-**Dokumentversion:** 1.17 · **Stand:** 2026-10-09 · **Status:** Entwurf zur Abstimmung
+**Dokumentversion:** 1.18 · **Stand:** 2026-10-09 · **Status:** Entwurf zur Abstimmung
 **Auftraggeber:** Jürgen Jesenko (privates Vorhaben) · **Umsetzung:** Claude Code
 
 > Ein Lastenheft beschreibt, **was** das Produkt leisten soll und **warum** — nicht,
@@ -324,7 +324,8 @@ und Preis jedes Mal neu zu tippen.
 | L-13.3 | Ein **weiterer EU-Markt muss überwiegend Konfiguration sein**: Steuersätze, Grenzwerte, Kleinbetragsgrenzen, Pflichtangaben, Fristen, Zahlenformat und Rechtsverweise liegen an genau einer Stelle | MUSS | A |
 | L-13.4 | **Zahlen- und Datumsformat je Markt**, auch innerhalb der Eurozone unterschiedlich | MUSS | A |
 | L-13.5 | **Zeitlich gestaffelte Steuersätze.** Ein Steuersatz gilt nicht einfach, er gilt *ab einem Datum*. Befristete Satzänderungen hat es in beiden Zielmärkten bereits gegeben; eine Rechnung aus dem Vorjahr muss mit dem damals gültigen Satz darstellbar bleiben | MUSS | B |
-| L-13.6 | **Mehrsprachige Oberfläche**, sobald ein nicht deutschsprachiger Markt dazukommt. Bis dahin Deutsch | SOLL | C |
+| L-13.6 | **Landessprache je Markt:** Start nur auf Deutsch; mit jedem weiteren EU-Land kommt dessen Landessprache hinzu (O-7) | SOLL | C |
+| L-13.8 | **Texte von Anfang an übersetzbar anlegen:** alle Oberflächentexte liegen in Sprachdateien (Flutter-Lokalisierung), nicht im Code. Eine neue Landessprache ist dann Übersetzung, kein Umbau | MUSS | A |
 | L-13.7 | **OSS-Verfahren** für grenzüberschreitende Verkäufe an EU-Privatkunden oberhalb der Lieferschwelle — Voraussetzung für die Kanalanbindung (L-12), siehe R-10 | MUSS | C |
 
 > **Warum die Beschränkung auf EU und Euro trägt.** Die Länderabstraktion
@@ -692,8 +693,9 @@ Grobe Schätzung in Personenwochen Vollzeitentwicklung, ohne Puffer:
 | Bestätigungsablauf und Hinweise an den Wirkstellen | A | 1–2 |
 | Store-Reife: Icon, Screenshots, AGB, Impressum, Support | A | 2–3 |
 | Angebote inkl. Umwandlung in Rechnung | A | 1–2 |
+| Oberflächentexte in Sprachdateien auslagern (L-13.8) | A | 1 |
 | Zahlungserinnerung, Erstattung, Kunden-E-Mail als Empfänger | A | 1–2 |
-| **Summe Stufe A** | | **16–27** |
+| **Summe Stufe A** | | **17–28** |
 | Belegerkennung on-device | B | 3–5 |
 | E-Rechnung XRechnung/ZUGFeRD/ebInterface | B | 4–6 |
 | Saldenliste und rollender Jahresabschluss | B | 2–3 |
@@ -710,7 +712,7 @@ Grobe Schätzung in Personenwochen Vollzeitentwicklung, ohne Puffer:
 | UVA-Übermittlung FinanzOnline/ELSTER inkl. Herstellerregistrierung | B | 3–4 |
 | Kontoauszug-Import und Zuordnung | B | 2–3 |
 | **Summe Stufe B** | | **32–48** |
-| **Stufe A + B zusammen** | | **48–75 Personenwochen** |
+| **Stufe A + B zusammen** | | **49–76 Personenwochen** |
 | Backend als Voraussetzung der Kanalanbindung | C | 6–10 |
 | Kanalanbindung je Kanal, nur lesend | C | 3–5 |
 | OSS-Erweiterung des Steuerlayers | C | 3–4 |
@@ -795,7 +797,7 @@ Zu entscheiden, bevor die betroffene Anforderung umgesetzt wird:
 | O-4 | Zuschnitt der Premium-Services: Was gehört ins Basisabo, was kostet extra | Stufe B |
 | ~~O-5~~ | **Entschieden am 2026-10-09:** Entwicklung fortlaufend ohne feste Wochenstunden; Planung nach Stufen, nicht nach Kalenderdaten | erledigt |
 | ~~O-6~~ | **Entschieden am 2026-10-10:** nur Android und iOS (Smartphone und Tablet); keine Browser- oder Desktop-Version | erledigt |
-| O-7 | Englische Oberfläche für nicht deutschsprachige Unternehmer in AT/DE? | Stufe C |
+| ~~O-7~~ | **Entschieden am 2026-10-10:** Start nur auf Deutsch; mit jedem EU-Land dessen Landessprache (L-13.6), Texte dafür von Anfang an übersetzbar (L-13.8) | erledigt |
 | ~~O-8~~ | **Entschieden am 2026-10-09:** Support per E-Mail, Antwort innerhalb von 3 Werktagen; FAQ in der App; Chatbot in einer späteren Version. **Keine Website** — siehe O-24 | erledigt |
 | ~~O-9~~ | **Entschieden am 2026-10-09:** eigene Steuerberatung, ab sofort eingebunden; erster Auftrag ist O-1 | erledigt |
 | ~~O-10~~ | ~~Übertragungsrichtung der Kanalanbindung~~ — **entschieden am 2026-10-09:** ausschließlich lesend, Bestellungen und Rechnungen, keine Lagerverwaltung (L-12.9) | erledigt |
@@ -820,6 +822,7 @@ Zu entscheiden, bevor die betroffene Anforderung umgesetzt wird:
 
 | Version | Datum | Änderung |
 |---|---|---|
+| 1.18 | 2026-10-10 | O-7 entschieden: Deutsch zum Start, Landessprache je weiterem EU-Land (L-13.6). Neu L-13.8: Oberflächentexte von Anfang an in Sprachdateien. |
 | 1.17 | 2026-10-10 | O-6 entschieden: nur Smartphone und Tablet, keine Browser- oder Desktop-Version; in die Abgrenzung aufgenommen. |
 | 1.16 | 2026-10-09 | O-18 entschieden: E-Mail nur über die Mail-App des Smartphones. L-15.4 bis L-15.9, S-15, S-16, R-15, RK-15, RK-16 und die zugehörigen Aufwandszeilen in Stufe C entfallen. |
 | 1.15 | 2026-10-09 | O-23 entschieden: Lagerzubuchung beim Rücksendeschein wählbar je Rücksendung (L-3.20). |
