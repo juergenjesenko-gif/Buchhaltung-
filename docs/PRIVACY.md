@@ -44,6 +44,12 @@ Die App überträgt **keine** dieser Daten an den Anbieter oder an Dritte. Sie
 enthält keine Analyse-Bibliothek, kein Crash-Reporting und keine Werbe-SDKs. Die
 App baut von sich aus **keine Netzwerkverbindungen** auf.
 
+**Datensicherung:** Auf deinen Wunsch erstellt die App eine mit deinem Kennwort
+verschlüsselte Sicherungsdatei (AES-256-GCM). Wohin sie geht, bestimmst du im
+Teilen-Dialog, etwa in deinen eigenen Cloud-Speicher; dort gelten die
+Bedingungen dieses Dienstes. Der Anbieter erhält weder die Datei noch das
+Kennwort und kann die Sicherung nicht öffnen.
+
 Die automatische Sicherung von Android (Google Drive) und die
 Gerät-zu-Gerät-Übertragung sind für diese App **deaktiviert**
 (`data_extraction_rules.xml`), damit deine Buchhaltungsdaten nicht ohne dein

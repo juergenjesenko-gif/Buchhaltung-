@@ -446,31 +446,35 @@ App. Andere Apps kommen nicht heran. Es gibt keinen Server, auf den etwas
 hochgeladen wird.
 
 Daten verlassen dein Telefon **nur**, wenn du selbst auf Teilen tippst – beim
-Rechnungs-PDF oder beim Export.
+Rechnungs-PDF, beim Export oder bei der Datensicherung.
 
-### Das Risiko, das du kennen musst
+### Datensicherung
 
-**Diese Version hat keine Sicherungsfunktion.** Geht dein Telefon verloren oder
-kaputt, sind deine Belege weg. Auch die automatische Android-Sicherung ist für
-diese App abgeschaltet, damit deine Buchhaltungsdaten nicht ungefragt in eine
-Cloud gelangen.
+Geht dein Telefon verloren oder kaputt, sind ohne Sicherung alle Belege weg –
+die Aufbewahrungspflicht (7 Jahre in Österreich, 8 Jahre in Deutschland) gilt
+trotzdem. Deshalb:
 
-Die steuerliche Aufbewahrungspflicht – 7 Jahre in Österreich, 8 Jahre in
-Deutschland – gilt trotzdem.
+1. **Einstellungen → Datensicherung → Sicherung erstellen**
+2. Ein **Kennwort** festlegen, mindestens 10 Zeichen, zweimal eingeben.
+   **Schreib es dir auf.** Ohne Kennwort lässt sich die Sicherung nicht öffnen,
+   und niemand kann es zurücksetzen – auch wir nicht.
+3. Im Teilen-Dialog einen Ort **außerhalb deines Telefons** wählen: iCloud
+   Drive, Google Drive, „Auf Dateien speichern", eine E-Mail an dich selbst.
 
-### Was du deshalb tun solltest
+Die Datei heißt zum Beispiel `Sicherung_2026-10-10_1800.jbbackup`. Sie enthält
+alle Daten und Belegfotos und ist verschlüsselt.
 
-**Exportiere regelmäßig.** Am besten monatlich:
+Hast du noch nie oder seit **30 Tagen** nicht gesichert, erinnert dich die
+Übersicht daran. Eine **automatische** Sicherung gibt es noch nicht.
 
-1. Bereich **Export** → Monat wählen
-2. **Belegliste (CSV)** teilen und an einen Ort schicken, der nicht dein Telefon
-   ist – eigene E-Mail, Cloud-Ordner, Rechner
+### Auf einem neuen Telefon weitermachen
 
-Das ersetzt kein vollständiges Backup, denn die Belegfotos sind darin nicht
-enthalten. Es sichert aber deine Buchungsdaten.
-
-> Eine vollständige, verschlüsselte Sicherung samt Belegfotos ist die
-> wichtigste geplante Funktion der nächsten Version.
+Beim ersten Start auf **„Aus einer Datensicherung wiederherstellen"** tippen
+(oder später unter Einstellungen → Datensicherung). Datei auswählen, Kennwort
+eingeben. Die App zeigt dir, was die Sicherung enthält – Unternehmen, Datum,
+Anzahl der Belege, Rechnungen, Kunden und Fotos. Erst nach deiner Bestätigung
+werden die Daten eingelesen. **Alles, was vorher auf dem Gerät war, wird dabei
+ersetzt.**
 
 ---
 
@@ -515,6 +519,19 @@ deiner Steuerberatung.
 
 ## 13. Wenn etwas nicht geht
 
+
+**„Mindestens 10 Zeichen"** / **„Die Kennwörter stimmen nicht überein"** — beim
+Kennwort der Datensicherung.
+
+**„Das Kennwort passt nicht zu dieser Sicherung, oder die Datei ist
+beschädigt."** — Kennwort prüfen (Groß- und Kleinschreibung). Stimmt es, ist
+die Datei beim Kopieren beschädigt worden; nimm eine andere Sicherung.
+
+**„Keine Datensicherung dieser App."** — die gewählte Datei ist keine
+`.jbbackup`-Datei.
+
+**„Die Sicherung stammt aus einer neueren App-Version."** — erst die App
+aktualisieren, dann wiederherstellen.
 **„Bitte gib einen Betrag ein"** – die Eingabe ist keine Zahl. Erlaubt sind
 Ziffern, Komma, Punkt und ein Minus.
 
@@ -562,7 +579,7 @@ neues Foto hinzufügen.
 
 Damit du nicht darauf wartest:
 
-- **Keine Sicherung** in dieser Version – siehe [Abschnitt 11](#11-deine-daten-und-ihre-sicherung)
+- **Keine automatische Sicherung.** Die Sicherung erstellst du von Hand – siehe [Abschnitt 11](#11-deine-daten-und-ihre-sicherung)
 - **Keine Registrierkasse.** Die App erfüllt die österreichische
   Registrierkassensicherheitsverordnung nicht. Wer mehr als 15.000 € Umsatz und
   7.500 € Barumsätze im Jahr hat, braucht zusätzlich eine

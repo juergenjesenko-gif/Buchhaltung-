@@ -72,6 +72,13 @@ void main() {
       value(key).split(',').map((part) => int.parse(part.trim())).toList();
 
   group('Allgemeine Kenndaten', () {
+    test('Erinnerung an die Datensicherung stimmt', () {
+      expect(
+        intValue('spec.backup_reminder_days'),
+        CompanyProfile.backupReminderDays,
+      );
+    });
+
     test('Schemaversion der Datenbank stimmt', () {
       expect(intValue('spec.schema_version'), AppDatabase.schemaVersion);
     });

@@ -561,7 +561,7 @@ Jede Übertragung vom Gerät weg, auch die unscheinbaren:
 | Datenfluss | Empfänger | Was | Ausgelöst durch | Opt-in | Stufe |
 |---|---|---|---|---|---|
 | Rechnung/Export teilen | vom Nutzer gewählt | PDF, CSV | Tippen auf Teilen | je Vorgang | vorhanden |
-| Sicherung (L-7.2) | iCloud bzw. Google Drive des Nutzers | verschlüsselte Vollsicherung | Einschalten | ja | A |
+| Sicherung (L-7.1, L-7.2) | vom Nutzer gewählt (iCloud Drive, Google Drive, Dateien) | mit Kennwort verschlüsselte Vollsicherung samt Fotos | Tippen auf „Sicherung erstellen“ (von Hand; automatisch geplant) | je Vorgang | vorhanden |
 | Foto-Zweitablage (L-2.11) | Fotobibliothek, ggf. deren Cloud | Belegfotos | Einschalten | ja | A |
 | UID-Prüfung (L-1.3) | EU-Kommission (VIES) | UID-Nummer | Prüfauftrag | je Vorgang | A |
 | Rechnungsversand (L-15.1) | Mail-App des Nutzers | PDF | Tippen auf Senden | je Vorgang | A |

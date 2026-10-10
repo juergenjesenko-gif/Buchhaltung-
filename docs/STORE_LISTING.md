@@ -102,7 +102,10 @@ Kundennamen oder Beträge.
 Beide Formulare lassen sich mit „keine Datenerhebung, keine Datenübertragung"
 beantworten. Das ist belegbar: die App enthält keine Analyse- oder Werbe-SDKs,
 baut von sich aus keine Netzwerkverbindungen auf, und Androids Auto-Backup ist
-per `data_extraction_rules.xml` deaktiviert.
+per `data_extraction_rules.xml` deaktiviert. Die Datensicherung ist eine von
+der Nutzerin ausgelöste, mit ihrem Kennwort verschlüsselte Datei, die sie selbst
+über den Teilen-Dialog ablegt; sie erreicht weder den Anbieter noch einen
+Partner und gilt daher nicht als Datenerhebung.
 
 ## Altersfreigabe
 

@@ -26,6 +26,7 @@ class CompanyProfile {
     this.fiscalYearStartMonth = 1,
     this.trackingStart,
     this.foundingYear,
+    this.lastBackupAt,
   });
 
   final String companyName;
@@ -80,6 +81,17 @@ class CompanyProfile {
 
   bool isFoundingYear(int year) => foundingYear == year;
 
+  /// Zeitpunkt der letzten erfolgreichen Datensicherung, `null` wenn noch nie.
+  /// Wird nur vom Sicherungsdienst geschrieben, nicht über das Formular.
+  final DateTime? lastBackupAt;
+
+  /// Nach so vielen Tagen ohne Sicherung erinnert die App (L-7.4).
+  static const backupReminderDays = 30;
+
+  bool needsBackup(DateTime now) =>
+      lastBackupAt == null ||
+      now.difference(lastBackupAt!).inDays >= backupReminderDays;
+
   TaxProfile get taxProfile => country.taxProfile;
 
   String get addressLine => [
@@ -133,6 +145,7 @@ class CompanyProfile {
     int? fiscalYearStartMonth,
     DateTime? trackingStart,
     int? foundingYear,
+    DateTime? lastBackupAt,
   }) {
     return CompanyProfile(
       companyName: companyName ?? this.companyName,
@@ -159,6 +172,7 @@ class CompanyProfile {
       fiscalYearStartMonth: fiscalYearStartMonth ?? this.fiscalYearStartMonth,
       trackingStart: trackingStart ?? this.trackingStart,
       foundingYear: foundingYear ?? this.foundingYear,
+      lastBackupAt: lastBackupAt ?? this.lastBackupAt,
     );
   }
 
@@ -187,6 +201,7 @@ class CompanyProfile {
     'fiscal_year_start_month': fiscalYearStartMonth,
     'tracking_start': trackingStart?.toIso8601String().substring(0, 10),
     'founding_year': foundingYear,
+    'last_backup_at': lastBackupAt?.toIso8601String(),
   };
 
   static CompanyProfile fromMap(Map<String, Object?> map) => CompanyProfile(
@@ -217,6 +232,9 @@ class CompanyProfile {
     fiscalYearStartMonth: map['fiscal_year_start_month'] as int? ?? 1,
     trackingStart: _parseDate(map['tracking_start']),
     foundingYear: map['founding_year'] as int?,
+    lastBackupAt: map['last_backup_at'] == null
+        ? null
+        : DateTime.tryParse(map['last_backup_at'] as String),
   );
 
   static DateTime? _parseDate(Object? value) =>

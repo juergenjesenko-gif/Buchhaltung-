@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../backup/backup_screen.dart';
 import '../../app_state.dart';
 import '../../core/formatting.dart';
 import '../../domain/company_profile.dart';
@@ -187,6 +188,8 @@ class _CompanySetupScreenState extends State<CompanySetupScreen> {
       fiscalYearStartMonth: existing?.fiscalYearStartMonth ?? 1,
       trackingStart: existing?.trackingStart ?? _trackingStart,
       foundingYear: _foundingYear,
+      // Wird nur von der Datensicherung geschrieben; beim Bearbeiten erhalten.
+      lastBackupAt: existing?.lastBackupAt,
     );
 
     // Eröffnungswerte nur schreiben, wenn sie abgefragt wurden. Wer auf
@@ -230,7 +233,21 @@ class _CompanySetupScreenState extends State<CompanySetupScreen> {
                 'Belege erfassen und Rechnungen schreiben.',
                 style: Theme.of(context).textTheme.bodyMedium,
               ),
-              const SizedBox(height: 20),
+              const SizedBox(height: 8),
+              // Neues Gerät: statt neu einzurichten, die Sicherung einlesen.
+              Align(
+                alignment: Alignment.centerLeft,
+                child: TextButton.icon(
+                  onPressed: () => Navigator.of(context).push(
+                    MaterialPageRoute(builder: (_) => const BackupScreen()),
+                  ),
+                  icon: const Icon(Icons.restore),
+                  label: const Text(
+                    'Aus einer Datensicherung wiederherstellen',
+                  ),
+                ),
+              ),
+              const SizedBox(height: 12),
             ],
 
             SectionCard(

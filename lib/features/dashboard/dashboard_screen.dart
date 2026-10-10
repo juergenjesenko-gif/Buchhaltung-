@@ -8,6 +8,7 @@ import '../../domain/receipt.dart';
 import '../../services/small_business_monitor.dart';
 import '../../theme.dart';
 import '../../widgets/common.dart';
+import '../backup/backup_screen.dart';
 import '../onboarding/company_setup_screen.dart';
 import '../receipts/receipt_edit_screen.dart';
 import '../settings/settings_screen.dart';
@@ -133,6 +134,13 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   if (mounted) await _load();
                 },
               ),
+              const SizedBox(height: 16),
+            ],
+
+            if (profile != null &&
+                !state.isLoading &&
+                profile.needsBackup(DateTime.now())) ...[
+              BackupReminder(profile: profile),
               const SizedBox(height: 16),
             ],
 

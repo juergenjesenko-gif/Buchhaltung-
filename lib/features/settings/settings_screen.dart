@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../../core/formatting.dart';
+import '../backup/backup_screen.dart';
 import '../../app_state.dart';
 import '../../domain/receipt.dart';
 import '../../widgets/common.dart';
@@ -42,6 +44,20 @@ class SettingsScreen extends StatelessWidget {
                     MaterialPageRoute(
                       builder: (_) => const CompanySetupScreen(),
                     ),
+                  ),
+                ),
+                ListTile(
+                  contentPadding: EdgeInsets.zero,
+                  leading: const Icon(Icons.backup_outlined),
+                  title: const Text('Datensicherung'),
+                  subtitle: Text(
+                    profile?.lastBackupAt == null
+                        ? 'Noch keine Sicherung'
+                        : 'Letzte Sicherung: ${Fmt.date(profile!.lastBackupAt!)}',
+                  ),
+                  trailing: const Icon(Icons.chevron_right),
+                  onTap: () => Navigator.of(context).push(
+                    MaterialPageRoute(builder: (_) => const BackupScreen()),
                   ),
                 ),
                 ListTile(

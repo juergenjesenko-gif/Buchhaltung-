@@ -16,7 +16,7 @@ class AppDatabase {
 
   /// Aktuelle Schemaversion. Öffentlich, weil docs/SPECIFICATION.md sie
   /// dokumentiert und test/specification_sync_test.dart beide vergleicht.
-  static const schemaVersion = 3;
+  static const schemaVersion = 4;
 
   Database? _db;
 
@@ -218,6 +218,9 @@ class AppDatabase {
       'ALTER TABLE receipts ADD COLUMN cancelled_at TEXT',
       'ALTER TABLE company_profile ADD COLUMN founding_year INTEGER',
     ],
+    // Version 4: Zeitpunkt der letzten Datensicherung für die Erinnerung
+    // (Lastenheft L-7.4).
+    4: ['ALTER TABLE company_profile ADD COLUMN last_backup_at TEXT'],
   };
 
   /// Startkategorien, damit die App nicht mit einer leeren Auswahlliste startet.
