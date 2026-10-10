@@ -1,6 +1,6 @@
 # Lastenheft – Buchhaltungsapp für Österreich und Deutschland
 
-**Dokumentversion:** 1.26 · **Stand:** 2026-10-09 · **Status:** Entwurf zur Abstimmung
+**Dokumentversion:** 1.27 · **Stand:** 2026-10-09 · **Status:** Entwurf zur Abstimmung
 **Auftraggeber:** Jürgen Jesenko (privates Vorhaben) · **Umsetzung:** Claude Code
 
 > Ein Lastenheft beschreibt, **was** das Produkt leisten soll und **warum** — nicht,
@@ -567,6 +567,7 @@ Jede Übertragung vom Gerät weg, auch die unscheinbaren:
 | Rechnungsversand (L-15.1) | Mail-App des Nutzers | PDF | Tippen auf Senden | je Vorgang | A |
 | Abo-Kauf (L-10.1) | Apple bzw. Google | Kaufvorgang | Kauf | je Vorgang | B |
 | UVA-Übermittlung (L-6.5) | FinanzOnline bzw. ELSTER | Kennzahlen der Voranmeldung | Freigabe der Meldung | je Vorgang | B |
+| Regelpaket-Abruf (L-20.22) | Hosting des Anbieters (EU) | nur Abruf: IP-Adresse, Zeitpunkt, App-Version; keine Nutzdaten | automatisch, täglich | nein, technisch notwendig; in der Datenschutzerklärung offengelegt | B |
 | Cloud-Synchronisierung (S-8) | Server des Anbieters | alle Buchhaltungsdaten, verschlüsselt | Konto anlegen | ja | C |
 | Marketing (L-14) | Dienst zur Inhaltserzeugung | nur Unternehmens- und Artikeldaten | Modul einschalten | ja | C |
 | Kanäle (L-12) | Amazon, Shopify, Google Merchant Center | je nach Modul | Modul einschalten | ja | C |
@@ -591,6 +592,89 @@ Jede Übertragung vom Gerät weg, auch die unscheinbaren:
 > Datenschutzposition, die ein Produkt einnehmen kann, und sie ist nur so lange zu
 > halten, wie L-19.5 ernst genommen wird. Rechtsgrundlagen und Rollen sind vor
 > Stufe C anwaltlich zu bestätigen (L-17.11).
+
+---
+
+### 5.20 Rechtsstand-Überwachung
+
+Auftrag vom 2026-10-10: Ein Agent prüft täglich, ob sich Gesetze, Steuersätze,
+Grenzwerte oder Fristen geändert haben, damit die App immer nach aktuellem
+Recht rechnet. Ausgearbeitet mit den drei Prüfinstanzen.
+
+**Leitsatz: Der Agent schlägt vor, Menschen geben frei, die App prüft nach.**
+Der Agent läuft beim Anbieter, nie auf dem Gerät, und hat weder Schreibrechte
+auf den Code noch Zugriff auf den Signaturschlüssel. Ungeprüfte KI-Ergebnisse
+erreichen nie eine Nutzerin.
+
+```
+amtliche Quellen ──► Agent (täglich) ──► Änderungsvorschlag mit Fundstelle und Zitat
+                                              │  automatische Quellen- und Zitatprüfung
+                                              ▼
+                    Prüfinstanzen ──► Steuerberaterin + Entwickler (Vier Augen)
+                                              │  Signatur offline
+                                              ▼
+                    Regelpaket (staging ≥ 48 h) ──► stable ──► App: Signatur, Schema,
+                                                               Plausibilität, Golden Cases
+                                                               ──► gilt ab Stichtag
+```
+
+#### Beobachtung und Vorschlag (Anbieterseite)
+
+| ID | Anforderung | Prio | Stufe |
+|---|---|---|---|
+| L-20.1 | **Tägliche Beobachtung** der amtlichen Quellen: AT RIS/BGBl, Findok, BMF; DE Bundesgesetzblatt (recht.bund.de), BMF-Schreiben, Bundestag-DIP zur Vorwarnung. Feed- und Textvergleich als Auslöser, der Agent fasst zusammen und erstellt den Vorschlag | MUSS | B |
+| L-20.2 | **Nur amtliche Primärquellen sind maßgeblich** (Allowlist der Domains). Sekundärquellen dürfen nur auf eine Änderung hinweisen. Nutzungsbedingungen, Text-und-Data-Mining-Vorbehalte und Quellenangabe (RIS: CC BY 4.0) werden beachtet; Abfragerate begrenzt | MUSS | B |
+| L-20.3 | **Halluzinationsschutz:** jeder Vorschlag enthält Wert, Gültig-ab, Fundstelle (Gesetzblatt, Paragraph), amtliche URL und wörtliches Zitat. Die Pipeline ruft die URL ab und prüft das Zitat; fehlt die Quelle oder stimmt das Zitat nicht, wird der Vorschlag automatisch verworfen | MUSS | B |
+| L-20.4 | **Entwürfe sind nie freigabefähig.** Maßgeblich ist die Kundmachung; Regierungsentwürfe und Ankündigungen erzeugen nur eine interne Vorwarnung | MUSS | B |
+| L-20.5 | Vorschläge entstehen als Änderungsantrag gegen die Regeldateien im Repository. Der Agent kann nicht zusammenführen, nicht freigeben, nicht signieren | MUSS | B |
+| L-20.6 | **Lebenszeichen:** jeder Lauf wird protokolliert; bleibt er 48 h aus, oder steht ein bekannter Stichtag in weniger als 30 Tagen ohne freigegebenes Paket an, wird der Anbieter alarmiert | MUSS | B |
+
+#### Freigabe und Veröffentlichung
+
+| ID | Anforderung | Prio | Stufe |
+|---|---|---|---|
+| L-20.7 | **Freigabe nach dem Vier-Augen-Prinzip:** fachlich durch eine Steuerberaterin, technisch durch einen Entwickler; vorher Prüfung durch die drei Prüfinstanzen. Ohne beide Freigaben kein Paket | MUSS | B |
+| L-20.8 | **Vertrag mit der Steuerberaterin:** Freigabe für den Anbieter, nicht Beratung der Nutzerinnen; Haftung, Versicherung, Vertretung | MUSS | B |
+| L-20.9 | **Signatur** (Ed25519) mit Schlüssel außerhalb jeder Agent- und CI-Umgebung (offline oder Schlüsseldienst), eigener manueller Schritt; Reserveschlüssel und Sperrliste für Notfälle | MUSS | B |
+| L-20.10 | Jedes Paket enthält **Golden Cases** (Rechenbeispiele je geändertem Wert, jeweils Tag vor und Tag des Stichtags); die Pipeline rechnet sie mit dem echten Rechenkern nach | MUSS | B |
+| L-20.11 | Kanäle *staging* (Testgeräte) und *stable*; ein Paket liegt mindestens 48 h auf staging. Auslieferung wenn möglich vor dem Stichtag | SOLL | B |
+| L-20.12 | **Nachweis:** je Paket Version, Hash, Signatur, Diff, Quellenkopie mit Hash, Prüf- und Freigabeprotokoll mit Namen und Datum; unveränderlich mindestens 10 Jahre archiviert | MUSS | B |
+| L-20.13 | Ein fehlerhaftes Paket lässt sich **zurückrufen** (signiertes Folgepaket); Rückruf und Ursache werden protokolliert | MUSS | B |
+
+#### Anwendung in der App
+
+| ID | Anforderung | Prio | Stufe |
+|---|---|---|---|
+| L-20.14 | **Alle steuerlichen Kennwerte sind datengetrieben** mit Gültig-ab/-bis, Fundstelle und Übergangsregel: Steuersätze samt Zuordnung, Kleinunternehmergrenzen und Toleranz, Kleinbetragsrechnung, Aufbewahrungsfristen je Dokumentart, UVA-Schwellen und Fristen, OSS-Schwelle, E-Rechnungsstufen, Pflichtangaben und Rechnungshinweise. `TaxProfile` wird zu einem Stichtag aufgelöst und bleibt die einzige Stelle für Länderwerte (setzt L-13.5 um) | MUSS | B |
+| L-20.15 | **Maßgeblich ist das Leistungsdatum**, nicht das Rechnungsdatum; jede Position trägt ein Leistungsdatum bzw. einen Leistungszeitraum. Anzahlungen behalten den Satz bei Vereinnahmung, die Schlussrechnung korrigiert | MUSS | B |
+| L-20.16 | **Eingebaute Grundwerte** bleiben als Rückfall; die App rechnet immer, auch offline und ohne Paket. Rechnungen werden nie blockiert | MUSS | B |
+| L-20.17 | **Prüfung auf dem Gerät vor jeder Anwendung:** Signatur vor dem Einlesen, Schema, Plausibilitätsgrenzen (z. B. Satz 0–300 ‰), monotone Versionsnummer (kein Zurückspielen alter Pakete), Ablaufdatum, Golden Cases mit dem echten Rechenkern. Scheitert eine Prüfung, wird das Paket verworfen und das letzte gültige behalten. Pakete enthalten ausschließlich Daten, keinen Code | MUSS | B |
+| L-20.18 | **Gestellte Rechnungen werden nie neu berechnet.** Sie frieren Version und Hash des angewendeten Pakets ein (Regel 7) | MUSS | B |
+| L-20.19 | **Nie automatisch** wirken: neue Zuordnung einer Leistung zu einem Satz, Wahlrechte (Verzicht auf Kleinunternehmerbefreiung, Ist/Soll, Dauerfristverlängerung), rückwirkende Änderungen, Auswirkungen auf gestellte Rechnungen. Diese erzeugen nur einen Hinweis mit Empfehlung, die Steuerberatung einzubinden | MUSS | B |
+| L-20.20 | **Information der Nutzerin** vor und am Stichtag: was sich ändert, ab wann, Fundstelle, Hinweis „keine Steuerberatung" (L-17.5). Keine Empfehlung für den Einzelfall | MUSS | B |
+| L-20.21 | **Rechtsstand sichtbar:** Paketversion und Prüfdatum in den Einstellungen; ab 30 Tagen ohne erfolgreiche Prüfung ein Hinweis „Steuerwerte zuletzt geprüft am …" | MUSS | B |
+| L-20.22 | **Anonymer Abruf:** feste Datei je Land und Kanal, keine Geräte- oder Nutzerkennung, keine Nutzdaten, Hosting in der EU, IP-Adressen gekürzt oder Protokolle höchstens 14 Tage. Datenschutzerklärung, Store-Angaben und Datenflusstabelle (5.19) werden im selben Commit angepasst, der den Abruf einbaut | MUSS | B |
+| L-20.23 | Keine Werbeaussage „immer aktuell" oder „garantiert"; angegeben wird der geprüfte Stand. In App und Handbuch wird offengelegt, dass die Recherche KI-gestützt ist und Menschen freigeben | MUSS | B |
+
+#### Validierung der Funktion
+
+Der Auftraggeber verlangt eine gute Validierung. Abnahme erst, wenn alle Punkte
+erfüllt sind; die realen Prüfungen stehen in Spezifikation Abschnitt 14 (P-V…).
+
+| ID | Anforderung | Prio | Stufe |
+|---|---|---|---|
+| L-20.24 | **Rückspieltest:** der Agent wird gegen bekannte historische Änderungen laufen gelassen (DE 16/5 % Juli 2020 und Rückkehr, AT 5 % 2020/21, DE und AT Kleinunternehmer 2025). Abnahme nur, wenn alle erkannt werden und kein Vorschlag ohne gültiges Zitat durchkommt | MUSS | B |
+| L-20.25 | **Fehlertests auf dem Gerät:** manipuliertes, unsigniertes, älteres, abgelaufenes und unplausibles Paket werden jeweils abgelehnt; Flugmodus über einen Stichtag hinweg rechnet mit den richtigen Werten | MUSS | B |
+| L-20.26 | `specification_sync_test` prüft eingebaute Grundwerte, Regeldateien und Spezifikation gegeneinander, je Stichtag | MUSS | B |
+| L-20.27 | **Probelauf mit der echten Steuerberaterin:** ein vollständiger Durchlauf vom Vorschlag bis zur Anwendung auf einem Testgerät, vor dem ersten echten Paket | MUSS | B |
+| L-20.28 | Einmal pro Jahr Wiederholung des Rückspieltests mit den Änderungen des Vorjahres | SOLL | B |
+
+**Häufigkeit:** Für die Zielgruppe sind etwa 3–10 relevante Änderungen je Land
+und Jahr zu erwarten, gebündelt zum 1. Jänner. Täglich beobachtet wird, weil
+Kundmachungen im Dezember oft nur Tage vor dem Inkrafttreten erscheinen;
+Pakete erscheinen anlassbezogen, etwa 2–6 im Jahr.
+
+**Bis Stufe B** kommen geänderte Werte wie bisher per App-Update.
 
 ---
 
@@ -703,8 +787,8 @@ ergibt ein Produkt, das man guten Gewissens verkaufen kann.
 Belegerkennung, E-Rechnung, Saldenliste, rollender Jahresabschluss, UVA- und
 Einkommensteuer-Vorbereitung, Abonnement, Belegvorlagen, Zahlungserinnerung,
 **Lagerstandsführung, Artikel-Import/Export**, die **Belegübernahme über den
-Teilen-Dialog**, der **Altdaten-Import** und die **Rechtstexte samt
-Datenschutz-Dokumentation**.
+Teilen-Dialog**, der **Altdaten-Import**, die **Rechtstexte samt
+Datenschutz-Dokumentation** und die **Rechtsstand-Überwachung (L-20)**.
 
 ### Stufe C — Premium und Ausbau
 
@@ -753,8 +837,9 @@ Grobe Schätzung in Personenwochen Vollzeitentwicklung, ohne Puffer:
 | UVA-Übermittlung FinanzOnline/ELSTER inkl. Herstellerregistrierung | B | 3–4 |
 | Kontoauszug-Import und Zuordnung | B | 2–3 |
 | OSS-Warnung (L-13.9) | B | 1 |
-| **Summe Stufe B** | | **33–49** |
-| **Stufe A + B zusammen** | | **58–89 Personenwochen** |
+| Rechtsstand-Überwachung: Staffelung, Paket, Pipeline, Validierung (L-20) | B | 6–8 |
+| **Summe Stufe B** | | **39–57** |
+| **Stufe A + B zusammen** | | **64–97 Personenwochen** |
 | Backend als Voraussetzung der Kanalanbindung | C | 6–10 |
 | Kanalanbindung je Kanal, nur lesend | C | 3–5 |
 | OSS-Erweiterung des Steuerlayers | C | 3–4 |
@@ -854,6 +939,7 @@ Zu entscheiden, bevor die betroffene Anforderung umgesetzt wird:
 | ~~O-19~~ | **Behoben am 2026-10-09** (Umsatzanteile von L-16.1, L-16.2, L-16.11). Ursprünglich: **Bekannter Fehler:** Die Grenzwertüberwachung ermittelt den Vorjahresumsatz ausschließlich aus erfassten Belegen. Für einen neuen Nutzer ist er damit null, und die Ampel steht fälschlich auf Grün — in Deutschland entscheidet er über das ganze laufende Jahr. Behebung über L-16.1/L-16.2 | sofort; betrifft bestehenden Code |
 | O-25 | **Markenrecherche** zu „Jenny Bar" und „Jenni bucht" durch Markenanwältin (TMview, Klassen 9, 35, 36, 42), danach Unionsmarke anmelden — vor Domain und Store-Eintrag. Siehe Spezifikation Abschnitt 14, P-R7 | vor dem ersten Store-Upload |
 | O-26 | **Rechtsform und Absicherung des Anbieters:** Einzelunternehmen haftet persönlich — GmbH, Vermögensschaden- und Produkthaftpflicht prüfen (P-R8) | vor Release |
+| O-27 | **Laufende Kosten der Rechtsstand-Überwachung:** API-Kosten des Agenten (Annahme 30–90 €/Monat) und Bereitschaft plus Freigaben der Steuerberaterin (0,5–2 h je Änderung). Angebot einholen | vor Stufe B |
 | O-20 | Welche Vorsoftware-Formate sind beim Import vorrangig zu unterstützen? Richtet sich nach dem, womit die ersten Nutzer tatsächlich kommen | Stufe B |
 | ~~O-21~~ | **Vorläufig beantwortet am 2026-10-10 (Prüfinstanz Rechtsanwalt):** BFSG/BaFG voraussichtlich nicht anwendbar (B2B, Kleinstunternehmen). Grundbarrierefreiheit trotzdem als NF-Anforderung; Bestätigung siehe Spezifikation Abschnitt 14, P-R3 | erledigt |
 | ~~O-23~~ | **Entschieden am 2026-10-09:** wählbar je Rücksendung über den Schalter „Ware wieder verkaufbar?" (L-3.20) | erledigt |
@@ -866,6 +952,7 @@ Zu entscheiden, bevor die betroffene Anforderung umgesetzt wird:
 
 | Version | Datum | Änderung |
 |---|---|---|
+| 1.27 | 2026-10-10 | Neuer Block L-20 Rechtsstand-Überwachung (Abschnitt 5.20), mit den drei Prüfinstanzen ausgearbeitet: Agent nur als Vorschlagsgeber beim Anbieter, Vier-Augen-Freigabe, signierte Regelpakete, Prüfung auf dem Gerät, Validierung mit Rückspieltest. Neuer Datenfluss Regelpaket-Abruf. O-27 neu. Aufwand Stufe B 39–57, A+B 64–97 Personenwochen. |
 | 1.26 | 2026-10-10 | Ergebnisse der drei Prüfinstanzen eingearbeitet: „Gutschrift" durch Stornorechnung/Rechnungskorrektur ersetzt, Ist-Versteuerung bei Erstattung (L-3.7, L-3.18); E-Rechnungsempfang MUSS/A (L-4.3); OSS-Warnung mit Vorjahr (L-13.9); Probeabo-Pflichtangaben (L-10.3); Rabattwerbung (5.10); Rollen um Anbieter- und Store-Daten ergänzt (L-19); Apple-Kontolöschung (L-17.12); R-6 präzisiert; O-21 vorläufig beantwortet; O-25, O-26 neu. Aufwand Stufe A 25–40 inkl. Puffer. Punkte für die reale Prüfung stehen ausschließlich in Spezifikation Abschnitt 14. |
 | 1.25 | 2026-10-10 | O-1 erledigt: Vorjahresgrenze Österreich 55.000 € umgesetzt. |
 | 1.24 | 2026-10-10 | O-3 entschieden: Preise Basis/Pro mit Rabatt- und Jahresoption, Hinweis auf Streichpreisregeln. |

@@ -1,6 +1,6 @@
 # Spezifikation – Buchhaltung
 
-**Dokumentversion:** 1.6 · **App-Version:** 0.1.0 · **Stand:** 2026-10-10
+**Dokumentversion:** 1.7 · **App-Version:** 0.1.0 · **Stand:** 2026-10-10
 **Status:** Sprint 1 umgesetzt und verifiziert
 
 > Das **Zielbild** des Produkts steht im [`LASTENHEFT.md`](LASTENHEFT.md); dieses
@@ -494,6 +494,7 @@ Offen benannt, weil eine Spezifikation, die ihre Lücken verschweigt, wertlos is
 | **Keine Registrierkasse** | Wer die RKSV-Grenzen (15.000 € Umsatz und 7.500 € Barumsätze) überschreitet, braucht zusätzlich eine registrierkassenpflichtige Lösung | Nicht geplant |
 | **Keine E-Rechnung** | Ein PDF ist keine E-Rechnung nach EN 16931. In Deutschland gilt die Empfangspflicht seit 1.1.2025, die Versandpflicht kommt gestaffelt bis 2028 | Backlog G1 |
 | **Keine Storno-/Gutschriftsrechnung** | Eine gestellte Rechnung ist gesperrt; es gibt derzeit keinen Korrekturweg innerhalb der App | Backlog F4, Sprint 2 |
+| **Steuerwerte fest im Code** | Kennwerte haben kein Gültig-ab-Datum und ändern sich nur per App-Update; eine kurzfristige Gesetzesänderung erreicht die Nutzerin erst nach Store-Freigabe | Rechtsstand-Überwachung, Lastenheft L-20 und L-13.5, Stufe B |
 | **Nur eine Währung** | Nur Euro. Ein Land mit anderer Währung setzt Mehrwährungsfähigkeit voraus | Backlog G7 |
 | **Mengen mit zwei Dezimalstellen** | Die Mengeneingabe verarbeitet zwei Nachkommastellen, obwohl das Datenmodell drei erlaubt | – |
 | **Android-APK-Build nicht lokal verifiziert** | Im Entwicklungscontainer ist `dl.google.com` per Netzwerk-Policy gesperrt, das Android SDK ließ sich nicht installieren. Analyse, Format und Tests laufen lokal; die Plattform-Builds verifiziert die CI | – |
@@ -552,6 +553,7 @@ Umrechnung: Beträge in Cent. `5500000` Cent = 55.000,00 €.
 
 | Version | Datum | App-Version | Änderung |
 |---|---|---|---|
+| 1.7 | 2026-10-10 | 0.1.0 | Rechtsstand-Überwachung (Lastenheft L-20) als geplante Funktion: bekannte Grenze „Steuerwerte fest im Code", Validierungspunkte P-V1 bis P-V9. P-S1 um den Widerspruch der Prüfinstanzen (brutto/netto, Toleranzregel) ergänzt. Keine Codeänderung. |
 | 1.6 | 2026-10-10 | 0.1.0 | Prüfpunkt P-D8 für die Zusatzsicherung unter Windows. Keine Verhaltensänderung der App. |
 | 1.5 | 2026-10-10 | 0.1.0 | Befunde der Prüfinstanzen: Nummernvergabe in derselben Transaktion wie das Speichern (FA-5.5), Schreibschutz gestellter Rechnungen in der Datenschicht (FA-5.5a), DE-Rechnungshinweis „Steuerbefreiung nach § 19 UStG", Umsatzsteuerberechnung ohne `double`. Neuer Abschnitt 14 „Prüfung in der realen Welt" als einzige Sammelstelle für reale Prüfpunkte. |
 | 1.4 | 2026-10-10 | 0.1.0 | O-1 erledigt: Vorjahresgrenze Österreich 55.000 € ohne Toleranz (`spec.at.previous_year_limit_cents`). FA-4.6 gilt für beide Länder, Warnhinweis in 5.4 entfernt. |
@@ -604,7 +606,7 @@ Status: *offen* · *bestätigt* (mit Datum und Prüfer) · *widerlegt* (mit Folg
 
 | ID | Prüfpunkt | Vorbefund der Prüfinstanz | Benötigt vor | Status |
 |---|---|---|---|---|
-| P-S1 | AT Kleinunternehmer: netto, Vorjahr ohne Toleranz, ausgenommene Umsätze (Hilfsgeschäfte, bestimmte steuerfreie Umsätze) | netto bestätigt; die App zählt heute **alle** Einnahmen, auch Hilfsgeschäfte (FA-4.1) | Release | offen |
+| P-S1 | AT Kleinunternehmer: **brutto oder netto?** Gilt die Toleranz **unbeschränkt oder nur einmal in 5 Jahren?** Welche Umsätze zählen nicht (Hilfsgeschäfte, bestimmte steuerfreie Umsätze)? | **Die Prüfinstanzen widersprechen sich:** erster Bericht netto und keine 5-Jahres-Beschränkung mehr, zweiter Bericht brutto und einmal in 5 Jahren. Die App rechnet netto ohne 5-Jahres-Regel und zählt **alle** Einnahmen, auch Hilfsgeschäfte (FA-4.1) | **sofort** | offen |
 | P-S2 | DE Gründungsjahr: Grenze 25.000 € statt 100.000 € im laufenden Jahr | **noch nicht im Code** — das Gründungsjahr wird im Firmenprofil nicht erfasst; Umsetzung mit Schema 3 geplant | Release | offen |
 | P-S3 | DE Zuordnung des Umsatzes nach Zahlungseingang statt Belegdatum | Abweichung möglich über den Jahreswechsel | Stufe B | offen |
 | P-S4 | AT ermäßigter Satz 4,9 % für Grundnahrungsmittel ab 1.7.2026 | angekündigt, Beschluss unbekannt; nicht im Code | sofort | offen |
@@ -614,6 +616,20 @@ Status: *offen* · *bestätigt* (mit Datum und Prüfer) · *widerlegt* (mit Folg
 | P-S8 | Rechnungshinweis DE Kleinunternehmer | „Steuerbefreiung nach § 19 UStG (Kleinunternehmer)" empfohlen; seit Spezifikation 1.5 im Code | Release | offen |
 | P-S9 | AT Rechnung über 10.000 € brutto braucht UID des Empfängers | Prüfung im Formular fehlt | Release | offen |
 | P-S10 | GoBD/BAO: Unveränderbarkeit, Verfahrensdokumentation, RKSV-Abgrenzung bei Bareinnahmen | Belege werden heute endgültig gelöscht | Release | offen |
+
+### Rechtsstand-Überwachung (Validierung, Lastenheft L-20)
+
+| ID | Prüfpunkt | Vorbefund der Prüfinstanz | Benötigt vor | Status |
+|---|---|---|---|---|
+| P-V1 | Rückspieltest des Agenten gegen historische Änderungen (DE 16/5 % 2020, AT 5 % 2020/21, KU-Reformen 2025): alle erkannt, kein Vorschlag ohne gültiges Zitat | — | erstes Paket | offen |
+| P-V2 | Vollständiger Probelauf mit der echten Steuerberaterin vom Vorschlag bis zur Anwendung auf einem Testgerät | — | erstes Paket | offen |
+| P-V3 | Schlüsselzeremonie: Signaturschlüssel offline erzeugen, Reserveschlüssel, Notfall-Rotation einmal üben | — | erstes Paket | offen |
+| P-V4 | Fehlertests auf echten Geräten: manipuliertes, unsigniertes, älteres, abgelaufenes, unplausibles Paket; Flugmodus über einen Stichtag | — | Release Stufe B | offen |
+| P-V5 | Vertrag mit der Steuerberaterin (Freigabe für den Anbieter, Haftung, Versicherung, Vertretung) und Angebot zu den laufenden Kosten (O-27) | — | Stufe B | offen |
+| P-V6 | AGB-Klausel zu Aktualisierungen und Haftungsbegrenzung; keine Werbung mit „immer aktuell" | Haftung für Rechenfehler nicht über den Steuerhinweis ausschließbar | Stufe B | offen |
+| P-V7 | Datenschutz des Paketabrufs: EU-Hosting, Protokollkonfiguration des CDN, Datenschutzerklärung, Store-Angaben | IP-Adresse ist personenbezogen; Anbieter ist Verantwortlicher | Stufe B | offen |
+| P-V8 | Nutzungsbedingungen und Text-und-Data-Mining-Vorbehalte aller beobachteten Quellen; RIS-OGD mit CC-BY-Nennung | amtliche Texte gemeinfrei, Datenbanken teils geschützt | Stufe B | offen |
+| P-V9 | Feed-Adressen der amtlichen Quellen technisch prüfen (RIS, recht.bund.de, BMF, Findok, DIP) | — | Stufe B | offen |
 
 ### Softwareentwicklung (echte Geräte und Stores)
 
