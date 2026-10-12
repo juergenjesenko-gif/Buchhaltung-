@@ -37,7 +37,7 @@ flutter create --org com.deine-domain --project-name buchhaltung \
   zurückgehen. Beide Stores lehnen einen Upload mit bereits verwendeter
   Buildnummer ab.
 
-Auch jeder Testbuild der CI trägt seit 2026-10-12 `--build-number=github.run_number`; das Artefakt heißt `test-apk-build-<Nummer>`. Den Tag `v<Version>` setzt die Auftraggeberin auf GitHub unter Releases → „Draft a new release“ auf den Versions-Commit. Die CI kann das nicht: GitHub verweigert dem CI-Token Tags auf Commits mit Workflow-Änderungen (fehlende `workflows`-Berechtigung, Versuch vom 2026-10-12), und die Entwicklungsumgebung darf nur auf den Entwicklungsbranch pushen. Der Release-Workflow setzt die Buildnummer aus `github.run_number` – monoton
+Auch jeder Testbuild der CI trägt seit 2026-10-12 `--build-number=github.run_number`; das Artefakt ist ungezippt die arm64-APK `Buchhaltung-<Version>-build-<Nummer>.apk`. Den Tag `v<Version>` setzt die Auftraggeberin auf GitHub unter Releases → „Draft a new release“ auf den Versions-Commit. Die CI kann das nicht: GitHub verweigert dem CI-Token Tags auf Commits mit Workflow-Änderungen (fehlende `workflows`-Berechtigung, Versuch vom 2026-10-12), und die Entwicklungsumgebung darf nur auf den Entwicklungsbranch pushen. Der Release-Workflow setzt die Buildnummer aus `github.run_number` – monoton
 steigend und übersteht Reruns. Lokal:
 
 ```bash

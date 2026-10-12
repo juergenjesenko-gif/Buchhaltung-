@@ -144,20 +144,24 @@ jobs:
           echo "Signiert mit festem Testschlüssel."
 
       - name: Test-APK bauen
-        # Fortlaufende Buildnummer = Laufnummer der CI (versionCode steigt, Update ohne Deinstallation)
-        run: flutter build apk --release --split-per-abi --build-number=${{ github.run_number }}
+        # Nur arm64 (Pixel und praktisch jedes Telefon ab 2017); fortlaufende
+        # Buildnummer = Laufnummer der CI (versionCode steigt, Update ohne
+        # Deinstallation).
+        run: flutter build apk --release --target-platform android-arm64 --build-number=${{ github.run_number }}
 
-      - name: Größen ausgeben
-        run: ls -lh build/app/outputs/flutter-apk/*.apk
+      - name: APK benennen
+        run: |
+          version=$(sed -n 's/^version: *\([^+]*\).*/\1/p' pubspec.yaml)
+          mkdir -p out
+          cp build/app/outputs/flutter-apk/app-release.apk "out/Buchhaltung-${version}-build-${{ github.run_number }}.apk"
+          ls -lh out
 
-      # arm64-v8a deckt praktisch jedes Telefon ab, das nach 2017 gebaut wurde.
-      # armeabi-v7a liegt für ältere Geräte daneben.
-      - uses: actions/upload-artifact@v4
+      # Ungezippt (upload-artifact v7, archive: false): der Download ist direkt
+      # die APK, Name = Dateiname.
+      - uses: actions/upload-artifact@v7
         with:
-          name: test-apk-build-${{ github.run_number }}
-          path: |
-            build/app/outputs/flutter-apk/app-arm64-v8a-release.apk
-            build/app/outputs/flutter-apk/app-armeabi-v7a-release.apk
+          path: out/*.apk
+          archive: false
           retention-days: 14
           if-no-files-found: error
 

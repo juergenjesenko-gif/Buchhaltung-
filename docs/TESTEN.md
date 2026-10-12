@@ -15,15 +15,11 @@ Android-Telefon und einen Browser.
 1. Öffne **[Actions](https://github.com/juergenjesenko-gif/Buchhaltung-/actions)**
    im Repository
 2. Klick auf den obersten Lauf mit grünem Häkchen
-3. Ganz unten unter **Artifacts** liegt **`test-apk-build-<Nummer>`** (fortlaufende Buildnummer = Nummer des CI-Laufs, auch in Android unter App-Info → Version „0.1.0 (<Nummer>)“ sichtbar) – anklicken, ZIP wird
-   heruntergeladen
-4. ZIP entpacken. Darin zwei Dateien:
-   - **`app-arm64-v8a-release.apk`** ← die nimm. Passt auf jedes Telefon ab etwa 2017.
-   - `app-armeabi-v7a-release.apk` – nur für sehr alte Geräte
+3. Ganz unten unter **Artifacts** liegt **`Buchhaltung-<Version>-build-<Nummer>.apk`** (fortlaufende Buildnummer = Nummer des CI-Laufs, auch in Android unter App-Info → Version „<Version> (<Nummer>)“ sichtbar). Antippen – die APK wird direkt heruntergeladen, ohne ZIP (seit 2026-10-12 nur noch 64 Bit, `arm64`).
+4. Die heruntergeladene APK antippen und installieren.
 
-> Am bequemsten machst du das direkt am Telefon: Actions-Seite im Handy-Browser
-> öffnen, Artefakt herunterladen, entpacken (die Dateien-App von Android kann
-> das), APK antippen.
+> Am bequemsten direkt am Telefon: Actions-Seite im Handy-Browser öffnen,
+> APK herunterladen, antippen.
 
 Artefakte werden nach 14 Tagen automatisch gelöscht. Danach einfach den neuesten
 Lauf nehmen oder einen leeren Commit pushen.
@@ -44,8 +40,8 @@ Sicherheitsfunktion, kein Fehler.
 
 Erfahrungen aus dem ersten Test auf einem Pixel 10 (12.10.2026):
 
-- **Nur `app-arm64-v8a-release.apk` verwenden.** Aktuelle Handys laufen nur
-  noch mit 64 Bit; die `armeabi-v7a`-Datei lässt sich dort nicht installieren.
+- **Nur 64 Bit.** Aktuelle Handys laufen nur noch mit 64 Bit; die CI baut
+  deshalb seit 2026-10-12 nur noch die `arm64`-APK.
 - Die APK über die vorinstallierte App **„Dateien"** öffnen. Manche
   Dateimanager aus dem Play Store geben sie nicht an den Installer weiter.
 - Meldet die Installation nur „nicht installiert", steckt meist **Play

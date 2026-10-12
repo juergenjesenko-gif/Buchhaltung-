@@ -34,6 +34,7 @@ nächsten Versionssprung in den neuen Eintrag.
 
 | Art | Änderung | Bezug | Commit |
 |---|---|---|---|
+| Geändert | Testbuild nur noch arm64, ungezippt als `Buchhaltung-<Version>-build-<Nummer>.apk` (upload-artifact v7, `archive: false`) | Wunsch Auftraggeberin 2026-10-12 | dieser |
 
 ---
 
