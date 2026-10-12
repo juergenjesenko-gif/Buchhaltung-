@@ -1,6 +1,6 @@
 # Benutzerhandbuch – Buchhaltung
 
-**Für App-Version 0.3.0** · Stand 2026-10-12
+**Für App-Version 0.3.1** · Stand 2026-10-12
 
 Dieses Handbuch beschreibt die App aus Nutzersicht. Es wird bei jeder Änderung,
 die du in der App siehst, mitgeführt – siehe [`CLAUDE.md`](../CLAUDE.md).

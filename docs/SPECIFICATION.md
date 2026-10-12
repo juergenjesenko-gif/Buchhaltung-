@@ -1,6 +1,6 @@
 # Spezifikation – Buchhaltung
 
-**Dokumentversion:** 1.31 · **App-Version:** 0.3.0 · **Stand:** 2026-10-12
+**Dokumentversion:** 1.32 · **App-Version:** 0.3.1 · **Stand:** 2026-10-12
 **Status:** Sprint 1 umgesetzt und verifiziert
 
 > Das **Zielbild** des Produkts steht im [`LASTENHEFT.md`](LASTENHEFT.md); dieses
@@ -739,6 +739,7 @@ Umrechnung: Beträge in Cent. `5500000` Cent = 55.000,00 €.
 
 | Version | Datum | App-Version | Änderung |
 |---|---|---|---|
+| 1.32 | 2026-10-12 | 0.3.1 | App-Version 0.3.1: Fehlerbehebung Belegerkennung Android. |
 | 1.31 | 2026-10-12 | 0.3.0 | P-L7 teilweise und P-R10 festgelegt (Telefon, Gewerbe bestätigt). Keine Codeänderung. |
 | 1.30 | 2026-10-12 | 0.3.0 | App-Version 0.3.0 (Testbuild): Belegerkennung, Fremdwährung bei Eingangsbelegen, App-Symbol auf dem Startbildschirm. Schema 10. |
 | 1.29 | 2026-10-12 | 0.2.0 | App-Symbol auf dem Startbildschirm (Abschnitt 5.5c, FA-1.19): einmaliges Angebot und Eintrag in den Einstellungen über `ShortcutManager.requestPinShortcut` (Android 8+), Kanal `buchhaltung/launcher`, Merker im sicheren Speicher. Kein Schemawechsel. Prüfpunkt P-D24. |

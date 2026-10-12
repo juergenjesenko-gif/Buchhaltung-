@@ -29,12 +29,31 @@ gebaut, und was war darin geprüft?*
 
 ## Unveröffentlicht
 
-Änderungen seit 0.3.0+3, die noch in keinem Build stecken. Wandern beim
+Änderungen seit 0.3.1+4, die noch in keinem Build stecken. Wandern beim
 nächsten Versionssprung in den neuen Eintrag.
 
 | Art | Änderung | Bezug | Commit |
 |---|---|---|---|
-| Behoben | Android: Belegerkennung brach im Release-Build mit NullPointerException ab (`InputImage.fromFilePath`); Bild wird jetzt selbst dekodiert, verkleinert und mit EXIF-Drehung übergeben; verständliche Fehlermeldung statt technischem Text | FA-2.19, Gerätetest Pixel 10 2026-10-12 | dieser |
+
+---
+
+## 0.3.1+4 — 2026-10-12
+
+| Feld | Wert |
+|---|---|
+| Art | Testbuild (CI-APK, Artefakt `test-apk-build-<Nummer>`, fester Testschlüssel); Fehlerbehebung zu 0.3.0 |
+| Commit | siehe Git-Tag `v0.3.1` |
+| Branch | `claude/agile-accounting-app-mobile-wa5j3h` |
+| Dokumentstände | Lastenheft 1.42, Spezifikation 1.32, Benutzerhandbuch für 0.3.1 |
+| Datenbankschema | 10 |
+| Prüfung | `flutter analyze` ohne Befund, 250 Tests grün, CI siehe Lauf zum Tag |
+| Offene reale Prüfpunkte | wie 0.3.0, insbesondere P-D21, P-D22 (Belegerkennung auf dem Pixel erneut prüfen) |
+
+**Änderungen seit 0.3.0+3**
+
+| Art | Änderung | Bezug | Commit |
+|---|---|---|---|
+| Behoben | Android: Belegerkennung brach im Release-Build mit NullPointerException ab (`InputImage.fromFilePath`); Bild wird jetzt selbst dekodiert, verkleinert und mit EXIF-Drehung übergeben; verständliche Fehlermeldung statt technischem Text | FA-2.19, Gerätetest Pixel 10 2026-10-12 | dfd14d8 |
 
 ---
 
