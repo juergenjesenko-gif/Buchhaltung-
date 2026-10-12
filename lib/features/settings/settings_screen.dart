@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../core/formatting.dart';
+import '../app_lock/app_lock_settings_screen.dart';
 import '../backup/backup_screen.dart';
 import '../../app_state.dart';
 import '../../domain/receipt.dart';
@@ -58,6 +59,22 @@ class SettingsScreen extends StatelessWidget {
                   trailing: const Icon(Icons.chevron_right),
                   onTap: () => Navigator.of(context).push(
                     MaterialPageRoute(builder: (_) => const BackupScreen()),
+                  ),
+                ),
+                ListTile(
+                  contentPadding: EdgeInsets.zero,
+                  leading: const Icon(Icons.lock_outline),
+                  title: const Text('App-Sperre'),
+                  subtitle: Text(
+                    state.lockEnabled
+                        ? 'Ein – PIN, optional Fingerabdruck/Face ID'
+                        : 'Aus',
+                  ),
+                  trailing: const Icon(Icons.chevron_right),
+                  onTap: () => Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (_) => const AppLockSettingsScreen(),
+                    ),
                   ),
                 ),
                 ListTile(

@@ -244,10 +244,16 @@ class PasswordField extends StatefulWidget {
     this.helperText,
     this.validator,
     this.autofocus = false,
+    this.digitsOnly = false,
+    this.onSubmitted,
   });
 
   final TextEditingController controller;
   final String label;
+
+  /// Ziffernblock und nur Ziffern (PIN der App-Sperre).
+  final bool digitsOnly;
+  final ValueChanged<String>? onSubmitted;
   final String? helperText;
   final FormFieldValidator<String>? validator;
   final bool autofocus;
@@ -268,6 +274,11 @@ class _PasswordFieldState extends State<PasswordField> {
       autocorrect: false,
       enableSuggestions: false,
       validator: widget.validator,
+      onFieldSubmitted: widget.onSubmitted,
+      keyboardType: widget.digitsOnly ? TextInputType.number : null,
+      inputFormatters: widget.digitsOnly
+          ? [FilteringTextInputFormatter.digitsOnly]
+          : null,
       decoration: InputDecoration(
         labelText: widget.label,
         helperText: widget.helperText,

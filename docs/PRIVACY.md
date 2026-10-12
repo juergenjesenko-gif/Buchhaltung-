@@ -72,6 +72,13 @@ deinem Gerät (Schlüsselbund bzw. Keystore, nicht synchronisiert); du erhältst
 einen Wiederherstellungscode. Der Anbieter erhält weder Datei noch Schlüssel.
 Die Funktion ist standardmäßig aus.
 
+**App-Sperre:** Schaltest du sie ein, speichert die App nur einen gesalzenen
+Hash deiner PIN (Argon2id) im Schlüsselbund bzw. Keystore des Geräts, nie die
+PIN selbst und nie in einer Sicherung. Fingerabdruck und Face ID wertet das
+Betriebssystem aus; die App erhält **keine biometrischen Daten**, nur die
+Rückmeldung „erkannt" oder „nicht erkannt". Dabei werden keine Daten
+übertragen. Die Funktion ist standardmäßig aus.
+
 Die automatische Sicherung von Android (Google Drive) und die
 Gerät-zu-Gerät-Übertragung sind für diese App **deaktiviert**
 (`data_extraction_rules.xml`), damit deine Buchhaltungsdaten nicht ohne dein
@@ -107,6 +114,7 @@ Datenschutzerklärung des jeweiligen Dienstes.
 | Kamera | Belege abfotografieren |
 | Fotobibliothek (lesen) | Bereits vorhandene Belegfotos hinzufügen |
 | Fotobibliothek (schreiben) | Eine erstellte Rechnung in der Fotobibliothek ablegen |
+| Face ID / Biometrie | Nur bei eingeschalteter App-Sperre: Entsperren; die Auswertung erfolgt durch das System |
 
 Die App fragt jede Berechtigung erst dann ab, wenn du die zugehörige Funktion
 nutzt. Verweigerte Berechtigungen schränken nur diese Funktion ein.

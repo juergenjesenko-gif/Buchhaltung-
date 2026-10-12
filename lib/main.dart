@@ -5,6 +5,7 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:intl/date_symbol_data_local.dart';
 
 import 'app_state.dart';
+import 'features/app_lock/lock_screen.dart';
 import 'features/home/home_shell.dart';
 import 'features/onboarding/company_setup_screen.dart';
 import 'features/onboarding/consent_screen.dart';
@@ -21,7 +22,12 @@ Future<void> main() async {
   unawaited(state.runVatChecksIfDue());
   unawaited(state.runAutoBackupIfDue());
   _lifecycle = AppLifecycleListener(
+    // App-Sperre: Zeitpunkt merken und Inhalt abdecken, sobald die App den
+    // Vordergrund verlässt; beim Zurückkehren je nach Sperrzeit sperren.
+    onInactive: state.onAppInactive,
+    onHide: state.onAppHidden,
     onResume: () {
+      state.onAppResumed();
       unawaited(state.runVatChecksIfDue());
       unawaited(state.runAutoBackupIfDue());
     },
@@ -55,6 +61,7 @@ class BuchhaltungApp extends StatelessWidget {
         supportedLocales: const [Locale('de', 'AT'), Locale('de', 'DE')],
         locale: const Locale('de'),
         home: const _Root(),
+        builder: (context, child) => AppLockGate(child: child!),
       ),
     );
   }

@@ -34,6 +34,14 @@ class Fmt {
   }
 
   /// "16.08.2026"
+  /// Wartezeit, z. B. „45 s" oder „2 min 05 s".
+  static String duration(Duration value) {
+    final s = value.isNegative ? 0 : (value.inMilliseconds + 999) ~/ 1000;
+    if (s < 60) return '$s s';
+    final rest = (s % 60).toString().padLeft(2, '0');
+    return '${s ~/ 60} min $rest s';
+  }
+
   static String date(DateTime value) =>
       DateFormat('dd.MM.yyyy', _locale).format(value);
 

@@ -1,6 +1,6 @@
 # Lastenheft – Buchhaltungsapp für Österreich und Deutschland
 
-**Dokumentversion:** 1.38 · **Stand:** 2026-10-09 · **Status:** Entwurf zur Abstimmung
+**Dokumentversion:** 1.39 · **Stand:** 2026-10-12 · **Status:** Entwurf zur Abstimmung
 **Auftraggeber:** Jürgen Jesenko (privates Vorhaben) · **Umsetzung:** Claude Code
 
 > Ein Lastenheft beschreibt, **was** das Produkt leisten soll und **warum** — nicht,
@@ -263,7 +263,7 @@ Priorität: **MUSS** = ohne das kein Release · **SOLL** = wichtig, verhandelbar
 | L-7.17 | **iOS: Sicherung standardmäßig in den App-eigenen iCloud-Drive-Container** (iCloud Documents, kein CloudKit); einmaliger Hinweis zu Ort, Verschlüsselung und Abschaltbarkeit; abschaltbar in den Einstellungen (Art. 25 DSGVO) | MUSS | A |
 | L-7.18 | iCloud nicht verfügbar (abgemeldet, deaktiviert): Rückfall auf die Ordnerwahl, Zustand sichtbar | MUSS | A |
 | L-7.19 | „Gesichert“ erst nach bestätigtem Hochladen; Speicher voll und Upload-Fehler als Warnung | MUSS | A |
-| L-7.20 | iCloud-Ordner in der Dateien-App sichtbar (Portabilität, L-7.13) | SOLL | A |
+| L-7.20 | iCloud-Ordner in der Dateien-App sichtbar (Portabilität, L-7.13). **Entscheidung der Auftraggeberin vom 2026-10-12: MUSS**; umgesetzt mit L-7.17, noch nicht gebaut | MUSS | A |
 | L-7.21 | Android: Ordnerwahl (Storage Access Framework) ist der Hauptweg, mit Google Drive auf Pixel 10 erfolgreich getestet. Drive-Schnittstelle nur als Ersatz und nur mit Scope `drive.file`; `drive.appdata` ausgeschlossen | MUSS | A |
 | L-7.22 | **Keine Anmeldung mit Google- oder Apple-Konto** und kein Konto beim Anbieter (Entscheidung der Auftraggeberin 2026-10-12); eine Drive-Autorisierung dient nur dem Dateizugriff | MUSS | A |
 
@@ -836,7 +836,7 @@ Charge) und erhält die Auszahlung abzüglich Provision.
 | L-22.27 | Aktionen als Store-Offers: (a) 1–3 Monate gratis nur für Neukundinnen, (b) Prozentrabatt auf das Jahresabo; je Partnerin eigener Custom Code mit Einlöselimit und Ablauf, regelmäßig ersetzt; Einmalcodes für Gewinnspiele | SOLL | B |
 | L-22.28 | Affiliate-Abrechnung nur auf Basis der Console-Berichte; kein Tracking in der App | MUSS | B |
 | L-22.29 | Aktionspreise mit Folgepreis, Laufzeit und Verlängerung; Jahresrabatt als Vergleich zum 12-fachen Monatspreis, kein Streichpreis ohne 30-Tage-Bezug | MUSS | A |
-| L-22.30 | Optionale App-Sperre (Biometrie/PIN, lokal; Zurücksetzen durch Neuinstallation und Wiederherstellung) – Entscheidung der Auftraggeberin offen | KANN | C |
+| L-22.30 | Optionale App-Sperre mit PIN (Pflicht-Rückfall) und optional Fingerabdruck/Face ID, lokal; Sperre beim Start und nach einstellbarer Zeit im Hintergrund; steigende Wartezeit nach Fehlversuchen; Inhalt im App-Umschalter verdeckt; kein Zurücksetzen durch den Anbieter, Weg ist Neuinstallation und Wiederherstellung aus der Sicherung, beim Einrichten erklärt mit Warnung ohne Sicherung. **Entscheidung der Auftraggeberin vom 2026-10-12; umgesetzt, Spezifikation FA-1.13 bis FA-1.18** | SOLL | A |
 
 ---
 
@@ -1142,6 +1142,7 @@ Zu entscheiden, bevor die betroffene Anforderung umgesetzt wird:
 
 | Version | Datum | Änderung |
 |---|---|---|
+| 1.39 | 2026-10-12 | Entscheidungen der Auftraggeberin: L-22.30 App-Sperre KANN/C → SOLL/A und umgesetzt (Spezifikation 5.5b); L-7.20 iCloud-Ordner in der Dateien-App SOLL → MUSS (Bau mit L-7.17 offen). |
 | 1.38 | 2026-10-12 | L-22.21 bis L-22.30: Wiederherstellungscode statt Passwort-Zurücksetzen, Promocodes und Affiliates über Store-Offers, Preisangaben. Erlösrechnung: rund 71 % des Bruttopreises kommen bei der Anbieterin an. Geprüft von allen drei Instanzen. |
 | 1.37 | 2026-10-12 | Umgesetzt mit Schema 8: Firmenlogo (L-1.7, neu L-1.9), mehrseitige Belege mit Vollständigkeitsbestätigung (L-2.15, L-2.16), Kommentare nur anhängbar (L-2.17), Diktat über die Systemtastatur (L-2.18). Geprüft von Steuerberater und Softwareentwickler. |
 | 1.36 | 2026-10-12 | Keine Anmeldung mit Google/Apple (L-7.22); iCloud-Container als Standard unter iOS (L-7.17 bis L-7.20); Android-Ordnerwahl bleibt Hauptweg (L-7.21); Schlüssel nie im iCloud-Schlüsselbund (L-19.27, L-19.28). Geprüft von Rechtsanwalt und Softwareentwickler. |

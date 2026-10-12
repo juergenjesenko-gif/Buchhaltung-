@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:buchhaltung/data/app_database.dart';
 import 'package:buchhaltung/domain/company_profile.dart';
+import 'package:buchhaltung/services/app_lock/app_lock_service.dart';
 import 'package:buchhaltung/services/backup/auto_backup_service.dart';
 import 'package:buchhaltung/services/backup/backup_retention.dart';
 import 'package:buchhaltung/domain/country.dart';
@@ -75,6 +76,33 @@ void main() {
       value(key).split(',').map((part) => int.parse(part.trim())).toList();
 
   group('Allgemeine Kenndaten', () {
+    test('App-Sperre stimmt', () {
+      expect(
+        intValue('spec.app_lock_pin_min_digits'),
+        AppLockPolicy.pinMinDigits,
+      );
+      expect(
+        intValue('spec.app_lock_pin_max_digits'),
+        AppLockPolicy.pinMaxDigits,
+      );
+      expect(
+        intValue('spec.app_lock_default_timeout_seconds'),
+        AppLockPolicy.defaultTimeoutSeconds,
+      );
+      expect(
+        intValue('spec.app_lock_free_attempts'),
+        AppLockPolicy.freeAttempts,
+      );
+      expect(
+        intValue('spec.app_lock_backoff_initial_seconds'),
+        AppLockPolicy.backoffInitialSeconds,
+      );
+      expect(
+        intValue('spec.app_lock_backoff_max_seconds'),
+        AppLockPolicy.backoffMaxSeconds,
+      );
+    });
+
     test('Automatische Sicherung stimmt', () {
       const retention = BackupRetention();
       expect(intValue('spec.auto_backup_keep_daily'), retention.daily);

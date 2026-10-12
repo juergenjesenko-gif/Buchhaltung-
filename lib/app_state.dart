@@ -15,6 +15,8 @@ import 'services/backup/auto_backup_service.dart';
 import 'services/backup/backup_service.dart';
 import 'services/backup/platform_backup_target.dart';
 import 'services/turnover_basis.dart';
+import 'services/app_lock/app_lock_service.dart';
+import 'services/app_lock/platform_app_lock.dart';
 
 /// Anwendungszustand. Bewusst ein einziger [ChangeNotifier] statt eines
 /// State-Management-Pakets: der Zustand dieser App ist klein und
@@ -27,7 +29,95 @@ class AppState extends ChangeNotifier {
     final db = await AppDatabase.instance.database;
     final state = AppState(Repositories(db));
     await state.reload();
+    await state.initAppLock();
     return state;
+  }
+
+  // ---------------------------------------------------------------------
+  // App-Sperre (L-22.30, FA-1.13 bis FA-1.18)
+
+  late final AppLockService appLock = AppLockService(
+    const SecureAppLockStore(),
+  );
+  bool _lockEnabled = false;
+  bool _locked = false;
+  bool _obscured = false;
+  int _lockTimeoutSeconds = AppLockPolicy.defaultTimeoutSeconds;
+  DateTime? _backgroundSince;
+
+  bool get lockEnabled => _lockEnabled;
+
+  /// Sperrbildschirm zeigen.
+  bool get isLocked => _locked;
+
+  /// Inhalt im App-Umschalter abdecken.
+  bool get isObscured => _obscured;
+
+  /// Liest die Einstellung; beim Start ist die App gesperrt, wenn aktiv.
+  Future<void> initAppLock() async {
+    try {
+      _lockEnabled = await appLock.isEnabled();
+      _lockTimeoutSeconds = await appLock.timeoutSeconds();
+    } on Object {
+      // Kein Schlüsselbund (Tests): Sperre aus.
+      _lockEnabled = false;
+    }
+    _locked = _lockEnabled;
+    await const RecentsPrivacy().hidePreview(_lockEnabled);
+    notifyListeners();
+  }
+
+  /// Nach Einrichten, Ändern oder Ausschalten.
+  Future<void> appLockChanged() async {
+    await initAppLock();
+    _locked = false;
+    notifyListeners();
+  }
+
+  /// System-Dialoge (Biometrie, Teilen) machen die App nur inaktiv: abdecken,
+  /// aber die Sperrzeit läuft erst ab [onAppHidden].
+  void onAppInactive() {
+    if (_lockEnabled && !_locked && !_obscured) {
+      _obscured = true;
+      notifyListeners();
+    }
+  }
+
+  void onAppHidden() {
+    _backgroundSince ??= DateTime.now();
+    if (_lockEnabled && !_obscured) {
+      _obscured = true;
+      notifyListeners();
+    }
+  }
+
+  void onAppResumed() {
+    final since = _backgroundSince;
+    _backgroundSince = null;
+    if (_lockEnabled &&
+        since != null &&
+        AppLockPolicy.shouldLockAfterBackground(
+          backgroundSince: since,
+          now: DateTime.now(),
+          timeoutSeconds: _lockTimeoutSeconds,
+        )) {
+      _locked = true;
+    }
+    _obscured = false;
+    notifyListeners();
+  }
+
+  /// Ob es irgendeine Sicherung gibt (von Hand oder automatisch); Grundlage
+  /// der Warnung beim Einrichten der Sperre (FA-1.18).
+  Future<bool> hasAnyBackup() async {
+    if (_profile?.lastBackupAt != null) return true;
+    final db = await AppDatabase.instance.database;
+    return (await AutoBackupSettings.load(db)).lastAt != null;
+  }
+
+  void unlock() {
+    _locked = false;
+    notifyListeners();
   }
 
   final Repositories repositories;

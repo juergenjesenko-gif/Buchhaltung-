@@ -84,3 +84,8 @@ kotlin {
 flutter {
     source = "../.."
 }
+
+dependencies {
+    // Theme.AppCompat für den Startbildschirm (Voraussetzung von local_auth)
+    implementation("androidx.appcompat:appcompat:1.7.0")
+}

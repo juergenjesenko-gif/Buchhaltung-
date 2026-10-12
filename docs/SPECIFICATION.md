@@ -1,6 +1,6 @@
 # Spezifikation – Buchhaltung
 
-**Dokumentversion:** 1.22 · **App-Version:** 0.1.0 · **Stand:** 2026-10-12
+**Dokumentversion:** 1.23 · **App-Version:** 0.1.0 · **Stand:** 2026-10-12
 **Status:** Sprint 1 umgesetzt und verifiziert
 
 > Das **Zielbild** des Produkts steht im [`LASTENHEFT.md`](LASTENHEFT.md); dieses
@@ -363,6 +363,21 @@ Liefer-/Leistungsdatum, Entgelt je Steuersatz, Steuersatz und Steuerbetrag oder
 | FA-7.14 | Rotation im Ordner nur für eigene Dateien `Auto-Sicherung_JJJJ-MM-TT_HHMMSS.jbbackup`: die letzten **7**, je Monat die jüngste der letzten **12** Monate, **je Kalenderjahr die jüngste dauerhaft** (`spec.auto_backup_keep_daily`, `spec.auto_backup_keep_monthly`) |
 | FA-7.15 | „Sicherung prüfen" entschlüsselt die jüngste automatische Sicherung, ohne etwas zu ersetzen; Protokoll `verify` |
 
+### 5.5b App-Sperre
+
+Entscheidung der Auftraggeberin vom 2026-10-12 (Lastenheft L-22.30).
+Fachlogik: `lib/services/app_lock/app_lock_service.dart`, Plattform:
+`lib/services/app_lock/platform_app_lock.dart`.
+
+| ID | Anforderung |
+|---|---|
+| FA-1.13 | **Optional**, Einstellungen → App-Sperre. Aus ist der Standard. Einschalten erst nach der Bestätigung, dass eine vergessene PIN nicht zurückgesetzt werden kann |
+| FA-1.14 | **PIN als Pflicht-Rückfall**, **6 bis 8 Ziffern** (`spec.app_lock_pin_*`); abgelehnt werden gleiche Ziffern (`000000`) und einfache Folgen (`123456`, `876543`). Begründung: 4 Ziffern (10.000 Kombinationen) sind mit Mustern zu leicht; 6 Ziffern entsprechen NIST SP 800-63B 5.1.1 und den Vorgaben von iOS/Android. Gespeichert wird nur ein Argon2id-Hash (Parameter wie FA-7.2, Salz 16 Byte, Format `v1:Speicher:Durchläufe:Parallelität:Salz:Hash`) in `flutter_secure_storage` (iOS `first_unlock_this_device`, nicht synchronisiert), **nie in SQLite** und damit nie in einer Sicherung. Vergleich in konstanter Zeit |
+| FA-1.15 | Gesperrt beim Start und bei Rückkehr nach einer einstellbaren Zeit im Hintergrund: sofort, 1 (Standard, `spec.app_lock_default_timeout_seconds`), 5 oder 15 Minuten. Die Zeit läuft ab `AppLifecycleState.hidden`; reine Inaktivität (System-Dialog, Biometrie) zählt nicht. Eine zurückgestellte Uhr sperrt sofort. Die Sperre liegt über der Navigation (`AppLockGate` im `MaterialApp.builder`), danach geht es an derselben Stelle weiter |
+| FA-1.16 | **Biometrie** (Fingerabdruck, Face ID) optional über `local_auth`, nur wenn das Gerät sie anbietet; Prüfung durch das System, die App erhält nur das Ergebnis. Android: `MainActivity` erbt von `FlutterFragmentActivity`, Starttheme `Theme.AppCompat`; iOS: `NSFaceIDUsageDescription` |
+| FA-1.17 | Im App-Umschalter wird der Inhalt verdeckt, solange die Sperre eingeschaltet ist: Flutter-Abdeckung ab `inactive` (beide Plattformen), zusätzlich Android 13+ `setRecentsScreenshotEnabled(false)` über Kanal `buchhaltung/app_lock`. **Kein `FLAG_SECURE`**, damit Bildschirmfotos (z. B. für den Support) möglich bleiben. Wirksamkeit: P-D17 |
+| FA-1.18 | Fehlversuche: **5** ohne Wartezeit, dann **30 s**, je weiterem Fehlversuch verdoppelt bis **1 Stunde** (`spec.app_lock_free_attempts`, `spec.app_lock_backoff_*`). Zähler und Wartezeit liegen im sicheren Speicher und überstehen einen Neustart; richtige PIN oder Biometrie setzt sie zurück. Keine Datenlöschung nach Fehlversuchen. **Vergessene PIN:** kein Zurücksetzen durch den Anbieter; Weg ist App-Daten löschen bzw. neu installieren und aus der Sicherung wiederherstellen. Erklärt beim Einrichten und auf dem Sperrbildschirm; ohne vorhandene Sicherung (von Hand oder automatisch) erscheint beim Einrichten eine Warnung mit Weg zur Datensicherung. Ausschalten und PIN ändern nur mit der aktuellen PIN |
+
 ### 5.6 Export
 
 | ID | Anforderung |
@@ -436,7 +451,9 @@ Kleinunternehmer:
 | Kunde bearbeiten | `features/invoices/customer_edit_screen.dart` | Kundenstammdaten |
 | Datensicherung | `features/backup/backup_screen.dart` | Sicherung erstellen und teilen, wiederherstellen mit Vorschau |
 | Export | `features/export/export_screen.dart` | Zeitraum, Vorschau, Format |
-| Einstellungen | `features/settings/settings_screen.dart` | Stammdaten, Kategorien, Rechtsrahmen, Hinweise |
+| Einstellungen | `features/settings/settings_screen.dart` | Stammdaten, App-Sperre, Kategorien, Rechtsrahmen, Hinweise |
+| App-Sperre einrichten | `features/app_lock/app_lock_settings_screen.dart` | PIN, Biometrie, Sperrzeit, Hinweis „PIN vergessen“, Warnung ohne Sicherung |
+| Sperrbildschirm | `features/app_lock/lock_screen.dart` | PIN oder Biometrie, Wartezeit nach Fehlversuchen; Abdeckung im App-Umschalter |
 
 **Navigation:** Vier Ziele in der Tab-Leiste – Übersicht, Belege, Rechnungen,
 Export. Einstellungen erreicht man über das Zahnrad in der Übersicht.
@@ -536,6 +553,8 @@ Ziel nicht und protokolliert es nicht.
 | Kamera | `NSCameraUsageDescription` | Belege abfotografieren |
 | Fotobibliothek lesen | `NSPhotoLibraryUsageDescription` | Vorhandene Belegfotos hinzufügen |
 | Fotobibliothek schreiben | `NSPhotoLibraryAddUsageDescription` | Rechnung in der Fotobibliothek ablegen |
+| Face ID | `NSFaceIDUsageDescription` | App-Sperre entsperren (FA-1.16); Auswertung durch das System |
+| Biometrie (Android) | `USE_BIOMETRIC` (über `local_auth`) | App-Sperre entsperren (FA-1.16); Auswertung durch das System |
 
 Android benötigt für `image_picker` keine Manifest-Berechtigung, weil die
 Aufnahme über die System-Kamera-App per Intent läuft.
@@ -587,6 +606,12 @@ spec.logo_max_edge_px = 800
 spec.logo_quality_percent = 90
 spec.trend_months = 6
 spec.dashboard_recent_receipts = 5
+spec.app_lock_pin_min_digits = 6
+spec.app_lock_pin_max_digits = 8
+spec.app_lock_default_timeout_seconds = 60
+spec.app_lock_free_attempts = 5
+spec.app_lock_backoff_initial_seconds = 30
+spec.app_lock_backoff_max_seconds = 3600
 
 # Österreich – § 6 Abs 1 Z 27 UStG, § 11 Abs 6 UStG, § 132 BAO
 spec.at.vat_permille = 200,130,100,0
@@ -629,6 +654,7 @@ Umrechnung: Beträge in Cent. `5500000` Cent = 55.000,00 €.
 
 | Version | Datum | App-Version | Änderung |
 |---|---|---|---|
+| 1.23 | 2026-10-12 | 0.1.0 | App-Sperre (Abschnitt 5.5b, FA-1.13 bis FA-1.18, Lastenheft L-22.30): PIN 6–8 Ziffern als Argon2id-Hash im sicheren Speicher, Biometrie über `local_auth`, Sperrzeit, steigende Wartezeit, Abdeckung im App-Umschalter. Neue Kennwerte `spec.app_lock_*`, zwei neue Bildschirme, Prüfpunkte P-D17, P-D18. |
 | 1.22 | 2026-10-12 | 0.1.0 | Prüfpunkte P-S19 bis P-S22, P-R15 bis P-R17, P-D14 bis P-D16 (Store-Erlös, Wiederherstellungscode, Promocodes). Keine Codeänderung. |
 | 1.21 | 2026-10-12 | 0.1.0 | GR-8 vollständig: das PDF gestellter Rechnungen nimmt alle Absenderangaben aus `seller_snapshot` (`InvoiceSeller`), mit Rückfall je fehlendem Feld; abgebrochene Belegerfassung löscht nie gespeicherte Seiten (FA-2.13). |
 | 1.20 | 2026-10-12 | 0.1.0 | Schema 8: mehrseitige Belege (`receipt_pages`, FA-2.13 bis FA-2.15), Kommentare nur anhängbar (`receipt_comments`, FA-2.16), Diktat über die Systemtastatur (FA-2.17), stornierte Belege lesbar (FA-2.18), Firmenlogo im PDF, eingefroren bei Rechnungslegung (`logo_path`, FA-1.12). Sicherung mit `logo/` (FA-7.6), Export mit Seiten und Kommentaren (FA-6.7, 8.2). Neue Kennwerte `spec.logo_*`, Prüfpunkte P-D11 bis P-D13. |
@@ -814,4 +840,6 @@ Status: *offen* · *bestätigt* (mit Datum und Prüfer) · *widerlegt* (mit Folg
 | P-D14 | Offer Codes (App Store Connect) und Promo Codes (Play Console) anlegen; Einlösung als Neu- und Bestandskundin, Limits, Ablauf | — | vor erster Aktion | offen |
 | P-D15 | Eingelöste Codes und Ende der Gratisphase werden ohne Server erkannt (StoreKit 2, Billing Library) | — | Release | offen |
 | P-D16 | Codeblatt als PDF, Druck und Autofill auf iOS und Android ansehen | — | Release | offen |
+| P-D17 | App-Sperre auf echten Geräten: Fingerabdruck (Android), Face ID und Touch ID (iOS), Rückfall auf PIN, Sperre nach Zeit im Hintergrund; Vorschau im App-Umschalter verdeckt (iOS-Abdeckung, Android 13+ `setRecentsScreenshotEnabled`, Android < 13 nur Flutter-Abdeckung) | Flutter-Abdeckung kann auf Android < 13 zu spät gezeichnet werden; dann FLAG_SECURE erwägen | Release | offen |
+| P-D18 | Android-Build nach Umstellung auf `FlutterFragmentActivity` und `Theme.AppCompat`: Start, Sicherungsordner-Wahl (`onActivityResult`) und Startbildschirm hell/dunkel, auch unter Android 8 | im Container nicht baubar; CI prüft den Build, nicht das Verhalten | Release | offen |
 | P-D8 | Zusatzsicherung unter Windows (`tool/sicherung/sicherung.ps1`): Erstlauf, Aufgabenplanung, Wiederherstellung | Linux-Variante getestet, Windows-Skript nie ausgeführt | sofort | offen |

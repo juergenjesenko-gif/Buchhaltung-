@@ -1,6 +1,6 @@
 # Benutzerhandbuch – Buchhaltung
 
-**Für App-Version 0.1.0** · Stand 2026-08-17
+**Für App-Version 0.1.0** · Stand 2026-10-12
 
 Dieses Handbuch beschreibt die App aus Nutzersicht. Es wird bei jeder Änderung,
 die du in der App siehst, mitgeführt – siehe [`CLAUDE.md`](../CLAUDE.md).
@@ -492,6 +492,33 @@ und Fristen zum Nachschauen
 
 **Daten und Sicherung** – siehe nächster Abschnitt
 
+**App-Sperre** – schützt die App mit einer PIN und, wenn dein Gerät es kann,
+mit Fingerabdruck oder Face ID. Standardmäßig aus.
+
+*Einrichten:* Einstellungen → App-Sperre. Lies den Hinweis zur vergessenen PIN,
+lege eine PIN mit 6 bis 8 Ziffern fest (zweimal; `000000` oder `123456` gehen
+nicht), schalte auf Wunsch Fingerabdruck/Face ID ein und wähle, wann die App im
+Hintergrund sperren soll: sofort, nach 1 Minute (Standard), 5 oder 15 Minuten.
+Bestätige den Hinweis und tippe auf „App-Sperre einschalten". Hast du noch
+keine Sicherung, warnt dich die App und bietet den Weg zur Datensicherung an –
+lege bitte **vorher** eine an.
+
+*Im Alltag:* Beim Start und nach der gewählten Zeit im Hintergrund fragt die
+App nach Fingerabdruck/Face ID oder PIN. Im App-Umschalter ist der Inhalt
+verdeckt. Nach fünf falschen PINs musst du 30 Sekunden warten, danach jeweils
+doppelt so lange, höchstens eine Stunde. Daten werden dabei nie gelöscht.
+
+*PIN ändern oder ausschalten:* Einstellungen → App-Sperre, mit der aktuellen
+PIN. „PIN ändern" schaltet die Sperre aus; du legst danach gleich eine neue PIN
+fest.
+
+*PIN vergessen:* Niemand kann die PIN zurücksetzen, auch der Anbieter nicht –
+es gibt kein Konto und keinen Server. Der Weg: App-Daten löschen (Android:
+Einstellungen → Apps → Buchhaltung → Speicher → Daten löschen) oder die App
+löschen und neu installieren, dann bei der Ersteinrichtung „Aus Sicherung
+wiederherstellen" mit Kennwort bzw. Wiederherstellungscode. Was nach der
+letzten Sicherung erfasst wurde, ist dabei verloren.
+
 **Wichtiger Hinweis** – die rechtliche Abgrenzung. Bitte einmal lesen.
 
 ---
@@ -622,6 +649,14 @@ neu einrichten; du bekommst einen neuen Wiederherstellungscode.
 
 **„Mindestens 10 Zeichen"** / **„Die Kennwörter stimmen nicht überein"** — beim
 Kennwort der Datensicherung.
+
+**„6 bis 8 Ziffern"**, **„Nicht nur dieselbe Ziffer"**, **„Keine einfache
+Zahlenfolge"**, **„Stimmt nicht überein"** — beim Festlegen der PIN der
+App-Sperre.
+
+**„Zu viele Fehlversuche. Nächster Versuch in …"** — auf dem Sperrbildschirm
+nach fünf falschen PINs. Warten; Fingerabdruck/Face ID funktioniert weiterhin.
+PIN vergessen: siehe Abschnitt 10, App-Sperre.
 
 **„Das Kennwort passt nicht zu dieser Sicherung, oder die Datei ist
 beschädigt."** — Kennwort prüfen (Groß- und Kleinschreibung). Stimmt es, ist

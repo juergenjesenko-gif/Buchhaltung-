@@ -170,6 +170,25 @@ class BackupCrypto {
     }
   }
 
+  /// Argon2id-Schlüsselableitung, auch für den PIN-Hash der App-Sperre
+  /// (`lib/services/app_lock/app_lock_service.dart`) verwendet.
+  static Future<List<int>> deriveBytes(
+    String secret,
+    List<int> salt, {
+    required int memoryKiB,
+    required int iterations,
+    required int parallelism,
+  }) async {
+    final key = await _deriveKey(
+      secret,
+      salt,
+      memoryKiB: memoryKiB,
+      iterations: iterations,
+      parallelism: parallelism,
+    );
+    return key.extractBytes();
+  }
+
   static Future<SecretKey> _deriveKey(
     String passphrase,
     List<int> salt, {

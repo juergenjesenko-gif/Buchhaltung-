@@ -37,6 +37,7 @@ dependencies:
   cryptography: ^2.9.0
   archive: ^4.4.0
   flutter_secure_storage: ^10.3.4
+  local_auth: ^3.0.2
 
 dev_dependencies:
   flutter_test:
