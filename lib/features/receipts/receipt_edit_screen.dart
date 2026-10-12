@@ -12,6 +12,7 @@ import '../../services/receipt_image_store.dart';
 import '../../services/vat_calculator.dart';
 import '../../theme.dart';
 import '../../widgets/common.dart';
+import '../../widgets/adaptive.dart';
 
 /// Beleg erfassen oder bearbeiten.
 ///
@@ -551,230 +552,239 @@ class _ReceiptEditScreenState extends State<ReceiptEditScreen> {
             ),
         ],
       ),
-      body: Form(
-        key: _formKey,
-        child: ListView(
-          padding: const EdgeInsets.fromLTRB(16, 12, 16, 96),
-          children: [
-            if (_isCancelled) ...[
-              NoticeBanner(
-                icon: Icons.block,
-                color: AppTheme.warning,
-                message:
-                    'Dieser Beleg wurde am '
-                    '${Fmt.date(widget.existing!.cancelledAt!)} storniert. Er '
-                    'bleibt lesbar und zählt in keiner Auswertung. Kommentare '
-                    'kannst du weiter anhängen.',
+      body: ReadableWidth(
+        child: Form(
+          key: _formKey,
+          child: ListView(
+            padding: const EdgeInsets.fromLTRB(16, 12, 16, 96),
+            children: [
+              if (_isCancelled) ...[
+                NoticeBanner(
+                  icon: Icons.block,
+                  color: AppTheme.warning,
+                  message:
+                      'Dieser Beleg wurde am '
+                      '${Fmt.date(widget.existing!.cancelledAt!)} storniert. Er '
+                      'bleibt lesbar und zählt in keiner Auswertung. Kommentare '
+                      'kannst du weiter anhängen.',
+                ),
+                const SizedBox(height: 16),
+              ],
+              IgnorePointer(
+                ignoring: _isCancelled,
+                child: SectionCard(
+                  title: 'Betrag',
+                  child: Column(
+                    children: [
+                      SegmentedButton<BookingDirection>(
+                        segments: const [
+                          ButtonSegment(
+                            value: BookingDirection.expense,
+                            label: Text('Ausgabe'),
+                            icon: Icon(Icons.north_east),
+                          ),
+                          ButtonSegment(
+                            value: BookingDirection.income,
+                            label: Text('Einnahme'),
+                            icon: Icon(Icons.south_west),
+                          ),
+                        ],
+                        selected: {_direction},
+                        onSelectionChanged: (selection) {
+                          setState(() {
+                            _direction = selection.first;
+                            // Kategorien sind richtungsabhängig – die alte Auswahl
+                            // wäre nach dem Wechsel unsinnig.
+                            final next = state.categoriesFor(_direction);
+                            _categoryId = next.isEmpty ? null : next.first.id;
+                          });
+                        },
+                      ),
+                      const SizedBox(height: 16),
+                      MoneyField(
+                        controller: _grossController,
+                        label: 'Bruttobetrag (wie auf dem Beleg)',
+                        autofocus: !_isEditing,
+                        onChanged: (_) => setState(() {}),
+                        validator: (value) {
+                          final money = Money.tryParse(value ?? '');
+                          if (money == null) {
+                            return 'Bitte gib einen Betrag ein';
+                          }
+                          if (money.isZero) {
+                            return 'Der Betrag darf nicht 0 sein';
+                          }
+                          if (money.isNegative) {
+                            return 'Bitte positiv eingeben und oben Einnahme/Ausgabe wählen';
+                          }
+                          return null;
+                        },
+                      ),
+                      const SizedBox(height: 16),
+                      DropdownButtonFormField<int>(
+                        initialValue: _vatPermille,
+                        decoration: const InputDecoration(
+                          labelText: 'Umsatzsteuersatz',
+                        ),
+                        items: [
+                          for (final rate in tax.vatRates)
+                            DropdownMenuItem(
+                              value: rate.permille,
+                              child: Text('${rate.display} – ${rate.label}'),
+                            ),
+                        ],
+                        onChanged: (value) =>
+                            setState(() => _vatPermille = value ?? 0),
+                      ),
+                      if (split != null) ...[
+                        const SizedBox(height: 12),
+                        Container(
+                          padding: const EdgeInsets.all(12),
+                          decoration: BoxDecoration(
+                            color: Theme.of(
+                              context,
+                            ).colorScheme.surfaceContainerHighest,
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          child: Column(
+                            children: [
+                              LabeledValue(
+                                label: 'Netto',
+                                value: Fmt.money(split.net),
+                              ),
+                              LabeledValue(
+                                label:
+                                    'Umsatzsteuer ${Fmt.vatRate(_vatPermille)}',
+                                value: Fmt.money(split.vat),
+                              ),
+                              LabeledValue(
+                                label: 'Brutto',
+                                value: Fmt.money(split.gross),
+                                emphasize: true,
+                                valueColor: AppTheme.amountColor(
+                                  isIncome,
+                                  context,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                      if (profile != null &&
+                          profile.isSmallBusiness &&
+                          _vatPermille > 0) ...[
+                        const SizedBox(height: 12),
+                        NoticeBanner(
+                          icon: Icons.info_outline,
+                          color: AppTheme.warning,
+                          message:
+                              'Du bist als Kleinunternehmer eingestellt. Auf deinen '
+                              'eigenen Rechnungen darf keine Umsatzsteuer stehen; bei '
+                              'Ausgaben ist die Vorsteuer nicht abziehbar.',
+                        ),
+                      ],
+                    ],
+                  ),
+                ),
               ),
               const SizedBox(height: 16),
+
+              SectionCard(
+                title: _pages.length > 1
+                    ? 'Beleg (${_pages.length} Seiten)'
+                    : 'Beleg',
+                child: _buildPages(context, tax),
+              ),
+              const SizedBox(height: 16),
+
+              IgnorePointer(
+                ignoring: _isCancelled,
+                child: SectionCard(
+                  title: 'Details',
+                  child: Column(
+                    children: [
+                      ListTile(
+                        contentPadding: EdgeInsets.zero,
+                        leading: const Icon(Icons.event_outlined),
+                        title: const Text('Belegdatum'),
+                        subtitle: Text(Fmt.date(_date)),
+                        trailing: const Icon(Icons.chevron_right),
+                        onTap: _pickDate,
+                      ),
+                      const Divider(height: 8),
+                      const SizedBox(height: 8),
+                      TextFormField(
+                        controller: _descriptionController,
+                        decoration: const InputDecoration(
+                          labelText: 'Beschreibung',
+                          hintText: 'z. B. Bürostuhl, Tankrechnung',
+                        ),
+                        textCapitalization: TextCapitalization.sentences,
+                        validator: (value) => (value ?? '').trim().isEmpty
+                            ? 'Eine Beschreibung ist Pflicht – ohne sie ist der Beleg '
+                                  'später nicht nachvollziehbar'
+                            : null,
+                      ),
+                      const SizedBox(height: 12),
+                      TextFormField(
+                        controller: _counterpartyController,
+                        decoration: InputDecoration(
+                          labelText: isIncome ? 'Kunde' : 'Lieferant',
+                        ),
+                        textCapitalization: TextCapitalization.words,
+                      ),
+                      const SizedBox(height: 12),
+                      DropdownButtonFormField<int?>(
+                        initialValue: _categoryId,
+                        decoration: const InputDecoration(
+                          labelText: 'Kategorie',
+                        ),
+                        items: [
+                          const DropdownMenuItem<int?>(
+                            value: null,
+                            child: Text('Nicht zugeordnet'),
+                          ),
+                          for (final category in categories)
+                            DropdownMenuItem<int?>(
+                              value: category.id,
+                              child: Text(category.name),
+                            ),
+                        ],
+                        onChanged: (value) =>
+                            setState(() => _categoryId = value),
+                      ),
+                      const SizedBox(height: 12),
+                      DropdownButtonFormField<PaymentMethod>(
+                        initialValue: _paymentMethod,
+                        decoration: const InputDecoration(
+                          labelText: 'Zahlungsart',
+                        ),
+                        items: [
+                          for (final method in PaymentMethod.values)
+                            DropdownMenuItem(
+                              value: method,
+                              child: Text(method.label),
+                            ),
+                        ],
+                        onChanged: (value) => setState(
+                          () => _paymentMethod = value ?? PaymentMethod.bank,
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                      TextFormField(
+                        controller: _noteController,
+                        decoration: const InputDecoration(labelText: 'Notiz'),
+                        maxLines: 2,
+                        textCapitalization: TextCapitalization.sentences,
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              const SizedBox(height: 16),
+              SectionCard(title: 'Kommentare', child: _buildComments(context)),
             ],
-            IgnorePointer(
-              ignoring: _isCancelled,
-              child: SectionCard(
-                title: 'Betrag',
-                child: Column(
-                  children: [
-                    SegmentedButton<BookingDirection>(
-                      segments: const [
-                        ButtonSegment(
-                          value: BookingDirection.expense,
-                          label: Text('Ausgabe'),
-                          icon: Icon(Icons.north_east),
-                        ),
-                        ButtonSegment(
-                          value: BookingDirection.income,
-                          label: Text('Einnahme'),
-                          icon: Icon(Icons.south_west),
-                        ),
-                      ],
-                      selected: {_direction},
-                      onSelectionChanged: (selection) {
-                        setState(() {
-                          _direction = selection.first;
-                          // Kategorien sind richtungsabhängig – die alte Auswahl
-                          // wäre nach dem Wechsel unsinnig.
-                          final next = state.categoriesFor(_direction);
-                          _categoryId = next.isEmpty ? null : next.first.id;
-                        });
-                      },
-                    ),
-                    const SizedBox(height: 16),
-                    MoneyField(
-                      controller: _grossController,
-                      label: 'Bruttobetrag (wie auf dem Beleg)',
-                      autofocus: !_isEditing,
-                      onChanged: (_) => setState(() {}),
-                      validator: (value) {
-                        final money = Money.tryParse(value ?? '');
-                        if (money == null) return 'Bitte gib einen Betrag ein';
-                        if (money.isZero) return 'Der Betrag darf nicht 0 sein';
-                        if (money.isNegative) {
-                          return 'Bitte positiv eingeben und oben Einnahme/Ausgabe wählen';
-                        }
-                        return null;
-                      },
-                    ),
-                    const SizedBox(height: 16),
-                    DropdownButtonFormField<int>(
-                      initialValue: _vatPermille,
-                      decoration: const InputDecoration(
-                        labelText: 'Umsatzsteuersatz',
-                      ),
-                      items: [
-                        for (final rate in tax.vatRates)
-                          DropdownMenuItem(
-                            value: rate.permille,
-                            child: Text('${rate.display} – ${rate.label}'),
-                          ),
-                      ],
-                      onChanged: (value) =>
-                          setState(() => _vatPermille = value ?? 0),
-                    ),
-                    if (split != null) ...[
-                      const SizedBox(height: 12),
-                      Container(
-                        padding: const EdgeInsets.all(12),
-                        decoration: BoxDecoration(
-                          color: Theme.of(
-                            context,
-                          ).colorScheme.surfaceContainerHighest,
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        child: Column(
-                          children: [
-                            LabeledValue(
-                              label: 'Netto',
-                              value: Fmt.money(split.net),
-                            ),
-                            LabeledValue(
-                              label:
-                                  'Umsatzsteuer ${Fmt.vatRate(_vatPermille)}',
-                              value: Fmt.money(split.vat),
-                            ),
-                            LabeledValue(
-                              label: 'Brutto',
-                              value: Fmt.money(split.gross),
-                              emphasize: true,
-                              valueColor: AppTheme.amountColor(
-                                isIncome,
-                                context,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                    if (profile != null &&
-                        profile.isSmallBusiness &&
-                        _vatPermille > 0) ...[
-                      const SizedBox(height: 12),
-                      NoticeBanner(
-                        icon: Icons.info_outline,
-                        color: AppTheme.warning,
-                        message:
-                            'Du bist als Kleinunternehmer eingestellt. Auf deinen '
-                            'eigenen Rechnungen darf keine Umsatzsteuer stehen; bei '
-                            'Ausgaben ist die Vorsteuer nicht abziehbar.',
-                      ),
-                    ],
-                  ],
-                ),
-              ),
-            ),
-            const SizedBox(height: 16),
-
-            SectionCard(
-              title: _pages.length > 1
-                  ? 'Beleg (${_pages.length} Seiten)'
-                  : 'Beleg',
-              child: _buildPages(context, tax),
-            ),
-            const SizedBox(height: 16),
-
-            IgnorePointer(
-              ignoring: _isCancelled,
-              child: SectionCard(
-                title: 'Details',
-                child: Column(
-                  children: [
-                    ListTile(
-                      contentPadding: EdgeInsets.zero,
-                      leading: const Icon(Icons.event_outlined),
-                      title: const Text('Belegdatum'),
-                      subtitle: Text(Fmt.date(_date)),
-                      trailing: const Icon(Icons.chevron_right),
-                      onTap: _pickDate,
-                    ),
-                    const Divider(height: 8),
-                    const SizedBox(height: 8),
-                    TextFormField(
-                      controller: _descriptionController,
-                      decoration: const InputDecoration(
-                        labelText: 'Beschreibung',
-                        hintText: 'z. B. Bürostuhl, Tankrechnung',
-                      ),
-                      textCapitalization: TextCapitalization.sentences,
-                      validator: (value) => (value ?? '').trim().isEmpty
-                          ? 'Eine Beschreibung ist Pflicht – ohne sie ist der Beleg '
-                                'später nicht nachvollziehbar'
-                          : null,
-                    ),
-                    const SizedBox(height: 12),
-                    TextFormField(
-                      controller: _counterpartyController,
-                      decoration: InputDecoration(
-                        labelText: isIncome ? 'Kunde' : 'Lieferant',
-                      ),
-                      textCapitalization: TextCapitalization.words,
-                    ),
-                    const SizedBox(height: 12),
-                    DropdownButtonFormField<int?>(
-                      initialValue: _categoryId,
-                      decoration: const InputDecoration(labelText: 'Kategorie'),
-                      items: [
-                        const DropdownMenuItem<int?>(
-                          value: null,
-                          child: Text('Nicht zugeordnet'),
-                        ),
-                        for (final category in categories)
-                          DropdownMenuItem<int?>(
-                            value: category.id,
-                            child: Text(category.name),
-                          ),
-                      ],
-                      onChanged: (value) => setState(() => _categoryId = value),
-                    ),
-                    const SizedBox(height: 12),
-                    DropdownButtonFormField<PaymentMethod>(
-                      initialValue: _paymentMethod,
-                      decoration: const InputDecoration(
-                        labelText: 'Zahlungsart',
-                      ),
-                      items: [
-                        for (final method in PaymentMethod.values)
-                          DropdownMenuItem(
-                            value: method,
-                            child: Text(method.label),
-                          ),
-                      ],
-                      onChanged: (value) => setState(
-                        () => _paymentMethod = value ?? PaymentMethod.bank,
-                      ),
-                    ),
-                    const SizedBox(height: 12),
-                    TextFormField(
-                      controller: _noteController,
-                      decoration: const InputDecoration(labelText: 'Notiz'),
-                      maxLines: 2,
-                      textCapitalization: TextCapitalization.sentences,
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            const SizedBox(height: 16),
-            SectionCard(title: 'Kommentare', child: _buildComments(context)),
-          ],
+          ),
         ),
       ),
       bottomNavigationBar: _isCancelled

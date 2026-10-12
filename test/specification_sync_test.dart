@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:buchhaltung/core/window_size.dart';
 import 'package:buchhaltung/data/app_database.dart';
 import 'package:buchhaltung/domain/company_profile.dart';
 import 'package:buchhaltung/services/app_lock/app_lock_service.dart';
@@ -100,6 +101,21 @@ void main() {
       expect(
         intValue('spec.app_lock_backoff_max_seconds'),
         AppLockPolicy.backoffMaxSeconds,
+      );
+    });
+
+    test('Breitenklassen und Formularbreite stimmen', () {
+      expect(
+        intValue('spec.window_medium_min_dp'),
+        WindowSizeClass.mediumMinWidth.toInt(),
+      );
+      expect(
+        intValue('spec.window_expanded_min_dp'),
+        WindowSizeClass.expandedMinWidth.toInt(),
+      );
+      expect(
+        intValue('spec.max_content_width_dp'),
+        WindowSizeClass.maxContentWidth.toInt(),
       );
     });
 

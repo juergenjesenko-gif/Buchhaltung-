@@ -5,6 +5,7 @@ import '../../core/formatting.dart';
 import '../../domain/money.dart';
 import '../../domain/receipt.dart';
 import '../../theme.dart';
+import '../../widgets/adaptive.dart';
 import '../../widgets/common.dart';
 import 'receipt_edit_screen.dart';
 
@@ -72,12 +73,11 @@ class _ReceiptListScreenState extends State<ReceiptListScreen> {
       .fold(const Money.zero(), (a, b) => a + b);
 
   Future<void> _open(Receipt? receipt) async {
-    final changed = await Navigator.of(context).push<bool>(
-      MaterialPageRoute(
-        builder: (_) => ReceiptEditScreen(
-          direction: receipt?.direction ?? BookingDirection.expense,
-          existing: receipt,
-        ),
+    final changed = await ListDetail.open<bool>(
+      context,
+      (_) => ReceiptEditScreen(
+        direction: receipt?.direction ?? BookingDirection.expense,
+        existing: receipt,
       ),
     );
     if (changed == true) await _load();

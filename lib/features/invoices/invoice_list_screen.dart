@@ -11,6 +11,7 @@ import '../../services/invoice_seller.dart';
 import '../../services/logo_store.dart';
 import '../../services/share_service.dart';
 import '../../theme.dart';
+import '../../widgets/adaptive.dart';
 import '../../widgets/common.dart';
 import 'customer_edit_screen.dart';
 import 'invoice_edit_screen.dart';
@@ -57,8 +58,9 @@ class _InvoiceListScreenState extends State<InvoiceListScreen> {
       .fold(const Money.zero(), (a, b) => a + b);
 
   Future<void> _openEditor([Invoice? invoice]) async {
-    final changed = await Navigator.of(context).push<bool>(
-      MaterialPageRoute(builder: (_) => InvoiceEditScreen(existing: invoice)),
+    final changed = await ListDetail.open<bool>(
+      context,
+      (_) => InvoiceEditScreen(existing: invoice),
     );
     if (changed == true) await _load();
   }
@@ -134,7 +136,12 @@ class _InvoiceListScreenState extends State<InvoiceListScreen> {
             icon: const Icon(Icons.people_outline),
             onPressed: () async {
               await Navigator.of(context).push(
-                MaterialPageRoute(builder: (_) => const _CustomerListScreen()),
+                MaterialPageRoute(
+                  builder: (_) => const ListDetail(
+                    list: _CustomerListScreen(),
+                    placeholder: 'Wähle links einen Kunden aus.',
+                  ),
+                ),
               );
               await _load();
             },
@@ -371,8 +378,9 @@ class _CustomerListScreenState extends State<_CustomerListScreen> {
   }
 
   Future<void> _open([Customer? customer]) async {
-    await Navigator.of(context).push(
-      MaterialPageRoute(builder: (_) => CustomerEditScreen(existing: customer)),
+    await ListDetail.open<void>(
+      context,
+      (_) => CustomerEditScreen(existing: customer),
     );
     await _load();
   }

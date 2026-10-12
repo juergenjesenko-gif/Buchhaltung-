@@ -16,6 +16,7 @@ import '../../domain/money.dart';
 import '../../services/invoice_numbering.dart';
 import '../../services/turnover_basis.dart';
 import '../../widgets/common.dart';
+import '../../widgets/adaptive.dart';
 
 /// Firmenprofil anlegen und bearbeiten.
 ///
@@ -280,419 +281,433 @@ class _CompanySetupScreenState extends State<CompanySetupScreen> {
         title: Text(widget.isOnboarding ? 'Willkommen' : 'Stammdaten'),
         automaticallyImplyLeading: !widget.isOnboarding,
       ),
-      body: Form(
-        key: _formKey,
-        child: ListView(
-          padding: const EdgeInsets.fromLTRB(16, 8, 16, 96),
-          children: [
-            if (widget.isOnboarding) ...[
-              Text(
-                'Ein paar Angaben zu deinem Unternehmen – danach kannst du sofort '
-                'Belege erfassen und Rechnungen schreiben.',
-                style: Theme.of(context).textTheme.bodyMedium,
-              ),
-              const SizedBox(height: 8),
-              // Neues Gerät: statt neu einzurichten, die Sicherung einlesen.
-              Align(
-                alignment: Alignment.centerLeft,
-                child: TextButton.icon(
-                  onPressed: () => Navigator.of(context).push(
-                    MaterialPageRoute(builder: (_) => const BackupScreen()),
-                  ),
-                  icon: const Icon(Icons.restore),
-                  label: const Text(
-                    'Aus einer Datensicherung wiederherstellen',
+      body: ReadableWidth(
+        child: Form(
+          key: _formKey,
+          child: ListView(
+            padding: const EdgeInsets.fromLTRB(16, 8, 16, 96),
+            children: [
+              if (widget.isOnboarding) ...[
+                Text(
+                  'Ein paar Angaben zu deinem Unternehmen – danach kannst du sofort '
+                  'Belege erfassen und Rechnungen schreiben.',
+                  style: Theme.of(context).textTheme.bodyMedium,
+                ),
+                const SizedBox(height: 8),
+                // Neues Gerät: statt neu einzurichten, die Sicherung einlesen.
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: TextButton.icon(
+                    onPressed: () => Navigator.of(context).push(
+                      MaterialPageRoute(builder: (_) => const BackupScreen()),
+                    ),
+                    icon: const Icon(Icons.restore),
+                    label: const Text(
+                      'Aus einer Datensicherung wiederherstellen',
+                    ),
                   ),
                 ),
-              ),
-              const SizedBox(height: 12),
-            ],
+                const SizedBox(height: 12),
+              ],
 
-            SectionCard(
-              title: 'Unternehmen',
-              child: Column(
-                children: [
-                  TextFormField(
-                    controller: _fields['companyName'],
-                    decoration: const InputDecoration(
-                      labelText: 'Firmenname *',
-                      hintText: 'z. B. Max Mustermann e.U.',
-                    ),
-                    textCapitalization: TextCapitalization.words,
-                    validator: (value) => (value ?? '').trim().isEmpty
-                        ? 'Bitte gib einen Firmennamen an'
-                        : null,
-                  ),
-                  const SizedBox(height: 12),
-                  TextFormField(
-                    controller: _fields['ownerName'],
-                    decoration: const InputDecoration(labelText: 'Inhaber:in'),
-                    textCapitalization: TextCapitalization.words,
-                  ),
-                  const SizedBox(height: 12),
-                  DropdownButtonFormField<Country>(
-                    initialValue: _country,
-                    decoration: const InputDecoration(
-                      labelText: 'Land des Unternehmenssitzes *',
-                    ),
-                    items: [
-                      for (final country in Country.values)
-                        DropdownMenuItem(
-                          value: country,
-                          child: Text(country.label),
-                        ),
-                    ],
-                    onChanged: (value) =>
-                        setState(() => _country = value ?? Country.at),
-                  ),
-                  const SizedBox(height: 12),
-                  DropdownButtonFormField<LegalForm>(
-                    initialValue: _legalForm,
-                    decoration: const InputDecoration(labelText: 'Rechtsform'),
-                    items: [
-                      for (final form in LegalForm.values)
-                        DropdownMenuItem(value: form, child: Text(form.label)),
-                    ],
-                    onChanged: (value) => setState(
-                      () => _legalForm = value ?? LegalForm.soleTrader,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 16),
-
-            SectionCard(
-              title: 'Anschrift',
-              child: Column(
-                children: [
-                  TextFormField(
-                    controller: _fields['street'],
-                    decoration: const InputDecoration(
-                      labelText: 'Straße und Hausnummer',
-                    ),
-                    textCapitalization: TextCapitalization.words,
-                  ),
-                  const SizedBox(height: 12),
-                  Row(
-                    children: [
-                      SizedBox(
-                        width: 110,
-                        child: TextFormField(
-                          controller: _fields['postalCode'],
-                          decoration: const InputDecoration(labelText: 'PLZ'),
-                          keyboardType: TextInputType.number,
-                        ),
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: TextFormField(
-                          controller: _fields['city'],
-                          decoration: const InputDecoration(labelText: 'Ort'),
-                          textCapitalization: TextCapitalization.words,
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 12),
-                  TextFormField(
-                    controller: _fields['email'],
-                    decoration: const InputDecoration(labelText: 'E-Mail'),
-                    keyboardType: TextInputType.emailAddress,
-                  ),
-                  const SizedBox(height: 12),
-                  TextFormField(
-                    controller: _fields['phone'],
-                    decoration: const InputDecoration(labelText: 'Telefon'),
-                    keyboardType: TextInputType.phone,
-                  ),
-                  const SizedBox(height: 12),
-                  TextFormField(
-                    controller: _fields['website'],
-                    decoration: const InputDecoration(labelText: 'Website'),
-                    keyboardType: TextInputType.url,
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 16),
-
-            SectionCard(
-              title: 'Steuer',
-              child: Column(
-                children: [
-                  SwitchListTile.adaptive(
-                    contentPadding: EdgeInsets.zero,
-                    value: _isSmallBusiness,
-                    onChanged: (value) =>
-                        setState(() => _isSmallBusiness = value),
-                    title: Text(tax.smallBusinessLabel),
-                    subtitle: Text(
-                      _isSmallBusiness
-                          ? 'Rechnungen ohne Umsatzsteuer, dafür mit dem Hinweis nach '
-                                '${tax.smallBusinessLegalRef}.'
-                          : 'Regelbesteuerung: Umsatzsteuer wird ausgewiesen und '
-                                'Vorsteuer ist abziehbar.',
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  TextFormField(
-                    controller: _fields['taxNumber'],
-                    decoration: InputDecoration(
-                      labelText: tax.taxNumberLabel,
-                      helperText: tax.invoiceRequiresTaxId
-                          ? 'Noch beantragt? Leer lassen – für Rechnungen ist '
-                                '${tax.taxNumberLabel} oder ${tax.vatIdLabel} nötig.'
-                          : 'Noch beantragt? Einfach später nachtragen.',
-                      helperMaxLines: 2,
-                    ),
-                  ),
-                  const SizedBox(height: 12),
-                  TextFormField(
-                    controller: _fields['vatId'],
-                    decoration: InputDecoration(
-                      labelText: tax.vatIdLabel,
-                      hintText: tax.vatIdExample,
-                    ),
-                    textCapitalization: TextCapitalization.characters,
-                    onChanged: (_) => setState(() {}),
-                    // Optional; geprüft wird nur das Format, offline.
-                    validator: (value) => VatIdFormat.check(value ?? ''),
-                  ),
-                  VatCheckStatus(
-                    vatId: _text('vatId'),
-                    subject: 'company',
-                    subjectId: 1,
-                  ),
-                  SwitchListTile(
-                    contentPadding: EdgeInsets.zero,
-                    value: _vatCheckEnabled,
-                    onChanged: (value) =>
-                        setState(() => _vatCheckEnabled = value),
-                    title: const Text('UID-Nummern wöchentlich prüfen'),
-                    subtitle: const Text(
-                      'Prüft deine UID und die deiner aktiven Kunden über das '
-                      'EU-Prüfsystem VIES, dazu vor jeder Rechnung an einen '
-                      'Kunden mit UID. Dabei werden die Nummern an die '
-                      'EU-Kommission gesendet. Jederzeit abschaltbar.',
-                    ),
-                  ),
-                  const SizedBox(height: 12),
-                  TextFormField(
-                    controller: _fields['registerNumber'],
-                    decoration: InputDecoration(
-                      labelText: tax.registerNumberLabel,
-                      helperText: 'Nur wenn du eingetragen bist',
-                    ),
-                    onChanged: (_) => setState(() {}),
-                  ),
-                  if (_text('registerNumber').isNotEmpty) ...[
-                    const SizedBox(height: 12),
+              SectionCard(
+                title: 'Unternehmen',
+                child: Column(
+                  children: [
                     TextFormField(
-                      controller: _fields['registerCourt'],
-                      decoration: InputDecoration(
-                        labelText: '${tax.registerCourtLabel} *',
+                      controller: _fields['companyName'],
+                      decoration: const InputDecoration(
+                        labelText: 'Firmenname *',
+                        hintText: 'z. B. Max Mustermann e.U.',
                       ),
+                      textCapitalization: TextCapitalization.words,
                       validator: (value) => (value ?? '').trim().isEmpty
-                          ? 'Mit ${tax.registerNumberLabel} ist auch das Gericht Pflicht'
+                          ? 'Bitte gib einen Firmennamen an'
                           : null,
                     ),
-                  ],
-                  const SizedBox(height: 12),
-                  NoticeBanner(
-                    icon: Icons.gavel_outlined,
-                    message: _isSmallBusiness
-                        ? 'Umsatzgrenze ${_formatLimit(tax)} pro Jahr. Die App warnt dich '
-                              'rechtzeitig, bevor du sie erreichst.'
-                        : 'Steuersätze in ${_country.label}: '
-                              '${tax.vatRates.map((r) => r.display).join(', ')}.',
-                  ),
-                  if (_isSmallBusiness) ...[
                     const SizedBox(height: 12),
                     TextFormField(
-                      controller: _fields['foundingYear'],
+                      controller: _fields['ownerName'],
                       decoration: const InputDecoration(
-                        labelText: 'Gründungsjahr',
-                        helperText:
-                            'Im Jahr der Gründung gelten eigene Regeln für die '
-                            'Umsatzgrenze.',
+                        labelText: 'Inhaber:in',
                       ),
-                      keyboardType: TextInputType.number,
-                      onChanged: (_) => setState(() {}),
-                      validator: (value) {
-                        final text = (value ?? '').trim();
-                        if (text.isEmpty) return null;
-                        final year = int.tryParse(text);
-                        if (year == null ||
-                            year < 1900 ||
-                            year > _currentYear) {
-                          return 'Bitte ein Jahr bis $_currentYear eingeben';
-                        }
-                        return null;
-                      },
+                      textCapitalization: TextCapitalization.words,
+                    ),
+                    const SizedBox(height: 12),
+                    DropdownButtonFormField<Country>(
+                      initialValue: _country,
+                      decoration: const InputDecoration(
+                        labelText: 'Land des Unternehmenssitzes *',
+                      ),
+                      items: [
+                        for (final country in Country.values)
+                          DropdownMenuItem(
+                            value: country,
+                            child: Text(country.label),
+                          ),
+                      ],
+                      onChanged: (value) =>
+                          setState(() => _country = value ?? Country.at),
+                    ),
+                    const SizedBox(height: 12),
+                    DropdownButtonFormField<LegalForm>(
+                      initialValue: _legalForm,
+                      decoration: const InputDecoration(
+                        labelText: 'Rechtsform',
+                      ),
+                      items: [
+                        for (final form in LegalForm.values)
+                          DropdownMenuItem(
+                            value: form,
+                            child: Text(form.label),
+                          ),
+                      ],
+                      onChanged: (value) => setState(
+                        () => _legalForm = value ?? LegalForm.soleTrader,
+                      ),
                     ),
                   ],
-                  if (_isSmallBusiness && (_asksPrevious || _asksCurrent)) ...[
-                    const SizedBox(height: 16),
-                    Text(
-                      'Umsatz vor Nutzung der App',
-                      style: Theme.of(context).textTheme.titleSmall,
+                ),
+              ),
+              const SizedBox(height: 16),
+
+              SectionCard(
+                title: 'Anschrift',
+                child: Column(
+                  children: [
+                    TextFormField(
+                      controller: _fields['street'],
+                      decoration: const InputDecoration(
+                        labelText: 'Straße und Hausnummer',
+                      ),
+                      textCapitalization: TextCapitalization.words,
+                    ),
+                    const SizedBox(height: 12),
+                    Row(
+                      children: [
+                        SizedBox(
+                          width: 110,
+                          child: TextFormField(
+                            controller: _fields['postalCode'],
+                            decoration: const InputDecoration(labelText: 'PLZ'),
+                            keyboardType: TextInputType.number,
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: TextFormField(
+                            controller: _fields['city'],
+                            decoration: const InputDecoration(labelText: 'Ort'),
+                            textCapitalization: TextCapitalization.words,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 12),
+                    TextFormField(
+                      controller: _fields['email'],
+                      decoration: const InputDecoration(labelText: 'E-Mail'),
+                      keyboardType: TextInputType.emailAddress,
+                    ),
+                    const SizedBox(height: 12),
+                    TextFormField(
+                      controller: _fields['phone'],
+                      decoration: const InputDecoration(labelText: 'Telefon'),
+                      keyboardType: TextInputType.phone,
+                    ),
+                    const SizedBox(height: 12),
+                    TextFormField(
+                      controller: _fields['website'],
+                      decoration: const InputDecoration(labelText: 'Website'),
+                      keyboardType: TextInputType.url,
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 16),
+
+              SectionCard(
+                title: 'Steuer',
+                child: Column(
+                  children: [
+                    SwitchListTile.adaptive(
+                      contentPadding: EdgeInsets.zero,
+                      value: _isSmallBusiness,
+                      onChanged: (value) =>
+                          setState(() => _isSmallBusiness = value),
+                      title: Text(tax.smallBusinessLabel),
+                      subtitle: Text(
+                        _isSmallBusiness
+                            ? 'Rechnungen ohne Umsatzsteuer, dafür mit dem Hinweis nach '
+                                  '${tax.smallBusinessLegalRef}.'
+                            : 'Regelbesteuerung: Umsatzsteuer wird ausgewiesen und '
+                                  'Vorsteuer ist abziehbar.',
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    TextFormField(
+                      controller: _fields['taxNumber'],
+                      decoration: InputDecoration(
+                        labelText: tax.taxNumberLabel,
+                        helperText: tax.invoiceRequiresTaxId
+                            ? 'Noch beantragt? Leer lassen – für Rechnungen ist '
+                                  '${tax.taxNumberLabel} oder ${tax.vatIdLabel} nötig.'
+                            : 'Noch beantragt? Einfach später nachtragen.',
+                        helperMaxLines: 2,
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    TextFormField(
+                      controller: _fields['vatId'],
+                      decoration: InputDecoration(
+                        labelText: tax.vatIdLabel,
+                        hintText: tax.vatIdExample,
+                      ),
+                      textCapitalization: TextCapitalization.characters,
+                      onChanged: (_) => setState(() {}),
+                      // Optional; geprüft wird nur das Format, offline.
+                      validator: (value) => VatIdFormat.check(value ?? ''),
+                    ),
+                    VatCheckStatus(
+                      vatId: _text('vatId'),
+                      subject: 'company',
+                      subjectId: 1,
+                    ),
+                    SwitchListTile(
+                      contentPadding: EdgeInsets.zero,
+                      value: _vatCheckEnabled,
+                      onChanged: (value) =>
+                          setState(() => _vatCheckEnabled = value),
+                      title: const Text('UID-Nummern wöchentlich prüfen'),
+                      subtitle: const Text(
+                        'Prüft deine UID und die deiner aktiven Kunden über das '
+                        'EU-Prüfsystem VIES, dazu vor jeder Rechnung an einen '
+                        'Kunden mit UID. Dabei werden die Nummern an die '
+                        'EU-Kommission gesendet. Jederzeit abschaltbar.',
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    TextFormField(
+                      controller: _fields['registerNumber'],
+                      decoration: InputDecoration(
+                        labelText: tax.registerNumberLabel,
+                        helperText: 'Nur wenn du eingetragen bist',
+                      ),
+                      onChanged: (_) => setState(() {}),
+                    ),
+                    if (_text('registerNumber').isNotEmpty) ...[
+                      const SizedBox(height: 12),
+                      TextFormField(
+                        controller: _fields['registerCourt'],
+                        decoration: InputDecoration(
+                          labelText: '${tax.registerCourtLabel} *',
+                        ),
+                        validator: (value) => (value ?? '').trim().isEmpty
+                            ? 'Mit ${tax.registerNumberLabel} ist auch das Gericht Pflicht'
+                            : null,
+                      ),
+                    ],
+                    const SizedBox(height: 12),
+                    NoticeBanner(
+                      icon: Icons.gavel_outlined,
+                      message: _isSmallBusiness
+                          ? 'Umsatzgrenze ${_formatLimit(tax)} pro Jahr. Die App warnt dich '
+                                'rechtzeitig, bevor du sie erreichst.'
+                          : 'Steuersätze in ${_country.label}: '
+                                '${tax.vatRates.map((r) => r.display).join(', ')}.',
+                    ),
+                    if (_isSmallBusiness) ...[
+                      const SizedBox(height: 12),
+                      TextFormField(
+                        controller: _fields['foundingYear'],
+                        decoration: const InputDecoration(
+                          labelText: 'Gründungsjahr',
+                          helperText:
+                              'Im Jahr der Gründung gelten eigene Regeln für die '
+                              'Umsatzgrenze.',
+                        ),
+                        keyboardType: TextInputType.number,
+                        onChanged: (_) => setState(() {}),
+                        validator: (value) {
+                          final text = (value ?? '').trim();
+                          if (text.isEmpty) return null;
+                          final year = int.tryParse(text);
+                          if (year == null ||
+                              year < 1900 ||
+                              year > _currentYear) {
+                            return 'Bitte ein Jahr bis $_currentYear eingeben';
+                          }
+                          return null;
+                        },
+                      ),
+                    ],
+                    if (_isSmallBusiness &&
+                        (_asksPrevious || _asksCurrent)) ...[
+                      const SizedBox(height: 16),
+                      Text(
+                        'Umsatz vor Nutzung der App',
+                        style: Theme.of(context).textTheme.titleSmall,
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        'Die App kennt deine Umsätze erst ab dem '
+                        '${Fmt.date(_trackingStart)}. Für die Kleinunternehmergrenze '
+                        'braucht sie auch die Zeit davor – sonst würde sie dich '
+                        'womöglich in falscher Sicherheit wiegen.',
+                        style: Theme.of(context).textTheme.bodySmall,
+                      ),
+                      if (_asksPrevious) ...[
+                        const SizedBox(height: 12),
+                        MoneyField(
+                          controller: _fields['openingPrevious']!,
+                          label: 'Umsatz ${_currentYear - 1} gesamt *',
+                          validator: _validateOpening,
+                        ),
+                      ],
+                      if (_asksCurrent) ...[
+                        const SizedBox(height: 12),
+                        MoneyField(
+                          controller: _fields['openingCurrent']!,
+                          label:
+                              'Umsatz $_currentYear vor dem ${Fmt.date(_trackingStart)} *',
+                          validator: _validateOpening,
+                        ),
+                      ],
+                    ],
+                  ],
+                ),
+              ),
+              const SizedBox(height: 16),
+
+              SectionCard(
+                title: 'Bankverbindung',
+                child: Column(
+                  children: [
+                    TextFormField(
+                      controller: _fields['iban'],
+                      decoration: const InputDecoration(labelText: 'IBAN'),
+                      textCapitalization: TextCapitalization.characters,
+                    ),
+                    const SizedBox(height: 12),
+                    Row(
+                      children: [
+                        SizedBox(
+                          width: 140,
+                          child: TextFormField(
+                            controller: _fields['bic'],
+                            decoration: const InputDecoration(labelText: 'BIC'),
+                            textCapitalization: TextCapitalization.characters,
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: TextFormField(
+                            controller: _fields['bankName'],
+                            decoration: const InputDecoration(
+                              labelText: 'Bank',
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 16),
+
+              SectionCard(
+                title: 'Rechnungen',
+                child: Column(
+                  children: [
+                    Row(
+                      children: [
+                        Container(
+                          width: 96,
+                          height: 56,
+                          alignment: Alignment.center,
+                          decoration: BoxDecoration(
+                            border: Border.all(
+                              color: Theme.of(
+                                context,
+                              ).colorScheme.outlineVariant,
+                            ),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: _logoFile == null
+                              ? const Text('Kein Logo')
+                              : Image.file(_logoFile!, fit: BoxFit.contain),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Wrap(
+                            spacing: 8,
+                            children: [
+                              OutlinedButton.icon(
+                                onPressed: _pickLogo,
+                                icon: const Icon(Icons.image_outlined),
+                                label: Text(
+                                  _logoPath == null
+                                      ? 'Logo wählen'
+                                      : 'Logo ändern',
+                                ),
+                              ),
+                              if (_logoPath != null)
+                                TextButton.icon(
+                                  onPressed: _removeLogo,
+                                  icon: const Icon(Icons.delete_outline),
+                                  label: const Text('Entfernen'),
+                                ),
+                            ],
+                          ),
+                        ),
+                      ],
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      'Die App kennt deine Umsätze erst ab dem '
-                      '${Fmt.date(_trackingStart)}. Für die Kleinunternehmergrenze '
-                      'braucht sie auch die Zeit davor – sonst würde sie dich '
-                      'womöglich in falscher Sicherheit wiegen.',
+                      'Erscheint oben rechts auf neuen Rechnungen, zusätzlich zu '
+                      'Name und Anschrift. Bereits gestellte Rechnungen behalten '
+                      'ihr damaliges Logo.',
                       style: Theme.of(context).textTheme.bodySmall,
                     ),
-                    if (_asksPrevious) ...[
-                      const SizedBox(height: 12),
-                      MoneyField(
-                        controller: _fields['openingPrevious']!,
-                        label: 'Umsatz ${_currentYear - 1} gesamt *',
-                        validator: _validateOpening,
+                    const SizedBox(height: 12),
+                    TextFormField(
+                      controller: _fields['invoicePattern'],
+                      decoration: InputDecoration(
+                        labelText: 'Muster der Rechnungsnummer',
+                        helperText:
+                            'Beispiel: '
+                            '${InvoiceNumbering.preview(_fields['invoicePattern']!.text, DateTime.now())}',
                       ),
-                    ],
-                    if (_asksCurrent) ...[
-                      const SizedBox(height: 12),
-                      MoneyField(
-                        controller: _fields['openingCurrent']!,
-                        label:
-                            'Umsatz $_currentYear vor dem ${Fmt.date(_trackingStart)} *',
-                        validator: _validateOpening,
+                      onChanged: (_) => setState(() {}),
+                      validator: (value) =>
+                          InvoiceNumbering.isValidPattern(value ?? '')
+                          ? null
+                          : 'Das Muster braucht eine laufende Nummer, z. B. {NNNN}',
+                    ),
+                    const SizedBox(height: 12),
+                    TextFormField(
+                      controller: _fields['paymentTerm'],
+                      decoration: const InputDecoration(
+                        labelText: 'Zahlungsziel',
+                        suffixText: 'Tage',
                       ),
-                    ],
+                      keyboardType: TextInputType.number,
+                    ),
+                    const SizedBox(height: 12),
+                    TextFormField(
+                      controller: _fields['invoiceFooter'],
+                      decoration: const InputDecoration(
+                        labelText: 'Fußzeile der Rechnung',
+                        helperText:
+                            'Leer lassen für die automatische Fußzeile aus den Stammdaten',
+                      ),
+                      maxLines: 2,
+                    ),
                   ],
-                ],
+                ),
               ),
-            ),
-            const SizedBox(height: 16),
-
-            SectionCard(
-              title: 'Bankverbindung',
-              child: Column(
-                children: [
-                  TextFormField(
-                    controller: _fields['iban'],
-                    decoration: const InputDecoration(labelText: 'IBAN'),
-                    textCapitalization: TextCapitalization.characters,
-                  ),
-                  const SizedBox(height: 12),
-                  Row(
-                    children: [
-                      SizedBox(
-                        width: 140,
-                        child: TextFormField(
-                          controller: _fields['bic'],
-                          decoration: const InputDecoration(labelText: 'BIC'),
-                          textCapitalization: TextCapitalization.characters,
-                        ),
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: TextFormField(
-                          controller: _fields['bankName'],
-                          decoration: const InputDecoration(labelText: 'Bank'),
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 16),
-
-            SectionCard(
-              title: 'Rechnungen',
-              child: Column(
-                children: [
-                  Row(
-                    children: [
-                      Container(
-                        width: 96,
-                        height: 56,
-                        alignment: Alignment.center,
-                        decoration: BoxDecoration(
-                          border: Border.all(
-                            color: Theme.of(context).colorScheme.outlineVariant,
-                          ),
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: _logoFile == null
-                            ? const Text('Kein Logo')
-                            : Image.file(_logoFile!, fit: BoxFit.contain),
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: Wrap(
-                          spacing: 8,
-                          children: [
-                            OutlinedButton.icon(
-                              onPressed: _pickLogo,
-                              icon: const Icon(Icons.image_outlined),
-                              label: Text(
-                                _logoPath == null
-                                    ? 'Logo wählen'
-                                    : 'Logo ändern',
-                              ),
-                            ),
-                            if (_logoPath != null)
-                              TextButton.icon(
-                                onPressed: _removeLogo,
-                                icon: const Icon(Icons.delete_outline),
-                                label: const Text('Entfernen'),
-                              ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    'Erscheint oben rechts auf neuen Rechnungen, zusätzlich zu '
-                    'Name und Anschrift. Bereits gestellte Rechnungen behalten '
-                    'ihr damaliges Logo.',
-                    style: Theme.of(context).textTheme.bodySmall,
-                  ),
-                  const SizedBox(height: 12),
-                  TextFormField(
-                    controller: _fields['invoicePattern'],
-                    decoration: InputDecoration(
-                      labelText: 'Muster der Rechnungsnummer',
-                      helperText:
-                          'Beispiel: '
-                          '${InvoiceNumbering.preview(_fields['invoicePattern']!.text, DateTime.now())}',
-                    ),
-                    onChanged: (_) => setState(() {}),
-                    validator: (value) =>
-                        InvoiceNumbering.isValidPattern(value ?? '')
-                        ? null
-                        : 'Das Muster braucht eine laufende Nummer, z. B. {NNNN}',
-                  ),
-                  const SizedBox(height: 12),
-                  TextFormField(
-                    controller: _fields['paymentTerm'],
-                    decoration: const InputDecoration(
-                      labelText: 'Zahlungsziel',
-                      suffixText: 'Tage',
-                    ),
-                    keyboardType: TextInputType.number,
-                  ),
-                  const SizedBox(height: 12),
-                  TextFormField(
-                    controller: _fields['invoiceFooter'],
-                    decoration: const InputDecoration(
-                      labelText: 'Fußzeile der Rechnung',
-                      helperText:
-                          'Leer lassen für die automatische Fußzeile aus den Stammdaten',
-                    ),
-                    maxLines: 2,
-                  ),
-                ],
-              ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
       bottomNavigationBar: Padding(

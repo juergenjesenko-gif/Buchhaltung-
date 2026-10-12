@@ -13,6 +13,7 @@ import '../../services/backup/backup_retention.dart';
 import '../../services/backup/backup_service.dart';
 import '../../services/backup/platform_backup_target.dart';
 import '../../widgets/common.dart';
+import '../../widgets/adaptive.dart';
 
 /// Datensicherung erstellen und wiederherstellen (Lastenheft L-7).
 class BackupScreen extends StatefulWidget {
@@ -116,65 +117,67 @@ class _BackupScreenState extends State<BackupScreen> {
     final last = profile?.lastBackupAt;
     return Scaffold(
       appBar: AppBar(title: const Text('Datensicherung')),
-      body: ListView(
-        padding: const EdgeInsets.fromLTRB(16, 12, 16, 32),
-        children: [
-          SectionCard(
-            title: 'Sicherung',
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  last == null
-                      ? 'Noch keine Sicherung erstellt.'
-                      : 'Letzte Sicherung: ${Fmt.date(last)}',
-                  style: Theme.of(context).textTheme.titleSmall,
-                ),
-                const SizedBox(height: 8),
-                const Text(
-                  'Die Sicherung enthält alle Daten und Belegfotos in einer '
-                  'verschlüsselten Datei. Nur wer das Kennwort kennt, kann sie '
-                  'öffnen – auch wir nicht. Speichere sie in deinem eigenen '
-                  'Cloud-Speicher (iCloud Drive, Google Drive) oder auf einem '
-                  'anderen Gerät.',
-                ),
-                const SizedBox(height: 16),
-                FilledButton.icon(
-                  onPressed: _busy ? null : _create,
-                  icon: const Icon(Icons.backup_outlined),
-                  label: const Text('Sicherung erstellen'),
-                ),
-              ],
+      body: ReadableWidth(
+        child: ListView(
+          padding: const EdgeInsets.fromLTRB(16, 12, 16, 32),
+          children: [
+            SectionCard(
+              title: 'Sicherung',
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    last == null
+                        ? 'Noch keine Sicherung erstellt.'
+                        : 'Letzte Sicherung: ${Fmt.date(last)}',
+                    style: Theme.of(context).textTheme.titleSmall,
+                  ),
+                  const SizedBox(height: 8),
+                  const Text(
+                    'Die Sicherung enthält alle Daten und Belegfotos in einer '
+                    'verschlüsselten Datei. Nur wer das Kennwort kennt, kann sie '
+                    'öffnen – auch wir nicht. Speichere sie in deinem eigenen '
+                    'Cloud-Speicher (iCloud Drive, Google Drive) oder auf einem '
+                    'anderen Gerät.',
+                  ),
+                  const SizedBox(height: 16),
+                  FilledButton.icon(
+                    onPressed: _busy ? null : _create,
+                    icon: const Icon(Icons.backup_outlined),
+                    label: const Text('Sicherung erstellen'),
+                  ),
+                ],
+              ),
             ),
-          ),
-          const SizedBox(height: 16),
-          const _AutoBackupSection(),
-          const SizedBox(height: 16),
-          SectionCard(
-            title: 'Wiederherstellen',
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text(
-                  'Liest eine Sicherung ein, zum Beispiel auf einem neuen '
-                  'Gerät. Alle Daten auf diesem Gerät werden dabei durch die '
-                  'der Sicherung ersetzt. Vorher siehst du, was die Sicherung '
-                  'enthält.',
-                ),
-                const SizedBox(height: 16),
-                OutlinedButton.icon(
-                  onPressed: _busy ? null : _restore,
-                  icon: const Icon(Icons.restore),
-                  label: const Text('Sicherung wiederherstellen'),
-                ),
-              ],
+            const SizedBox(height: 16),
+            const _AutoBackupSection(),
+            const SizedBox(height: 16),
+            SectionCard(
+              title: 'Wiederherstellen',
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    'Liest eine Sicherung ein, zum Beispiel auf einem neuen '
+                    'Gerät. Alle Daten auf diesem Gerät werden dabei durch die '
+                    'der Sicherung ersetzt. Vorher siehst du, was die Sicherung '
+                    'enthält.',
+                  ),
+                  const SizedBox(height: 16),
+                  OutlinedButton.icon(
+                    onPressed: _busy ? null : _restore,
+                    icon: const Icon(Icons.restore),
+                    label: const Text('Sicherung wiederherstellen'),
+                  ),
+                ],
+              ),
             ),
-          ),
-          if (_busy) ...[
-            const SizedBox(height: 24),
-            const Center(child: CircularProgressIndicator()),
+            if (_busy) ...[
+              const SizedBox(height: 24),
+              const Center(child: CircularProgressIndicator()),
+            ],
           ],
-        ],
+        ),
       ),
     );
   }

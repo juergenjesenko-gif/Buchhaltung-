@@ -6,6 +6,7 @@ import '../../app_state.dart';
 import '../../domain/country.dart';
 import '../../domain/customer.dart';
 import '../../widgets/common.dart';
+import '../../widgets/adaptive.dart';
 
 /// Kunde anlegen oder bearbeiten.
 class CustomerEditScreen extends StatefulWidget {
@@ -123,116 +124,118 @@ class _CustomerEditScreenState extends State<CustomerEditScreen> {
             ),
         ],
       ),
-      body: Form(
-        key: _formKey,
-        child: ListView(
-          padding: const EdgeInsets.fromLTRB(16, 12, 16, 96),
-          children: [
-            SectionCard(
-              title: 'Kunde',
-              child: Column(
-                children: [
-                  TextFormField(
-                    controller: _name,
-                    autofocus: widget.existing == null,
-                    decoration: const InputDecoration(
-                      labelText: 'Name / Firma *',
-                    ),
-                    textCapitalization: TextCapitalization.words,
-                    validator: (value) => (value ?? '').trim().isEmpty
-                        ? 'Der Name ist Pflicht'
-                        : null,
-                  ),
-                  const SizedBox(height: 12),
-                  TextFormField(
-                    controller: _contact,
-                    decoration: const InputDecoration(
-                      labelText: 'Ansprechpartner:in',
-                    ),
-                    textCapitalization: TextCapitalization.words,
-                  ),
-                  const SizedBox(height: 12),
-                  TextFormField(
-                    controller: _email,
-                    decoration: const InputDecoration(labelText: 'E-Mail'),
-                    keyboardType: TextInputType.emailAddress,
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 16),
-            SectionCard(
-              title: 'Anschrift',
-              child: Column(
-                children: [
-                  TextFormField(
-                    controller: _street,
-                    decoration: const InputDecoration(
-                      labelText: 'Straße und Hausnummer',
-                    ),
-                    textCapitalization: TextCapitalization.words,
-                  ),
-                  const SizedBox(height: 12),
-                  Row(
-                    children: [
-                      SizedBox(
-                        width: 110,
-                        child: TextFormField(
-                          controller: _postalCode,
-                          decoration: const InputDecoration(labelText: 'PLZ'),
-                        ),
+      body: ReadableWidth(
+        child: Form(
+          key: _formKey,
+          child: ListView(
+            padding: const EdgeInsets.fromLTRB(16, 12, 16, 96),
+            children: [
+              SectionCard(
+                title: 'Kunde',
+                child: Column(
+                  children: [
+                    TextFormField(
+                      controller: _name,
+                      autofocus: widget.existing == null,
+                      decoration: const InputDecoration(
+                        labelText: 'Name / Firma *',
                       ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: TextFormField(
-                          controller: _city,
-                          decoration: const InputDecoration(labelText: 'Ort'),
-                          textCapitalization: TextCapitalization.words,
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 12),
-                  DropdownButtonFormField<Country>(
-                    initialValue: _country,
-                    decoration: const InputDecoration(labelText: 'Land'),
-                    items: [
-                      for (final country in Country.values)
-                        DropdownMenuItem(
-                          value: country,
-                          child: Text(country.label),
-                        ),
-                    ],
-                    onChanged: (value) =>
-                        setState(() => _country = value ?? Country.at),
-                  ),
-                  const SizedBox(height: 12),
-                  TextFormField(
-                    controller: _vatId,
-                    decoration: InputDecoration(
-                      labelText: vatLabel,
-                      helperText:
-                          'Bei Kunden aus dem EU-Ausland für Reverse Charge nötig',
+                      textCapitalization: TextCapitalization.words,
+                      validator: (value) => (value ?? '').trim().isEmpty
+                          ? 'Der Name ist Pflicht'
+                          : null,
                     ),
-                    textCapitalization: TextCapitalization.characters,
-                    onChanged: (_) => setState(() {}),
-                    validator: (value) => VatIdFormat.check(value ?? ''),
-                  ),
-                  VatCheckStatus(
-                    vatId: _vatId.text,
-                    subject: 'customer',
-                    subjectId: widget.existing?.id,
-                  ),
-                  const SizedBox(height: 12),
-                  TextFormField(
-                    controller: _note,
-                    decoration: const InputDecoration(labelText: 'Notiz'),
-                    maxLines: 2,
-                  ),
-                ],
+                    const SizedBox(height: 12),
+                    TextFormField(
+                      controller: _contact,
+                      decoration: const InputDecoration(
+                        labelText: 'Ansprechpartner:in',
+                      ),
+                      textCapitalization: TextCapitalization.words,
+                    ),
+                    const SizedBox(height: 12),
+                    TextFormField(
+                      controller: _email,
+                      decoration: const InputDecoration(labelText: 'E-Mail'),
+                      keyboardType: TextInputType.emailAddress,
+                    ),
+                  ],
+                ),
               ),
-            ),
-          ],
+              const SizedBox(height: 16),
+              SectionCard(
+                title: 'Anschrift',
+                child: Column(
+                  children: [
+                    TextFormField(
+                      controller: _street,
+                      decoration: const InputDecoration(
+                        labelText: 'Straße und Hausnummer',
+                      ),
+                      textCapitalization: TextCapitalization.words,
+                    ),
+                    const SizedBox(height: 12),
+                    Row(
+                      children: [
+                        SizedBox(
+                          width: 110,
+                          child: TextFormField(
+                            controller: _postalCode,
+                            decoration: const InputDecoration(labelText: 'PLZ'),
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: TextFormField(
+                            controller: _city,
+                            decoration: const InputDecoration(labelText: 'Ort'),
+                            textCapitalization: TextCapitalization.words,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 12),
+                    DropdownButtonFormField<Country>(
+                      initialValue: _country,
+                      decoration: const InputDecoration(labelText: 'Land'),
+                      items: [
+                        for (final country in Country.values)
+                          DropdownMenuItem(
+                            value: country,
+                            child: Text(country.label),
+                          ),
+                      ],
+                      onChanged: (value) =>
+                          setState(() => _country = value ?? Country.at),
+                    ),
+                    const SizedBox(height: 12),
+                    TextFormField(
+                      controller: _vatId,
+                      decoration: InputDecoration(
+                        labelText: vatLabel,
+                        helperText:
+                            'Bei Kunden aus dem EU-Ausland für Reverse Charge nötig',
+                      ),
+                      textCapitalization: TextCapitalization.characters,
+                      onChanged: (_) => setState(() {}),
+                      validator: (value) => VatIdFormat.check(value ?? ''),
+                    ),
+                    VatCheckStatus(
+                      vatId: _vatId.text,
+                      subject: 'customer',
+                      subjectId: widget.existing?.id,
+                    ),
+                    const SizedBox(height: 12),
+                    TextFormField(
+                      controller: _note,
+                      decoration: const InputDecoration(labelText: 'Notiz'),
+                      maxLines: 2,
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
         ),
       ),
       bottomNavigationBar: Padding(

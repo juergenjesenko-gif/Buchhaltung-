@@ -140,6 +140,19 @@ Unten in der App findest du vier Bereiche:
 
 Die **Einstellungen** erreichst du über das Zahnrad rechts oben in der Übersicht.
 
+**Auf dem Tablet oder im Querformat** stehen die vier Bereiche nicht unten,
+sondern als Leiste am linken Rand. Ist der Bildschirm breit genug (etwa ein
+Tablet quer), siehst du bei Belegen, Rechnungen und Kunden links die Liste und
+rechts den geöffneten Eintrag; nach dem Speichern bleibt die Liste stehen und
+zeigt die Änderung. Eingabeformulare werden auf großen Bildschirmen nicht über
+die ganze Breite gezogen, damit sie gut lesbar bleiben. Die App lässt sich in
+jeder Richtung halten und auf dem iPad bzw. Android-Tablet neben einer anderen
+App nutzen.
+
+> **Tipp:** Speichere, bevor du das Tablet drehst oder die Fenstergröße
+> änderst. Ein gerade geöffneter, noch nicht gespeicherter Eintrag rechts wird
+> dabei sonst geschlossen.
+
 ---
 
 ## 4. Belege erfassen

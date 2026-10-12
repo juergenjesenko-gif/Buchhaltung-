@@ -15,6 +15,7 @@ import '../../widgets/vat_check_status.dart';
 import '../../theme.dart';
 import '../../widgets/common.dart';
 import 'customer_edit_screen.dart';
+import '../../widgets/adaptive.dart';
 
 /// Rechnung erstellen und bearbeiten.
 ///
@@ -295,184 +296,186 @@ class _InvoiceEditScreenState extends State<InvoiceEditScreen> {
           _isEditing ? 'Rechnung ${widget.existing!.number}' : 'Neue Rechnung',
         ),
       ),
-      body: ListView(
-        padding: const EdgeInsets.fromLTRB(16, 12, 16, 96),
-        children: [
-          if (_isLocked) ...[
-            const NoticeBanner(
-              icon: Icons.lock_outline,
-              message:
-                  'Diese Rechnung ist gestellt und kann nicht mehr geändert werden. '
-                  'Für Korrekturen erstelle eine Storno- oder Gutschriftsrechnung.',
+      body: ReadableWidth(
+        child: ListView(
+          padding: const EdgeInsets.fromLTRB(16, 12, 16, 96),
+          children: [
+            if (_isLocked) ...[
+              const NoticeBanner(
+                icon: Icons.lock_outline,
+                message:
+                    'Diese Rechnung ist gestellt und kann nicht mehr geändert werden. '
+                    'Für Korrekturen erstelle eine Storno- oder Gutschriftsrechnung.',
+              ),
+              const SizedBox(height: 16),
+            ],
+
+            SectionCard(
+              title: 'Empfänger',
+              action: _isLocked
+                  ? null
+                  : TextButton(
+                      onPressed: _pickCustomer,
+                      child: const Text('Wählen'),
+                    ),
+              child: _customer == null
+                  ? Text(
+                      'Noch kein Kunde ausgewählt.',
+                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+                      ),
+                    )
+                  : Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        for (final line in _customer!.addressLines) Text(line),
+                        if (!_customer!.hasCompleteAddress) ...[
+                          const SizedBox(height: 8),
+                          NoticeBanner(
+                            icon: Icons.warning_amber_rounded,
+                            color: AppTheme.warning,
+                            message:
+                                'Für eine Rechnung über der Kleinbetragsgrenze von '
+                                '${Fmt.money(tax.smallAmountInvoiceLimit)} braucht der Kunde '
+                                'eine vollständige Anschrift.',
+                          ),
+                        ],
+                      ],
+                    ),
             ),
             const SizedBox(height: 16),
-          ],
 
-          SectionCard(
-            title: 'Empfänger',
-            action: _isLocked
-                ? null
-                : TextButton(
-                    onPressed: _pickCustomer,
-                    child: const Text('Wählen'),
+            SectionCard(
+              title: 'Zeitraum',
+              child: Column(
+                children: [
+                  _dateTile(
+                    label: 'Rechnungsdatum',
+                    value: _issueDate,
+                    onTap: _isLocked
+                        ? null
+                        : () => _pickDate(
+                            initial: _issueDate,
+                            onPicked: (date) => _issueDate = date,
+                          ),
                   ),
-            child: _customer == null
-                ? Text(
-                    'Noch kein Kunde ausgewählt.',
-                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      color: Theme.of(context).colorScheme.onSurfaceVariant,
-                    ),
-                  )
-                : Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      for (final line in _customer!.addressLines) Text(line),
-                      if (!_customer!.hasCompleteAddress) ...[
-                        const SizedBox(height: 8),
-                        NoticeBanner(
-                          icon: Icons.warning_amber_rounded,
-                          color: AppTheme.warning,
-                          message:
-                              'Für eine Rechnung über der Kleinbetragsgrenze von '
-                              '${Fmt.money(tax.smallAmountInvoiceLimit)} braucht der Kunde '
-                              'eine vollständige Anschrift.',
-                        ),
-                      ],
-                    ],
+                  _dateTile(
+                    label: 'Liefer-/Leistungsdatum',
+                    value: _deliveryDate,
+                    helper: 'Pflichtangabe nach ${tax.invoiceLegalRef}',
+                    onTap: _isLocked
+                        ? null
+                        : () => _pickDate(
+                            initial: _deliveryDate,
+                            onPicked: (date) => _deliveryDate = date,
+                          ),
                   ),
-          ),
-          const SizedBox(height: 16),
-
-          SectionCard(
-            title: 'Zeitraum',
-            child: Column(
-              children: [
-                _dateTile(
-                  label: 'Rechnungsdatum',
-                  value: _issueDate,
-                  onTap: _isLocked
-                      ? null
-                      : () => _pickDate(
-                          initial: _issueDate,
-                          onPicked: (date) => _issueDate = date,
-                        ),
-                ),
-                _dateTile(
-                  label: 'Liefer-/Leistungsdatum',
-                  value: _deliveryDate,
-                  helper: 'Pflichtangabe nach ${tax.invoiceLegalRef}',
-                  onTap: _isLocked
-                      ? null
-                      : () => _pickDate(
-                          initial: _deliveryDate,
-                          onPicked: (date) => _deliveryDate = date,
-                        ),
-                ),
-                _dateTile(
-                  label: 'Fällig am',
-                  value: _dueDate,
-                  onTap: _isLocked
-                      ? null
-                      : () => _pickDate(
-                          initial: _dueDate,
-                          onPicked: (date) => _dueDate = date,
-                        ),
-                ),
-              ],
+                  _dateTile(
+                    label: 'Fällig am',
+                    value: _dueDate,
+                    onTap: _isLocked
+                        ? null
+                        : () => _pickDate(
+                            initial: _dueDate,
+                            onPicked: (date) => _dueDate = date,
+                          ),
+                  ),
+                ],
+              ),
             ),
-          ),
-          const SizedBox(height: 16),
+            const SizedBox(height: 16),
 
-          SectionCard(
-            title: 'Positionen',
-            action: _isLocked
-                ? null
-                : IconButton(
-                    tooltip: 'Position hinzufügen',
-                    icon: const Icon(Icons.add),
-                    onPressed: () => setState(
-                      () => _items.add(
-                        _ItemDraft.empty(state.defaultVatPermille),
+            SectionCard(
+              title: 'Positionen',
+              action: _isLocked
+                  ? null
+                  : IconButton(
+                      tooltip: 'Position hinzufügen',
+                      icon: const Icon(Icons.add),
+                      onPressed: () => setState(
+                        () => _items.add(
+                          _ItemDraft.empty(state.defaultVatPermille),
+                        ),
                       ),
                     ),
-                  ),
-            child: Column(
-              children: [
-                for (var i = 0; i < _items.length; i++) ...[
-                  if (i > 0) const Divider(height: 24),
-                  _ItemEditor(
-                    draft: _items[i],
-                    index: i + 1,
-                    vatRates: tax.vatRates,
-                    showVat: !_isSmallBusiness,
-                    readOnly: _isLocked,
-                    onChanged: () => setState(() {}),
-                    onRemove: _items.length == 1 || _isLocked
-                        ? null
-                        : () => setState(() {
-                            _items.removeAt(i).dispose();
-                          }),
-                  ),
-                ],
-              ],
-            ),
-          ),
-          const SizedBox(height: 16),
-
-          SectionCard(
-            title: 'Summe',
-            child: Column(
-              children: [
-                LabeledValue(label: 'Netto', value: Fmt.money(_netTotal)),
-                if (!_isSmallBusiness) ...[
-                  for (final entry in _vatByRate().entries)
-                    LabeledValue(
-                      label: 'USt ${Fmt.vatRate(entry.key)}',
-                      value: Fmt.money(entry.value),
+              child: Column(
+                children: [
+                  for (var i = 0; i < _items.length; i++) ...[
+                    if (i > 0) const Divider(height: 24),
+                    _ItemEditor(
+                      draft: _items[i],
+                      index: i + 1,
+                      vatRates: tax.vatRates,
+                      showVat: !_isSmallBusiness,
+                      readOnly: _isLocked,
+                      onChanged: () => setState(() {}),
+                      onRemove: _items.length == 1 || _isLocked
+                          ? null
+                          : () => setState(() {
+                              _items.removeAt(i).dispose();
+                            }),
                     ),
+                  ],
                 ],
-                const Divider(height: 20),
-                LabeledValue(
-                  label: 'Gesamtbetrag',
-                  value: Fmt.money(_grossTotal),
-                  emphasize: true,
-                ),
-                if (_isSmallBusiness) ...[
-                  const SizedBox(height: 12),
-                  NoticeBanner(
-                    icon: Icons.receipt_outlined,
-                    message:
-                        'Auf der Rechnung erscheint: '
-                        '"${tax.smallBusinessInvoiceNote}"',
-                  ),
-                ],
-              ],
-            ),
-          ),
-          const SizedBox(height: 16),
-
-          SectionCard(
-            title: 'Anmerkungen',
-            child: TextFormField(
-              controller: _notesController,
-              readOnly: _isLocked,
-              decoration: const InputDecoration(
-                hintText: 'Erscheint unter den Positionen auf der Rechnung',
               ),
-              maxLines: 3,
-              textCapitalization: TextCapitalization.sentences,
             ),
-          ),
-
-          if (!_isLocked && errors.isNotEmpty) ...[
             const SizedBox(height: 16),
-            NoticeBanner(
-              icon: Icons.checklist_outlined,
-              color: AppTheme.warning,
-              message: 'Vor dem Ausstellen fehlt noch: ${errors.join(', ')}.',
+
+            SectionCard(
+              title: 'Summe',
+              child: Column(
+                children: [
+                  LabeledValue(label: 'Netto', value: Fmt.money(_netTotal)),
+                  if (!_isSmallBusiness) ...[
+                    for (final entry in _vatByRate().entries)
+                      LabeledValue(
+                        label: 'USt ${Fmt.vatRate(entry.key)}',
+                        value: Fmt.money(entry.value),
+                      ),
+                  ],
+                  const Divider(height: 20),
+                  LabeledValue(
+                    label: 'Gesamtbetrag',
+                    value: Fmt.money(_grossTotal),
+                    emphasize: true,
+                  ),
+                  if (_isSmallBusiness) ...[
+                    const SizedBox(height: 12),
+                    NoticeBanner(
+                      icon: Icons.receipt_outlined,
+                      message:
+                          'Auf der Rechnung erscheint: '
+                          '"${tax.smallBusinessInvoiceNote}"',
+                    ),
+                  ],
+                ],
+              ),
             ),
+            const SizedBox(height: 16),
+
+            SectionCard(
+              title: 'Anmerkungen',
+              child: TextFormField(
+                controller: _notesController,
+                readOnly: _isLocked,
+                decoration: const InputDecoration(
+                  hintText: 'Erscheint unter den Positionen auf der Rechnung',
+                ),
+                maxLines: 3,
+                textCapitalization: TextCapitalization.sentences,
+              ),
+            ),
+
+            if (!_isLocked && errors.isNotEmpty) ...[
+              const SizedBox(height: 16),
+              NoticeBanner(
+                icon: Icons.checklist_outlined,
+                color: AppTheme.warning,
+                message: 'Vor dem Ausstellen fehlt noch: ${errors.join(', ')}.',
+              ),
+            ],
           ],
-        ],
+        ),
       ),
       bottomNavigationBar: _isLocked
           ? null

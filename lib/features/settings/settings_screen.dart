@@ -7,6 +7,7 @@ import '../../app_state.dart';
 import '../../domain/receipt.dart';
 import '../../widgets/common.dart';
 import '../onboarding/company_setup_screen.dart';
+import '../../widgets/adaptive.dart';
 
 /// Einstellungen: Stammdaten, Kategorien und die rechtlichen Hinweise.
 class SettingsScreen extends StatelessWidget {
@@ -20,145 +21,149 @@ class SettingsScreen extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(title: const Text('Einstellungen')),
-      body: ListView(
-        padding: const EdgeInsets.fromLTRB(16, 12, 16, 32),
-        children: [
-          SectionCard(
-            title: 'Stammdaten',
-            padding: const EdgeInsets.fromLTRB(16, 16, 8, 8),
-            child: Column(
-              children: [
-                ListTile(
-                  contentPadding: EdgeInsets.zero,
-                  leading: const Icon(Icons.business_outlined),
-                  title: Text(profile?.companyName ?? 'Nicht gesetzt'),
-                  subtitle: Text(
-                    [
-                      profile?.country.label,
-                      profile?.isSmallBusiness == true
-                          ? 'Kleinunternehmer'
-                          : 'Regelbesteuerung',
-                    ].whereType<String>().join(' · '),
-                  ),
-                  trailing: const Icon(Icons.chevron_right),
-                  onTap: () => Navigator.of(context).push(
-                    MaterialPageRoute(
-                      builder: (_) => const CompanySetupScreen(),
-                    ),
-                  ),
-                ),
-                ListTile(
-                  contentPadding: EdgeInsets.zero,
-                  leading: const Icon(Icons.backup_outlined),
-                  title: const Text('Datensicherung'),
-                  subtitle: Text(
-                    profile?.lastBackupAt == null
-                        ? 'Noch keine Sicherung'
-                        : 'Letzte Sicherung: ${Fmt.date(profile!.lastBackupAt!)}',
-                  ),
-                  trailing: const Icon(Icons.chevron_right),
-                  onTap: () => Navigator.of(context).push(
-                    MaterialPageRoute(builder: (_) => const BackupScreen()),
-                  ),
-                ),
-                ListTile(
-                  contentPadding: EdgeInsets.zero,
-                  leading: const Icon(Icons.lock_outline),
-                  title: const Text('App-Sperre'),
-                  subtitle: Text(
-                    state.lockEnabled
-                        ? 'Ein – PIN, optional Fingerabdruck/Face ID'
-                        : 'Aus',
-                  ),
-                  trailing: const Icon(Icons.chevron_right),
-                  onTap: () => Navigator.of(context).push(
-                    MaterialPageRoute(
-                      builder: (_) => const AppLockSettingsScreen(),
-                    ),
-                  ),
-                ),
-                ListTile(
-                  contentPadding: EdgeInsets.zero,
-                  leading: const Icon(Icons.category_outlined),
-                  title: const Text('Kategorien'),
-                  subtitle: Text('${state.categories.length} Kategorien'),
-                  trailing: const Icon(Icons.chevron_right),
-                  onTap: () => Navigator.of(context).push(
-                    MaterialPageRoute(builder: (_) => const _CategoryScreen()),
-                  ),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 16),
-
-          if (tax != null)
+      body: ReadableWidth(
+        child: ListView(
+          padding: const EdgeInsets.fromLTRB(16, 12, 16, 32),
+          children: [
             SectionCard(
-              title: 'Rechtlicher Rahmen (${profile!.country.label})',
+              title: 'Stammdaten',
+              padding: const EdgeInsets.fromLTRB(16, 16, 8, 8),
               child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  _bullet(
-                    context,
-                    'Umsatzsteuersätze',
-                    tax.vatRates.map((r) => r.display).join(', '),
+                  ListTile(
+                    contentPadding: EdgeInsets.zero,
+                    leading: const Icon(Icons.business_outlined),
+                    title: Text(profile?.companyName ?? 'Nicht gesetzt'),
+                    subtitle: Text(
+                      [
+                        profile?.country.label,
+                        profile?.isSmallBusiness == true
+                            ? 'Kleinunternehmer'
+                            : 'Regelbesteuerung',
+                      ].whereType<String>().join(' · '),
+                    ),
+                    trailing: const Icon(Icons.chevron_right),
+                    onTap: () => Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (_) => const CompanySetupScreen(),
+                      ),
+                    ),
                   ),
-                  _bullet(
-                    context,
-                    tax.smallBusinessLabel,
-                    tax.smallBusinessLegalRef,
+                  ListTile(
+                    contentPadding: EdgeInsets.zero,
+                    leading: const Icon(Icons.backup_outlined),
+                    title: const Text('Datensicherung'),
+                    subtitle: Text(
+                      profile?.lastBackupAt == null
+                          ? 'Noch keine Sicherung'
+                          : 'Letzte Sicherung: ${Fmt.date(profile!.lastBackupAt!)}',
+                    ),
+                    trailing: const Icon(Icons.chevron_right),
+                    onTap: () => Navigator.of(context).push(
+                      MaterialPageRoute(builder: (_) => const BackupScreen()),
+                    ),
                   ),
-                  _bullet(
-                    context,
-                    'Pflichtangaben Rechnung',
-                    tax.invoiceLegalRef,
+                  ListTile(
+                    contentPadding: EdgeInsets.zero,
+                    leading: const Icon(Icons.lock_outline),
+                    title: const Text('App-Sperre'),
+                    subtitle: Text(
+                      state.lockEnabled
+                          ? 'Ein – PIN, optional Fingerabdruck/Face ID'
+                          : 'Aus',
+                    ),
+                    trailing: const Icon(Icons.chevron_right),
+                    onTap: () => Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (_) => const AppLockSettingsScreen(),
+                      ),
+                    ),
                   ),
-                  _bullet(
-                    context,
-                    'Aufbewahrungsfrist',
-                    '${tax.retentionYears} Jahre',
+                  ListTile(
+                    contentPadding: EdgeInsets.zero,
+                    leading: const Icon(Icons.category_outlined),
+                    title: const Text('Kategorien'),
+                    subtitle: Text('${state.categories.length} Kategorien'),
+                    trailing: const Icon(Icons.chevron_right),
+                    onTap: () => Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (_) => const _CategoryScreen(),
+                      ),
+                    ),
                   ),
                 ],
               ),
             ),
-          const SizedBox(height: 16),
+            const SizedBox(height: 16),
 
-          const SectionCard(
-            title: 'Daten und Sicherung',
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Alle Daten liegen ausschließlich auf diesem Gerät. Es gibt keinen '
-                  'Server, auf den etwas hochgeladen wird – und damit auch keine '
-                  'automatische Sicherung.',
+            if (tax != null)
+              SectionCard(
+                title: 'Rechtlicher Rahmen (${profile!.country.label})',
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _bullet(
+                      context,
+                      'Umsatzsteuersätze',
+                      tax.vatRates.map((r) => r.display).join(', '),
+                    ),
+                    _bullet(
+                      context,
+                      tax.smallBusinessLabel,
+                      tax.smallBusinessLegalRef,
+                    ),
+                    _bullet(
+                      context,
+                      'Pflichtangaben Rechnung',
+                      tax.invoiceLegalRef,
+                    ),
+                    _bullet(
+                      context,
+                      'Aufbewahrungsfrist',
+                      '${tax.retentionYears} Jahre',
+                    ),
+                  ],
                 ),
-                SizedBox(height: 10),
-                NoticeBanner(
-                  icon: Icons.backup_outlined,
-                  message:
-                      'Exportiere regelmäßig über den Bereich "Export". '
-                      'Geht das Gerät verloren, sind die Belege sonst weg.',
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 16),
+              ),
+            const SizedBox(height: 16),
 
-          SectionCard(
-            title: 'Wichtiger Hinweis',
-            child: Text(
-              'Diese App unterstützt bei der Belegerfassung und beim Schreiben von '
-              'Rechnungen. Sie ist keine Steuerberatung und keine Registrierkasse '
-              'im Sinne der Registrierkassensicherheitsverordnung. Für die '
-              'Richtigkeit deiner Buchhaltung und deiner Steuererklärungen bist du '
-              'selbst verantwortlich.',
-              style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                color: Theme.of(context).colorScheme.onSurfaceVariant,
+            const SectionCard(
+              title: 'Daten und Sicherung',
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Alle Daten liegen ausschließlich auf diesem Gerät. Es gibt keinen '
+                    'Server, auf den etwas hochgeladen wird – und damit auch keine '
+                    'automatische Sicherung.',
+                  ),
+                  SizedBox(height: 10),
+                  NoticeBanner(
+                    icon: Icons.backup_outlined,
+                    message:
+                        'Exportiere regelmäßig über den Bereich "Export". '
+                        'Geht das Gerät verloren, sind die Belege sonst weg.',
+                  ),
+                ],
               ),
             ),
-          ),
-        ],
+            const SizedBox(height: 16),
+
+            SectionCard(
+              title: 'Wichtiger Hinweis',
+              child: Text(
+                'Diese App unterstützt bei der Belegerfassung und beim Schreiben von '
+                'Rechnungen. Sie ist keine Steuerberatung und keine Registrierkasse '
+                'im Sinne der Registrierkassensicherheitsverordnung. Für die '
+                'Richtigkeit deiner Buchhaltung und deiner Steuererklärungen bist du '
+                'selbst verantwortlich.',
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -291,34 +296,38 @@ class _CategoryScreenState extends State<_CategoryScreen> {
 
     return Scaffold(
       appBar: AppBar(title: const Text('Kategorien')),
-      body: ListView(
-        padding: const EdgeInsets.only(bottom: 96),
-        children: [
-          for (final direction in BookingDirection.values) ...[
-            Padding(
-              padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
-              child: Text(
-                direction == BookingDirection.income ? 'Einnahmen' : 'Ausgaben',
-                style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                  color: Theme.of(context).colorScheme.primary,
+      body: ReadableWidth(
+        child: ListView(
+          padding: const EdgeInsets.only(bottom: 96),
+          children: [
+            for (final direction in BookingDirection.values) ...[
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+                child: Text(
+                  direction == BookingDirection.income
+                      ? 'Einnahmen'
+                      : 'Ausgaben',
+                  style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                    color: Theme.of(context).colorScheme.primary,
+                  ),
                 ),
               ),
-            ),
-            for (final category in state.categoriesFor(direction))
-              ListTile(
-                title: Text(category.name),
-                subtitle: category.datevAccount == null
-                    ? null
-                    : Text('Konto ${category.datevAccount}'),
-                trailing: category.isSystem
-                    ? const Icon(Icons.lock_outline, size: 18)
-                    : IconButton(
-                        icon: const Icon(Icons.delete_outline),
-                        onPressed: () => _delete(category),
-                      ),
-              ),
+              for (final category in state.categoriesFor(direction))
+                ListTile(
+                  title: Text(category.name),
+                  subtitle: category.datevAccount == null
+                      ? null
+                      : Text('Konto ${category.datevAccount}'),
+                  trailing: category.isSystem
+                      ? const Icon(Icons.lock_outline, size: 18)
+                      : IconButton(
+                          icon: const Icon(Icons.delete_outline),
+                          onPressed: () => _delete(category),
+                        ),
+                ),
+            ],
           ],
-        ],
+        ),
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: _addCategory,

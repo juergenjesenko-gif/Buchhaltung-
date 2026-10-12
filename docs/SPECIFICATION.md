@@ -1,6 +1,6 @@
 # Spezifikation – Buchhaltung
 
-**Dokumentversion:** 1.23 · **App-Version:** 0.1.0 · **Stand:** 2026-10-12
+**Dokumentversion:** 1.24 · **App-Version:** 0.1.0 · **Stand:** 2026-10-12
 **Status:** Sprint 1 umgesetzt und verifiziert
 
 > Das **Zielbild** des Produkts steht im [`LASTENHEFT.md`](LASTENHEFT.md); dieses
@@ -390,6 +390,20 @@ Fachlogik: `lib/services/app_lock/app_lock_service.dart`, Plattform:
 | FA-6.6 | CSV mit Semikolon, CRLF und UTF-8-BOM |
 | FA-6.7 | Belegliste mit Seitenzahl und allen Kommentaren samt Zeitpunkt; DATEV und BMD hängen den jüngsten Kommentar gekürzt an den Buchungstext an (`Beschreibung / K: …`, höchstens 60 Zeichen) |
 
+### 5.7 Tablet und Querformat
+
+Umsetzung von DESIGN_SPEC Abschnitt 5. Schwellen nur in
+`lib/core/window_size.dart` (`WindowSizeClass`), Bausteine in
+`lib/widgets/adaptive.dart`.
+
+| ID | Anforderung |
+|---|---|
+| FA-9.1 | Breitenklassen nach Material 3 aus der **Fensterbreite** (auch im geteilten Bildschirm): compact < 600 dp, medium 600–839 dp, expanded ≥ 840 dp (`spec.window_medium_min_dp`, `spec.window_expanded_min_dp`). Kein Widget vergleicht selbst mit Pixelzahlen |
+| FA-9.2 | Hauptnavigation: compact `NavigationBar` unten; medium `NavigationRail` links mit Beschriftung unter dem Symbol; expanded ausgeklappte `NavigationRail`. Ziele und Reihenfolge unverändert (Abschnitt 7) |
+| FA-9.3 | **Liste-Detail** ab expanded für Belege, Rechnungen und Kunden: Liste links (2/5), Bearbeitung rechts (3/5) in einem eigenen Navigator; Speichern schließt den Detailbereich und aktualisiert die Liste. Auf compact und medium wie bisher eigene Seite. Medium quer (z. B. Telefon quer) bleibt einspaltig, weil zwei Spalten unter 840 dp das Formular zu schmal machen |
+| FA-9.4 | Formulare und Lesebereiche (Beleg, Rechnung, Kunde, Stammdaten, Bestätigungen, Einstellungen, App-Sperre, Datensicherung, Export) höchstens 640 dp breit, zentriert (`spec.max_content_width_dp`, DESIGN_SPEC D-5). Sperrbildschirm höchstens 360 dp, zentriert und scrollbar; Dialoge nach Material 3 höchstens 560 dp |
+| FA-9.5 | Hoch- und Querformat ohne Sperre: Android ohne `screenOrientation`, iOS iPhone hoch und quer, iPad alle vier Ausrichtungen. **Kein `UIRequiresFullScreen`**: die App unterstützt Split View und Slide Over auf dem iPad; Apple verlangt dafür alle vier iPad-Ausrichtungen. Gerätetest: P-D19, P-D20 |
+
 ---
 
 ## 6. Zustandsmodelle
@@ -442,7 +456,7 @@ Kleinunternehmer:
 |---|---|---|
 | Bestätigungen | `features/onboarding/consent_screen.dart` | Hinweis „keine Steuerberatung“, Nutzungsbedingungen und Datenschutz bestätigen |
 | Onboarding / Stammdaten | `features/onboarding/company_setup_screen.dart` | Firmenprofil anlegen und bearbeiten, Firmenlogo |
-| Hauptnavigation | `features/home/home_shell.dart` | Vier Bereiche als Tab-Leiste |
+| Hauptnavigation | `features/home/home_shell.dart` | Vier Bereiche: Tab-Leiste (compact) oder Navigationsleiste links (medium, expanded), FA-9.2 |
 | Übersicht | `features/dashboard/dashboard_screen.dart` | Kassabuch, Umsatzsteuer, Grenzwertampel, Verlauf |
 | Belegliste | `features/receipts/receipt_list_screen.dart` | Suchen, filtern, öffnen; Filter „Storniert“ |
 | Beleg bearbeiten | `features/receipts/receipt_edit_screen.dart` | Erfassen, Seiten, Betrag, Kategorie, Kommentare; stornierte Belege nur lesen |
@@ -455,8 +469,14 @@ Kleinunternehmer:
 | App-Sperre einrichten | `features/app_lock/app_lock_settings_screen.dart` | PIN, Biometrie, Sperrzeit, Hinweis „PIN vergessen“, Warnung ohne Sicherung |
 | Sperrbildschirm | `features/app_lock/lock_screen.dart` | PIN oder Biometrie, Wartezeit nach Fehlversuchen; Abdeckung im App-Umschalter |
 
-**Navigation:** Vier Ziele in der Tab-Leiste – Übersicht, Belege, Rechnungen,
-Export. Einstellungen erreicht man über das Zahnrad in der Übersicht.
+**Navigation:** Vier Ziele – Übersicht, Belege, Rechnungen, Export – in der
+Tab-Leiste (Telefon) bzw. in der Navigationsleiste links (Tablet, Querformat,
+FA-9.2). Einstellungen erreicht man über das Zahnrad in der Übersicht.
+
+**Liste-Detail (expanded, FA-9.3):** Belegliste mit „Beleg bearbeiten“,
+Rechnungsliste mit „Rechnung bearbeiten“ und Kundenliste mit „Kunde
+bearbeiten“ stehen nebeneinander; ohne Auswahl zeigt der rechte Bereich einen
+Hinweis.
 
 ---
 
@@ -577,6 +597,7 @@ Offen benannt, weil eine Spezifikation, die ihre Lücken verschweigt, wertlos is
 | **Steuerwerte fest im Code** | Kennwerte haben kein Gültig-ab-Datum und ändern sich nur per App-Update; eine kurzfristige Gesetzesänderung erreicht die Nutzerin erst nach Store-Freigabe | Rechtsstand-Überwachung, Lastenheft L-20 und L-13.5, Stufe B |
 | **Nur eine Währung** | Nur Euro. Ein Land mit anderer Währung setzt Mehrwährungsfähigkeit voraus | Backlog G7 |
 | **Mengen mit zwei Dezimalstellen** | Die Mengeneingabe verarbeitet zwei Nachkommastellen, obwohl das Datenmodell drei erlaubt | – |
+| **Offene Detailseite beim Wechsel der Breitenklasse** | Wird ein Tablet von quer (expanded) auf hoch (medium) gedreht oder das Fenster verkleinert, während rechts ein Beleg, eine Rechnung oder ein Kunde in Bearbeitung ist, schließt sich der Detailbereich; ungespeicherte Eingaben gehen verloren. Gespeichertes bleibt unberührt | später |
 | **Android-APK-Build nicht lokal verifiziert** | Im Entwicklungscontainer ist `dl.google.com` per Netzwerk-Policy gesperrt, das Android SDK ließ sich nicht installieren. Analyse, Format und Tests laufen lokal; die Plattform-Builds verifiziert die CI | – |
 
 ---
@@ -612,6 +633,9 @@ spec.app_lock_default_timeout_seconds = 60
 spec.app_lock_free_attempts = 5
 spec.app_lock_backoff_initial_seconds = 30
 spec.app_lock_backoff_max_seconds = 3600
+spec.window_medium_min_dp = 600
+spec.window_expanded_min_dp = 840
+spec.max_content_width_dp = 640
 
 # Österreich – § 6 Abs 1 Z 27 UStG, § 11 Abs 6 UStG, § 132 BAO
 spec.at.vat_permille = 200,130,100,0
@@ -654,6 +678,7 @@ Umrechnung: Beträge in Cent. `5500000` Cent = 55.000,00 €.
 
 | Version | Datum | App-Version | Änderung |
 |---|---|---|---|
+| 1.24 | 2026-10-12 | 0.1.0 | Tablet und Querformat (Abschnitt 5.7, FA-9.1 bis FA-9.5): Breitenklassen nach Material 3, NavigationRail ab medium, Liste-Detail ab expanded für Belege, Rechnungen und Kunden, Formularbreite 640 dp, iPad ohne `UIRequiresFullScreen`. Neue Kennwerte `spec.window_*`, `spec.max_content_width_dp`, neue Grenze in Abschnitt 11, Prüfpunkte P-D19, P-D20. |
 | 1.23 | 2026-10-12 | 0.1.0 | App-Sperre (Abschnitt 5.5b, FA-1.13 bis FA-1.18, Lastenheft L-22.30): PIN 6–8 Ziffern als Argon2id-Hash im sicheren Speicher, Biometrie über `local_auth`, Sperrzeit, steigende Wartezeit, Abdeckung im App-Umschalter. Neue Kennwerte `spec.app_lock_*`, zwei neue Bildschirme, Prüfpunkte P-D17, P-D18. |
 | 1.22 | 2026-10-12 | 0.1.0 | Prüfpunkte P-S19 bis P-S22, P-R15 bis P-R17, P-D14 bis P-D16 (Store-Erlös, Wiederherstellungscode, Promocodes). Keine Codeänderung. |
 | 1.21 | 2026-10-12 | 0.1.0 | GR-8 vollständig: das PDF gestellter Rechnungen nimmt alle Absenderangaben aus `seller_snapshot` (`InvoiceSeller`), mit Rückfall je fehlendem Feld; abgebrochene Belegerfassung löscht nie gespeicherte Seiten (FA-2.13). |
@@ -842,4 +867,6 @@ Status: *offen* · *bestätigt* (mit Datum und Prüfer) · *widerlegt* (mit Folg
 | P-D16 | Codeblatt als PDF, Druck und Autofill auf iOS und Android ansehen | — | Release | offen |
 | P-D17 | App-Sperre auf echten Geräten: Fingerabdruck (Android), Face ID und Touch ID (iOS), Rückfall auf PIN, Sperre nach Zeit im Hintergrund; Vorschau im App-Umschalter verdeckt (iOS-Abdeckung, Android 13+ `setRecentsScreenshotEnabled`, Android < 13 nur Flutter-Abdeckung) | Flutter-Abdeckung kann auf Android < 13 zu spät gezeichnet werden; dann FLAG_SECURE erwägen | Release | offen |
 | P-D18 | Android-Build nach Umstellung auf `FlutterFragmentActivity` und `Theme.AppCompat`: Start, Sicherungsordner-Wahl (`onActivityResult`) und Startbildschirm hell/dunkel, auch unter Android 8 | im Container nicht baubar; CI prüft den Build, nicht das Verhalten | Release | offen |
+| P-D19 | Android-Tablet (z. B. 10–11 Zoll) hoch und quer, Telefon quer, Split-Screen/Mehrfenster: Navigation (Leiste/Rail), Liste-Detail, Formularbreite, Tastatur verdeckt kein aktives Feld, Sperrbildschirm und Dialoge, Drehen während der Bearbeitung | Widget-Tests mit 390×844, 844×390, 768×1024 und 1194×834 dp grün; echtes Gerät fehlt | Release | offen |
+| P-D20 | iPad hoch und quer (alle vier Ausrichtungen), Split View und Slide Over (1/3, 1/2, 2/3), Stage Manager; App Review akzeptiert Multitasking ohne `UIRequiresFullScreen` | Info.plist enthält alle vier iPad-Ausrichtungen, kein `UIRequiresFullScreen`; nur auf macOS/Gerät prüfbar | Release | offen |
 | P-D8 | Zusatzsicherung unter Windows (`tool/sicherung/sicherung.ps1`): Erstlauf, Aufgabenplanung, Wiederherstellung | Linux-Variante getestet, Windows-Skript nie ausgeführt | sofort | offen |

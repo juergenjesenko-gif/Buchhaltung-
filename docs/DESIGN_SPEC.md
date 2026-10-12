@@ -1,6 +1,6 @@
 # Designspezifikation
 
-**Version 1.0 · Stand 2026-10-12 · Arbeitstitel „Jenny Bar“ / „Jenni bucht“**
+**Version 1.1 · Stand 2026-10-12 · Arbeitstitel „Jenny Bar“ / „Jenni bucht“**
 
 Zweck: Grundlage, gegen die eine KI (oder ein Mensch) **mehrere unterschiedliche
 Designvarianten** entwickeln kann, die alle fachlich und rechtlich korrekt
@@ -214,9 +214,11 @@ Fließtext).
 - Inhalt maximal ca. 640 dp breit für Formulare auf großen Geräten (lesbare
   Zeilenlänge).
 
-Hinweis: Der Ist-Stand nutzt auf allen Breiten `NavigationBar`; NavigationRail
-und Liste-Detail sind Zielbild dieses Dokuments und brauchen bei Umsetzung einen
-Eintrag in Spezifikation Abschnitt 5/7.
+**Status: umgesetzt** (2026-10-12, Spezifikation 5.7, FA-9.1 bis FA-9.5):
+`WindowSizeClass` in `lib/core/window_size.dart`, `NavigationRail` ab medium
+(expanded ausgeklappt), Liste-Detail ab expanded für Belege, Rechnungen und
+Kunden, Formulare höchstens 640 dp. Gerätetest offen: Spezifikation 14
+P-D19, P-D20.
 
 ### FREI
 
@@ -486,4 +488,5 @@ Auftraggeber sie freigibt, und hier nur per ID verwiesen.
 
 | Version | Datum | Änderung |
 |---|---|---|
+| 1.1 | 2026-10-12 | Abschnitt 5: Status „umgesetzt“ für Breitenklassen, NavigationRail, Liste-Detail und Formularbreite. |
 | 1.0 | 2026-10-12 | Erste Fassung: feste Regeln und Gestaltungsspielraum für Designvarianten, Briefing-Vorlage, Bewertungsraster. |

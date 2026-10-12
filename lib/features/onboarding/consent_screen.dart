@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../app_state.dart';
 import '../../domain/legal_texts.dart';
+import '../../widgets/adaptive.dart';
 
 /// Bestätigungen bei der ersten Einrichtung und nach Textänderungen
 /// (Lastenheft L-17.1 bis L-17.4). Jede Bestätigung ist eigenständig, nicht
@@ -35,31 +36,33 @@ class _ConsentScreenState extends State<ConsentScreen> {
         title: const Text('Bevor es losgeht'),
         automaticallyImplyLeading: false,
       ),
-      body: ListView(
-        padding: const EdgeInsets.fromLTRB(16, 8, 16, 32),
-        children: [
-          for (final text in widget.texts) ...[
-            Text(text.title, style: theme.textTheme.titleMedium),
-            const SizedBox(height: 8),
-            Text(text.summary),
-            CheckboxListTile(
-              contentPadding: EdgeInsets.zero,
-              controlAffinity: ListTileControlAffinity.leading,
-              value: _checked.contains(text.kind),
-              onChanged: (value) => setState(
-                () => value == true
-                    ? _checked.add(text.kind)
-                    : _checked.remove(text.kind),
+      body: ReadableWidth(
+        child: ListView(
+          padding: const EdgeInsets.fromLTRB(16, 8, 16, 32),
+          children: [
+            for (final text in widget.texts) ...[
+              Text(text.title, style: theme.textTheme.titleMedium),
+              const SizedBox(height: 8),
+              Text(text.summary),
+              CheckboxListTile(
+                contentPadding: EdgeInsets.zero,
+                controlAffinity: ListTileControlAffinity.leading,
+                value: _checked.contains(text.kind),
+                onChanged: (value) => setState(
+                  () => value == true
+                      ? _checked.add(text.kind)
+                      : _checked.remove(text.kind),
+                ),
+                title: Text(text.confirmation),
               ),
-              title: Text(text.confirmation),
+              const SizedBox(height: 16),
+            ],
+            FilledButton(
+              onPressed: _complete && !_saving ? _accept : null,
+              child: const Text('Weiter'),
             ),
-            const SizedBox(height: 16),
           ],
-          FilledButton(
-            onPressed: _complete && !_saving ? _accept : null,
-            child: const Text('Weiter'),
-          ),
-        ],
+        ),
       ),
     );
   }

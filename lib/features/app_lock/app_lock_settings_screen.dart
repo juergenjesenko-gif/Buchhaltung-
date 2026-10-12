@@ -6,6 +6,7 @@ import '../../services/app_lock/platform_app_lock.dart';
 import '../../widgets/common.dart';
 import '../backup/backup_screen.dart';
 import 'lock_screen.dart';
+import '../../widgets/adaptive.dart';
 
 /// Einstellungen → App-Sperre (FA-1.13 bis FA-1.18).
 class AppLockSettingsScreen extends StatefulWidget {
@@ -144,12 +145,14 @@ class _AppLockSettingsScreenState extends State<AppLockSettingsScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('App-Sperre')),
-      body: _loading
-          ? const Center(child: CircularProgressIndicator())
-          : ListView(
-              padding: const EdgeInsets.fromLTRB(16, 12, 16, 32),
-              children: _enabled ? _enabledView() : _setupView(),
-            ),
+      body: ReadableWidth(
+        child: _loading
+            ? const Center(child: CircularProgressIndicator())
+            : ListView(
+                padding: const EdgeInsets.fromLTRB(16, 12, 16, 32),
+                children: _enabled ? _enabledView() : _setupView(),
+              ),
+      ),
     );
   }
 
