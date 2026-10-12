@@ -144,7 +144,8 @@ jobs:
           echo "Signiert mit festem Testschlüssel."
 
       - name: Test-APK bauen
-        run: flutter build apk --release --split-per-abi
+        # Fortlaufende Buildnummer = Laufnummer der CI (versionCode steigt, Update ohne Deinstallation)
+        run: flutter build apk --release --split-per-abi --build-number=${{ github.run_number }}
 
       - name: Größen ausgeben
         run: ls -lh build/app/outputs/flutter-apk/*.apk
@@ -153,7 +154,7 @@ jobs:
       # armeabi-v7a liegt für ältere Geräte daneben.
       - uses: actions/upload-artifact@v4
         with:
-          name: test-apk
+          name: test-apk-build-${{ github.run_number }}
           path: |
             build/app/outputs/flutter-apk/app-arm64-v8a-release.apk
             build/app/outputs/flutter-apk/app-armeabi-v7a-release.apk

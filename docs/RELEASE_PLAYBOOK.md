@@ -37,7 +37,7 @@ flutter create --org com.deine-domain --project-name buchhaltung \
   zurückgehen. Beide Stores lehnen einen Upload mit bereits verwendeter
   Buildnummer ab.
 
-Der Release-Workflow setzt die Buildnummer aus `github.run_number` – monoton
+Auch jeder Testbuild der CI trägt seit 2026-10-12 `--build-number=github.run_number`; das Artefakt heißt `test-apk-build-<Nummer>`. Der Release-Workflow setzt die Buildnummer aus `github.run_number` – monoton
 steigend und übersteht Reruns. Lokal:
 
 ```bash

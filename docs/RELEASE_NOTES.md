@@ -34,6 +34,7 @@ nächsten Versionssprung in den neuen Eintrag.
 
 | Art | Änderung | Bezug | Commit |
 |---|---|---|---|
+| Geändert | Testbuilds tragen eine fortlaufende Buildnummer (CI-Laufnummer) als versionCode und im Artefaktnamen `test-apk-build-<Nummer>` | Wunsch Auftraggeberin 2026-10-12 | dieser |
 | Neu | Tablet und Querformat: Breitenklassen nach Material 3, Navigationsleiste links ab 600 dp, Liste-Detail ab 840 dp für Belege, Rechnungen und Kunden, Formulare höchstens 640 dp; iPad mit Split View (kein `UIRequiresFullScreen`) | FA-9.1–9.5, DESIGN_SPEC D-5, P-D19, P-D20 | dieser |
 | Neu | App-Sperre: PIN 6–8 Ziffern (Argon2id-Hash im sicheren Speicher), optional Fingerabdruck/Face ID, Sperre beim Start und nach einstellbarer Zeit, steigende Wartezeit, Abdeckung im App-Umschalter, Hinweis „PIN vergessen“ mit Warnung ohne Sicherung | L-22.30, FA-1.13–1.18 | dieser |
 | Abhängigkeit | Neu: `local_auth`, `androidx.appcompat`; Android `MainActivity` erbt von `FlutterFragmentActivity`, Starttheme `Theme.AppCompat`; iOS `NSFaceIDUsageDescription` | FA-1.16, P-D18 | dieser |

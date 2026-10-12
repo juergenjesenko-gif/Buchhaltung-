@@ -15,7 +15,7 @@ Android-Telefon und einen Browser.
 1. Öffne **[Actions](https://github.com/juergenjesenko-gif/Buchhaltung-/actions)**
    im Repository
 2. Klick auf den obersten Lauf mit grünem Häkchen
-3. Ganz unten unter **Artifacts** liegt **`test-apk`** – anklicken, ZIP wird
+3. Ganz unten unter **Artifacts** liegt **`test-apk-build-<Nummer>`** (fortlaufende Buildnummer = Nummer des CI-Laufs, auch in Android unter App-Info → Version „0.1.0 (<Nummer>)“ sichtbar) – anklicken, ZIP wird
    heruntergeladen
 4. ZIP entpacken. Darin zwei Dateien:
    - **`app-arm64-v8a-release.apk`** ← die nimm. Passt auf jedes Telefon ab etwa 2017.
