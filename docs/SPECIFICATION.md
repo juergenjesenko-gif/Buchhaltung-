@@ -1,6 +1,6 @@
 # Spezifikation – Buchhaltung
 
-**Dokumentversion:** 1.27 · **App-Version:** 0.2.0 · **Stand:** 2026-10-12
+**Dokumentversion:** 1.28 · **App-Version:** 0.2.0 · **Stand:** 2026-10-12
 **Status:** Sprint 1 umgesetzt und verifiziert
 
 > Das **Zielbild** des Produkts steht im [`LASTENHEFT.md`](LASTENHEFT.md); dieses
@@ -136,12 +136,29 @@ einer älteren Schemaversion), gilt für dieses Feld der aktuelle Wert – auße
 beim Logo, das dann fehlt. Die Steuerbehandlung steht in
 `invoices.is_small_business`.
 
+### GR-9 · Fremdwährung: Kurs als Ganzzahl, Umsatzsteuer und Bank getrennt
+
+Nur Eingangsbelege (Ausgaben) dürfen in fremder Währung sein; Ausgangsrechnungen
+bleiben Euro (Lastenheft L-13.3). Der Kurs wird als **Einheiten der fremden
+Währung je 1 Euro × 10^6** gespeichert (`spec.fx_rate_scale`), so wie EZB und
+BMF notieren – er wird nie invertiert. Beträge in fremder Währung stehen in
+Hundertsteln der Einheit, auch bei Währungen ohne Nachkommastellen.
+Umrechnung: `euroCent = round_half_up(original × 10^6 / kurs)`, ausschließlich
+Ganzzahlen (`CurrencyConverter`). Der Euro-Betrag ist das Brutto des Belegs; GR-2
+gilt danach unverändert, die Steuer ist Restgröße.
+
+Zwei Euro-Werte bleiben getrennt: `gross_cents` (zum Umsatzsteuer-Kurs, Basis
+für Vorsteuer und UVA, § 20 Abs 6 UStG AT, § 16 Abs 6 UStG DE –
+`TaxProfile.fxRateLegalRef`) und `bank_gross_cents` (tatsächlich abgebucht,
+überschreibt nur in der Einnahmen-Ausgaben-Rechnung, L-2.26). Die Differenz
+wirkt als Kursdifferenz auf das Ergebnis, nie auf die Vorsteuer.
+
 ---
 
 ## 4. Datenmodell
 
 **Speicher:** SQLite auf dem Gerät, Datei `buchhaltung.db` im
-Anwendungsdokumentenverzeichnis. Aktuelle Schemaversion: **9**
+Anwendungsdokumentenverzeichnis. Aktuelle Schemaversion: **10**
 (`spec.schema_version`). Bilder liegen als Dateien daneben: Belegseiten in
 `belege/`, Firmenlogos in `logo/`.
 
@@ -160,6 +177,7 @@ Anwendungsdokumentenverzeichnis. Aktuelle Schemaversion: **9**
 | `audit_log` | Änderungsprotokoll | Nur Einfügen, kein Löschen durch die App |
 | `consents` | Bestätigte Texte: Art, Fassung, Zeitpunkt | Nur Einfügen (Schema 7) |
 | `vat_id_checks` | Protokoll der UID-Abfragen: UID, Ergebnis, Zeitpunkt, Name/Anschrift laut VIES, Abfragenummer, Fehlercode | Nur Einfügen (Schema 5) |
+| `ecb_rates` | Abgerufene EZB-Referenzkurse: `date`, `currency`, `rate_micros` (Einheiten je 1 € × 10^6), `fetched_at` | Schema 10. Schlüssel (`date`, `currency`); nur durch „Kurs abrufen“ befüllt |
 | `opening_turnover` | Umsatz je Jahr vor Beginn der Erfassung (Eröffnungswert) | Ein Eintrag je Jahr; fehlend ≠ 0 € (seit Schema 2) |
 
 ### 4.2 Datenwörterbuch – zentrale Felder
@@ -185,9 +203,9 @@ Anwendungsdokumentenverzeichnis. Aktuelle Schemaversion: **9**
 | `logo_path` | TEXT | Relativer Pfad des Firmenlogos in `logo/`, `NULL` = kein Logo (Schema 8, FA-1.12) |
 | `last_backup_at` | TEXT | Zeitpunkt der letzten Datensicherung bzw. der wiederhergestellten Sicherung; nur vom Sicherungsdienst geschrieben (Schema 4) |
 
-**`receipts`** — zusätzlich seit Schema 3: `cancelled_at` (TEXT, Zeitpunkt der Stornierung, `NULL` = gültig). Seit Schema 9: `document_number` (TEXT, Rechnungsnummer des Ausstellers), `issuer_vat_id` (TEXT, UID des Ausstellers), `currency` (TEXT, ISO 4217, Standard `EUR`), `original_gross_cents` (INTEGER, Betrag laut Beleg in fremder Währung, sonst `NULL`). `net_cents`, `vat_cents`, `gross_cents` sind immer Euro (FA-2.21)
+**`receipts`** — zusätzlich seit Schema 3: `cancelled_at` (TEXT, Zeitpunkt der Stornierung, `NULL` = gültig). Seit Schema 9: `document_number` (TEXT, Rechnungsnummer des Ausstellers), `issuer_vat_id` (TEXT, UID des Ausstellers), `currency` (TEXT, ISO 4217, Standard `EUR`), `original_gross_cents` (INTEGER, Betrag laut Beleg in fremder Währung, sonst `NULL`). `net_cents`, `vat_cents`, `gross_cents` sind immer Euro (FA-2.21). Seit Schema 10 (FA-2.24): `fx_rate_micros` (INTEGER, Kurs je 1 € × 10^6), `fx_rate_date` (TEXT, `YYYY-MM` beim Monatskurs, sonst `YYYY-MM-DD`), `fx_rate_source` (TEXT: `bmf_monthly`, `ecb_monthly_avg`, `ecb_daily`, `manual`, `bank`), `bank_gross_cents` (INTEGER, tatsächlich abgebuchter Euro-Betrag, `NULL` = wie `gross_cents`)
 
-**`company_profile`** — seit Schema 9: `receipt_scan_enabled` (INTEGER, Standard 1, FA-2.23)
+**`company_profile`** — seit Schema 9: `receipt_scan_enabled` (INTEGER, Standard 1, FA-2.23). Seit Schema 10: `fx_daily_rate_approved` (INTEGER, Standard 0, Tageskurs vom Finanzamt genehmigt, FA-2.25)
 
 
 | Feld | Typ | Bedeutung |
@@ -279,7 +297,11 @@ prüft `InvoiceRequirements` (FA-1.4).
 | FA-2.17 | **Diktat** (L-2.18) nur über die Diktierfunktion der Systemtastatur; die App enthält keine Spracherkennung und überträgt nichts. Hinweis im Formular: je nach Gerät kann die Tastatur Sprache an Google oder Apple senden |
 | FA-2.19 | **Belege automatisch auslesen** (Lastenheft L-2.20): nach dem Hinzufügen einer Seite erkennt die App den Text **aller Seiten** auf dem Gerät (Android: Google ML Kit Text Recognition Latin, gebündeltes Modell; iOS: Apple Vision `VNRecognizeTextRequest`) über den Channel `buchhaltung/receipt_text` und die Schnittstelle `ReceiptTextRecognizer`. Der Parser `lib/services/receipt_scan/` ermittelt Belegdatum, Bruttobetrag, Umsatzsteuer je Satz (Sätze aus allen `TaxProfile`s, eigenes Land zuerst), Netto, Händler, Aussteller-UID (Prüfung mit `VatIdFormat`, eigene UID übergangen), Rechnungsnummer und Währung, je mit Konfidenz 0–100. Beträge ganzzahlig in Cent; je Satz gilt `net + vat == gross`. Nur bei neuen Belegen wird automatisch vorbelegt, Felder unter Konfidenz 40 bleiben leer. Vorbelegte Felder tragen „erkannt – bitte prüfen“; gebucht wird erst beim Speichern. Das Originalbild bleibt unverändert. „Erneut auslesen“ startet die Erkennung von Hand |
 | FA-2.20 | Formularfelder **Rechnungsnummer** und **UID des Ausstellers** (Schema 9). Mehrere Steuersätze erkannt: Hinweis mit Brutto je Satz, vorbelegt wird der Satz mit dem größten Anteil; ein Satz, den das eigene Land nicht kennt, wird nicht vorbelegt |
-| FA-2.21 | **Fremdwährung** (L-2.21): nur bei Ausgaben. Erkannte Währung ≠ EUR füllt das Euro-Feld nicht; Betrag laut Beleg und Währung werden in `original_gross_cents` und `currency` gespeichert, ohne Umrechnung. Einnahmen bleiben immer Euro |
+| FA-2.21 | **Fremdwährung** (L-2.21): nur bei Ausgaben. Erkannte Währung ≠ EUR füllt das Euro-Feld nicht, sondern schaltet das Formular auf Fremdwährung (FA-2.24) mit Betrag laut Beleg. Einnahmen bleiben immer Euro |
+| FA-2.24 | **Fremdwährung umrechnen** (L-2.24): Schalter „Beleg in fremder Währung“ bei Ausgaben; Felder Währung (ISO 4217), Betrag laut Beleg, Kurs (Einheiten je 1 €, höchstens 6 Nachkommastellen), Kursquelle, Kursdatum; das Euro-Brutto wird nach GR-9 berechnet und angezeigt, Netto/Steuer nach GR-2 |
+| FA-2.25 | **Kurs abrufen** (L-2.25, L-19.29): nur auf Knopfdruck lädt `EcbClient` `eurofxref-hist-90d.xml` (Beleg bis 80 Tage alt) bzw. `eurofxref-hist.xml` direkt bei der EZB, speichert alle Kurse in `ecb_rates` und nutzt danach den Speicher. Standard ist das **Mittel aller EZB-Tageskurse des Belegmonats** (half-up auf 10^-6), gekennzeichnet „EZB-Monatsmittel – Näherung an BMF-Kurs“; im laufenden Monat als vorläufig markiert. Den **Tageskurs** (letzter Kurs am oder vor dem Belegdatum) nutzt die App nur, wenn in den Einstellungen „Tageskurs vom Finanzamt genehmigt“ eingeschaltet ist. Manueller Kurs (Quelle `manual`, `bmf_monthly`, `bank`) jederzeit; ein von Hand geänderter EZB-Kurs wird zu `manual`. Hinweis „EZB-Referenzkurs, ohne Gewähr“ |
+| FA-2.26 | **Bankbetrag** (L-2.26): optionales Feld „Tatsächlich abgebucht (EUR)“ (`bank_gross_cents`). `PeriodTotals.expenseFxDifference` = Σ(Bank − umgerechnet); `profit` zieht sie ab, `expensePaidGross` zeigt Ausgaben laut Bank. Vorsteuer, UVA und Umsatz bleiben beim Umsatzsteuer-Kurs |
+| FA-2.27 | **Protokoll** (L-2.26): jedes Speichern eines Fremdwährungsbelegs schreibt `audit_log`-Eintrag `fx` mit Währung, Originalbetrag, Kurs, Quelle, Kursdatum, umgerechnetem Betrag und ggf. Bankbetrag mit Differenz |
 | FA-2.22 | **Protokoll** (L-2.22): beim Speichern eines ausgelesenen Belegs ein `audit_log`-Eintrag `scan` mit Engine und Version, je Feld erkannter Wert mit Konfidenz, bestätigter Wert und Kennzeichen `GEÄNDERT`, sowie SHA-256 jedes Originalbilds. Keine Bilddaten, kein Volltext |
 | FA-2.23 | **Abschaltbar** (L-2.23): Einstellungen → „Belege auslesen“, Standard an (`company_profile.receipt_scan_enabled`) |
 | FA-2.18 | **Stornierte Belege lesbar**: Filter „Storniert“ in der Belegliste; die Ansicht ist schreibgeschützt (Hinweisbanner, kein Speichern), Kommentare bleiben anhängbar |
@@ -289,7 +311,7 @@ prüft `InvoiceRequirements` (FA-1.4).
 | ID | Anforderung |
 |---|---|
 | FA-3.1 | Zeiträume: dieser Monat, letzter Monat, dieses Quartal, dieses Jahr, letztes Jahr |
-| FA-3.2 | Anzeige von Einnahmen netto, Ausgaben netto und Ergebnis |
+| FA-3.2 | Anzeige von Einnahmen netto, Ausgaben netto und Ergebnis; das Ergebnis enthält Kursdifferenzen laut Bank (FA-2.26) |
 | FA-3.3 | Bei Regelbesteuerung: Umsatz je Steuersatz, Umsatzsteuer, Vorsteuer, Zahllast oder Guthaben |
 | FA-3.4 | Bei Kleinunternehmern entfällt die Umsatzsteuerauswertung mit Erklärung |
 | FA-3.5 | Balkenverlauf über die letzten sechs Monate, Einnahmen und Ausgaben getrennt |
@@ -466,13 +488,13 @@ Kleinunternehmer:
 | Hauptnavigation | `features/home/home_shell.dart` | Vier Bereiche: Tab-Leiste (compact) oder Navigationsleiste links (medium, expanded), FA-9.2 |
 | Übersicht | `features/dashboard/dashboard_screen.dart` | Kassabuch, Umsatzsteuer, Grenzwertampel, Verlauf |
 | Belegliste | `features/receipts/receipt_list_screen.dart` | Suchen, filtern, öffnen; Filter „Storniert“ |
-| Beleg bearbeiten | `features/receipts/receipt_edit_screen.dart` | Erfassen, Seiten, automatisches Auslesen mit „Erneut auslesen“, Betrag, Kategorie, Rechnungsnummer, Aussteller-UID, Kommentare; stornierte Belege nur lesen |
+| Beleg bearbeiten | `features/receipts/receipt_edit_screen.dart` | Erfassen, Seiten, automatisches Auslesen mit „Erneut auslesen“, Betrag, Fremdwährung mit „Kurs abrufen“ und Bankbetrag (FA-2.24 bis FA-2.26), Kategorie, Rechnungsnummer, Aussteller-UID, Kommentare; stornierte Belege nur lesen |
 | Rechnungsliste | `features/invoices/invoice_list_screen.dart` | Status, PDF teilen, Aktionen |
 | Rechnung bearbeiten | `features/invoices/invoice_edit_screen.dart` | Kunde, Positionen, Ausstellen |
 | Kunde bearbeiten | `features/invoices/customer_edit_screen.dart` | Kundenstammdaten |
 | Datensicherung | `features/backup/backup_screen.dart` | Sicherung erstellen und teilen, wiederherstellen mit Vorschau |
 | Export | `features/export/export_screen.dart` | Zeitraum, Vorschau, Format |
-| Einstellungen | `features/settings/settings_screen.dart` | Stammdaten, App-Sperre, Belege auslesen, Kategorien, Rechtsrahmen, Hinweise |
+| Einstellungen | `features/settings/settings_screen.dart` | Stammdaten, App-Sperre, Belege auslesen, Fremdwährung (Tageskurs-Genehmigung), Kategorien, Rechtsrahmen, Hinweise |
 | App-Sperre einrichten | `features/app_lock/app_lock_settings_screen.dart` | PIN, Biometrie, Sperrzeit, Hinweis „PIN vergessen“, Warnung ohne Sicherung |
 | Sperrbildschirm | `features/app_lock/lock_screen.dart` | PIN oder Biometrie, Wartezeit nach Fehlversuchen; Abdeckung im App-Umschalter |
 
@@ -503,9 +525,11 @@ verfälschen.
 ### 8.2 Belegliste (`plainCsv`)
 
 Spalten: Datum, Art, Beschreibung, Geschäftspartner, Kategorie, Konto,
-Zahlungsart, Netto, USt-Satz, USt-Betrag, Brutto, Beleg vorhanden, Notiz,
-Seiten, Kommentare (je `TT.MM.JJJJ, hh:mm: Text`, getrennt durch ` | `).
-Danach Summenzeilen für Einnahmen, Ausgaben und Ergebnis.
+Zahlungsart, Netto, USt-Satz, USt-Betrag, Brutto, Währung, Originalbetrag, Kurs (je EUR, 6 Nachkommastellen), Kursquelle,
+Kursdatum, Bankbetrag EUR, Beleg vorhanden, Notiz, Seiten, Kommentare (je
+`TT.MM.JJJJ, hh:mm: Text`, getrennt durch ` | `).
+Danach Summenzeilen für Einnahmen, Ausgaben, ggf. „Kursdifferenzen laut Bank“
+(FA-2.26) und Ergebnis.
 
 ### 8.3 DATEV-Buchungsstapel (`datev`, nur DE)
 
@@ -517,6 +541,7 @@ Spaltenüberschriften, ab Zeile 3 die Buchungen.
 - Belegdatum als `TTMM`; das Jahr steht im Header
 - Buchungstext maximal 60 Zeichen, Semikola werden durch Komma ersetzt
 - Berater- und Mandantennummer stehen als `0` – die Kanzlei ordnet den Stapel beim Import zu
+- **Fremdwährung:** gebucht wird der umgerechnete Euro-Betrag mit `WKZ Umsatz` = `EUR`; die Felder `Kurs`, `Basis-Umsatz` und `WKZ Basis-Umsatz` bleiben leer, weil Kursrichtung und Pflichtkombination im EXTF-Format nicht gesichert geprüft sind (P-D23). Originalbetrag und Kurs stehen in der Belegliste (8.2). BMD (8.4) ebenso nur Euro
 
 ### 8.4 BMD-Buchungssätze (`bmd`, nur AT)
 
@@ -580,6 +605,12 @@ offizielles Abschalten gibt es nicht. Offengelegt in `PRIVACY.md`,
 Lastenheft 5.19 und `STORE_LISTING.md`; Prüfung P-R19, P-D21. Apple Vision
 (iOS) überträgt nichts.
 
+**EZB-Kursabruf (FA-2.25):** nur auf Tippen „Kurs abrufen“ ruft die App eine
+feste Datei der Europäischen Zentralbank ab (`eurofxref-hist-90d.xml` bzw.
+`eurofxref-hist.xml`). Übertragen werden nur IP-Adresse und technische
+Verbindungsdaten, keine Belegdaten, keine Währung, kein Betrag. Offengelegt in
+`PRIVACY.md`, Lastenheft 5.19 und `STORE_LISTING.md`; Prüfung P-R18.
+
 ### 10.2 Berechtigungen
 
 | Berechtigung | Plattformschlüssel | Zweck |
@@ -610,7 +641,7 @@ Offen benannt, weil eine Spezifikation, die ihre Lücken verschweigt, wertlos is
 | **Keine Storno-/Gutschriftsrechnung** | Eine gestellte Rechnung ist gesperrt; es gibt derzeit keinen Korrekturweg innerhalb der App | Backlog F4, Sprint 2 |
 | **Steuerwerte fest im Code** | Kennwerte haben kein Gültig-ab-Datum und ändern sich nur per App-Update; eine kurzfristige Gesetzesänderung erreicht die Nutzerin erst nach Store-Freigabe | Rechtsstand-Überwachung, Lastenheft L-20 und L-13.5, Stufe B |
 | **Belegerkennung nicht auf Gerät erprobt** | Kotlin- und Swift-Teil der Texterkennung sind nur kompiliert (CI); Erkennungsquote an echten Belegen unbekannt (P-D22). Ein Beleg mit mehreren Steuersätzen wird mit einem Satz gebucht | vor Release |
-| **Nur eine Währung** | Nur Euro; eine fremde Währung wird bei Ausgaben erkannt und gespeichert, aber nicht umgerechnet. Ein Land mit anderer Währung setzt Mehrwährungsfähigkeit voraus | Backlog G7 |
+| **Fremdwährung nur bei Ausgaben** | Eingangsbelege werden umgerechnet (FA-2.24 bis FA-2.27); Ausgangsrechnungen nur in Euro. Den BMF-Monatskurs lädt die App nicht, er wird von Hand übernommen; das EZB-Monatsmittel ist nur eine Näherung (P-S23, P-S24). DATEV/BMD exportieren nur Euro (P-D23). Ein Land mit anderer Währung setzt Mehrwährungsfähigkeit voraus | Backlog G7 |
 | **Mengen mit zwei Dezimalstellen** | Die Mengeneingabe verarbeitet zwei Nachkommastellen, obwohl das Datenmodell drei erlaubt | – |
 | **Offene Detailseite beim Wechsel der Breitenklasse** | Wird ein Tablet von quer (expanded) auf hoch (medium) gedreht oder das Fenster verkleinert, während rechts ein Beleg, eine Rechnung oder ein Kunde in Bearbeitung ist, schließt sich der Detailbereich; ungespeicherte Eingaben gehen verloren. Gespeichertes bleibt unberührt | später |
 | **Android-APK-Build nicht lokal verifiziert** | Im Entwicklungscontainer ist `dl.google.com` per Netzwerk-Policy gesperrt, das Android SDK ließ sich nicht installieren. Analyse, Format und Tests laufen lokal; die Plattform-Builds verifiziert die CI | – |
@@ -624,7 +655,8 @@ Offen benannt, weil eine Spezifikation, die ihre Lücken verschweigt, wertlos is
 > Das ist der Mechanismus, der dieses Dokument aktuell hält.
 
 ```properties
-spec.schema_version = 9
+spec.schema_version = 10
+spec.fx_rate_scale = 1000000
 spec.vat_check_interval_days = 7
 spec.backup_reminder_days = 30
 spec.auto_backup_min_interval_hours = 24
@@ -666,6 +698,7 @@ spec.at.invoice_requires_tax_id = nein
 spec.at.large_invoice_vat_id_limit_cents = 1000000
 spec.at.vat_id_label = UID-Nummer
 spec.at.invoice_legal_ref = § 11 UStG
+spec.at.fx_rate_legal_ref = § 20 Abs 6 UStG
 spec.at.small_business_legal_ref = § 6 Abs 1 Z 27 UStG
 
 # Deutschland – § 19 UStG, § 33 UStDV, § 147 AO
@@ -682,6 +715,7 @@ spec.de.invoice_requires_tax_id = ja
 spec.de.large_invoice_vat_id_limit_cents = none
 spec.de.vat_id_label = USt-IdNr.
 spec.de.invoice_legal_ref = § 14 UStG
+spec.de.fx_rate_legal_ref = § 16 Abs 6 UStG
 spec.de.small_business_legal_ref = § 19 UStG
 ```
 
@@ -693,6 +727,7 @@ Umrechnung: Beträge in Cent. `5500000` Cent = 55.000,00 €.
 
 | Version | Datum | App-Version | Änderung |
 |---|---|---|---|
+| 1.28 | 2026-10-12 | 0.2.0 | Fremdwährung bei Eingangsbelegen umgerechnet (FA-2.24 bis FA-2.27, GR-9, Lastenheft L-2.24 bis L-2.26, L-13.3, L-19.29): Kurs als Einheiten je 1 € × 10^6 (`spec.fx_rate_scale`), Umrechnung half-up in Ganzzahlen, „Kurs abrufen“ bei der EZB mit lokalem Speicher `ecb_rates`, EZB-Monatsmittel als Näherung, Tageskurs nur mit Genehmigung im Profil, Bankbetrag getrennt für die EÜR, Protokoll `fx`, Belegliste mit Währungsspalten; DATEV/BMD nur Euro. Schema 10. Neue Kennwerte `spec.fx_rate_scale`, `spec.*.fx_rate_legal_ref`, Datenfluss EZB in 10.1, Grenze in Abschnitt 11 angepasst, Prüfpunkt P-D23. |
 | 1.27 | 2026-10-12 | 0.2.0 | Prüfpunkte P-S23 bis P-S26, P-R18 bis P-R20, P-L18, P-D21 (Fremdwährung, ML-Kit-Telemetrie, Haftung bei Fehlerkennung). Keine Codeänderung. |
 | 1.26 | 2026-10-12 | 0.2.0 | Belege automatisch auslesen (FA-2.19 bis FA-2.23, Lastenheft L-2.20 bis L-2.23): Texterkennung auf dem Gerät (ML Kit gebündelt, Apple Vision) über eigenen Platform-Channel, Parser in `lib/services/receipt_scan/`, Vorbelegung mit „erkannt – bitte prüfen“, Fremdwährung nur erkannt, Protokoll erkannt/bestätigt mit SHA-256. Schema 9. ML-Kit-Telemetrie in 10.1 offengelegt. Neue Grenze in Abschnitt 11, Prüfpunkt P-D22. |
 | 1.25 | 2026-10-12 | 0.2.0 | App-Version 0.2.0 (Testbuild). Versionsschema: 0.x bis zum Store-Start, zweite Stelle für Funktionen, dritte für Fehlerbehebungen; Buildnummer fortlaufend aus der CI. |
@@ -857,10 +892,10 @@ Status: *offen* · *bestätigt* (mit Datum und Prüfer) · *widerlegt* (mit Folg
 | P-S20 | Steuerberatung: kein Reverse Charge auf die Store-Provision (fiktiver Leistender), Bemessungsgrundlage Auszahlung; Abrechnungsbelege Google/Apple | — | erste Auszahlung | offen |
 | P-S21 | Steuerberatung: Store-Umsätze zählen nicht zur 55.000-€-Grenze (§ 6 Abs 1 Z 27 UStG)? | — | erste Auszahlung | offen |
 | P-S22 | Steuerberatung: Affiliate-Provisionen (Reverse Charge, Gutschrift), Einkommensteuer- und SVS-Schätzung mit echten Zahlen | Preispolitik der Auftraggeberin | vor Preisfestlegung | offen |
-| P-S23 | Steuerberatung AT: BMF-Durchschnittskurs nach § 20 Abs 6 UStG, Stichtag bei Soll- und Istbesteuerung, Steuerbetrag in Euro auf Fremdwährungsrechnungen | — | vor Fremdwährung | offen |
-| P-S24 | Steuerberatung DE: Abschn. 14.5 Abs. 22 UStAE; darf das EZB-Monatsmittel den BMF-Kurs ersetzen? | — | vor Fremdwährung | offen |
-| P-S25 | Steuerberatung: Kurs für die Kleinunternehmergrenze bei Fremdwährungsumsätzen | — | vor Fremdwährung | offen |
-| P-S26 | Steuerberatung: Unterschied Umsatzsteuer-Kurs zu Bankbetrag in E1a bzw. Anlage EÜR | — | vor Fremdwährung | offen |
+| P-S23 | Steuerberatung AT: BMF-Durchschnittskurs nach § 20 Abs 6 UStG, Stichtag bei Soll- und Istbesteuerung, Steuerbetrag in Euro auf Fremdwährungsrechnungen | Umgesetzt: Monatskurs des Belegmonats; BMF-Kurs nur manuell (Quelle `bmf_monthly`), Standard EZB-Monatsmittel als Näherung (FA-2.25) | vor Fremdwährung | offen |
+| P-S24 | Steuerberatung DE: Abschn. 14.5 Abs. 22 UStAE; darf das EZB-Monatsmittel den BMF-Kurs ersetzen? | Umgesetzt als gekennzeichnete Näherung „EZB-Monatsmittel – Näherung an BMF-Kurs“; manueller BMF-Kurs jederzeit | vor Fremdwährung | offen |
+| P-S25 | Steuerberatung: Kurs für die Kleinunternehmergrenze bei Fremdwährungsumsätzen | Betrifft nur Einnahmen; diese bleiben Euro (L-13.3), daher derzeit ohne Wirkung | vor Fremdwährung | offen |
+| P-S26 | Steuerberatung: Unterschied Umsatzsteuer-Kurs zu Bankbetrag in E1a bzw. Anlage EÜR | Umgesetzt: Bankbetrag überschreibt nur das EÜR-Ergebnis als Kursdifferenz (FA-2.26), Vorsteuer bleibt beim USt-Kurs | vor Fremdwährung | offen |
 | P-L12 | Anwältin: Diktat über die Systemtastatur – Anbieterin nicht verantwortlich, Hinweistext genügt | — | Release | offen |
 | P-L13 | Gerätetest, nur bei eigener Spracherkennung: Erkennung im Flugmodus | — | später | offen |
 | P-L14 | Anwältin: Rollen beim Vertragsarchiv mit KI (Anbieterin als Auftragsverarbeiterin), Muster-AVV, Rechtsgrundlage Beschäftigtendaten | — | Stufe C | offen |
@@ -876,7 +911,7 @@ Status: *offen* · *bestätigt* (mit Datum und Prüfer) · *widerlegt* (mit Folg
 | P-R15 | Anwältin: Haftung und Hinweispflicht bei Datenverlust durch verlorenen Wiederherstellungscode (AT/DE, B2B/B2C) | — | Release | offen |
 | P-R16 | Anwältin: Affiliate- bzw. Influencer-Vertrag, Werbekennzeichnung (§ 6 ECG, UWG), Mithaftung | — | vor erster Aktion | offen |
 | P-R17 | Anwältin: Preisangaben bei Gratisphase und Jahresrabatt (PAngV, PrAG, Omnibus-RL) | — | Release | offen |
-| P-R18 | Anwältin: EZB-Nutzungsbedingungen; datenschutzrechtliche Einordnung des Kursabrufs (IP-Adresse) | — | vor Fremdwährung | offen |
+| P-R18 | Anwältin: EZB-Nutzungsbedingungen; datenschutzrechtliche Einordnung des Kursabrufs (IP-Adresse) | Abruf nur auf Knopfdruck, nur IP-Adresse, offengelegt in PRIVACY, 5.19, STORE_LISTING; Hinweis „EZB-Referenzkurs, ohne Gewähr“ | vor Fremdwährung | offen |
 | P-R19 | Anwältin: ML-Kit-Telemetrie laut aktueller Google-Doku, Opt-out, Angaben in Play Data Safety und Apple Privacy Label | Entscheidung ML Kit 2026-10-12 | Release | offen |
 | P-R20 | Anwältin: Haftungsbegrenzung bei Fehlerkennung in den Nutzungsbedingungen (KSchG, BGB) | — | Release | offen |
 | P-S11 | USt-Kette der Store-Abos: Leistung an Apple/Google in Irland, Reverse Charge, UID, ZM, UVA; gelten die Store-Abrechnungen als Gutschrift (§ 11 Abs 7 UStG AT)? | Kette sicher, Rechnungsstellung offen | erster Verkauf | offen |
@@ -894,6 +929,7 @@ Status: *offen* · *bestätigt* (mit Datum und Prüfer) · *widerlegt* (mit Folg
 | P-D17 | App-Sperre auf echten Geräten: Fingerabdruck (Android), Face ID und Touch ID (iOS), Rückfall auf PIN, Sperre nach Zeit im Hintergrund; Vorschau im App-Umschalter verdeckt (iOS-Abdeckung, Android 13+ `setRecentsScreenshotEnabled`, Android < 13 nur Flutter-Abdeckung) | Flutter-Abdeckung kann auf Android < 13 zu spät gezeichnet werden; dann FLAG_SECURE erwägen | Release | offen |
 | P-D18 | Android-Build nach Umstellung auf `FlutterFragmentActivity` und `Theme.AppCompat`: Start, Sicherungsordner-Wahl (`onActivityResult`) und Startbildschirm hell/dunkel, auch unter Android 8 | im Container nicht baubar; CI prüft den Build, nicht das Verhalten | Release | offen |
 | P-D19 | Android-Tablet (z. B. 10–11 Zoll) hoch und quer, Telefon quer, Split-Screen/Mehrfenster: Navigation (Leiste/Rail), Liste-Detail, Formularbreite, Tastatur verdeckt kein aktives Feld, Sperrbildschirm und Dialoge, Drehen während der Bearbeitung | Widget-Tests mit 390×844, 844×390, 768×1024 und 1194×834 dp grün; echtes Gerät fehlt | Release | offen |
+| P-D23 | DATEV-Import eines Buchungsstapels mit Fremdwährungsbeleg in einer echten DATEV-Kanzlei: genügt Euro ohne WKZ/Kurs, oder sind `WKZ Umsatz`, `Kurs` (Richtung!) und `Basis-Umsatz` zu befüllen? Ebenso BMD. Dazu „Kurs abrufen“ auf echtem Gerät inkl. Fehlerfall ohne Netz | Export nur Euro, Originalwerte in der Belegliste; EZB-Parser mit Beispieldatei geprüft | vor Fremdwährung | offen |
 | P-D22 | Belegerkennung an mindestens 30 echten Belegen (Supermarkt, Tankstelle, Hotel, Online-Rechnung, Kleinbetrag, Fremdwährung, zerknittert/schräg): Quote je Feld (Datum, Brutto, Satz, Händler, UID, Rechnungsnummer); Gerätetest Android und iOS, auch im Flugmodus (Erkennung muss offline laufen) | Parser mit Testtexten geprüft, Engines nur kompiliert | vor Release | offen |
 | P-D21 | Gerätetest mit Netzwerkmitschnitt: Erkennung läuft offline; welche Endpunkte ruft ML Kit auf (Firelog)? | gehört zu P-R19 | Release | offen |
 | P-D20 | iPad hoch und quer (alle vier Ausrichtungen), Split View und Slide Over (1/3, 1/2, 2/3), Stage Manager; App Review akzeptiert Multitasking ohne `UIRequiresFullScreen` | Info.plist enthält alle vier iPad-Ausrichtungen, kein `UIRequiresFullScreen`; nur auf macOS/Gerät prüfbar | Release | offen |

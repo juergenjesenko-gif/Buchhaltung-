@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:buchhaltung/core/window_size.dart';
 import 'package:buchhaltung/data/app_database.dart';
+import 'package:buchhaltung/domain/exchange_rate.dart';
 import 'package:buchhaltung/domain/company_profile.dart';
 import 'package:buchhaltung/services/app_lock/app_lock_service.dart';
 import 'package:buchhaltung/services/backup/auto_backup_service.dart';
@@ -141,6 +142,10 @@ void main() {
         intValue('spec.backup_reminder_days'),
         CompanyProfile.backupReminderDays,
       );
+    });
+
+    test('Skalierung des Umrechnungskurses stimmt', () {
+      expect(intValue('spec.fx_rate_scale'), exchangeRateScale);
     });
 
     test('Schemaversion der Datenbank stimmt', () {
@@ -297,6 +302,7 @@ void main() {
       );
       expect(value('spec.$prefix.vat_id_label'), profile.vatIdLabel);
       expect(value('spec.$prefix.invoice_legal_ref'), profile.invoiceLegalRef);
+      expect(value('spec.$prefix.fx_rate_legal_ref'), profile.fxRateLegalRef);
       expect(
         value('spec.$prefix.small_business_legal_ref'),
         profile.smallBusinessLegalRef,

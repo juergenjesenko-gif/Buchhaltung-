@@ -1,3 +1,4 @@
+import 'exchange_rate.dart';
 import 'money.dart';
 
 /// Richtung einer Buchung. Bewusst nur zwei Werte – eine Einnahmen-Ausgaben-
@@ -45,6 +46,10 @@ class Receipt {
     this.issuerVatId = '',
     this.currency = 'EUR',
     this.originalGross,
+    this.fxRateMicros,
+    this.fxRateDate,
+    this.fxRateSource,
+    this.bankGross,
     this.createdAt,
     this.updatedAt,
     this.cancelledAt,
@@ -83,13 +88,31 @@ class Receipt {
   final String issuerVatId;
 
   /// Währung des Originalbelegs, ISO 4217 (Schema 9, L-2.21). [net], [vat]
-  /// und [gross] sind immer Euro; bei fremder Währung steht der Betrag laut
-  /// Beleg unverändert in [originalGross]. Die Umrechnung ist ein eigener,
-  /// späterer Schritt.
+  /// und [gross] sind immer Euro – bei fremder Währung der mit
+  /// [fxRateMicros] umgerechnete Betrag (Umsatzsteuer-Basis, L-2.25). Der
+  /// Betrag laut Beleg steht unverändert in [originalGross].
   final String currency;
   final Money? originalGross;
 
+  /// Kurs: Einheiten von [currency] je 1 Euro × 10^6 (Schema 10, L-2.24).
+  final int? fxRateMicros;
+
+  /// `YYYY-MM` beim Monatskurs, sonst `YYYY-MM-DD`.
+  final String? fxRateDate;
+  final ExchangeRateSource? fxRateSource;
+
+  /// Tatsächlich abgebuchter Euro-Betrag laut Bank (L-2.26). Überschreibt
+  /// [gross] nur in der Einnahmen-Ausgaben-Rechnung, nie in der
+  /// Umsatzsteuer.
+  final Money? bankGross;
+
   bool get isForeignCurrency => currency != 'EUR';
+
+  /// Euro-Betrag für Kassabuch bzw. Einnahmen-Ausgaben-Rechnung.
+  Money get cashGross => bankGross ?? gross;
+
+  /// Unterschied Bankbetrag zu umgerechnetem Betrag (Kursdifferenz).
+  Money get exchangeDifference => cashGross - gross;
 
   final DateTime? createdAt;
   final DateTime? updatedAt;
@@ -127,6 +150,11 @@ class Receipt {
     String? currency,
     Money? originalGross,
     bool clearOriginalGross = false,
+    int? fxRateMicros,
+    String? fxRateDate,
+    ExchangeRateSource? fxRateSource,
+    Money? bankGross,
+    bool clearFx = false,
     DateTime? createdAt,
     DateTime? updatedAt,
   }) {
@@ -150,6 +178,10 @@ class Receipt {
       originalGross: clearOriginalGross
           ? null
           : (originalGross ?? this.originalGross),
+      fxRateMicros: clearFx ? null : (fxRateMicros ?? this.fxRateMicros),
+      fxRateDate: clearFx ? null : (fxRateDate ?? this.fxRateDate),
+      fxRateSource: clearFx ? null : (fxRateSource ?? this.fxRateSource),
+      bankGross: clearFx ? null : (bankGross ?? this.bankGross),
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
     );
@@ -173,6 +205,10 @@ class Receipt {
     'issuer_vat_id': issuerVatId,
     'currency': currency,
     'original_gross_cents': originalGross?.cents,
+    'fx_rate_micros': fxRateMicros,
+    'fx_rate_date': fxRateDate,
+    'fx_rate_source': fxRateSource?.code,
+    'bank_gross_cents': bankGross?.cents,
     'created_at': (createdAt ?? DateTime.now()).toIso8601String(),
     'updated_at': DateTime.now().toIso8601String(),
   };
@@ -199,6 +235,12 @@ class Receipt {
     originalGross: map['original_gross_cents'] == null
         ? null
         : Money(map['original_gross_cents'] as int),
+    fxRateMicros: map['fx_rate_micros'] as int?,
+    fxRateDate: map['fx_rate_date'] as String?,
+    fxRateSource: ExchangeRateSource.fromCode(map['fx_rate_source'] as String?),
+    bankGross: map['bank_gross_cents'] == null
+        ? null
+        : Money(map['bank_gross_cents'] as int),
     createdAt: _parseOrNull(map['created_at']),
     updatedAt: _parseOrNull(map['updated_at']),
     cancelledAt: _parseOrNull(map['cancelled_at']),

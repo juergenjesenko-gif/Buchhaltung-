@@ -5,7 +5,9 @@ import '../app_lock/app_lock_settings_screen.dart';
 import '../backup/backup_screen.dart';
 import '../../app_state.dart';
 import '../../data/app_database.dart';
+import '../../data/exchange_rate_repository.dart';
 import '../../data/receipt_scan_settings.dart';
+import '../../domain/country.dart';
 import '../../domain/receipt.dart';
 import '../../widgets/common.dart';
 import '../onboarding/company_setup_screen.dart';
@@ -133,6 +135,9 @@ class SettingsScreen extends StatelessWidget {
               title: 'Belege auslesen',
               child: _ReceiptScanSwitch(),
             ),
+            const SizedBox(height: 16),
+
+            const SectionCard(title: 'Fremdwährung', child: _FxDailySwitch()),
             const SizedBox(height: 16),
 
             const SectionCard(
@@ -387,6 +392,53 @@ class _ReceiptScanSwitchState extends State<_ReceiptScanSwitch> {
         'bestätigst beim Speichern. Fotos und Text verlassen das Gerät nicht; '
         'unter Android sendet die Erkennung (Google ML Kit) Nutzungs- und '
         'Diagnosedaten ohne Belegdaten an Google.',
+      ),
+    );
+  }
+}
+
+/// Vermerk „Tageskurs vom Finanzamt genehmigt“ (L-2.25).
+class _FxDailySwitch extends StatefulWidget {
+  const _FxDailySwitch();
+
+  @override
+  State<_FxDailySwitch> createState() => _FxDailySwitchState();
+}
+
+class _FxDailySwitchState extends State<_FxDailySwitch> {
+  bool? _approved;
+
+  @override
+  void initState() {
+    super.initState();
+    AppDatabase.instance.database.then(FxSettings.dailyRateApproved).then((
+      value,
+    ) {
+      if (mounted) setState(() => _approved = value);
+    });
+  }
+
+  Future<void> _set(bool value) async {
+    setState(() => _approved = value);
+    await FxSettings.setDailyRateApproved(
+      await AppDatabase.instance.database,
+      value,
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final tax = AppScope.of(context).profile?.taxProfile ?? TaxProfile.austria;
+    return SwitchListTile(
+      contentPadding: EdgeInsets.zero,
+      value: _approved ?? false,
+      onChanged: _approved == null ? null : _set,
+      title: const Text('Tageskurs vom Finanzamt genehmigt'),
+      subtitle: Text(
+        'Für die Umsatzsteuer gilt der Monatskurs (${tax.fxRateLegalRef}). '
+        'Nur einschalten, wenn dir das Finanzamt die Umrechnung mit dem '
+        'Tageskurs genehmigt hat. „Kurs abrufen“ lädt die EZB-Referenzkurse '
+        'nur auf Knopfdruck.',
       ),
     );
   }

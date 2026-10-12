@@ -198,8 +198,8 @@ Lieferant, Rechnungsnummer und UID des Ausstellers**. Solche Felder sind mit
   App zeigt Brutto je Satz an und wählt den größten Anteil vor. Teile den
   Beleg bei Bedarf in zwei Buchungen auf.
 - **Fremde Währung** (z. B. eine Rechnung in US-Dollar) bei Ausgaben: die App
-  zeigt den Originalbetrag mit Währung an und speichert ihn, rechnet aber
-  **nicht** um. Trag den Euro-Betrag laut Kontoauszug ein.
+  schaltet auf „Beleg in fremder Währung“ und trägt den Betrag laut Beleg ein.
+  Den Kurs holst du mit **Kurs abrufen** (siehe *Belege in fremder Währung*).
 - Das Foto selbst wird nie verändert. Im Änderungsprotokoll steht, was erkannt
   und was von dir bestätigt wurde.
 - Ausschalten: Einstellungen → **Belege auslesen**.
@@ -208,6 +208,33 @@ Datenschutz: Foto und Text verlassen dein Telefon dafür nicht, die Erkennung
 läuft auch im Flugmodus. Unter Android sendet die eingebaute Erkennung von
 Google (ML Kit) allerdings Nutzungs- und Diagnosedaten ohne Fotos und Text an
 Google; unter iOS überträgt die Apple-Erkennung nichts.
+
+### Belege in fremder Währung
+
+Nur bei **Ausgaben** (z. B. Software-Abo in US-Dollar). Deine eigenen
+Rechnungen schreibst du immer in Euro.
+
+1. Schalter **Beleg in fremder Währung** einschalten.
+2. **Währung** (z. B. `USD`) und **Betrag laut Beleg** eintragen.
+3. **Kurs abrufen** tippen. Die App lädt die Referenzkurse der Europäischen
+   Zentralbank und bildet das Mittel aller Tageskurse im Monat des Belegs –
+   angezeigt als „EZB-Monatsmittel – Näherung an BMF-Kurs“. Im laufenden Monat
+   ist das Mittel vorläufig. Nur dieser Knopf baut eine Verbindung auf; die
+   Kurse bleiben danach auf dem Gerät.
+4. Die App zeigt den **umgerechneten Euro-Betrag**. Mit ihm rechnet sie
+   Netto, Vorsteuer und Umsatzsteuer.
+5. Optional **Tatsächlich abgebucht (EUR)** laut Kontoauszug eintragen. Dieser
+   Betrag zählt für dein Ergebnis (Einnahmen-Ausgaben-Rechnung); die Vorsteuer
+   bleibt beim umgerechneten Betrag. Die Differenz erscheint im Export als
+   „Kursdifferenzen laut Bank“.
+
+Der Kurs ist **Einheiten je 1 Euro** (z. B. `1,0823` US-Dollar). Du kannst ihn
+jederzeit selbst eintragen, z. B. den amtlichen Kurs des Finanzministeriums;
+wähle dann die Kursquelle „BMF-Monatskurs“ oder „Manuell“. Für die
+Umsatzsteuer gilt grundsätzlich der Monatskurs. Einen **Tageskurs** bietet die
+App nur an, wenn du in den Einstellungen **Tageskurs vom Finanzamt genehmigt**
+eingeschaltet hast. EZB-Kurse sind Referenzkurse, ohne Gewähr – kläre mit
+deiner Steuerberatung, welchen Kurs sie erwartet.
 
 ### Seiten eines gespeicherten Belegs
 
@@ -503,7 +530,8 @@ Bereich **Export**.
 
 | Format | Wann |
 |---|---|
-| **Belegliste (CSV)** | Der sichere Standard. Öffnet in Excel, Numbers und jedem Buchhaltungsprogramm. Nimm den, wenn du nicht weißt, womit deine Kanzlei arbeitet. Enthält auch die Seitenzahl und alle Kommentare mit Zeitpunkt. |
+| **Belegliste (CSV)** | Der sichere Standard. Öffnet in Excel, Numbers und jedem Buchhaltungsprogramm. Nimm den, wenn du nicht weißt, womit deine Kanzlei arbeitet. Enthält auch die Seitenzahl, alle Kommentare mit Zeitpunkt und bei Fremdwährung Währung, Originalbetrag, Kurs, Kursquelle, Kursdatum und Bankbetrag. |
+| *Hinweis Fremdwährung* | DATEV und BMD erhalten nur den Euro-Betrag; Originalbetrag und Kurs findet deine Kanzlei in der Belegliste. |
 | **DATEV-Buchungsstapel** | Nur bei Land Deutschland. Für DATEV-Kanzleien. Der jüngste Kommentar steht gekürzt im Buchungstext (wie auch bei BMD). |
 | **BMD-Buchungssätze** | Nur bei Land Österreich. Für BMD NTCS. |
 | **Umsatzsteuer-Zusammenfassung** | Die Zahlen für die Umsatzsteuervoranmeldung: Bemessungsgrundlagen je Satz, Vorsteuer, Zahllast. |
@@ -525,6 +553,10 @@ deine Kanzlei ordnet den Stapel beim Import selbst zu.
 Übersicht → Zahnrad.
 
 **Stammdaten** – dein Firmenprofil ändern
+
+**Fremdwährung** – Schalter „Tageskurs vom Finanzamt genehmigt“. Standardmäßig
+aus; dann rechnet die App mit dem Monatskurs. Nur einschalten, wenn dir das
+Finanzamt den Tageskurs genehmigt hat.
 
 **Kategorien** – Kategorien ansehen, eigene anlegen und löschen. Die
 vorgegebenen 16 Kategorien tragen ein Schlosssymbol und bleiben erhalten. Beim
@@ -673,7 +705,8 @@ Gesetzesverweise, andere Bezeichnung der Steuernummer. Die App richtet sich nach
 dem Land in deinen Stammdaten.
 
 **Kann ich mit Fremdwährungen arbeiten?**
-Nein, nur Euro.
+Bei Ausgaben ja: die App rechnet mit Kurs in Euro um (siehe *Belege in fremder
+Währung*). Deine eigenen Rechnungen sind immer in Euro.
 
 **Ist mein Beleg mit dem Foto gültig?**
 Ein Belegfoto ist grundsätzlich als Nachweis geeignet. Wichtig ist, dass es
@@ -692,6 +725,19 @@ oder die Felder selbst ausfüllen.
 
 **„Auslesen nicht möglich: …"** — die Erkennung ist auf diesem Gerät
 fehlgeschlagen. Der Beleg lässt sich trotzdem von Hand erfassen.
+
+**„Kurs nicht abrufbar: …"** — keine Internetverbindung oder die EZB ist nicht
+erreichbar. Später erneut tippen oder den Kurs von Hand eintragen.
+
+**„Die EZB nennt für … keinen Kurs."** — die EZB veröffentlicht für diese
+Währung keinen Referenzkurs. Kurs von Hand eintragen (z. B. laut Bank).
+
+**„Bitte Originalbetrag und Kurs angeben."** / **„Kurs > 0, höchstens 6
+Nachkommastellen"** — bei einem Beleg in fremder Währung fehlt der Betrag laut
+Beleg oder der Kurs ist ungültig. Kurs als Einheiten je 1 Euro, z. B. `1,0823`.
+
+**„Bitte zuerst den Währungscode eingeben, z. B. USD."** — vor „Kurs abrufen“
+den dreistelligen Währungscode eintragen.
 
 **„Der Sicherungsordner ist nicht erreichbar. Bitte den Ordner neu wählen."** —
 der Ordner wurde gelöscht oder die App hat keinen Zugriff mehr. Unter

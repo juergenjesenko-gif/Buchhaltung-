@@ -100,9 +100,13 @@ Kundennamen oder Beträge.
 
 ## Datensicherheit / App-Datenschutz
 
-Die App enthält keine Analyse- oder Werbe-SDKs. **Einzige eigene Netzwerkverbindung**
-ist die UID-Prüfung über VIES: auf Tippen oder nach Opt-in wöchentlich gehen
-UID-Nummern direkt an die EU-Kommission, nicht an den Anbieter. Google Data
+Die App enthält keine Analyse- oder Werbe-SDKs. **Eigene Netzwerkverbindungen**
+sind die UID-Prüfung über VIES (auf Tippen oder nach Opt-in wöchentlich gehen
+UID-Nummern direkt an die EU-Kommission, nicht an den Anbieter) und der
+**EZB-Kursabruf** (nur auf Tippen „Kurs abrufen“: Download einer öffentlichen
+Kursdatei von ecb.europa.eu; es werden keine Nutzerdaten gesendet, nur
+IP-Adresse/Verbindungsdaten – kein „Teilen“ im Sinne von Google Data Safety
+oder Apple Privacy Label, da keine Daten aus der App erhoben werden; P-R18). Google Data
 Safety: „Finanzinformationen – andere“, geteilt mit Dritten, verschlüsselt
 übertragen, für die App-Funktion, vom Nutzer ausgelöst. Apple: „Sonstige
 Finanzinfos“, nicht verknüpft, App-Funktionalität (Prüfpunkt P-U4).

@@ -16,7 +16,7 @@ class AppDatabase {
 
   /// Aktuelle Schemaversion. Öffentlich, weil docs/SPECIFICATION.md sie
   /// dokumentiert und test/specification_sync_test.dart beide vergleicht.
-  static const schemaVersion = 9;
+  static const schemaVersion = 10;
 
   Database? _db;
 
@@ -326,6 +326,29 @@ class AppDatabase {
       // net/vat/gross bleiben Euro, der Betrag laut Beleg steht daneben.
       "ALTER TABLE receipts ADD COLUMN currency TEXT NOT NULL DEFAULT 'EUR'",
       'ALTER TABLE receipts ADD COLUMN original_gross_cents INTEGER',
+    ],
+    // Version 10: Fremdwährung umrechnen (L-2.24 bis L-2.26, L-19.29).
+    10: [
+      // Einheiten der Fremdwährung je 1 Euro × 10^6 (wie die EZB notiert).
+      'ALTER TABLE receipts ADD COLUMN fx_rate_micros INTEGER',
+      // `YYYY-MM` beim Monatskurs, sonst `YYYY-MM-DD`.
+      'ALTER TABLE receipts ADD COLUMN fx_rate_date TEXT',
+      // bmf_monthly, ecb_monthly_avg, ecb_daily, manual, bank
+      'ALTER TABLE receipts ADD COLUMN fx_rate_source TEXT',
+      // Tatsächlich abgebuchter Euro-Betrag; überschreibt den umgerechneten
+      // Bruttobetrag nur in der Einnahmen-Ausgaben-Rechnung (L-2.26).
+      'ALTER TABLE receipts ADD COLUMN bank_gross_cents INTEGER',
+      // Tageskurs nur mit Genehmigung des Finanzamts (L-2.25).
+      'ALTER TABLE company_profile ADD COLUMN fx_daily_rate_approved INTEGER NOT NULL DEFAULT 0',
+      '''
+      CREATE TABLE ecb_rates (
+        date TEXT NOT NULL,
+        currency TEXT NOT NULL,
+        rate_micros INTEGER NOT NULL,
+        fetched_at TEXT NOT NULL,
+        PRIMARY KEY (date, currency)
+      )
+      ''',
     ],
   };
 

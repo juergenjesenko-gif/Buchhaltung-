@@ -1,6 +1,6 @@
 # Lastenheft – Buchhaltungsapp für Österreich und Deutschland
 
-**Dokumentversion:** 1.41 · **Stand:** 2026-10-12 · **Status:** Entwurf zur Abstimmung
+**Dokumentversion:** 1.42 · **Stand:** 2026-10-12 · **Status:** Entwurf zur Abstimmung
 **Auftraggeber:** Jürgen Jesenko (privates Vorhaben) · **Umsetzung:** Claude Code
 
 > Ein Lastenheft beschreibt, **was** das Produkt leisten soll und **warum** — nicht,
@@ -182,9 +182,9 @@ Priorität: **MUSS** = ohne das kein Release · **SOLL** = wichtig, verhandelbar
 | L-2.21 | **Fremdwährung** nur bei Eingangsbelegen erkennen und mit dem Betrag laut Beleg speichern; die Umrechnung in Euro ist ein eigener späterer Schritt. Ausgangsrechnungen bleiben in Euro | MUSS | A |
 | L-2.22 | Erkannte und bestätigte Werte je Feld, Erkennungs-Engine mit Version und Prüfsumme (SHA-256) der Originalbilder stehen im Änderungsprotokoll (GoBD-Nachvollziehbarkeit); keine Bilddaten im Protokoll | MUSS | A |
 | L-2.23 | Die automatische Erkennung ist in den Einstellungen abschaltbar | MUSS | A |
-| L-2.24 | **Fremdwährung bei Eingangsbelegen:** Originalbetrag (kleinste Einheit), ISO-Code, Kurs als Ganzzahl (Kurs × 10^6), Kursdatum, Kursquelle (BMF-Monat, EZB-Monatsmittel als Näherung, EZB-Tag, manuell, Bank); gebucht wird in Euro (Entscheidung Auftraggeberin 2026-10-12) | MUSS | A |
-| L-2.25 | Umsatzsteuer-Kurs: Monatskurs des Leistungs- bzw. Zahlungsmonats (§ 20 Abs 6 UStG AT, § 16 Abs 6 UStG DE); Tageskurs nur mit im Profil vermerkter Genehmigung des Finanzamts | MUSS | A |
-| L-2.26 | Einnahmen-Ausgaben-Rechnung: tatsächlicher Euro-Betrag laut Bank überschreibt den umgerechneten Wert; der Vorschlag bleibt protokolliert | MUSS | A |
+| L-2.24 | **Fremdwährung bei Eingangsbelegen:** Originalbetrag (kleinste Einheit), ISO-Code, Kurs als Ganzzahl (Kurs × 10^6), Kursdatum, Kursquelle (BMF-Monat, EZB-Monatsmittel als Näherung, EZB-Tag, manuell, Bank); gebucht wird in Euro (Entscheidung Auftraggeberin 2026-10-12). **Umgesetzt** (Spezifikation FA-2.24, GR-9; Kurs als Einheiten je 1 € × 10^6) | MUSS | A |
+| L-2.25 | Umsatzsteuer-Kurs: Monatskurs des Leistungs- bzw. Zahlungsmonats (§ 20 Abs 6 UStG AT, § 16 Abs 6 UStG DE); Tageskurs nur mit im Profil vermerkter Genehmigung des Finanzamts. **Umgesetzt** (FA-2.25; EZB-Monatsmittel als gekennzeichnete Näherung, BMF-Kurs manuell) | MUSS | A |
+| L-2.26 | Einnahmen-Ausgaben-Rechnung: tatsächlicher Euro-Betrag laut Bank überschreibt den umgerechneten Wert; der Vorschlag bleibt protokolliert. **Umgesetzt** (FA-2.26, FA-2.27) | MUSS | A |
 | L-2.18 | Kommentare lassen sich über die Diktierfunktion der Systemtastatur sprechen; die App selbst überträgt keine Sprache. Ein Hinweis nennt, dass die Tastatur je nach Gerät Sprache an Google oder Apple senden kann | SOLL | A |
 
 ### 5.3 Ausgangsrechnungen
@@ -382,7 +382,7 @@ und Preis jedes Mal neu zu tippen.
 |---|---|---|---|
 | L-13.1 | **Währung ist der Euro.** Eine Rechnungswährung mit Kursumrechnung ist nicht vorgesehen | MUSS | A |
 | L-13.2 | Beträge werden ganzzahlig in Cent geführt. Das Datenmodell ist so anzulegen, dass eine zweite Währung später ergänzbar bleibt, ohne bestehende Daten umzubauen | MUSS | A |
-| L-13.3 | Ausgangsrechnungen bleiben in Euro; Fremdwährung nur bei Eingangsbelegen (L-2.24) | MUSS | A |
+| L-13.3 | Ausgangsrechnungen bleiben in Euro; Fremdwährung nur bei Eingangsbelegen (L-2.24). **Umgesetzt** | MUSS | A |
 | L-13.3 | Ein **weiterer EU-Markt muss überwiegend Konfiguration sein**: Steuersätze, Grenzwerte, Kleinbetragsgrenzen, Pflichtangaben, Fristen, Zahlenformat und Rechtsverweise liegen an genau einer Stelle | MUSS | A |
 | L-13.4 | **Zahlen- und Datumsformat je Markt**, auch innerhalb der Eurozone unterschiedlich | MUSS | A |
 | L-13.5 | **Zeitlich gestaffelte Steuersätze.** Ein Steuersatz gilt nicht einfach, er gilt *ab einem Datum*. Befristete Satzänderungen hat es in beiden Zielmärkten bereits gegeben; eine Rechnung aus dem Vorjahr muss mit dem damals gültigen Satz darstellbar bleiben | MUSS | B |
@@ -589,7 +589,7 @@ Ausgearbeitet mit den drei Prüfinstanzen.
 | L-19.26 | **Vorlage der Verfahrensdokumentation** aus den Einstellungen: Berechtigungskonzept, Nummernkreise, Synchronisationsverfahren, Ablageort, Datensicherung, Ablauf beim Ausscheiden (ergänzt L-7.11) | SOLL | C |
 | L-19.27 | Sicherungsschlüssel und Wiederherstellungscode werden nie über den iCloud-Schlüsselbund synchronisiert (`synchronizable: false`, `first_unlock_this_device`); Regressionstest | MUSS | A |
 | L-19.28 | Datenflusstabelle, PRIVACY.md und STORE_LISTING um iCloud (iOS) und gegebenenfalls Drive-Schnittstelle ergänzen, sobald umgesetzt | MUSS | A |
-| L-19.29 | Kursabruf bei der EZB nur auf Aktion der Nutzerin, mit Eintrag in Datenflusstabelle, PRIVACY.md und STORE_LISTING; manueller Kurs immer möglich; Quellenhinweis „EZB-Referenzkurs, ohne Gewähr“ | MUSS | A |
+| L-19.29 | Kursabruf bei der EZB nur auf Aktion der Nutzerin, mit Eintrag in Datenflusstabelle, PRIVACY.md und STORE_LISTING; manueller Kurs immer möglich; Quellenhinweis „EZB-Referenzkurs, ohne Gewähr“. **Umgesetzt** (FA-2.25) | MUSS | A |
 
 #### Rollen
 
@@ -615,6 +615,7 @@ Jede Übertragung vom Gerät weg, auch die unscheinbaren:
 | Sicherung von Hand (L-7.1) | vom Nutzer gewählt (Teilen-Dialog) | mit Kennwort verschlüsselte Vollsicherung samt Fotos | Tippen auf „Sicherung erstellen“ | je Vorgang | vorhanden |
 | Sicherung automatisch (L-7.2, L-7.6 ff.) | einmal gewählter Ordner, z. B. iCloud Drive oder Google Drive; Upload durch das Betriebssystem bzw. den Dokumentanbieter | mit Schlüssel verschlüsselte Vollsicherung samt Fotos | nach jeder Änderung höchstens täglich, beim Öffnen der App | **ja**, standardmäßig aus | vorhanden |
 | Diagnose der Belegerkennung, nur Android (L-2.20) | Google (Google ML Kit, in der App eingebunden) | Nutzungs- und Diagnosedaten der Bibliothek (z. B. Gerätetyp, Leistung, Fehler); **keine Bilder, kein erkannter Text** | Nutzung der Belegerkennung | nein, kein offizielles Abschalten; Erkennung insgesamt abschaltbar (L-2.23). Prüfung P-R19, P-D21 | vorhanden |
+| EZB-Kursabruf (L-2.25, L-19.29) | Europäische Zentralbank, direkt vom Gerät | nur Abruf einer festen Kursdatei: IP-Adresse, Zeitpunkt, technische Verbindungsdaten; **keine Belegdaten, keine Währung, kein Betrag** | Tippen auf „Kurs abrufen“ | je Vorgang | vorhanden |
 | Foto-Zweitablage (L-2.11) | Fotobibliothek, ggf. deren Cloud | Belegfotos | Einschalten | ja | A |
 | UID-Prüfung auf Tippen (L-1.3) | EU-Kommission (VIES), direkt vom Gerät | UID, eigene UID als Anfragende, IP-Adresse | Tippen auf „Jetzt prüfen“ | je Vorgang | vorhanden |
 | UID-Prüfung automatisch (L-1.3, L-1.4) | EU-Kommission (VIES), direkt vom Gerät | wie oben, für eigene UID und Kunden mit Rechnung in den letzten 12 Monaten; vor jeder Rechnung an Kunden mit UID | wöchentlich beim Öffnen der App | **ja**, Schalter, standardmäßig aus | vorhanden |
@@ -1153,6 +1154,7 @@ Zu entscheiden, bevor die betroffene Anforderung umgesetzt wird:
 
 | Version | Datum | Änderung |
 |---|---|---|
+| 1.42 | 2026-10-12 | L-2.24 bis L-2.26, L-13.3, L-19.29 Fremdwährung bei Eingangsbelegen umgesetzt (Spezifikation 1.28, FA-2.24 bis FA-2.27, Schema 10); Datenfluss EZB-Kursabruf in 5.19. |
 | 1.41 | 2026-10-12 | Fremdwährung bei Eingangsbelegen (L-2.24 bis L-2.26, L-13.3, L-19.29), KI-Auslesung nur Opt-in (L-21.24); geprüft von Steuerberater und Rechtsanwalt; Android-Erkennung mit ML Kit entschieden. |
 | 1.40 | 2026-10-12 | L-2.20 bis L-2.23 Belege automatisch auslesen, umgesetzt (Spezifikation FA-2.19 bis FA-2.23). Entscheidung der Auftraggeberin: Android Google ML Kit (gebündelt), dessen Diagnosedaten an Google in 5.19 offengelegt. Fremdwährung nur bei Eingangsbelegen. |
 | 1.39 | 2026-10-12 | Entscheidungen der Auftraggeberin: L-22.30 App-Sperre KANN/C → SOLL/A und umgesetzt (Spezifikation 5.5b); L-7.20 iCloud-Ordner in der Dateien-App SOLL → MUSS (Bau mit L-7.17 offen). |

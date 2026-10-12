@@ -57,6 +57,17 @@ nach ihren eigenen Datenschutzbestimmungen. Der Anbieter der App erhält dabei
 nichts. Die wöchentliche Prüfung ist standardmäßig aus und jederzeit
 abschaltbar.
 
+**Wechselkurse von der EZB:** Tippst du bei einem Beleg in fremder Währung auf
+„Kurs abrufen", lädt die App eine öffentliche Kursdatei direkt von der
+Europäischen Zentralbank (ecb.europa.eu). Dabei werden technisch nur deine
+IP-Adresse und übliche Verbindungsdaten übertragen – **keine Belegdaten, keine
+Beträge, nicht einmal die Währung**. Die Kurse werden auf dem Gerät gespeichert
+und danach offline genutzt. Ohne Tippen findet kein Abruf statt; einen Kurs
+kannst du immer auch von Hand eintragen. Rechtsgrundlage: Art. 6 Abs. 1 lit. b
+und f DSGVO (Funktion auf deinen Wunsch). Der Anbieter der App erhält dabei
+nichts. Die EZB verarbeitet die Verbindungsdaten nach ihren eigenen
+Datenschutzbestimmungen.
+
 **Datensicherung:** Auf deinen Wunsch erstellt die App eine mit deinem Kennwort
 verschlüsselte Sicherungsdatei (AES-256-GCM). Wohin sie geht, bestimmst du im
 Teilen-Dialog, etwa in deinen eigenen Cloud-Speicher; dort gelten die
@@ -97,6 +108,8 @@ Nur in diesen Fällen, die du auslöst oder einschaltest:
   Ordner, den du einmal gewählt hast, z. B. iCloud Drive oder Google Drive
 - **UID-Prüfung über VIES** – auf Tippen, oder wöchentlich, wenn du es
   eingeschaltet hast: UID-Nummern gehen an die EU-Kommission
+- **Kurs abrufen** – nur auf Tippen bei einem Beleg in fremder Währung: die App
+  lädt die Referenzkurse der Europäischen Zentralbank
 
 **Hinweis zur Belegerkennung:** Fotografierte Belege werden auf deinem Gerät
 ausgelesen (Datum, Betrag, Steuersatz, Lieferant, UID, Rechnungsnummer).

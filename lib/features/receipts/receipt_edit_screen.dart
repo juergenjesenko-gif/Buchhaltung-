@@ -6,10 +6,14 @@ import 'package:image_picker/image_picker.dart';
 import '../../app_state.dart';
 import '../../core/formatting.dart';
 import '../../data/app_database.dart';
+import '../../data/exchange_rate_repository.dart';
 import '../../data/receipt_scan_settings.dart';
 import '../../domain/country.dart';
+import '../../domain/exchange_rate.dart';
 import '../../domain/money.dart';
 import '../../domain/receipt.dart';
+import '../../services/fx/currency_converter.dart';
+import '../../services/fx/fx_rate_service.dart';
 import '../../services/receipt_image_store.dart';
 import '../../services/receipt_scan/ocr_text.dart';
 import '../../services/receipt_scan/platform_text_recognizer.dart';
@@ -54,8 +58,18 @@ class _ReceiptEditScreenState extends State<ReceiptEditScreen> {
   /// Felder, die aus der Erkennung stammen und noch geprüft werden sollen.
   final Set<String> _recognized = {};
   List<String> _scanHints = const [];
-  String _currency = 'EUR';
-  Money? _originalGross;
+
+  // Fremdwährung (L-2.24 bis L-2.26), nur bei Ausgaben.
+  bool _foreign = false;
+  final _currencyController = TextEditingController();
+  final _originalController = TextEditingController();
+  final _rateController = TextEditingController();
+  final _bankController = TextEditingController();
+  ExchangeRateSource _rateSource = ExchangeRateSource.ecbMonthlyAvg;
+  String? _rateDate;
+  String? _rateNotice;
+  bool _fetchingRate = false;
+  bool _dailyApproved = false;
 
   late BookingDirection _direction;
   DateTime _date = DateTime.now();
@@ -116,8 +130,17 @@ class _ReceiptEditScreenState extends State<ReceiptEditScreen> {
       _noteController.text = existing.note;
       _documentNumberController.text = existing.documentNumber;
       _issuerVatIdController.text = existing.issuerVatId;
-      _currency = existing.currency;
-      _originalGross = existing.originalGross;
+      _applyForeign(existing.currency, existing.originalGross);
+      if (existing.fxRateMicros != null) {
+        _rateController.text = CurrencyConverter.formatRate(
+          existing.fxRateMicros!,
+        );
+      }
+      _rateSource = existing.fxRateSource ?? ExchangeRateSource.manual;
+      _rateDate = existing.fxRateDate;
+      if (existing.bankGross != null) {
+        _bankController.text = Fmt.amount(existing.bankGross!);
+      }
       _loadPagesAndComments(existing);
     } else {
       _vatPermille = state.defaultVatPermille;
@@ -125,11 +148,73 @@ class _ReceiptEditScreenState extends State<ReceiptEditScreen> {
       if (categories.isNotEmpty) _categoryId = categories.first.id;
     }
     _loadScanSetting();
+    AppDatabase.instance.database.then(FxSettings.dailyRateApproved).then((
+      value,
+    ) {
+      if (mounted) setState(() => _dailyApproved = value);
+    });
+  }
+
+  void _applyForeign(String currency, Money? original) {
+    _foreign = currency != 'EUR';
+    if (!_foreign) return;
+    _currencyController.text = currency;
+    if (original != null) _originalController.text = Fmt.amount(original);
+  }
+
+  Money? get _originalAmount => Money.tryParse(_originalController.text);
+
+  int? get _rateMicros => CurrencyConverter.parseRate(_rateController.text);
+
+  /// Umgerechneter Euro-Betrag (Umsatzsteuer-Basis, L-2.25).
+  Money? get _convertedGross {
+    final original = _originalAmount;
+    final rate = _rateMicros;
+    if (original == null || rate == null) return null;
+    return CurrencyConverter.toEuro(original, rate);
+  }
+
+  /// „Kurs abrufen“: einzige Stelle, an der die App die EZB anfragt (L-19.29).
+  Future<void> _fetchRate() async {
+    final currency = _currencyController.text.trim().toUpperCase();
+    if (!RegExp(r'^[A-Z]{3}$').hasMatch(currency)) {
+      showSnack(context, 'Bitte zuerst den Währungscode eingeben, z. B. USD.');
+      return;
+    }
+    setState(() => _fetchingRate = true);
+    try {
+      final db = await AppDatabase.instance.database;
+      final quote = await FxRateService(
+        ExchangeRateRepository(db),
+      ).quote(currency: currency, date: _date, dailyApproved: _dailyApproved);
+      if (!mounted) return;
+      if (quote == null) {
+        showSnack(context, 'Die EZB nennt für $currency keinen Kurs.');
+        return;
+      }
+      setState(() {
+        _rateController.text = CurrencyConverter.formatRate(quote.rateMicros);
+        _rateSource = quote.source;
+        _rateDate = quote.rateDate;
+        _rateNotice = quote.partialMonth
+            ? 'Monat noch nicht abgeschlossen: Mittel aus ${quote.days} '
+                  'Tageskursen, vorläufig.'
+            : null;
+      });
+    } on Exception catch (error) {
+      if (mounted) showSnack(context, 'Kurs nicht abrufbar: $error');
+    } finally {
+      if (mounted) setState(() => _fetchingRate = false);
+    }
   }
 
   @override
   void dispose() {
     _grossController.dispose();
+    _currencyController.dispose();
+    _originalController.dispose();
+    _rateController.dispose();
+    _bankController.dispose();
     _descriptionController.dispose();
     _counterpartyController.dispose();
     _noteController.dispose();
@@ -175,7 +260,8 @@ class _ReceiptEditScreenState extends State<ReceiptEditScreen> {
     if (mounted) setState(() {});
   }
 
-  Money? get _gross => Money.tryParse(_grossController.text);
+  Money? get _gross =>
+      _foreign ? _convertedGross : Money.tryParse(_grossController.text);
 
   Future<void> _loadScanSetting() async {
     final db = await AppDatabase.instance.database;
@@ -238,8 +324,7 @@ class _ReceiptEditScreenState extends State<ReceiptEditScreen> {
           _issuerVatIdController.text = prefill.issuerVatId!;
           _recognized.add('issuerVatId');
         }
-        _currency = prefill.currency;
-        _originalGross = prefill.originalGross;
+        _applyForeign(prefill.currency, prefill.originalGross);
         _scanHints = prefill.hints;
       });
       showSnack(
@@ -380,7 +465,12 @@ class _ReceiptEditScreenState extends State<ReceiptEditScreen> {
     if (_isCancelled) return;
     if (!_formKey.currentState!.validate()) return;
     final split = _split;
-    if (split == null) return;
+    if (split == null) {
+      if (_foreign) {
+        showSnack(context, 'Bitte Originalbetrag und Kurs angeben.');
+      }
+      return;
+    }
     if (_hasNewPages && !_pagesConfirmed) {
       showSnack(
         context,
@@ -391,6 +481,7 @@ class _ReceiptEditScreenState extends State<ReceiptEditScreen> {
 
     setState(() => _saving = true);
     final state = AppScope.read(context);
+    final foreign = _foreign && _direction == BookingDirection.expense;
 
     final receipt = Receipt(
       id: widget.existing?.id,
@@ -408,8 +499,12 @@ class _ReceiptEditScreenState extends State<ReceiptEditScreen> {
       note: _noteController.text.trim(),
       documentNumber: _documentNumberController.text.trim(),
       issuerVatId: _issuerVatIdController.text.trim(),
-      currency: _currency,
-      originalGross: _originalGross,
+      currency: foreign ? _currencyController.text.trim().toUpperCase() : 'EUR',
+      originalGross: foreign ? _originalAmount : null,
+      fxRateMicros: foreign ? _rateMicros : null,
+      fxRateDate: foreign ? _rateDate : null,
+      fxRateSource: foreign ? _rateSource : null,
+      bankGross: foreign ? Money.tryParse(_bankController.text) : null,
       createdAt: widget.existing?.createdAt,
     );
 
@@ -599,15 +694,6 @@ class _ReceiptEditScreenState extends State<ReceiptEditScreen> {
               padding: const EdgeInsets.only(top: 4),
               child: Text(hint, style: muted),
             ),
-          if (_originalGross != null)
-            Padding(
-              padding: const EdgeInsets.only(top: 4),
-              child: Text(
-                'Originalbetrag laut Beleg: ${Fmt.amount(_originalGross!)} '
-                '$_currency – wird nicht umgerechnet.',
-                style: muted,
-              ),
-            ),
         ],
         if (_hasNewPages && !_isCancelled)
           CheckboxListTile(
@@ -627,6 +713,159 @@ class _ReceiptEditScreenState extends State<ReceiptEditScreen> {
           'Gespeicherte Seiten lassen sich nur noch ergänzen, nicht löschen.',
           style: muted,
         ),
+      ],
+    );
+  }
+
+  /// Fremdwährung: Originalbetrag, Kurs, Quelle, Datum, Euro-Ergebnis und
+  /// Bankbetrag (L-2.24 bis L-2.26).
+  Widget _buildForeignCurrency(BuildContext context) {
+    final muted = Theme.of(context).textTheme.bodySmall?.copyWith(
+      color: Theme.of(context).colorScheme.onSurfaceVariant,
+    );
+    final converted = _convertedGross;
+    final sources = [
+      ExchangeRateSource.ecbMonthlyAvg,
+      ExchangeRateSource.bmfMonthly,
+      if (_dailyApproved || _rateSource == ExchangeRateSource.ecbDaily)
+        ExchangeRateSource.ecbDaily,
+      ExchangeRateSource.manual,
+      ExchangeRateSource.bank,
+    ];
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        SwitchListTile(
+          contentPadding: EdgeInsets.zero,
+          value: _foreign,
+          onChanged: (v) => setState(() => _foreign = v),
+          title: const Text('Beleg in fremder Währung'),
+        ),
+        if (_foreign) ...[
+          Row(
+            children: [
+              SizedBox(
+                width: 96,
+                child: TextFormField(
+                  controller: _currencyController,
+                  textCapitalization: TextCapitalization.characters,
+                  maxLength: 3,
+                  decoration: const InputDecoration(
+                    labelText: 'Währung',
+                    counterText: '',
+                  ),
+                  onChanged: (_) => setState(() {}),
+                  validator: (v) =>
+                      RegExp(r'^[A-Za-z]{3}$').hasMatch(v?.trim() ?? '')
+                      ? null
+                      : 'ISO-Code',
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: TextFormField(
+                  controller: _originalController,
+                  keyboardType: const TextInputType.numberWithOptions(
+                    decimal: true,
+                  ),
+                  textAlign: TextAlign.right,
+                  decoration: InputDecoration(
+                    labelText: 'Betrag laut Beleg',
+                    suffixText: _currencyController.text.toUpperCase(),
+                  ),
+                  onChanged: (_) => setState(() {}),
+                  validator: (v) {
+                    final m = Money.tryParse(v ?? '');
+                    if (m == null || m.isZero || m.isNegative) {
+                      return 'Bitte einen positiven Betrag eingeben';
+                    }
+                    return null;
+                  },
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          Row(
+            children: [
+              Expanded(
+                child: TextFormField(
+                  controller: _rateController,
+                  keyboardType: const TextInputType.numberWithOptions(
+                    decimal: true,
+                  ),
+                  decoration: const InputDecoration(
+                    labelText: 'Kurs (Einheiten je 1 €)',
+                  ),
+                  onChanged: (_) => setState(() {
+                    // Von Hand geänderter Kurs ist kein EZB-Kurs mehr.
+                    if (_rateSource == ExchangeRateSource.ecbMonthlyAvg ||
+                        _rateSource == ExchangeRateSource.ecbDaily) {
+                      _rateSource = ExchangeRateSource.manual;
+                      _rateNotice = null;
+                    }
+                  }),
+                  validator: (v) => CurrencyConverter.parseRate(v ?? '') == null
+                      ? 'Kurs > 0, höchstens 6 Nachkommastellen'
+                      : null,
+                ),
+              ),
+              const SizedBox(width: 8),
+              OutlinedButton.icon(
+                onPressed: _fetchingRate ? null : _fetchRate,
+                icon: _fetchingRate
+                    ? const SizedBox.square(
+                        dimension: 16,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      )
+                    : const Icon(Icons.currency_exchange),
+                label: const Text('Kurs abrufen'),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          DropdownButtonFormField<ExchangeRateSource>(
+            key: ValueKey('fx${_rateSource.code}'),
+            initialValue: _rateSource,
+            isExpanded: true,
+            decoration: const InputDecoration(labelText: 'Kursquelle'),
+            items: [
+              for (final s in sources)
+                DropdownMenuItem(value: s, child: Text(s.label)),
+            ],
+            onChanged: (v) => setState(() {
+              _rateSource = v ?? ExchangeRateSource.manual;
+            }),
+          ),
+          const SizedBox(height: 8),
+          if (_rateDate != null) Text('Kursdatum: $_rateDate', style: muted),
+          if (_rateNotice != null) Text(_rateNotice!, style: muted),
+          if (_rateSource == ExchangeRateSource.ecbMonthlyAvg ||
+              _rateSource == ExchangeRateSource.ecbDaily)
+            Text(ecbSourceNotice, style: muted),
+          if (converted != null)
+            LabeledValue(
+              label: 'Umgerechnet (Umsatzsteuer)',
+              value: Fmt.money(converted),
+              emphasize: true,
+            ),
+          const SizedBox(height: 8),
+          MoneyField(
+            controller: _bankController,
+            label: 'Tatsächlich abgebucht (EUR, optional)',
+            onChanged: (_) => setState(() {}),
+            validator: (v) {
+              if ((v ?? '').trim().isEmpty) return null;
+              final m = Money.tryParse(v!);
+              return m == null || m.isNegative ? 'Ungültiger Betrag' : null;
+            },
+          ),
+          Text(
+            'Der Bankbetrag zählt im Kassabuch und Ergebnis; Vorsteuer und '
+            'Umsatzsteuer rechnen mit dem umgerechneten Betrag.',
+            style: muted,
+          ),
+        ],
       ],
     );
   }
@@ -754,6 +993,10 @@ class _ReceiptEditScreenState extends State<ReceiptEditScreen> {
                         onSelectionChanged: (selection) {
                           setState(() {
                             _direction = selection.first;
+                            // Ausgangsseite bleibt Euro (L-13.3).
+                            if (_direction == BookingDirection.income) {
+                              _foreign = false;
+                            }
                             // Kategorien sind richtungsabhängig – die alte Auswahl
                             // wäre nach dem Wechsel unsinnig.
                             final next = state.categoriesFor(_direction);
@@ -761,28 +1004,30 @@ class _ReceiptEditScreenState extends State<ReceiptEditScreen> {
                           });
                         },
                       ),
+                      if (!isIncome) _buildForeignCurrency(context),
                       const SizedBox(height: 16),
-                      MoneyField(
-                        controller: _grossController,
-                        label: _recognized.contains('gross')
-                            ? 'Bruttobetrag – erkannt, bitte prüfen'
-                            : 'Bruttobetrag (wie auf dem Beleg)',
-                        autofocus: !_isEditing,
-                        onChanged: (_) => setState(() {}),
-                        validator: (value) {
-                          final money = Money.tryParse(value ?? '');
-                          if (money == null) {
-                            return 'Bitte gib einen Betrag ein';
-                          }
-                          if (money.isZero) {
-                            return 'Der Betrag darf nicht 0 sein';
-                          }
-                          if (money.isNegative) {
-                            return 'Bitte positiv eingeben und oben Einnahme/Ausgabe wählen';
-                          }
-                          return null;
-                        },
-                      ),
+                      if (!_foreign || isIncome)
+                        MoneyField(
+                          controller: _grossController,
+                          label: _recognized.contains('gross')
+                              ? 'Bruttobetrag – erkannt, bitte prüfen'
+                              : 'Bruttobetrag (wie auf dem Beleg)',
+                          autofocus: !_isEditing,
+                          onChanged: (_) => setState(() {}),
+                          validator: (value) {
+                            final money = Money.tryParse(value ?? '');
+                            if (money == null) {
+                              return 'Bitte gib einen Betrag ein';
+                            }
+                            if (money.isZero) {
+                              return 'Der Betrag darf nicht 0 sein';
+                            }
+                            if (money.isNegative) {
+                              return 'Bitte positiv eingeben und oben Einnahme/Ausgabe wählen';
+                            }
+                            return null;
+                          },
+                        ),
                       const SizedBox(height: 16),
                       DropdownButtonFormField<int>(
                         key: ValueKey('vat$_vatPermille'),

@@ -4,6 +4,7 @@ import '../../domain/company_profile.dart';
 import '../../domain/country.dart';
 import '../../domain/money.dart';
 import '../../domain/receipt.dart';
+import '../fx/currency_converter.dart';
 import 'csv.dart';
 
 /// Verfügbare Exportformate.
@@ -188,6 +189,12 @@ class Exporter {
       'USt-Satz',
       'USt-Betrag',
       'Brutto',
+      'Währung',
+      'Originalbetrag',
+      'Kurs (je EUR)',
+      'Kursquelle',
+      'Kursdatum',
+      'Bankbetrag EUR',
       'Beleg vorhanden',
       'Notiz',
       'Seiten',
@@ -207,6 +214,16 @@ class Exporter {
         Fmt.vatRate(receipt.vatPermille),
         csvAmount(receipt.vat.cents),
         csvAmount(receipt.gross.cents),
+        receipt.currency,
+        receipt.originalGross == null
+            ? ''
+            : csvAmount(receipt.originalGross!.cents),
+        receipt.fxRateMicros == null
+            ? ''
+            : CurrencyConverter.formatRate(receipt.fxRateMicros!),
+        receipt.fxRateSource?.label ?? '',
+        receipt.fxRateDate ?? '',
+        receipt.bankGross == null ? '' : csvAmount(receipt.bankGross!.cents),
         receipt.hasImage ? 'ja' : 'nein',
         receipt.note,
         _pagesOf(receipt).toString(),
@@ -243,6 +260,20 @@ class Exporter {
       csvAmount(totals.expenseVat.cents),
       csvAmount(totals.expenseGross.cents),
     ]);
+    if (!totals.expenseFxDifference.isZero) {
+      // Bankbetrag ≠ umgerechneter Betrag: wirkt nur auf das Ergebnis
+      // (L-2.26), nicht auf die Vorsteuer.
+      csv.writeRow([
+        'Kursdifferenzen laut Bank',
+        '',
+        '',
+        '',
+        '',
+        '',
+        '',
+        csvAmount(totals.expenseFxDifference.cents),
+      ]);
+    }
     csv.writeRow([
       'Ergebnis (netto)',
       '',
@@ -331,6 +362,10 @@ class Exporter {
     ]);
 
     for (final receipt in receipts) {
+      // Fremdwährung: gebucht wird der umgerechnete Euro-Betrag; „WKZ Umsatz“
+      // und „Kurs“ bleiben leer, weil die Kursrichtung im DATEV-Format nicht
+      // gesichert geprüft ist (Spezifikation 8.3). Originalbetrag und Kurs
+      // stehen in der Belegliste.
       // DATEV bucht immer brutto; die Steuer ergibt sich aus dem BU-Schlüssel
       // bzw. dem Automatikkonto. Das Vorzeichen steckt im Soll/Haben-Kennzeichen,
       // nicht im Betrag.

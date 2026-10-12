@@ -72,6 +72,7 @@ class TaxProfile {
     required this.registerNumberLabel,
     required this.registerCourtLabel,
     required this.invoiceLegalRef,
+    required this.fxRateLegalRef,
     required this.smallAmountInvoiceLimit,
     required this.currentYearTurnoverLimit,
     required this.previousYearTurnoverLimit,
@@ -117,6 +118,10 @@ class TaxProfile {
 
   /// Fundstelle für die Rechnungs-Pflichtangaben.
   final String invoiceLegalRef;
+
+  /// Fundstelle für den Umrechnungskurs fremder Währung in der
+  /// Umsatzsteuer (Monatskurs; Tageskurs nur mit Genehmigung, L-2.25).
+  final String fxRateLegalRef;
 
   /// Bis zu diesem Bruttobetrag genügt eine Kleinbetragsrechnung mit
   /// reduzierten Pflichtangaben.
@@ -182,6 +187,7 @@ class TaxProfile {
     smallBusinessInvoiceNote:
         'Umsatzsteuerbefreit – Kleinunternehmer gemäß § 6 Abs 1 Z 27 UStG.',
     invoiceLegalRef: '§ 11 UStG',
+    fxRateLegalRef: '§ 20 Abs 6 UStG',
     smallAmountInvoiceLimit: Money(40000), // 400,00 EUR brutto, § 11 Abs 6 UStG
     currentYearTurnoverLimit: Money(5500000), // 55.000,00 EUR
     // § 6 Abs 1 Z 27 UStG: auch der Vorjahresumsatz darf 55.000 EUR nicht
@@ -220,6 +226,7 @@ class TaxProfile {
         // Steuerbefreiung nach § 34a UStDV (Spezifikation 14, P-S8).
         'Steuerbefreiung nach § 19 UStG (Kleinunternehmer).',
     invoiceLegalRef: '§ 14 UStG',
+    fxRateLegalRef: '§ 16 Abs 6 UStG',
     smallAmountInvoiceLimit: Money(25000), // 250,00 EUR brutto, § 33 UStDV
     currentYearTurnoverLimit: Money(10000000), // 100.000,00 EUR
     previousYearTurnoverLimit: Money(2500000), // 25.000,00 EUR

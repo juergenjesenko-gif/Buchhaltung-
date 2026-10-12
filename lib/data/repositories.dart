@@ -283,6 +283,17 @@ class ReceiptRepository {
         );
       }
       if (pages != null) await _writePages(txn, id, pages);
+      // Kurs, Quelle und Überschreibung durch den Bankbetrag (L-2.26).
+      final fx = fxAuditDetail(receipt);
+      if (fx != null) {
+        await audit.record(
+          entity: 'receipt',
+          entityId: id,
+          action: 'fx',
+          detail: fx,
+          txn: txn,
+        );
+      }
       // Automatisch ausgelesene Werte gegenüber bestätigten (L-2.22).
       if (scanAudit != null) {
         await audit.record(
@@ -431,6 +442,25 @@ class ReceiptRepository {
     );
   }
 
+  /// Protokolltext einer Umrechnung, `null` bei Euro-Belegen.
+  static String? fxAuditDetail(Receipt r) {
+    if (!r.isForeignCurrency || r.originalGross == null) return null;
+    final rate = r.fxRateMicros;
+    final b = StringBuffer(
+      '${r.currency} ${r.originalGross!.cents} (Hundertstel)'
+      '${rate == null ? ', kein Kurs' : ' / Kurs $rate (×10^6 je EUR)'}'
+      ', Quelle ${r.fxRateSource?.code ?? '-'}, Kursdatum ${r.fxRateDate ?? '-'}'
+      ', umgerechnet ${r.gross}',
+    );
+    if (r.bankGross != null) {
+      b.write(
+        ', Bank ${r.bankGross} überschreibt EÜR (Differenz '
+        '${r.exchangeDifference})',
+      );
+    }
+    return b.toString();
+  }
+
   /// Summen je Richtung für einen Zeitraum – Basis für Kassabuch und UVA.
   Future<PeriodTotals> totals({
     required DateTime from,
@@ -439,7 +469,8 @@ class ReceiptRepository {
     final rows = await _db.rawQuery(
       '''
       SELECT direction, vat_permille,
-             SUM(net_cents) AS net, SUM(vat_cents) AS vat, SUM(gross_cents) AS gross
+             SUM(net_cents) AS net, SUM(vat_cents) AS vat, SUM(gross_cents) AS gross,
+             SUM(COALESCE(bank_gross_cents, gross_cents) - gross_cents) AS fx_diff
       FROM receipts
       WHERE date >= ? AND date <= ? AND cancelled_at IS NULL
       GROUP BY direction, vat_permille
@@ -453,6 +484,7 @@ class ReceiptRepository {
     var expenseNet = const Money.zero();
     var expenseVat = const Money.zero();
     var expenseGross = const Money.zero();
+    var expenseFxDifference = const Money.zero();
     final incomeByRate = <int, Money>{};
     final expenseVatByRate = <int, Money>{};
 
@@ -473,6 +505,7 @@ class ReceiptRepository {
         expenseNet += net;
         expenseVat += vat;
         expenseGross += gross;
+        expenseFxDifference += Money((row['fx_diff'] as int?) ?? 0);
         expenseVatByRate[permille] =
             (expenseVatByRate[permille] ?? const Money.zero()) + vat;
       }
@@ -487,6 +520,7 @@ class ReceiptRepository {
       expenseNet: expenseNet,
       expenseVat: expenseVat,
       expenseGross: expenseGross,
+      expenseFxDifference: expenseFxDifference,
       incomeNetByRate: incomeByRate,
       inputVatByRate: expenseVatByRate,
     );
@@ -569,6 +603,7 @@ class PeriodTotals {
     required this.expenseNet,
     required this.expenseVat,
     required this.expenseGross,
+    this.expenseFxDifference = const Money.zero(),
     required this.incomeNetByRate,
     required this.inputVatByRate,
   });
@@ -583,6 +618,15 @@ class PeriodTotals {
   final Money expenseVat;
   final Money expenseGross;
 
+  /// Summe der Kursdifferenzen bei Fremdwährungsbelegen: tatsächlich
+  /// abgebucht minus umgerechnet (L-2.26). Positiv = Mehraufwand. Wirkt nur
+  /// auf das Ergebnis der Einnahmen-Ausgaben-Rechnung, nie auf die
+  /// Umsatzsteuer (Vorsteuer bleibt beim Umsatzsteuer-Kurs).
+  final Money expenseFxDifference;
+
+  /// Ausgaben brutto laut Bank (Kassabuch).
+  Money get expensePaidGross => expenseGross + expenseFxDifference;
+
   /// Steuerpflichtige Umsätze je Steuersatz (Kennzahlen der UVA).
   final Map<int, Money> incomeNetByRate;
 
@@ -590,7 +634,8 @@ class PeriodTotals {
   final Map<int, Money> inputVatByRate;
 
   /// Gewinn nach Einnahmen-Ausgaben-Rechnung (netto, ohne durchlaufende USt).
-  Money get profit => incomeNet - expenseNet;
+  /// Kursdifferenzen laut Bank fließen ein (L-2.26).
+  Money get profit => incomeNet - expenseNet - expenseFxDifference;
 
   /// Zahllast bzw. Guthaben gegenüber dem Finanzamt.
   Money get vatPayable => incomeVat - expenseVat;

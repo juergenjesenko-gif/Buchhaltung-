@@ -58,7 +58,7 @@ class ReceiptScanPrefill {
     if (foreign && ok(r.gross)) {
       hints.add(
         'Betrag in ${r.currency.value} erkannt: ${Fmt.amount(r.gross!.value)} '
-        '${r.currency.value}. Bitte den Euro-Betrag laut Kontoauszug eintragen.',
+        '${r.currency.value}. Bitte den Kurs abrufen oder eintragen.',
       );
     }
 
