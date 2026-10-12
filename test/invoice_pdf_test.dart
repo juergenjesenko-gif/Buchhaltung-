@@ -1,3 +1,6 @@
+import 'dart:convert';
+import 'dart:typed_data';
+
 import 'package:buchhaltung/domain/company_profile.dart';
 import 'package:buchhaltung/domain/country.dart';
 import 'package:buchhaltung/domain/customer.dart';
@@ -77,6 +80,36 @@ void main() {
 
     expect(bytes.length, greaterThan(1000));
     // Jede PDF-Datei beginnt mit "%PDF".
+    expect(String.fromCharCodes(bytes.take(4)), '%PDF');
+  });
+
+  test('erzeugt ein PDF mit Logo (L-1.7)', () async {
+    // 1 × 1 Pixel, PNG.
+    final png = base64Decode(
+      'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==',
+    );
+    final without = await InvoicePdf(
+      invoice: buildInvoice(),
+      customer: customer,
+      profile: profile,
+    ).build();
+    final withLogo = await InvoicePdf(
+      invoice: buildInvoice(),
+      customer: customer,
+      profile: profile,
+      logo: png,
+    ).build();
+    expect(String.fromCharCodes(withLogo.take(4)), '%PDF');
+    expect(withLogo.length, greaterThan(without.length));
+  });
+
+  test('ein unlesbares Logo verhindert das PDF nicht', () async {
+    final bytes = await InvoicePdf(
+      invoice: buildInvoice(),
+      customer: customer,
+      profile: profile,
+      logo: Uint8List.fromList([1, 2, 3, 4]),
+    ).build();
     expect(String.fromCharCodes(bytes.take(4)), '%PDF');
   });
 

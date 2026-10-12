@@ -61,7 +61,8 @@ class BackupContent {
   /// SQLite-Datei als Bytes.
   final Uint8List database;
 
-  /// Belegfotos, Schlüssel ist der relative Pfad wie in `receipts.image_path`.
+  /// Belegseiten und Logo, Schlüssel ist der relative Pfad wie in
+  /// `receipt_pages.image_path` bzw. `company_profile.logo_path`.
   final Map<String, Uint8List> images;
 }
 
@@ -70,6 +71,12 @@ class BackupArchive {
   const BackupArchive._();
 
   static const _manifestName = 'manifest.json';
+
+  /// Bildordner, die gesichert werden. `logo/` kam mit Schema 8 hinzu; ältere
+  /// Sicherungen haben ihn nicht und bleiben lesbar. Ältere App-Versionen
+  /// ignorieren unbekannte Ordner, lehnen eine Sicherung mit Schema 8 aber
+  /// ohnehin als „neuere App-Version“ ab.
+  static const imageFolders = ['belege', 'logo'];
   static const _databaseName = 'datenbank/buchhaltung.db';
 
   static Uint8List pack(BackupContent content) {
@@ -122,10 +129,10 @@ class BackupArchive {
     );
   }
 
-  /// Nur Dateien im Belegordner, ohne Verzeichniswechsel – eine manipulierte
+  /// Nur Dateien in den Bildordnern, ohne Verzeichniswechsel – eine manipulierte
   /// Sicherung darf nicht außerhalb des App-Speichers schreiben.
   static bool _isSafeImagePath(String name) =>
-      name.startsWith('belege/') &&
+      imageFolders.any((folder) => name.startsWith('$folder/')) &&
       !name.contains('..') &&
       !name.contains('\\') &&
       name.split('/').length == 2;

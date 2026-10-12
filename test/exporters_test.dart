@@ -302,4 +302,43 @@ void main() {
       expect(result.content, contains('Kleinunternehmer'));
     });
   });
+
+  group('Seiten und Kommentare (L-2.15, L-2.17)', () {
+    Exporter withExtras(Country country) => Exporter(
+      profile: CompanyProfile(companyName: 'Muster e.U.', country: country),
+      receipts: receipts,
+      categories: categories,
+      totals: totals,
+      period: Period.month(DateTime(2026, 3, 1)),
+      pageCounts: const {2: 3},
+      comments: {
+        2: [
+          ReceiptComment(
+            receiptId: 2,
+            text: 'Rückseite leer',
+            createdAt: DateTime(2026, 3, 13, 8, 5),
+          ),
+        ],
+      },
+    );
+
+    test('Belegliste enthält Seitenzahl und Kommentare mit Zeitpunkt', () {
+      final csv = withExtras(Country.at).build(ExportFormat.plainCsv).content;
+      final lines = csv.split('\r\n');
+      expect(lines.first, endsWith('Notiz;Seiten;Kommentare'));
+      expect(csv, contains('3;13.03.2026, 08:05: Rückseite leer'));
+    });
+
+    test('DATEV übernimmt den Kommentar gekürzt in den Buchungstext', () {
+      final csv = withExtras(Country.de).build(ExportFormat.datev).content;
+      final row = csv
+          .split('\r\n')
+          .firstWhere(
+            (l) => l.contains('Bürohaus') || l.contains('Druckerpapier'),
+          );
+      final text = row.split(';').last.replaceAll('"', '');
+      expect(text, startsWith('Druckerpapier, 5 Pakete / K: Rückseite'));
+      expect(text.length, lessThanOrEqualTo(60));
+    });
+  });
 }

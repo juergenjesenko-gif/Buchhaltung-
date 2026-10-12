@@ -5,7 +5,9 @@ import '../../core/formatting.dart';
 import '../../domain/customer.dart';
 import '../../domain/invoice.dart';
 import '../../domain/money.dart';
+import '../../services/invoice_logo.dart';
 import '../../services/invoice_pdf.dart';
+import '../../services/logo_store.dart';
 import '../../services/share_service.dart';
 import '../../theme.dart';
 import '../../widgets/common.dart';
@@ -71,10 +73,14 @@ class _InvoiceListScreenState extends State<InvoiceListScreen> {
     }
 
     try {
+      final logo = await LogoStore.readBytes(
+        InvoiceLogo.pathFor(invoice, profile),
+      );
       final bytes = await InvoicePdf(
         invoice: invoice,
         customer: customer,
         profile: profile,
+        logo: logo,
       ).build();
 
       final safeNumber = invoice.number.replaceAll(

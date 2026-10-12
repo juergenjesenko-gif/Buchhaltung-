@@ -37,6 +37,12 @@ class Fmt {
   static String date(DateTime value) =>
       DateFormat('dd.MM.yyyy', _locale).format(value);
 
+  /// Datum mit Uhrzeit, z. B. für Kommentare: „12.10.2026, 14:05“.
+  static String dateTime(DateTime value) {
+    String two(int v) => v.toString().padLeft(2, '0');
+    return '${date(value)}, ${two(value.hour)}:${two(value.minute)}';
+  }
+
   /// "August 2026"
   static String monthYear(DateTime value) =>
       DateFormat('MMMM yyyy', _locale).format(value);

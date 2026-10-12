@@ -254,8 +254,11 @@ class _InvoiceEditScreenState extends State<InvoiceEditScreen> {
       isSmallBusiness:
           widget.existing?.isSmallBusiness ?? profile.isSmallBusiness,
       notes: _notesController.text.trim(),
-      sellerSnapshot:
-          widget.existing?.sellerSnapshot ?? jsonEncode(profile.toMap()),
+      // Eingefroren wird bei der Rechnungslegung (GR-8): ein Entwurf
+      // übernimmt beim Speichern den aktuellen Stand samt Logo (L-1.7).
+      sellerSnapshot: (widget.existing?.status.isLocked ?? false)
+          ? widget.existing!.sellerSnapshot
+          : jsonEncode(profile.toMap()),
       customerSnapshot:
           widget.existing?.customerSnapshot ??
           jsonEncode({

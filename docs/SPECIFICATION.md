@@ -1,6 +1,6 @@
 # Spezifikation – Buchhaltung
 
-**Dokumentversion:** 1.19 · **App-Version:** 0.1.0 · **Stand:** 2026-10-12
+**Dokumentversion:** 1.20 · **App-Version:** 0.1.0 · **Stand:** 2026-10-12
 **Status:** Sprint 1 umgesetzt und verifiziert
 
 > Das **Zielbild** des Produkts steht im [`LASTENHEFT.md`](LASTENHEFT.md); dieses
@@ -133,7 +133,9 @@ Empfängerdaten werden zum Zeitpunkt der Rechnungslegung als JSON eingefroren.
 ## 4. Datenmodell
 
 **Speicher:** SQLite auf dem Gerät, Datei `buchhaltung.db` im
-Anwendungsdokumentenverzeichnis. Aktuelle Schemaversion: **2**.
+Anwendungsdokumentenverzeichnis. Aktuelle Schemaversion: **8**
+(`spec.schema_version`). Bilder liegen als Dateien daneben: Belegseiten in
+`belege/`, Firmenlogos in `logo/`.
 
 ### 4.1 Tabellen
 
@@ -143,6 +145,8 @@ Anwendungsdokumentenverzeichnis. Aktuelle Schemaversion: **2**.
 | `categories` | Buchhaltungskategorien | 16 Startkategorien, `is_system = 1` schützt vor Löschen |
 | `customers` | Rechnungsempfänger | Löschen blockiert, solange Rechnungen bestehen |
 | `receipts` | Belege | Index auf `date` und `direction`. Werden nie gelöscht, nur storniert (`cancelled_at`) |
+| `receipt_pages` | Seiten (Fotos) eines Belegs: `receipt_id`, `position` ab 1, `image_path`, `created_at` | Schema 8. Nach dem Speichern nur Anhängen; bestehende Einzelfotos wurden bei der Migration zur Seite 1 |
+| `receipt_comments` | Kommentare zu Belegen: `receipt_id`, `text`, `created_at` (Systemzeit) | Schema 8. Nur Einfügen; ein Trigger verhindert `UPDATE`. Löschen bietet die App nicht an (die Wiederherstellung leert alle Tabellen) |
 | `invoices` | Ausgangsrechnungen | `UNIQUE INDEX` auf `number` |
 | `invoice_items` | Rechnungspositionen | `ON DELETE CASCADE` |
 | `audit_log` | Änderungsprotokoll | Nur Einfügen, kein Löschen durch die App |
@@ -170,6 +174,7 @@ Anwendungsdokumentenverzeichnis. Aktuelle Schemaversion: **2**.
 | `vat_check_enabled` | INTEGER | 1 = wöchentliche UID-Prüfung eingeschaltet (Opt-in, Standard 0; Schema 5) |
 | `vat_check_last_run` | TEXT | Zeitpunkt der letzten Prüfrunde (Schema 5) |
 | `auto_backup_enabled`, `auto_backup_target`, `auto_backup_target_label`, `auto_backup_last_at`, `auto_backup_last_error` | INTEGER/TEXT | Automatische Sicherung: eingeschaltet, Ordnerzugriff (SAF-URI bzw. Bookmark), Anzeigename, letzte geprüfte Sicherung, letzter Fehler (Schema 6). Nicht Teil des Stammdatenformulars |
+| `logo_path` | TEXT | Relativer Pfad des Firmenlogos in `logo/`, `NULL` = kein Logo (Schema 8, FA-1.12) |
 | `last_backup_at` | TEXT | Zeitpunkt der letzten Datensicherung bzw. der wiederhergestellten Sicherung; nur vom Sicherungsdienst geschrieben (Schema 4) |
 
 **`receipts`** — zusätzlich seit Schema 3: `cancelled_at` (TEXT, Zeitpunkt der Stornierung, `NULL` = gültig)
@@ -183,7 +188,7 @@ Anwendungsdokumentenverzeichnis. Aktuelle Schemaversion: **2**.
 | `net_cents`, `vat_cents`, `gross_cents` | INTEGER | Beträge in Cent, es gilt GR-2 |
 | `vat_permille` | INTEGER | Angewandter Steuersatz, siehe GR-3 |
 | `payment_method` | TEXT | `cash`, `bank`, `card`, `other` |
-| `image_path` | TEXT | **Relativer** Pfad, siehe NFA-4 |
+| `image_path` | TEXT | **Relativer** Pfad, siehe NFA-4. Seit Schema 8 Spiegel der ersten Seite aus `receipt_pages` |
 
 **`invoices`**
 
@@ -233,6 +238,7 @@ Eigene Kategorien sind ergänzbar und löschbar; die vorgegebenen nicht.
 | FA-1.8 | Bei aktiver Kleinunternehmerregelung fragt das Profil den **Umsatz des Vorjahres** und den **Umsatz des laufenden Jahres vor Beginn der Erfassung** ab, soweit die App diese Zeiträume nicht selbst kennt. Pflichtfelder; leer ist nicht 0 |
 | FA-1.9 | Beim Wechsel zur Regelbesteuerung bleiben erfasste Eröffnungswerte erhalten |
 | FA-1.10 | **Bestätigungen vor der ersten Nutzung** (L-17.1 bis L-17.4): „Keine Steuerberatung“ und „Nutzungsbedingungen/Datenschutz“, je eigenes, nicht vorausgewähltes Häkchen; erst danach Ersteinrichtung bzw. Wiederherstellung. Gespeichert in `consents` mit Art, Textfassung und Zeitpunkt; eine neue Fassung in `LegalText` wird erneut abgefragt. **Keine Einwilligung für Werbung**, da keine Daten dafür erhoben werden |
+| FA-1.12 | **Firmenlogo** (Lastenheft L-1.7, L-1.9): Auswahl aus der Fotobibliothek in den Stammdaten, verkleinert auf höchstens 800 px Kantenlänge bei 90 % Qualität (`spec.logo_max_edge_px`, `spec.logo_quality_percent`), abgelegt als **neue** Datei in `logo/`; Entfernen möglich. Logodateien werden nie überschrieben oder gelöscht. Das Logo steht im PDF oben rechts **zusätzlich** zu Name und Anschrift, nie an ihrer Stelle. Es wird mit dem `seller_snapshot` bei der Rechnungslegung eingefroren: gestellte Rechnungen zeigen das damalige Logo (Rechnungen vor Schema 8 keines), Entwürfe das aktuelle (`InvoiceLogo`). Der `seller_snapshot` eines Entwurfs wird bei jedem Speichern erneuert, ab dem Ausstellen nicht mehr. Ein unlesbares Bild verhindert das PDF nicht |
 | FA-1.11 | Kennwort- und Code-Felder haben ein Auge-Symbol zum Anzeigen (`PasswordField`) |
 
 **Pflichtangaben für Rechnungsfähigkeit** (`CompanyProfile.missingInvoiceFields`):
@@ -244,8 +250,8 @@ prüft `InvoiceRequirements` (FA-1.4).
 
 | ID | Anforderung |
 |---|---|
-| FA-2.1 | Beleg per Kamera aufnehmen oder aus der Fotobibliothek wählen |
-| FA-2.2 | Foto auf maximal 2000 × 2000 px bei 85 % Qualität reduziert |
+| FA-2.1 | Beleg per Kamera aufnehmen oder aus der Fotobibliothek wählen; **mehrere Seiten je Beleg** (FA-2.13) |
+| FA-2.2 | Jede Seite wird bei der Aufnahme auf maximal 2000 × 2000 px bei 85 % Qualität reduziert und danach nie mehr verändert. Eine Bildverbesserung gibt es nicht; käme sie, dann nur als Kopie |
 | FA-2.3 | Betrag wird **brutto** eingegeben; Netto und Umsatzsteuer werden live angezeigt |
 | FA-2.4 | Betrag 0 und negative Beträge werden abgelehnt; die Richtung steuert das Vorzeichen |
 | FA-2.5 | Die Beschreibung ist Pflichtfeld |
@@ -255,7 +261,13 @@ prüft `InvoiceRequirements` (FA-1.4).
 | FA-2.9 | Liste gruppiert nach Monat, Suche über Beschreibung, Partner und Notiz |
 | FA-2.10 | Filter Alle/Einnahmen/Ausgaben, Jahresauswahl über die Aufbewahrungsfrist |
 | FA-2.11 | Bearbeiten möglich. **Belege werden nicht gelöscht, sondern storniert** (nach Rückfrage): sie bleiben samt Foto gespeichert, erscheinen in keiner Liste und zählen in keiner Auswertung, keinem Export und nicht zur Umsatzgrenze (Aufbewahrungspflicht § 132 BAO, § 147 AO; GoBD) |
-| FA-2.12 | Anlegen, Ändern und Stornieren werden im `audit_log` protokolliert |
+| FA-2.12 | Anlegen, Ändern und Stornieren werden im `audit_log` protokolliert, mit Seitenzahl |
+| FA-2.13 | **Mehrseitige Belege** (L-2.15): weitere Seiten fotografieren oder wählen; vor dem ersten Speichern Reihenfolge ändern (nach vorne/hinten) und einzelne Seiten löschen (Datei wird entfernt). Nach dem Speichern sind Seiten fest: nur Anhängen, kein Löschen oder Umsortieren – erzwungen in `ReceiptRepository.save` |
+| FA-2.14 | **Vollständigkeitsbestätigung** (L-2.16): sind neue Seiten hinzugekommen, verlangt das Speichern das Häkchen „Alle Seiten inkl. beschriebener Rückseiten erfasst“ |
+| FA-2.15 | Belegansicht zeigt alle Seiten als Leiste mit Seitennummer; Antippen öffnet die Seite vergrößert (Zoom) |
+| FA-2.16 | **Kommentare** (L-2.17): beim Erfassen ein Kommentarfeld, das beim Speichern zum ersten Kommentar wird; bei gespeicherten, auch stornierten Belegen „Kommentar anhängen“. Zeitstempel ist die Systemzeit. Kein Bearbeiten, kein Löschen; Korrektur nur als neuer Kommentar. Jeder Kommentar erzeugt einen `audit_log`-Eintrag `comment`. Der Beleg selbst bleibt unverändert |
+| FA-2.17 | **Diktat** (L-2.18) nur über die Diktierfunktion der Systemtastatur; die App enthält keine Spracherkennung und überträgt nichts. Hinweis im Formular: je nach Gerät kann die Tastatur Sprache an Google oder Apple senden |
+| FA-2.18 | **Stornierte Belege lesbar**: Filter „Storniert“ in der Belegliste; die Ansicht ist schreibgeschützt (Hinweisbanner, kein Speichern), Kommentare bleiben anhängbar |
 
 ### 5.3 Kassabuch und Auswertung
 
@@ -332,7 +344,7 @@ Liefer-/Leistungsdatum, Entgelt je Steuersatz, Steuersatz und Steuerbetrag oder
 | FA-7.3 | Ablage über den Teilen-Dialog: die Nutzerin wählt iCloud Drive, Google Drive, Dateien oder ein anderes Ziel. Kein Server des Anbieters, keine automatische Übertragung |
 | FA-7.4 | Wiederherstellen: Datei wählen, Kennwort eingeben, **Vorschau** (Unternehmen, Datum, Anzahl Belege, Rechnungen, Kunden, Fotos), ausdrückliche Bestätigung; dann werden alle Daten und Fotos ersetzt, in einer Transaktion |
 | FA-7.5 | Falsches Kennwort und veränderte Dateien werden erkannt (Authentifizierungs-Tag) und nicht eingelesen; fremde Dateien und Sicherungen einer neueren App-Version werden abgelehnt; ältere Sicherungen werden auf das aktuelle Schema migriert |
-| FA-7.6 | Pfade im Archiv außerhalb von `belege/` werden verworfen |
+| FA-7.6 | Pfade im Archiv außerhalb von `belege/` und `logo/` werden verworfen. Gesichert werden alle Belegseiten und alle Logodateien; Seiten und Kommentare stecken in der Datenbank. Sicherungen ohne `logo/` (vor Schema 8) bleiben lesbar und werden auf Schema 8 migriert; beim Wiederherstellen werden beide Ordner ersetzt |
 | FA-7.7 | Erinnerung auf der Übersicht, wenn noch nie oder seit **30 Tagen** nicht gesichert wurde (`spec.backup_reminder_days`) |
 | FA-7.8 | Wiederherstellung auch direkt aus der Ersteinrichtung auf einem neuen Gerät; sie wird im `audit_log` vermerkt |
 | FA-7.9 | **Automatische Sicherung** (Opt-in nach Erklärseite): Ordner einmal wählen (iOS `UIDocumentPicker` + Security-Scoped Bookmark, `ios/Runner/BackupFolderChannel.swift`; Android Storage Access Framework mit dauerhafter Berechtigung, `BackupFolderChannel.kt`); Kanal `buchhaltung/backup_folder`; derselbe Kanal liefert mit `pickFile` die Datei für die Wiederherstellung (kein `file_picker`) |
@@ -353,6 +365,7 @@ Liefer-/Leistungsdatum, Entgelt je Steuersatz, Steuersatz und Steuerbetrag oder
 | FA-6.4 | DATEV wird nur bei Land DE angeboten, BMD nur bei Land AT |
 | FA-6.5 | Dateiname enthält Firma und Zeitraum |
 | FA-6.6 | CSV mit Semikolon, CRLF und UTF-8-BOM |
+| FA-6.7 | Belegliste mit Seitenzahl und allen Kommentaren samt Zeitpunkt; DATEV und BMD hängen den jüngsten Kommentar gekürzt an den Buchungstext an (`Beschreibung / K: …`, höchstens 60 Zeichen) |
 
 ---
 
@@ -405,11 +418,11 @@ Kleinunternehmer:
 | Bildschirm | Datei | Zweck |
 |---|---|---|
 | Bestätigungen | `features/onboarding/consent_screen.dart` | Hinweis „keine Steuerberatung“, Nutzungsbedingungen und Datenschutz bestätigen |
-| Onboarding / Stammdaten | `features/onboarding/company_setup_screen.dart` | Firmenprofil anlegen und bearbeiten |
+| Onboarding / Stammdaten | `features/onboarding/company_setup_screen.dart` | Firmenprofil anlegen und bearbeiten, Firmenlogo |
 | Hauptnavigation | `features/home/home_shell.dart` | Vier Bereiche als Tab-Leiste |
 | Übersicht | `features/dashboard/dashboard_screen.dart` | Kassabuch, Umsatzsteuer, Grenzwertampel, Verlauf |
-| Belegliste | `features/receipts/receipt_list_screen.dart` | Suchen, filtern, öffnen |
-| Beleg bearbeiten | `features/receipts/receipt_edit_screen.dart` | Erfassen, Foto, Betrag, Kategorie |
+| Belegliste | `features/receipts/receipt_list_screen.dart` | Suchen, filtern, öffnen; Filter „Storniert“ |
+| Beleg bearbeiten | `features/receipts/receipt_edit_screen.dart` | Erfassen, Seiten, Betrag, Kategorie, Kommentare; stornierte Belege nur lesen |
 | Rechnungsliste | `features/invoices/invoice_list_screen.dart` | Status, PDF teilen, Aktionen |
 | Rechnung bearbeiten | `features/invoices/invoice_edit_screen.dart` | Kunde, Positionen, Ausstellen |
 | Kunde bearbeiten | `features/invoices/customer_edit_screen.dart` | Kundenstammdaten |
@@ -438,7 +451,8 @@ verfälschen.
 ### 8.2 Belegliste (`plainCsv`)
 
 Spalten: Datum, Art, Beschreibung, Geschäftspartner, Kategorie, Konto,
-Zahlungsart, Netto, USt-Satz, USt-Betrag, Brutto, Beleg vorhanden, Notiz.
+Zahlungsart, Netto, USt-Satz, USt-Betrag, Brutto, Beleg vorhanden, Notiz,
+Seiten, Kommentare (je `TT.MM.JJJJ, hh:mm: Text`, getrennt durch ` | `).
 Danach Summenzeilen für Einnahmen, Ausgaben und Ergebnis.
 
 ### 8.3 DATEV-Buchungsstapel (`datev`, nur DE)
@@ -547,7 +561,7 @@ Offen benannt, weil eine Spezifikation, die ihre Lücken verschweigt, wertlos is
 > Das ist der Mechanismus, der dieses Dokument aktuell hält.
 
 ```properties
-spec.schema_version = 7
+spec.schema_version = 8
 spec.vat_check_interval_days = 7
 spec.backup_reminder_days = 30
 spec.auto_backup_min_interval_hours = 24
@@ -561,6 +575,8 @@ spec.default_invoice_pattern = RE-{YYYY}-{NNNN}
 spec.default_payment_term_days = 14
 spec.receipt_image_max_edge_px = 2000
 spec.receipt_image_quality_percent = 85
+spec.logo_max_edge_px = 800
+spec.logo_quality_percent = 90
 spec.trend_months = 6
 spec.dashboard_recent_receipts = 5
 
@@ -605,6 +621,7 @@ Umrechnung: Beträge in Cent. `5500000` Cent = 55.000,00 €.
 
 | Version | Datum | App-Version | Änderung |
 |---|---|---|---|
+| 1.20 | 2026-10-12 | 0.1.0 | Schema 8: mehrseitige Belege (`receipt_pages`, FA-2.13 bis FA-2.15), Kommentare nur anhängbar (`receipt_comments`, FA-2.16), Diktat über die Systemtastatur (FA-2.17), stornierte Belege lesbar (FA-2.18), Firmenlogo im PDF, eingefroren bei Rechnungslegung (`logo_path`, FA-1.12). Sicherung mit `logo/` (FA-7.6), Export mit Seiten und Kommentaren (FA-6.7, 8.2). Neue Kennwerte `spec.logo_*`, Prüfpunkte P-D11 bis P-D13. |
 | 1.19 | 2026-10-12 | 0.1.0 | P-B1 bestanden (Pixel 10, Google Drive); neue Prüfpunkte P-B6 bis P-B12 zu iCloud-Standard, Datensicherheitsformularen und Wiederherstellung. Keine Codeänderung. |
 | 1.18 | 2026-10-12 | 0.1.0 | Entwürfe der Rechtstexte in `docs/legal/` (Impressum, Datenschutzerklärung, Nutzungsbedingungen); Prüfpunkte P-L4 bis P-L17, P-S15 bis P-S18 (Belegkommentare, mehrseitige Belege, Diktat, Vertragsarchiv). Keine Codeänderung. |
 | 1.17 | 2026-10-12 | 0.1.0 | Prüfpunkte zu Store-Reife, Lizenz und Bezahlung: P-R10 bis P-R14, P-S11 bis P-S14, P-D9, P-D10. Keine Codeänderung. |
@@ -774,4 +791,7 @@ Status: *offen* · *bestätigt* (mit Datum und Prüfer) · *widerlegt* (mit Folg
 | P-S14 | Zählen Store-Umsätze (Leistungsort Irland) zur Kleinunternehmergrenze des Anbieters? Zusammen mit O-26 | voraussichtlich nein | erster Verkauf | offen |
 | P-D9 | Export Compliance iOS: `ITSAppUsesNonExemptEncryption` steht auf `false`, die App verschlüsselt aber selbst (AES-256, Argon2id); Einstufung als Standardverfahren, Frankreich-Erklärung | voraussichtlich ausgenommen, Wert und Fragebogen klären | erster iOS-Upload | offen |
 | P-D10 | In den Konsolen bestätigen: Pflichttest für Organisationskonten entfällt, targetSdk-Stichtag 2026, Entwicklerverifizierung für Sideloading | aus Fachwissen | erster Upload | offen |
+| P-D11 | Gerätetest Mehrseiten-Kamera (Android und iOS): mehrere Seiten nacheinander aufnehmen, Reihenfolge ändern, Seite löschen, Speichern mit Bestätigung; Speicherbedarf bei 10 Seiten; Wiederherstellung auf zweitem Gerät zeigt alle Seiten | Logik in Tests geprüft, Kamera nicht | Release | offen |
+| P-D12 | Gerätetest Diktat über die Systemtastatur (Gboard, Samsung-Tastatur, iOS) im Kommentarfeld, auch offline; stimmt der Hinweistext zum tatsächlichen Verhalten (gehört zu P-L12) | — | Release | offen |
+| P-D13 | Rechnungs-PDF mit Logo (PNG mit Transparenz, JPEG, HEIC aus iOS) am Bildschirm und gedruckt; DATEV-Import eines Stapels mit gekürztem Kommentar im Buchungstext | Logo-PDF im Test erzeugbar; DATEV-Import nicht geprüft | Release | offen |
 | P-D8 | Zusatzsicherung unter Windows (`tool/sicherung/sicherung.ps1`): Erstlauf, Aufgabenplanung, Wiederherstellung | Linux-Variante getestet, Windows-Skript nie ausgeführt | sofort | offen |

@@ -43,6 +43,7 @@ class Receipt {
     this.note = '',
     this.createdAt,
     this.updatedAt,
+    this.cancelledAt,
   });
 
   final int? id;
@@ -63,12 +64,21 @@ class Receipt {
   final int? categoryId;
   final PaymentMethod paymentMethod;
 
-  /// Relativer Pfad des Belegfotos im App-Dokumentenverzeichnis.
+  /// Relativer Pfad der ersten Belegseite im App-Dokumentenverzeichnis.
+  /// Seit Schema 8 stehen alle Seiten in `receipt_pages` ([ReceiptPage]);
+  /// dieses Feld spiegelt die erste Seite, damit Liste und Export ohne
+  /// zusätzliche Abfrage wissen, ob ein Foto vorhanden ist.
   final String? imagePath;
 
   final String note;
   final DateTime? createdAt;
   final DateTime? updatedAt;
+
+  /// Zeitpunkt der Stornierung, `null` = gültiger Beleg. Wird nur von
+  /// `ReceiptRepository.cancel` geschrieben, nie über [toMap].
+  final DateTime? cancelledAt;
+
+  bool get isCancelled => cancelledAt != null;
 
   bool get hasImage => imagePath != null && imagePath!.isNotEmpty;
 
@@ -150,10 +160,62 @@ class Receipt {
     note: map['note'] as String? ?? '',
     createdAt: _parseOrNull(map['created_at']),
     updatedAt: _parseOrNull(map['updated_at']),
+    cancelledAt: _parseOrNull(map['cancelled_at']),
   );
 
   static DateTime? _parseOrNull(Object? value) =>
       value is String && value.isNotEmpty ? DateTime.tryParse(value) : null;
+}
+
+/// Eine Seite (ein Foto) eines Belegs, seit Schema 8 (Lastenheft L-2.15).
+class ReceiptPage {
+  const ReceiptPage({
+    required this.receiptId,
+    required this.position,
+    required this.imagePath,
+    this.createdAt,
+  });
+
+  final int receiptId;
+
+  /// Reihenfolge ab 1, lückenlos.
+  final int position;
+
+  /// Relativer Pfad wie bei [Receipt.imagePath].
+  final String imagePath;
+  final DateTime? createdAt;
+
+  static ReceiptPage fromMap(Map<String, Object?> map) => ReceiptPage(
+    receiptId: map['receipt_id'] as int,
+    position: map['position'] as int,
+    imagePath: map['image_path'] as String,
+    createdAt: Receipt._parseOrNull(map['created_at']),
+  );
+}
+
+/// Kommentar zu einem Beleg (Lastenheft L-2.17). Nur anhängbar: ein
+/// Kommentar wird nie geändert oder gelöscht, damit der gebuchte Beleg
+/// unverändert bleibt und jede Ergänzung mit Zeitpunkt nachvollziehbar ist
+/// (GoBD Rz. 58 ff., § 131 Abs 1 Z 8 BAO).
+class ReceiptComment {
+  const ReceiptComment({
+    this.id,
+    required this.receiptId,
+    required this.text,
+    required this.createdAt,
+  });
+
+  final int? id;
+  final int receiptId;
+  final String text;
+  final DateTime createdAt;
+
+  static ReceiptComment fromMap(Map<String, Object?> map) => ReceiptComment(
+    id: map['id'] as int?,
+    receiptId: map['receipt_id'] as int,
+    text: map['text'] as String? ?? '',
+    createdAt: DateTime.parse(map['created_at'] as String),
+  );
 }
 
 /// Buchhalterische Kategorie. Die Kontonummern erlauben später einen sauberen

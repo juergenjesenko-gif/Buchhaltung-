@@ -27,7 +27,8 @@ class BackupService {
   final Database _db;
   final BackupRepository _repository;
 
-  /// Dokumentenverzeichnis der App; Belegfotos liegen in `belege/`.
+  /// Dokumentenverzeichnis der App; Belegseiten liegen in `belege/`, das
+  /// Firmenlogo in `logo/` (seit Schema 8).
   final Directory documentsDir;
   final Directory tempDir;
   final BackupCrypto crypto;
@@ -75,11 +76,12 @@ class BackupService {
     await snapshot.delete();
 
     final images = <String, Uint8List>{};
-    final imageDir = Directory(p.join(documentsDir.path, 'belege'));
-    if (await imageDir.exists()) {
+    for (final folder in BackupArchive.imageFolders) {
+      final imageDir = Directory(p.join(documentsDir.path, folder));
+      if (!await imageDir.exists()) continue;
       await for (final entity in imageDir.list()) {
         if (entity is File) {
-          images['belege/${p.basename(entity.path)}'] = await entity
+          images['$folder/${p.basename(entity.path)}'] = await entity
               .readAsBytes();
         }
       }
@@ -129,9 +131,13 @@ class BackupService {
       if (await dbFile.exists()) await dbFile.delete();
     }
 
-    final imageDir = Directory(p.join(documentsDir.path, 'belege'));
-    if (await imageDir.exists()) await imageDir.delete(recursive: true);
-    await imageDir.create(recursive: true);
+    // Ältere Sicherungen enthalten nur `belege/`; ein Logo-Ordner bleibt
+    // dann leer, so wie es der Datenbankstand der Sicherung erwartet.
+    for (final folder in BackupArchive.imageFolders) {
+      final imageDir = Directory(p.join(documentsDir.path, folder));
+      if (await imageDir.exists()) await imageDir.delete(recursive: true);
+      await imageDir.create(recursive: true);
+    }
     for (final entry in content.images.entries) {
       await File(
         p.join(documentsDir.path, entry.key),

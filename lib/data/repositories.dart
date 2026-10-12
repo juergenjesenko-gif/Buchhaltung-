@@ -161,10 +161,13 @@ class ReceiptRepository {
     BookingDirection? direction,
     String? search,
     int? limit,
+    bool cancelledOnly = false,
   }) async {
     // Stornierte Belege bleiben gespeichert (Aufbewahrungspflicht), zählen
-    // aber nirgends mehr mit.
-    final where = <String>['cancelled_at IS NULL'];
+    // aber nirgends mehr mit. Lesbar bleiben sie über [cancelledOnly].
+    final where = <String>[
+      cancelledOnly ? 'cancelled_at IS NOT NULL' : 'cancelled_at IS NULL',
+    ];
     final args = <Object?>[];
 
     if (from != null) {
@@ -205,30 +208,194 @@ class ReceiptRepository {
     return rows.isEmpty ? null : Receipt.fromMap(rows.first);
   }
 
-  Future<int> save(Receipt receipt) async {
-    if (receipt.id == null) {
-      final id = await _db.insert('receipts', receipt.toMap());
-      await AuditLog(_db).record(
-        entity: 'receipt',
-        entityId: id,
-        action: 'create',
-        detail: '${receipt.description} ${receipt.gross}',
-      );
+  /// Speichert einen Beleg samt Seiten (L-2.15) und optional einem ersten
+  /// Kommentar (L-2.17) in einer Transaktion.
+  ///
+  /// [pages] sind die relativen Bildpfade in fester Reihenfolge; `null` lässt
+  /// die Seiten unverändert. Bei einem bereits gespeicherten Beleg dürfen
+  /// Seiten nur **angehängt** werden – Löschen oder Umsortieren ist nur vor
+  /// dem ersten Speichern möglich (GoBD Rz. 58 ff., § 131 Abs 1 Z 8 BAO).
+  /// Ein stornierter Beleg ist schreibgeschützt.
+  Future<int> save(
+    Receipt receipt, {
+    List<String>? pages,
+    String? comment,
+  }) async {
+    return _db.transaction((txn) async {
+      final audit = AuditLog(_db);
+      final withCover = pages == null
+          ? receipt
+          : pages.isEmpty
+          ? receipt.copyWith(clearImage: true)
+          : receipt.copyWith(imagePath: pages.first);
+      final int id;
+      if (receipt.id == null) {
+        id = await txn.insert('receipts', withCover.toMap());
+        await audit.record(
+          entity: 'receipt',
+          entityId: id,
+          action: 'create',
+          detail:
+              '${receipt.description} ${receipt.gross}, '
+              '${pages?.length ?? 0} Seite(n)',
+          txn: txn,
+        );
+      } else {
+        id = receipt.id!;
+        final current = await txn.query(
+          'receipts',
+          columns: ['cancelled_at'],
+          where: 'id = ?',
+          whereArgs: [id],
+        );
+        if (current.isNotEmpty && current.first['cancelled_at'] != null) {
+          throw StateError('Ein stornierter Beleg kann nicht geändert werden');
+        }
+        if (pages != null) {
+          final existing = await _pagePaths(txn, id);
+          final keepsOrder =
+              pages.length >= existing.length &&
+              List.generate(
+                existing.length,
+                (i) => pages[i] == existing[i],
+              ).every((same) => same);
+          if (!keepsOrder) {
+            throw StateError(
+              'Seiten eines gespeicherten Belegs können nur ergänzt werden',
+            );
+          }
+        }
+        await txn.update(
+          'receipts',
+          withCover.toMap(),
+          where: 'id = ?',
+          whereArgs: [id],
+        );
+        await audit.record(
+          entity: 'receipt',
+          entityId: id,
+          action: 'update',
+          detail:
+              '${receipt.description} ${receipt.gross}'
+              '${pages == null ? '' : ', ${pages.length} Seite(n)'}',
+          txn: txn,
+        );
+      }
+      if (pages != null) await _writePages(txn, id, pages);
+      final text = comment?.trim() ?? '';
+      if (text.isNotEmpty) await _insertComment(txn, id, text);
       return id;
+    });
+  }
+
+  static Future<List<String>> _pagePaths(DatabaseExecutor db, int id) async {
+    final rows = await db.query(
+      'receipt_pages',
+      columns: ['image_path'],
+      where: 'receipt_id = ?',
+      whereArgs: [id],
+      orderBy: 'position',
+    );
+    return rows.map((r) => r['image_path'] as String).toList();
+  }
+
+  /// Ergänzt fehlende Seiten am Ende; vorhandene bleiben unberührt.
+  static Future<void> _writePages(
+    DatabaseExecutor db,
+    int id,
+    List<String> pages,
+  ) async {
+    final existing = await _pagePaths(db, id);
+    final now = DateTime.now().toIso8601String();
+    for (var i = existing.length; i < pages.length; i++) {
+      await db.insert('receipt_pages', {
+        'receipt_id': id,
+        'position': i + 1,
+        'image_path': pages[i],
+        'created_at': now,
+      });
     }
-    await _db.update(
-      'receipts',
-      receipt.toMap(),
-      where: 'id = ?',
-      whereArgs: [receipt.id],
+  }
+
+  /// Alle Seiten eines Belegs in ihrer Reihenfolge.
+  Future<List<ReceiptPage>> pages(int receiptId) async {
+    final rows = await _db.query(
+      'receipt_pages',
+      where: 'receipt_id = ?',
+      whereArgs: [receiptId],
+      orderBy: 'position',
     );
-    await AuditLog(_db).record(
-      entity: 'receipt',
-      entityId: receipt.id,
-      action: 'update',
-      detail: '${receipt.description} ${receipt.gross}',
+    return rows.map(ReceiptPage.fromMap).toList();
+  }
+
+  /// Seitenzahl je Beleg, für Liste und Export.
+  Future<Map<int, int>> pageCounts() async {
+    final rows = await _db.rawQuery(
+      'SELECT receipt_id, COUNT(*) AS n FROM receipt_pages GROUP BY receipt_id',
     );
-    return receipt.id!;
+    return {for (final r in rows) r['receipt_id'] as int: r['n'] as int};
+  }
+
+  /// Hängt einen Kommentar an – auch an gebuchte und stornierte Belege. Der
+  /// Zeitstempel kommt vom System, nicht von der Nutzerin. Eine Korrektur ist
+  /// ein weiterer Kommentar; Ändern und Löschen gibt es nicht (L-2.17).
+  Future<ReceiptComment> addComment(int receiptId, String text) async {
+    final trimmed = text.trim();
+    if (trimmed.isEmpty) {
+      throw ArgumentError('Ein Kommentar darf nicht leer sein');
+    }
+    return _db.transaction((txn) => _insertComment(txn, receiptId, trimmed));
+  }
+
+  static Future<ReceiptComment> _insertComment(
+    DatabaseExecutor db,
+    int receiptId,
+    String text,
+  ) async {
+    final now = DateTime.now();
+    final id = await db.insert('receipt_comments', {
+      'receipt_id': receiptId,
+      'text': text,
+      'created_at': now.toIso8601String(),
+    });
+    await db.insert('audit_log', {
+      'entity': 'receipt',
+      'entity_id': receiptId,
+      'action': 'comment',
+      'detail': 'Kommentar $id (${text.length} Zeichen)',
+      'created_at': now.toIso8601String(),
+    });
+    return ReceiptComment(
+      id: id,
+      receiptId: receiptId,
+      text: text,
+      createdAt: now,
+    );
+  }
+
+  /// Kommentare eines Belegs, älteste zuerst.
+  Future<List<ReceiptComment>> comments(int receiptId) async {
+    final rows = await _db.query(
+      'receipt_comments',
+      where: 'receipt_id = ?',
+      whereArgs: [receiptId],
+      orderBy: 'created_at, id',
+    );
+    return rows.map(ReceiptComment.fromMap).toList();
+  }
+
+  /// Alle Kommentare, gruppiert je Beleg – für den Export.
+  Future<Map<int, List<ReceiptComment>>> allComments() async {
+    final rows = await _db.query(
+      'receipt_comments',
+      orderBy: 'receipt_id, created_at, id',
+    );
+    final result = <int, List<ReceiptComment>>{};
+    for (final row in rows) {
+      final comment = ReceiptComment.fromMap(row);
+      result.putIfAbsent(comment.receiptId, () => []).add(comment);
+    }
+    return result;
   }
 
   /// Storniert einen Beleg. Er wird nicht gelöscht: Belege unterliegen der

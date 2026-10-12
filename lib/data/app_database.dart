@@ -16,7 +16,7 @@ class AppDatabase {
 
   /// Aktuelle Schemaversion. Öffentlich, weil docs/SPECIFICATION.md sie
   /// dokumentiert und test/specification_sync_test.dart beide vergleicht.
-  static const schemaVersion = 7;
+  static const schemaVersion = 8;
 
   Database? _db;
 
@@ -267,6 +267,54 @@ class AppDatabase {
         accepted_at TEXT NOT NULL
       )
       ''',
+    ],
+    // Version 8: mehrere Seiten je Beleg (L-2.15), Kommentare zu Belegen
+    // (L-2.17) und Firmenlogo (L-1.7).
+    8: [
+      // Fremdschlüssel ohne ON DELETE-Regel: Belege werden nie gelöscht, und
+      // die Wiederherstellung einer Sicherung leert die Tabellen mit
+      // verzögerter Prüfung (defer_foreign_keys) – RESTRICT wäre sofortig.
+      '''
+      CREATE TABLE receipt_pages (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        receipt_id INTEGER NOT NULL REFERENCES receipts(id),
+        position INTEGER NOT NULL,
+        image_path TEXT NOT NULL,
+        created_at TEXT NOT NULL
+      )
+      ''',
+      'CREATE INDEX idx_receipt_pages_receipt ON receipt_pages(receipt_id, position)',
+      // Bestehende Einzelfotos werden zur Seite 1. `receipts.image_path`
+      // bleibt als Spiegel der ersten Seite erhalten.
+      '''
+      INSERT INTO receipt_pages (receipt_id, position, image_path, created_at)
+      SELECT id, 1, image_path, COALESCE(updated_at, created_at)
+      FROM receipts
+      WHERE image_path IS NOT NULL AND image_path != ''
+      ''',
+      // Nur Einfügen (GoBD, § 131 BAO): Kommentare ergänzen einen Beleg,
+      // ohne ihn zu verändern.
+      '''
+      CREATE TABLE receipt_comments (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        receipt_id INTEGER NOT NULL REFERENCES receipts(id),
+        text TEXT NOT NULL,
+        created_at TEXT NOT NULL
+      )
+      ''',
+      'CREATE INDEX idx_receipt_comments_receipt ON receipt_comments(receipt_id, created_at)',
+      // Ändern verhindert die Datenbank selbst. Löschen nicht, weil die
+      // Wiederherstellung einer Sicherung alle Tabellen leeren muss; die App
+      // bietet dafür keine Funktion an.
+      '''
+      CREATE TRIGGER receipt_comments_no_update
+      BEFORE UPDATE ON receipt_comments
+      BEGIN
+        SELECT RAISE(ABORT, 'Kommentare zu Belegen sind unveränderlich');
+      END
+      ''',
+      // Relativer Pfad des Logos im Ordner `logo/` (NFA-4).
+      'ALTER TABLE company_profile ADD COLUMN logo_path TEXT',
     ],
   };
 

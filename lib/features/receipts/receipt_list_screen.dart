@@ -20,6 +20,9 @@ class _ReceiptListScreenState extends State<ReceiptListScreen> {
   final _searchController = TextEditingController();
 
   BookingDirection? _filter;
+
+  /// Stornierte Belege statt der gültigen zeigen – nur zum Nachlesen (L-2.17).
+  bool _showCancelled = false;
   int _year = DateTime.now().year;
   List<Receipt> _receipts = const [];
   bool _loading = true;
@@ -45,6 +48,7 @@ class _ReceiptListScreenState extends State<ReceiptListScreen> {
       to: DateTime(_year, 12, 31),
       direction: _filter,
       search: _searchController.text,
+      cancelledOnly: _showCancelled,
     );
     if (!mounted) return;
     setState(() {
@@ -150,6 +154,14 @@ class _ReceiptListScreenState extends State<ReceiptListScreen> {
                       },
                     ),
                   ),
+                FilterChip(
+                  label: const Text('Storniert'),
+                  selected: _showCancelled,
+                  onSelected: (value) {
+                    setState(() => _showCancelled = value);
+                    _load();
+                  },
+                ),
               ],
             ),
           ),

@@ -69,6 +69,8 @@ class Exporter {
     required this.categories,
     required this.totals,
     required this.period,
+    this.comments = const {},
+    this.pageCounts = const {},
   });
 
   final CompanyProfile profile;
@@ -76,6 +78,35 @@ class Exporter {
   final List<ExpenseCategory> categories;
   final PeriodTotals totals;
   final Period period;
+
+  /// Kommentare je Beleg-ID, älteste zuerst (L-2.17).
+  final Map<int, List<ReceiptComment>> comments;
+
+  /// Seitenzahl je Beleg-ID (L-2.15); fehlt ein Eintrag, zählt das
+  /// Einzelfoto aus `image_path`.
+  final Map<int, int> pageCounts;
+
+  List<ReceiptComment> _commentsOf(Receipt receipt) =>
+      comments[receipt.id] ?? const [];
+
+  int _pagesOf(Receipt receipt) =>
+      pageCounts[receipt.id] ?? (receipt.hasImage ? 1 : 0);
+
+  /// Alle Kommentare eines Belegs in einer Zelle, je mit Zeitpunkt.
+  String _commentCell(Receipt receipt) => _commentsOf(
+    receipt,
+  ).map((c) => '${Fmt.dateTime(c.createdAt)}: ${c.text}').join(' | ');
+
+  /// Buchungstext für DATEV/BMD: Beschreibung, bei Kommentaren gekürzt um
+  /// den jüngsten ergänzt („K: …“), insgesamt höchstens 60 Zeichen.
+  String _bookingText(Receipt receipt) {
+    final base = receipt.description.isEmpty
+        ? receipt.counterparty
+        : receipt.description;
+    final list = _commentsOf(receipt);
+    if (list.isEmpty) return _datevText(base);
+    return _datevText('$base / K: ${list.last.text.replaceAll('\n', ' ')}');
+  }
 
   ExportResult build(ExportFormat format) => switch (format) {
     ExportFormat.plainCsv => _buildPlainCsv(),
@@ -159,6 +190,8 @@ class Exporter {
       'Brutto',
       'Beleg vorhanden',
       'Notiz',
+      'Seiten',
+      'Kommentare',
     ]);
 
     for (final receipt in receipts) {
@@ -176,6 +209,8 @@ class Exporter {
         csvAmount(receipt.gross.cents),
         receipt.hasImage ? 'ja' : 'nein',
         receipt.note,
+        _pagesOf(receipt).toString(),
+        _commentCell(receipt),
       ]);
     }
 
@@ -318,11 +353,7 @@ class Exporter {
         receipt.id?.toString() ?? '',
         '',
         '',
-        _datevText(
-          receipt.description.isEmpty
-              ? receipt.counterparty
-              : receipt.description,
-        ),
+        _bookingText(receipt),
       ]);
     }
 
@@ -382,11 +413,7 @@ class Exporter {
         isIncome ? account : _contraAccount(receipt.paymentMethod),
         Fmt.isoDate(receipt.date),
         receipt.id?.toString() ?? '',
-        _datevText(
-          receipt.description.isEmpty
-              ? receipt.counterparty
-              : receipt.description,
-        ),
+        _bookingText(receipt),
         csvAmount(receipt.gross.cents.abs()),
         _bmdTaxCode(receipt),
         Fmt.vatRate(receipt.vatPermille),

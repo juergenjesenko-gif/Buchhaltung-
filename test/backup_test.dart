@@ -54,6 +54,28 @@ void main() {
   });
 
   group('Archiv', () {
+    test('übernimmt den Logo-Ordner, aber keine anderen Ordner', () {
+      final zip = BackupArchive.pack(
+        BackupContent(
+          manifest: BackupManifest(
+            createdAt: DateTime(2026, 10, 12),
+            schemaVersion: AppDatabase.schemaVersion,
+            companyName: '',
+            receiptCount: 0,
+            invoiceCount: 0,
+            customerCount: 0,
+            imageCount: 2,
+          ),
+          database: Uint8List.fromList([0]),
+          images: {
+            'logo/l.png': Uint8List.fromList([1]),
+            'fremd/x.png': Uint8List.fromList([2]),
+          },
+        ),
+      );
+      expect(BackupArchive.unpack(zip).images.keys, ['logo/l.png']);
+    });
+
     test('verwirft Pfade außerhalb des Belegordners', () {
       final zip = BackupArchive.pack(
         BackupContent(
@@ -163,6 +185,89 @@ void main() {
       );
       expect(log, hasLength(1));
 
+      await oldDb.close();
+      await newDb.close();
+    });
+
+    test('sichert Belegseiten und Logo und stellt beide wieder her', () async {
+      final oldDocs = await Directory(p.join(root.path, 'alt')).create();
+      final newDocs = await Directory(p.join(root.path, 'neu')).create();
+      await Directory(p.join(oldDocs.path, 'belege')).create();
+      await Directory(p.join(oldDocs.path, 'logo')).create();
+      await File(p.join(oldDocs.path, 'belege', 's1.jpg')).writeAsBytes([1]);
+      await File(p.join(oldDocs.path, 'belege', 's2.jpg')).writeAsBytes([2]);
+      await File(p.join(oldDocs.path, 'logo', 'logo_1.png')).writeAsBytes([5]);
+
+      final oldDb = await openDb('alt.db');
+      await oldDb.insert('company_profile', {
+        'id': 1,
+        'company_name': 'Atelier',
+        'logo_path': 'logo/logo_1.png',
+      });
+      await oldDb.insert('receipts', {
+        'date': '2026-05-01',
+        'direction': 'expense',
+        'image_path': 'belege/s1.jpg',
+        'created_at': '2026-05-01T00:00:00',
+        'updated_at': '2026-05-01T00:00:00',
+      });
+      for (final (pos, path) in [(1, 'belege/s1.jpg'), (2, 'belege/s2.jpg')]) {
+        await oldDb.insert('receipt_pages', {
+          'receipt_id': 1,
+          'position': pos,
+          'image_path': path,
+          'created_at': '2026-05-01T00:00:00',
+        });
+      }
+      await oldDb.insert('receipt_comments', {
+        'receipt_id': 1,
+        'text': 'Rückseite leer',
+        'created_at': '2026-05-01T00:00:00',
+      });
+
+      final file = await BackupService(
+        db: oldDb,
+        documentsDir: oldDocs,
+        tempDir: root,
+        crypto: fastCrypto,
+        factory: databaseFactoryFfi,
+      ).create('mein-sicheres-kennwort', now: DateTime(2026, 10, 12, 9));
+      final content = await BackupService.open(
+        await file.readAsBytes(),
+        'mein-sicheres-kennwort',
+      );
+      expect(content.images.keys, containsAll(['logo/logo_1.png']));
+      expect(content.manifest.imageCount, 3);
+
+      // Auf dem neuen Gerät liegt schon ein anderes Logo; es wird ersetzt.
+      await Directory(p.join(newDocs.path, 'logo')).create();
+      await File(p.join(newDocs.path, 'logo', 'fremd.png')).writeAsBytes([9]);
+      final newDb = await openDb('neu.db');
+      await BackupService(
+        db: newDb,
+        documentsDir: newDocs,
+        tempDir: root,
+        crypto: fastCrypto,
+        factory: databaseFactoryFfi,
+      ).restore(content);
+
+      expect(
+        await File(p.join(newDocs.path, 'logo', 'logo_1.png')).readAsBytes(),
+        [5],
+      );
+      expect(
+        File(p.join(newDocs.path, 'logo', 'fremd.png')).existsSync(),
+        isFalse,
+      );
+      expect(await newDb.query('receipt_pages'), hasLength(2));
+      expect(
+        (await newDb.query('receipt_comments')).single['text'],
+        'Rückseite leer',
+      );
+      expect(
+        (await newDb.query('company_profile')).single['logo_path'],
+        'logo/logo_1.png',
+      );
       await oldDb.close();
       await newDb.close();
     });

@@ -154,11 +154,41 @@ Das ist die Funktion, die du täglich nutzt. Sie ist auf Geschwindigkeit gebaut.
 2. **Bruttobetrag** eintippen – also die Zahl, die auf dem Beleg steht, inklusive
    Umsatzsteuer. Netto und Steuer rechnet die App sofort darunter aus.
 3. **Umsatzsteuersatz** prüfen. Die App wählt deinen Standardsatz vor.
-4. **Fotografieren** oder ein vorhandenes Foto **auswählen**
+4. **Fotografieren** oder ein vorhandenes Foto **auswählen**. Hat der Beleg
+   mehrere Seiten, tippe danach auf **Seite fotografieren** bzw. **Seite
+   wählen** – so oft du brauchst. Vor dem Speichern kannst du Seiten mit den
+   Pfeilen umsortieren oder mit dem Papierkorb löschen. Setze dann das Häkchen
+   **„Alle Seiten inkl. beschriebener Rückseiten erfasst"** – ohne es speichert
+   die App keine neuen Seiten.
 5. **Beschreibung** eintragen – Pflichtfeld. „Bürostuhl" ist gut, „Rechnung"
    nützt dir in zwei Jahren nichts.
-6. Optional: Datum, Lieferant bzw. Kunde, Kategorie, Zahlungsart, Notiz
+6. Optional: Datum, Lieferant bzw. Kunde, Kategorie, Zahlungsart, Notiz und
+   ein **Kommentar** (siehe unten)
 7. **Beleg speichern**
+
+### Seiten eines gespeicherten Belegs
+
+In der Belegansicht siehst du alle Seiten nebeneinander; Antippen vergrößert
+eine Seite. Nach dem Speichern sind die Seiten fest: du kannst weitere
+**anhängen** (z. B. eine nachgereichte Rückseite), aber keine löschen oder
+umsortieren. So bleibt nachvollziehbar, was gebucht wurde.
+
+### Kommentare zu Belegen
+
+Im Abschnitt **Kommentare** notierst du, was zum Beleg gehört („Bewirtung mit
+Kundin X", „Rückseite leer"). Bei einem gespeicherten Beleg tippst du den Text
+ein und dann auf **Anhängen** – auch bei einem stornierten Beleg.
+
+- Jeder Kommentar bekommt Datum und Uhrzeit des Geräts.
+- Ein Kommentar lässt sich **nicht ändern und nicht löschen**. Hast du dich
+  vertan, schreib einen neuen Kommentar mit der Korrektur. Das schützt dich:
+  der gebuchte Beleg bleibt unverändert, und jede Ergänzung ist nachvollziehbar.
+- **Diktieren:** Tippe in das Kommentarfeld und dann auf das Mikrofon deiner
+  Tastatur. Die App selbst nimmt keine Sprache auf und sendet nichts. Je nach
+  Gerät und Einstellung schickt aber die Tastatur (z. B. Gboard oder die
+  Apple-Tastatur) deine Sprache zur Erkennung an Google bzw. Apple. Wenn du das
+  nicht möchtest, schalte in den Tastatureinstellungen die Offline-Erkennung
+  ein oder tippe.
 
 ### Betrag eingeben – was funktioniert
 
@@ -193,6 +223,9 @@ Im Bereich **Belege**:
 
 Ein Beleg mit Foto trägt ein Bildsymbol – so siehst du auf einen Blick, wo ein
 Nachweis fehlt.
+
+Mit dem Filter **Storniert** siehst du stornierte Belege. Du kannst sie öffnen
+und lesen und ihnen Kommentare anhängen, aber nicht mehr ändern.
 
 ### Beleg ändern oder stornieren
 
@@ -389,6 +422,13 @@ Entgelt je Steuersatz und den Steuerbetrag.
 Als Kleinunternehmer fehlt die Steuerspalte vollständig, dafür erscheint der
 gesetzliche Befreiungshinweis.
 
+**Firmenlogo:** In den Stammdaten unter **Rechnungen → Logo wählen** suchst du
+ein Bild aus deiner Fotobibliothek aus (am besten PNG oder JPEG). Die App
+verkleinert es und setzt es oben rechts auf das PDF – zusätzlich zu Name und
+Anschrift, nie stattdessen. **Entfernen** nimmt es von künftigen Rechnungen.
+Bereits ausgestellte Rechnungen behalten das Logo, das beim Ausstellen galt;
+Entwürfe zeigen immer das aktuelle.
+
 ---
 
 ## 8. Kunden verwalten
@@ -420,8 +460,8 @@ Bereich **Export**.
 
 | Format | Wann |
 |---|---|
-| **Belegliste (CSV)** | Der sichere Standard. Öffnet in Excel, Numbers und jedem Buchhaltungsprogramm. Nimm den, wenn du nicht weißt, womit deine Kanzlei arbeitet. |
-| **DATEV-Buchungsstapel** | Nur bei Land Deutschland. Für DATEV-Kanzleien. |
+| **Belegliste (CSV)** | Der sichere Standard. Öffnet in Excel, Numbers und jedem Buchhaltungsprogramm. Nimm den, wenn du nicht weißt, womit deine Kanzlei arbeitet. Enthält auch die Seitenzahl und alle Kommentare mit Zeitpunkt. |
+| **DATEV-Buchungsstapel** | Nur bei Land Deutschland. Für DATEV-Kanzleien. Der jüngste Kommentar steht gekürzt im Buchungstext (wie auch bei BMD). |
 | **BMD-Buchungssätze** | Nur bei Land Österreich. Für BMD NTCS. |
 | **Umsatzsteuer-Zusammenfassung** | Die Zahlen für die Umsatzsteuervoranmeldung: Bemessungsgrundlagen je Satz, Vorsteuer, Zahllast. |
 
@@ -531,6 +571,11 @@ ersetzt.**
 **Kann ich die App auf zwei Geräten nutzen?**
 Nein. Jede Installation hat ihren eigenen Datenbestand, und es gibt keine
 Synchronisierung.
+
+**Hört die App beim Diktieren mit?**
+Nein. Die App hat keine Spracherkennung. Diktieren ist eine Funktion deiner
+Tastatur; ob sie die Sprache auf dem Gerät erkennt oder an Google bzw. Apple
+sendet, legst du in den Tastatureinstellungen fest.
 
 **Kostet die App etwas? Brauche ich ein Konto?**
 Kein Konto, keine Anmeldung, keine Werbung, kein Tracking.

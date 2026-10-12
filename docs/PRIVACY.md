@@ -91,6 +91,12 @@ Nur in diesen Fällen, die du auslöst oder einschaltest:
 - **UID-Prüfung über VIES** – auf Tippen, oder wöchentlich, wenn du es
   eingeschaltet hast: UID-Nummern gehen an die EU-Kommission
 
+**Hinweis zum Diktieren:** Die App enthält keine Spracherkennung und überträgt
+keine Sprache. Wer Kommentare über das Mikrofon der Systemtastatur diktiert,
+nutzt die Diktierfunktion des Geräts; je nach Tastatur und Einstellung sendet
+sie die Sprache an Google bzw. Apple. Das liegt außerhalb der App; maßgeblich
+ist die Datenschutzerklärung des Tastaturanbieters.
+
 In allen Fällen bestimmst du, wohin die Daten gehen; der Anbieter erhält nichts. Ab diesem Zeitpunkt gilt die
 Datenschutzerklärung des jeweiligen Dienstes.
 

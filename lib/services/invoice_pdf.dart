@@ -22,11 +22,22 @@ class InvoicePdf {
     required this.invoice,
     required this.customer,
     required this.profile,
+    this.logo,
   });
 
   final Invoice invoice;
   final Customer customer;
   final CompanyProfile profile;
+
+  /// Bilddaten des Firmenlogos (PNG oder JPEG), `null` = ohne Logo. Welches
+  /// Logo gilt, bestimmt `InvoiceLogo.pathFor` (L-1.7). Das Logo steht
+  /// zusätzlich zu Name und Anschrift, nie an ihrer Stelle (§ 11 UStG AT,
+  /// § 14 UStG DE).
+  final Uint8List? logo;
+
+  /// Höchstmaße des Logos im PDF in Punkt (1 pt = 1/72 Zoll).
+  static const logoMaxWidth = 140.0;
+  static const logoMaxHeight = 60.0;
 
   static const _accent = PdfColor.fromInt(0xFF1B4965);
   static const _muted = PdfColor.fromInt(0xFF5A6B78);
@@ -81,6 +92,46 @@ class InvoicePdf {
   }
 
   pw.Widget _buildHeader() {
+    final logo = _logoImage();
+    final text = _buildSellerText();
+    return pw.Column(
+      crossAxisAlignment: pw.CrossAxisAlignment.start,
+      children: [
+        if (logo == null)
+          text
+        else
+          pw.Row(
+            crossAxisAlignment: pw.CrossAxisAlignment.start,
+            children: [
+              pw.Expanded(child: text),
+              pw.SizedBox(width: 16),
+              pw.ConstrainedBox(
+                constraints: const pw.BoxConstraints(
+                  maxWidth: logoMaxWidth,
+                  maxHeight: logoMaxHeight,
+                ),
+                child: pw.Image(logo, fit: pw.BoxFit.contain),
+              ),
+            ],
+          ),
+        pw.SizedBox(height: 10),
+        pw.Container(height: 2, color: _accent),
+      ],
+    );
+  }
+
+  /// Ein unlesbares Bild darf das PDF nicht verhindern – dann ohne Logo.
+  pw.ImageProvider? _logoImage() {
+    final bytes = logo;
+    if (bytes == null || bytes.isEmpty) return null;
+    try {
+      return pw.MemoryImage(bytes);
+    } on Object {
+      return null;
+    }
+  }
+
+  pw.Widget _buildSellerText() {
     return pw.Column(
       crossAxisAlignment: pw.CrossAxisAlignment.start,
       children: [
@@ -107,8 +158,6 @@ class InvoicePdf {
           ].where((s) => s.isNotEmpty).join('  ·  '),
           style: const pw.TextStyle(fontSize: 9, color: _muted),
         ),
-        pw.SizedBox(height: 10),
-        pw.Container(height: 2, color: _accent),
       ],
     );
   }

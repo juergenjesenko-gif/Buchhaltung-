@@ -1,6 +1,6 @@
 # Lastenheft – Buchhaltungsapp für Österreich und Deutschland
 
-**Dokumentversion:** 1.36 · **Stand:** 2026-10-09 · **Status:** Entwurf zur Abstimmung
+**Dokumentversion:** 1.37 · **Stand:** 2026-10-09 · **Status:** Entwurf zur Abstimmung
 **Auftraggeber:** Jürgen Jesenko (privates Vorhaben) · **Umsetzung:** Claude Code
 
 > Ein Lastenheft beschreibt, **was** das Produkt leisten soll und **warum** — nicht,
@@ -155,6 +155,7 @@ Priorität: **MUSS** = ohne das kein Release · **SOLL** = wichtig, verhandelbar
 | L-1.6 | Das Produkt benennt jederzeit, welche Pflichtangaben für rechtssichere Rechnungen noch fehlen | MUSS | A |
 | L-1.7 | Firmenlogo für Rechnungen hinterlegbar | SOLL | A |
 | L-1.8 | Mehrere Unternehmen/Mandanten in einer Installation | KANN | C |
+| L-1.9 | Das Logo ergänzt Name und Anschrift auf der Rechnung, ersetzt sie nie; es wird bei der Rechnungslegung eingefroren, damit gestellte Rechnungen mit dem damaligen Logo reproduzierbar bleiben | MUSS | A |
 
 ### 5.2 Belegerfassung
 
@@ -174,6 +175,10 @@ Priorität: **MUSS** = ohne das kein Release · **SOLL** = wichtig, verhandelbar
 | L-2.12 | Die Zweitablage ist **standardmäßig ausgeschaltet** und muss vom Nutzer bewusst aktiviert werden; beim Einschalten wird erklärt, dass die Fotodienste automatisch in die Cloud synchronisieren | MUSS | A |
 | L-2.13 | Die Zweitablage nutzt ein **eigenes Album** ("Buchhaltung") und mischt Belege nicht unter die privaten Fotos | MUSS | A |
 | L-2.14 | Die Zweitablage ersetzt die Datensicherung nach L-7.1 nicht und wird im Produkt auch nicht als Sicherung bezeichnet — sie enthält nur Bilder, keine Buchungsdaten | MUSS | A |
+| L-2.15 | **Mehrere Seiten je Beleg:** weitere Seiten aufnehmen, vor dem Speichern Reihenfolge ändern und einzelne Seiten löschen; danach feste Reihenfolge, nur noch Anhängen. Aufnahmen werden nach dem Speichern nie verändert, eine Bildverbesserung nur als Kopie | MUSS | A |
+| L-2.16 | Vor dem Buchen neuer Seiten bestätigt die Nutzerin die Vollständigkeit („Alle Seiten inkl. beschriebener Rückseiten erfasst“); die Seitenzahl steht im Änderungsprotokoll | MUSS | A |
+| L-2.17 | **Kommentare zu Belegen**, auch nach dem Buchen und bei stornierten Belegen: nur anhängbar, mit Systemzeitstempel, kein Bearbeiten oder Löschen, Korrektur als neuer Kommentar, Eintrag im Änderungsprotokoll; der Beleg bleibt unverändert. Kommentare stehen in Export und Sicherung | MUSS | A |
+| L-2.18 | Kommentare lassen sich über die Diktierfunktion der Systemtastatur sprechen; die App selbst überträgt keine Sprache. Ein Hinweis nennt, dass die Tastatur je nach Gerät Sprache an Google oder Apple senden kann | SOLL | A |
 
 ### 5.3 Ausgangsrechnungen
 
@@ -1127,6 +1132,7 @@ Zu entscheiden, bevor die betroffene Anforderung umgesetzt wird:
 
 | Version | Datum | Änderung |
 |---|---|---|
+| 1.37 | 2026-10-12 | Umgesetzt mit Schema 8: Firmenlogo (L-1.7, neu L-1.9), mehrseitige Belege mit Vollständigkeitsbestätigung (L-2.15, L-2.16), Kommentare nur anhängbar (L-2.17), Diktat über die Systemtastatur (L-2.18). Geprüft von Steuerberater und Softwareentwickler. |
 | 1.36 | 2026-10-12 | Keine Anmeldung mit Google/Apple (L-7.22); iCloud-Container als Standard unter iOS (L-7.17 bis L-7.20); Android-Ordnerwahl bleibt Hauptweg (L-7.21); Schlüssel nie im iCloud-Schlüsselbund (L-19.27, L-19.28). Geprüft von Rechtsanwalt und Softwareentwickler. |
 | 1.35 | 2026-10-12 | Neuer Block 5.23 Vertragsarchiv (Stufe C) nach Prüfung durch Steuerberater und Rechtsanwalt. O-26 entschieden: Spirits by JeNiBarb e.U.; Umwandlung in eine GmbH, sobald die Umsätze es rechtfertigen. |
 | 1.34 | 2026-10-12 | Neuer Block 5.22 Lizenz und Bezahlung mit Store-Reife, mit den drei Prüfinstanzen ausgearbeitet: nur Store-Billing, Lizenzmanager ohne Server mit Prüfung am Gerät, Herabstufen statt sperren, Abo-Seite, Anbieter-Steuern, Organisationskonten, Release-Workflow. Neue Checkliste STORE_READINESS.md. |

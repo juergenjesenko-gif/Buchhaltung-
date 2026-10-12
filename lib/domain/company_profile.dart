@@ -31,6 +31,7 @@ class CompanyProfile {
     this.registerCourt = '',
     this.vatCheckEnabled = false,
     this.vatCheckLastRun,
+    this.logoPath,
   });
 
   final String companyName;
@@ -105,6 +106,14 @@ class CompanyProfile {
   final bool vatCheckEnabled;
   final DateTime? vatCheckLastRun;
 
+  /// Relativer Pfad des Firmenlogos (Ordner `logo/`), `null` = kein Logo.
+  /// Logodateien werden nie überschrieben: ein neues Logo ist eine neue
+  /// Datei, damit der eingefrorene `seller_snapshot` gestellter Rechnungen
+  /// weiter auf das damals verwendete Logo zeigt (GR-8).
+  final String? logoPath;
+
+  bool get hasLogo => logoPath != null && logoPath!.isNotEmpty;
+
   /// Abstand der automatischen UID-Prüfung in Tagen.
   static const vatCheckIntervalDays = 7;
 
@@ -174,6 +183,8 @@ class CompanyProfile {
     String? registerCourt,
     bool? vatCheckEnabled,
     DateTime? vatCheckLastRun,
+    String? logoPath,
+    bool clearLogo = false,
   }) {
     return CompanyProfile(
       companyName: companyName ?? this.companyName,
@@ -205,6 +216,7 @@ class CompanyProfile {
       registerCourt: registerCourt ?? this.registerCourt,
       vatCheckEnabled: vatCheckEnabled ?? this.vatCheckEnabled,
       vatCheckLastRun: vatCheckLastRun ?? this.vatCheckLastRun,
+      logoPath: clearLogo ? null : (logoPath ?? this.logoPath),
     );
   }
 
@@ -238,6 +250,7 @@ class CompanyProfile {
     'register_court': registerCourt,
     'vat_check_enabled': vatCheckEnabled ? 1 : 0,
     'vat_check_last_run': vatCheckLastRun?.toIso8601String(),
+    'logo_path': logoPath,
   };
 
   static CompanyProfile fromMap(Map<String, Object?> map) => CompanyProfile(
@@ -277,6 +290,7 @@ class CompanyProfile {
     vatCheckLastRun: map['vat_check_last_run'] == null
         ? null
         : DateTime.tryParse(map['vat_check_last_run'] as String),
+    logoPath: map['logo_path'] as String?,
   );
 
   static DateTime? _parseDate(Object? value) =>

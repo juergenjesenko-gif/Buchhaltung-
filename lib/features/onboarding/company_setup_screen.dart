@@ -1,4 +1,9 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
+
+import '../../services/logo_store.dart';
 
 import '../../services/vat_id/vat_id_format.dart';
 import '../../widgets/vat_check_status.dart';
@@ -38,6 +43,10 @@ class _CompanySetupScreenState extends State<CompanySetupScreen> {
   /// behalten ihren Wert, damit Eröffnungswerte nicht verrutschen.
   DateTime _trackingStart = DateTime.now();
   bool _vatCheckEnabled = false;
+
+  /// Firmenlogo (L-1.7): relativer Pfad und aufgelöste Datei zur Vorschau.
+  String? _logoPath;
+  File? _logoFile;
   bool _saving = false;
   bool _initialized = false;
 
@@ -89,6 +98,8 @@ class _CompanySetupScreenState extends State<CompanySetupScreen> {
     _legalForm = profile.legalForm;
     _isSmallBusiness = profile.isSmallBusiness;
     _trackingStart = profile.trackingStart ?? DateTime.now();
+    _logoPath = profile.logoPath;
+    _loadLogo();
     _loadOpenings();
     _fields['companyName']!.text = profile.companyName;
     _fields['ownerName']!.text = profile.ownerName;
@@ -164,6 +175,40 @@ class _CompanySetupScreenState extends State<CompanySetupScreen> {
     return null;
   }
 
+  Future<void> _loadLogo() async {
+    final file = await LogoStore.resolve(_logoPath);
+    if (mounted) setState(() => _logoFile = file);
+  }
+
+  /// Wählt ein Logo aus der Fotobibliothek. Verkleinert wird über dieselbe
+  /// Bildauswahl wie bei Belegen; die Datei ist neu und überschreibt nichts.
+  Future<void> _pickLogo() async {
+    try {
+      final picked = await ImagePicker().pickImage(
+        source: ImageSource.gallery,
+        maxWidth: LogoStore.maxEdgePx.toDouble(),
+        maxHeight: LogoStore.maxEdgePx.toDouble(),
+        imageQuality: LogoStore.qualityPercent,
+      );
+      if (picked == null) return;
+      final relative = await LogoStore.store(File(picked.path));
+      if (!mounted) return;
+      setState(() => _logoPath = relative);
+      await _loadLogo();
+    } on Exception catch (error) {
+      if (mounted) {
+        showSnack(context, 'Logo konnte nicht übernommen werden: $error');
+      }
+    }
+  }
+
+  /// Entfernt das Logo aus dem Profil. Die Datei bleibt, weil gestellte
+  /// Rechnungen auf sie verweisen können (GR-8).
+  void _removeLogo() => setState(() {
+    _logoPath = null;
+    _logoFile = null;
+  });
+
   Future<void> _save() async {
     if (!_formKey.currentState!.validate()) return;
     setState(() => _saving = true);
@@ -202,6 +247,7 @@ class _CompanySetupScreenState extends State<CompanySetupScreen> {
       registerCourt: _text('registerCourt'),
       vatCheckEnabled: _vatCheckEnabled,
       vatCheckLastRun: existing?.vatCheckLastRun,
+      logoPath: _logoPath,
     );
 
     // Eröffnungswerte nur schreiben, wenn sie abgefragt wurden. Wer auf
@@ -561,6 +607,55 @@ class _CompanySetupScreenState extends State<CompanySetupScreen> {
               title: 'Rechnungen',
               child: Column(
                 children: [
+                  Row(
+                    children: [
+                      Container(
+                        width: 96,
+                        height: 56,
+                        alignment: Alignment.center,
+                        decoration: BoxDecoration(
+                          border: Border.all(
+                            color: Theme.of(context).colorScheme.outlineVariant,
+                          ),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: _logoFile == null
+                            ? const Text('Kein Logo')
+                            : Image.file(_logoFile!, fit: BoxFit.contain),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Wrap(
+                          spacing: 8,
+                          children: [
+                            OutlinedButton.icon(
+                              onPressed: _pickLogo,
+                              icon: const Icon(Icons.image_outlined),
+                              label: Text(
+                                _logoPath == null
+                                    ? 'Logo wählen'
+                                    : 'Logo ändern',
+                              ),
+                            ),
+                            if (_logoPath != null)
+                              TextButton.icon(
+                                onPressed: _removeLogo,
+                                icon: const Icon(Icons.delete_outline),
+                                label: const Text('Entfernen'),
+                              ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    'Erscheint oben rechts auf neuen Rechnungen, zusätzlich zu '
+                    'Name und Anschrift. Bereits gestellte Rechnungen behalten '
+                    'ihr damaliges Logo.',
+                    style: Theme.of(context).textTheme.bodySmall,
+                  ),
+                  const SizedBox(height: 12),
                   TextFormField(
                     controller: _fields['invoicePattern'],
                     decoration: InputDecoration(

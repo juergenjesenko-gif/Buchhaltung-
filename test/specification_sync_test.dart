@@ -9,6 +9,7 @@ import 'package:buchhaltung/domain/money.dart';
 import 'package:buchhaltung/domain/receipt.dart';
 import 'package:buchhaltung/services/invoice_numbering.dart';
 import 'package:buchhaltung/services/small_business_monitor.dart';
+import 'package:buchhaltung/services/logo_store.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 /// Hält `docs/SPECIFICATION.md` und den Code zusammen.
@@ -178,6 +179,11 @@ void main() {
         contains('imageQuality: $quality'),
         reason: 'Spezifikation nennt $quality % Qualität, der Code nicht',
       );
+    });
+
+    test('Logo-Verkleinerung entspricht LogoStore', () {
+      expect(intValue('spec.logo_max_edge_px'), LogoStore.maxEdgePx);
+      expect(intValue('spec.logo_quality_percent'), LogoStore.qualityPercent);
     });
 
     test('Verlauf und Schnellzugriff im Dashboard entsprechen dem Code', () {

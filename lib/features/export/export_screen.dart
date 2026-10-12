@@ -78,6 +78,8 @@ class _ExportScreenState extends State<ExportScreen> {
         categories: state.categories,
         totals: totals,
         period: _period,
+        comments: await state.repositories.receipts.allComments(),
+        pageCounts: await state.repositories.receipts.pageCounts(),
       ).build(format);
 
       await ShareService.shareCsv(
