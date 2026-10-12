@@ -1,6 +1,6 @@
 # Lastenheft – Buchhaltungsapp für Österreich und Deutschland
 
-**Dokumentversion:** 1.32 · **Stand:** 2026-10-09 · **Status:** Entwurf zur Abstimmung
+**Dokumentversion:** 1.33 · **Stand:** 2026-10-09 · **Status:** Entwurf zur Abstimmung
 **Auftraggeber:** Jürgen Jesenko (privates Vorhaben) · **Umsetzung:** Claude Code
 
 > Ein Lastenheft beschreibt, **was** das Produkt leisten soll und **warum** — nicht,
@@ -250,6 +250,11 @@ Priorität: **MUSS** = ohne das kein Release · **SOLL** = wichtig, verhandelbar
 | L-7.9 | Jede automatische Sicherung wird nach dem Schreiben zurückgelesen und entschlüsselt; erst dann gilt sie als erfolgreich. Zeitpunkt der letzten geprüften Sicherung und jeder Fehlschlag mit Grund sind sichtbar, auch auf der Übersicht. Funktion „Sicherung prüfen" ohne Wiederherstellung | MUSS | A |
 | L-7.10 | **Aufbewahrung im Ordner:** letzte 7 Sicherungen, je Monat eine für 12 Monate, **je Kalenderjahr eine dauerhaft**; fremde Dateien im Ordner werden nie angefasst. Hinweis: die Sicherung ersetzt die gesetzliche Aufbewahrung nicht | MUSS | A |
 | L-7.11 | Vorlage für die Verfahrensdokumentation (Abschnitt Datensicherung), die die Nutzerin ergänzt | SOLL | B |
+| L-7.12 | **Kein Anbieterschlüssel:** Sicherungen sind ausschließlich mit Schlüsseln verschlüsselt, die die Nutzerin kontrolliert (Kennwort, Wiederherstellungscode); als Testinvariante abgesichert. Eine Verschlüsselung, die nur der Anbieter öffnen kann, ist ausgeschlossen (Prüfinstanzen: GoBD/BAO-Lesbarkeit, AGB-Recht, UWG; technisch ohne Server wirkungslos) | MUSS | A |
+| L-7.13 | **Offenes Sicherungsformat:** das Format wird in der Spezifikation vollständig beschrieben, mit einem Referenzskript zum Entschlüsseln ohne die App | SOLL | B |
+| L-7.14 | **Archivexport für die Finanzverwaltung:** alle Daten und Belege mit Beschreibungsdatei in maschinell auswertbarer Form (Datenzugriff Z3, § 147 Abs 6 AO; § 131 Abs 3 BAO), dauerhaft verfügbar – auch ohne Abo, nach Kündigung und im Nur-Lese-Modus (ergänzt L-10.4) | MUSS | B |
+| L-7.15 | **Nur-Lese-Modus nach Abo-Ende** ohne zeitliche Begrenzung, mindestens über die längste Aufbewahrungsfrist: ansehen, drucken, exportieren, wiederherstellen; gesperrt sind nur neue Buchungen | MUSS | B |
+| L-7.16 | **Hinterlegung (Escrow):** Quellcode und Formatbeschreibung bei einem Treuhänder bzw. Zusage der Offenlegung bei Einstellung des Produkts; Hinweis im Handbuch, wie die Daten ohne die App lesbar bleiben | SOLL | C |
 
 ### 5.8 Übergabe an die Steuerberatung
 
@@ -1039,6 +1044,7 @@ Zu entscheiden, bevor die betroffene Anforderung umgesetzt wird:
 | ~~O-28~~ | **Entschieden am 2026-10-10:** direkt Anthropic API, ein eigenes neues Konto. EU-Verarbeitung von den Prüfinstanzen geprüft: nicht vorgeschrieben; Buchhaltungsdaten und Belege dürfen trotzdem nicht über die US-Route laufen (L-21.8 bis L-21.12) | erledigt |
 | ~~O-29~~ | **Entschieden am 2026-10-10:** Sicherung und Synchronisierung bleiben in der Cloud der Nutzerin; kein Server und kein Konto beim Anbieter. Mehrere Geräte und mehrere Personen über gemeinsamen Ordner (L-19.12 ff.) | erledigt |
 | O-30 | **Verifizierung von E-Mail und Telefon** (Wunsch aus dem Gerätetest): bräuchte einen Server bzw. SMS-Dienst und widerspricht O-29; die Angaben dienen nur als Kontaktdaten auf Rechnungen. Empfehlung: nur Formatprüfung. Entscheidung des Auftraggebers offen | vor Release |
+| ~~O-31~~ | **Anbieterexklusive Verschlüsselung zur Kundenbindung?** Frage des Auftraggebers vom 2026-10-12, von den drei Prüfinstanzen verneint: Aufbewahrungs- und Prüfpflichten (§ 147 AO, § 131/132 BAO) nach Kündigung oder Wegfall des Anbieters nicht erfüllbar, AGB- und UWG-Risiko, technisch ohne Server wirkungslos. Bindung über Funktionen, Komfort und Importe; Produktschutz über Marke, Lizenzprüfung, Obfuskierung (L-7.12 bis L-7.16) | Empfehlung abgegeben |
 | O-20 | Welche Vorsoftware-Formate sind beim Import vorrangig zu unterstützen? Richtet sich nach dem, womit die ersten Nutzer tatsächlich kommen | Stufe B |
 | ~~O-21~~ | **Vorläufig beantwortet am 2026-10-10 (Prüfinstanz Rechtsanwalt):** BFSG/BaFG voraussichtlich nicht anwendbar (B2B, Kleinstunternehmen). Grundbarrierefreiheit trotzdem als NF-Anforderung; Bestätigung siehe Spezifikation Abschnitt 14, P-R3 | erledigt |
 | ~~O-23~~ | **Entschieden am 2026-10-09:** wählbar je Rücksendung über den Schalter „Ware wieder verkaufbar?" (L-3.20) | erledigt |
@@ -1051,6 +1057,7 @@ Zu entscheiden, bevor die betroffene Anforderung umgesetzt wird:
 
 | Version | Datum | Änderung |
 |---|---|---|
+| 1.33 | 2026-10-12 | Datenbindung geprüft (O-31): keine anbieterexklusive Verschlüsselung; neu L-7.12 bis L-7.16 (kein Anbieterschlüssel, offenes Format, Archivexport Z3, Nur-Lese-Modus, Escrow). |
 | 1.32 | 2026-10-12 | Gerätetest: L-17.1 bis L-17.4 umgesetzt (Bestätigungen vor der ersten Nutzung, ohne Werbe-Einwilligung). O-30 neu (Verifizierung von E-Mail/Telefon). |
 | 1.31 | 2026-10-10 | O-29 entschieden: kein Server und kein Konto beim Anbieter. Mehrgeräte- und Mehrpersonenbetrieb über einen Cloud-Ordner der Unternehmerin, mit den drei Prüfinstanzen ausgearbeitet (L-19.12 neu, L-19.13 ersetzt, L-19.15 bis L-19.26 neu; L-19.4, L-19.6, L-19.9, L-19.14 entfallen). Rollen- und Datenflusstabelle angepasst, S-8 nur noch für Kanäle. Aufwand Stufe C +56–83 PW. |
 | 1.30 | 2026-10-10 | Automatische Sicherung mit den drei Prüfinstanzen ausgearbeitet und umgesetzt: L-7.6 bis L-7.11 (Opt-in mit Erklärseite, Geräteschlüssel mit Wiederherstellungscode, Ordnerwahl ohne Konto, Probe nach jedem Schreiben, Aufbewahrung 7/12/je Jahr dauerhaft). Datenflusstabelle geteilt. |
