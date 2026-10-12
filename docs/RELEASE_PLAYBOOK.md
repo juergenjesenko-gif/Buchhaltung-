@@ -44,6 +44,14 @@ steigend und übersteht Reruns. Lokal:
 flutter build appbundle --release --build-name=0.2.0 --build-number=17
 ```
 
+### Testschlüssel für Test-APKs
+
+Die CI signiert Test-APKs mit einem eigenen **Testschlüssel** aus den Secrets
+`TEST_KEYSTORE_BASE64`, `TEST_KEYSTORE_PASSWORD`, `TEST_KEY_ALIAS` (angelegt
+2026-10-12, SHA-256 `2B:99:5A:26:…:D6:21`, gültig 10 Jahre). Er ist **nicht**
+der Upload-Schlüssel für Google Play und darf dafür nie verwendet werden; der
+Store-Release bekommt einen eigenen Schlüssel und einen eigenen Workflow.
+
 ### Release Notes
 
 Vor jedem Build, der das Haus verlässt (Testbuild, TestFlight, interner Track,

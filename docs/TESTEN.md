@@ -50,8 +50,11 @@ Erfahrungen aus dem ersten Test auf einem Pixel 10 (12.10.2026):
   Dateimanager aus dem Play Store geben sie nicht an den Installer weiter.
 - Meldet die Installation nur „nicht installiert", steckt meist **Play
   Protect** dahinter: „Weitere Details" → „Trotzdem installieren".
-- Die CI signiert jeden Lauf mit einem neuen Testschlüssel. Vor einem Update
-  die alte Version deinstallieren (Testdaten gehen dabei verloren).
+- Sind die Secrets `TEST_KEYSTORE_BASE64`, `TEST_KEYSTORE_PASSWORD` und
+  `TEST_KEY_ALIAS` im Repository gesetzt, signiert die CI immer mit demselben
+  **Testschlüssel**: neue APKs lassen sich dann als Update installieren, die
+  Testdaten bleiben. Einmalig beim Wechsel vom alten Debug-Schlüssel muss die
+  App noch deinstalliert werden. Ohne Secrets signiert die CI jeden Lauf neu.
 
 Danach findest du **Buchhaltung** im App-Menü. Android legt bei Installationen außerhalb des Play Stores
 **kein Symbol auf dem Startbildschirm** ab: in der App-Übersicht (von unten

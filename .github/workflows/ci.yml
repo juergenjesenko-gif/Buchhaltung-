@@ -120,6 +120,29 @@ jobs:
       # (siehe android/app/build.gradle.kts). Das APK lässt sich damit auf einem
       # Telefon installieren, aber nicht bei Google Play einreichen – Absicht,
       # damit niemand versehentlich debug-signiert veröffentlicht.
+      # Fester Testschlüssel aus den Repository-Secrets, damit sich jede neue
+      # Test-APK als Update über die vorige installieren lässt. Fehlen die
+      # Secrets, bleibt es beim wechselnden Debug-Schlüssel. Der Testschlüssel
+      # ist NICHT der Upload-Schlüssel für Google Play (docs/RELEASE_PLAYBOOK.md).
+      - name: Testschlüssel einrichten
+        env:
+          TEST_KEYSTORE_BASE64: ${{ secrets.TEST_KEYSTORE_BASE64 }}
+          TEST_KEYSTORE_PASSWORD: ${{ secrets.TEST_KEYSTORE_PASSWORD }}
+          TEST_KEY_ALIAS: ${{ secrets.TEST_KEY_ALIAS }}
+        run: |
+          if [ -z "$TEST_KEYSTORE_BASE64" ]; then
+            echo "Keine Test-Secrets – Debug-Signatur wie bisher."
+            exit 0
+          fi
+          echo "$TEST_KEYSTORE_BASE64" | base64 -d > "$RUNNER_TEMP/test-signing.jks"
+          {
+            echo "storeFile=$RUNNER_TEMP/test-signing.jks"
+            echo "storePassword=$TEST_KEYSTORE_PASSWORD"
+            echo "keyPassword=$TEST_KEYSTORE_PASSWORD"
+            echo "keyAlias=$TEST_KEY_ALIAS"
+          } > android/key.properties
+          echo "Signiert mit festem Testschlüssel."
+
       - name: Test-APK bauen
         run: flutter build apk --release --split-per-abi
 
