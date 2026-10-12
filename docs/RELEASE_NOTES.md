@@ -34,6 +34,7 @@ nächsten Versionssprung in den neuen Eintrag.
 
 | Art | Änderung | Bezug | Commit |
 |---|---|---|---|
+| Behoben | Android: Belegerkennung brach im Release-Build mit NullPointerException ab (`InputImage.fromFilePath`); Bild wird jetzt selbst dekodiert, verkleinert und mit EXIF-Drehung übergeben; verständliche Fehlermeldung statt technischem Text | FA-2.19, Gerätetest Pixel 10 2026-10-12 | dieser |
 
 ---
 

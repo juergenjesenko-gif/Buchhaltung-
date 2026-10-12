@@ -334,7 +334,14 @@ class _ReceiptEditScreenState extends State<ReceiptEditScreen> {
             : 'Beleg ausgelesen – bitte die markierten Felder prüfen.',
       );
     } on Exception catch (error) {
-      if (mounted) showSnack(context, 'Auslesen nicht möglich: $error');
+      debugPrint('Belegerkennung fehlgeschlagen: $error');
+      if (mounted) {
+        showSnack(
+          context,
+          'Der Beleg konnte nicht ausgelesen werden. Bitte die Werte selbst '
+          'eintragen oder „Erneut auslesen“ versuchen.',
+        );
+      }
     } finally {
       if (mounted) setState(() => _scanning = false);
     }

@@ -730,8 +730,8 @@ deiner Steuerberatung.
 ist unscharf, zu dunkel oder schräg. Neu fotografieren und „Erneut auslesen",
 oder die Felder selbst ausfüllen.
 
-**„Auslesen nicht möglich: …"** — die Erkennung ist auf diesem Gerät
-fehlgeschlagen. Der Beleg lässt sich trotzdem von Hand erfassen.
+**„Der Beleg konnte nicht ausgelesen werden …"** — die Erkennung ist auf
+diesem Gerät fehlgeschlagen. Der Beleg lässt sich trotzdem von Hand erfassen.
 
 **„Kurs nicht abrufbar: …"** — keine Internetverbindung oder die EZB ist nicht
 erreichbar. Später erneut tippen oder den Kurs von Hand eintragen.
