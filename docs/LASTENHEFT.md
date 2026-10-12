@@ -1,6 +1,6 @@
 # Lastenheft – Buchhaltungsapp für Österreich und Deutschland
 
-**Dokumentversion:** 1.35 · **Stand:** 2026-10-09 · **Status:** Entwurf zur Abstimmung
+**Dokumentversion:** 1.36 · **Stand:** 2026-10-09 · **Status:** Entwurf zur Abstimmung
 **Auftraggeber:** Jürgen Jesenko (privates Vorhaben) · **Umsetzung:** Claude Code
 
 > Ein Lastenheft beschreibt, **was** das Produkt leisten soll und **warum** — nicht,
@@ -255,6 +255,12 @@ Priorität: **MUSS** = ohne das kein Release · **SOLL** = wichtig, verhandelbar
 | L-7.14 | **Archivexport für die Finanzverwaltung:** alle Daten und Belege mit Beschreibungsdatei in maschinell auswertbarer Form (Datenzugriff Z3, § 147 Abs 6 AO; § 131 Abs 3 BAO), dauerhaft verfügbar – auch ohne Abo, nach Kündigung und im Nur-Lese-Modus (ergänzt L-10.4) | MUSS | B |
 | L-7.15 | **Nur-Lese-Modus nach Abo-Ende** ohne zeitliche Begrenzung, mindestens über die längste Aufbewahrungsfrist: ansehen, drucken, exportieren, wiederherstellen; gesperrt sind nur neue Buchungen | MUSS | B |
 | L-7.16 | **Hinterlegung (Escrow):** Quellcode und Formatbeschreibung bei einem Treuhänder bzw. Zusage der Offenlegung bei Einstellung des Produkts; Hinweis im Handbuch, wie die Daten ohne die App lesbar bleiben | SOLL | C |
+| L-7.17 | **iOS: Sicherung standardmäßig in den App-eigenen iCloud-Drive-Container** (iCloud Documents, kein CloudKit); einmaliger Hinweis zu Ort, Verschlüsselung und Abschaltbarkeit; abschaltbar in den Einstellungen (Art. 25 DSGVO) | MUSS | A |
+| L-7.18 | iCloud nicht verfügbar (abgemeldet, deaktiviert): Rückfall auf die Ordnerwahl, Zustand sichtbar | MUSS | A |
+| L-7.19 | „Gesichert“ erst nach bestätigtem Hochladen; Speicher voll und Upload-Fehler als Warnung | MUSS | A |
+| L-7.20 | iCloud-Ordner in der Dateien-App sichtbar (Portabilität, L-7.13) | SOLL | A |
+| L-7.21 | Android: Ordnerwahl (Storage Access Framework) ist der Hauptweg, mit Google Drive auf Pixel 10 erfolgreich getestet. Drive-Schnittstelle nur als Ersatz und nur mit Scope `drive.file`; `drive.appdata` ausgeschlossen | MUSS | A |
+| L-7.22 | **Keine Anmeldung mit Google- oder Apple-Konto** und kein Konto beim Anbieter (Entscheidung der Auftraggeberin 2026-10-12); eine Drive-Autorisierung dient nur dem Dateizugriff | MUSS | A |
 
 ### 5.8 Übergabe an die Steuerberatung
 
@@ -568,6 +574,8 @@ Ausgearbeitet mit den drei Prüfinstanzen.
 | L-19.24 | **Synchronisierung ist keine Sicherung:** die automatische Sicherung (L-7) bleibt getrennt, mit eigenem Ordner und Schlüssel | MUSS | C |
 | L-19.25 | Gemischte Teams aus iOS und Android brauchen einen Cloud-Dienst, den beide Systeme als Ordner anbieten; die App benennt das beim Einrichten | MUSS | C |
 | L-19.26 | **Vorlage der Verfahrensdokumentation** aus den Einstellungen: Berechtigungskonzept, Nummernkreise, Synchronisationsverfahren, Ablageort, Datensicherung, Ablauf beim Ausscheiden (ergänzt L-7.11) | SOLL | C |
+| L-19.27 | Sicherungsschlüssel und Wiederherstellungscode werden nie über den iCloud-Schlüsselbund synchronisiert (`synchronizable: false`, `first_unlock_this_device`); Regressionstest | MUSS | A |
+| L-19.28 | Datenflusstabelle, PRIVACY.md und STORE_LISTING um iCloud (iOS) und gegebenenfalls Drive-Schnittstelle ergänzen, sobald umgesetzt | MUSS | A |
 
 #### Rollen
 
@@ -1119,6 +1127,7 @@ Zu entscheiden, bevor die betroffene Anforderung umgesetzt wird:
 
 | Version | Datum | Änderung |
 |---|---|---|
+| 1.36 | 2026-10-12 | Keine Anmeldung mit Google/Apple (L-7.22); iCloud-Container als Standard unter iOS (L-7.17 bis L-7.20); Android-Ordnerwahl bleibt Hauptweg (L-7.21); Schlüssel nie im iCloud-Schlüsselbund (L-19.27, L-19.28). Geprüft von Rechtsanwalt und Softwareentwickler. |
 | 1.35 | 2026-10-12 | Neuer Block 5.23 Vertragsarchiv (Stufe C) nach Prüfung durch Steuerberater und Rechtsanwalt. O-26 entschieden: Spirits by JeNiBarb e.U.; Umwandlung in eine GmbH, sobald die Umsätze es rechtfertigen. |
 | 1.34 | 2026-10-12 | Neuer Block 5.22 Lizenz und Bezahlung mit Store-Reife, mit den drei Prüfinstanzen ausgearbeitet: nur Store-Billing, Lizenzmanager ohne Server mit Prüfung am Gerät, Herabstufen statt sperren, Abo-Seite, Anbieter-Steuern, Organisationskonten, Release-Workflow. Neue Checkliste STORE_READINESS.md. |
 | 1.33 | 2026-10-12 | Datenbindung geprüft (O-31): keine anbieterexklusive Verschlüsselung; neu L-7.12 bis L-7.16 (kein Anbieterschlüssel, offenes Format, Archivexport Z3, Nur-Lese-Modus, Escrow). |

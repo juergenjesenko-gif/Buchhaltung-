@@ -1,6 +1,6 @@
 # Spezifikation – Buchhaltung
 
-**Dokumentversion:** 1.18 · **App-Version:** 0.1.0 · **Stand:** 2026-10-12
+**Dokumentversion:** 1.19 · **App-Version:** 0.1.0 · **Stand:** 2026-10-12
 **Status:** Sprint 1 umgesetzt und verifiziert
 
 > Das **Zielbild** des Produkts steht im [`LASTENHEFT.md`](LASTENHEFT.md); dieses
@@ -605,6 +605,7 @@ Umrechnung: Beträge in Cent. `5500000` Cent = 55.000,00 €.
 
 | Version | Datum | App-Version | Änderung |
 |---|---|---|---|
+| 1.19 | 2026-10-12 | 0.1.0 | P-B1 bestanden (Pixel 10, Google Drive); neue Prüfpunkte P-B6 bis P-B12 zu iCloud-Standard, Datensicherheitsformularen und Wiederherstellung. Keine Codeänderung. |
 | 1.18 | 2026-10-12 | 0.1.0 | Entwürfe der Rechtstexte in `docs/legal/` (Impressum, Datenschutzerklärung, Nutzungsbedingungen); Prüfpunkte P-L4 bis P-L17, P-S15 bis P-S18 (Belegkommentare, mehrseitige Belege, Diktat, Vertragsarchiv). Keine Codeänderung. |
 | 1.17 | 2026-10-12 | 0.1.0 | Prüfpunkte zu Store-Reife, Lizenz und Bezahlung: P-R10 bis P-R14, P-S11 bis P-S14, P-D9, P-D10. Keine Codeänderung. |
 | 1.16 | 2026-10-12 | 0.1.0 | Rückmeldungen aus dem ersten Gerätetest: Bestätigungen vor der ersten Nutzung (FA-1.10, Schema 7, Tabelle `consents`), Kennwortfelder mit Auge-Symbol (FA-1.11), Anzeigename des Sicherungsordners unter Android statt Dokument-ID. Prüfpunkt P-L1. |
@@ -723,11 +724,18 @@ Status: *offen* · *bestätigt* (mit Datum und Prüfer) · *widerlegt* (mit Folg
 | P-U2 | Nachweiswert von VIES mit Abfragenummer gegenüber FinanzOnline Stufe 2 (AT) und qualifizierter Bestätigungsabfrage § 18e UStG (DE) | VIES schwächer, aber als Hilfsnachweis anerkannt | Release | offen |
 | P-U3 | Steuernummer auf österreichischen Rechnungen nicht nötig; DE Steuernummer oder USt-IdNr. genügt | beide Prüfinstanzen | Release | offen |
 | P-U4 | Datenschutzerklärung und Store-Formulare (Google Data Safety, Apple Label) zur VIES-Abfrage durch Fachperson | Nutzerin Verantwortliche, Kommission Empfängerin, Anbieter unbeteiligt | erster Upload | offen |
-| P-B1 | Android: bietet die Google-Drive-App bei der Ordnerwahl (Storage Access Framework) Ordner an? Test auf Pixel und Samsung mit aktueller Drive-App. Wenn nein: Entscheidung über Anbindung der Drive-Schnittstelle | Drive bot lange keine Ordner an; unsicher | vor Release | offen |
+| P-B1 | Android: bietet die Google-Drive-App bei der Ordnerwahl (Storage Access Framework) Ordner an? Test auf Pixel und Samsung mit aktueller Drive-App. Wenn nein: Entscheidung über Anbindung der Drive-Schnittstelle | Drive bot lange keine Ordner an; unsicher | vor Release | **bestanden 2026-10-12** (Auftraggeberin, Pixel 10: Sicherung und automatische Sicherung nach Google Drive). Wiederherstellung aus Drive siehe P-B12 |
 | P-B2 | iOS: Bookmark auf einen iCloud-Drive-Ordner nach Neustart, Update und offline; Upload durch das System | — | vor Release | offen |
 | P-B3 | Laufzeit einer großen Sicherung (viele Fotos) beim Öffnen der App; Verhalten bei Wechsel in den Hintergrund | — | vor Release | offen |
 | P-B4 | Steuerberatung: verschlüsselte Sicherungskopie in einer US-Cloud neben den Originaldaten am Gerät ist kein „Führen der Bücher im Ausland“ (§ 146 Abs 2a/2b AO, § 131 BAO); Fristen nach BEG IV (8/10 Jahre) | beide Instanzen: nach h. M. unkritisch, kippt wenn die Cloud-Kopie die einzige wird | Release | offen |
 | P-B5 | Store-Angaben zur automatischen Sicherung (gehört zu P-U4) | keine Erhebung durch den Anbieter | erster Upload | offen |
+| P-B6 | Anwältin: iCloud-Sicherung standardmäßig an mit Hinweis, ohne Einwilligung zulässig; Hinweis auf Kundendaten und Drittland USA bei Apple | — | vor Release | offen |
+| P-B7 | Gerätetest iPhone: iCloud an, aus, voll, abgemeldet; Wiederherstellung auf Zweitgerät mit Code | nur real prüfbar | vor Release | offen |
+| P-B8 | Anwältin: Formular Datensicherheit in der Play Console bei Ordnerwahl bzw. Drive-Schnittstelle | — | erster Upload | offen |
+| P-B9 | Apple-Review: „Data Not Collected“ trotz iCloud-Sicherung akzeptiert | — | erster Upload | offen |
+| P-B10 | Gerätetest: Ordnerwahl mit Google Drive auf Samsung und Xiaomi, automatische Sicherung im Hintergrund; danach Entscheidung über Drive-Schnittstelle | — | vor Release | offen |
+| P-B11 | Google: OAuth-Verifizierung für `drive.file`, nur wenn der Ersatzweg gebaut wird | — | bei Bedarf | offen |
+| P-B12 | Gerätetest: Wiederherstellung aus einer Sicherung in Google Drive auf einem zweiten oder frisch installierten Gerät | Zurückholen ist der eigentliche Prüfstein | vor Release | offen |
 | P-M1 | Steuerberatung AT bestätigt Nummernkreise je Gerät/Person mit Präfix (UStR Rz 1565); DE nach UStAE 14.5 Abs 10 | Prüfinstanzen: zulässig, wenn Präfix fest und dokumentiert | Stufe C | offen |
 | P-M2 | Steuerberatung: Ordnungsmäßigkeit, wenn Buchhaltungsdaten im (privaten) Cloud-Konto liegen; § 131 Abs 1 BAO bei Ablage außerhalb Österreichs; Umgang mit doppeltem Storno | — | Stufe C | offen |
 | P-M3 | Arbeitsrecht AT: § 96/96a ArbVG bei Erfasser-Kennung mit Zeitstempel; DE § 87 BetrVG | Erfasser-Vermerk ohne Auswertung berührt Menschenwürde in der Regel nicht | Stufe C | offen |
