@@ -1,6 +1,6 @@
 # Spezifikation – Buchhaltung
 
-**Dokumentversion:** 1.30 · **App-Version:** 0.3.0 · **Stand:** 2026-10-12
+**Dokumentversion:** 1.31 · **App-Version:** 0.3.0 · **Stand:** 2026-10-12
 **Status:** Sprint 1 umgesetzt und verifiziert
 
 > Das **Zielbild** des Produkts steht im [`LASTENHEFT.md`](LASTENHEFT.md); dieses
@@ -739,6 +739,7 @@ Umrechnung: Beträge in Cent. `5500000` Cent = 55.000,00 €.
 
 | Version | Datum | App-Version | Änderung |
 |---|---|---|---|
+| 1.31 | 2026-10-12 | 0.3.0 | P-L7 teilweise und P-R10 festgelegt (Telefon, Gewerbe bestätigt). Keine Codeänderung. |
 | 1.30 | 2026-10-12 | 0.3.0 | App-Version 0.3.0 (Testbuild): Belegerkennung, Fremdwährung bei Eingangsbelegen, App-Symbol auf dem Startbildschirm. Schema 10. |
 | 1.29 | 2026-10-12 | 0.2.0 | App-Symbol auf dem Startbildschirm (Abschnitt 5.5c, FA-1.19): einmaliges Angebot und Eintrag in den Einstellungen über `ShortcutManager.requestPinShortcut` (Android 8+), Kanal `buchhaltung/launcher`, Merker im sicheren Speicher. Kein Schemawechsel. Prüfpunkt P-D24. |
 | 1.28 | 2026-10-12 | 0.2.0 | Fremdwährung bei Eingangsbelegen umgerechnet (FA-2.24 bis FA-2.27, GR-9, Lastenheft L-2.24 bis L-2.26, L-13.3, L-19.29): Kurs als Einheiten je 1 € × 10^6 (`spec.fx_rate_scale`), Umrechnung half-up in Ganzzahlen, „Kurs abrufen“ bei der EZB mit lokalem Speicher `ecb_rates`, EZB-Monatsmittel als Näherung, Tageskurs nur mit Genehmigung im Profil, Bankbetrag getrennt für die EÜR, Protokoll `fx`, Belegliste mit Währungsspalten; DATEV/BMD nur Euro. Schema 10. Neue Kennwerte `spec.fx_rate_scale`, `spec.*.fx_rate_legal_ref`, Datenfluss EZB in 10.1, Grenze in Abschnitt 11 angepasst, Prüfpunkt P-D23. |
@@ -893,7 +894,7 @@ Status: *offen* · *bestätigt* (mit Datum und Prüfer) · *widerlegt* (mit Folg
 | P-L4 | Anwältin: gestufte Haftungsklausel (Nutzungsbedingungen Ziffer 9) nach § 6 KSchG, § 879 Abs 3 ABGB, §§ 307–309 BGB; Transparenz bei AT/DE und B2B/B2C in einem Text | Unwirksame Klausel entfällt ganz, Abmahnrisiko | Release | offen |
 | P-L5 | Anwältin: Gewährleistung und Updatepflicht nach VGG bzw. § 327f BGB, obwohl der Store verkauft – wer ist „Unternehmer“ der digitalen Leistung? | — | Release | offen |
 | P-L6 | Anwältin: Apple-Mindestklauseln der EULA (Ziffern 2.3, 8.3, 10) gegen das aktuelle Developer Agreement | Ablehnung im Review | Release | offen |
-| P-L7 | Auftraggeberin: Firmenbucheintrag ja/nein, Gewerbewortlaut, Gewerbebehörde, Kammer; Daten aus Firmen-ABC in `docs/legal/` eintragen | Pflichtangaben § 5 ECG, DSA | Release | offen |
+| P-L7 | Auftraggeberin: Firmenbucheintrag ja/nein, Gewerbewortlaut, Gewerbebehörde, Kammer; Daten aus Firmen-ABC in `docs/legal/` eintragen | Pflichtangaben § 5 ECG, DSA | Release | teilweise erledigt 2026-10-12: Firmenbuch, Gewerbebehörde, Telefon eingetragen; Gewerbe deckt Software laut Inhaberin; offen: Fachgruppe der Kammer |
 | P-L8 | Auftraggeberin: Teilnahme an Verbraucherschlichtung (Internet Ombudsstelle) | Infopflicht § 19 AStG, § 36 VSBG | Release | offen |
 | P-L9 | Anwältin: Hosting der Produktseite und E-Mail-Anbieter, Drittlandübermittlung, AVV | Pflichtangaben Datenschutzerklärung | Release | offen |
 | P-L10 | Anwältin: genügt der Verweis auf das Widerrufsrecht des Stores, oder braucht es eine eigene Widerrufsbelehrung (L-17.10)? | — | Release | offen |
@@ -917,7 +918,7 @@ Status: *offen* · *bestätigt* (mit Datum und Prüfer) · *widerlegt* (mit Folg
 | P-L16 | Anwältin: KI-Ausgabetexte zu Verträgen auf RDG, RAO und UWG | — | Stufe C | offen |
 | P-L17 | Anwältin: Art. 50 AI Act (Kennzeichnung) und aktuelle Fristen | — | Stufe C | offen |
 | P-L18 | Anwältin: Lizenzpflichten ML Kit (Google APIs / ML Kit Terms), Lizenznennung in der App | — | Release | offen |
-| P-R10 | Öffentliche Händleradresse und Telefon (DSA-„Trader"-Angaben) festlegen, identisch mit dem Impressum | Postfach reicht nicht; Geschäftsadresse ratsam | erster Upload | offen |
+| P-R10 | Öffentliche Händleradresse und Telefon (DSA-„Trader"-Angaben) festlegen, identisch mit dem Impressum | Postfach reicht nicht; Geschäftsadresse ratsam | erster Upload | festgelegt 2026-10-12 (Arnoldstein, +43 660 3124252); anwaltliche Bestätigung offen |
 | P-R11 | Nutzungsbedingungen als eigene EULA (Apple) bzw. verlinkt (Google): Gewährleistung und Regress, Rolle der Stores, Herabstufung/Nur-Lese-Modus, Volljährigkeit | — | Release | offen |
 | P-R12 | Wortlaut der Abo- und Testseite (§§ 312j, 312k BGB, PAngV, Apple 3.1.2); greift § 312k bei Store-Abos? | h. M.: nein, Sprung in die Store-Verwaltung genügt | Release | offen |
 | P-R13 | Finaler Store-Text und Screenshots auf UWG und „keine Steuerberatung" | — | vor jeder Einreichung | offen |

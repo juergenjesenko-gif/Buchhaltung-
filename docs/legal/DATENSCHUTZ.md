@@ -20,7 +20,7 @@
 
 Spirits by JeNiBarb e.U. (Inhaber: Jürgen Jesenko)
 Sankt Leonhard bei Siebenbrünn 96, 9587 Arnoldstein, Österreich
-E-Mail: office@jenibarb.com · Telefon: {{TELEFON}}
+E-Mail: office@jenibarb.com · Telefon: +43 660 3124252
 
 Eine Datenschutzbeauftragte ist nicht bestellt; dazu besteht keine Pflicht
 (Art. 37 DSGVO). Datenschutzanfragen bitte an office@jenibarb.com.

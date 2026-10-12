@@ -12,7 +12,7 @@ Anforderungen dazu: Lastenheft 5.10 (Abonnement), 5.22 (Lizenz und Bezahlung),
 | # | Schritt | Wer | Dauer | Status |
 |---|---|---|---|---|
 | 1 | **Rechtsform festlegen** (O-26): Einzelunternehmen oder GmbH – bestimmt Kontoinhaber, Store-Name, Steuer | Auftraggeber mit Steuerberatung | – | entschieden: Spirits by JeNiBarb e.U., FN 643550 y, ATU81604346; später GmbH |
-| 2 | **Öffentliche Händleradresse und Telefon** (DSA „Trader“-Angaben, erscheinen im EU-Store; Postfach reicht nicht) | Auftraggeber | – | offen (P-R10) |
+| 2 | **Öffentliche Händleradresse und Telefon** (DSA „Trader“-Angaben, erscheinen im EU-Store; Postfach reicht nicht) | Auftraggeber | – | festgelegt: Anschrift Arnoldstein, Telefon +43 660 3124252 (P-R10) |
 | 3 | **D-U-N-S-Nummer** beantragen (kostenlos) | Auftraggeber | 1–4 Wochen | freigegeben, zu beantragen |
 | 4 | **Google Play Organisationskonto** (25 USD einmalig) – erspart den Pflichttest mit 12 Testern über 14 Tage, den private Konten brauchen | Auftraggeber | Tage bis Wochen | offen |
 | 5 | **Apple Developer Program als Organisation** (99 USD/Jahr); Small Business Program anmelden (15 % Provision) | Auftraggeber | Tage bis Wochen | offen |
@@ -36,7 +36,7 @@ für Konten und Prüfungen. Schritte 1–8 laufen parallel zur Entwicklung.
 | Android-Format | APK aus der CI | **AAB** aus eigenem Release-Workflow (Tag `v*`), signiert mit Upload-Key; Play App Signing |
 | Signierung | Debug- bzw. Testschlüssel | Release-Workflow bricht ab, wenn kein Upload-Key da ist |
 | targetSdk | Flutter-Vorgabe | fest eingetragen, aktueller Play-Stichtag (2026 voraussichtlich API 36) |
-| iOS-Build | ohne Signierung | Fastlane (`match`, `pilot`) auf macOS-Runner, Upload nach TestFlight |
+| iOS-Build | ohne Signierung; eigener Mac der Auftraggeberin vorhanden | Fastlane (`match`, `pilot`) auf macOS-Runner, Upload nach TestFlight |
 | Privacy Manifest | fehlt | `ios/Runner/PrivacyInfo.xcprivacy` mit den Required-Reason-APIs |
 | Export Compliance | `ITSAppUsesNonExemptEncryption = false` | **klären**: die App verschlüsselt selbst (AES-256, Argon2id). Voraussichtlich Standardverfahren, ausgenommen; Frankreich ggf. Erklärung (P-D9) |
 | Store-Metadaten | `docs/STORE_LISTING.md` | zusätzlich `fastlane/metadata/{android,ios}/de-DE`, abgeglichen mit STORE_LISTING |

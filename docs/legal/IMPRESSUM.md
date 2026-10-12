@@ -11,11 +11,11 @@
 Spirits by JeNiBarb e.U. (Inhaber: Jürgen Jesenko)
 Sankt Leonhard bei Siebenbrünn 96, 9587 Arnoldstein, Österreich
 
-- Telefon: {{TELEFON}}
+- Telefon: +43 660 3124252
 - E-Mail: office@jenibarb.com (schnelle, unmittelbare Kontaktaufnahme nach § 5 Abs 1 Z 3 ECG)
 - UID-Nummer: ATU81604346
 - Firmenbuch: FN 643550 y, Landesgericht Klagenfurt (eingetragenes Einzelunternehmen, e.U.)
-- Unternehmensgegenstand: Einzelhandel laut Firmenbuch; Entwicklung und Vertrieb von Software ({{GEWERBE}} – prüfen, ob dafür ein weiteres Gewerbe, etwa „Dienstleistungen in der automatischen Datenverarbeitung und Informationstechnik“, anzumelden ist, P-L7)
+- Unternehmensgegenstand: Einzelhandel laut Firmenbuch; Entwicklung und Vertrieb von Software (von der bestehenden Gewerbeberechtigung gedeckt, bestätigt von der Inhaberin am 2026-10-12)
 - Gewerbebehörde / Aufsichtsbehörde: Bezirkshauptmannschaft Villach-Land
 - Kammer: Wirtschaftskammer Kärnten, Fachgruppe {{FACHGRUPPE}}
 - Berufsrecht: Gewerbeordnung, abrufbar unter www.ris.bka.gv.at
