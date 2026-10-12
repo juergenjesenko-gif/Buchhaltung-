@@ -29,14 +29,34 @@ gebaut, und was war darin geprüft?*
 
 ## Unveröffentlicht
 
-Änderungen seit 0.2.0+2, die noch in keinem Build stecken. Wandern beim
+Änderungen seit 0.3.0+3, die noch in keinem Build stecken. Wandern beim
 nächsten Versionssprung in den neuen Eintrag.
+
+| Art | Änderung | Bezug | Commit |
+|---|---|---|---|
+
+---
+
+## 0.3.0+3 — 2026-10-12
+
+| Feld | Wert |
+|---|---|
+| Art | Testbuild (CI-APK, Artefakt `test-apk-build-<Nummer>`, signiert mit festem Testschlüssel); kein Store-Release. Die Buildnummer der APK ist die CI-Laufnummer |
+| Commit | siehe Git-Tag `v0.3.0` |
+| Branch | `claude/agile-accounting-app-mobile-wa5j3h` |
+| Dokumentstände | Lastenheft 1.42, Spezifikation 1.30, Benutzerhandbuch für 0.3.0 |
+| Datenbankschema | 10 |
+| Prüfung | `flutter analyze` ohne Befund, 250 Tests grün, CI siehe Lauf zum Tag |
+| Offene reale Prüfpunkte | alle mit Status „offen“ in Spezifikation Abschnitt 14, für diesen Build vor allem P-D21 bis P-D24 (ML-Kit-Netzverkehr, Belegerkennung an echten Belegen, Fremdwährung im DATEV-Import, App-Symbol auf dem Startbildschirm) sowie P-R19, P-S23 bis P-S26 |
+| Bekannte Grenzen | Spezifikation Abschnitt 11 |
+
+**Änderungen seit 0.2.0+2**
 
 | Art | Änderung | Bezug | Commit |
 |---|---|---|---|
 | Neu | Belege automatisch auslesen: Texterkennung auf dem Gerät (Android ML Kit gebündelt, iOS Apple Vision), Vorbelegung von Datum, Brutto, Steuersatz, Lieferant, Rechnungsnummer, Aussteller-UID mit „erkannt – bitte prüfen“, „Erneut auslesen“, abschaltbar; Fremdwährung bei Ausgaben nur erkannt; Protokoll erkannt/bestätigt mit SHA-256. Schema 9 | L-2.20–L-2.23, FA-2.19–FA-2.23, P-D22, P-R19, P-D21 | 87f6577 |
 | Neu | Fremdwährung bei Ausgaben umrechnen: Kurs als Ganzzahl (je 1 € × 10^6), „Kurs abrufen“ bei der EZB nur auf Knopfdruck mit lokalem Speicher, EZB-Monatsmittel als Näherung an den BMF-Kurs, Tageskurs nur mit Genehmigung in den Einstellungen, Bankbetrag getrennt für das Ergebnis, Protokoll `fx`, Belegliste mit Währungsspalten; DATEV/BMD nur Euro. Schema 10 | L-2.24–L-2.26, L-13.3, L-19.29, FA-2.24–FA-2.27, P-S23–P-S26, P-R18, P-D23 | 5b9faed |
-| Neu | App-Symbol auf dem Startbildschirm: einmaliges Angebot nach dem Onboarding und Eintrag in den Einstellungen, Systemdialog über `requestPinShortcut` (Android 8+); auf iOS ausgeblendet | FA-1.19, P-D24 | dieser Commit |
+| Neu | App-Symbol auf dem Startbildschirm: einmaliges Angebot nach dem Onboarding und Eintrag in den Einstellungen, Systemdialog über `requestPinShortcut` (Android 8+); auf iOS ausgeblendet | FA-1.19, P-D24 | 57da3b0 |
 
 ---
 
