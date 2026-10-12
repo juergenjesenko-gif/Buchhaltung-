@@ -29,12 +29,32 @@ gebaut, und was war darin geprüft?*
 
 ## Unveröffentlicht
 
-Änderungen seit 0.3.1+4, die noch in keinem Build stecken. Wandern beim
+Änderungen seit 0.3.2+5, die noch in keinem Build stecken. Wandern beim
 nächsten Versionssprung in den neuen Eintrag.
 
 | Art | Änderung | Bezug | Commit |
 |---|---|---|---|
+
+---
+
+## 0.3.2+5 — 2026-10-12
+
+| Feld | Wert |
+|---|---|
+| Art | Testbuild (ungezippte arm64-APK, fester Testschlüssel); Fehlerbehebung zu 0.3.1 |
+| Commit | siehe Git-Tag `v0.3.2` |
+| Branch | `claude/agile-accounting-app-mobile-wa5j3h` |
+| Dokumentstände | Lastenheft 1.42, Spezifikation 1.33, Benutzerhandbuch für 0.3.2 |
+| Datenbankschema | 10 |
+| Prüfung | `flutter analyze` ohne Befund, 250 Tests grün, CI siehe Lauf zum Tag |
+| Offene reale Prüfpunkte | P-D21, P-D22 (Belegerkennung auf dem Pixel) |
+
+**Änderungen seit 0.3.1+4**
+
+| Art | Änderung | Bezug | Commit |
+|---|---|---|---|
 | Geändert | Testbuild nur noch arm64, ungezippt als `Buchhaltung-<Version>-build-<Nummer>.apk` (upload-artifact v7, `archive: false`); weiter mit `--split-per-abi`, damit der versionCode 2000 + Buildnummer bleibt (Build 73 ohne Split ließ sich nicht als Update installieren) | Wunsch Auftraggeberin 2026-10-12 | 9109e7b, dieser |
+| Behoben | Android: Belegerkennung brach im Release-Build weiter ab (Build 74); R8-Keep-Regeln für ML Kit ergänzt; Fehlermeldung zeigt einen kurzen Fehlercode ohne Belegdaten | FA-2.19, Gerätetest Pixel 10 | dieser |
 
 ---
 

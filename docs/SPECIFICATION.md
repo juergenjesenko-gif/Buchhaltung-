@@ -1,6 +1,6 @@
 # Spezifikation – Buchhaltung
 
-**Dokumentversion:** 1.32 · **App-Version:** 0.3.1 · **Stand:** 2026-10-12
+**Dokumentversion:** 1.33 · **App-Version:** 0.3.2 · **Stand:** 2026-10-12
 **Status:** Sprint 1 umgesetzt und verifiziert
 
 > Das **Zielbild** des Produkts steht im [`LASTENHEFT.md`](LASTENHEFT.md); dieses
@@ -739,6 +739,7 @@ Umrechnung: Beträge in Cent. `5500000` Cent = 55.000,00 €.
 
 | Version | Datum | App-Version | Änderung |
 |---|---|---|---|
+| 1.33 | 2026-10-12 | 0.3.2 | App-Version 0.3.2: R8-Regeln für ML Kit, Fehlercode in der Meldung der Belegerkennung. |
 | 1.32 | 2026-10-12 | 0.3.1 | App-Version 0.3.1: Fehlerbehebung Belegerkennung Android. |
 | 1.31 | 2026-10-12 | 0.3.0 | P-L7 teilweise und P-R10 festgelegt (Telefon, Gewerbe bestätigt). Keine Codeänderung. |
 | 1.30 | 2026-10-12 | 0.3.0 | App-Version 0.3.0 (Testbuild): Belegerkennung, Fremdwährung bei Eingangsbelegen, App-Symbol auf dem Startbildschirm. Schema 10. |

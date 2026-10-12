@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
 
 import '../../app_state.dart';
@@ -339,7 +340,8 @@ class _ReceiptEditScreenState extends State<ReceiptEditScreen> {
         showSnack(
           context,
           'Der Beleg konnte nicht ausgelesen werden. Bitte die Werte selbst '
-          'eintragen oder „Erneut auslesen“ versuchen.',
+          'eintragen oder „Erneut auslesen“ versuchen. '
+          '(Fehlercode: ${_scanErrorCode(error)})',
         );
       }
     } finally {
@@ -1249,4 +1251,14 @@ class _ReceiptEditScreenState extends State<ReceiptEditScreen> {
             ),
     );
   }
+}
+
+/// Kurzer Fehlercode für Rückmeldungen aus dem Gerätetest, ohne Belegdaten.
+String _scanErrorCode(Object error) {
+  if (error is PlatformException) {
+    final message = (error.message ?? '').split('\n').first;
+    final short = message.length > 80 ? message.substring(0, 80) : message;
+    return '${error.code}: $short';
+  }
+  return error.runtimeType.toString();
 }

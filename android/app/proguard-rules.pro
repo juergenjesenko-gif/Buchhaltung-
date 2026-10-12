@@ -14,3 +14,15 @@
 # Components-API, die wir nicht nutzen. Ohne diese Zeilen bricht R8 mit
 # "Missing class" ab.
 -dontwarn com.google.android.play.core.**
+
+# Google ML Kit Texterkennung (ReceiptTextChannel). Im Release-Build mit R8
+# brach die Erkennung auf dem Pixel 10 mit einer NullPointerException ab
+# (Gerätetest 2026-10-12, Builds 69 und 74): ML Kit findet seine Komponenten
+# und das gebündelte Modell über Reflexion. Nicht verkleinern/umbenennen.
+-keep class com.google.mlkit.** { *; }
+-keep class com.google.android.gms.internal.mlkit_vision_text_common.** { *; }
+-keep class com.google.android.gms.internal.mlkit_vision_common.** { *; }
+-keep class com.google.android.gms.internal.mlkit_common.** { *; }
+-keep class com.google.firebase.components.** { *; }
+-keep class com.google.android.gms.common.** { *; }
+-dontwarn com.google.mlkit.**
