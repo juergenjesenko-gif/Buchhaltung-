@@ -1,6 +1,6 @@
 # Spezifikation – Buchhaltung
 
-**Dokumentversion:** 1.20 · **App-Version:** 0.1.0 · **Stand:** 2026-10-12
+**Dokumentversion:** 1.21 · **App-Version:** 0.1.0 · **Stand:** 2026-10-12
 **Status:** Sprint 1 umgesetzt und verifiziert
 
 > Das **Zielbild** des Produkts steht im [`LASTENHEFT.md`](LASTENHEFT.md); dieses
@@ -127,6 +127,14 @@ Sonst haben aktualisierte Installationen ein anderes Schema als neue.
 
 Ab dem Status *Gestellt* ist eine Rechnung schreibgeschützt. Aussteller- und
 Empfängerdaten werden zum Zeitpunkt der Rechnungslegung als JSON eingefroren.
+Das PDF einer gestellten Rechnung nimmt **alle** Absenderangaben (Name,
+Anschrift, Steuernummer, UID, Firmenbuch, Bank, Fußzeile, Logo) aus
+`seller_snapshot` (`InvoiceSeller`, `InvoiceLogo`); Entwürfe nutzen das
+aktuelle Profil. Rückfall für alte Rechnungen: fehlt der Snapshot oder ist er
+unlesbar, gilt das aktuelle Profil; fehlt ein einzelnes Feld (Snapshot aus
+einer älteren Schemaversion), gilt für dieses Feld der aktuelle Wert – außer
+beim Logo, das dann fehlt. Die Steuerbehandlung steht in
+`invoices.is_small_business`.
 
 ---
 
@@ -262,7 +270,7 @@ prüft `InvoiceRequirements` (FA-1.4).
 | FA-2.10 | Filter Alle/Einnahmen/Ausgaben, Jahresauswahl über die Aufbewahrungsfrist |
 | FA-2.11 | Bearbeiten möglich. **Belege werden nicht gelöscht, sondern storniert** (nach Rückfrage): sie bleiben samt Foto gespeichert, erscheinen in keiner Liste und zählen in keiner Auswertung, keinem Export und nicht zur Umsatzgrenze (Aufbewahrungspflicht § 132 BAO, § 147 AO; GoBD) |
 | FA-2.12 | Anlegen, Ändern und Stornieren werden im `audit_log` protokolliert, mit Seitenzahl |
-| FA-2.13 | **Mehrseitige Belege** (L-2.15): weitere Seiten fotografieren oder wählen; vor dem ersten Speichern Reihenfolge ändern (nach vorne/hinten) und einzelne Seiten löschen (Datei wird entfernt). Nach dem Speichern sind Seiten fest: nur Anhängen, kein Löschen oder Umsortieren – erzwungen in `ReceiptRepository.save` |
+| FA-2.13 | **Mehrseitige Belege** (L-2.15): weitere Seiten fotografieren oder wählen; vor dem ersten Speichern Reihenfolge ändern (nach vorne/hinten) und einzelne Seiten löschen (Datei wird entfernt). Wird die Erfassung ohne Speichern verlassen, löscht die App die neu aufgenommenen Dateien. Nach dem Speichern sind Seiten fest: nur Anhängen, kein Löschen oder Umsortieren – erzwungen in `ReceiptRepository.save` |
 | FA-2.14 | **Vollständigkeitsbestätigung** (L-2.16): sind neue Seiten hinzugekommen, verlangt das Speichern das Häkchen „Alle Seiten inkl. beschriebener Rückseiten erfasst“ |
 | FA-2.15 | Belegansicht zeigt alle Seiten als Leiste mit Seitennummer; Antippen öffnet die Seite vergrößert (Zoom) |
 | FA-2.16 | **Kommentare** (L-2.17): beim Erfassen ein Kommentarfeld, das beim Speichern zum ersten Kommentar wird; bei gespeicherten, auch stornierten Belegen „Kommentar anhängen“. Zeitstempel ist die Systemzeit. Kein Bearbeiten, kein Löschen; Korrektur nur als neuer Kommentar. Jeder Kommentar erzeugt einen `audit_log`-Eintrag `comment`. Der Beleg selbst bleibt unverändert |
@@ -621,6 +629,7 @@ Umrechnung: Beträge in Cent. `5500000` Cent = 55.000,00 €.
 
 | Version | Datum | App-Version | Änderung |
 |---|---|---|---|
+| 1.21 | 2026-10-12 | 0.1.0 | GR-8 vollständig: das PDF gestellter Rechnungen nimmt alle Absenderangaben aus `seller_snapshot` (`InvoiceSeller`), mit Rückfall je fehlendem Feld; abgebrochene Belegerfassung löscht nie gespeicherte Seiten (FA-2.13). |
 | 1.20 | 2026-10-12 | 0.1.0 | Schema 8: mehrseitige Belege (`receipt_pages`, FA-2.13 bis FA-2.15), Kommentare nur anhängbar (`receipt_comments`, FA-2.16), Diktat über die Systemtastatur (FA-2.17), stornierte Belege lesbar (FA-2.18), Firmenlogo im PDF, eingefroren bei Rechnungslegung (`logo_path`, FA-1.12). Sicherung mit `logo/` (FA-7.6), Export mit Seiten und Kommentaren (FA-6.7, 8.2). Neue Kennwerte `spec.logo_*`, Prüfpunkte P-D11 bis P-D13. |
 | 1.19 | 2026-10-12 | 0.1.0 | P-B1 bestanden (Pixel 10, Google Drive); neue Prüfpunkte P-B6 bis P-B12 zu iCloud-Standard, Datensicherheitsformularen und Wiederherstellung. Keine Codeänderung. |
 | 1.18 | 2026-10-12 | 0.1.0 | Entwürfe der Rechtstexte in `docs/legal/` (Impressum, Datenschutzerklärung, Nutzungsbedingungen); Prüfpunkte P-L4 bis P-L17, P-S15 bis P-S18 (Belegkommentare, mehrseitige Belege, Diktat, Vertragsarchiv). Keine Codeänderung. |

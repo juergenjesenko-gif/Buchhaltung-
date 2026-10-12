@@ -56,6 +56,9 @@ class _ReceiptEditScreenState extends State<ReceiptEditScreen> {
   bool _pagesConfirmed = false;
 
   List<ReceiptComment> _comments = const [];
+
+  /// Gesetzt, sobald das Speichern geglückt ist; sonst räumt [dispose] auf.
+  bool _saved = false;
   bool _saving = false;
   bool _initialized = false;
 
@@ -105,6 +108,13 @@ class _ReceiptEditScreenState extends State<ReceiptEditScreen> {
     _counterpartyController.dispose();
     _noteController.dispose();
     _commentController.dispose();
+    // Abgebrochene Erfassung: neu aufgenommene, nie gespeicherte Seiten
+    // hinterlassen sonst verwaiste Dateien. Gespeicherte Seiten bleiben.
+    if (!_saved) {
+      for (final path in _pages.skip(_savedPageCount)) {
+        ReceiptImageStore.delete(path);
+      }
+    }
     super.dispose();
   }
 
@@ -296,6 +306,7 @@ class _ReceiptEditScreenState extends State<ReceiptEditScreen> {
       // gespeicherten Beleg hängt man Kommentare über die eigene Schaltfläche an.
       comment: _isEditing ? null : _commentController.text,
     );
+    _saved = true;
     await state.onBookingsChanged();
     if (!mounted) return;
     Navigator.of(context).pop(true);

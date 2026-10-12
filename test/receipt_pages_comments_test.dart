@@ -9,6 +9,7 @@ import 'package:buchhaltung/domain/invoice.dart';
 import 'package:buchhaltung/domain/money.dart';
 import 'package:buchhaltung/domain/receipt.dart';
 import 'package:buchhaltung/services/invoice_logo.dart';
+import 'package:buchhaltung/services/invoice_seller.dart';
 import 'package:buchhaltung/services/logo_store.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:path/path.dart' as p;
@@ -241,6 +242,66 @@ void main() {
       expect(first, endsWith('.png'));
       expect(File(p.join(root.path, first)).existsSync(), isTrue);
       expect(File(p.join(root.path, second)).existsSync(), isTrue);
+    });
+  });
+
+  group('Absenderangaben gestellter Rechnungen (GR-8)', () {
+    const atIssue = CompanyProfile(
+      companyName: 'Muster e.U.',
+      country: Country.at,
+      street: 'Hauptstraße 1',
+      city: 'Klagenfurt',
+      iban: 'AT61 1904 3002 3457 3201',
+    );
+    final moved = atIssue.copyWith(
+      street: 'Neugasse 9',
+      city: 'Wien',
+      iban: 'AT00 0000',
+      registerNumber: 'FN 1a',
+    );
+
+    Invoice invoice(InvoiceStatus status, String? snapshot) => Invoice(
+      number: 'RE-1',
+      issueDate: DateTime(2026, 10, 1),
+      customerId: 1,
+      items: const [],
+      status: status,
+      sellerSnapshot: snapshot,
+    );
+
+    test('Adressänderung nach dem Ausstellen ändert das PDF nicht', () {
+      final issued = invoice(InvoiceStatus.issued, jsonEncode(atIssue.toMap()));
+      final seller = InvoiceSeller.profileFor(issued, moved);
+      expect(seller.street, 'Hauptstraße 1');
+      expect(seller.city, 'Klagenfurt');
+      expect(seller.iban, 'AT61 1904 3002 3457 3201');
+    });
+
+    test('Entwürfe nutzen das aktuelle Profil', () {
+      final draft = invoice(InvoiceStatus.draft, jsonEncode(atIssue.toMap()));
+      expect(InvoiceSeller.profileFor(draft, moved).street, 'Neugasse 9');
+    });
+
+    test('alte Snapshots fallen je fehlendem Feld zurück', () {
+      final old = invoice(
+        InvoiceStatus.paid,
+        jsonEncode({'company_name': 'Alt e.U.', 'street': 'Altweg 2'}),
+      );
+      final seller = InvoiceSeller.profileFor(old, moved);
+      expect(seller.companyName, 'Alt e.U.');
+      expect(seller.street, 'Altweg 2');
+      expect(seller.registerNumber, 'FN 1a');
+      expect(
+        InvoiceSeller.profileFor(invoice(InvoiceStatus.paid, null), moved).city,
+        'Wien',
+      );
+      expect(
+        InvoiceSeller.profileFor(
+          invoice(InvoiceStatus.paid, '{kaputt'),
+          moved,
+        ).city,
+        'Wien',
+      );
     });
   });
 }

@@ -34,6 +34,8 @@ nächsten Versionssprung in den neuen Eintrag.
 
 | Art | Änderung | Bezug | Commit |
 |---|---|---|---|
+| Behoben | PDF gestellter Rechnungen nahm Absenderangaben aus dem aktuellen Profil statt aus dem eingefrorenen Snapshot | GR-8, CLAUDE.md Regel 7 | dieser |
+| Behoben | Abgebrochene Belegerfassung hinterließ verwaiste Fotos | FA-2.13 | dieser |
 | Neu | Mehrseitige Belege mit Vollständigkeitsbestätigung, Seiten nach dem Speichern nur anhängbar; Schema 8 (`receipt_pages`), Migration der Einzelfotos | L-2.15, L-2.16, FA-2.13–2.15 | dieser |
 | Neu | Kommentare zu Belegen, nur anhängbar, mit Zeitstempel und Protokoll, auch bei stornierten Belegen; Diktat über die Systemtastatur mit Hinweis; Filter „Storniert" | L-2.17, L-2.18, FA-2.16–2.18 | dieser |
 | Neu | Firmenlogo im Rechnungs-PDF, eingefroren bei Rechnungslegung, in der Sicherung (`logo/`) | L-1.7, L-1.9, FA-1.12, FA-7.6 | dieser |

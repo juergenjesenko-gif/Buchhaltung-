@@ -7,6 +7,7 @@ import '../../domain/invoice.dart';
 import '../../domain/money.dart';
 import '../../services/invoice_logo.dart';
 import '../../services/invoice_pdf.dart';
+import '../../services/invoice_seller.dart';
 import '../../services/logo_store.dart';
 import '../../services/share_service.dart';
 import '../../theme.dart';
@@ -79,7 +80,8 @@ class _InvoiceListScreenState extends State<InvoiceListScreen> {
       final bytes = await InvoicePdf(
         invoice: invoice,
         customer: customer,
-        profile: profile,
+        // Gestellte Rechnungen mit den eingefrorenen Absenderangaben (GR-8).
+        profile: InvoiceSeller.profileFor(invoice, profile),
         logo: logo,
       ).build();
 
