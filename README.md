@@ -116,6 +116,7 @@ Dass beide aktuell bleiben, ist nicht Disziplin, sondern erzwungen:
 
 Weiteres:
 
+- [`docs/DESIGN_SPEC.md`](docs/DESIGN_SPEC.md) – Designspezifikation für Designvarianten (feste Regeln, Spielraum, KI-Briefing)
 - [`docs/WETTBEWERB.md`](docs/WETTBEWERB.md) – Wettbewerbsanalyse mit Preisbändern und Preisvorschlag
 - [`docs/BACKLOG.md`](docs/BACKLOG.md) – Product Backlog mit Akzeptanzkriterien
 - [`docs/SPRINT_PLAN.md`](docs/SPRINT_PLAN.md) – Sprintschnitt und Definition of Done
