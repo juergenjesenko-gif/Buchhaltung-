@@ -8,23 +8,21 @@
 
 **Anbieterin der App „{{APP_NAME}}“ (Arbeitstitel „Jenny Bar“)**
 
-{{ANBIETER_NAME}} – Einzelunternehmen „Spirits by Jenny Barb“
-{{ANSCHRIFT}}
-Österreich
+Spirits by JeNiBarb e.U. (Inhaber: Jürgen Jesenko)
+Sankt Leonhard bei Siebenbrünn 96, 9587 Arnoldstein, Österreich
 
 - Telefon: {{TELEFON}}
-- E-Mail: {{EMAIL}} (schnelle, unmittelbare Kontaktaufnahme nach § 5 Abs 1 Z 3 ECG)
-- UID-Nummer: {{UID}}
-- Firmenbuch: {{FIRMENBUCH}} (Firmenbuchnummer und -gericht; **nur angeben,
-  wenn das Einzelunternehmen eingetragen ist** – sonst diese Zeile streichen)
-- Unternehmensgegenstand: Entwicklung und Vertrieb von Software ({{GEWERBE}})
-- Gewerbebehörde / Aufsichtsbehörde: {{BEZIRKSHAUPTMANNSCHAFT_ODER_MAGISTRAT}}
-- Kammer: Wirtschaftskammer {{BUNDESLAND}}, Fachgruppe {{FACHGRUPPE}}
+- E-Mail: office@jenibarb.com (schnelle, unmittelbare Kontaktaufnahme nach § 5 Abs 1 Z 3 ECG)
+- UID-Nummer: ATU81604346
+- Firmenbuch: FN 643550 y, Landesgericht Klagenfurt (eingetragenes Einzelunternehmen, e.U.)
+- Unternehmensgegenstand: Einzelhandel laut Firmenbuch; Entwicklung und Vertrieb von Software ({{GEWERBE}} – prüfen, ob dafür ein weiteres Gewerbe, etwa „Dienstleistungen in der automatischen Datenverarbeitung und Informationstechnik“, anzumelden ist, P-L7)
+- Gewerbebehörde / Aufsichtsbehörde: Bezirkshauptmannschaft Villach-Land
+- Kammer: Wirtschaftskammer Kärnten, Fachgruppe {{FACHGRUPPE}}
 - Berufsrecht: Gewerbeordnung, abrufbar unter www.ris.bka.gv.at
 
 ## Offenlegung nach § 25 MedienG
 
-Medieninhaberin: {{ANBIETER_NAME}}, {{ANSCHRIFT}}.
+Medieninhaberin: Spirits by JeNiBarb e.U. (Inhaber: Jürgen Jesenko), Sankt Leonhard bei Siebenbrünn 96, 9587 Arnoldstein, Österreich.
 Grundlegende Richtung: Information über die App „{{APP_NAME}}“, ihre Funktionen,
 Preise und Rechtstexte. (Kleine Website ohne darüber hinausgehenden
 Informationsgehalt: Angabe von Name/Firma, Unternehmensgegenstand und Sitz
@@ -40,7 +38,7 @@ Handelsregisternummer nur, soweit vorhanden.
 
 Abonnements werden ausschließlich über Google Play bzw. den Apple App Store
 verkauft. Vertragspartner für Kauf, Bezahlung, Rechnung und Erstattung ist der
-jeweilige Store. Fragen zur App selbst beantworten wir unter {{EMAIL}}.
+jeweilige Store. Fragen zur App selbst beantworten wir unter office@jenibarb.com.
 
 ## Streitbeilegung
 

@@ -12,10 +12,10 @@
 
 ## Platzhalter
 
-`{{APP_NAME}} {{ANBIETER_NAME}} {{ANSCHRIFT}} {{UID}} {{FIRMENBUCH}} {{TELEFON}}
-{{EMAIL}} {{GEWERBE}} {{BEZIRKSHAUPTMANNSCHAFT_ODER_MAGISTRAT}} {{BUNDESLAND}}
-{{FACHGRUPPE}} {{DOMAIN}} {{HOSTER}} {{TAGE}} {{EMAIL_PROVIDER}} {{SITZ}}
-{{ORT}} {{BETRAG}} {{14}}`
+`{{APP_NAME}} Spirits by JeNiBarb e.U. (Inhaber: Jürgen Jesenko) Sankt Leonhard bei Siebenbrünn 96, 9587 Arnoldstein, Österreich ATU81604346 FN 643550 y, Landesgericht Klagenfurt {{TELEFON}}
+office@jenibarb.com {{GEWERBE}} Bezirkshauptmannschaft Villach-Land Kärnten
+{{FACHGRUPPE}} {{DOMAIN}} {{HOSTER}} {{TAGE}} {{EMAIL_PROVIDER}} Arnoldstein
+Klagenfurt {{BETRAG}} {{14}}`
 
 ## Stand des Codes, auf dem die Texte beruhen (2026-10-12)
 

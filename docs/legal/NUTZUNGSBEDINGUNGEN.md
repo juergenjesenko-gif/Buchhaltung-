@@ -6,8 +6,7 @@
 
 ## 1. Wer wir sind und für wen die App ist
 
-1.1 Anbieterin ist {{ANBIETER_NAME}}, Einzelunternehmen „Spirits by Jenny
-Barb“, {{ANSCHRIFT}}, Österreich, UID {{UID}}, E-Mail {{EMAIL}} („wir“).
+1.1 Anbieterin ist Spirits by JeNiBarb e.U. (Inhaber: Jürgen Jesenko), Sankt Leonhard bei Siebenbrünn 96, 9587 Arnoldstein, Österreich, UID ATU81604346, E-Mail office@jenibarb.com („wir“).
 
 1.2 Die App ist ein Werkzeug für Einzelunternehmen und Kleinunternehmen in
 Österreich und Deutschland. Nutzt du sie für dein Unternehmen, bist du
@@ -145,7 +144,7 @@ steuerliche Folgen deiner Entscheidungen (6.).
 
 ## 10. Rechte Dritter, Support, Ansprüche (Apple-Pflichtpunkte)
 
-10.1 **Wartung und Support** leisten wir, nicht Apple. Kontakt: {{EMAIL}}.
+10.1 **Wartung und Support** leisten wir, nicht Apple. Kontakt: office@jenibarb.com.
 
 10.2 **Ansprüche** im Zusammenhang mit der App – etwa Produkthaftung,
 fehlende Übereinstimmung mit gesetzlichen Vorgaben, Verbraucherschutz oder
@@ -182,7 +181,7 @@ Verweisungsnormen. **Für Verbraucherinnen** gilt das nur, soweit dadurch nicht
 der Schutz zwingender Bestimmungen des Staates entzogen wird, in dem sie ihren
 gewöhnlichen Aufenthalt haben (Art. 6 Abs 2 Rom-I-VO).
 
-13.2 **Gerichtsstand für Unternehmerinnen** ist das für {{ORT}} sachlich
+13.2 **Gerichtsstand für Unternehmerinnen** ist das für Klagenfurt sachlich
 zuständige Gericht. **Verbraucherinnen** können an ihrem Wohnsitz klagen und
 dürfen nur dort verklagt werden (§ 14 KSchG; Art. 18 EuGVVO).
 

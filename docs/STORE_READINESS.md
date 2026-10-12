@@ -11,7 +11,7 @@ Anforderungen dazu: Lastenheft 5.10 (Abonnement), 5.22 (Lizenz und Bezahlung),
 
 | # | Schritt | Wer | Dauer | Status |
 |---|---|---|---|---|
-| 1 | **Rechtsform festlegen** (O-26): Einzelunternehmen oder GmbH – bestimmt Kontoinhaber, Store-Name, Steuer | Auftraggeber mit Steuerberatung | – | entschieden: Einzelunternehmen „Spirits by Jenny Barb“, UID vorhanden |
+| 1 | **Rechtsform festlegen** (O-26): Einzelunternehmen oder GmbH – bestimmt Kontoinhaber, Store-Name, Steuer | Auftraggeber mit Steuerberatung | – | entschieden: Spirits by JeNiBarb e.U., FN 643550 y, ATU81604346; später GmbH |
 | 2 | **Öffentliche Händleradresse und Telefon** (DSA „Trader“-Angaben, erscheinen im EU-Store; Postfach reicht nicht) | Auftraggeber | – | offen (P-R10) |
 | 3 | **D-U-N-S-Nummer** beantragen (kostenlos) | Auftraggeber | 1–4 Wochen | freigegeben, zu beantragen |
 | 4 | **Google Play Organisationskonto** (25 USD einmalig) – erspart den Pflichttest mit 12 Testern über 14 Tage, den private Konten brauchen | Auftraggeber | Tage bis Wochen | offen |

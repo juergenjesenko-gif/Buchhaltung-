@@ -18,12 +18,12 @@
 
 ## 2. Wer ist verantwortlich?
 
-{{ANBIETER_NAME}}, Einzelunternehmen „Spirits by Jenny Barb“
-{{ANSCHRIFT}}, Österreich
-E-Mail: {{EMAIL}} · Telefon: {{TELEFON}}
+Spirits by JeNiBarb e.U. (Inhaber: Jürgen Jesenko)
+Sankt Leonhard bei Siebenbrünn 96, 9587 Arnoldstein, Österreich
+E-Mail: office@jenibarb.com · Telefon: {{TELEFON}}
 
 Eine Datenschutzbeauftragte ist nicht bestellt; dazu besteht keine Pflicht
-(Art. 37 DSGVO). Datenschutzanfragen bitte an {{EMAIL}}.
+(Art. 37 DSGVO). Datenschutzanfragen bitte an office@jenibarb.com.
 
 ## 3. Wer ist wofür verantwortlich? (Rollen)
 
@@ -87,7 +87,7 @@ Nachricht, um deine Anfrage zu beantworten (Art. 6 Abs 1 lit b bzw. f DSGVO;
 berechtigtes Interesse: Kundenbetreuung). Schick uns bitte keine
 Buchhaltungsdaten oder Sicherungen, wenn es nicht nötig ist. Ein freiwilliger
 Fehlerbericht wird nur gesendet, wenn du ihn selbst per E-Mail abschickst.
-E-Mail-Anbieter: {{EMAIL_PROVIDER}} (Auftragsverarbeiter, Sitz {{SITZ}}).
+E-Mail-Anbieter: {{EMAIL_PROVIDER}} (Auftragsverarbeiter, Sitz Arnoldstein).
 Löschung: 3 Jahre nach Abschluss der Anfrage; soweit geschäftliche Unterlagen
 betroffen sind, nach Ablauf der Aufbewahrungsfrist (§ 132 BAO: 7 Jahre).
 
@@ -113,7 +113,7 @@ Du hast das Recht auf Auskunft, Berichtigung, Löschung, Einschränkung,
 Datenübertragbarkeit und Widerspruch (Art. 15–21 DSGVO) sowie auf Widerruf
 einer Einwilligung mit Wirkung für die Zukunft. Zu Daten auf deinem Gerät
 können wir keine Auskunft geben, weil wir sie nicht haben – du hast dort selbst
-vollen Zugriff, Export und Löschung. Wende dich an {{EMAIL}}.
+vollen Zugriff, Export und Löschung. Wende dich an office@jenibarb.com.
 
 Beschwerde: Österreichische Datenschutzbehörde, Barichgasse 40–42, 1030 Wien,
 www.dsb.gv.at – oder die Aufsichtsbehörde deines Wohnorts bzw. Arbeitsplatzes.

@@ -1,6 +1,6 @@
 # Lastenheft – Buchhaltungsapp für Österreich und Deutschland
 
-**Dokumentversion:** 1.34 · **Stand:** 2026-10-09 · **Status:** Entwurf zur Abstimmung
+**Dokumentversion:** 1.35 · **Stand:** 2026-10-09 · **Status:** Entwurf zur Abstimmung
 **Auftraggeber:** Jürgen Jesenko (privates Vorhaben) · **Umsetzung:** Claude Code
 
 > Ein Lastenheft beschreibt, **was** das Produkt leisten soll und **warum** — nicht,
@@ -817,6 +817,27 @@ Charge) und erhält die Auszahlung abzüglich Provision.
 
 ---
 
+## 5.23 Vertragsarchiv (Stufe C)
+
+Wunsch der Auftraggeberin vom 2026-10-12; geprüft von Steuerberater und
+Rechtsanwalt (Prüfpunkte P-S16 bis P-S18, P-L14 bis P-L17 in Spezifikation
+Abschnitt 14). Einzelunternehmerinnen bilanzieren nicht: Verträge zählen für
+Einnahmen-Ausgaben-Rechnung, Abschreibung, Privatanteile und Aufbewahrung.
+
+| ID | Anforderung | Priorität | Stufe |
+|---|---|---|---|
+| L-23.1 | Verträge (Dienst, Werk, Kauf, Leasing, Versicherung, Miete, Darlehen) lokal und verschlüsselt ablegen, mit Typ, Partner, Laufzeit, Kündigungsfrist, Rate; verknüpfbar mit Belegen und Buchungen | MUSS | C |
+| L-23.2 | Aufbewahrungsfrist je Vertrag ab Vertragsende und letzter darauf beruhender Buchung; Fristen über `TaxProfile`; Löschen vorher nur mit Warnung | MUSS | C |
+| L-23.3 | Lokale Erinnerung an Kündigungs- und Verlängerungsfristen, Indexanpassungen, Fälligkeiten | SOLL | C |
+| L-23.4 | Abgleich Rate laut Vertrag gegen gebuchte Zahlung; wiederkehrende Buchung nur als Vorschlag | SOLL | C |
+| L-23.5 | Steuerliche Hinweise nur als allgemeine Information aus freigegebenem Textkatalog mit Normzitat; keine Einzelfallentscheidung über Privatanteil, Zurechnung, Absetzbarkeit | MUSS | C |
+| L-23.6 | Rechtliche Ausgaben nur als Auszug und Zusammenfassung mit Fundstelle im Vertragstext; keine Wirksamkeitsurteile, Handlungsempfehlungen oder individuellen Schreiben | MUSS | C |
+| L-23.7 | KI-Analyse nur per Opt-in je Funktion, standardmäßig aus; Vorschau je Vorgang mit Empfänger und Land; Route nach L-21.10, technisch erzwungen | MUSS | C |
+| L-23.8 | Vor Übertragung lokale Texterkennung und Schwärzung personenbezogener Daten Dritter; Arbeitsverträge standardmäßig ausgeschlossen; besondere Kategorien (Art. 9 DSGVO) nie übertragen | MUSS | C |
+| L-23.9 | Freischaltung erst mit AVV Anbieterin–Nutzerin, Anthropic-DPA mit SCC, DSFA und TIA, Einträgen nach L-19.5 und L-21.6 | MUSS | C |
+| L-23.10 | KI-Ergebnisse gekennzeichnet (Art. 50 AI Act), mit Modell, Zeitpunkt, Vorschlag und bestätigtem Wert protokolliert; keine Bewertung von Beschäftigten (Anhang III Nr. 4) | MUSS | C |
+| L-23.11 | Vertragsarchiv in Vollexport und Sicherung; Auskunftsexport je Vertragspartner | SOLL | C |
+
 ## 6. Nichtfunktionale Anforderungen
 
 | ID | Anforderung |
@@ -1080,7 +1101,7 @@ Zu entscheiden, bevor die betroffene Anforderung umgesetzt wird:
 | O-17 | Sollen erzeugte Werbemittel versioniert und wiederverwendbar abgelegt werden, oder sind sie Wegwerfware? | Stufe C |
 | ~~O-19~~ | **Behoben am 2026-10-09** (Umsatzanteile von L-16.1, L-16.2, L-16.11). Ursprünglich: **Bekannter Fehler:** Die Grenzwertüberwachung ermittelt den Vorjahresumsatz ausschließlich aus erfassten Belegen. Für einen neuen Nutzer ist er damit null, und die Ampel steht fälschlich auf Grün — in Deutschland entscheidet er über das ganze laufende Jahr. Behebung über L-16.1/L-16.2 | sofort; betrifft bestehenden Code |
 | O-25 | **Markenrecherche** zu „Jenny Bar" und „Jenni bucht" durch Markenanwältin (TMview, Klassen 9, 35, 36, 42), danach Unionsmarke anmelden — vor Domain und Store-Eintrag. Siehe Spezifikation Abschnitt 14, P-R7 | vor dem ersten Store-Upload |
-| O-26 | **Rechtsform und Absicherung des Anbieters:** Einzelunternehmen haftet persönlich — GmbH, Vermögensschaden- und Produkthaftpflicht prüfen (P-R8). **Entschieden 2026-10-12:** Start als Einzelunternehmen „Spirits by Jenny Barb“ mit UID; Haftpflicht weiter prüfen | vor Release |
+| O-26 | **Rechtsform und Absicherung des Anbieters:** Einzelunternehmen haftet persönlich — GmbH, Vermögensschaden- und Produkthaftpflicht prüfen (P-R8). **Entschieden 2026-10-12:** Start als Spirits by JeNiBarb e.U. (FN 643550 y, ATU81604346); Umwandlung in eine GmbH, sobald die Umsätze die Einzelunternehmerregelung übersteigen; Haftpflicht weiter prüfen | vor Release |
 | O-27 | **Laufende Kosten der Rechtsstand-Überwachung:** API-Kosten des Agenten (Annahme 30–90 €/Monat) und Bereitschaft plus Freigaben der Steuerberaterin (0,5–2 h je Änderung). Angebot einholen | vor Stufe B |
 | ~~O-28~~ | **Entschieden am 2026-10-10:** direkt Anthropic API, ein eigenes neues Konto. EU-Verarbeitung von den Prüfinstanzen geprüft: nicht vorgeschrieben; Buchhaltungsdaten und Belege dürfen trotzdem nicht über die US-Route laufen (L-21.8 bis L-21.12) | erledigt |
 | ~~O-29~~ | **Entschieden am 2026-10-10:** Sicherung und Synchronisierung bleiben in der Cloud der Nutzerin; kein Server und kein Konto beim Anbieter. Mehrere Geräte und mehrere Personen über gemeinsamen Ordner (L-19.12 ff.) | erledigt |
@@ -1098,6 +1119,7 @@ Zu entscheiden, bevor die betroffene Anforderung umgesetzt wird:
 
 | Version | Datum | Änderung |
 |---|---|---|
+| 1.35 | 2026-10-12 | Neuer Block 5.23 Vertragsarchiv (Stufe C) nach Prüfung durch Steuerberater und Rechtsanwalt. O-26 entschieden: Spirits by JeNiBarb e.U.; Umwandlung in eine GmbH, sobald die Umsätze es rechtfertigen. |
 | 1.34 | 2026-10-12 | Neuer Block 5.22 Lizenz und Bezahlung mit Store-Reife, mit den drei Prüfinstanzen ausgearbeitet: nur Store-Billing, Lizenzmanager ohne Server mit Prüfung am Gerät, Herabstufen statt sperren, Abo-Seite, Anbieter-Steuern, Organisationskonten, Release-Workflow. Neue Checkliste STORE_READINESS.md. |
 | 1.33 | 2026-10-12 | Datenbindung geprüft (O-31): keine anbieterexklusive Verschlüsselung; neu L-7.12 bis L-7.16 (kein Anbieterschlüssel, offenes Format, Archivexport Z3, Nur-Lese-Modus, Escrow). |
 | 1.32 | 2026-10-12 | Gerätetest: L-17.1 bis L-17.4 umgesetzt (Bestätigungen vor der ersten Nutzung, ohne Werbe-Einwilligung). O-30 neu (Verifizierung von E-Mail/Telefon). |
