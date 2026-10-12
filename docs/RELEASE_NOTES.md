@@ -29,22 +29,42 @@ gebaut, und was war darin geprüft?*
 
 ## Unveröffentlicht
 
-Änderungen seit 0.1.0+1, die noch in keinem Build stecken. Wandern beim
+Änderungen seit 0.2.0+2, die noch in keinem Build stecken. Wandern beim
 nächsten Versionssprung in den neuen Eintrag.
 
 | Art | Änderung | Bezug | Commit |
 |---|---|---|---|
-| Geändert | Testbuilds tragen eine fortlaufende Buildnummer (CI-Laufnummer) als versionCode und im Artefaktnamen `test-apk-build-<Nummer>` | Wunsch Auftraggeberin 2026-10-12 | dieser |
-| Neu | Tablet und Querformat: Breitenklassen nach Material 3, Navigationsleiste links ab 600 dp, Liste-Detail ab 840 dp für Belege, Rechnungen und Kunden, Formulare höchstens 640 dp; iPad mit Split View (kein `UIRequiresFullScreen`) | FA-9.1–9.5, DESIGN_SPEC D-5, P-D19, P-D20 | dieser |
-| Neu | App-Sperre: PIN 6–8 Ziffern (Argon2id-Hash im sicheren Speicher), optional Fingerabdruck/Face ID, Sperre beim Start und nach einstellbarer Zeit, steigende Wartezeit, Abdeckung im App-Umschalter, Hinweis „PIN vergessen“ mit Warnung ohne Sicherung | L-22.30, FA-1.13–1.18 | dieser |
-| Abhängigkeit | Neu: `local_auth`, `androidx.appcompat`; Android `MainActivity` erbt von `FlutterFragmentActivity`, Starttheme `Theme.AppCompat`; iOS `NSFaceIDUsageDescription` | FA-1.16, P-D18 | dieser |
-| Behoben | PDF gestellter Rechnungen nahm Absenderangaben aus dem aktuellen Profil statt aus dem eingefrorenen Snapshot | GR-8, CLAUDE.md Regel 7 | dieser |
-| Behoben | Abgebrochene Belegerfassung hinterließ verwaiste Fotos | FA-2.13 | dieser |
-| Neu | Mehrseitige Belege mit Vollständigkeitsbestätigung, Seiten nach dem Speichern nur anhängbar; Schema 8 (`receipt_pages`), Migration der Einzelfotos | L-2.15, L-2.16, FA-2.13–2.15 | dieser |
-| Neu | Kommentare zu Belegen, nur anhängbar, mit Zeitstempel und Protokoll, auch bei stornierten Belegen; Diktat über die Systemtastatur mit Hinweis; Filter „Storniert" | L-2.17, L-2.18, FA-2.16–2.18 | dieser |
-| Neu | Firmenlogo im Rechnungs-PDF, eingefroren bei Rechnungslegung, in der Sicherung (`logo/`) | L-1.7, L-1.9, FA-1.12, FA-7.6 | dieser |
-| Geändert | Export: Belegliste mit Seiten und Kommentaren, DATEV/BMD-Buchungstext mit gekürztem Kommentar | FA-6.7 | dieser |
-| Dokumentation | Entwürfe Impressum, Datenschutzerklärung, Nutzungsbedingungen (`docs/legal/`), noch nicht in der App | P-L1, P-L4–L11 | dieser |
+
+---
+
+## 0.2.0+2 — 2026-10-12
+
+| Feld | Wert |
+|---|---|
+| Art | Testbuild (CI-APK, Artefakt `test-apk-build-<Nummer>`, signiert mit festem Testschlüssel); kein Store-Release. Die Buildnummer der APK ist die CI-Laufnummer |
+| Commit | siehe Git-Tag `v0.2.0` |
+| Branch | `claude/agile-accounting-app-mobile-wa5j3h` |
+| Dokumentstände | Lastenheft 1.39, Spezifikation 1.25, Benutzerhandbuch für 0.2.0 |
+| Datenbankschema | 8 |
+| Prüfung | `flutter analyze` ohne Befund, 220 Tests grün, CI siehe Lauf zum Tag |
+| Offene reale Prüfpunkte | alle mit Status „offen“ in Spezifikation Abschnitt 14, für diesen Build vor allem P-D11 bis P-D13, P-D17 bis P-D20, P-B12 |
+| Bekannte Grenzen | Spezifikation Abschnitt 11 |
+
+**Änderungen seit 0.1.0+1**
+
+| Art | Änderung | Bezug | Commit |
+|---|---|---|---|
+| Geändert | Testbuilds tragen eine fortlaufende Buildnummer (CI-Laufnummer) als versionCode und im Artefaktnamen `test-apk-build-<Nummer>` | Wunsch Auftraggeberin 2026-10-12 | 3e9bf5b |
+| Neu | Tablet und Querformat: Breitenklassen nach Material 3, Navigationsleiste links ab 600 dp, Liste-Detail ab 840 dp für Belege, Rechnungen und Kunden, Formulare höchstens 640 dp; iPad mit Split View (kein `UIRequiresFullScreen`) | FA-9.1–9.5, DESIGN_SPEC D-5, P-D19, P-D20 | 55ad7cc |
+| Neu | App-Sperre: PIN 6–8 Ziffern (Argon2id-Hash im sicheren Speicher), optional Fingerabdruck/Face ID, Sperre beim Start und nach einstellbarer Zeit, steigende Wartezeit, Abdeckung im App-Umschalter, Hinweis „PIN vergessen“ mit Warnung ohne Sicherung | L-22.30, FA-1.13–1.18 | f14c031 |
+| Abhängigkeit | Neu: `local_auth`, `androidx.appcompat`; Android `MainActivity` erbt von `FlutterFragmentActivity`, Starttheme `Theme.AppCompat`; iOS `NSFaceIDUsageDescription` | FA-1.16, P-D18 | f14c031 |
+| Behoben | PDF gestellter Rechnungen nahm Absenderangaben aus dem aktuellen Profil statt aus dem eingefrorenen Snapshot | GR-8, CLAUDE.md Regel 7 | 340458f |
+| Behoben | Abgebrochene Belegerfassung hinterließ verwaiste Fotos | FA-2.13 | 340458f |
+| Neu | Mehrseitige Belege mit Vollständigkeitsbestätigung, Seiten nach dem Speichern nur anhängbar; Schema 8 (`receipt_pages`), Migration der Einzelfotos | L-2.15, L-2.16, FA-2.13–2.15 | a9da2ce |
+| Neu | Kommentare zu Belegen, nur anhängbar, mit Zeitstempel und Protokoll, auch bei stornierten Belegen; Diktat über die Systemtastatur mit Hinweis; Filter „Storniert" | L-2.17, L-2.18, FA-2.16–2.18 | a9da2ce |
+| Neu | Firmenlogo im Rechnungs-PDF, eingefroren bei Rechnungslegung, in der Sicherung (`logo/`) | L-1.7, L-1.9, FA-1.12, FA-7.6 | a9da2ce |
+| Geändert | Export: Belegliste mit Seiten und Kommentaren, DATEV/BMD-Buchungstext mit gekürztem Kommentar | FA-6.7 | a9da2ce |
+| Dokumentation | Entwürfe Impressum, Datenschutzerklärung, Nutzungsbedingungen (`docs/legal/`), noch nicht in der App | P-L1, P-L4–L11 | 86d4d92 |
 | Behoben | Grenzwertüberwachung: Vorjahresumsatz neuer Nutzer war null, Ampel fälschlich grün; Eröffnungswerte und Status „Angaben fehlen" | O-19, FA-1.8, FA-1.9, FA-4.9–4.12 | 2918bfd |
 | Behoben | Österreich: Vorjahresgrenze 55.000 € ohne Toleranz | O-1, FA-4.6 | 8fb5547 |
 | Behoben | Rechnungsnummer wird in derselben Transaktion wie das Speichern vergeben, keine Lücken | FA-5.5 | 077ca5d |

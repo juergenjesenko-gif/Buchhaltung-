@@ -1,6 +1,6 @@
 # Spezifikation – Buchhaltung
 
-**Dokumentversion:** 1.24 · **App-Version:** 0.1.0 · **Stand:** 2026-10-12
+**Dokumentversion:** 1.25 · **App-Version:** 0.2.0 · **Stand:** 2026-10-12
 **Status:** Sprint 1 umgesetzt und verifiziert
 
 > Das **Zielbild** des Produkts steht im [`LASTENHEFT.md`](LASTENHEFT.md); dieses
@@ -678,6 +678,7 @@ Umrechnung: Beträge in Cent. `5500000` Cent = 55.000,00 €.
 
 | Version | Datum | App-Version | Änderung |
 |---|---|---|---|
+| 1.25 | 2026-10-12 | 0.2.0 | App-Version 0.2.0 (Testbuild). Versionsschema: 0.x bis zum Store-Start, zweite Stelle für Funktionen, dritte für Fehlerbehebungen; Buildnummer fortlaufend aus der CI. |
 | 1.24 | 2026-10-12 | 0.1.0 | Tablet und Querformat (Abschnitt 5.7, FA-9.1 bis FA-9.5): Breitenklassen nach Material 3, NavigationRail ab medium, Liste-Detail ab expanded für Belege, Rechnungen und Kunden, Formularbreite 640 dp, iPad ohne `UIRequiresFullScreen`. Neue Kennwerte `spec.window_*`, `spec.max_content_width_dp`, neue Grenze in Abschnitt 11, Prüfpunkte P-D19, P-D20. |
 | 1.23 | 2026-10-12 | 0.1.0 | App-Sperre (Abschnitt 5.5b, FA-1.13 bis FA-1.18, Lastenheft L-22.30): PIN 6–8 Ziffern als Argon2id-Hash im sicheren Speicher, Biometrie über `local_auth`, Sperrzeit, steigende Wartezeit, Abdeckung im App-Umschalter. Neue Kennwerte `spec.app_lock_*`, zwei neue Bildschirme, Prüfpunkte P-D17, P-D18. |
 | 1.22 | 2026-10-12 | 0.1.0 | Prüfpunkte P-S19 bis P-S22, P-R15 bis P-R17, P-D14 bis P-D16 (Store-Erlös, Wiederherstellungscode, Promocodes). Keine Codeänderung. |

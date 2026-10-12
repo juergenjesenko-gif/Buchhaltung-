@@ -32,7 +32,7 @@ flutter create --org com.deine-domain --project-name buchhaltung \
 
 `pubspec.yaml` trägt `version: <Name>+<Buildnummer>`, zum Beispiel `0.1.0+1`.
 
-- **Versionsname** (`0.1.0`) ist das, was der Nutzer im Store sieht
+- **Versionsname** (`0.1.0`) ist das, was der Nutzer im Store sieht. Schema (Entscheidung Auftraggeberin 2026-10-12): `0.x.y` bis zum Store-Start, `1.0.0` ist die erste Store-Version; zweite Stelle bei neuen Funktionen, dritte bei reinen Fehlerbehebungen
 - **Buildnummer** (`+1`) muss bei **jedem** Upload steigen und darf **nie**
   zurückgehen. Beide Stores lehnen einen Upload mit bereits verwendeter
   Buildnummer ab.

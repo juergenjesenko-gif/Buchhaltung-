@@ -4,7 +4,7 @@ publish_to: "none"
 
 # version: <Store-Versionsname>+<Buildnummer>
 # Die Buildnummer wird in CI aus der Run-Nummer gesetzt, siehe docs/RELEASE_PLAYBOOK.md
-version: 0.1.0+1
+version: 0.2.0+2
 
 environment:
   sdk: ^3.10.0
