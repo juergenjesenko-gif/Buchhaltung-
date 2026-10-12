@@ -117,3 +117,21 @@ Partner und gilt daher nicht als Datenerhebung.
 
 Ohne Einschränkung. Keine nutzergenerierten Inhalte, keine Interaktion zwischen
 Nutzern, keine Käufe.
+
+## Werbe-Negativliste
+
+Vor jeder Änderung von Store-Text, Screenshots oder Produktseite prüfen
+(Lastenheft L-22.20, Prüfpunkt P-R13). Nicht verwenden:
+
+- „finanzamtssicher", „rechtssicher", „100 % korrekt"
+- „GoBD-zertifiziert", „GoBD-konform", „zertifiziert", „geprüft" – es gibt kein staatliches Zertifikat
+- „ersetzt den Steuerberater", „Steuerberatung", „Steuerexperte in der Tasche"
+- „Vorsteuer abziehbar", „Rechnung mit UID" für die Abo-Zahlung (P-S12)
+- „immer aktuell", „garantiert aktuell" (L-20.23)
+- „kostenlos" ohne Folgepreis nach dem Test
+- Streichpreise ohne den niedrigsten Preis der letzten 30 Tage (PAngV)
+- Vergleiche mit namentlich genannten Mitbewerbern ohne Prüfung nach § 6 UWG
+- „Finanzamt", „ELSTER", „FinanzOnline" als Teil des App-Namens
+
+Pflicht im Store-Text: der Hinweis „Keine Steuerberatung – ersetzt keine
+steuerliche Beratung".

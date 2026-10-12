@@ -122,6 +122,7 @@ Weiteres:
 - [`docs/COMPLIANCE_AT_DE.md`](docs/COMPLIANCE_AT_DE.md) – steuerliche Anforderungen und
   wo die App bewusst an ihre Grenze kommt
 - [`docs/RELEASE_PLAYBOOK.md`](docs/RELEASE_PLAYBOOK.md) – Weg in App Store und Google Play
+- [`docs/STORE_READINESS.md`](docs/STORE_READINESS.md) – Checkliste bis zur Einreichung
 - [`docs/RELEASE_NOTES.md`](docs/RELEASE_NOTES.md) – Release Notes mit Nachverfolgbarkeit je Version
 - [`docs/SICHERUNG.md`](docs/SICHERUNG.md) – Zusatzsicherung auf die lokale SSD
 - [`docs/PRIVACY.md`](docs/PRIVACY.md) – Datenschutzerklärung (Vorlage)

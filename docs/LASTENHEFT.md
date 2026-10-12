@@ -1,6 +1,6 @@
 # Lastenheft – Buchhaltungsapp für Österreich und Deutschland
 
-**Dokumentversion:** 1.33 · **Stand:** 2026-10-09 · **Status:** Entwurf zur Abstimmung
+**Dokumentversion:** 1.34 · **Stand:** 2026-10-09 · **Status:** Entwurf zur Abstimmung
 **Auftraggeber:** Jürgen Jesenko (privates Vorhaben) · **Umsetzung:** Claude Code
 
 > Ein Lastenheft beschreibt, **was** das Produkt leisten soll und **warum** — nicht,
@@ -776,6 +776,45 @@ etwa 30–60 USD im Monat; Marketing-Modul etwa 250–350 USD je 1.000 aktive
 Pro-Nutzerinnen mit 20 Aufträgen im Monat; Backend-Hosting 5–30 € im Monat.
 Werden mit Messdaten aus dem Probebetrieb ersetzt.
 
+### 5.22 Lizenz und Bezahlung
+
+Ausgearbeitet mit den drei Prüfinstanzen am 2026-10-12. Checkliste zur
+Einreichung: [`STORE_READINESS.md`](STORE_READINESS.md).
+
+**Bezahlung ausschließlich über die Stores** (Apple In-App-Kauf, Google Play
+Billing). Die Stores sind gegenüber den Kundinnen Verkäufer: sie kassieren,
+führen die Umsatzsteuer ab, stellen Quittungen aus und regeln Widerruf und
+Erstattung. Der Anbieter leistet an Apple bzw. Google in Irland (Reverse
+Charge) und erhält die Auszahlung abzüglich Provision.
+
+| ID | Anforderung | Prio | Stufe |
+|---|---|---|---|
+| L-22.1 | **Lizenzmanager** in `lib/services`: liefert nur den Anspruch `keiner / nur lesen / Basis / Pro`; Oberfläche und Funktionen fragen nur diesen Wert ab, nie die Store-Schnittstelle direkt | MUSS | B |
+| L-22.2 | Paket `in_app_purchase` (StoreKit 2, Play Billing); **eine Abogruppe** mit den Stufen Basis < Pro, je monatlich und jährlich, damit Wechsel ohne Doppelabo gehen (Apple: Upgrade sofort, Downgrade zum Periodenende) | MUSS | B |
+| L-22.3 | **14 Tage Test** als Einführungsangebot der Stores auf Pro; Rabatte über Einführungsangebote und Angebotscodes (serverseitig signierte Aktionsangebote entfallen ohne Server) | MUSS | B |
+| L-22.4 | **Prüfung der Käufe auf dem Gerät:** StoreKit-2-Signatur bzw. Google-Kaufsignatur mit dem öffentlichen Lizenzschlüssel; Status mit Ablaufdatum geschützt gespeichert (Schlüsselbund/Keystore) | MUSS | B |
+| L-22.5 | **Kulanz:** Billing-Grace-Period der Stores eingeschaltet; ohne Netz bleibt der volle Anspruch mindestens 14 Tage über das Ablaufdatum hinaus. Herabstufung nur nach Ankündigung in der App | MUSS | B |
+| L-22.6 | **Herabstufen statt sperren:** Pro-Ende → Basis; Basis-Ende → Nur-Lese-Modus (L-7.15). Ansehen, Drucken, Export, Sicherung und Wiederherstellung bleiben immer möglich | MUSS | B |
+| L-22.7 | **Abo-Seite vor dem Kauf:** Preis je Zeitraum inkl. USt, Laufzeit, automatische Verlängerung, Testende mit Folgepreis, Kündigungsweg, Links zu Nutzungsbedingungen und Datenschutz (Apple 3.1.2) | MUSS | B |
+| L-22.8 | **„Abo verwalten/kündigen"** als Sprung in die Aboverwaltung des Stores; **„Käufe wiederherstellen"** | MUSS | B |
+| L-22.9 | Preisänderungen laufender Abos nur über die Store-Mechanik (Zustimmung der Kundin); keine Preisanpassungsklausel in den Nutzungsbedingungen | MUSS | B |
+| L-22.10 | **Kein Abrechnungs- oder Analyse-SDK Dritter** (z. B. RevenueCat) ohne vorherige Eintragung in 5.19, PRIVACY und STORE_LISTING und Auftragsverarbeitungsvertrag | MUSS | B |
+| L-22.11 | Manipulationsschutz bewusst „ausreichend": Prüfung auf dem Gerät plus verschleierter Code; gegen gezieltes Knacken schützt ohne Server nichts | MUSS | B |
+| L-22.12 | **Spätere In-App-Käufe:** dauerhafte Freischaltungen als Nicht-Verbrauchsartikel jederzeit möglich; Kontingente (z. B. Marketing-Erzeugungen) als Verbrauchsartikel erst mit Backend (S-8), weil ein Zähler am Gerät manipulierbar ist | KANN | C |
+| L-22.13 | **Kein Direktverkauf, keine DMA-Alternativen** in Stufe A und B; Neubewertung nur, wenn der Umsatz die Ersparnis rechtfertigt (dann Widerruf, § 312k BGB, OSS, Zahlungsdienstleister, Lizenzserver) | MUSS | B |
+| L-22.14 | **Anbieter-Steuern vor dem ersten Verkauf:** UID-Nummer, Zusammenfassende Meldung und UVA für Store-Erlöse (Leistungsort Irland), W-8BEN(-E), Buchungsregel für Auszahlungen; keine Werbung mit Vorsteuerabzug aus Store-Quittungen (P-S12) | MUSS | B |
+
+**Store-Reife (Auszug, vollständig in STORE_READINESS.md):**
+
+| ID | Anforderung | Prio | Stufe |
+|---|---|---|---|
+| L-22.15 | Organisationskonten bei Google Play und Apple mit D-U-N-S-Nummer; öffentliche Händlerangaben nach DSA identisch mit dem Impressum | MUSS | A |
+| L-22.16 | Release-Workflow getrennt von der CI: AAB mit Upload-Schlüssel, iOS über Fastlane nach TestFlight; Release ohne Upload-Schlüssel bricht ab | MUSS | A |
+| L-22.17 | `PrivacyInfo.xcprivacy`, fest eingetragenes targetSdk, geklärte Export-Compliance (eigene AES-Verschlüsselung) | MUSS | A |
+| L-22.18 | Menü „Rechtliches" in der App, auch offline: Impressum, Datenschutz, Nutzungsbedingungen, Support, „keine Steuerberatung" | MUSS | A |
+| L-22.19 | Kein Crash-SDK; Absturzstatistik der Stores plus freiwilliger Fehlerbericht per E-Mail | MUSS | A |
+| L-22.20 | Werbe-Negativliste in STORE_LISTING („finanzamtssicher", „GoBD-zertifiziert", „ersetzt Steuerberatung" u. a.); Prüfung vor jeder Textänderung | MUSS | A |
+
 ---
 
 ## 6. Nichtfunktionale Anforderungen
@@ -920,6 +959,7 @@ Grobe Schätzung in Personenwochen Vollzeitentwicklung, ohne Puffer:
 | Fehlerbehebungen aus der Prüfung (Schreibschutz, Nummernkreis, Belegstorno) | A | 1–2 |
 | Lokalisierung realistisch statt 1 PW (Prüfinstanz Softwareentwickler) | A | +0,5–1 |
 | Puffer 30 % (Prüfinstanz Softwareentwickler) | A | 6–9 |
+| Store-Reife: Release-Workflow, Privacy Manifest, targetSdk, Formulare, Rechtliches-Menü (L-22.15 bis L-22.20) | A | 2–3 |
 | **Summe Stufe A** | | **25–40** |
 | Belegerkennung on-device | B | 3–5 |
 | E-Rechnung XRechnung/ZUGFeRD/ebInterface | B | 4–6 |
@@ -938,6 +978,7 @@ Grobe Schätzung in Personenwochen Vollzeitentwicklung, ohne Puffer:
 | Kontoauszug-Import und Zuordnung | B | 2–3 |
 | OSS-Warnung (L-13.9) | B | 1 |
 | Rechtsstand-Überwachung: Staffelung, Paket, Pipeline, Validierung (L-20) | B | 6–8 |
+| Lizenzmanager, Abo-Seite, Käufe wiederherstellen (L-22.1 bis L-22.11) | B | 2–3 |
 | **Summe Stufe B** | | **39–57** |
 | **Stufe A + B zusammen** | | **64–97 Personenwochen** |
 | Synchronisierung ohne Server: Journal, UUID-Migration, Konflikte, Nummernkreise je Gerät, Schlüssel und Einladung, Rollen, Zugangsentzug, Tests (L-19.12 ff.) | C | 56–83 |
@@ -1057,6 +1098,7 @@ Zu entscheiden, bevor die betroffene Anforderung umgesetzt wird:
 
 | Version | Datum | Änderung |
 |---|---|---|
+| 1.34 | 2026-10-12 | Neuer Block 5.22 Lizenz und Bezahlung mit Store-Reife, mit den drei Prüfinstanzen ausgearbeitet: nur Store-Billing, Lizenzmanager ohne Server mit Prüfung am Gerät, Herabstufen statt sperren, Abo-Seite, Anbieter-Steuern, Organisationskonten, Release-Workflow. Neue Checkliste STORE_READINESS.md. |
 | 1.33 | 2026-10-12 | Datenbindung geprüft (O-31): keine anbieterexklusive Verschlüsselung; neu L-7.12 bis L-7.16 (kein Anbieterschlüssel, offenes Format, Archivexport Z3, Nur-Lese-Modus, Escrow). |
 | 1.32 | 2026-10-12 | Gerätetest: L-17.1 bis L-17.4 umgesetzt (Bestätigungen vor der ersten Nutzung, ohne Werbe-Einwilligung). O-30 neu (Verifizierung von E-Mail/Telefon). |
 | 1.31 | 2026-10-10 | O-29 entschieden: kein Server und kein Konto beim Anbieter. Mehrgeräte- und Mehrpersonenbetrieb über einen Cloud-Ordner der Unternehmerin, mit den drei Prüfinstanzen ausgearbeitet (L-19.12 neu, L-19.13 ersetzt, L-19.15 bis L-19.26 neu; L-19.4, L-19.6, L-19.9, L-19.14 entfallen). Rollen- und Datenflusstabelle angepasst, S-8 nur noch für Kanäle. Aufwand Stufe C +56–83 PW. |
