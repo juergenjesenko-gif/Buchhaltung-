@@ -34,7 +34,7 @@ nächsten Versionssprung in den neuen Eintrag.
 
 | Art | Änderung | Bezug | Commit |
 |---|---|---|---|
-| Geändert | Testbuild nur noch arm64, ungezippt als `Buchhaltung-<Version>-build-<Nummer>.apk` (upload-artifact v7, `archive: false`) | Wunsch Auftraggeberin 2026-10-12 | dieser |
+| Geändert | Testbuild nur noch arm64, ungezippt als `Buchhaltung-<Version>-build-<Nummer>.apk` (upload-artifact v7, `archive: false`); weiter mit `--split-per-abi`, damit der versionCode 2000 + Buildnummer bleibt (Build 73 ohne Split ließ sich nicht als Update installieren) | Wunsch Auftraggeberin 2026-10-12 | 9109e7b, dieser |
 
 ---
 
