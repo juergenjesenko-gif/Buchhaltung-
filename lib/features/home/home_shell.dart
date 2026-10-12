@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../services/launcher/platform_home_shortcut.dart';
 import '../../widgets/adaptive.dart';
 import '../dashboard/dashboard_screen.dart';
 import '../export/export_screen.dart';
@@ -48,6 +49,40 @@ class _HomeShellState extends State<HomeShell> {
     ),
     ExportScreen(),
   ];
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) => _offerHomeShortcut());
+  }
+
+  /// Einmaliges Angebot nach dem ersten Start (FA-1.19).
+  Future<void> _offerHomeShortcut() async {
+    if (!await homeShortcutService.shouldOffer() || !mounted) return;
+    await homeShortcutService.markOffered();
+    if (!mounted) return;
+    final yes = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('App-Symbol auf den Startbildschirm legen?'),
+        content: const Text(
+          'Android zeigt dazu einen Bestätigungsdialog. Später jederzeit '
+          'unter Einstellungen möglich.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: const Text('Nein danke'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            child: const Text('Hinzufügen'),
+          ),
+        ],
+      ),
+    );
+    if (yes == true) await homeShortcutService.requestPin();
+  }
 
   void _select(int value) => setState(() => _index = value);
 

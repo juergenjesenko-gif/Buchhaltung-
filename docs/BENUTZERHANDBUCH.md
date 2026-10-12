@@ -573,6 +573,13 @@ Belege ein oder aus (Standard: an), siehe Abschnitt 4
 **App-Sperre** – schützt die App mit einer PIN und, wenn dein Gerät es kann,
 mit Fingerabdruck oder Face ID. Standardmäßig aus.
 
+**Symbol auf Startbildschirm legen** – nur unter Android: legt das App-Symbol
+auf deinen Startbildschirm. Android fragt dich dazu in einem eigenen Dialog
+„Zum Startbildschirm hinzufügen“. Hast du die App nicht aus dem Play Store
+installiert, fehlt das Symbol dort sonst. Die App bietet das nach dem ersten
+Einrichten einmal von selbst an; sagst du „Nein danke“, fragt sie nicht
+wieder.
+
 *Einrichten:* Einstellungen → App-Sperre. Lies den Hinweis zur vergessenen PIN,
 lege eine PIN mit 6 bis 8 Ziffern fest (zweimal; `000000` oder `123456` gehen
 nicht), schalte auf Wunsch Fingerabdruck/Face ID ein und wähle, wann die App im

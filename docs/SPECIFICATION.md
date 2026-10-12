@@ -1,6 +1,6 @@
 # Spezifikation – Buchhaltung
 
-**Dokumentversion:** 1.28 · **App-Version:** 0.2.0 · **Stand:** 2026-10-12
+**Dokumentversion:** 1.29 · **App-Version:** 0.2.0 · **Stand:** 2026-10-12
 **Status:** Sprint 1 umgesetzt und verifiziert
 
 > Das **Zielbild** des Produkts steht im [`LASTENHEFT.md`](LASTENHEFT.md); dieses
@@ -407,6 +407,18 @@ Fachlogik: `lib/services/app_lock/app_lock_service.dart`, Plattform:
 | FA-1.17 | Im App-Umschalter wird der Inhalt verdeckt, solange die Sperre eingeschaltet ist: Flutter-Abdeckung ab `inactive` (beide Plattformen), zusätzlich Android 13+ `setRecentsScreenshotEnabled(false)` über Kanal `buchhaltung/app_lock`. **Kein `FLAG_SECURE`**, damit Bildschirmfotos (z. B. für den Support) möglich bleiben. Wirksamkeit: P-D17 |
 | FA-1.18 | Fehlversuche: **5** ohne Wartezeit, dann **30 s**, je weiterem Fehlversuch verdoppelt bis **1 Stunde** (`spec.app_lock_free_attempts`, `spec.app_lock_backoff_*`). Zähler und Wartezeit liegen im sicheren Speicher und überstehen einen Neustart; richtige PIN oder Biometrie setzt sie zurück. Keine Datenlöschung nach Fehlversuchen. **Vergessene PIN:** kein Zurücksetzen durch den Anbieter; Weg ist App-Daten löschen bzw. neu installieren und aus der Sicherung wiederherstellen. Erklärt beim Einrichten und auf dem Sperrbildschirm; ohne vorhandene Sicherung (von Hand oder automatisch) erscheint beim Einrichten eine Warnung mit Weg zur Datensicherung. Ausschalten und PIN ändern nur mit der aktuellen PIN |
 
+### 5.5c App-Symbol auf dem Startbildschirm
+
+Bei einer Installation per APK legt Android kein Symbol auf den Startbildschirm.
+Eine App darf es nicht stumm ablegen; zulässig ist nur
+`ShortcutManager.requestPinShortcut` (Android 8+) mit Systemdialog.
+Fachlogik: `lib/services/launcher/home_shortcut_service.dart`, Plattform:
+`lib/services/launcher/platform_home_shortcut.dart`, `LauncherChannel.kt`.
+
+| ID | Anforderung |
+|---|---|
+| FA-1.19 | **Einmaliges Angebot** beim ersten Erreichen der Hauptnavigation (nach Onboarding) auf Android, wenn `ShortcutManagerCompat.isRequestPinShortcutSupported` zutrifft: Dialog „App-Symbol auf den Startbildschirm legen?“, bei „Hinzufügen“ der Systemdialog. Kanal `buchhaltung/launcher` (`isSupported`, `requestPin`); Verknüpfung ID `home`, Beschriftung App-Name, Symbol `@mipmap/ic_launcher`, Intent MAIN/LAUNCHER auf `MainActivity`. Der Merker „gefragt“ liegt gerätegebunden in `flutter_secure_storage` (nicht in SQLite, keine Migration), gesetzt unabhängig von der Antwort. Dauerhaft: Einstellungen → „Symbol auf Startbildschirm legen“, nur sichtbar, wenn unterstützt. iOS und andere Plattformen: nicht unterstützt, nichts angezeigt. Gerätetest: P-D24 |
+
 ### 5.6 Export
 
 | ID | Anforderung |
@@ -485,7 +497,7 @@ Kleinunternehmer:
 |---|---|---|
 | Bestätigungen | `features/onboarding/consent_screen.dart` | Hinweis „keine Steuerberatung“, Nutzungsbedingungen und Datenschutz bestätigen |
 | Onboarding / Stammdaten | `features/onboarding/company_setup_screen.dart` | Firmenprofil anlegen und bearbeiten, Firmenlogo |
-| Hauptnavigation | `features/home/home_shell.dart` | Vier Bereiche: Tab-Leiste (compact) oder Navigationsleiste links (medium, expanded), FA-9.2 |
+| Hauptnavigation | `features/home/home_shell.dart` | Vier Bereiche: Tab-Leiste (compact) oder Navigationsleiste links (medium, expanded), FA-9.2; einmaliges Angebot „App-Symbol auf den Startbildschirm“ (FA-1.19) |
 | Übersicht | `features/dashboard/dashboard_screen.dart` | Kassabuch, Umsatzsteuer, Grenzwertampel, Verlauf |
 | Belegliste | `features/receipts/receipt_list_screen.dart` | Suchen, filtern, öffnen; Filter „Storniert“ |
 | Beleg bearbeiten | `features/receipts/receipt_edit_screen.dart` | Erfassen, Seiten, automatisches Auslesen mit „Erneut auslesen“, Betrag, Fremdwährung mit „Kurs abrufen“ und Bankbetrag (FA-2.24 bis FA-2.26), Kategorie, Rechnungsnummer, Aussteller-UID, Kommentare; stornierte Belege nur lesen |
@@ -494,7 +506,7 @@ Kleinunternehmer:
 | Kunde bearbeiten | `features/invoices/customer_edit_screen.dart` | Kundenstammdaten |
 | Datensicherung | `features/backup/backup_screen.dart` | Sicherung erstellen und teilen, wiederherstellen mit Vorschau |
 | Export | `features/export/export_screen.dart` | Zeitraum, Vorschau, Format |
-| Einstellungen | `features/settings/settings_screen.dart` | Stammdaten, App-Sperre, Belege auslesen, Fremdwährung (Tageskurs-Genehmigung), Kategorien, Rechtsrahmen, Hinweise |
+| Einstellungen | `features/settings/settings_screen.dart` | Stammdaten, App-Sperre, Symbol auf Startbildschirm (FA-1.19, nur Android), Belege auslesen, Fremdwährung (Tageskurs-Genehmigung), Kategorien, Rechtsrahmen, Hinweise |
 | App-Sperre einrichten | `features/app_lock/app_lock_settings_screen.dart` | PIN, Biometrie, Sperrzeit, Hinweis „PIN vergessen“, Warnung ohne Sicherung |
 | Sperrbildschirm | `features/app_lock/lock_screen.dart` | PIN oder Biometrie, Wartezeit nach Fehlversuchen; Abdeckung im App-Umschalter |
 
@@ -727,6 +739,7 @@ Umrechnung: Beträge in Cent. `5500000` Cent = 55.000,00 €.
 
 | Version | Datum | App-Version | Änderung |
 |---|---|---|---|
+| 1.29 | 2026-10-12 | 0.2.0 | App-Symbol auf dem Startbildschirm (Abschnitt 5.5c, FA-1.19): einmaliges Angebot und Eintrag in den Einstellungen über `ShortcutManager.requestPinShortcut` (Android 8+), Kanal `buchhaltung/launcher`, Merker im sicheren Speicher. Kein Schemawechsel. Prüfpunkt P-D24. |
 | 1.28 | 2026-10-12 | 0.2.0 | Fremdwährung bei Eingangsbelegen umgerechnet (FA-2.24 bis FA-2.27, GR-9, Lastenheft L-2.24 bis L-2.26, L-13.3, L-19.29): Kurs als Einheiten je 1 € × 10^6 (`spec.fx_rate_scale`), Umrechnung half-up in Ganzzahlen, „Kurs abrufen“ bei der EZB mit lokalem Speicher `ecb_rates`, EZB-Monatsmittel als Näherung, Tageskurs nur mit Genehmigung im Profil, Bankbetrag getrennt für die EÜR, Protokoll `fx`, Belegliste mit Währungsspalten; DATEV/BMD nur Euro. Schema 10. Neue Kennwerte `spec.fx_rate_scale`, `spec.*.fx_rate_legal_ref`, Datenfluss EZB in 10.1, Grenze in Abschnitt 11 angepasst, Prüfpunkt P-D23. |
 | 1.27 | 2026-10-12 | 0.2.0 | Prüfpunkte P-S23 bis P-S26, P-R18 bis P-R20, P-L18, P-D21 (Fremdwährung, ML-Kit-Telemetrie, Haftung bei Fehlerkennung). Keine Codeänderung. |
 | 1.26 | 2026-10-12 | 0.2.0 | Belege automatisch auslesen (FA-2.19 bis FA-2.23, Lastenheft L-2.20 bis L-2.23): Texterkennung auf dem Gerät (ML Kit gebündelt, Apple Vision) über eigenen Platform-Channel, Parser in `lib/services/receipt_scan/`, Vorbelegung mit „erkannt – bitte prüfen“, Fremdwährung nur erkannt, Protokoll erkannt/bestätigt mit SHA-256. Schema 9. ML-Kit-Telemetrie in 10.1 offengelegt. Neue Grenze in Abschnitt 11, Prüfpunkt P-D22. |
@@ -933,4 +946,5 @@ Status: *offen* · *bestätigt* (mit Datum und Prüfer) · *widerlegt* (mit Folg
 | P-D22 | Belegerkennung an mindestens 30 echten Belegen (Supermarkt, Tankstelle, Hotel, Online-Rechnung, Kleinbetrag, Fremdwährung, zerknittert/schräg): Quote je Feld (Datum, Brutto, Satz, Händler, UID, Rechnungsnummer); Gerätetest Android und iOS, auch im Flugmodus (Erkennung muss offline laufen) | Parser mit Testtexten geprüft, Engines nur kompiliert | vor Release | offen |
 | P-D21 | Gerätetest mit Netzwerkmitschnitt: Erkennung läuft offline; welche Endpunkte ruft ML Kit auf (Firelog)? | gehört zu P-R19 | Release | offen |
 | P-D20 | iPad hoch und quer (alle vier Ausrichtungen), Split View und Slide Over (1/3, 1/2, 2/3), Stage Manager; App Review akzeptiert Multitasking ohne `UIRequiresFullScreen` | Info.plist enthält alle vier iPad-Ausrichtungen, kein `UIRequiresFullScreen`; nur auf macOS/Gerät prüfbar | Release | offen |
+| P-D24 | App-Symbol auf dem Startbildschirm auf echtem Pixel (per APK installiert): Angebot erscheint einmal nach dem Onboarding, Systemdialog „Zum Startbildschirm hinzufügen“, Symbol erscheint, Tippen startet die App; Eintrag in den Einstellungen; Verhalten unter Android 8 und mit einem Fremd-Launcher | Dart-Logik getestet, Kotlin nur kompiliert (CI) | Release | offen |
 | P-D8 | Zusatzsicherung unter Windows (`tool/sicherung/sicherung.ps1`): Erstlauf, Aufgabenplanung, Wiederherstellung | Linux-Variante getestet, Windows-Skript nie ausgeführt | sofort | offen |

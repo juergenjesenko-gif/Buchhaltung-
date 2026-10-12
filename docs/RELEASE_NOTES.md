@@ -35,7 +35,8 @@ nächsten Versionssprung in den neuen Eintrag.
 | Art | Änderung | Bezug | Commit |
 |---|---|---|---|
 | Neu | Belege automatisch auslesen: Texterkennung auf dem Gerät (Android ML Kit gebündelt, iOS Apple Vision), Vorbelegung von Datum, Brutto, Steuersatz, Lieferant, Rechnungsnummer, Aussteller-UID mit „erkannt – bitte prüfen“, „Erneut auslesen“, abschaltbar; Fremdwährung bei Ausgaben nur erkannt; Protokoll erkannt/bestätigt mit SHA-256. Schema 9 | L-2.20–L-2.23, FA-2.19–FA-2.23, P-D22, P-R19, P-D21 | 87f6577 |
-| Neu | Fremdwährung bei Ausgaben umrechnen: Kurs als Ganzzahl (je 1 € × 10^6), „Kurs abrufen“ bei der EZB nur auf Knopfdruck mit lokalem Speicher, EZB-Monatsmittel als Näherung an den BMF-Kurs, Tageskurs nur mit Genehmigung in den Einstellungen, Bankbetrag getrennt für das Ergebnis, Protokoll `fx`, Belegliste mit Währungsspalten; DATEV/BMD nur Euro. Schema 10 | L-2.24–L-2.26, L-13.3, L-19.29, FA-2.24–FA-2.27, P-S23–P-S26, P-R18, P-D23 | dieser Commit |
+| Neu | Fremdwährung bei Ausgaben umrechnen: Kurs als Ganzzahl (je 1 € × 10^6), „Kurs abrufen“ bei der EZB nur auf Knopfdruck mit lokalem Speicher, EZB-Monatsmittel als Näherung an den BMF-Kurs, Tageskurs nur mit Genehmigung in den Einstellungen, Bankbetrag getrennt für das Ergebnis, Protokoll `fx`, Belegliste mit Währungsspalten; DATEV/BMD nur Euro. Schema 10 | L-2.24–L-2.26, L-13.3, L-19.29, FA-2.24–FA-2.27, P-S23–P-S26, P-R18, P-D23 | 5b9faed |
+| Neu | App-Symbol auf dem Startbildschirm: einmaliges Angebot nach dem Onboarding und Eintrag in den Einstellungen, Systemdialog über `requestPinShortcut` (Android 8+); auf iOS ausgeblendet | FA-1.19, P-D24 | dieser Commit |
 
 ---
 

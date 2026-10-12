@@ -59,7 +59,10 @@ Erfahrungen aus dem ersten Test auf einem Pixel 10 (12.10.2026):
 Danach findest du **Buchhaltung** im App-Menü. Android legt bei Installationen außerhalb des Play Stores
 **kein Symbol auf dem Startbildschirm** ab: in der App-Übersicht (von unten
 nach oben wischen) lange auf „Buchhaltung" drücken und auf den Startbildschirm
-ziehen.
+ziehen. Ab dieser Version bietet die App das nach dem ersten Einrichten
+einmal selbst an („App-Symbol auf den Startbildschirm legen?“ → Android-Dialog
+„Zum Startbildschirm hinzufügen“), danach unter Einstellungen → „Symbol auf
+Startbildschirm legen“. Prüfpunkt P-D24.
 
 ### Was du beim Testen wissen solltest
 

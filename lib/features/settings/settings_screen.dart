@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../services/launcher/platform_home_shortcut.dart';
 import '../../core/formatting.dart';
 import '../app_lock/app_lock_settings_screen.dart';
 import '../backup/backup_screen.dart';
@@ -83,6 +84,7 @@ class SettingsScreen extends StatelessWidget {
                       ),
                     ),
                   ),
+                  const _HomeShortcutTile(),
                   ListTile(
                     contentPadding: EdgeInsets.zero,
                     leading: const Icon(Icons.category_outlined),
@@ -440,6 +442,38 @@ class _FxDailySwitchState extends State<_FxDailySwitch> {
         'Tageskurs genehmigt hat. „Kurs abrufen“ lädt die EZB-Referenzkurse '
         'nur auf Knopfdruck.',
       ),
+    );
+  }
+}
+
+/// „Symbol auf Startbildschirm legen“ (FA-1.19), nur wenn unterstützt.
+class _HomeShortcutTile extends StatefulWidget {
+  const _HomeShortcutTile();
+
+  @override
+  State<_HomeShortcutTile> createState() => _HomeShortcutTileState();
+}
+
+class _HomeShortcutTileState extends State<_HomeShortcutTile> {
+  bool _supported = false;
+
+  @override
+  void initState() {
+    super.initState();
+    homeShortcutService.isSupported().then((value) {
+      if (mounted) setState(() => _supported = value);
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (!_supported) return const SizedBox.shrink();
+    return ListTile(
+      contentPadding: EdgeInsets.zero,
+      leading: const Icon(Icons.add_to_home_screen_outlined),
+      title: const Text('Symbol auf Startbildschirm legen'),
+      subtitle: const Text('Android fragt zur Bestätigung nach'),
+      onTap: homeShortcutService.requestPin,
     );
   }
 }
