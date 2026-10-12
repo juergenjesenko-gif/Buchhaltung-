@@ -830,7 +830,7 @@ Damit du nicht darauf wartest:
   (XRechnung, ZUGFeRD, ebInterface). Für Geschäftskunden in Deutschland wird das
   mittelfristig wichtig.
 - **Keine Storno-/Gutschriftsrechnung** – geplant
-- **Keine Belegerkennung.** Beträge tippst du selbst ein – geplant.
+- **Belegerkennung mit einem Steuersatz je Beleg.** Die App liest Belege auf dem Gerät aus; bei mehreren Steuersätzen auf einem Beleg füllt sie den größten Anteil vor, aufteilen musst du von Hand.
 - **Keine Lohnverrechnung, keine Bilanz, keine doppelte Buchführung**
 - **Keine automatische Übermittlung** an FinanzOnline oder ELSTER. Die App
   liefert dir die Zahlen; die Erklärung machst du oder deine Kanzlei.
