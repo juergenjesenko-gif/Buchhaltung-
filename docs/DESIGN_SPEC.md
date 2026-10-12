@@ -59,7 +59,7 @@ kleinem Webshop oder Dienstleistung, wenig Technikverständnis, schnell
 | ID | Regel |
 |---|---|
 | D-1.1 | **Markenkern:** verlässlich, ruhig, freundlich, ehrlich. Die App nimmt Angst, sie erzeugt keine. Kein Gamification-Druck, keine Countdown-Dringlichkeit, keine Schuldzuweisung. |
-| D-1.2 | **Ansprache:** Die App und das Benutzerhandbuch verwenden derzeit durchgängig **„du“** (z. B. „Erfasse deinen ersten Beleg“). Eine Variante bleibt **innerhalb sich** einheitlich; ein Wechsel auf „Sie“ ist eine Entscheidung des Auftraggebers (siehe Abschnitt 12) und betrifft alle Texte, nicht eine einzelne Variante. Rechtstexte (Nutzungsbedingungen, Datenschutz) dürfen in der Form bleiben, die die Anwältin vorgibt. |
+| D-1.2 | **Ansprache:** Die App und das Benutzerhandbuch verwenden durchgängig **„du“** (entschieden von der Auftraggeberin am 2026-10-12) (z. B. „Erfasse deinen ersten Beleg“). Eine Variante bleibt **innerhalb sich** einheitlich; keine Variante wechselt auf „Sie“. Rechtstexte (Nutzungsbedingungen, Datenschutz) dürfen in der Form bleiben, die die Anwältin vorgibt. |
 | D-1.3 | **Fehlermeldungen sagen, was zu tun ist** („Bitte gib einen Betrag ein, zum Beispiel 12,50“), nie nur, was falsch ist („Ungültige Eingabe“). |
 | D-1.4 | **Hinweis „Keine Steuerberatung“** bleibt dort sichtbar, wo er heute steht (Bestätigungen, Einstellungen, erzeugte Auswertungen im Dokument selbst, Lastenheft L-17.1, L-17.6). Eine Variante darf ihn gestalten, nicht verkleinern bis zur Unlesbarkeit, nicht entfernen. |
 | D-1.5 | **Fachbegriffe bleiben korrekt:** Rechnung, Storno, Umsatzsteuer, Vorsteuer, Kleinunternehmerregelung, UID/USt-IdNr. dürfen erklärt, aber nicht durch falsche Synonyme ersetzt werden („Steuer zurück“ statt Vorsteuer ist falsch). Österreichische und deutsche Begriffe kommen aus `TaxProfile`, nicht aus dem Design. |
@@ -472,7 +472,7 @@ Vergleichskriterien (je 1–5 Punkte):
 |---|---|---|
 | Produktname und Marke | offen, Markenrecherche „Jenny Bar“ / „Jenni bucht“ | Lastenheft O-25, Spezifikation 14 **P-R7** |
 | Logo | erst nach Namensentscheidung; bis dahin nur Platzhalter | folgt aus O-25 / P-R7 |
-| Ansprache du / Sie | App und Handbuch verwenden „du“; nirgends ausdrücklich entschieden | Entscheidung des Auftraggebers |
+| Ansprache du / Sie | „du“ – entschieden 2026-10-12 | erledigt |
 | Store-Screenshots je Variante | vor jeder Einreichung prüfen | Spezifikation 14 **P-R13** |
 | Barrierefreiheitspflicht | voraussichtlich nicht anwendbar | Spezifikation 14 **P-R3** |
 | Umlaute im PDF mit gewählter Schrift | nicht verifiziert | Spezifikation 14 **P-D2**, **P-D13** |
