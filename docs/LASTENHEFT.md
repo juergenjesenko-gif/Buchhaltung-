@@ -1,6 +1,6 @@
 # Lastenheft – Buchhaltungsapp für Österreich und Deutschland
 
-**Dokumentversion:** 1.40 · **Stand:** 2026-10-12 · **Status:** Entwurf zur Abstimmung
+**Dokumentversion:** 1.41 · **Stand:** 2026-10-12 · **Status:** Entwurf zur Abstimmung
 **Auftraggeber:** Jürgen Jesenko (privates Vorhaben) · **Umsetzung:** Claude Code
 
 > Ein Lastenheft beschreibt, **was** das Produkt leisten soll und **warum** — nicht,
@@ -182,6 +182,9 @@ Priorität: **MUSS** = ohne das kein Release · **SOLL** = wichtig, verhandelbar
 | L-2.21 | **Fremdwährung** nur bei Eingangsbelegen erkennen und mit dem Betrag laut Beleg speichern; die Umrechnung in Euro ist ein eigener späterer Schritt. Ausgangsrechnungen bleiben in Euro | MUSS | A |
 | L-2.22 | Erkannte und bestätigte Werte je Feld, Erkennungs-Engine mit Version und Prüfsumme (SHA-256) der Originalbilder stehen im Änderungsprotokoll (GoBD-Nachvollziehbarkeit); keine Bilddaten im Protokoll | MUSS | A |
 | L-2.23 | Die automatische Erkennung ist in den Einstellungen abschaltbar | MUSS | A |
+| L-2.24 | **Fremdwährung bei Eingangsbelegen:** Originalbetrag (kleinste Einheit), ISO-Code, Kurs als Ganzzahl (Kurs × 10^6), Kursdatum, Kursquelle (BMF-Monat, EZB-Monatsmittel als Näherung, EZB-Tag, manuell, Bank); gebucht wird in Euro (Entscheidung Auftraggeberin 2026-10-12) | MUSS | A |
+| L-2.25 | Umsatzsteuer-Kurs: Monatskurs des Leistungs- bzw. Zahlungsmonats (§ 20 Abs 6 UStG AT, § 16 Abs 6 UStG DE); Tageskurs nur mit im Profil vermerkter Genehmigung des Finanzamts | MUSS | A |
+| L-2.26 | Einnahmen-Ausgaben-Rechnung: tatsächlicher Euro-Betrag laut Bank überschreibt den umgerechneten Wert; der Vorschlag bleibt protokolliert | MUSS | A |
 | L-2.18 | Kommentare lassen sich über die Diktierfunktion der Systemtastatur sprechen; die App selbst überträgt keine Sprache. Ein Hinweis nennt, dass die Tastatur je nach Gerät Sprache an Google oder Apple senden kann | SOLL | A |
 
 ### 5.3 Ausgangsrechnungen
@@ -379,6 +382,7 @@ und Preis jedes Mal neu zu tippen.
 |---|---|---|---|
 | L-13.1 | **Währung ist der Euro.** Eine Rechnungswährung mit Kursumrechnung ist nicht vorgesehen | MUSS | A |
 | L-13.2 | Beträge werden ganzzahlig in Cent geführt. Das Datenmodell ist so anzulegen, dass eine zweite Währung später ergänzbar bleibt, ohne bestehende Daten umzubauen | MUSS | A |
+| L-13.3 | Ausgangsrechnungen bleiben in Euro; Fremdwährung nur bei Eingangsbelegen (L-2.24) | MUSS | A |
 | L-13.3 | Ein **weiterer EU-Markt muss überwiegend Konfiguration sein**: Steuersätze, Grenzwerte, Kleinbetragsgrenzen, Pflichtangaben, Fristen, Zahlenformat und Rechtsverweise liegen an genau einer Stelle | MUSS | A |
 | L-13.4 | **Zahlen- und Datumsformat je Markt**, auch innerhalb der Eurozone unterschiedlich | MUSS | A |
 | L-13.5 | **Zeitlich gestaffelte Steuersätze.** Ein Steuersatz gilt nicht einfach, er gilt *ab einem Datum*. Befristete Satzänderungen hat es in beiden Zielmärkten bereits gegeben; eine Rechnung aus dem Vorjahr muss mit dem damals gültigen Satz darstellbar bleiben | MUSS | B |
@@ -585,6 +589,7 @@ Ausgearbeitet mit den drei Prüfinstanzen.
 | L-19.26 | **Vorlage der Verfahrensdokumentation** aus den Einstellungen: Berechtigungskonzept, Nummernkreise, Synchronisationsverfahren, Ablageort, Datensicherung, Ablauf beim Ausscheiden (ergänzt L-7.11) | SOLL | C |
 | L-19.27 | Sicherungsschlüssel und Wiederherstellungscode werden nie über den iCloud-Schlüsselbund synchronisiert (`synchronizable: false`, `first_unlock_this_device`); Regressionstest | MUSS | A |
 | L-19.28 | Datenflusstabelle, PRIVACY.md und STORE_LISTING um iCloud (iOS) und gegebenenfalls Drive-Schnittstelle ergänzen, sobald umgesetzt | MUSS | A |
+| L-19.29 | Kursabruf bei der EZB nur auf Aktion der Nutzerin, mit Eintrag in Datenflusstabelle, PRIVACY.md und STORE_LISTING; manueller Kurs immer möglich; Quellenhinweis „EZB-Referenzkurs, ohne Gewähr“ | MUSS | A |
 
 #### Rollen
 
@@ -788,6 +793,7 @@ selbst hängt nie von der KI ab (NF-1, offline-first).
 | L-21.21 | **Überwachung:** Statusseite von Anthropic abonniert, eigene Kennzahlen (Fehlerquote, Antwortzeit, Kosten je Tag), externer Verfügbarkeitstest des Backends, Alarm per E-Mail oder Push; Fehlschlag des Agenten erzeugt eine Meldung | MUSS | C |
 | L-21.22 | **Modellwahl:** Sonnet 5.5 als Standard, Haiku 5.5 als Ausweichmodell und Vorfilter, Opus 5.5 nur zur Zweitprüfung erkannter Rechtsänderungen; Prompt Caching für feste Anweisungen. Vor jeder Analyse ein Hash-Vergleich der Quelle, damit unveränderte Seiten keine KI-Kosten erzeugen | SOLL | B |
 | L-21.23 | Ein Enterprise-Vertrag mit SLA wird erst angefragt, wenn Umsatz oder Last es rechtfertigen | KANN | — |
+| L-21.24 | KI-Auslesung von Belegen nur per Opt-in; kein automatischer Rückfall von der Erkennung auf dem Gerät auf einen KI-Dienst | MUSS | B |
 
 **Kostenannahmen (nicht verifiziert, aus Listenpreisen):** Rechtsstand-Agent
 etwa 30–60 USD im Monat; Marketing-Modul etwa 250–350 USD je 1.000 aktive
@@ -1147,6 +1153,7 @@ Zu entscheiden, bevor die betroffene Anforderung umgesetzt wird:
 
 | Version | Datum | Änderung |
 |---|---|---|
+| 1.41 | 2026-10-12 | Fremdwährung bei Eingangsbelegen (L-2.24 bis L-2.26, L-13.3, L-19.29), KI-Auslesung nur Opt-in (L-21.24); geprüft von Steuerberater und Rechtsanwalt; Android-Erkennung mit ML Kit entschieden. |
 | 1.40 | 2026-10-12 | L-2.20 bis L-2.23 Belege automatisch auslesen, umgesetzt (Spezifikation FA-2.19 bis FA-2.23). Entscheidung der Auftraggeberin: Android Google ML Kit (gebündelt), dessen Diagnosedaten an Google in 5.19 offengelegt. Fremdwährung nur bei Eingangsbelegen. |
 | 1.39 | 2026-10-12 | Entscheidungen der Auftraggeberin: L-22.30 App-Sperre KANN/C → SOLL/A und umgesetzt (Spezifikation 5.5b); L-7.20 iCloud-Ordner in der Dateien-App SOLL → MUSS (Bau mit L-7.17 offen). |
 | 1.38 | 2026-10-12 | L-22.21 bis L-22.30: Wiederherstellungscode statt Passwort-Zurücksetzen, Promocodes und Affiliates über Store-Offers, Preisangaben. Erlösrechnung: rund 71 % des Bruttopreises kommen bei der Anbieterin an. Geprüft von allen drei Instanzen. |

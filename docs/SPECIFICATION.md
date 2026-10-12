@@ -1,6 +1,6 @@
 # Spezifikation – Buchhaltung
 
-**Dokumentversion:** 1.26 · **App-Version:** 0.2.0 · **Stand:** 2026-10-12
+**Dokumentversion:** 1.27 · **App-Version:** 0.2.0 · **Stand:** 2026-10-12
 **Status:** Sprint 1 umgesetzt und verifiziert
 
 > Das **Zielbild** des Produkts steht im [`LASTENHEFT.md`](LASTENHEFT.md); dieses
@@ -693,6 +693,7 @@ Umrechnung: Beträge in Cent. `5500000` Cent = 55.000,00 €.
 
 | Version | Datum | App-Version | Änderung |
 |---|---|---|---|
+| 1.27 | 2026-10-12 | 0.2.0 | Prüfpunkte P-S23 bis P-S26, P-R18 bis P-R20, P-L18, P-D21 (Fremdwährung, ML-Kit-Telemetrie, Haftung bei Fehlerkennung). Keine Codeänderung. |
 | 1.26 | 2026-10-12 | 0.2.0 | Belege automatisch auslesen (FA-2.19 bis FA-2.23, Lastenheft L-2.20 bis L-2.23): Texterkennung auf dem Gerät (ML Kit gebündelt, Apple Vision) über eigenen Platform-Channel, Parser in `lib/services/receipt_scan/`, Vorbelegung mit „erkannt – bitte prüfen“, Fremdwährung nur erkannt, Protokoll erkannt/bestätigt mit SHA-256. Schema 9. ML-Kit-Telemetrie in 10.1 offengelegt. Neue Grenze in Abschnitt 11, Prüfpunkt P-D22. |
 | 1.25 | 2026-10-12 | 0.2.0 | App-Version 0.2.0 (Testbuild). Versionsschema: 0.x bis zum Store-Start, zweite Stelle für Funktionen, dritte für Fehlerbehebungen; Buildnummer fortlaufend aus der CI. |
 | 1.24 | 2026-10-12 | 0.1.0 | Tablet und Querformat (Abschnitt 5.7, FA-9.1 bis FA-9.5): Breitenklassen nach Material 3, NavigationRail ab medium, Liste-Detail ab expanded für Belege, Rechnungen und Kunden, Formularbreite 640 dp, iPad ohne `UIRequiresFullScreen`. Neue Kennwerte `spec.window_*`, `spec.max_content_width_dp`, neue Grenze in Abschnitt 11, Prüfpunkte P-D19, P-D20. |
@@ -856,12 +857,17 @@ Status: *offen* · *bestätigt* (mit Datum und Prüfer) · *widerlegt* (mit Folg
 | P-S20 | Steuerberatung: kein Reverse Charge auf die Store-Provision (fiktiver Leistender), Bemessungsgrundlage Auszahlung; Abrechnungsbelege Google/Apple | — | erste Auszahlung | offen |
 | P-S21 | Steuerberatung: Store-Umsätze zählen nicht zur 55.000-€-Grenze (§ 6 Abs 1 Z 27 UStG)? | — | erste Auszahlung | offen |
 | P-S22 | Steuerberatung: Affiliate-Provisionen (Reverse Charge, Gutschrift), Einkommensteuer- und SVS-Schätzung mit echten Zahlen | Preispolitik der Auftraggeberin | vor Preisfestlegung | offen |
+| P-S23 | Steuerberatung AT: BMF-Durchschnittskurs nach § 20 Abs 6 UStG, Stichtag bei Soll- und Istbesteuerung, Steuerbetrag in Euro auf Fremdwährungsrechnungen | — | vor Fremdwährung | offen |
+| P-S24 | Steuerberatung DE: Abschn. 14.5 Abs. 22 UStAE; darf das EZB-Monatsmittel den BMF-Kurs ersetzen? | — | vor Fremdwährung | offen |
+| P-S25 | Steuerberatung: Kurs für die Kleinunternehmergrenze bei Fremdwährungsumsätzen | — | vor Fremdwährung | offen |
+| P-S26 | Steuerberatung: Unterschied Umsatzsteuer-Kurs zu Bankbetrag in E1a bzw. Anlage EÜR | — | vor Fremdwährung | offen |
 | P-L12 | Anwältin: Diktat über die Systemtastatur – Anbieterin nicht verantwortlich, Hinweistext genügt | — | Release | offen |
 | P-L13 | Gerätetest, nur bei eigener Spracherkennung: Erkennung im Flugmodus | — | später | offen |
 | P-L14 | Anwältin: Rollen beim Vertragsarchiv mit KI (Anbieterin als Auftragsverarbeiterin), Muster-AVV, Rechtsgrundlage Beschäftigtendaten | — | Stufe C | offen |
 | P-L15 | Anwältin bzw. Datenschutzberatung: DSFA und TIA; DPF-Zertifikat, Zero Data Retention und Speicherdauer bei Anthropic verifizieren | — | Stufe C | offen |
 | P-L16 | Anwältin: KI-Ausgabetexte zu Verträgen auf RDG, RAO und UWG | — | Stufe C | offen |
 | P-L17 | Anwältin: Art. 50 AI Act (Kennzeichnung) und aktuelle Fristen | — | Stufe C | offen |
+| P-L18 | Anwältin: Lizenzpflichten ML Kit (Google APIs / ML Kit Terms), Lizenznennung in der App | — | Release | offen |
 | P-R10 | Öffentliche Händleradresse und Telefon (DSA-„Trader"-Angaben) festlegen, identisch mit dem Impressum | Postfach reicht nicht; Geschäftsadresse ratsam | erster Upload | offen |
 | P-R11 | Nutzungsbedingungen als eigene EULA (Apple) bzw. verlinkt (Google): Gewährleistung und Regress, Rolle der Stores, Herabstufung/Nur-Lese-Modus, Volljährigkeit | — | Release | offen |
 | P-R12 | Wortlaut der Abo- und Testseite (§§ 312j, 312k BGB, PAngV, Apple 3.1.2); greift § 312k bei Store-Abos? | h. M.: nein, Sprung in die Store-Verwaltung genügt | Release | offen |
@@ -870,6 +876,9 @@ Status: *offen* · *bestätigt* (mit Datum und Prüfer) · *widerlegt* (mit Folg
 | P-R15 | Anwältin: Haftung und Hinweispflicht bei Datenverlust durch verlorenen Wiederherstellungscode (AT/DE, B2B/B2C) | — | Release | offen |
 | P-R16 | Anwältin: Affiliate- bzw. Influencer-Vertrag, Werbekennzeichnung (§ 6 ECG, UWG), Mithaftung | — | vor erster Aktion | offen |
 | P-R17 | Anwältin: Preisangaben bei Gratisphase und Jahresrabatt (PAngV, PrAG, Omnibus-RL) | — | Release | offen |
+| P-R18 | Anwältin: EZB-Nutzungsbedingungen; datenschutzrechtliche Einordnung des Kursabrufs (IP-Adresse) | — | vor Fremdwährung | offen |
+| P-R19 | Anwältin: ML-Kit-Telemetrie laut aktueller Google-Doku, Opt-out, Angaben in Play Data Safety und Apple Privacy Label | Entscheidung ML Kit 2026-10-12 | Release | offen |
+| P-R20 | Anwältin: Haftungsbegrenzung bei Fehlerkennung in den Nutzungsbedingungen (KSchG, BGB) | — | Release | offen |
 | P-S11 | USt-Kette der Store-Abos: Leistung an Apple/Google in Irland, Reverse Charge, UID, ZM, UVA; gelten die Store-Abrechnungen als Gutschrift (§ 11 Abs 7 UStG AT)? | Kette sicher, Rechnungsstellung offen | erster Verkauf | offen |
 | P-S12 | Vorsteuerabzug für Unternehmerinnen aus Store-Quittungen | unklar; kein Versprechen in App oder Werbung | erster Verkauf | offen |
 | P-S13 | Verbuchung der Store-Auszahlungen (netto als Erlös empfohlen, Zufluss/Abgrenzung, Fremdwährung), W-8BEN(-E) | — | erster Verkauf | offen |
@@ -886,5 +895,6 @@ Status: *offen* · *bestätigt* (mit Datum und Prüfer) · *widerlegt* (mit Folg
 | P-D18 | Android-Build nach Umstellung auf `FlutterFragmentActivity` und `Theme.AppCompat`: Start, Sicherungsordner-Wahl (`onActivityResult`) und Startbildschirm hell/dunkel, auch unter Android 8 | im Container nicht baubar; CI prüft den Build, nicht das Verhalten | Release | offen |
 | P-D19 | Android-Tablet (z. B. 10–11 Zoll) hoch und quer, Telefon quer, Split-Screen/Mehrfenster: Navigation (Leiste/Rail), Liste-Detail, Formularbreite, Tastatur verdeckt kein aktives Feld, Sperrbildschirm und Dialoge, Drehen während der Bearbeitung | Widget-Tests mit 390×844, 844×390, 768×1024 und 1194×834 dp grün; echtes Gerät fehlt | Release | offen |
 | P-D22 | Belegerkennung an mindestens 30 echten Belegen (Supermarkt, Tankstelle, Hotel, Online-Rechnung, Kleinbetrag, Fremdwährung, zerknittert/schräg): Quote je Feld (Datum, Brutto, Satz, Händler, UID, Rechnungsnummer); Gerätetest Android und iOS, auch im Flugmodus (Erkennung muss offline laufen) | Parser mit Testtexten geprüft, Engines nur kompiliert | vor Release | offen |
+| P-D21 | Gerätetest mit Netzwerkmitschnitt: Erkennung läuft offline; welche Endpunkte ruft ML Kit auf (Firelog)? | gehört zu P-R19 | Release | offen |
 | P-D20 | iPad hoch und quer (alle vier Ausrichtungen), Split View und Slide Over (1/3, 1/2, 2/3), Stage Manager; App Review akzeptiert Multitasking ohne `UIRequiresFullScreen` | Info.plist enthält alle vier iPad-Ausrichtungen, kein `UIRequiresFullScreen`; nur auf macOS/Gerät prüfbar | Release | offen |
 | P-D8 | Zusatzsicherung unter Windows (`tool/sicherung/sicherung.ps1`): Erstlauf, Aufgabenplanung, Wiederherstellung | Linux-Variante getestet, Windows-Skript nie ausgeführt | sofort | offen |
