@@ -11,14 +11,14 @@ Anforderungen dazu: Lastenheft 5.10 (Abonnement), 5.22 (Lizenz und Bezahlung),
 
 | # | Schritt | Wer | Dauer | Status |
 |---|---|---|---|---|
-| 1 | **Rechtsform festlegen** (O-26): Einzelunternehmen oder GmbH – bestimmt Kontoinhaber, Store-Name, Steuer | Auftraggeber mit Steuerberatung | – | offen |
+| 1 | **Rechtsform festlegen** (O-26): Einzelunternehmen oder GmbH – bestimmt Kontoinhaber, Store-Name, Steuer | Auftraggeber mit Steuerberatung | – | entschieden: Einzelunternehmen „Spirits by Jenny Barb“, UID vorhanden |
 | 2 | **Öffentliche Händleradresse und Telefon** (DSA „Trader“-Angaben, erscheinen im EU-Store; Postfach reicht nicht) | Auftraggeber | – | offen (P-R10) |
-| 3 | **D-U-N-S-Nummer** beantragen (kostenlos) | Auftraggeber | 1–4 Wochen | offen |
+| 3 | **D-U-N-S-Nummer** beantragen (kostenlos) | Auftraggeber | 1–4 Wochen | freigegeben, zu beantragen |
 | 4 | **Google Play Organisationskonto** (25 USD einmalig) – erspart den Pflichttest mit 12 Testern über 14 Tage, den private Konten brauchen | Auftraggeber | Tage bis Wochen | offen |
 | 5 | **Apple Developer Program als Organisation** (99 USD/Jahr); Small Business Program anmelden (15 % Provision) | Auftraggeber | Tage bis Wochen | offen |
 | 6 | **UID-Nummer** des Anbieters, Steuerformulare (W-8BEN bzw. W-8BEN-E, DBA AT-USA 0 %), Bankdaten in beiden Konsolen | Auftraggeber mit Steuerberatung | – | offen (P-S11, P-S13) |
 | 7 | **Markenrecherche und -anmeldung** (O-25), dann Domain und Produktseite (L-17.12) | Markenanwältin | Wochen | offen (P-R7) |
-| 8 | **Rechtstexte**: Impressum, Datenschutzerklärung, Nutzungsbedingungen als eigene EULA (auch bei Apple hinterlegt), Support-Kontakt | Anwältin | – | offen (P-L1, P-R11) |
+| 8 | **Rechtstexte**: Impressum, Datenschutzerklärung, Nutzungsbedingungen als eigene EULA (auch bei Apple hinterlegt), Support-Kontakt | Anwältin | – | Entwürfe in `docs/legal/`, Prüfung offen (P-L1, P-L4–L11, P-R11) |
 | 9 | Technik Store-Reife (unten) | Entwicklung | 7–12 PT | offen |
 | 10 | Lizenzmanager und Abo-Seite (Lastenheft 5.22) | Entwicklung | 10–13 PT | offen |
 | 11 | Formulare: Data Safety, App Privacy Labels, Altersfreigabe (IARC/Apple, Ergebnis voraussichtlich ab 0/4+), Zielgruppe 18+, Finanz-App-Deklaration („Buchhaltungswerkzeug, keine Finanzdienstleistung“), Export Compliance | Entwicklung, Anwältin | 1–2 PT | offen (P-R14, P-D9) |

@@ -1,6 +1,6 @@
 # Spezifikation – Buchhaltung
 
-**Dokumentversion:** 1.17 · **App-Version:** 0.1.0 · **Stand:** 2026-10-12
+**Dokumentversion:** 1.18 · **App-Version:** 0.1.0 · **Stand:** 2026-10-12
 **Status:** Sprint 1 umgesetzt und verifiziert
 
 > Das **Zielbild** des Produkts steht im [`LASTENHEFT.md`](LASTENHEFT.md); dieses
@@ -605,6 +605,7 @@ Umrechnung: Beträge in Cent. `5500000` Cent = 55.000,00 €.
 
 | Version | Datum | App-Version | Änderung |
 |---|---|---|---|
+| 1.18 | 2026-10-12 | 0.1.0 | Entwürfe der Rechtstexte in `docs/legal/` (Impressum, Datenschutzerklärung, Nutzungsbedingungen); Prüfpunkte P-L4 bis P-L11. Keine Codeänderung. |
 | 1.17 | 2026-10-12 | 0.1.0 | Prüfpunkte zu Store-Reife, Lizenz und Bezahlung: P-R10 bis P-R14, P-S11 bis P-S14, P-D9, P-D10. Keine Codeänderung. |
 | 1.16 | 2026-10-12 | 0.1.0 | Rückmeldungen aus dem ersten Gerätetest: Bestätigungen vor der ersten Nutzung (FA-1.10, Schema 7, Tabelle `consents`), Kennwortfelder mit Auge-Symbol (FA-1.11), Anzeigename des Sicherungsordners unter Android statt Dokument-ID. Prüfpunkt P-L1. |
 
@@ -736,6 +737,14 @@ Status: *offen* · *bestätigt* (mit Datum und Prüfer) · *widerlegt* (mit Folg
 | P-L1 | Anwältin erstellt bzw. prüft Nutzungsbedingungen (Lizenzvertrag) und Datenschutzerklärung; Kurztexte in `lib/domain/legal_texts.dart` sind Entwürfe | — | Release | offen |
 | P-L2 | Anwältin: AGB-Klausel zum Datenzugang nach Vertragsende, Haftung bei Wegfall des Anbieters, Data Act vor jedem Backend | Exklusivsperre unzulässig bzw. riskant | Release | offen |
 | P-L3 | Steuerberatung: Format des Archivexports für den Datenzugriff Z3 und Verfahrensdokumentation | — | Stufe B | offen |
+| P-L4 | Anwältin: gestufte Haftungsklausel (Nutzungsbedingungen Ziffer 9) nach § 6 KSchG, § 879 Abs 3 ABGB, §§ 307–309 BGB; Transparenz bei AT/DE und B2B/B2C in einem Text | Unwirksame Klausel entfällt ganz, Abmahnrisiko | Release | offen |
+| P-L5 | Anwältin: Gewährleistung und Updatepflicht nach VGG bzw. § 327f BGB, obwohl der Store verkauft – wer ist „Unternehmer“ der digitalen Leistung? | — | Release | offen |
+| P-L6 | Anwältin: Apple-Mindestklauseln der EULA (Ziffern 2.3, 8.3, 10) gegen das aktuelle Developer Agreement | Ablehnung im Review | Release | offen |
+| P-L7 | Auftraggeberin: Firmenbucheintrag ja/nein, Gewerbewortlaut, Gewerbebehörde, Kammer; Daten aus Firmen-ABC in `docs/legal/` eintragen | Pflichtangaben § 5 ECG, DSA | Release | offen |
+| P-L8 | Auftraggeberin: Teilnahme an Verbraucherschlichtung (Internet Ombudsstelle) | Infopflicht § 19 AStG, § 36 VSBG | Release | offen |
+| P-L9 | Anwältin: Hosting der Produktseite und E-Mail-Anbieter, Drittlandübermittlung, AVV | Pflichtangaben Datenschutzerklärung | Release | offen |
+| P-L10 | Anwältin: genügt der Verweis auf das Widerrufsrecht des Stores, oder braucht es eine eigene Widerrufsbelehrung (L-17.10)? | — | Release | offen |
+| P-L11 | Anwältin: Änderungsklausel (Ziffer 11) mit Zustimmung in der App wirksam? | BGH XI ZR 26/20, OGH streng | Release | offen |
 | P-R10 | Öffentliche Händleradresse und Telefon (DSA-„Trader"-Angaben) festlegen, identisch mit dem Impressum | Postfach reicht nicht; Geschäftsadresse ratsam | erster Upload | offen |
 | P-R11 | Nutzungsbedingungen als eigene EULA (Apple) bzw. verlinkt (Google): Gewährleistung und Regress, Rolle der Stores, Herabstufung/Nur-Lese-Modus, Volljährigkeit | — | Release | offen |
 | P-R12 | Wortlaut der Abo- und Testseite (§§ 312j, 312k BGB, PAngV, Apple 3.1.2); greift § 312k bei Store-Abos? | h. M.: nein, Sprung in die Store-Verwaltung genügt | Release | offen |
