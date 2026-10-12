@@ -88,4 +88,8 @@ flutter {
 dependencies {
     // Theme.AppCompat für den Startbildschirm (Voraussetzung von local_auth)
     implementation("androidx.appcompat:appcompat:1.7.0")
+    // Belegerkennung (L-2.20): ML Kit Texterkennung mit GEBÜNDELTEM Modell –
+    // offline, kein Download über Google Play Services. Version auch in
+    // ReceiptTextChannel.ENGINE_VERSION.
+    implementation("com.google.mlkit:text-recognition:16.0.1")
 }

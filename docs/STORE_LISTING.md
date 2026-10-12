@@ -100,12 +100,18 @@ Kundennamen oder Beträge.
 
 ## Datensicherheit / App-Datenschutz
 
-Die App enthält keine Analyse- oder Werbe-SDKs. **Einzige Netzwerkverbindung**
+Die App enthält keine Analyse- oder Werbe-SDKs. **Einzige eigene Netzwerkverbindung**
 ist die UID-Prüfung über VIES: auf Tippen oder nach Opt-in wöchentlich gehen
 UID-Nummern direkt an die EU-Kommission, nicht an den Anbieter. Google Data
 Safety: „Finanzinformationen – andere“, geteilt mit Dritten, verschlüsselt
 übertragen, für die App-Funktion, vom Nutzer ausgelöst. Apple: „Sonstige
 Finanzinfos“, nicht verknüpft, App-Funktionalität (Prüfpunkt P-U4).
+**Belegerkennung (nur Android):** die eingebundene Bibliothek Google ML Kit
+sendet Nutzungs- und Diagnosedaten an Google (keine Fotos, kein Text). Google
+Data Safety daher zusätzlich: „App-Info und -Leistung – Absturzprotokolle /
+Diagnosedaten“, **geteilt mit Google**, verschlüsselt übertragen, nicht
+löschbar über die App, Zweck Analyse/App-Funktion – genaue Einordnung zu
+prüfen (P-R19, P-D21). Apple: Vision überträgt nichts, keine Angabe nötig.
 Alles andere bleibt auf dem Gerät, und Androids Auto-Backup ist
 per `data_extraction_rules.xml` deaktiviert. Die Datensicherung ist eine von
 der Nutzerin ausgelöste, mit ihrem Kennwort verschlüsselte Datei, die sie selbst

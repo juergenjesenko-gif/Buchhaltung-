@@ -1,6 +1,6 @@
 # Spezifikation – Buchhaltung
 
-**Dokumentversion:** 1.25 · **App-Version:** 0.2.0 · **Stand:** 2026-10-12
+**Dokumentversion:** 1.26 · **App-Version:** 0.2.0 · **Stand:** 2026-10-12
 **Status:** Sprint 1 umgesetzt und verifiziert
 
 > Das **Zielbild** des Produkts steht im [`LASTENHEFT.md`](LASTENHEFT.md); dieses
@@ -141,7 +141,7 @@ beim Logo, das dann fehlt. Die Steuerbehandlung steht in
 ## 4. Datenmodell
 
 **Speicher:** SQLite auf dem Gerät, Datei `buchhaltung.db` im
-Anwendungsdokumentenverzeichnis. Aktuelle Schemaversion: **8**
+Anwendungsdokumentenverzeichnis. Aktuelle Schemaversion: **9**
 (`spec.schema_version`). Bilder liegen als Dateien daneben: Belegseiten in
 `belege/`, Firmenlogos in `logo/`.
 
@@ -185,7 +185,9 @@ Anwendungsdokumentenverzeichnis. Aktuelle Schemaversion: **8**
 | `logo_path` | TEXT | Relativer Pfad des Firmenlogos in `logo/`, `NULL` = kein Logo (Schema 8, FA-1.12) |
 | `last_backup_at` | TEXT | Zeitpunkt der letzten Datensicherung bzw. der wiederhergestellten Sicherung; nur vom Sicherungsdienst geschrieben (Schema 4) |
 
-**`receipts`** — zusätzlich seit Schema 3: `cancelled_at` (TEXT, Zeitpunkt der Stornierung, `NULL` = gültig)
+**`receipts`** — zusätzlich seit Schema 3: `cancelled_at` (TEXT, Zeitpunkt der Stornierung, `NULL` = gültig). Seit Schema 9: `document_number` (TEXT, Rechnungsnummer des Ausstellers), `issuer_vat_id` (TEXT, UID des Ausstellers), `currency` (TEXT, ISO 4217, Standard `EUR`), `original_gross_cents` (INTEGER, Betrag laut Beleg in fremder Währung, sonst `NULL`). `net_cents`, `vat_cents`, `gross_cents` sind immer Euro (FA-2.21)
+
+**`company_profile`** — seit Schema 9: `receipt_scan_enabled` (INTEGER, Standard 1, FA-2.23)
 
 
 | Feld | Typ | Bedeutung |
@@ -275,6 +277,11 @@ prüft `InvoiceRequirements` (FA-1.4).
 | FA-2.15 | Belegansicht zeigt alle Seiten als Leiste mit Seitennummer; Antippen öffnet die Seite vergrößert (Zoom) |
 | FA-2.16 | **Kommentare** (L-2.17): beim Erfassen ein Kommentarfeld, das beim Speichern zum ersten Kommentar wird; bei gespeicherten, auch stornierten Belegen „Kommentar anhängen“. Zeitstempel ist die Systemzeit. Kein Bearbeiten, kein Löschen; Korrektur nur als neuer Kommentar. Jeder Kommentar erzeugt einen `audit_log`-Eintrag `comment`. Der Beleg selbst bleibt unverändert |
 | FA-2.17 | **Diktat** (L-2.18) nur über die Diktierfunktion der Systemtastatur; die App enthält keine Spracherkennung und überträgt nichts. Hinweis im Formular: je nach Gerät kann die Tastatur Sprache an Google oder Apple senden |
+| FA-2.19 | **Belege automatisch auslesen** (Lastenheft L-2.20): nach dem Hinzufügen einer Seite erkennt die App den Text **aller Seiten** auf dem Gerät (Android: Google ML Kit Text Recognition Latin, gebündeltes Modell; iOS: Apple Vision `VNRecognizeTextRequest`) über den Channel `buchhaltung/receipt_text` und die Schnittstelle `ReceiptTextRecognizer`. Der Parser `lib/services/receipt_scan/` ermittelt Belegdatum, Bruttobetrag, Umsatzsteuer je Satz (Sätze aus allen `TaxProfile`s, eigenes Land zuerst), Netto, Händler, Aussteller-UID (Prüfung mit `VatIdFormat`, eigene UID übergangen), Rechnungsnummer und Währung, je mit Konfidenz 0–100. Beträge ganzzahlig in Cent; je Satz gilt `net + vat == gross`. Nur bei neuen Belegen wird automatisch vorbelegt, Felder unter Konfidenz 40 bleiben leer. Vorbelegte Felder tragen „erkannt – bitte prüfen“; gebucht wird erst beim Speichern. Das Originalbild bleibt unverändert. „Erneut auslesen“ startet die Erkennung von Hand |
+| FA-2.20 | Formularfelder **Rechnungsnummer** und **UID des Ausstellers** (Schema 9). Mehrere Steuersätze erkannt: Hinweis mit Brutto je Satz, vorbelegt wird der Satz mit dem größten Anteil; ein Satz, den das eigene Land nicht kennt, wird nicht vorbelegt |
+| FA-2.21 | **Fremdwährung** (L-2.21): nur bei Ausgaben. Erkannte Währung ≠ EUR füllt das Euro-Feld nicht; Betrag laut Beleg und Währung werden in `original_gross_cents` und `currency` gespeichert, ohne Umrechnung. Einnahmen bleiben immer Euro |
+| FA-2.22 | **Protokoll** (L-2.22): beim Speichern eines ausgelesenen Belegs ein `audit_log`-Eintrag `scan` mit Engine und Version, je Feld erkannter Wert mit Konfidenz, bestätigter Wert und Kennzeichen `GEÄNDERT`, sowie SHA-256 jedes Originalbilds. Keine Bilddaten, kein Volltext |
+| FA-2.23 | **Abschaltbar** (L-2.23): Einstellungen → „Belege auslesen“, Standard an (`company_profile.receipt_scan_enabled`) |
 | FA-2.18 | **Stornierte Belege lesbar**: Filter „Storniert“ in der Belegliste; die Ansicht ist schreibgeschützt (Hinweisbanner, kein Speichern), Kommentare bleiben anhängbar |
 
 ### 5.3 Kassabuch und Auswertung
@@ -459,13 +466,13 @@ Kleinunternehmer:
 | Hauptnavigation | `features/home/home_shell.dart` | Vier Bereiche: Tab-Leiste (compact) oder Navigationsleiste links (medium, expanded), FA-9.2 |
 | Übersicht | `features/dashboard/dashboard_screen.dart` | Kassabuch, Umsatzsteuer, Grenzwertampel, Verlauf |
 | Belegliste | `features/receipts/receipt_list_screen.dart` | Suchen, filtern, öffnen; Filter „Storniert“ |
-| Beleg bearbeiten | `features/receipts/receipt_edit_screen.dart` | Erfassen, Seiten, Betrag, Kategorie, Kommentare; stornierte Belege nur lesen |
+| Beleg bearbeiten | `features/receipts/receipt_edit_screen.dart` | Erfassen, Seiten, automatisches Auslesen mit „Erneut auslesen“, Betrag, Kategorie, Rechnungsnummer, Aussteller-UID, Kommentare; stornierte Belege nur lesen |
 | Rechnungsliste | `features/invoices/invoice_list_screen.dart` | Status, PDF teilen, Aktionen |
 | Rechnung bearbeiten | `features/invoices/invoice_edit_screen.dart` | Kunde, Positionen, Ausstellen |
 | Kunde bearbeiten | `features/invoices/customer_edit_screen.dart` | Kundenstammdaten |
 | Datensicherung | `features/backup/backup_screen.dart` | Sicherung erstellen und teilen, wiederherstellen mit Vorschau |
 | Export | `features/export/export_screen.dart` | Zeitraum, Vorschau, Format |
-| Einstellungen | `features/settings/settings_screen.dart` | Stammdaten, App-Sperre, Kategorien, Rechtsrahmen, Hinweise |
+| Einstellungen | `features/settings/settings_screen.dart` | Stammdaten, App-Sperre, Belege auslesen, Kategorien, Rechtsrahmen, Hinweise |
 | App-Sperre einrichten | `features/app_lock/app_lock_settings_screen.dart` | PIN, Biometrie, Sperrzeit, Hinweis „PIN vergessen“, Warnung ohne Sicherung |
 | Sperrbildschirm | `features/app_lock/lock_screen.dart` | PIN oder Biometrie, Wartezeit nach Fehlversuchen; Abdeckung im App-Umschalter |
 
@@ -566,6 +573,13 @@ Aktion:
 In beiden Fällen wählt der Nutzer das Ziel im Systemdialog. Die App kennt das
 Ziel nicht und protokolliert es nicht.
 
+**Belegerkennung (FA-2.19):** Bild und erkannter Text bleiben auf dem Gerät.
+Unter Android sendet die eingebundene Google-ML-Kit-Bibliothek jedoch
+Nutzungs- und Diagnosedaten (keine Bilder, keine Texte) an Google; ein
+offizielles Abschalten gibt es nicht. Offengelegt in `PRIVACY.md`,
+Lastenheft 5.19 und `STORE_LISTING.md`; Prüfung P-R19, P-D21. Apple Vision
+(iOS) überträgt nichts.
+
 ### 10.2 Berechtigungen
 
 | Berechtigung | Plattformschlüssel | Zweck |
@@ -595,7 +609,8 @@ Offen benannt, weil eine Spezifikation, die ihre Lücken verschweigt, wertlos is
 | **Keine E-Rechnung** | Ein PDF ist keine E-Rechnung nach EN 16931. In Deutschland gilt die Empfangspflicht seit 1.1.2025, die Versandpflicht kommt gestaffelt bis 2028 | Backlog G1 |
 | **Keine Storno-/Gutschriftsrechnung** | Eine gestellte Rechnung ist gesperrt; es gibt derzeit keinen Korrekturweg innerhalb der App | Backlog F4, Sprint 2 |
 | **Steuerwerte fest im Code** | Kennwerte haben kein Gültig-ab-Datum und ändern sich nur per App-Update; eine kurzfristige Gesetzesänderung erreicht die Nutzerin erst nach Store-Freigabe | Rechtsstand-Überwachung, Lastenheft L-20 und L-13.5, Stufe B |
-| **Nur eine Währung** | Nur Euro. Ein Land mit anderer Währung setzt Mehrwährungsfähigkeit voraus | Backlog G7 |
+| **Belegerkennung nicht auf Gerät erprobt** | Kotlin- und Swift-Teil der Texterkennung sind nur kompiliert (CI); Erkennungsquote an echten Belegen unbekannt (P-D22). Ein Beleg mit mehreren Steuersätzen wird mit einem Satz gebucht | vor Release |
+| **Nur eine Währung** | Nur Euro; eine fremde Währung wird bei Ausgaben erkannt und gespeichert, aber nicht umgerechnet. Ein Land mit anderer Währung setzt Mehrwährungsfähigkeit voraus | Backlog G7 |
 | **Mengen mit zwei Dezimalstellen** | Die Mengeneingabe verarbeitet zwei Nachkommastellen, obwohl das Datenmodell drei erlaubt | – |
 | **Offene Detailseite beim Wechsel der Breitenklasse** | Wird ein Tablet von quer (expanded) auf hoch (medium) gedreht oder das Fenster verkleinert, während rechts ein Beleg, eine Rechnung oder ein Kunde in Bearbeitung ist, schließt sich der Detailbereich; ungespeicherte Eingaben gehen verloren. Gespeichertes bleibt unberührt | später |
 | **Android-APK-Build nicht lokal verifiziert** | Im Entwicklungscontainer ist `dl.google.com` per Netzwerk-Policy gesperrt, das Android SDK ließ sich nicht installieren. Analyse, Format und Tests laufen lokal; die Plattform-Builds verifiziert die CI | – |
@@ -609,7 +624,7 @@ Offen benannt, weil eine Spezifikation, die ihre Lücken verschweigt, wertlos is
 > Das ist der Mechanismus, der dieses Dokument aktuell hält.
 
 ```properties
-spec.schema_version = 8
+spec.schema_version = 9
 spec.vat_check_interval_days = 7
 spec.backup_reminder_days = 30
 spec.auto_backup_min_interval_hours = 24
@@ -678,6 +693,7 @@ Umrechnung: Beträge in Cent. `5500000` Cent = 55.000,00 €.
 
 | Version | Datum | App-Version | Änderung |
 |---|---|---|---|
+| 1.26 | 2026-10-12 | 0.2.0 | Belege automatisch auslesen (FA-2.19 bis FA-2.23, Lastenheft L-2.20 bis L-2.23): Texterkennung auf dem Gerät (ML Kit gebündelt, Apple Vision) über eigenen Platform-Channel, Parser in `lib/services/receipt_scan/`, Vorbelegung mit „erkannt – bitte prüfen“, Fremdwährung nur erkannt, Protokoll erkannt/bestätigt mit SHA-256. Schema 9. ML-Kit-Telemetrie in 10.1 offengelegt. Neue Grenze in Abschnitt 11, Prüfpunkt P-D22. |
 | 1.25 | 2026-10-12 | 0.2.0 | App-Version 0.2.0 (Testbuild). Versionsschema: 0.x bis zum Store-Start, zweite Stelle für Funktionen, dritte für Fehlerbehebungen; Buildnummer fortlaufend aus der CI. |
 | 1.24 | 2026-10-12 | 0.1.0 | Tablet und Querformat (Abschnitt 5.7, FA-9.1 bis FA-9.5): Breitenklassen nach Material 3, NavigationRail ab medium, Liste-Detail ab expanded für Belege, Rechnungen und Kunden, Formularbreite 640 dp, iPad ohne `UIRequiresFullScreen`. Neue Kennwerte `spec.window_*`, `spec.max_content_width_dp`, neue Grenze in Abschnitt 11, Prüfpunkte P-D19, P-D20. |
 | 1.23 | 2026-10-12 | 0.1.0 | App-Sperre (Abschnitt 5.5b, FA-1.13 bis FA-1.18, Lastenheft L-22.30): PIN 6–8 Ziffern als Argon2id-Hash im sicheren Speicher, Biometrie über `local_auth`, Sperrzeit, steigende Wartezeit, Abdeckung im App-Umschalter. Neue Kennwerte `spec.app_lock_*`, zwei neue Bildschirme, Prüfpunkte P-D17, P-D18. |
@@ -869,5 +885,6 @@ Status: *offen* · *bestätigt* (mit Datum und Prüfer) · *widerlegt* (mit Folg
 | P-D17 | App-Sperre auf echten Geräten: Fingerabdruck (Android), Face ID und Touch ID (iOS), Rückfall auf PIN, Sperre nach Zeit im Hintergrund; Vorschau im App-Umschalter verdeckt (iOS-Abdeckung, Android 13+ `setRecentsScreenshotEnabled`, Android < 13 nur Flutter-Abdeckung) | Flutter-Abdeckung kann auf Android < 13 zu spät gezeichnet werden; dann FLAG_SECURE erwägen | Release | offen |
 | P-D18 | Android-Build nach Umstellung auf `FlutterFragmentActivity` und `Theme.AppCompat`: Start, Sicherungsordner-Wahl (`onActivityResult`) und Startbildschirm hell/dunkel, auch unter Android 8 | im Container nicht baubar; CI prüft den Build, nicht das Verhalten | Release | offen |
 | P-D19 | Android-Tablet (z. B. 10–11 Zoll) hoch und quer, Telefon quer, Split-Screen/Mehrfenster: Navigation (Leiste/Rail), Liste-Detail, Formularbreite, Tastatur verdeckt kein aktives Feld, Sperrbildschirm und Dialoge, Drehen während der Bearbeitung | Widget-Tests mit 390×844, 844×390, 768×1024 und 1194×834 dp grün; echtes Gerät fehlt | Release | offen |
+| P-D22 | Belegerkennung an mindestens 30 echten Belegen (Supermarkt, Tankstelle, Hotel, Online-Rechnung, Kleinbetrag, Fremdwährung, zerknittert/schräg): Quote je Feld (Datum, Brutto, Satz, Händler, UID, Rechnungsnummer); Gerätetest Android und iOS, auch im Flugmodus (Erkennung muss offline laufen) | Parser mit Testtexten geprüft, Engines nur kompiliert | vor Release | offen |
 | P-D20 | iPad hoch und quer (alle vier Ausrichtungen), Split View und Slide Over (1/3, 1/2, 2/3), Stage Manager; App Review akzeptiert Multitasking ohne `UIRequiresFullScreen` | Info.plist enthält alle vier iPad-Ausrichtungen, kein `UIRequiresFullScreen`; nur auf macOS/Gerät prüfbar | Release | offen |
 | P-D8 | Zusatzsicherung unter Windows (`tool/sicherung/sicherung.ps1`): Erstlauf, Aufgabenplanung, Wiederherstellung | Linux-Variante getestet, Windows-Skript nie ausgeführt | sofort | offen |

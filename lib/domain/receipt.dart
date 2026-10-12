@@ -41,6 +41,10 @@ class Receipt {
     this.paymentMethod = PaymentMethod.bank,
     this.imagePath,
     this.note = '',
+    this.documentNumber = '',
+    this.issuerVatId = '',
+    this.currency = 'EUR',
+    this.originalGross,
     this.createdAt,
     this.updatedAt,
     this.cancelledAt,
@@ -71,6 +75,22 @@ class Receipt {
   final String? imagePath;
 
   final String note;
+
+  /// Rechnungs- bzw. Belegnummer des Ausstellers (Schema 9, L-2.20).
+  final String documentNumber;
+
+  /// UID bzw. USt-IdNr. des Ausstellers (Schema 9, L-2.20).
+  final String issuerVatId;
+
+  /// Währung des Originalbelegs, ISO 4217 (Schema 9, L-2.21). [net], [vat]
+  /// und [gross] sind immer Euro; bei fremder Währung steht der Betrag laut
+  /// Beleg unverändert in [originalGross]. Die Umrechnung ist ein eigener,
+  /// späterer Schritt.
+  final String currency;
+  final Money? originalGross;
+
+  bool get isForeignCurrency => currency != 'EUR';
+
   final DateTime? createdAt;
   final DateTime? updatedAt;
 
@@ -102,6 +122,11 @@ class Receipt {
     String? imagePath,
     bool clearImage = false,
     String? note,
+    String? documentNumber,
+    String? issuerVatId,
+    String? currency,
+    Money? originalGross,
+    bool clearOriginalGross = false,
     DateTime? createdAt,
     DateTime? updatedAt,
   }) {
@@ -119,6 +144,12 @@ class Receipt {
       paymentMethod: paymentMethod ?? this.paymentMethod,
       imagePath: clearImage ? null : (imagePath ?? this.imagePath),
       note: note ?? this.note,
+      documentNumber: documentNumber ?? this.documentNumber,
+      issuerVatId: issuerVatId ?? this.issuerVatId,
+      currency: currency ?? this.currency,
+      originalGross: clearOriginalGross
+          ? null
+          : (originalGross ?? this.originalGross),
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
     );
@@ -138,6 +169,10 @@ class Receipt {
     'payment_method': paymentMethod.name,
     'image_path': imagePath,
     'note': note,
+    'document_number': documentNumber,
+    'issuer_vat_id': issuerVatId,
+    'currency': currency,
+    'original_gross_cents': originalGross?.cents,
     'created_at': (createdAt ?? DateTime.now()).toIso8601String(),
     'updated_at': DateTime.now().toIso8601String(),
   };
@@ -158,6 +193,12 @@ class Receipt {
     paymentMethod: PaymentMethod.fromName(map['payment_method'] as String?),
     imagePath: map['image_path'] as String?,
     note: map['note'] as String? ?? '',
+    documentNumber: map['document_number'] as String? ?? '',
+    issuerVatId: map['issuer_vat_id'] as String? ?? '',
+    currency: map['currency'] as String? ?? 'EUR',
+    originalGross: map['original_gross_cents'] == null
+        ? null
+        : Money(map['original_gross_cents'] as int),
     createdAt: _parseOrNull(map['created_at']),
     updatedAt: _parseOrNull(map['updated_at']),
     cancelledAt: _parseOrNull(map['cancelled_at']),

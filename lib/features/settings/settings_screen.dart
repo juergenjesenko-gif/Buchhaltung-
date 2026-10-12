@@ -4,6 +4,8 @@ import '../../core/formatting.dart';
 import '../app_lock/app_lock_settings_screen.dart';
 import '../backup/backup_screen.dart';
 import '../../app_state.dart';
+import '../../data/app_database.dart';
+import '../../data/receipt_scan_settings.dart';
 import '../../domain/receipt.dart';
 import '../../widgets/common.dart';
 import '../onboarding/company_setup_screen.dart';
@@ -125,6 +127,12 @@ class SettingsScreen extends StatelessWidget {
                   ],
                 ),
               ),
+            const SizedBox(height: 16),
+
+            const SectionCard(
+              title: 'Belege auslesen',
+              child: _ReceiptScanSwitch(),
+            ),
             const SizedBox(height: 16),
 
             const SectionCard(
@@ -332,6 +340,53 @@ class _CategoryScreenState extends State<_CategoryScreen> {
       floatingActionButton: FloatingActionButton(
         onPressed: _addCategory,
         child: const Icon(Icons.add),
+      ),
+    );
+  }
+}
+
+/// Schalter „Belege automatisch auslesen“ (L-2.23).
+class _ReceiptScanSwitch extends StatefulWidget {
+  const _ReceiptScanSwitch();
+
+  @override
+  State<_ReceiptScanSwitch> createState() => _ReceiptScanSwitchState();
+}
+
+class _ReceiptScanSwitchState extends State<_ReceiptScanSwitch> {
+  bool? _enabled;
+
+  @override
+  void initState() {
+    super.initState();
+    AppDatabase.instance.database.then(ReceiptScanSettings.isEnabled).then((
+      value,
+    ) {
+      if (mounted) setState(() => _enabled = value);
+    });
+  }
+
+  Future<void> _set(bool value) async {
+    setState(() => _enabled = value);
+    await ReceiptScanSettings.setEnabled(
+      await AppDatabase.instance.database,
+      value,
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return SwitchListTile(
+      contentPadding: EdgeInsets.zero,
+      value: _enabled ?? true,
+      onChanged: _enabled == null ? null : _set,
+      title: const Text('Belege nach dem Fotografieren automatisch auslesen'),
+      subtitle: const Text(
+        'Datum, Betrag, Steuersatz, Lieferant, UID und Rechnungsnummer werden '
+        'auf dem Gerät erkannt und im Formular vorgeschlagen. Du prüfst und '
+        'bestätigst beim Speichern. Fotos und Text verlassen das Gerät nicht; '
+        'unter Android sendet die Erkennung (Google ML Kit) Nutzungs- und '
+        'Diagnosedaten ohne Belegdaten an Google.',
       ),
     );
   }

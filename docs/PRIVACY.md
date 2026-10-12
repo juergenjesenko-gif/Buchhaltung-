@@ -98,6 +98,20 @@ Nur in diesen Fällen, die du auslöst oder einschaltest:
 - **UID-Prüfung über VIES** – auf Tippen, oder wöchentlich, wenn du es
   eingeschaltet hast: UID-Nummern gehen an die EU-Kommission
 
+**Hinweis zur Belegerkennung:** Fotografierte Belege werden auf deinem Gerät
+ausgelesen (Datum, Betrag, Steuersatz, Lieferant, UID, Rechnungsnummer).
+Foto und erkannter Text verlassen das Gerät dafür **nicht**; die Erkennung
+funktioniert auch im Flugmodus. Unter **iOS** nutzt die App die
+Texterkennung von Apple (Vision), die nichts überträgt. Unter **Android**
+nutzt sie die in die App eingebundene Bibliothek Google ML Kit. Diese sendet
+nach Angaben von Google **Nutzungs- und Diagnosedaten** (etwa Gerätetyp,
+App-Version, Leistung und Fehler der Erkennung) an Google – **keine Fotos und
+keinen erkannten Text**. Ein offizielles Abschalten bietet Google nicht an;
+du kannst die Erkennung in den Einstellungen („Belege auslesen“) ganz
+ausschalten. Empfänger ist Google; Umfang und Rechtsgrundlage werden noch
+fachlich geprüft (Prüfpunkte P-R19, P-D21 der Spezifikation) und vor
+Veröffentlichung hier verbindlich beschrieben.
+
 **Hinweis zum Diktieren:** Die App enthält keine Spracherkennung und überträgt
 keine Sprache. Wer Kommentare über das Mikrofon der Systemtastatur diktiert,
 nutzt die Diktierfunktion des Geräts; je nach Tastatur und Einstellung sendet

@@ -179,6 +179,36 @@ Das ist die Funktion, die du täglich nutzt. Sie ist auf Geschwindigkeit gebaut.
    ein **Kommentar** (siehe unten)
 7. **Beleg speichern**
 
+### Belege automatisch auslesen
+
+Sobald du einen neuen Beleg fotografierst oder ein Foto wählst, liest die App
+ihn **auf deinem Telefon** aus – bei mehreren Seiten alle Seiten. Sie trägt
+ein, was sie findet: **Belegdatum, Bruttobetrag, Umsatzsteuersatz,
+Lieferant, Rechnungsnummer und UID des Ausstellers**. Solche Felder sind mit
+**„erkannt – bitte prüfen“** markiert.
+
+- **Prüf die markierten Felder** mit dem Beleg. Gebucht wird erst, wenn du auf
+  **Beleg speichern** tippst – vorher ist nichts verbucht.
+- Was die App nicht sicher erkennt, lässt sie leer. Die Beschreibung trägst
+  du immer selbst ein.
+- **Erneut auslesen** unter den Fotos startet die Erkennung noch einmal, z. B.
+  nachdem du eine weitere Seite ergänzt hast. Achtung: bereits eingetragene
+  Werte werden dabei durch die erkannten ersetzt.
+- **Mehrere Steuersätze** (z. B. Hotel mit Übernachtung und Frühstück): die
+  App zeigt Brutto je Satz an und wählt den größten Anteil vor. Teile den
+  Beleg bei Bedarf in zwei Buchungen auf.
+- **Fremde Währung** (z. B. eine Rechnung in US-Dollar) bei Ausgaben: die App
+  zeigt den Originalbetrag mit Währung an und speichert ihn, rechnet aber
+  **nicht** um. Trag den Euro-Betrag laut Kontoauszug ein.
+- Das Foto selbst wird nie verändert. Im Änderungsprotokoll steht, was erkannt
+  und was von dir bestätigt wurde.
+- Ausschalten: Einstellungen → **Belege auslesen**.
+
+Datenschutz: Foto und Text verlassen dein Telefon dafür nicht, die Erkennung
+läuft auch im Flugmodus. Unter Android sendet die eingebaute Erkennung von
+Google (ML Kit) allerdings Nutzungs- und Diagnosedaten ohne Fotos und Text an
+Google; unter iOS überträgt die Apple-Erkennung nichts.
+
 ### Seiten eines gespeicherten Belegs
 
 In der Belegansicht siehst du alle Seiten nebeneinander; Antippen vergrößert
@@ -503,6 +533,9 @@ Anlegen kannst du eine Kontonummer für den Export mitgeben.
 **Rechtlicher Rahmen** – die für dein Land geltenden Steuersätze, Rechtsverweise
 und Fristen zum Nachschauen
 
+**Belege auslesen** – schaltet das automatische Auslesen fotografierter
+Belege ein oder aus (Standard: an), siehe Abschnitt 4
+
 **Daten und Sicherung** – siehe nächster Abschnitt
 
 **App-Sperre** – schützt die App mit einer PIN und, wenn dein Gerät es kann,
@@ -652,6 +685,13 @@ deiner Steuerberatung.
 
 ## 13. Wenn etwas nicht geht
 
+
+**„Auf dem Foto wurde nichts erkannt – bitte von Hand erfassen."** — das Foto
+ist unscharf, zu dunkel oder schräg. Neu fotografieren und „Erneut auslesen",
+oder die Felder selbst ausfüllen.
+
+**„Auslesen nicht möglich: …"** — die Erkennung ist auf diesem Gerät
+fehlgeschlagen. Der Beleg lässt sich trotzdem von Hand erfassen.
 
 **„Der Sicherungsordner ist nicht erreichbar. Bitte den Ordner neu wählen."** —
 der Ordner wurde gelöscht oder die App hat keinen Zugriff mehr. Unter

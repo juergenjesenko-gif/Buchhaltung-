@@ -16,7 +16,7 @@ class AppDatabase {
 
   /// Aktuelle Schemaversion. Öffentlich, weil docs/SPECIFICATION.md sie
   /// dokumentiert und test/specification_sync_test.dart beide vergleicht.
-  static const schemaVersion = 8;
+  static const schemaVersion = 9;
 
   Database? _db;
 
@@ -315,6 +315,17 @@ class AppDatabase {
       ''',
       // Relativer Pfad des Logos im Ordner `logo/` (NFA-4).
       'ALTER TABLE company_profile ADD COLUMN logo_path TEXT',
+    ],
+    // Version 9: Belege automatisch auslesen (L-2.20 bis L-2.23).
+    9: [
+      // Abschaltbar in den Einstellungen; neu ist die Erkennung an.
+      'ALTER TABLE company_profile ADD COLUMN receipt_scan_enabled INTEGER NOT NULL DEFAULT 1',
+      "ALTER TABLE receipts ADD COLUMN document_number TEXT NOT NULL DEFAULT ''",
+      "ALTER TABLE receipts ADD COLUMN issuer_vat_id TEXT NOT NULL DEFAULT ''",
+      // Fremdwährung nur erkannt und gespeichert, nicht umgerechnet:
+      // net/vat/gross bleiben Euro, der Betrag laut Beleg steht daneben.
+      "ALTER TABLE receipts ADD COLUMN currency TEXT NOT NULL DEFAULT 'EUR'",
+      'ALTER TABLE receipts ADD COLUMN original_gross_cents INTEGER',
     ],
   };
 

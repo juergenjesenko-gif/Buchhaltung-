@@ -11,11 +11,15 @@ import UIKit
   }
 
   private var backupFolder: BackupFolderChannel?
+  private var receiptText: ReceiptTextChannel?
 
   func didInitializeImplicitFlutterEngine(_ engineBridge: FlutterImplicitEngineBridge) {
     GeneratedPluginRegistrant.register(with: engineBridge.pluginRegistry)
     if let registrar = engineBridge.pluginRegistry.registrar(forPlugin: "BackupFolderChannel") {
       backupFolder = BackupFolderChannel(messenger: registrar.messenger())
+    }
+    if let registrar = engineBridge.pluginRegistry.registrar(forPlugin: "ReceiptTextChannel") {
+      receiptText = ReceiptTextChannel(messenger: registrar.messenger())
     }
   }
 }

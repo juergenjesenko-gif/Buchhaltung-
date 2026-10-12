@@ -5,10 +5,16 @@ import 'package:image_picker/image_picker.dart';
 
 import '../../app_state.dart';
 import '../../core/formatting.dart';
+import '../../data/app_database.dart';
+import '../../data/receipt_scan_settings.dart';
 import '../../domain/country.dart';
 import '../../domain/money.dart';
 import '../../domain/receipt.dart';
 import '../../services/receipt_image_store.dart';
+import '../../services/receipt_scan/ocr_text.dart';
+import '../../services/receipt_scan/platform_text_recognizer.dart';
+import '../../services/receipt_scan/receipt_scan_prefill.dart';
+import '../../services/receipt_scan/receipt_text_parser.dart';
 import '../../services/vat_calculator.dart';
 import '../../theme.dart';
 import '../../widgets/common.dart';
@@ -36,6 +42,20 @@ class _ReceiptEditScreenState extends State<ReceiptEditScreen> {
   final _counterpartyController = TextEditingController();
   final _noteController = TextEditingController();
   final _commentController = TextEditingController();
+  final _documentNumberController = TextEditingController();
+  final _issuerVatIdController = TextEditingController();
+
+  // Belegerkennung (L-2.20 bis L-2.23)
+  bool _scanEnabled = false;
+  bool _scanning = false;
+  OcrDocument? _scanDocument;
+  ReceiptScanResult? _scanResult;
+
+  /// Felder, die aus der Erkennung stammen und noch geprüft werden sollen.
+  final Set<String> _recognized = {};
+  List<String> _scanHints = const [];
+  String _currency = 'EUR';
+  Money? _originalGross;
 
   late BookingDirection _direction;
   DateTime _date = DateTime.now();
@@ -94,12 +114,17 @@ class _ReceiptEditScreenState extends State<ReceiptEditScreen> {
       _descriptionController.text = existing.description;
       _counterpartyController.text = existing.counterparty;
       _noteController.text = existing.note;
+      _documentNumberController.text = existing.documentNumber;
+      _issuerVatIdController.text = existing.issuerVatId;
+      _currency = existing.currency;
+      _originalGross = existing.originalGross;
       _loadPagesAndComments(existing);
     } else {
       _vatPermille = state.defaultVatPermille;
       final categories = state.categoriesFor(_direction);
       if (categories.isNotEmpty) _categoryId = categories.first.id;
     }
+    _loadScanSetting();
   }
 
   @override
@@ -109,6 +134,8 @@ class _ReceiptEditScreenState extends State<ReceiptEditScreen> {
     _counterpartyController.dispose();
     _noteController.dispose();
     _commentController.dispose();
+    _documentNumberController.dispose();
+    _issuerVatIdController.dispose();
     // Abgebrochene Erfassung: neu aufgenommene, nie gespeicherte Seiten
     // hinterlassen sonst verwaiste Dateien. Gespeicherte Seiten bleiben.
     if (!_saved) {
@@ -150,6 +177,87 @@ class _ReceiptEditScreenState extends State<ReceiptEditScreen> {
 
   Money? get _gross => Money.tryParse(_grossController.text);
 
+  Future<void> _loadScanSetting() async {
+    final db = await AppDatabase.instance.database;
+    final enabled = await ReceiptScanSettings.isEnabled(db);
+    final available = enabled && await _recognizer.isAvailable();
+    if (mounted) setState(() => _scanEnabled = available);
+  }
+
+  static const ReceiptTextRecognizer _recognizer =
+      PlatformReceiptTextRecognizer();
+
+  /// Liest alle Seiten aus und belegt das Formular vor. Das Originalbild
+  /// bleibt unverändert; gebucht wird erst beim Speichern (L-2.20).
+  Future<void> _scan() async {
+    if (_pages.isEmpty || _scanning) return;
+    final state = AppScope.read(context);
+    final tax = state.profile?.taxProfile ?? TaxProfile.austria;
+    setState(() => _scanning = true);
+    try {
+      final files = [
+        for (final path in _pages)
+          if (_pageFiles[path] != null) _pageFiles[path]!.path,
+      ];
+      final document = await _recognizer.recognize(files);
+      final result = ReceiptTextParser(
+        tax,
+        ownVatId: state.profile?.vatId,
+      ).parse(document);
+      final prefill = ReceiptScanPrefill.from(
+        result,
+        direction: _direction,
+        profile: tax,
+      );
+      if (!mounted) return;
+      setState(() {
+        _scanDocument = document;
+        _scanResult = result;
+        _recognized.clear();
+        if (prefill.date != null) {
+          _date = prefill.date!;
+          _recognized.add('date');
+        }
+        if (prefill.gross != null) {
+          _grossController.text = Fmt.amount(prefill.gross!);
+          _recognized.add('gross');
+        }
+        if (prefill.vatPermille != null) {
+          _vatPermille = prefill.vatPermille!;
+          _recognized.add('vat');
+        }
+        if (prefill.counterparty != null) {
+          _counterpartyController.text = prefill.counterparty!;
+          _recognized.add('counterparty');
+        }
+        if (prefill.documentNumber != null) {
+          _documentNumberController.text = prefill.documentNumber!;
+          _recognized.add('documentNumber');
+        }
+        if (prefill.issuerVatId != null) {
+          _issuerVatIdController.text = prefill.issuerVatId!;
+          _recognized.add('issuerVatId');
+        }
+        _currency = prefill.currency;
+        _originalGross = prefill.originalGross;
+        _scanHints = prefill.hints;
+      });
+      showSnack(
+        context,
+        result.isEmpty
+            ? 'Auf dem Foto wurde nichts erkannt – bitte von Hand erfassen.'
+            : 'Beleg ausgelesen – bitte die markierten Felder prüfen.',
+      );
+    } on Exception catch (error) {
+      if (mounted) showSnack(context, 'Auslesen nicht möglich: $error');
+    } finally {
+      if (mounted) setState(() => _scanning = false);
+    }
+  }
+
+  String? _checkHint(String field) =>
+      _recognized.contains(field) ? 'erkannt – bitte prüfen' : null;
+
   VatSplit? get _split {
     final gross = _gross;
     if (gross == null) return null;
@@ -176,6 +284,7 @@ class _ReceiptEditScreenState extends State<ReceiptEditScreen> {
         _pagesConfirmed = false;
       });
       await _resolveFiles();
+      if (_scanEnabled && !_isEditing) await _scan();
     } on Exception catch (error) {
       if (mounted) {
         showSnack(context, 'Foto konnte nicht übernommen werden: $error');
@@ -297,8 +406,29 @@ class _ReceiptEditScreenState extends State<ReceiptEditScreen> {
       paymentMethod: _paymentMethod,
       imagePath: _pages.isEmpty ? null : _pages.first,
       note: _noteController.text.trim(),
+      documentNumber: _documentNumberController.text.trim(),
+      issuerVatId: _issuerVatIdController.text.trim(),
+      currency: _currency,
+      originalGross: _originalGross,
       createdAt: widget.existing?.createdAt,
     );
+
+    // Erkannt gegenüber bestätigt ins Protokoll, ohne Bilddaten (L-2.22).
+    String? scanAudit;
+    final document = _scanDocument;
+    final result = _scanResult;
+    if (document != null && result != null) {
+      final files = [
+        for (final path in _pages)
+          if (_pageFiles[path] != null) _pageFiles[path]!.path,
+      ];
+      scanAudit = ReceiptScanAudit.detail(
+        document: document,
+        result: result,
+        confirmed: receipt,
+        imageSha256: await sha256OfFiles(files),
+      );
+    }
 
     await state.repositories.receipts.save(
       receipt,
@@ -306,6 +436,7 @@ class _ReceiptEditScreenState extends State<ReceiptEditScreen> {
       // Beim Erfassen wird das Kommentarfeld zum ersten Kommentar; bei einem
       // gespeicherten Beleg hängt man Kommentare über die eigene Schaltfläche an.
       comment: _isEditing ? null : _commentController.text,
+      scanAudit: scanAudit,
     );
     _saved = true;
     await state.onBookingsChanged();
@@ -447,6 +578,36 @@ class _ReceiptEditScreenState extends State<ReceiptEditScreen> {
               ),
             ],
           ),
+          if (_scanEnabled && _pages.isNotEmpty)
+            Align(
+              alignment: Alignment.centerLeft,
+              child: TextButton.icon(
+                onPressed: _scanning ? null : _scan,
+                icon: _scanning
+                    ? const SizedBox.square(
+                        dimension: 18,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      )
+                    : const Icon(Icons.document_scanner_outlined),
+                label: Text(
+                  _scanning ? 'Wird ausgelesen …' : 'Erneut auslesen',
+                ),
+              ),
+            ),
+          for (final hint in _scanHints)
+            Padding(
+              padding: const EdgeInsets.only(top: 4),
+              child: Text(hint, style: muted),
+            ),
+          if (_originalGross != null)
+            Padding(
+              padding: const EdgeInsets.only(top: 4),
+              child: Text(
+                'Originalbetrag laut Beleg: ${Fmt.amount(_originalGross!)} '
+                '$_currency – wird nicht umgerechnet.',
+                style: muted,
+              ),
+            ),
         ],
         if (_hasNewPages && !_isCancelled)
           CheckboxListTile(
@@ -603,7 +764,9 @@ class _ReceiptEditScreenState extends State<ReceiptEditScreen> {
                       const SizedBox(height: 16),
                       MoneyField(
                         controller: _grossController,
-                        label: 'Bruttobetrag (wie auf dem Beleg)',
+                        label: _recognized.contains('gross')
+                            ? 'Bruttobetrag – erkannt, bitte prüfen'
+                            : 'Bruttobetrag (wie auf dem Beleg)',
                         autofocus: !_isEditing,
                         onChanged: (_) => setState(() {}),
                         validator: (value) {
@@ -622,6 +785,7 @@ class _ReceiptEditScreenState extends State<ReceiptEditScreen> {
                       ),
                       const SizedBox(height: 16),
                       DropdownButtonFormField<int>(
+                        key: ValueKey('vat$_vatPermille'),
                         initialValue: _vatPermille,
                         decoration: const InputDecoration(
                           labelText: 'Umsatzsteuersatz',
@@ -707,7 +871,11 @@ class _ReceiptEditScreenState extends State<ReceiptEditScreen> {
                         contentPadding: EdgeInsets.zero,
                         leading: const Icon(Icons.event_outlined),
                         title: const Text('Belegdatum'),
-                        subtitle: Text(Fmt.date(_date)),
+                        subtitle: Text(
+                          _recognized.contains('date')
+                              ? '${Fmt.date(_date)} · erkannt – bitte prüfen'
+                              : Fmt.date(_date),
+                        ),
                         trailing: const Icon(Icons.chevron_right),
                         onTap: _pickDate,
                       ),
@@ -730,8 +898,26 @@ class _ReceiptEditScreenState extends State<ReceiptEditScreen> {
                         controller: _counterpartyController,
                         decoration: InputDecoration(
                           labelText: isIncome ? 'Kunde' : 'Lieferant',
+                          helperText: _checkHint('counterparty'),
                         ),
                         textCapitalization: TextCapitalization.words,
+                      ),
+                      const SizedBox(height: 12),
+                      TextFormField(
+                        controller: _documentNumberController,
+                        decoration: InputDecoration(
+                          labelText: 'Rechnungsnummer',
+                          helperText: _checkHint('documentNumber'),
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                      TextFormField(
+                        controller: _issuerVatIdController,
+                        decoration: InputDecoration(
+                          labelText: 'UID des Ausstellers',
+                          helperText: _checkHint('issuerVatId'),
+                        ),
+                        textCapitalization: TextCapitalization.characters,
                       ),
                       const SizedBox(height: 12),
                       DropdownButtonFormField<int?>(

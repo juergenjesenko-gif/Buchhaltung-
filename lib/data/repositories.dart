@@ -220,6 +220,7 @@ class ReceiptRepository {
     Receipt receipt, {
     List<String>? pages,
     String? comment,
+    String? scanAudit,
   }) async {
     return _db.transaction((txn) async {
       final audit = AuditLog(_db);
@@ -282,6 +283,16 @@ class ReceiptRepository {
         );
       }
       if (pages != null) await _writePages(txn, id, pages);
+      // Automatisch ausgelesene Werte gegenüber bestätigten (L-2.22).
+      if (scanAudit != null) {
+        await audit.record(
+          entity: 'receipt',
+          entityId: id,
+          action: 'scan',
+          detail: scanAudit,
+          txn: txn,
+        );
+      }
       final text = comment?.trim() ?? '';
       if (text.isNotEmpty) await _insertComment(txn, id, text);
       return id;

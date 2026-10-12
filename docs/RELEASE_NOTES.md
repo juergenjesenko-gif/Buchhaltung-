@@ -34,6 +34,7 @@ nächsten Versionssprung in den neuen Eintrag.
 
 | Art | Änderung | Bezug | Commit |
 |---|---|---|---|
+| Neu | Belege automatisch auslesen: Texterkennung auf dem Gerät (Android ML Kit gebündelt, iOS Apple Vision), Vorbelegung von Datum, Brutto, Steuersatz, Lieferant, Rechnungsnummer, Aussteller-UID mit „erkannt – bitte prüfen“, „Erneut auslesen“, abschaltbar; Fremdwährung bei Ausgaben nur erkannt; Protokoll erkannt/bestätigt mit SHA-256. Schema 9 | L-2.20–L-2.23, FA-2.19–FA-2.23, P-D22, P-R19, P-D21 | dieser Commit |
 
 ---
 

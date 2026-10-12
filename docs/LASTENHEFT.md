@@ -1,6 +1,6 @@
 # Lastenheft – Buchhaltungsapp für Österreich und Deutschland
 
-**Dokumentversion:** 1.39 · **Stand:** 2026-10-12 · **Status:** Entwurf zur Abstimmung
+**Dokumentversion:** 1.40 · **Stand:** 2026-10-12 · **Status:** Entwurf zur Abstimmung
 **Auftraggeber:** Jürgen Jesenko (privates Vorhaben) · **Umsetzung:** Claude Code
 
 > Ein Lastenheft beschreibt, **was** das Produkt leisten soll und **warum** — nicht,
@@ -178,6 +178,10 @@ Priorität: **MUSS** = ohne das kein Release · **SOLL** = wichtig, verhandelbar
 | L-2.15 | **Mehrere Seiten je Beleg:** weitere Seiten aufnehmen, vor dem Speichern Reihenfolge ändern und einzelne Seiten löschen; danach feste Reihenfolge, nur noch Anhängen. Aufnahmen werden nach dem Speichern nie verändert, eine Bildverbesserung nur als Kopie | MUSS | A |
 | L-2.16 | Vor dem Buchen neuer Seiten bestätigt die Nutzerin die Vollständigkeit („Alle Seiten inkl. beschriebener Rückseiten erfasst“); die Seitenzahl steht im Änderungsprotokoll | MUSS | A |
 | L-2.17 | **Kommentare zu Belegen**, auch nach dem Buchen und bei stornierten Belegen: nur anhängbar, mit Systemzeitstempel, kein Bearbeiten oder Löschen, Korrektur als neuer Kommentar, Eintrag im Änderungsprotokoll; der Beleg bleibt unverändert. Kommentare stehen in Export und Sicherung | MUSS | A |
+| L-2.20 | **Belege automatisch auslesen** (konkretisiert L-2.4, L-2.5): nach dem Foto werden alle Seiten auf dem Gerät erkannt; Belegdatum, Bruttobetrag, Umsatzsteuer je Satz, Netto, Händler, UID des Ausstellers und Rechnungsnummer werden mit Konfidenz vorgeschlagen und als „erkannt – bitte prüfen“ markiert. Gebucht wird erst nach Bestätigung beim Speichern; das Originalbild bleibt unverändert; „Erneut auslesen“ jederzeit | MUSS | A |
+| L-2.21 | **Fremdwährung** nur bei Eingangsbelegen erkennen und mit dem Betrag laut Beleg speichern; die Umrechnung in Euro ist ein eigener späterer Schritt. Ausgangsrechnungen bleiben in Euro | MUSS | A |
+| L-2.22 | Erkannte und bestätigte Werte je Feld, Erkennungs-Engine mit Version und Prüfsumme (SHA-256) der Originalbilder stehen im Änderungsprotokoll (GoBD-Nachvollziehbarkeit); keine Bilddaten im Protokoll | MUSS | A |
+| L-2.23 | Die automatische Erkennung ist in den Einstellungen abschaltbar | MUSS | A |
 | L-2.18 | Kommentare lassen sich über die Diktierfunktion der Systemtastatur sprechen; die App selbst überträgt keine Sprache. Ein Hinweis nennt, dass die Tastatur je nach Gerät Sprache an Google oder Apple senden kann | SOLL | A |
 
 ### 5.3 Ausgangsrechnungen
@@ -605,6 +609,7 @@ Jede Übertragung vom Gerät weg, auch die unscheinbaren:
 | Rechnung/Export teilen | vom Nutzer gewählt | PDF, CSV | Tippen auf Teilen | je Vorgang | vorhanden |
 | Sicherung von Hand (L-7.1) | vom Nutzer gewählt (Teilen-Dialog) | mit Kennwort verschlüsselte Vollsicherung samt Fotos | Tippen auf „Sicherung erstellen“ | je Vorgang | vorhanden |
 | Sicherung automatisch (L-7.2, L-7.6 ff.) | einmal gewählter Ordner, z. B. iCloud Drive oder Google Drive; Upload durch das Betriebssystem bzw. den Dokumentanbieter | mit Schlüssel verschlüsselte Vollsicherung samt Fotos | nach jeder Änderung höchstens täglich, beim Öffnen der App | **ja**, standardmäßig aus | vorhanden |
+| Diagnose der Belegerkennung, nur Android (L-2.20) | Google (Google ML Kit, in der App eingebunden) | Nutzungs- und Diagnosedaten der Bibliothek (z. B. Gerätetyp, Leistung, Fehler); **keine Bilder, kein erkannter Text** | Nutzung der Belegerkennung | nein, kein offizielles Abschalten; Erkennung insgesamt abschaltbar (L-2.23). Prüfung P-R19, P-D21 | vorhanden |
 | Foto-Zweitablage (L-2.11) | Fotobibliothek, ggf. deren Cloud | Belegfotos | Einschalten | ja | A |
 | UID-Prüfung auf Tippen (L-1.3) | EU-Kommission (VIES), direkt vom Gerät | UID, eigene UID als Anfragende, IP-Adresse | Tippen auf „Jetzt prüfen“ | je Vorgang | vorhanden |
 | UID-Prüfung automatisch (L-1.3, L-1.4) | EU-Kommission (VIES), direkt vom Gerät | wie oben, für eigene UID und Kunden mit Rechnung in den letzten 12 Monaten; vor jeder Rechnung an Kunden mit UID | wöchentlich beim Öffnen der App | **ja**, Schalter, standardmäßig aus | vorhanden |
@@ -1142,6 +1147,7 @@ Zu entscheiden, bevor die betroffene Anforderung umgesetzt wird:
 
 | Version | Datum | Änderung |
 |---|---|---|
+| 1.40 | 2026-10-12 | L-2.20 bis L-2.23 Belege automatisch auslesen, umgesetzt (Spezifikation FA-2.19 bis FA-2.23). Entscheidung der Auftraggeberin: Android Google ML Kit (gebündelt), dessen Diagnosedaten an Google in 5.19 offengelegt. Fremdwährung nur bei Eingangsbelegen. |
 | 1.39 | 2026-10-12 | Entscheidungen der Auftraggeberin: L-22.30 App-Sperre KANN/C → SOLL/A und umgesetzt (Spezifikation 5.5b); L-7.20 iCloud-Ordner in der Dateien-App SOLL → MUSS (Bau mit L-7.17 offen). |
 | 1.38 | 2026-10-12 | L-22.21 bis L-22.30: Wiederherstellungscode statt Passwort-Zurücksetzen, Promocodes und Affiliates über Store-Offers, Preisangaben. Erlösrechnung: rund 71 % des Bruttopreises kommen bei der Anbieterin an. Geprüft von allen drei Instanzen. |
 | 1.37 | 2026-10-12 | Umgesetzt mit Schema 8: Firmenlogo (L-1.7, neu L-1.9), mehrseitige Belege mit Vollständigkeitsbestätigung (L-2.15, L-2.16), Kommentare nur anhängbar (L-2.17), Diktat über die Systemtastatur (L-2.18). Geprüft von Steuerberater und Softwareentwickler. |
