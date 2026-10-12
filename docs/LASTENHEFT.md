@@ -1,6 +1,6 @@
 # Lastenheft – Buchhaltungsapp für Österreich und Deutschland
 
-**Dokumentversion:** 1.37 · **Stand:** 2026-10-09 · **Status:** Entwurf zur Abstimmung
+**Dokumentversion:** 1.38 · **Stand:** 2026-10-09 · **Status:** Entwurf zur Abstimmung
 **Auftraggeber:** Jürgen Jesenko (privates Vorhaben) · **Umsetzung:** Claude Code
 
 > Ein Lastenheft beschreibt, **was** das Produkt leisten soll und **warum** — nicht,
@@ -827,6 +827,16 @@ Charge) und erhält die Auszahlung abzüglich Provision.
 | L-22.18 | Menü „Rechtliches" in der App, auch offline: Impressum, Datenschutz, Nutzungsbedingungen, Support, „keine Steuerberatung" | MUSS | A |
 | L-22.19 | Kein Crash-SDK; Absturzstatistik der Stores plus freiwilliger Fehlerbericht per E-Mail | MUSS | A |
 | L-22.20 | Werbe-Negativliste in STORE_LISTING („finanzamtssicher", „GoBD-zertifiziert", „ersetzt Steuerberatung" u. a.); Prüfung vor jeder Textänderung | MUSS | A |
+| L-22.21 | Wiederherstellungscode als lokal erzeugtes PDF bzw. Druckblatt mit QR-Code über Teilen/Drucken; keine Kopie in der App. Es gibt kein Konto und kein Passwort-Zurücksetzen beim Anbieter (L-7.12) | MUSS | A |
+| L-22.22 | Bestätigung beim Einrichten durch Eingabe von zwei zufälligen Codeblöcken | MUSS | A |
+| L-22.23 | Code-Selbsttest als Erinnerung (halbjährlich, vor Gerätewechsel); „Neuen Code erzeugen“, solange der Gerätschlüssel besteht, mit Hinweis, dass alte Sicherungen den alten Code brauchen | SOLL | B |
+| L-22.24 | Passwortmanager-Autofill für den Code; Zwischenablage nach 60 s leeren | SOLL | B |
+| L-22.25 | Hinweise zu Datenverlust bei Codeverlust und zur Aufbewahrungspflicht in Erklärseite, Handbuch und Nutzungsbedingungen | MUSS | A |
+| L-22.26 | Promocodes nur über Store-Mechanismen (iOS `offerCodeRedemption`, Android `play.google.com/redeem`); kein eigenes Codefeld (Apple 3.1.1) | MUSS | A |
+| L-22.27 | Aktionen als Store-Offers: (a) 1–3 Monate gratis nur für Neukundinnen, (b) Prozentrabatt auf das Jahresabo; je Partnerin eigener Custom Code mit Einlöselimit und Ablauf, regelmäßig ersetzt; Einmalcodes für Gewinnspiele | SOLL | B |
+| L-22.28 | Affiliate-Abrechnung nur auf Basis der Console-Berichte; kein Tracking in der App | MUSS | B |
+| L-22.29 | Aktionspreise mit Folgepreis, Laufzeit und Verlängerung; Jahresrabatt als Vergleich zum 12-fachen Monatspreis, kein Streichpreis ohne 30-Tage-Bezug | MUSS | A |
+| L-22.30 | Optionale App-Sperre (Biometrie/PIN, lokal; Zurücksetzen durch Neuinstallation und Wiederherstellung) – Entscheidung der Auftraggeberin offen | KANN | C |
 
 ---
 
@@ -1132,6 +1142,7 @@ Zu entscheiden, bevor die betroffene Anforderung umgesetzt wird:
 
 | Version | Datum | Änderung |
 |---|---|---|
+| 1.38 | 2026-10-12 | L-22.21 bis L-22.30: Wiederherstellungscode statt Passwort-Zurücksetzen, Promocodes und Affiliates über Store-Offers, Preisangaben. Erlösrechnung: rund 71 % des Bruttopreises kommen bei der Anbieterin an. Geprüft von allen drei Instanzen. |
 | 1.37 | 2026-10-12 | Umgesetzt mit Schema 8: Firmenlogo (L-1.7, neu L-1.9), mehrseitige Belege mit Vollständigkeitsbestätigung (L-2.15, L-2.16), Kommentare nur anhängbar (L-2.17), Diktat über die Systemtastatur (L-2.18). Geprüft von Steuerberater und Softwareentwickler. |
 | 1.36 | 2026-10-12 | Keine Anmeldung mit Google/Apple (L-7.22); iCloud-Container als Standard unter iOS (L-7.17 bis L-7.20); Android-Ordnerwahl bleibt Hauptweg (L-7.21); Schlüssel nie im iCloud-Schlüsselbund (L-19.27, L-19.28). Geprüft von Rechtsanwalt und Softwareentwickler. |
 | 1.35 | 2026-10-12 | Neuer Block 5.23 Vertragsarchiv (Stufe C) nach Prüfung durch Steuerberater und Rechtsanwalt. O-26 entschieden: Spirits by JeNiBarb e.U.; Umwandlung in eine GmbH, sobald die Umsätze es rechtfertigen. |

@@ -1,6 +1,6 @@
 # Spezifikation – Buchhaltung
 
-**Dokumentversion:** 1.21 · **App-Version:** 0.1.0 · **Stand:** 2026-10-12
+**Dokumentversion:** 1.22 · **App-Version:** 0.1.0 · **Stand:** 2026-10-12
 **Status:** Sprint 1 umgesetzt und verifiziert
 
 > Das **Zielbild** des Produkts steht im [`LASTENHEFT.md`](LASTENHEFT.md); dieses
@@ -629,6 +629,7 @@ Umrechnung: Beträge in Cent. `5500000` Cent = 55.000,00 €.
 
 | Version | Datum | App-Version | Änderung |
 |---|---|---|---|
+| 1.22 | 2026-10-12 | 0.1.0 | Prüfpunkte P-S19 bis P-S22, P-R15 bis P-R17, P-D14 bis P-D16 (Store-Erlös, Wiederherstellungscode, Promocodes). Keine Codeänderung. |
 | 1.21 | 2026-10-12 | 0.1.0 | GR-8 vollständig: das PDF gestellter Rechnungen nimmt alle Absenderangaben aus `seller_snapshot` (`InvoiceSeller`), mit Rückfall je fehlendem Feld; abgebrochene Belegerfassung löscht nie gespeicherte Seiten (FA-2.13). |
 | 1.20 | 2026-10-12 | 0.1.0 | Schema 8: mehrseitige Belege (`receipt_pages`, FA-2.13 bis FA-2.15), Kommentare nur anhängbar (`receipt_comments`, FA-2.16), Diktat über die Systemtastatur (FA-2.17), stornierte Belege lesbar (FA-2.18), Firmenlogo im PDF, eingefroren bei Rechnungslegung (`logo_path`, FA-1.12). Sicherung mit `logo/` (FA-7.6), Export mit Seiten und Kommentaren (FA-6.7, 8.2). Neue Kennwerte `spec.logo_*`, Prüfpunkte P-D11 bis P-D13. |
 | 1.19 | 2026-10-12 | 0.1.0 | P-B1 bestanden (Pixel 10, Google Drive); neue Prüfpunkte P-B6 bis P-B12 zu iCloud-Standard, Datensicherheitsformularen und Wiederherstellung. Keine Codeänderung. |
@@ -783,6 +784,10 @@ Status: *offen* · *bestätigt* (mit Datum und Prüfer) · *widerlegt* (mit Folg
 | P-S16 | Steuerberatung: Aufbewahrungsfrist je Vertragstyp AT/DE (BEG IV) für das Vertragsarchiv | — | Stufe C | offen |
 | P-S17 | Steuerberatung bzw. Kammer: Katalog der KI-Hinweistexte zu Verträgen auf Vorbehaltsaufgaben (StBerG, WTBG) | — | Stufe C | offen |
 | P-S18 | Steuerberatung: Leasing-Sonderzahlung und Zurechnung bei Einnahmen-Ausgaben-Rechnung AT/DE | — | Stufe C | offen |
+| P-S19 | Steuerberatung: Zusammenfassende Meldung und UID-Pflicht bei Store-Auszahlungen als Kleinunternehmerin AT | — | erste Auszahlung | offen |
+| P-S20 | Steuerberatung: kein Reverse Charge auf die Store-Provision (fiktiver Leistender), Bemessungsgrundlage Auszahlung; Abrechnungsbelege Google/Apple | — | erste Auszahlung | offen |
+| P-S21 | Steuerberatung: Store-Umsätze zählen nicht zur 55.000-€-Grenze (§ 6 Abs 1 Z 27 UStG)? | — | erste Auszahlung | offen |
+| P-S22 | Steuerberatung: Affiliate-Provisionen (Reverse Charge, Gutschrift), Einkommensteuer- und SVS-Schätzung mit echten Zahlen | Preispolitik der Auftraggeberin | vor Preisfestlegung | offen |
 | P-L12 | Anwältin: Diktat über die Systemtastatur – Anbieterin nicht verantwortlich, Hinweistext genügt | — | Release | offen |
 | P-L13 | Gerätetest, nur bei eigener Spracherkennung: Erkennung im Flugmodus | — | später | offen |
 | P-L14 | Anwältin: Rollen beim Vertragsarchiv mit KI (Anbieterin als Auftragsverarbeiterin), Muster-AVV, Rechtsgrundlage Beschäftigtendaten | — | Stufe C | offen |
@@ -794,6 +799,9 @@ Status: *offen* · *bestätigt* (mit Datum und Prüfer) · *widerlegt* (mit Folg
 | P-R12 | Wortlaut der Abo- und Testseite (§§ 312j, 312k BGB, PAngV, Apple 3.1.2); greift § 312k bei Store-Abos? | h. M.: nein, Sprung in die Store-Verwaltung genügt | Release | offen |
 | P-R13 | Finaler Store-Text und Screenshots auf UWG und „keine Steuerberatung" | — | vor jeder Einreichung | offen |
 | P-R14 | App Privacy Labels und Data Safety zu Käufen ohne Dritt-SDK | Käufe nur über die Stores, nicht „erhoben" | erster Upload | offen |
+| P-R15 | Anwältin: Haftung und Hinweispflicht bei Datenverlust durch verlorenen Wiederherstellungscode (AT/DE, B2B/B2C) | — | Release | offen |
+| P-R16 | Anwältin: Affiliate- bzw. Influencer-Vertrag, Werbekennzeichnung (§ 6 ECG, UWG), Mithaftung | — | vor erster Aktion | offen |
+| P-R17 | Anwältin: Preisangaben bei Gratisphase und Jahresrabatt (PAngV, PrAG, Omnibus-RL) | — | Release | offen |
 | P-S11 | USt-Kette der Store-Abos: Leistung an Apple/Google in Irland, Reverse Charge, UID, ZM, UVA; gelten die Store-Abrechnungen als Gutschrift (§ 11 Abs 7 UStG AT)? | Kette sicher, Rechnungsstellung offen | erster Verkauf | offen |
 | P-S12 | Vorsteuerabzug für Unternehmerinnen aus Store-Quittungen | unklar; kein Versprechen in App oder Werbung | erster Verkauf | offen |
 | P-S13 | Verbuchung der Store-Auszahlungen (netto als Erlös empfohlen, Zufluss/Abgrenzung, Fremdwährung), W-8BEN(-E) | — | erster Verkauf | offen |
@@ -803,4 +811,7 @@ Status: *offen* · *bestätigt* (mit Datum und Prüfer) · *widerlegt* (mit Folg
 | P-D11 | Gerätetest Mehrseiten-Kamera (Android und iOS): mehrere Seiten nacheinander aufnehmen, Reihenfolge ändern, Seite löschen, Speichern mit Bestätigung; Speicherbedarf bei 10 Seiten; Wiederherstellung auf zweitem Gerät zeigt alle Seiten | Logik in Tests geprüft, Kamera nicht | Release | offen |
 | P-D12 | Gerätetest Diktat über die Systemtastatur (Gboard, Samsung-Tastatur, iOS) im Kommentarfeld, auch offline; stimmt der Hinweistext zum tatsächlichen Verhalten (gehört zu P-L12) | — | Release | offen |
 | P-D13 | Rechnungs-PDF mit Logo (PNG mit Transparenz, JPEG, HEIC aus iOS) am Bildschirm und gedruckt; DATEV-Import eines Stapels mit gekürztem Kommentar im Buchungstext | Logo-PDF im Test erzeugbar; DATEV-Import nicht geprüft | Release | offen |
+| P-D14 | Offer Codes (App Store Connect) und Promo Codes (Play Console) anlegen; Einlösung als Neu- und Bestandskundin, Limits, Ablauf | — | vor erster Aktion | offen |
+| P-D15 | Eingelöste Codes und Ende der Gratisphase werden ohne Server erkannt (StoreKit 2, Billing Library) | — | Release | offen |
+| P-D16 | Codeblatt als PDF, Druck und Autofill auf iOS und Android ansehen | — | Release | offen |
 | P-D8 | Zusatzsicherung unter Windows (`tool/sicherung/sicherung.ps1`): Erstlauf, Aufgabenplanung, Wiederherstellung | Linux-Variante getestet, Windows-Skript nie ausgeführt | sofort | offen |
