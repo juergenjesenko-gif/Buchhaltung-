@@ -40,7 +40,11 @@ Kein Konto, keine Anmeldung, kein Abo. Alles liegt auf deinem Telefon.
 
 ## 2. Der erste Start
 
-Beim ersten Öffnen fragt die App nach deinem Unternehmen. Das ist notwendig,
+Beim ersten Öffnen bestätigst du zwei Dinge, jedes mit eigenem Häkchen: dass
+die App **keine Steuerberatung** ist, und die **Nutzungsbedingungen und den
+Datenschutz**. Ändern sich diese Texte später wesentlich, fragt die App erneut.
+
+Danach fragt die App nach deinem Unternehmen. Das ist notwendig,
 nicht Neugier: ohne das Land kennt die App deine Steuersätze nicht, und ohne
 Anschrift kann sie keine gültige Rechnung erzeugen.
 
@@ -473,7 +477,9 @@ trotzdem. Deshalb:
 2. Ein **Kennwort** festlegen, mindestens 10 Zeichen, zweimal eingeben.
    **Schreib es dir auf.** Ohne Kennwort lässt sich die Sicherung nicht öffnen,
    und niemand kann es zurücksetzen – auch wir nicht.
-3. Im Teilen-Dialog einen Ort **außerhalb deines Telefons** wählen: iCloud
+3. Tippfehler im Kennwort? Mit dem **Auge-Symbol** am Feldrand machst du es
+   sichtbar.
+4. Im Teilen-Dialog einen Ort **außerhalb deines Telefons** wählen: iCloud
    Drive, Google Drive, „Auf Dateien speichern", eine E-Mail an dich selbst.
 
 Die Datei heißt zum Beispiel `Sicherung_2026-10-10_1800.jbbackup`. Sie enthält

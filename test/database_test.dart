@@ -1,5 +1,7 @@
 import 'package:buchhaltung/data/app_database.dart';
+import 'package:buchhaltung/data/consent_repository.dart';
 import 'package:buchhaltung/data/repositories.dart';
+import 'package:buchhaltung/domain/legal_texts.dart';
 import 'package:buchhaltung/domain/invoice.dart';
 import 'package:buchhaltung/domain/money.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -295,6 +297,40 @@ void main() {
         whereArgs: ['cancel'],
       );
       expect(log, hasLength(1));
+      await db.close();
+    });
+  });
+
+  group('Zustimmungen (L-17.1 bis L-17.4)', () {
+    test(
+      'fehlen zuerst, sind nach Bestätigung erledigt, mit Fassung',
+      () async {
+        final db = await openFresh();
+        final repo = ConsentRepository(db);
+        expect(await repo.missing(), LegalText.all);
+
+        await repo.accept(LegalText.all, now: DateTime(2026, 10, 12));
+        expect(await repo.missing(), isEmpty);
+
+        final rows = await db.query('consents', orderBy: 'kind');
+        expect(
+          rows.map((r) => r['version']),
+          contains(LegalText.terms.version),
+        );
+        expect(rows.first['accepted_at'], startsWith('2026-10-12'));
+        await db.close();
+      },
+    );
+
+    test('eine neue Textfassung wird erneut abgefragt', () async {
+      final db = await openFresh();
+      await db.insert('consents', {
+        'kind': 'disclaimer',
+        'version': 'alte-fassung',
+        'accepted_at': '2026-01-01T00:00:00',
+      });
+      final missing = await ConsentRepository(db).missing();
+      expect(missing.map((t) => t.kind), contains('disclaimer'));
       await db.close();
     });
   });

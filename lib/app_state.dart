@@ -5,6 +5,7 @@ import 'core/formatting.dart';
 import 'data/app_database.dart';
 import 'data/repositories.dart';
 import 'domain/company_profile.dart';
+import 'domain/legal_texts.dart';
 import 'domain/money.dart';
 import 'domain/receipt.dart';
 import 'services/small_business_monitor.dart';
@@ -127,7 +128,18 @@ class AppState extends ChangeNotifier {
     return null;
   }
 
+  /// Noch nicht bestätigte Texte der aktuellen Fassung (L-17.1 bis L-17.4).
+  List<LegalText> _missingConsents = const [];
+  List<LegalText> get missingConsents => _missingConsents;
+
+  Future<void> acceptConsents() async {
+    await repositories.consents.accept(_missingConsents);
+    _missingConsents = await repositories.consents.missing();
+    notifyListeners();
+  }
+
   Future<void> reload() async {
+    _missingConsents = await repositories.consents.missing();
     _profile = await repositories.company.load();
     _categories = await repositories.categories.all();
     if (_profile != null) {

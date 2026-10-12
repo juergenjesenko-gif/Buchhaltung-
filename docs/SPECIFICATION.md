@@ -1,6 +1,6 @@
 # Spezifikation – Buchhaltung
 
-**Dokumentversion:** 1.15 · **App-Version:** 0.1.0 · **Stand:** 2026-10-10
+**Dokumentversion:** 1.16 · **App-Version:** 0.1.0 · **Stand:** 2026-10-12
 **Status:** Sprint 1 umgesetzt und verifiziert
 
 > Das **Zielbild** des Produkts steht im [`LASTENHEFT.md`](LASTENHEFT.md); dieses
@@ -146,6 +146,7 @@ Anwendungsdokumentenverzeichnis. Aktuelle Schemaversion: **2**.
 | `invoices` | Ausgangsrechnungen | `UNIQUE INDEX` auf `number` |
 | `invoice_items` | Rechnungspositionen | `ON DELETE CASCADE` |
 | `audit_log` | Änderungsprotokoll | Nur Einfügen, kein Löschen durch die App |
+| `consents` | Bestätigte Texte: Art, Fassung, Zeitpunkt | Nur Einfügen (Schema 7) |
 | `vat_id_checks` | Protokoll der UID-Abfragen: UID, Ergebnis, Zeitpunkt, Name/Anschrift laut VIES, Abfragenummer, Fehlercode | Nur Einfügen (Schema 5) |
 | `opening_turnover` | Umsatz je Jahr vor Beginn der Erfassung (Eröffnungswert) | Ein Eintrag je Jahr; fehlend ≠ 0 € (seit Schema 2) |
 
@@ -231,6 +232,8 @@ Eigene Kategorien sind ergänzbar und löschbar; die vorgegebenen nicht.
 | FA-1.7 | Die App benennt fehlende Pflichtangaben für Rechnungen und verlinkt in die Stammdaten |
 | FA-1.8 | Bei aktiver Kleinunternehmerregelung fragt das Profil den **Umsatz des Vorjahres** und den **Umsatz des laufenden Jahres vor Beginn der Erfassung** ab, soweit die App diese Zeiträume nicht selbst kennt. Pflichtfelder; leer ist nicht 0 |
 | FA-1.9 | Beim Wechsel zur Regelbesteuerung bleiben erfasste Eröffnungswerte erhalten |
+| FA-1.10 | **Bestätigungen vor der ersten Nutzung** (L-17.1 bis L-17.4): „Keine Steuerberatung“ und „Nutzungsbedingungen/Datenschutz“, je eigenes, nicht vorausgewähltes Häkchen; erst danach Ersteinrichtung bzw. Wiederherstellung. Gespeichert in `consents` mit Art, Textfassung und Zeitpunkt; eine neue Fassung in `LegalText` wird erneut abgefragt. **Keine Einwilligung für Werbung**, da keine Daten dafür erhoben werden |
+| FA-1.11 | Kennwort- und Code-Felder haben ein Auge-Symbol zum Anzeigen (`PasswordField`) |
 
 **Pflichtangaben für Rechnungsfähigkeit** (`CompanyProfile.missingInvoiceFields`):
 Firmenname, Straße, PLZ, Ort; in Deutschland Steuernummer **oder** USt-IdNr.;
@@ -401,6 +404,7 @@ Kleinunternehmer:
 
 | Bildschirm | Datei | Zweck |
 |---|---|---|
+| Bestätigungen | `features/onboarding/consent_screen.dart` | Hinweis „keine Steuerberatung“, Nutzungsbedingungen und Datenschutz bestätigen |
 | Onboarding / Stammdaten | `features/onboarding/company_setup_screen.dart` | Firmenprofil anlegen und bearbeiten |
 | Hauptnavigation | `features/home/home_shell.dart` | Vier Bereiche als Tab-Leiste |
 | Übersicht | `features/dashboard/dashboard_screen.dart` | Kassabuch, Umsatzsteuer, Grenzwertampel, Verlauf |
@@ -543,7 +547,7 @@ Offen benannt, weil eine Spezifikation, die ihre Lücken verschweigt, wertlos is
 > Das ist der Mechanismus, der dieses Dokument aktuell hält.
 
 ```properties
-spec.schema_version = 6
+spec.schema_version = 7
 spec.vat_check_interval_days = 7
 spec.backup_reminder_days = 30
 spec.auto_backup_min_interval_hours = 24
@@ -601,6 +605,8 @@ Umrechnung: Beträge in Cent. `5500000` Cent = 55.000,00 €.
 
 | Version | Datum | App-Version | Änderung |
 |---|---|---|---|
+| 1.16 | 2026-10-12 | 0.1.0 | Rückmeldungen aus dem ersten Gerätetest: Bestätigungen vor der ersten Nutzung (FA-1.10, Schema 7, Tabelle `consents`), Kennwortfelder mit Auge-Symbol (FA-1.11), Anzeigename des Sicherungsordners unter Android statt Dokument-ID. Prüfpunkt P-L1. |
+
 | 1.15 | 2026-10-10 | 0.1.0 | Prüfpunkte P-M1 bis P-M6 für den Mehrgeräte- und Mehrpersonenbetrieb ohne Server (Lastenheft L-19.12 ff.). Keine Codeänderung. |
 | 1.14 | 2026-10-10 | 0.1.0 | Automatische Sicherung (FA-7.9 bis FA-7.15): Ordnerwahl je Plattform, Geräteschlüssel mit Wiederherstellungscode, Sicherungsformat 2, Fälligkeit, Probe nach dem Schreiben, Rotation 7/12/je Jahr, „Sicherung prüfen". Schema 6, neue Kennwerte, Prüfpunkte P-B1 bis P-B5, Grenze aktualisiert. |
 | 1.13 | 2026-10-10 | 0.1.0 | Stammdaten und UID-Prüfung (FA-1.4 bis FA-1.4e): Steuernummer und UID optional, Rechnungspflichten je Land, Firmenbuch-/Registerangaben, Formatprüfung offline, VIES-Prüfung mit Protokoll, wöchentliche Prüfung nach Opt-in, Prüfergebnis an der Rechnung eingefroren. Schema 5, neue Kennwerte, Prüfpunkte P-U1 bis P-U4. |
@@ -726,4 +732,5 @@ Status: *offen* · *bestätigt* (mit Datum und Prüfer) · *widerlegt* (mit Folg
 | P-M4 | Verhalten von iCloud-Freigabeordnern, Google Drive, OneDrive, Nextcloud bei Synchronisierung (Verzögerung, ausgelagerte Dateien, Konfliktkopien, Umbenennen) auf echten Geräten, auch gemischt iOS/Android | hohes Risiko | Stufe C | offen |
 | P-M5 | Externes Sicherheitsreview der Schlüsselverteilung (X25519, Ed25519, AES-GCM, Schlüsselwechsel) vor Release | — | Release Stufe C | offen |
 | P-M6 | Anwältin: Mustertext Art. 13 für Beschäftigte, Haftung und Formulierung „kein harter Zugriffsschutz“ | — | Stufe C | offen |
+| P-L1 | Anwältin erstellt bzw. prüft Nutzungsbedingungen (Lizenzvertrag) und Datenschutzerklärung; Kurztexte in `lib/domain/legal_texts.dart` sind Entwürfe | — | Release | offen |
 | P-D8 | Zusatzsicherung unter Windows (`tool/sicherung/sicherung.ps1`): Erstlauf, Aufgabenplanung, Wiederherstellung | Linux-Variante getestet, Windows-Skript nie ausgeführt | sofort | offen |

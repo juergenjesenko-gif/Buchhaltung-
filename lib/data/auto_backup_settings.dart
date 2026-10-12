@@ -14,6 +14,15 @@ class AutoBackupSettings {
   final bool enabled;
   final String? folder;
   final String folderLabel;
+
+  /// Anzeigename; ältere Versionen speicherten unter Android die technische
+  /// Dokument-ID statt des Ordnernamens.
+  String get displayLabel =>
+      folderLabel.isEmpty ||
+          folderLabel.contains('doc=') ||
+          folderLabel.contains(';')
+      ? 'Gewählter Ordner'
+      : folderLabel;
   final DateTime? lastAt;
   final String? lastError;
 

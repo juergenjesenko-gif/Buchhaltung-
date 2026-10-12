@@ -16,7 +16,7 @@ class AppDatabase {
 
   /// Aktuelle Schemaversion. Öffentlich, weil docs/SPECIFICATION.md sie
   /// dokumentiert und test/specification_sync_test.dart beide vergleicht.
-  static const schemaVersion = 6;
+  static const schemaVersion = 7;
 
   Database? _db;
 
@@ -255,6 +255,18 @@ class AppDatabase {
       'ALTER TABLE company_profile ADD COLUMN auto_backup_target_label TEXT',
       'ALTER TABLE company_profile ADD COLUMN auto_backup_last_at TEXT',
       'ALTER TABLE company_profile ADD COLUMN auto_backup_last_error TEXT',
+    ],
+    // Version 7: Bestätigungen bei der ersten Einrichtung mit Zeitpunkt und
+    // Textfassung (Lastenheft L-17.1 bis L-17.4). Nur Einfügen.
+    7: [
+      '''
+      CREATE TABLE consents (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        kind TEXT NOT NULL,
+        version TEXT NOT NULL,
+        accepted_at TEXT NOT NULL
+      )
+      ''',
     ],
   };
 

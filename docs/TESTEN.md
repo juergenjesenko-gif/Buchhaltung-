@@ -42,7 +42,21 @@ Sicherheitsfunktion, kein Fehler.
 5. Play Protect meldet unter Umständen eine unbekannte App → **Trotzdem
    installieren**
 
-Danach findest du **Buchhaltung** im App-Menü.
+Erfahrungen aus dem ersten Test auf einem Pixel 10 (12.10.2026):
+
+- **Nur `app-arm64-v8a-release.apk` verwenden.** Aktuelle Handys laufen nur
+  noch mit 64 Bit; die `armeabi-v7a`-Datei lässt sich dort nicht installieren.
+- Die APK über die vorinstallierte App **„Dateien"** öffnen. Manche
+  Dateimanager aus dem Play Store geben sie nicht an den Installer weiter.
+- Meldet die Installation nur „nicht installiert", steckt meist **Play
+  Protect** dahinter: „Weitere Details" → „Trotzdem installieren".
+- Die CI signiert jeden Lauf mit einem neuen Testschlüssel. Vor einem Update
+  die alte Version deinstallieren (Testdaten gehen dabei verloren).
+
+Danach findest du **Buchhaltung** im App-Menü. Android legt bei Installationen außerhalb des Play Stores
+**kein Symbol auf dem Startbildschirm** ab: in der App-Übersicht (von unten
+nach oben wischen) lange auf „Buchhaltung" drücken und auf den Startbildschirm
+ziehen.
 
 ### Was du beim Testen wissen solltest
 

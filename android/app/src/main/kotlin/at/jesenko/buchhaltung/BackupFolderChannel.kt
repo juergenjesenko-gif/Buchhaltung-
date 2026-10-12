@@ -113,8 +113,22 @@ class BackupFolderChannel(
             uri,
             Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION,
         )
-        result.success(mapOf("folder" to uri.toString(), "label" to (uri.lastPathSegment ?: "")))
+        result.success(mapOf("folder" to uri.toString(), "label" to displayName(uri)))
         return true
+    }
+
+    /** Anzeigename des gewählten Ordners statt der technischen Dokument-ID. */
+    private fun displayName(tree: Uri): String {
+        val doc = DocumentsContract.buildDocumentUriUsingTree(
+            tree, DocumentsContract.getTreeDocumentId(tree),
+        )
+        return try {
+            activity.contentResolver.query(
+                doc, arrayOf(DocumentsContract.Document.COLUMN_DISPLAY_NAME), null, null, null,
+            )?.use { if (it.moveToFirst()) it.getString(0) else null } ?: "Gewählter Ordner"
+        } catch (e: Exception) {
+            "Gewählter Ordner"
+        }
     }
 
     private fun isAvailable(tree: Uri): Boolean {

@@ -6,6 +6,7 @@ import '../domain/customer.dart';
 import '../domain/invoice.dart';
 import '../domain/money.dart';
 import '../domain/receipt.dart';
+import 'consent_repository.dart';
 import 'vat_check_repository.dart';
 
 /// Schreibt Änderungen an buchungsrelevanten Daten mit. Löschen und Ändern
@@ -593,6 +594,7 @@ class Repositories {
       openingTurnover = OpeningTurnoverRepository(db),
       invoices = InvoiceRepository(db),
       vatChecks = VatCheckRepository(db),
+      consents = ConsentRepository(db),
       audit = AuditLog(db);
 
   final CompanyRepository company;
@@ -602,6 +604,7 @@ class Repositories {
   final OpeningTurnoverRepository openingTurnover;
   final InvoiceRepository invoices;
   final VatCheckRepository vatChecks;
+  final ConsentRepository consents;
   final AuditLog audit;
 }
 

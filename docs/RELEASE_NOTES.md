@@ -42,6 +42,10 @@ nächsten Versionssprung in den neuen Eintrag.
 | Geändert | Umsatzsteuer ganzzahlig gerundet, ohne `double` | CLAUDE.md Regel 1 | 077ca5d |
 | Behoben | Österreich: Kleinunternehmergrenze auf Bruttobasis, ausgewiesene Umsatzsteuer zählt mit | FA-4.1, P-S1 (a) | 7ad6b69 |
 | Geändert | Österreich: harte Grenze 55.000 € zur Sicherheit, Toleranz nur noch als Warnung mit Verweis an die Steuerberatung; Status „in Toleranz“ entfällt | FA-4.4, P-S1 (b) | c30dc9d |
+| Neu | Bestätigungen vor der ersten Nutzung (keine Steuerberatung, Nutzungsbedingungen/Datenschutz) mit Fassung und Zeitpunkt | L-17.1–17.4, FA-1.10 | COMMIT8 |
+| Neu | Auge-Symbol in Kennwort- und Code-Feldern | FA-1.11 | COMMIT8 |
+| Behoben | Android: Sicherungsordner zeigte technische Dokument-ID statt Namen | Gerätetest 12.10. | COMMIT8 |
+| Datenbank | Schema 6 → 7: Tabelle `consents` | Spezifikation 4 | COMMIT8 |
 | Neu | Automatische Sicherung in einen gewählten Ordner (iCloud Drive, Google Drive …), Wiederherstellungscode, Probe nach jedem Schreiben, Aufbewahrung 7/12/je Jahr dauerhaft, „Sicherung prüfen“ | L-7.2, L-7.6–7.10, FA-7.9–7.15 | 1cae349 |
 | Datenbank | Schema 5 → 6: Spalten der automatischen Sicherung | Spezifikation 4 | 1cae349 |
 | Abhängigkeit | Entfernt: `file_picker` (brach den Android-Build unter AGP 9; Dateiauswahl jetzt über `BackupFolderChannel`) | CI | bb924b8 |

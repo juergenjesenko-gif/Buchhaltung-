@@ -214,21 +214,17 @@ class _NewPassphraseDialogState extends State<_NewPassphraseDialog> {
               'niemand kann es zurücksetzen.',
             ),
             const SizedBox(height: 12),
-            TextFormField(
+            PasswordField(
               controller: _first,
-              obscureText: true,
-              decoration: const InputDecoration(labelText: 'Kennwort'),
+              label: 'Kennwort',
               validator: (value) =>
                   (value ?? '').length < BackupCrypto.minPassphraseLength
                   ? 'Mindestens ${BackupCrypto.minPassphraseLength} Zeichen'
                   : null,
             ),
-            TextFormField(
+            PasswordField(
               controller: _second,
-              obscureText: true,
-              decoration: const InputDecoration(
-                labelText: 'Kennwort wiederholen',
-              ),
+              label: 'Kennwort wiederholen',
               validator: (value) => value != _first.text
                   ? 'Die Kennwörter stimmen nicht überein'
                   : null,
@@ -274,14 +270,11 @@ class _PassphraseDialogState extends State<_PassphraseDialog> {
   Widget build(BuildContext context) {
     return AlertDialog(
       title: const Text('Kennwort der Sicherung'),
-      content: TextField(
+      content: PasswordField(
         controller: _controller,
-        obscureText: true,
         autofocus: true,
-        decoration: const InputDecoration(
-          labelText: 'Kennwort oder Wiederherstellungscode',
-          helperText: 'Automatische Sicherungen öffnest du mit dem Code',
-        ),
+        label: 'Kennwort oder Wiederherstellungscode',
+        helperText: 'Automatische Sicherungen öffnest du mit dem Code',
       ),
       actions: [
         TextButton(
@@ -518,7 +511,7 @@ class _AutoBackupSectionState extends State<_AutoBackupSection> {
             ),
           ] else ...[
             Text(
-              'Ordner: ${settings.folderLabel}',
+              'Ordner: ${settings.displayLabel}',
               style: theme.textTheme.titleSmall,
             ),
             const SizedBox(height: 4),

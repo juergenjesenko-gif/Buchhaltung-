@@ -1,6 +1,6 @@
 # Lastenheft – Buchhaltungsapp für Österreich und Deutschland
 
-**Dokumentversion:** 1.31 · **Stand:** 2026-10-09 · **Status:** Entwurf zur Abstimmung
+**Dokumentversion:** 1.32 · **Stand:** 2026-10-09 · **Status:** Entwurf zur Abstimmung
 **Auftraggeber:** Jürgen Jesenko (privates Vorhaben) · **Umsetzung:** Claude Code
 
 > Ein Lastenheft beschreibt, **was** das Produkt leisten soll und **warum** — nicht,
@@ -1038,6 +1038,7 @@ Zu entscheiden, bevor die betroffene Anforderung umgesetzt wird:
 | O-27 | **Laufende Kosten der Rechtsstand-Überwachung:** API-Kosten des Agenten (Annahme 30–90 €/Monat) und Bereitschaft plus Freigaben der Steuerberaterin (0,5–2 h je Änderung). Angebot einholen | vor Stufe B |
 | ~~O-28~~ | **Entschieden am 2026-10-10:** direkt Anthropic API, ein eigenes neues Konto. EU-Verarbeitung von den Prüfinstanzen geprüft: nicht vorgeschrieben; Buchhaltungsdaten und Belege dürfen trotzdem nicht über die US-Route laufen (L-21.8 bis L-21.12) | erledigt |
 | ~~O-29~~ | **Entschieden am 2026-10-10:** Sicherung und Synchronisierung bleiben in der Cloud der Nutzerin; kein Server und kein Konto beim Anbieter. Mehrere Geräte und mehrere Personen über gemeinsamen Ordner (L-19.12 ff.) | erledigt |
+| O-30 | **Verifizierung von E-Mail und Telefon** (Wunsch aus dem Gerätetest): bräuchte einen Server bzw. SMS-Dienst und widerspricht O-29; die Angaben dienen nur als Kontaktdaten auf Rechnungen. Empfehlung: nur Formatprüfung. Entscheidung des Auftraggebers offen | vor Release |
 | O-20 | Welche Vorsoftware-Formate sind beim Import vorrangig zu unterstützen? Richtet sich nach dem, womit die ersten Nutzer tatsächlich kommen | Stufe B |
 | ~~O-21~~ | **Vorläufig beantwortet am 2026-10-10 (Prüfinstanz Rechtsanwalt):** BFSG/BaFG voraussichtlich nicht anwendbar (B2B, Kleinstunternehmen). Grundbarrierefreiheit trotzdem als NF-Anforderung; Bestätigung siehe Spezifikation Abschnitt 14, P-R3 | erledigt |
 | ~~O-23~~ | **Entschieden am 2026-10-09:** wählbar je Rücksendung über den Schalter „Ware wieder verkaufbar?" (L-3.20) | erledigt |
@@ -1050,6 +1051,7 @@ Zu entscheiden, bevor die betroffene Anforderung umgesetzt wird:
 
 | Version | Datum | Änderung |
 |---|---|---|
+| 1.32 | 2026-10-12 | Gerätetest: L-17.1 bis L-17.4 umgesetzt (Bestätigungen vor der ersten Nutzung, ohne Werbe-Einwilligung). O-30 neu (Verifizierung von E-Mail/Telefon). |
 | 1.31 | 2026-10-10 | O-29 entschieden: kein Server und kein Konto beim Anbieter. Mehrgeräte- und Mehrpersonenbetrieb über einen Cloud-Ordner der Unternehmerin, mit den drei Prüfinstanzen ausgearbeitet (L-19.12 neu, L-19.13 ersetzt, L-19.15 bis L-19.26 neu; L-19.4, L-19.6, L-19.9, L-19.14 entfallen). Rollen- und Datenflusstabelle angepasst, S-8 nur noch für Kanäle. Aufwand Stufe C +56–83 PW. |
 | 1.30 | 2026-10-10 | Automatische Sicherung mit den drei Prüfinstanzen ausgearbeitet und umgesetzt: L-7.6 bis L-7.11 (Opt-in mit Erklärseite, Geräteschlüssel mit Wiederherstellungscode, Ordnerwahl ohne Konto, Probe nach jedem Schreiben, Aufbewahrung 7/12/je Jahr dauerhaft). Datenflusstabelle geteilt. |
 | 1.29 | 2026-10-10 | L-21 überarbeitet nach Entscheidung „direkt Anthropic API, eigenes Konto" und Prüfung durch die drei Instanzen: Verarbeitungsort je Datenkategorie (L-21.8 bis L-21.12), Betrieb rund um die Uhr ohne Zusatzdienst, gesichert durch eigenes Design (L-21.13 bis L-21.23), Kostenannahmen. S-13 auf Anthropic festgelegt, O-28 erledigt. |

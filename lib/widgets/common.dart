@@ -233,3 +233,54 @@ void showSnack(BuildContext context, String message) {
     ..hideCurrentSnackBar()
     ..showSnackBar(SnackBar(content: Text(message)));
 }
+
+/// Kennwortfeld mit Auge-Symbol zum Ein- und Ausblenden, damit Tippfehler
+/// sichtbar werden.
+class PasswordField extends StatefulWidget {
+  const PasswordField({
+    super.key,
+    required this.controller,
+    required this.label,
+    this.helperText,
+    this.validator,
+    this.autofocus = false,
+  });
+
+  final TextEditingController controller;
+  final String label;
+  final String? helperText;
+  final FormFieldValidator<String>? validator;
+  final bool autofocus;
+
+  @override
+  State<PasswordField> createState() => _PasswordFieldState();
+}
+
+class _PasswordFieldState extends State<PasswordField> {
+  bool _visible = false;
+
+  @override
+  Widget build(BuildContext context) {
+    return TextFormField(
+      controller: widget.controller,
+      obscureText: !_visible,
+      autofocus: widget.autofocus,
+      autocorrect: false,
+      enableSuggestions: false,
+      validator: widget.validator,
+      decoration: InputDecoration(
+        labelText: widget.label,
+        helperText: widget.helperText,
+        suffixIcon: IconButton(
+          tooltip: _visible ? 'Kennwort verbergen' : 'Kennwort anzeigen',
+          icon: Icon(
+            _visible
+                ? Icons.visibility_off_outlined
+                : Icons.visibility_outlined,
+          ),
+          onPressed: () => setState(() => _visible = !_visible),
+        ),
+      ),
+    );
+  }
+}

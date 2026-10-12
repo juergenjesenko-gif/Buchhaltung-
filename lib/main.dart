@@ -7,6 +7,7 @@ import 'package:intl/date_symbol_data_local.dart';
 import 'app_state.dart';
 import 'features/home/home_shell.dart';
 import 'features/onboarding/company_setup_screen.dart';
+import 'features/onboarding/consent_screen.dart';
 import 'theme.dart';
 
 Future<void> main() async {
@@ -69,6 +70,9 @@ class _Root extends StatelessWidget {
 
     if (state.isLoading) {
       return const Scaffold(body: Center(child: CircularProgressIndicator()));
+    }
+    if (state.missingConsents.isNotEmpty) {
+      return ConsentScreen(texts: state.missingConsents);
     }
     if (state.needsOnboarding) {
       return const CompanySetupScreen(isOnboarding: true);
