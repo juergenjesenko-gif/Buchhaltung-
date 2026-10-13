@@ -101,35 +101,28 @@ Future<void> main() async {
   _log(ok ? 'ERGEBNIS OK' : 'ERGEBNIS FEHLER');
 }
 
-/// Ordner, in den tool/ci/ocr_emulator_test.sh die Fotos aus
-/// test/fixtures/belege/ per adb schiebt (app-eigener externer Speicher, ohne
-/// Berechtigung lesbar).
-const _korpusOrdner =
-    '/sdcard/Android/data/at.jesenko.buchhaltung/files/belege';
-
+/// Die Fotos aus test/fixtures/belege/ bindet tool/ci/ocr_emulator_test.sh
+/// nur für diesen CI-Build als Assets ein (pubspec.yaml wird dort temporär
+/// ergänzt, nicht eingecheckt): adb darf nicht in den App-Speicher schreiben.
+///
 /// Rohes OCR-Ergebnis je Foto als gzip+Base64 in logcat, in Stücken zu 700
 /// Zeichen (logcat kürzt lange Zeilen). Das Skript setzt sie wieder zusammen.
 Future<void> _korpus() async {
-  // Ordner selbst anlegen (gehört dann der App), dann auf das Skript warten,
-  // das die Fotos hineinschiebt und zuletzt die Datei „fertig“ anlegt.
-  final dir = Directory(_korpusOrdner);
-  try {
-    dir.createSync(recursive: true);
-  } catch (e) {
-    _log('KORPUS anlegen: $e');
+  final manifest = await AssetManifest.loadFromAssetBundle(rootBundle);
+  final assets =
+      manifest
+          .listAssets()
+          .where((a) => a.startsWith('test/fixtures/belege/'))
+          .where((a) => a.toLowerCase().endsWith('.jpg'))
+          .toList()
+        ..sort();
+  final files = <File>[];
+  for (final asset in assets) {
+    final data = await rootBundle.load(asset);
+    final file = File('${Directory.systemTemp.path}/${asset.split('/').last}');
+    await file.writeAsBytes(data.buffer.asUint8List(), flush: true);
+    files.add(file);
   }
-  _log('KORPUS BEREIT');
-  final done = File('$_korpusOrdner/fertig');
-  for (var i = 0; i < 120 && !done.existsSync(); i++) {
-    await Future<void>.delayed(const Duration(seconds: 1));
-  }
-  if (!done.existsSync()) {
-    _log('KORPUS fehlt');
-    return;
-  }
-  final files = dir.listSync().whereType<File>().toList()
-    ..sort((a, b) => a.path.compareTo(b.path));
-  const recognizer = PlatformReceiptTextRecognizer();
   _log('KORPUS ${files.length} Dateien');
   for (final file in files) {
     final name = file.uri.pathSegments.last;

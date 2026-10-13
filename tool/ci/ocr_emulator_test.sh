@@ -6,20 +6,21 @@
 # Aufruf aus .github/workflows/ci.yml (Job android-ocr-emulator) bei laufendem
 # Emulator; lokal genauso mit gestartetem x86_64-Emulator.
 set -euo pipefail
+# Korpusfotos nur für diesen Build als Assets einbinden (nicht einchecken).
+cp pubspec.yaml pubspec.yaml.orig
+trap 'mv -f pubspec.yaml.orig pubspec.yaml' EXIT
+python3 - <<'PY'
+s = open('pubspec.yaml').read()
+s = s.replace('  uses-material-design: true', '  uses-material-design: true\n  assets:\n    - test/fixtures/belege/', 1)
+open('pubspec.yaml', 'w').write(s)
+PY
+grep -A3 'uses-material-design' pubspec.yaml
 flutter build apk --release --target-platform android-x64 \
   -t integration_test/receipt_ocr_release.dart
 adb install -r build/app/outputs/flutter-apk/app-release.apk
-korpus=/sdcard/Android/data/at.jesenko.buchhaltung/files/belege
+adb logcat -G 16M || true
 adb logcat -c
 adb shell am start -W -n at.jesenko.buchhaltung/.MainActivity
-# Die App legt den Ordner selbst an (Eigentümer App), dann Fotos hineinschieben.
-for _ in $(seq 1 60); do
-  if adb logcat -d | grep -q 'OCR-SELBSTTEST KORPUS BEREIT'; then break; fi
-  sleep 1
-done
-for f in test/fixtures/belege/*.jpg; do adb push "$f" "$korpus/" >/dev/null; done
-adb shell touch "$korpus/fertig"
-adb shell ls -l "$korpus" || true
 for _ in $(seq 1 300); do
   if adb logcat -d | grep -q 'OCR-SELBSTTEST ERGEBNIS'; then break; fi
   sleep 2
