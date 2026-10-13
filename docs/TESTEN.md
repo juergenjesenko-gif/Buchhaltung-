@@ -213,3 +213,21 @@ dem Code.
 Was sie **nicht** abdecken: die Oberfläche. Es gibt noch keine Widget-Tests. Ob
 ein Knopf am richtigen Platz sitzt und ob sich die App gut anfühlt, findest du
 nur auf einem echten Gerät heraus.
+
+### Belegerkennung im Android-Emulator (CI)
+
+Der CI-Job `android-ocr-emulator` startet einen Android-Emulator (API 34,
+x86_64) und führt `integration_test/receipt_ocr_test.dart` mit
+`flutter drive --profile` aus. Der Test zeichnet einen synthetischen Kassenbon
+(kein echtes Foto), schickt ihn über den Kanal `buchhaltung/receipt_text` an
+ML Kit und erwartet „Gesamt“ und „10,00“ im erkannten Text; ein zweiter Test
+prüft den Fehlercode bei fehlender Datei. Der Profile-Build läuft wie Release
+durch R8 (`android/app/build.gradle.kts`), deckt also die Keep-Regeln ab.
+Lokal mit laufendem Emulator:
+
+```bash
+flutter drive --profile --driver=test_driver/integration_test.dart \
+  --target=integration_test/receipt_ocr_test.dart
+```
+
+Der Emulatortest ersetzt nicht den Gerätetest mit echten Belegen (P-D22).

@@ -1258,7 +1258,12 @@ String _scanErrorCode(Object error) {
   if (error is PlatformException) {
     final message = (error.message ?? '').split('\n').first;
     final short = message.length > 80 ? message.substring(0, 80) : message;
-    return '${error.code}: $short';
+    // details: Exception-Klasse und erste Stackzeilen aus ReceiptTextChannel.kt
+    final details = error.details is String ? error.details as String : '';
+    final where = details.length > 200 ? details.substring(0, 200) : details;
+    return where.isEmpty
+        ? '${error.code}: $short'
+        : '${error.code}: $short [$where]';
   }
   return error.runtimeType.toString();
 }

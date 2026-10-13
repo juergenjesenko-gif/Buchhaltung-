@@ -5,6 +5,7 @@ import android.graphics.BitmapFactory
 import android.media.ExifInterface
 import android.os.Handler
 import android.os.Looper
+import com.google.mlkit.common.sdkinternal.MlKitContext
 import com.google.mlkit.vision.common.InputImage
 import com.google.mlkit.vision.text.TextRecognition
 import com.google.mlkit.vision.text.latin.TextRecognizerOptions
@@ -25,6 +26,12 @@ import java.io.File
  */
 class ReceiptTextChannel(private val context: Context, messenger: BinaryMessenger) {
     private val recognizer by lazy {
+        // ML Kit initialisiert sich normalerweise über den MlKitInitProvider im
+        // gemergten Manifest. Fehlt der (Manifest-Merge, Prozess ohne Provider),
+        // ist MlKitContext null und ML Kit bricht mit einer NullPointerException
+        // „getClass() on a null object reference“ ab – genau die Meldung vom
+        // Pixel 10. Darum hier ausdrücklich initialisieren; doppelt ist harmlos.
+        MlKitContext.initializeIfNeeded(context.applicationContext)
         TextRecognition.getClient(TextRecognizerOptions.DEFAULT_OPTIONS)
     }
 
@@ -45,15 +52,21 @@ class ReceiptTextChannel(private val context: Context, messenger: BinaryMessenge
                     Thread {
                         val image = try {
                             decode(path)
-                        } catch (e: Exception) {
-                            main.post { result.error("unreadable", e.toString(), null) }
+                        } catch (e: Throwable) {
+                            main.post { result.error("unreadable", e.toString(), describe(e)) }
                             return@Thread
                         }
                         if (image == null) {
                             main.post { result.error("unreadable", "Bild nicht lesbar: $path", null) }
                             return@Thread
                         }
-                        main.post { process(image, result) }
+                        main.post {
+                            try {
+                                process(image, result)
+                            } catch (e: Throwable) {
+                                result.error("ocr_failed", e.toString(), describe(e))
+                            }
+                        }
                     }.start()
                 }
                 else -> result.notImplemented()
@@ -65,16 +78,26 @@ class ReceiptTextChannel(private val context: Context, messenger: BinaryMessenge
 
     private fun decode(path: String): InputImage? {
         val file = File(path)
-        if (!file.isFile) return null
+        // image_picker legt das Foto im Cache ab; ist es schon gelöscht oder
+        // leer, gleich mit klarer Meldung abbrechen.
+        if (!file.isFile) throw java.io.FileNotFoundException("Datei fehlt")
+        if (file.length() == 0L) throw java.io.IOException("Datei leer")
         val bounds = BitmapFactory.Options().apply { inJustDecodeBounds = true }
         BitmapFactory.decodeFile(path, bounds)
-        if (bounds.outWidth <= 0 || bounds.outHeight <= 0) return null
+        // HEIC/Ultra-HDR (JPEG mit Gainmap) dekodiert BitmapFactory ab Android 9
+        // bzw. 14 selbst; liefert es keine Maße, ist das Format nicht lesbar.
+        if (bounds.outWidth <= 0 || bounds.outHeight <= 0) {
+            throw java.io.IOException("Format nicht dekodierbar (${bounds.outMimeType})")
+        }
         var sample = 1
         while (maxOf(bounds.outWidth, bounds.outHeight) / sample > MAX_EDGE) sample *= 2
         val bitmap = BitmapFactory.decodeFile(
             path,
-            BitmapFactory.Options().apply { inSampleSize = sample },
-        ) ?: return null
+            BitmapFactory.Options().apply {
+                inSampleSize = sample
+                inPreferredConfig = android.graphics.Bitmap.Config.ARGB_8888
+            },
+        ) ?: throw java.io.IOException("decodeFile lieferte null")
         val rotation = when (
             ExifInterface(path).getAttributeInt(
                 ExifInterface.TAG_ORIENTATION,
@@ -114,7 +137,24 @@ class ReceiptTextChannel(private val context: Context, messenger: BinaryMessenge
                     ),
                 )
             }
-            .addOnFailureListener { e -> result.error("ocr_failed", e.message, null) }
+            .addOnFailureListener { e -> result.error("ocr_failed", e.toString(), describe(e)) }
+    }
+
+    /**
+     * Fehlerdetails für den Fehlercode in der App: Exception-Klasse und die
+     * ersten Stackzeilen (auch der Ursache). Enthält keine Belegdaten, nur
+     * Klassen- und Methodennamen.
+     */
+    private fun describe(e: Throwable): String {
+        val parts = ArrayList<String>()
+        var t: Throwable? = e
+        var depth = 0
+        while (t != null && depth < 3) {
+            parts.add(t.javaClass.name + " @ " + t.stackTrace.take(2).joinToString(" < "))
+            t = t.cause
+            depth++
+        }
+        return parts.joinToString(" | caused by ")
     }
 
     companion object {

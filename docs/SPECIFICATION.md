@@ -1,6 +1,6 @@
 # Spezifikation – Buchhaltung
 
-**Dokumentversion:** 1.33 · **App-Version:** 0.3.2 · **Stand:** 2026-10-12
+**Dokumentversion:** 1.34 · **App-Version:** 0.3.2 · **Stand:** 2026-10-13
 **Status:** Sprint 1 umgesetzt und verifiziert
 
 > Das **Zielbild** des Produkts steht im [`LASTENHEFT.md`](LASTENHEFT.md); dieses
@@ -652,7 +652,7 @@ Offen benannt, weil eine Spezifikation, die ihre Lücken verschweigt, wertlos is
 | **Keine E-Rechnung** | Ein PDF ist keine E-Rechnung nach EN 16931. In Deutschland gilt die Empfangspflicht seit 1.1.2025, die Versandpflicht kommt gestaffelt bis 2028 | Backlog G1 |
 | **Keine Storno-/Gutschriftsrechnung** | Eine gestellte Rechnung ist gesperrt; es gibt derzeit keinen Korrekturweg innerhalb der App | Backlog F4, Sprint 2 |
 | **Steuerwerte fest im Code** | Kennwerte haben kein Gültig-ab-Datum und ändern sich nur per App-Update; eine kurzfristige Gesetzesänderung erreicht die Nutzerin erst nach Store-Freigabe | Rechtsstand-Überwachung, Lastenheft L-20 und L-13.5, Stufe B |
-| **Belegerkennung nicht auf Gerät erprobt** | Kotlin- und Swift-Teil der Texterkennung sind nur kompiliert (CI); Erkennungsquote an echten Belegen unbekannt (P-D22). Ein Beleg mit mehreren Steuersätzen wird mit einem Satz gebucht | vor Release |
+| **Belegerkennung nicht auf Gerät erprobt** | Android-Teil im CI-Emulator mit R8 an einem synthetischen Kassenbon geprüft, Swift-Teil nur kompiliert; Erkennungsquote an echten Belegen unbekannt (P-D22). Ein Beleg mit mehreren Steuersätzen wird mit einem Satz gebucht | vor Release |
 | **Fremdwährung nur bei Ausgaben** | Eingangsbelege werden umgerechnet (FA-2.24 bis FA-2.27); Ausgangsrechnungen nur in Euro. Den BMF-Monatskurs lädt die App nicht, er wird von Hand übernommen; das EZB-Monatsmittel ist nur eine Näherung (P-S23, P-S24). DATEV/BMD exportieren nur Euro (P-D23). Ein Land mit anderer Währung setzt Mehrwährungsfähigkeit voraus | Backlog G7 |
 | **Mengen mit zwei Dezimalstellen** | Die Mengeneingabe verarbeitet zwei Nachkommastellen, obwohl das Datenmodell drei erlaubt | – |
 | **Offene Detailseite beim Wechsel der Breitenklasse** | Wird ein Tablet von quer (expanded) auf hoch (medium) gedreht oder das Fenster verkleinert, während rechts ein Beleg, eine Rechnung oder ein Kunde in Bearbeitung ist, schließt sich der Detailbereich; ungespeicherte Eingaben gehen verloren. Gespeichertes bleibt unberührt | später |
@@ -739,6 +739,7 @@ Umrechnung: Beträge in Cent. `5500000` Cent = 55.000,00 €.
 
 | Version | Datum | App-Version | Änderung |
 |---|---|---|---|
+| 1.34 | 2026-10-13 | 0.3.2 | Belegerkennung Android abgesichert: ML Kit wird ausdrücklich initialisiert (`MlKitContext.initializeIfNeeded`, falls der MlKitInitProvider fehlt), Datei-/Formatprüfung mit eigener Meldung, Fehlercode enthält Exception-Klasse und erste Stackzeilen. Profile-Build mit R8 wie Release; neuer CI-Job `android-ocr-emulator` prüft die Erkennung eines synthetischen Kassenbons im Emulator (`integration_test/receipt_ocr_test.dart`). Kein Schemawechsel. |
 | 1.33 | 2026-10-12 | 0.3.2 | App-Version 0.3.2: R8-Regeln für ML Kit, Fehlercode in der Meldung der Belegerkennung. |
 | 1.32 | 2026-10-12 | 0.3.1 | App-Version 0.3.1: Fehlerbehebung Belegerkennung Android. |
 | 1.31 | 2026-10-12 | 0.3.0 | P-L7 teilweise und P-R10 festgelegt (Telefon, Gewerbe bestätigt). Keine Codeänderung. |
@@ -947,7 +948,7 @@ Status: *offen* · *bestätigt* (mit Datum und Prüfer) · *widerlegt* (mit Folg
 | P-D18 | Android-Build nach Umstellung auf `FlutterFragmentActivity` und `Theme.AppCompat`: Start, Sicherungsordner-Wahl (`onActivityResult`) und Startbildschirm hell/dunkel, auch unter Android 8 | im Container nicht baubar; CI prüft den Build, nicht das Verhalten | Release | offen |
 | P-D19 | Android-Tablet (z. B. 10–11 Zoll) hoch und quer, Telefon quer, Split-Screen/Mehrfenster: Navigation (Leiste/Rail), Liste-Detail, Formularbreite, Tastatur verdeckt kein aktives Feld, Sperrbildschirm und Dialoge, Drehen während der Bearbeitung | Widget-Tests mit 390×844, 844×390, 768×1024 und 1194×834 dp grün; echtes Gerät fehlt | Release | offen |
 | P-D23 | DATEV-Import eines Buchungsstapels mit Fremdwährungsbeleg in einer echten DATEV-Kanzlei: genügt Euro ohne WKZ/Kurs, oder sind `WKZ Umsatz`, `Kurs` (Richtung!) und `Basis-Umsatz` zu befüllen? Ebenso BMD. Dazu „Kurs abrufen“ auf echtem Gerät inkl. Fehlerfall ohne Netz | Export nur Euro, Originalwerte in der Belegliste; EZB-Parser mit Beispieldatei geprüft | vor Fremdwährung | offen |
-| P-D22 | Belegerkennung an mindestens 30 echten Belegen (Supermarkt, Tankstelle, Hotel, Online-Rechnung, Kleinbetrag, Fremdwährung, zerknittert/schräg): Quote je Feld (Datum, Brutto, Satz, Händler, UID, Rechnungsnummer); Gerätetest Android und iOS, auch im Flugmodus (Erkennung muss offline laufen) | Parser mit Testtexten geprüft, Engines nur kompiliert | vor Release | offen |
+| P-D22 | Belegerkennung an mindestens 30 echten Belegen (Supermarkt, Tankstelle, Hotel, Online-Rechnung, Kleinbetrag, Fremdwährung, zerknittert/schräg): Quote je Feld (Datum, Brutto, Satz, Händler, UID, Rechnungsnummer); Gerätetest Android und iOS, auch im Flugmodus (Erkennung muss offline laufen) | Parser mit Testtexten geprüft; Android-Engine im CI-Emulator (Profile mit R8) an synthetischem Bon geprüft, ersetzt nicht den Gerätetest; iOS nur kompiliert | vor Release | offen |
 | P-D21 | Gerätetest mit Netzwerkmitschnitt: Erkennung läuft offline; welche Endpunkte ruft ML Kit auf (Firelog)? | gehört zu P-R19 | Release | offen |
 | P-D20 | iPad hoch und quer (alle vier Ausrichtungen), Split View und Slide Over (1/3, 1/2, 2/3), Stage Manager; App Review akzeptiert Multitasking ohne `UIRequiresFullScreen` | Info.plist enthält alle vier iPad-Ausrichtungen, kein `UIRequiresFullScreen`; nur auf macOS/Gerät prüfbar | Release | offen |
 | P-D24 | App-Symbol auf dem Startbildschirm auf echtem Pixel (per APK installiert): Angebot erscheint einmal nach dem Onboarding, Systemdialog „Zum Startbildschirm hinzufügen“, Symbol erscheint, Tippen startet die App; Eintrag in den Einstellungen; Verhalten unter Android 8 und mit einem Fremd-Launcher | Dart-Logik getestet, Kotlin nur kompiliert (CI) | Release | offen |
