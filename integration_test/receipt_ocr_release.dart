@@ -123,6 +123,7 @@ Future<void> _korpus() async {
     await file.writeAsBytes(data.buffer.asUint8List(), flush: true);
     files.add(file);
   }
+  const recognizer = PlatformReceiptTextRecognizer();
   _log('KORPUS ${files.length} Dateien');
   for (final file in files) {
     final name = file.uri.pathSegments.last;
