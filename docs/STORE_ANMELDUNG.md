@@ -124,7 +124,7 @@ E-Mail wie oben (erscheinen öffentlich im EU-App-Store).
 | Organization phone | +43 660 3124252 |
 | Organization website | https://jenibarb.com |
 | D-U-N-S number | (nach Erhalt) |
-| Developer name (öffentlich) | **noch offen** – Vorschlag: „Spirits by JeNiBarb“ oder späterer Produkt-/Markenname (O-25) |
+| Developer name (öffentlich) | Spirits by JeNiBarb (entschieden 2026-10-13) |
 | Contact name | Jürgen Jesenko |
 | Contact e-mail (privat, für Google) | office@jenibarb.com |
 | Contact phone (privat, für Google) | +43 660 3124252 |
@@ -137,9 +137,8 @@ unter „Trader-Status“ (EU, DSA) „Händler“ mit denselben öffentlichen A
 
 ## Was du vorher entscheiden solltest
 
-1. **Öffentlicher Entwicklername bei Google:** Firmenname oder Produktname? Ändern
-   geht später, aber Nutzerinnen sehen ihn ab dem ersten Release.
-2. **Eigene Apple-ID und eigenes Google-Konto für die Firma** (empfohlen) statt der
-   privaten Konten.
-3. **E-Mail office@jenibarb.com:** existiert das Postfach und liest du es? Beide
-   Stores schicken Prüfungen und Fristen dorthin.
+Entschieden am 2026-10-13:
+
+1. Öffentlicher Entwicklername bei Google: **Spirits by JeNiBarb**.
+2. Apple-ID und Google-Konto der Firma laufen auf **office@jenibarb.com** und existieren.
+3. Das Postfach office@jenibarb.com existiert und wird gelesen.
