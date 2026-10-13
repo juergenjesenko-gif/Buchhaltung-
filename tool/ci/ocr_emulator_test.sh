@@ -10,16 +10,23 @@ flutter build apk --release --target-platform android-x64 \
   -t integration_test/receipt_ocr_release.dart
 adb install -r build/app/outputs/flutter-apk/app-release.apk
 korpus=/sdcard/Android/data/at.jesenko.buchhaltung/files/belege
-adb shell mkdir -p "$korpus"
-for f in test/fixtures/belege/*.jpg; do adb push "$f" "$korpus/" >/dev/null; done
 adb logcat -c
 adb shell am start -W -n at.jesenko.buchhaltung/.MainActivity
-for _ in $(seq 1 150); do
+# Die App legt den Ordner selbst an (Eigentümer App), dann Fotos hineinschieben.
+for _ in $(seq 1 60); do
+  if adb logcat -d | grep -q 'OCR-SELBSTTEST KORPUS BEREIT'; then break; fi
+  sleep 1
+done
+for f in test/fixtures/belege/*.jpg; do adb push "$f" "$korpus/" >/dev/null; done
+adb shell touch "$korpus/fertig"
+adb shell ls -l "$korpus" || true
+for _ in $(seq 1 300); do
   if adb logcat -d | grep -q 'OCR-SELBSTTEST ERGEBNIS'; then break; fi
   sleep 2
 done
 adb logcat -d -v raw -s flutter > ocr-log.txt || true
-grep -E 'OCR-SELBSTTEST|AndroidRuntime|FATAL' ocr-log.txt || true
+grep -vE 'OCR-SELBSTTEST JSON' ocr-log.txt | tail -n 80 || true
+grep -E 'OCR-SELBSTTEST JSON' ocr-log.txt || true
 mkdir -p test/fixtures/belege/ocr
 python3 - <<'PY'
 import base64, gzip, re, collections

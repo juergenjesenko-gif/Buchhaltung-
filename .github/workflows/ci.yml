@@ -175,7 +175,7 @@ jobs:
     # Prüft: Text mit „Gesamt“ und „10,00“, Fehlercode bei fehlender Datei.
     runs-on: ubuntu-latest
     needs: analyse-und-test
-    timeout-minutes: 45
+    timeout-minutes: 60
     steps:
       - uses: actions/checkout@v4
 

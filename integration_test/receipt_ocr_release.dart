@@ -92,7 +92,12 @@ Future<void> main() async {
       ok = false;
     }
   }
-  await _korpus();
+  try {
+    await _korpus();
+  } catch (e, st) {
+    ok = false;
+    _log('FEHLER KORPUS $e ${st.toString().split('\n').take(3).join(' < ')}');
+  }
   _log(ok ? 'ERGEBNIS OK' : 'ERGEBNIS FEHLER');
 }
 
@@ -105,17 +110,31 @@ const _korpusOrdner =
 /// Rohes OCR-Ergebnis je Foto als gzip+Base64 in logcat, in Stücken zu 700
 /// Zeichen (logcat kürzt lange Zeilen). Das Skript setzt sie wieder zusammen.
 Future<void> _korpus() async {
+  // Ordner selbst anlegen (gehört dann der App), dann auf das Skript warten,
+  // das die Fotos hineinschiebt und zuletzt die Datei „fertig“ anlegt.
   final dir = Directory(_korpusOrdner);
-  if (!dir.existsSync()) {
+  try {
+    dir.createSync(recursive: true);
+  } catch (e) {
+    _log('KORPUS anlegen: $e');
+  }
+  _log('KORPUS BEREIT');
+  final done = File('$_korpusOrdner/fertig');
+  for (var i = 0; i < 120 && !done.existsSync(); i++) {
+    await Future<void>.delayed(const Duration(seconds: 1));
+  }
+  if (!done.existsSync()) {
     _log('KORPUS fehlt');
     return;
   }
   final files = dir.listSync().whereType<File>().toList()
     ..sort((a, b) => a.path.compareTo(b.path));
   const recognizer = PlatformReceiptTextRecognizer();
+  _log('KORPUS ${files.length} Dateien');
   for (final file in files) {
     final name = file.uri.pathSegments.last;
     if (!name.toLowerCase().endsWith('.jpg')) continue;
+    _log('KORPUS START $name');
     Map<String, Object?> json;
     try {
       final doc = await recognizer.recognize([file.path]);
