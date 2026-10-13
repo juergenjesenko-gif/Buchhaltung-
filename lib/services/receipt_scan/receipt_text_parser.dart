@@ -467,7 +467,7 @@ class ReceiptTextParser {
   static final _notMerchant = RegExp(
     r'rechnung|invoice|receipt|quittung|beleg|kassa|kasse|\bbon\b|datum|date|'
     r'\btel\b|\bfax\b|www|http|@|\buid\b|\bust\b|steuer|str\.|straße|strasse|gasse|platz|weg\b|'
-    r'filiale|willkommen|welcome|danke|kopie|original|seite|page',
+    r'filiale|willkommen|welcome|danke|kopie|duplikat|zweitschrift|storno|original|seite|page',
   );
 
   Detected<String>? _merchant(List<String> rows) {

@@ -34,6 +34,7 @@ nächsten Versionssprung in den neuen Eintrag.
 
 | Art | Änderung | Bezug | Commit |
 |---|---|---|---|
+| Behoben | Belegerkennung: Kopfzeilen wie „DUPLIKAT“ oder „Zweitschrift“ werden nicht mehr als Händler erkannt; Test mit dem echten Mautticket aus dem Gerätetest | FA-2.19 | dieser |
 
 ---
 

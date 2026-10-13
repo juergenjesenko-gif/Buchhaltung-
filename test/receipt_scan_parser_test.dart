@@ -277,4 +277,56 @@ Lieferung bis 31.12.2027
     );
     expect(detail, contains('sha256=abc'));
   });
+
+  // Echter Beleg aus dem Gerätetest Pixel 10 (13.10.2026), Text abgeschrieben.
+  test('Mautticket Marktgemeinde Treffen (Gerätetest)', () {
+    final r = _parse('''
+DUPLIKAT
+Marktgemeinde Treffen
+Marktplatz 2
+9521 Treffen
+UID Nummer: ATU26016600
+Steuernr. ATU26016600
+AF 41 PKW  10.10.26 12:44
+Rechnung 37549
+Mautticket
+1 - Nr. 067341
+10.10.26 11:14
+10.10.26 12:44
+Dauer 0d1h31'
+(A)                 €10,00
+Gesamt brutto       €10,00
+Bezahlung
+KUNDENBELEG
+VERKAUF
+10.10.2026     12:44:59
+VUNr.: 100754795
+TID: 28051778
+Beleg-Nr:      10181
+Genehmigungsnr:   159332
+KONTAKTLOS
+DEBIT MASTERCARD
+Nr: *************9532
+Stammkundennummer
+40972200420261010104419
+SEQ-NR:000
+Ablaufdatum: **/**
+GEN.NR.:159332
+BETRAG: EUR       10,00
+Gesamt netto        €8,33
+A       Ust. 20%    €1,67
+Alle Beträge in EUR.
+Lieferdat.=Rechnungsdat.
+EFSTA.NET#266772751800917
+096712817
+''');
+    expect(r.merchant?.value, 'Marktgemeinde Treffen');
+    expect(r.gross?.value, Money(1000));
+    expect(r.date?.value, DateTime(2026, 10, 10));
+    expect(r.vatId?.value, 'ATU26016600');
+    expect(r.vatLines.single.permille, 200);
+    expect(r.vatLines.single.vat, Money(167));
+    expect(r.vatLines.single.net, Money(833));
+    _expectVatConsistent(r);
+  });
 }
