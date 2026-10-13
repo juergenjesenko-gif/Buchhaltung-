@@ -215,6 +215,13 @@ jobs:
           emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
           script: tool/ci/ocr_emulator_test.sh
 
+      - uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: ocr-belege
+          path: test/fixtures/belege/ocr/*.json
+          if-no-files-found: warn
+
   ios-build:
     name: iOS-Build
     runs-on: macos-latest

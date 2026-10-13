@@ -7,6 +7,7 @@
 // Ergebnis aus logcat (Zeilen mit OCR-SELBSTTEST).
 //
 // Der Kassenbon ist synthetisch gezeichnet, kein echtes Foto.
+import 'dart:convert';
 import 'dart:io';
 import 'dart:ui' as ui;
 
@@ -91,5 +92,68 @@ Future<void> main() async {
       ok = false;
     }
   }
+  await _korpus();
   _log(ok ? 'ERGEBNIS OK' : 'ERGEBNIS FEHLER');
+}
+
+/// Ordner, in den tool/ci/ocr_emulator_test.sh die Fotos aus
+/// test/fixtures/belege/ per adb schiebt (app-eigener externer Speicher, ohne
+/// Berechtigung lesbar).
+const _korpusOrdner =
+    '/sdcard/Android/data/at.jesenko.buchhaltung/files/belege';
+
+/// Rohes OCR-Ergebnis je Foto als gzip+Base64 in logcat, in Stücken zu 700
+/// Zeichen (logcat kürzt lange Zeilen). Das Skript setzt sie wieder zusammen.
+Future<void> _korpus() async {
+  final dir = Directory(_korpusOrdner);
+  if (!dir.existsSync()) {
+    _log('KORPUS fehlt');
+    return;
+  }
+  final files = dir.listSync().whereType<File>().toList()
+    ..sort((a, b) => a.path.compareTo(b.path));
+  const recognizer = PlatformReceiptTextRecognizer();
+  for (final file in files) {
+    final name = file.uri.pathSegments.last;
+    if (!name.toLowerCase().endsWith('.jpg')) continue;
+    Map<String, Object?> json;
+    try {
+      final doc = await recognizer.recognize([file.path]);
+      json = {
+        'datei': name,
+        'engine': doc.engine,
+        'engineVersion': doc.engineVersion,
+        'lines': [
+          for (final l in doc.lines)
+            {
+              'text': l.text,
+              'left': l.left,
+              'top': l.top,
+              'height': l.height,
+              'page': l.page,
+            },
+        ],
+      };
+    } on PlatformException catch (e) {
+      json = {'datei': name, 'fehler': '${e.code}: ${e.message}'};
+    }
+    final packed = base64.encode(
+      gzip.encode(
+        utf8.encode(const JsonEncoder.withIndent('  ').convert(json)),
+      ),
+    );
+    const size = 700;
+    final n = (packed.length + size - 1) ~/ size;
+    for (var i = 0; i < n; i++) {
+      final end = (i + 1) * size < packed.length
+          ? (i + 1) * size
+          : packed.length;
+      _log('JSON $name ${i + 1}/$n ${packed.substring(i * size, end)}');
+      // logcat verwirft bei zu schnellen Zeilen („chatty“); kurz drosseln.
+      await Future<void>.delayed(const Duration(milliseconds: 5));
+    }
+    _log(
+      'KORPUS $name ${json['lines'] is List ? (json['lines'] as List).length : 0} Zeilen',
+    );
+  }
 }

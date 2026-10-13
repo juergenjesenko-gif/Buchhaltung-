@@ -1,16 +1,40 @@
 #!/usr/bin/env bash
-# Belegerkennung im Release-Build (R8) auf dem Emulator prüfen.
+# Belegerkennung im Release-Build (R8) auf dem Emulator prüfen und das rohe
+# OCR-Ergebnis aller Fotos in test/fixtures/belege/ nach
+# test/fixtures/belege/ocr/<foto>.json schreiben (CI-Artefakt; zusätzlich als
+# gzip+Base64 im Job-Log zwischen OCR-SELBSTTEST JSON-Zeilen).
 # Aufruf aus .github/workflows/ci.yml (Job android-ocr-emulator) bei laufendem
 # Emulator; lokal genauso mit gestartetem x86_64-Emulator.
 set -euo pipefail
 flutter build apk --release --target-platform android-x64 \
   -t integration_test/receipt_ocr_release.dart
 adb install -r build/app/outputs/flutter-apk/app-release.apk
+korpus=/sdcard/Android/data/at.jesenko.buchhaltung/files/belege
+adb shell mkdir -p "$korpus"
+for f in test/fixtures/belege/*.jpg; do adb push "$f" "$korpus/" >/dev/null; done
 adb logcat -c
 adb shell am start -W -n at.jesenko.buchhaltung/.MainActivity
-for _ in $(seq 1 90); do
+for _ in $(seq 1 150); do
   if adb logcat -d | grep -q 'OCR-SELBSTTEST ERGEBNIS'; then break; fi
   sleep 2
 done
-adb logcat -d | grep -E 'OCR-SELBSTTEST|AndroidRuntime|FATAL' || true
-adb logcat -d | grep -q 'OCR-SELBSTTEST ERGEBNIS OK'
+adb logcat -d -v raw -s flutter > ocr-log.txt || true
+grep -E 'OCR-SELBSTTEST|AndroidRuntime|FATAL' ocr-log.txt || true
+mkdir -p test/fixtures/belege/ocr
+python3 - <<'PY'
+import base64, gzip, re, collections
+parts = collections.defaultdict(dict)
+for line in open('ocr-log.txt', encoding='utf-8', errors='replace'):
+    m = re.search(r'OCR-SELBSTTEST JSON (\S+) (\d+)/(\d+) (\S+)', line)
+    if m:
+        parts[m.group(1)][int(m.group(2))] = (int(m.group(3)), m.group(4))
+for name, chunks in parts.items():
+    total = next(iter(chunks.values()))[0]
+    if len(chunks) != total:
+        print(f'UNVOLLSTÄNDIG {name}: {len(chunks)}/{total}')
+        continue
+    data = gzip.decompress(base64.b64decode(''.join(chunks[i][1] for i in range(1, total + 1))))
+    open(f'test/fixtures/belege/ocr/{name}.json', 'wb').write(data)
+    print(f'geschrieben {name}.json')
+PY
+grep -q 'OCR-SELBSTTEST ERGEBNIS OK' ocr-log.txt

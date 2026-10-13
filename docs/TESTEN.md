@@ -226,4 +226,11 @@ mit `FileNotFoundException` bei fehlender Datei. `package:integration_test`
 wird nicht genutzt, weil es im Release-Modus nicht läuft. Lokal mit laufendem
 x86_64-Emulator: `tool/ci/ocr_emulator_test.sh`.
 
+Zusätzlich wendet der Job ML Kit auf alle Fotos in `test/fixtures/belege/` an
+und legt das rohe Ergebnis (Zeilen mit Text und Koordinaten) je Foto als
+`test/fixtures/belege/ocr/<foto>.json` ab: als CI-Artefakt `ocr-belege` und als
+gzip+Base64 im Job-Log (Zeilen `OCR-SELBSTTEST JSON <foto> i/n …`). Diese
+Dateien werden ins Repository übernommen und speisen den Korpustest
+`test/receipt_corpus_test.dart`.
+
 Der Emulatortest ersetzt nicht den Gerätetest mit echten Belegen (P-D22).
