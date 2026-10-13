@@ -36,7 +36,7 @@ nächsten Versionssprung in den neuen Eintrag.
 |---|---|---|---|
 | Behoben | Belegerkennung: Kopfzeilen wie „DUPLIKAT“ oder „Zweitschrift“ werden nicht mehr als Händler erkannt; Test mit dem echten Mautticket aus dem Gerätetest | FA-2.19 | 45b7ecb |
 | Behoben | Android-Belegerkennung: ML Kit ausdrücklich initialisiert, Datei/Format geprüft, Fehlercode mit Exception-Klasse und Stackzeile | FA-2.19, P-D22 | dieser |
-| Neu | CI-Job `android-ocr-emulator`: echte Erkennung eines synthetischen Kassenbons im Emulator, Profile-Build mit R8 | P-D22 | dieser |
+| Neu | CI-Job `android-ocr-emulator`: echte Erkennung eines synthetischen Kassenbons im Emulator, Release-Build mit R8 | P-D22 | dieser |
 
 ---
 

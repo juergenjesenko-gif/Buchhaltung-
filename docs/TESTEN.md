@@ -217,17 +217,13 @@ nur auf einem echten Gerät heraus.
 ### Belegerkennung im Android-Emulator (CI)
 
 Der CI-Job `android-ocr-emulator` startet einen Android-Emulator (API 34,
-x86_64) und führt `integration_test/receipt_ocr_test.dart` mit
-`flutter drive --profile` aus. Der Test zeichnet einen synthetischen Kassenbon
-(kein echtes Foto), schickt ihn über den Kanal `buchhaltung/receipt_text` an
-ML Kit und erwartet „Gesamt“ und „10,00“ im erkannten Text; ein zweiter Test
-prüft den Fehlercode bei fehlender Datei. Der Profile-Build läuft wie Release
-durch R8 (`android/app/build.gradle.kts`), deckt also die Keep-Regeln ab.
-Lokal mit laufendem Emulator:
-
-```bash
-flutter drive --profile --driver=test_driver/integration_test.dart \
-  --target=integration_test/receipt_ocr_test.dart
-```
+x86_64), baut `integration_test/receipt_ocr_release.dart` als **Release-APK mit
+R8** und startet sie (`tool/ci/ocr_emulator_test.sh`). Die App zeichnet einen
+synthetischen Kassenbon (kein echtes Foto), schickt ihn über den Kanal
+`buchhaltung/receipt_text` an ML Kit und schreibt das Ergebnis nach logcat
+(`OCR-SELBSTTEST …`); verlangt sind „Gesamt“ und „10,00“ sowie ein Fehlercode
+mit `FileNotFoundException` bei fehlender Datei. `package:integration_test`
+wird nicht genutzt, weil es im Release-Modus nicht läuft. Lokal mit laufendem
+x86_64-Emulator: `tool/ci/ocr_emulator_test.sh`.
 
 Der Emulatortest ersetzt nicht den Gerätetest mit echten Belegen (P-D22).

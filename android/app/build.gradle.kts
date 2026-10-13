@@ -72,23 +72,6 @@ android {
                 "proguard-rules.pro",
             )
         }
-        // Profile wie Release durch R8 schicken: integration_test läuft nicht im
-        // Release-Modus (`flutter drive --release` geht dafür nicht), wohl aber
-        // mit `--profile`. So prüft der CI-Job android-ocr-emulator die
-        // Belegerkennung mit denselben Keep-Regeln, an denen sie auf dem Pixel 10
-        // brach. Profile wird nie ausgeliefert; Debug-Signatur genügt.
-        // Den vom Flutter-Plugin angelegten profile-Typ nur ergänzen, nicht selbst
-        // anlegen: ein eigener Typ bekommt die Plugin-Abhängigkeiten nicht (R8:
-        // „Missing class …LocalAuthPlugin“, CI-Lauf 78).
-        configureEach {
-            if (name != "profile") return@configureEach
-            isMinifyEnabled = true
-            isShrinkResources = true
-            proguardFiles(
-                getDefaultProguardFile("proguard-android-optimize.txt"),
-                "proguard-rules.pro",
-            )
-        }
     }
 }
 
