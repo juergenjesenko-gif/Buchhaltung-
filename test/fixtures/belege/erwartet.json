@@ -1,0 +1,38 @@
+{
+  "_hinweis": "Sollwerte des Testkorpus (Stufe 1 Belegerkennung). Beträge in kleinster Einheit (Cent/Øre), Steuer je Satz in Promille. Belegfotos von der Auftraggeberin, bewusst schwierige Aufnahmen.",
+  "belege": [
+    {
+      "datei": "PXL_20261010_104457699.MP.jpg",
+      "beschreibung": "Mautticket AT, Thermopapier, im Auto gehalten, Lenkrad und Display im Hintergrund, zwei Abschnitte",
+      "haendler": "Marktgemeinde Treffen",
+      "datum": "2026-10-10",
+      "waehrung": "EUR",
+      "brutto": 1000,
+      "uid": "ATU26016600",
+      "rechnungsnummer": "37549",
+      "steuer": [{"promille": 200, "netto": 833, "steuer": 167}]
+    },
+    {
+      "datei": "PXL_20261013_043853962.jpg",
+      "beschreibung": "Taxiquittung Taiwan, überwiegend chinesische Schrift, Betrag mit „$“ (Neue Taiwan-Dollar), Holztisch",
+      "haendler": null,
+      "datum": "2026-09-07",
+      "waehrung": "TWD",
+      "brutto": 141500,
+      "uid": null,
+      "steuer": [],
+      "anmerkung": "„$“ ist mehrdeutig; Währung muss die Nutzerin bestätigen. Keine ausgewiesene Umsatzsteuer."
+    },
+    {
+      "datei": "PXL_20261013_043914106.jpg",
+      "beschreibung": "Tankbeleg Dänemark, Thermopapier verblasst und gewellt, in der Hand gehalten, dunkler Hintergrund, Dänisch",
+      "haendler": "Uno-X Mobility",
+      "datum": "2026-08-28",
+      "waehrung": "DKK",
+      "brutto": 68588,
+      "uid": "CVR 33807910",
+      "steuer": [{"promille": 250, "netto": 54870, "steuer": 13718}],
+      "anmerkung": "„HERAF MOMS“ = darin enthaltene Mehrwertsteuer 25 %; ausländische Vorsteuer ist im AT/DE-Inland nicht abziehbar."
+    }
+  ]
+}
