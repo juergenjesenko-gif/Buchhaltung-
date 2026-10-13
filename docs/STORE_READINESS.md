@@ -13,9 +13,9 @@ Anforderungen dazu: Lastenheft 5.10 (Abonnement), 5.22 (Lizenz und Bezahlung),
 |---|---|---|---|---|
 | 1 | **Rechtsform festlegen** (O-26): Einzelunternehmen oder GmbH – bestimmt Kontoinhaber, Store-Name, Steuer | Auftraggeber mit Steuerberatung | – | entschieden: Spirits by JeNiBarb e.U., FN 643550 y, ATU81604346; später GmbH |
 | 2 | **Öffentliche Händleradresse und Telefon** (DSA „Trader“-Angaben, erscheinen im EU-Store; Postfach reicht nicht) | Auftraggeber | – | festgelegt: Anschrift Arnoldstein, Telefon +43 660 3124252 (P-R10) |
-| 3 | **D-U-N-S-Nummer** beantragen (kostenlos) | Auftraggeber | 1–4 Wochen | freigegeben, zu beantragen |
+| 3 | **D-U-N-S-Nummer** beantragen (kostenlos; nur für Google-Organisationskonto nötig, Formular in `STORE_ANMELDUNG.md`) | Auftraggeber | 1–4 Wochen | freigegeben, zu beantragen |
 | 4 | **Google Play Organisationskonto** (25 USD einmalig) – erspart den Pflichttest mit 12 Testern über 14 Tage, den private Konten brauchen | Auftraggeber | Tage bis Wochen | offen |
-| 5 | **Apple Developer Program als Organisation** (99 USD/Jahr); Small Business Program anmelden (15 % Provision) | Auftraggeber | Tage bis Wochen | offen |
+| 5 | **Apple Developer Program als Einzelperson** (99 USD/Jahr; ein e.U. gilt bei Apple nicht als Organisation, P-R23, Formular in `STORE_ANMELDUNG.md`); Small Business Program anmelden (15 % Provision) | Auftraggeber | Tage bis Wochen | offen |
 | 6 | **UID-Nummer** des Anbieters, Steuerformulare (W-8BEN bzw. W-8BEN-E, DBA AT-USA 0 %), Bankdaten in beiden Konsolen | Auftraggeber mit Steuerberatung | – | offen (P-S11, P-S13) |
 | 7 | **Markenrecherche und -anmeldung** (O-25), dann Domain und Produktseite (L-17.12) | Markenanwältin | Wochen | offen (P-R7) |
 | 8 | **Rechtstexte**: Impressum, Datenschutzerklärung, Nutzungsbedingungen als eigene EULA (auch bei Apple hinterlegt), Support-Kontakt | Anwältin | – | Entwürfe in `docs/legal/`, Prüfung offen (P-L1, P-L4–L11, P-R11) |
