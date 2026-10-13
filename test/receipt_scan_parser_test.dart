@@ -153,8 +153,10 @@ Gesamtbetrag 290,00 EUR
       profile: TaxProfile.austria,
     );
     // 7 % gibt es in Österreich nicht: kein Satz vorbelegt, Hinweis.
-    expect(prefill.vatPermille, isNull);
-    expect(prefill.hints, isNotEmpty);
+    // Ausländische (deutsche) USt bei österreichischer Nutzerin: 0 % mit
+    // Hinweis, nicht als Vorsteuer abziehbar (P-S27).
+    expect(prefill.vatPermille, 0);
+    expect(prefill.hints.join(), contains('nicht als Vorsteuer abziehbar'));
   });
 
   test('englische Rechnung in USD wird nicht ins Euro-Feld übernommen', () {

@@ -233,4 +233,13 @@ gzip+Base64 im Job-Log (Zeilen `OCR-SELBSTTEST JSON <foto> i/n …`). Diese
 Dateien werden ins Repository übernommen und speisen den Korpustest
 `test/receipt_corpus_test.dart`.
 
+Der Korpustest wendet den Parser auf diese echten OCR-Daten an und vergleicht
+mit den Sollwerten in `test/fixtures/belege/erwartet.json`. Er gibt je Feld
+die Trefferquote aus (`flutter test test/receipt_corpus_test.dart`) und
+verlangt für jeden Beleg mit Sollwerten Brutto, Datum und Steuersatz; noch
+nicht gelöste Fälle stehen mit Begründung als `skip` im Test. Neue Fotos:
+Sollwerte in `erwartet.json` ergänzen, CI laufen lassen, die JSON-Dateien aus
+dem Job-Log bzw. Artefakt `ocr-belege` nach `test/fixtures/belege/ocr/`
+übernehmen.
+
 Der Emulatortest ersetzt nicht den Gerätetest mit echten Belegen (P-D22).

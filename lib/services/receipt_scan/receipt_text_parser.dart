@@ -156,17 +156,23 @@ class ReceiptTextParser {
     ];
   }
 
-  /// Häufige Lesefehler in Zahlen: O statt 0, l/I/| statt 1.
-  static String _fixDigits(String row) => row.replaceAllMapped(
-    RegExp(r'[0-9OoIl|]{1,7}[.,][0-9OoIl|]{2}(?![A-Za-z])'),
-    (m) {
-      final s = m.group(0)!;
-      if (RegExp(r'\d').allMatches(s).length < 2) return s;
-      return s
-          .replaceAll(RegExp('[Oo]'), '0')
-          .replaceAll(RegExp(r'[Il|]'), '1');
-    },
-  );
+  /// Häufige Lesefehler in Zahlen: O statt 0, l/I/| statt 1; Leerzeichen
+  /// nach dem Dezimalkomma („685, 88 kr“, ML Kit auf Thermopapier).
+  static String _fixDigits(String row) => row
+      .replaceAllMapped(
+        RegExp(r'(?<![\d.,])(\d{1,3}(?:\.\d{3})*|\d+)([.,]) (\d{2})(?![\d.,])'),
+        (m) => '${m.group(1)}${m.group(2)}${m.group(3)}',
+      )
+      .replaceAllMapped(
+        RegExp(r'[0-9OoIl|]{1,7}[.,][0-9OoIl|]{2}(?![A-Za-z])'),
+        (m) {
+          final s = m.group(0)!;
+          if (RegExp(r'\d').allMatches(s).length < 2) return s;
+          return s
+              .replaceAll(RegExp('[Oo]'), '0')
+              .replaceAll(RegExp(r'[Il|]'), '1');
+        },
+      );
 
   static final _taxWord = RegExp(
     r'\b(mwst|ust|vat|tax|steuer|umsatzsteuer|mehrwertsteuer|vorsteuer)\b|mwst|ust\.',
@@ -191,7 +197,17 @@ class ReceiptTextParser {
     'total amount',
   ];
 
-  static const _plainGross = ['summe', 'gesamt', 'total', 'betrag'];
+  static const _plainGross = [
+    'summe',
+    'gesamt',
+    'total',
+    'betrag',
+    // Dänisch/Norwegisch „Beløb“, „I alt“; ML Kit liest ø oft als o
+    'beløb',
+    'belob',
+    'bel ob',
+    'i alt',
+  ];
 
   Detected<Money>? _gross(List<String> rows) {
     Detected<Money>? best;
@@ -206,6 +222,18 @@ class ReceiptTextParser {
       if (score == 0) continue;
       var found = amounts(rows[i]);
       if (found.isEmpty && i + 1 < rows.length) found = amounts(rows[i + 1]);
+      if (found.isEmpty && i + 1 < rows.length) {
+        // Betrag ohne Nachkommastellen allein in der Folgezeile, z. B.
+        // „Total,$): / 1415“ (Taxi Taiwan): nur direkt nach dem Schlüsselwort.
+        final whole = RegExp(
+          r'^\$?\s?(\d{1,6})$',
+        ).firstMatch(rows[i + 1].trim());
+        if (whole != null) {
+          final value = Money(int.parse(whole.group(1)!) * 100);
+          if (best == null || 60 > best.confidence) best = Detected(value, 60);
+        }
+        continue;
+      }
       if (found.isEmpty) continue;
       final value = found.last;
       if (best == null ||
@@ -335,6 +363,10 @@ class ReceiptTextParser {
     }
 
     final result = <int, DetectedVat>{};
+    if (strong.isEmpty && keyword.isEmpty) {
+      final included = _includedVat(rows);
+      if (included != null) strong[included.permille] = included;
+    }
     itemGross.forEach((p, g) {
       final vat = _vatOfGross(g, p);
       result[p] = DetectedVat(
@@ -347,6 +379,48 @@ class ReceiptTextParser {
     result.addAll(keyword);
     result.addAll(strong);
     return result.values.toList()..sort((x, y) => y.gross.compareTo(x.gross));
+  }
+
+  /// Gängige Umsatzsteuersätze der EU-Mitgliedstaaten in Promille, für
+  /// Belege, die die Steuer nur als Betrag ohne Prozentsatz nennen
+  /// („HERAF MOMS 137,18“). Quelle: Europäische Kommission, „VAT rates applied
+  /// in the Member States of the European Union“ (Stand 2026-01-01);
+  /// Rechtsgrundlage Art. 96 bis 99 MwStSystRL 2006/112/EG.
+  static const _euRates = [
+    50, 55, 60, 70, 80, 90, 95, 100, 120, 130, 140, 150, 170, 180, 190, //
+    200, 210, 220, 230, 240, 250, 255, 270,
+  ];
+
+  /// Enthaltene Steuer als Betrag neben einem Schlüsselwort, Satz aus
+  /// Gesamtbetrag und Steuer zurückgerechnet.
+  DetectedVat? _includedVat(List<String> rows) {
+    final gross = _gross(rows);
+    if (gross == null || gross.confidence < 60) return null;
+    for (final row in rows) {
+      final lower = row.toLowerCase();
+      if (!RegExp(
+        r'heraf moms|moms|inkl\.? (mwst|ust)|enthaltene|darin enthalten|incl\.? vat|included vat',
+      ).hasMatch(lower)) {
+        continue;
+      }
+      final a = amounts(row);
+      if (a.isEmpty) continue;
+      final vat = a.last.cents;
+      final net = gross.value.cents - vat;
+      if (vat <= 0 || net <= 0) continue;
+      for (final p in _euRates) {
+        if ((vat - _vatOfGross(gross.value.cents, p)).abs() <=
+            _tolerance(Money(vat))) {
+          return DetectedVat(
+            permille: p,
+            net: Money(net),
+            vat: Money(vat),
+            confidence: 80,
+          );
+        }
+      }
+    }
+    return null;
   }
 
   /// Bei nur einem Satz mit unsicherer Herkunft gilt der Gesamtbetrag: Netto
@@ -373,7 +447,7 @@ class ReceiptTextParser {
   // Datum
 
   static final _anyDate = RegExp(
-    r'\b\d{1,2}[./]\d{1,2}[./](\d{4}|\d{2})\b|\b\d{4}-\d{2}-\d{2}\b',
+    r'\b\d{1,2}[./-]\d{1,2}[./-](\d{4}|\d{2})\b|\b\d{4}-\d{2}-\d{2}\b',
   );
 
   static const _months = {
@@ -383,7 +457,7 @@ class ReceiptTextParser {
   };
 
   static final _numericDate = RegExp(
-    r'(?<!\d)(\d{1,2})([./])(\d{1,2})\2(\d{4}|\d{2})(?!\d)',
+    r'(?<!\d)(\d{1,2})([./-])(\d{1,2})\2(\d{4}|\d{2})(?!\d)',
   );
   static final _isoDate = RegExp(r'(?<!\d)(\d{4})-(\d{2})-(\d{2})(?!\d)');
   static final _textDate = RegExp(
@@ -493,6 +567,18 @@ class ReceiptTextParser {
 
   Detected<String>? _vatId(List<String> rows) {
     final own = ownVatId == null ? null : VatIdFormat.normalize(ownVatId!);
+    // Dänemark: die USt-Nummer ist „DK“ + CVR-Nummer; Belege drucken oft nur
+    // „CVR: 12345678“.
+    for (final row in rows) {
+      final cvr = RegExp(
+        r'\bCVR\b[^0-9]{0,4}(\d{2} ?\d{2} ?\d{2} ?\d{2})\b',
+      ).firstMatch(row);
+      if (cvr == null) continue;
+      final candidate = 'DK${cvr.group(1)!.replaceAll(' ', '')}';
+      if (candidate != own && VatIdFormat.check(candidate) == null) {
+        return Detected(candidate, 80);
+      }
+    }
     for (final row in rows) {
       final compact = VatIdFormat.normalize(row.replaceAll(':', ' '));
       for (final m in _vatIdPattern.allMatches(compact)) {
@@ -535,6 +621,11 @@ class ReceiptTextParser {
   Detected<String>? _invoiceNumber(List<String> rows) {
     final token = RegExp(r'^[A-Za-z0-9][A-Za-z0-9\-/_.]*');
     for (var i = 0; i < rows.length; i++) {
+      final bare = RegExp(
+        r'^\s*(rechnung|invoice|faktura)\s+(\d{3,})\b',
+        caseSensitive: false,
+      ).firstMatch(rows[i]);
+      if (bare != null) return Detected(bare.group(2)!, 75);
       final m = _invoiceLabel.firstMatch(rows[i]);
       if (m == null) continue;
       var rest = rows[i].substring(m.end).trim();
@@ -555,11 +646,14 @@ class ReceiptTextParser {
 
   static const isoCurrencies = {
     'EUR', 'USD', 'CHF', 'GBP', 'CZK', 'HUF', 'PLN', 'SEK', 'DKK', 'NOK', //
-    'JPY', 'CAD', 'AUD', 'CNY', 'TRY', 'RON', 'BGN', 'RSD', 'BAM',
+    'JPY', 'CAD', 'AUD', 'CNY', 'TRY', 'RON', 'BGN', 'RSD', 'BAM', 'TWD',
+    'HKD', 'SGD',
   };
 
   Detected<String> _currency(List<String> rows) {
     final counts = <String, int>{};
+    var dollar = false;
+    var kronor = false;
     void add(String code) => counts[code] = (counts[code] ?? 0) + 1;
     for (final row in rows) {
       for (final m in RegExp(r'\b([A-Z]{3})\b').allMatches(row)) {
@@ -571,12 +665,29 @@ class ReceiptTextParser {
       for (final _ in '£'.allMatches(row)) {
         add('GBP');
       }
-      for (final _ in RegExp(r'(?<![A-Z])\$|US\$').allMatches(row)) {
+      for (final _ in RegExp(r'US\$').allMatches(row)) {
         add('USD');
+      }
+      for (final _ in RegExp(r'NT\$').allMatches(row)) {
+        add('TWD');
+      }
+      if (RegExp(r'(?<![A-Z])\$').hasMatch(row)) dollar = true;
+      if (RegExp(
+        r'\d\s?kr\b|\bkr\.?\s?\d',
+        caseSensitive: false,
+      ).hasMatch(row)) {
+        kronor = true;
       }
       if (RegExp(r'\bS?Fr\.\s?\d').hasMatch(row)) add('CHF');
     }
-    if (counts.isEmpty) return const Detected('EUR', 40);
+    if (counts.isEmpty) {
+      // „$“ allein ist mehrdeutig (USD, TWD, HKD, CAD, AUD …), „kr“ ebenso
+      // (DKK, SEK, NOK): nur schwach vermuten, damit der Betrag weder als
+      // Euro noch ungeprüft als Fremdwährung vorbelegt wird.
+      if (dollar) return const Detected('USD', 30);
+      if (kronor) return const Detected('DKK', 30);
+      return const Detected('EUR', 40);
+    }
     final sorted = counts.entries.toList()
       ..sort((a, b) => b.value.compareTo(a.value));
     return Detected(sorted.first.key, counts.length == 1 ? 90 : 60);

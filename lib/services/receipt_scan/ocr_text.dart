@@ -63,16 +63,28 @@ class OcrDocument {
       final groups = <List<OcrLine>>[];
       for (final line in onPage) {
         final center = line.top + line.height ~/ 2;
-        final group = groups.isEmpty ? null : groups.last;
-        if (group != null) {
+        // Gegen die letzten Gruppen prüfen, nicht nur die letzte: bei schräg
+        // gehaltenem Beleg liegt der Betrag rechts etwas höher oder tiefer
+        // als die Bezeichnung links (Gerätetest Pixel 10, Mautbeleg).
+        List<OcrLine>? target;
+        for (var g = groups.length - 1; g >= 0 && g >= groups.length - 3; g--) {
+          final group = groups[g];
           final ref = group.first;
           final refCenter = ref.top + ref.height ~/ 2;
-          final tolerance =
-              (ref.height > line.height ? ref.height : line.height) ~/ 2;
-          if ((center - refCenter).abs() <= tolerance) {
-            group.add(line);
-            continue;
+          final maxHeight = ref.height > line.height ? ref.height : line.height;
+          // Untereinander stehende Zeilen gleicher Einrückung sind keine
+          // gemeinsame Bildzeile, auch wenn ihre Kästen sich überlappen.
+          final stacked = group.any(
+            (m) => (m.left - line.left).abs() < maxHeight,
+          );
+          if (!stacked && (center - refCenter).abs() <= maxHeight * 3 ~/ 4) {
+            target = group;
+            break;
           }
+        }
+        if (target != null) {
+          target.add(line);
+          continue;
         }
         groups.add([line]);
       }

@@ -1,0 +1,357 @@
+{
+  "datei": "PXL_20261010_104457699.MP.jpg",
+  "engine": "Google ML Kit Text Recognition (Latin, gebündelt)",
+  "engineVersion": "16.0.1",
+  "lines": [
+    {
+      "text": "Marktgemeinde Treffen",
+      "left": 450,
+      "top": 139,
+      "height": 44,
+      "page": 1
+    },
+    {
+      "text": "Marktplatz 2",
+      "left": 450,
+      "top": 164,
+      "height": 35,
+      "page": 1
+    },
+    {
+      "text": "9521 Treffen",
+      "left": 450,
+      "top": 187,
+      "height": 36,
+      "page": 1
+    },
+    {
+      "text": "DUPLIKAT",
+      "left": 614,
+      "top": 99,
+      "height": 27,
+      "page": 1
+    },
+    {
+      "text": "UID Numme r: ATU2 6016600",
+      "left": 450,
+      "top": 215,
+      "height": 43,
+      "page": 1
+    },
+    {
+      "text": "Steuernr. ATU26016600",
+      "left": 493,
+      "top": 245,
+      "height": 36,
+      "page": 1
+    },
+    {
+      "text": "AF 41 PKW",
+      "left": 449,
+      "top": 293,
+      "height": 35,
+      "page": 1
+    },
+    {
+      "text": "Rechnung 37549",
+      "left": 451,
+      "top": 325,
+      "height": 32,
+      "page": 1
+    },
+    {
+      "text": "Mautticket",
+      "left": 450,
+      "top": 382,
+      "height": 26,
+      "page": 1
+    },
+    {
+      "text": "1- Nr. 067341",
+      "left": 452,
+      "top": 413,
+      "height": 30,
+      "page": 1
+    },
+    {
+      "text": "10.10. 26 11:14",
+      "left": 452,
+      "top": 443,
+      "height": 30,
+      "page": 1
+    },
+    {
+      "text": "10.10. 26 12: 44",
+      "left": 451,
+      "top": 467,
+      "height": 35,
+      "page": 1
+    },
+    {
+      "text": "Dauer Odlh31'",
+      "left": 451,
+      "top": 500,
+      "height": 25,
+      "page": 1
+    },
+    {
+      "text": "(A)",
+      "left": 455,
+      "top": 530,
+      "height": 27,
+      "page": 1
+    },
+    {
+      "text": "Gesamt brutto",
+      "left": 450,
+      "top": 587,
+      "height": 27,
+      "page": 1
+    },
+    {
+      "text": "Bezahlung",
+      "left": 453,
+      "top": 647,
+      "height": 30,
+      "page": 1
+    },
+    {
+      "text": "10.10.2026",
+      "left": 458,
+      "top": 794,
+      "height": 28,
+      "page": 1
+    },
+    {
+      "text": "KUNDENBELEG",
+      "left": 602,
+      "top": 709,
+      "height": 23,
+      "page": 1
+    },
+    {
+      "text": "Beleg-Nr:",
+      "left": 462,
+      "top": 944,
+      "height": 28,
+      "page": 1
+    },
+    {
+      "text": "10.10. 26 12:44",
+      "left": 683,
+      "top": 300,
+      "height": 38,
+      "page": 1
+    },
+    {
+      "text": "VUNr.: 100754795",
+      "left": 457,
+      "top": 853,
+      "height": 26,
+      "page": 1
+    },
+    {
+      "text": "ģTID: 28051778",
+      "left": 436,
+      "top": 882,
+      "height": 29,
+      "page": 1
+    },
+    {
+      "text": "VERKAUF",
+      "left": 642,
+      "top": 768,
+      "height": 23,
+      "page": 1
+    },
+    {
+      "text": "Genehmigungsnr:",
+      "left": 464,
+      "top": 1037,
+      "height": 27,
+      "page": 1
+    },
+    {
+      "text": "A",
+      "left": 489,
+      "top": 1507,
+      "height": 19,
+      "page": 1
+    },
+    {
+      "text": "SEQ-NR:000",
+      "left": 480,
+      "top": 1301,
+      "height": 30,
+      "page": 1
+    },
+    {
+      "text": "F7E36C04- 2/2",
+      "left": 473,
+      "top": 1674,
+      "height": 141,
+      "page": 1
+    },
+    {
+      "text": "KONTAKTLOS",
+      "left": 610,
+      "top": 1088,
+      "height": 24,
+      "page": 1
+    },
+    {
+      "text": "GEN .NR. :159332",
+      "left": 483,
+      "top": 1379,
+      "height": 28,
+      "page": 1
+    },
+    {
+      "text": "BETRAG: EUR",
+      "left": 486,
+      "top": 1405,
+      "height": 24,
+      "page": 1
+    },
+    {
+      "text": "DEBIT MASTERCARD",
+      "left": 471,
+      "top": 1142,
+      "height": 27,
+      "page": 1
+    },
+    {
+      "text": "Nr: ********* ***9532",
+      "left": 480,
+      "top": 1166,
+      "height": 28,
+      "page": 1
+    },
+    {
+      "text": "Gesant netto",
+      "left": 487,
+      "top": 1480,
+      "height": 26,
+      "page": 1
+    },
+    {
+      "text": "Stammkundennummer",
+      "left": 476,
+      "top": 1226,
+      "height": 23,
+      "page": 1
+    },
+    {
+      "text": "40972200420261010104419",
+      "left": 477,
+      "top": 1249,
+      "height": 26,
+      "page": 1
+    },
+    {
+      "text": "€10,00",
+      "left": 843,
+      "top": 534,
+      "height": 25,
+      "page": 1
+    },
+    {
+      "text": "€10,00",
+      "left": 843,
+      "top": 590,
+      "height": 28,
+      "page": 1
+    },
+    {
+      "text": "12:44:59",
+      "left": 787,
+      "top": 796,
+      "height": 23,
+      "page": 1
+    },
+    {
+      "text": "Ust. 20%",
+      "left": 622,
+      "top": 1506,
+      "height": 25,
+      "page": 1
+    },
+    {
+      "text": "10181",
+      "left": 850,
+      "top": 940,
+      "height": 22,
+      "page": 1
+    },
+    {
+      "text": "Ablaufdatum: **/**",
+      "left": 596,
+      "top": 1330,
+      "height": 24,
+      "page": 1
+    },
+    {
+      "text": "096712 817",
+      "left": 495,
+      "top": 1625,
+      "height": 24,
+      "page": 1
+    },
+    {
+      "text": "159332",
+      "left": 830,
+      "top": 1034,
+      "height": 21,
+      "page": 1
+    },
+    {
+      "text": "10,00",
+      "left": 850,
+      "top": 1409,
+      "height": 24,
+      "page": 1
+    },
+    {
+      "text": "€8,33",
+      "left": 866,
+      "top": 1485,
+      "height": 23,
+      "page": 1
+    },
+    {
+      "text": "€1,67",
+      "left": 866,
+      "top": 1507,
+      "height": 29,
+      "page": 1
+    },
+    {
+      "text": "A1le Beträge in EUR.",
+      "left": 527,
+      "top": 1551,
+      "height": 34,
+      "page": 1
+    },
+    {
+      "text": "Lieferdat ,Rechnungsdat,",
+      "left": 494,
+      "top": 1575,
+      "height": 35,
+      "page": 1
+    },
+    {
+      "text": "EFSTA.NET#266772751800917",
+      "left": 494,
+      "top": 1598,
+      "height": 37,
+      "page": 1
+    },
+    {
+      "text": "28",
+      "left": 1319,
+      "top": 227,
+      "height": 144,
+      "page": 1
+    }
+  ]
+}

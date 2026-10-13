@@ -1,6 +1,6 @@
 # Benutzerhandbuch – Buchhaltung
 
-**Für App-Version 0.3.2** · Stand 2026-10-12
+**Für App-Version 0.3.3** · Stand 2026-10-13
 
 Dieses Handbuch beschreibt die App aus Nutzersicht. Es wird bei jeder Änderung,
 die du in der App siehst, mitgeführt – siehe [`CLAUDE.md`](../CLAUDE.md).
@@ -200,6 +200,15 @@ Lieferant, Rechnungsnummer und UID des Ausstellers**. Solche Felder sind mit
 - **Fremde Währung** (z. B. eine Rechnung in US-Dollar) bei Ausgaben: die App
   schaltet auf „Beleg in fremder Währung“ und trägt den Betrag laut Beleg ein.
   Den Kurs holst du mit **Kurs abrufen** (siehe *Belege in fremder Währung*).
+- **Ausländische Umsatzsteuer** (z. B. Tankbeleg aus Dänemark mit 25 % MOMS,
+  Hotel in Deutschland mit 19 %): die App erkennt sie, stellt aber **0 %**
+  ein und zeigt den Hinweis „nicht als Vorsteuer abziehbar“. Ausländische
+  Umsatzsteuer bekommst du nur über das Vorsteuer-Vergütungsverfahren zurück.
+- **Währung unklar**: steht auf dem Beleg nur „$“ oder „kr“, trägt die App den
+  Betrag nicht ein, sondern nennt ihn im Hinweis. Wähle „Beleg in fremder
+  Währung“ und trag Währung und Betrag selbst ein.
+- Bist du **Kleinunternehmer**, übernimmt die App den erkannten Steuersatz und
+  erinnert dich, dass die Vorsteuer für dich nicht abziehbar ist.
 - Das Foto selbst wird nie verändert. Im Änderungsprotokoll steht, was erkannt
   und was von dir bestätigt wurde.
 - Ausschalten: Einstellungen → **Belege auslesen**.

@@ -29,14 +29,37 @@ gebaut, und was war darin geprüft?*
 
 ## Unveröffentlicht
 
-Änderungen seit 0.3.2+5, die noch in keinem Build stecken. Wandern beim
+Änderungen seit 0.3.3+6, die noch in keinem Build stecken. Wandern beim
 nächsten Versionssprung in den neuen Eintrag.
 
 | Art | Änderung | Bezug | Commit |
 |---|---|---|---|
+
+---
+
+## 0.3.3+6 — 2026-10-13
+
+| Feld | Wert |
+|---|---|
+| Art | Testbuild (ungezippte arm64-APK, fester Testschlüssel); Belegerkennung an echten Belegen |
+| Commit | siehe Git-Tag `v0.3.3` |
+| Branch | `claude/agile-accounting-app-mobile-wa5j3h` |
+| Dokumentstände | Lastenheft 1.42, Spezifikation 1.36, Benutzerhandbuch für 0.3.3 |
+| Datenbankschema | 10 |
+| Prüfung | `flutter analyze` ohne Befund, 268 Tests grün, Emulator-Job `android-ocr-emulator` grün, CI siehe Lauf zum Tag |
+| Offene reale Prüfpunkte | P-D21, P-D22 (Belegerkennung auf dem Pixel), P-S27 |
+
+**Änderungen seit 0.3.2+5**
+
+| Art | Änderung | Bezug | Commit |
+|---|---|---|---|
 | Behoben | Belegerkennung: Kopfzeilen wie „DUPLIKAT“ oder „Zweitschrift“ werden nicht mehr als Händler erkannt; Test mit dem echten Mautticket aus dem Gerätetest | FA-2.19 | 45b7ecb |
-| Behoben | Android-Belegerkennung: ML Kit ausdrücklich initialisiert, Datei/Format geprüft, Fehlercode mit Exception-Klasse und Stackzeile | FA-2.19, P-D22 | dieser |
-| Neu | CI-Job `android-ocr-emulator`: echte Erkennung eines synthetischen Kassenbons im Emulator, Release-Build mit R8 | P-D22 | dieser |
+| Behoben | Android-Belegerkennung: ML Kit ausdrücklich initialisiert, Datei/Format geprüft, Fehlercode mit Exception-Klasse und Stackzeile | FA-2.19, P-D22 | 88d65ad, b5a031a |
+| Neu | CI-Job `android-ocr-emulator`: echte Erkennung eines synthetischen Kassenbons im Emulator, Release-Build mit R8 | P-D22 | 88d65ad, b5a031a |
+| Neu | CI-Job `android-ocr-emulator` liest alle Korpusfotos aus `test/fixtures/belege/` und legt das rohe ML-Kit-Ergebnis ab (Artefakt `ocr-belege`, Job-Log) | FA-2.28 | 7b58ed9 bis 084d3b7 |
+| Behoben | Belegerkennung: Bruttobetrag und Steuersatz wurden nicht vorbelegt, wenn der Betrag rechts nicht exakt auf Höhe der Bezeichnung lag (schräg gehaltener Beleg, Gerätetest Build 85 Mautbeleg) | FA-2.28 | dieser |
+| Neu | Belegerkennung: „Beløb“, „TOTAL … kr“, „HERAF MOMS“, TT-MM-JJJJ, CVR-Nummer, „Rechnung 37549“, Betrag ohne Nachkommastellen nach „Total“; Korpustest mit Trefferquote | FA-2.28 | dieser |
+| Geändert | Ausländische Umsatzsteuer wird erkannt, aber 0 % mit Hinweis „nicht als Vorsteuer abziehbar“ vorbelegt; mehrdeutige Währung („$“, „kr“) füllt das Euro-Feld nicht | FA-2.29, P-S27 | dieser |
 
 ---
 

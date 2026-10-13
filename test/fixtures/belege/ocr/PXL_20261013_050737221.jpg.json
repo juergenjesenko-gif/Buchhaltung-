@@ -1,0 +1,238 @@
+{
+  "datei": "PXL_20261013_050737221.jpg",
+  "engine": "Google ML Kit Text Recognition (Latin, gebündelt)",
+  "engineVersion": "16.0.1",
+  "lines": [
+    {
+      "text": "VILLACHER ALPENSTRASSEN GMBH",
+      "left": 575,
+      "top": 213,
+      "height": 34,
+      "page": 1
+    },
+    {
+      "text": "Betriebsführung: Großglockner Hochalpenstraßen AG",
+      "left": 504,
+      "top": 239,
+      "height": 43,
+      "page": 1
+    },
+    {
+      "text": "5020 Salzburg, Rainerstraße 2,",
+      "left": 633,
+      "top": 272,
+      "height": 34,
+      "page": 1
+    },
+    {
+      "text": "Firmenbuchgerlcht Klagenfurt, FN 115942d,",
+      "left": 552,
+      "top": 301,
+      "height": 34,
+      "page": 1
+    },
+    {
+      "text": "ATU25368606",
+      "left": 736,
+      "top": 334,
+      "height": 25,
+      "page": 1
+    },
+    {
+      "text": "Zahlung",
+      "left": 512,
+      "top": 540,
+      "height": 37,
+      "page": 1
+    },
+    {
+      "text": "05.09,2026 10:04:22",
+      "left": 514,
+      "top": 589,
+      "height": 30,
+      "page": 1
+    },
+    {
+      "text": "VUNr: 1C 0311364",
+      "left": 514,
+      "top": 632,
+      "height": 37,
+      "page": 1
+    },
+    {
+      "text": "TID: 29O7315",
+      "left": 515,
+      "top": 681,
+      "height": 29,
+      "page": 1
+    },
+    {
+      "text": "Beleg-N: 002397",
+      "left": 520,
+      "top": 728,
+      "height": 34,
+      "page": 1
+    },
+    {
+      "text": "Genehnm gungsnr.: 446612",
+      "left": 519,
+      "top": 769,
+      "height": 40,
+      "page": 1
+    },
+    {
+      "text": "KONTAKTLOS",
+      "left": 641,
+      "top": 819,
+      "height": 31,
+      "page": 1
+    },
+    {
+      "text": "DEBIT MASTERCARD",
+      "left": 521,
+      "top": 861,
+      "height": 35,
+      "page": 1
+    },
+    {
+      "text": "A000000004 1010 9807AOCCIF964A420",
+      "left": 519,
+      "top": 899,
+      "height": 29,
+      "page": 1
+    },
+    {
+      "text": "Nr: ** ** ***9532",
+      "left": 542,
+      "top": 950,
+      "height": 33,
+      "page": 1
+    },
+    {
+      "text": "SEQ-NFR D000",
+      "left": 524,
+      "top": 1000,
+      "height": 33,
+      "page": 1
+    },
+    {
+      "text": "GEN.NR 446612",
+      "left": 524,
+      "top": 1042,
+      "height": 36,
+      "page": 1
+    },
+    {
+      "text": "Betrag: EUR 7,00",
+      "left": 527,
+      "top": 1087,
+      "height": 40,
+      "page": 1
+    },
+    {
+      "text": "72% sos 07:C",
+      "left": 1227,
+      "top": 197,
+      "height": 40,
+      "page": 1
+    },
+    {
+      "text": "11000",
+      "left": 1196,
+      "top": 256,
+      "height": 51,
+      "page": 1
+    },
+    {
+      "text": "MAX",
+      "left": 1201,
+      "top": 310,
+      "height": 18,
+      "page": 1
+    },
+    {
+      "text": "Favortes",
+      "left": 1372,
+      "top": 396,
+      "height": 28,
+      "page": 1
+    },
+    {
+      "text": "EARNftN",
+      "left": 1379,
+      "top": 547,
+      "height": 27,
+      "page": 1
+    },
+    {
+      "text": "Antenne",
+      "left": 1356,
+      "top": 642,
+      "height": 30,
+      "page": 1
+    },
+    {
+      "text": "Kaernten",
+      "left": 1357,
+      "top": 670,
+      "height": 26,
+      "page": 1
+    },
+    {
+      "text": "All Statlone",
+      "left": 1361,
+      "top": 749,
+      "height": 34,
+      "page": 1
+    },
+    {
+      "text": "IHITRADI",
+      "left": 1450,
+      "top": 813,
+      "height": 26,
+      "page": 1
+    },
+    {
+      "text": "1HITRADIo",
+      "left": 1449,
+      "top": 838,
+      "height": 23,
+      "page": 1
+    },
+    {
+      "text": "IXXXL Das",
+      "left": 1450,
+      "top": 921,
+      "height": 28,
+      "page": 1
+    },
+    {
+      "text": "# Guper 80e",
+      "left": 1446,
+      "top": 1025,
+      "height": 33,
+      "page": 1
+    },
+    {
+      "text": "# Super @09",
+      "left": 1443,
+      "top": 1050,
+      "height": 29,
+      "page": 1
+    },
+    {
+      "text": "AARadioZeta",
+      "left": 1385,
+      "top": 1121,
+      "height": 54,
+      "page": 1
+    },
+    {
+      "text": "8Rsdiolete",
+      "left": 1424,
+      "top": 1152,
+      "height": 27,
+      "page": 1
+    }
+  ]
+}

@@ -39,15 +39,46 @@ class ReceiptScanPrefill {
         r.currency.confidence >= 60;
     final hints = <String>[];
 
+    // Mehrdeutige Währung („$“, „kr“): weder ins Euro-Feld noch als
+    // Fremdwährung vorbelegen, die Nutzerin muss sie bestätigen.
+    final unclearCurrency =
+        r.currency.value != 'EUR' && r.currency.confidence < 60;
+    if (unclearCurrency && ok(r.gross)) {
+      hints.add(
+        'Betrag ${Fmt.amount(r.gross!.value)} erkannt, Währung aber unklar '
+        '(vermutlich ${r.currency.value}). Bitte Währung und Betrag eintragen.',
+      );
+    }
+
+    // Ausländische Umsatzsteuer (Satz gibt es im eigenen Land nicht, oder
+    // Aussteller-UID aus einem anderen Staat): erkennen, aber 0 % vorbelegen,
+    // denn sie ist im Inland nicht als Vorsteuer abziehbar (§ 12 Abs. 1 Z 1
+    // UStG 1994 bzw. § 15 Abs. 1 Nr. 1 UStG: nur Steuer nach dem eigenen
+    // UStG). Erstattung nur über das Vorsteuer-Vergütungsverfahren
+    // (Richtlinie 2008/9/EG). Steuerberater-Befund offen: P-S27.
     int? permille;
     final dominant = r.dominantPermille;
-    if (dominant != null && profile.rateByPermille(dominant) != null) {
-      permille = dominant;
+    final issuerCountry = ok(r.vatId) ? r.vatId!.value.substring(0, 2) : null;
+    final ownPrefix = profile.country == Country.at ? 'AT' : 'DE';
+    final foreignIssuer = issuerCountry != null && issuerCountry != ownPrefix;
+    if (dominant != null &&
+        (profile.rateByPermille(dominant) == null || foreignIssuer)) {
+      if (direction == BookingDirection.expense &&
+          profile.rateByPermille(0) != null) {
+        permille = 0;
+        hints.add(
+          'Ausländische Umsatzsteuer ${Fmt.vatRate(dominant)} erkannt – '
+          'nicht als Vorsteuer abziehbar, deshalb 0 % vorbelegt. Erstattung '
+          'nur über das Vorsteuer-Vergütungsverfahren.',
+        );
+      } else {
+        hints.add(
+          'Steuersatz ${Fmt.vatRate(dominant)} erkannt – gibt es in '
+          '${profile.country.label} nicht, bitte Satz wählen.',
+        );
+      }
     } else if (dominant != null) {
-      hints.add(
-        'Steuersatz ${dominant ~/ 10} % erkannt – gibt es in '
-        '${profile.country.label} nicht, bitte Satz wählen.',
-      );
+      permille = dominant;
     }
     if (r.vatLines.length > 1) {
       hints.add(
@@ -64,7 +95,9 @@ class ReceiptScanPrefill {
 
     return ReceiptScanPrefill(
       date: ok(r.date) ? r.date!.value : null,
-      gross: !foreign && ok(r.gross) ? r.gross!.value : null,
+      gross: !foreign && !unclearCurrency && ok(r.gross)
+          ? r.gross!.value
+          : null,
       vatPermille: permille,
       counterparty: ok(r.merchant) ? r.merchant!.value : null,
       documentNumber: ok(r.invoiceNumber) ? r.invoiceNumber!.value : null,

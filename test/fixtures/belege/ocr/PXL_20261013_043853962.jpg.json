@@ -1,0 +1,196 @@
+{
+  "datei": "PXL_20261013_043853962.jpg",
+  "engine": "Google ML Kit Text Recognition (Latin, gebündelt)",
+  "engineVersion": "16.0.1",
+  "lines": [
+    {
+      "text": "UA009",
+      "left": 522,
+      "top": 402,
+      "height": 110,
+      "page": 1
+    },
+    {
+      "text": "fTWA:0903919963",
+      "left": 516,
+      "top": 534,
+      "height": 56,
+      "page": 1
+    },
+    {
+      "text": "HA:03-3834499",
+      "left": 513,
+      "top": 581,
+      "height": 47,
+      "page": 1
+    },
+    {
+      "text": "***************k**",
+      "left": 511,
+      "top": 631,
+      "height": 31,
+      "page": 1
+    },
+    {
+      "text": "*********",
+      "left": 838,
+      "top": 625,
+      "height": 31,
+      "page": 1
+    },
+    {
+      "text": "IE( No.) : 00003061",
+      "left": 504,
+      "top": 667,
+      "height": 47,
+      "page": 1
+    },
+    {
+      "text": "Plate): TDZ8663",
+      "left": 589,
+      "top": 709,
+      "height": 43,
+      "page": 1
+    },
+    {
+      "text": "Tel.): 0000000000",
+      "left": 644,
+      "top": 753,
+      "height": 40,
+      "page": 1
+    },
+    {
+      "text": "ICStart): 2026-09- 07 06:00",
+      "left": 510,
+      "top": 802,
+      "height": 34,
+      "page": 1
+    },
+    {
+      "text": "F4(End): 2026-09-07 06:39",
+      "left": 511,
+      "top": 844,
+      "height": 34,
+      "page": 1
+    },
+    {
+      "text": "ITotal,$):",
+      "left": 507,
+      "top": 882,
+      "height": 74,
+      "page": 1
+    },
+    {
+      "text": "1415",
+      "left": 508,
+      "top": 960,
+      "height": 56,
+      "page": 1
+    },
+    {
+      "text": "HJrtnH(Service #): 0227592677",
+      "left": 506,
+      "top": 1022,
+      "height": 48,
+      "page": 1
+    },
+    {
+      "text": "*************t****************",
+      "left": 509,
+      "top": 1063,
+      "height": 42,
+      "page": 1
+    },
+    {
+      "text": "12-320",
+      "left": 517,
+      "top": 1138,
+      "height": 30,
+      "page": 1
+    },
+    {
+      "text": "4(Fare Ver.): tt 108-",
+      "left": 614,
+      "top": 1099,
+      "height": 56,
+      "page": 1
+    },
+    {
+      "text": "H0ist., km):44.7",
+      "left": 517,
+      "top": 1174,
+      "height": 44,
+      "page": 1
+    },
+    {
+      "text": "(Halt, h:m:s): 00:06:17",
+      "left": 519,
+      "top": 1209,
+      "height": 59,
+      "page": 1
+    },
+    {
+      "text": "bFare, $): 1385",
+      "left": 520,
+      "top": 1251,
+      "height": 41,
+      "page": 1
+    },
+    {
+      "text": "*************:*********t*******",
+      "left": 530,
+      "top": 1321,
+      "height": 53,
+      "page": 1
+    },
+    {
+      "text": "üN(Freeway )",
+      "left": 513,
+      "top": 1358,
+      "height": 49,
+      "page": 1
+    },
+    {
+      "text": "TẾ TWW(Rate, $/m): 1.2",
+      "left": 537,
+      "top": 1397,
+      "height": 48,
+      "page": 1
+    },
+    {
+      "text": "i FRH 4(Ver. ): 111-01",
+      "left": 542,
+      "top": 1428,
+      "height": 58,
+      "page": 1
+    },
+    {
+      "text": "ECd(Out): IIEA",
+      "left": 530,
+      "top": 1501,
+      "height": 68,
+      "page": 1
+    },
+    {
+      "text": "h TW( Toll, $): 30",
+      "left": 554,
+      "top": 1546,
+      "height": 65,
+      "page": 1
+    },
+    {
+      "text": "iW(Meter): Lili",
+      "left": 533,
+      "top": 1624,
+      "height": 65,
+      "page": 1
+    },
+    {
+      "text": "it&E( Meter S/N): 00015846",
+      "left": 534,
+      "top": 1649,
+      "height": 79,
+      "page": 1
+    }
+  ]
+}
