@@ -1,6 +1,6 @@
 # Spezifikation – Buchhaltung
 
-**Dokumentversion:** 1.41 · **App-Version:** 0.3.4 · **Stand:** 2026-10-14
+**Dokumentversion:** 1.42 · **App-Version:** 0.3.5 · **Stand:** 2026-10-14
 **Status:** Sprint 1 umgesetzt und verifiziert
 
 > Das **Zielbild** des Produkts steht im [`LASTENHEFT.md`](LASTENHEFT.md); dieses
@@ -829,6 +829,7 @@ Dauerfristverlängerung, `02-15,…` = feste Tage, `+1j07-31` = Folgejahr,
 
 | Version | Datum | App-Version | Änderung |
 |---|---|---|---|
+| 1.42 | 2026-10-14 | 0.3.5 | App-Version 0.3.5 (Testbuild): Wirtschaftsjahr, Termin-Box, bezahlte Rechnung als Einnahme, Hilfe offline. Schema 11. |
 | 1.41 | 2026-10-14 | 0.3.4 | Hilfe Stufe 1 offline (Abschnitt 5.8, FA-11.1 bis FA-11.3, Abschnitt 7): Fragezeichen in der AppBar, BM25-Suche im als Asset eingebundenen Handbuch, Abschnitt lesen, Support-Mail ohne Anhang. Stufe 2 (KI) nur vorgemerkt. Neue Prüfpunkte P-R25, P-R26, P-D26. Kein Schemawechsel. |
 | 1.40 | 2026-10-14 | 0.3.4 | Wirtschaftsjahr (GR-10, FA-10.1, FA-10.2, FA-3.1, FA-6.1, DATEV „WJ-Beginn“) und Termin-Box Stufe 1 (Abschnitt 5.6a, FA-10.3 bis FA-10.8) mit Feiertagen AT/DE und Verschiebung auf den nächsten Werktag. Fehlerbehebung Gerätetest 0.3.4: bezahlte Rechnung wird Einnahme am Tag des Zahlungseingangs (GR-11, FA-5.12), Nachbuchung alter Rechnungen; Übersicht mit 160 dp Abstand unten. Schema 11. Neue Kennwerte `spec.deadline_box_count`, `spec.*.fiscal_year_legal_ref`, `spec.*.deadline_shift_legal_ref`, `spec.*.monthly_vat_return_threshold_cents`, `spec.*.vat_interval_basis`, `spec.*.asks_federal_state`, `spec.*.deadline_rules`. Neue Prüfpunkte P-S32 bis P-S35, P-R24, P-D25. |
 | 1.39 | 2026-10-14 | 0.3.4 | Vollständigkeitsbestätigung und Speichern zu einer Aktion zusammengelegt (FA-2.14, Abschnitt 7): Knopf „Vollständig – Beleg speichern (n Seiten)“, kein Häkchen mehr, Protokoll „Vollständigkeit bestätigt“. Neuer Prüfpunkt P-S31. Kein Schemawechsel. |
