@@ -8,6 +8,8 @@ import '../../theme.dart';
 import '../../widgets/adaptive.dart';
 import '../../widgets/common.dart';
 import 'receipt_edit_screen.dart';
+import '../help/help_screen.dart';
+import '../../services/help/help_index.dart';
 
 /// Belegliste mit Suche und Filter. Der Kern der täglichen Nutzung.
 class ReceiptListScreen extends StatefulWidget {
@@ -92,6 +94,7 @@ class _ReceiptListScreenState extends State<ReceiptListScreen> {
       appBar: AppBar(
         title: const Text('Belege'),
         actions: [
+          const HelpButton(context: HelpTopic.receipts),
           PopupMenuButton<int>(
             tooltip: 'Jahr wählen',
             icon: Row(

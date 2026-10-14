@@ -26,6 +26,8 @@ import '../../theme.dart';
 import '../../widgets/common.dart';
 import '../../widgets/adaptive.dart';
 import 'receipt_save_bar.dart';
+import '../help/help_screen.dart';
+import '../../services/help/help_index.dart';
 
 /// Beleg erfassen oder bearbeiten.
 ///
@@ -970,6 +972,7 @@ class _ReceiptEditScreenState extends State<ReceiptEditScreen> {
               : 'Ausgabe erfassen',
         ),
         actions: [
+          const HelpButton(context: HelpTopic.receipts),
           if (_isEditing && !_isCancelled)
             IconButton(
               tooltip: 'Löschen',

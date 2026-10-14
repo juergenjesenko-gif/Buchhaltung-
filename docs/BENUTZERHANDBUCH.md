@@ -1,6 +1,6 @@
 # Benutzerhandbuch – Buchhaltung
 
-**Für App-Version 0.3.4** · Stand 2026-10-14
+**Für App-Version 0.3.5** · Stand 2026-10-14
 
 Dieses Handbuch beschreibt die App aus Nutzersicht. Es wird bei jeder Änderung,
 die du in der App siehst, mitgeführt – siehe [`CLAUDE.md`](../CLAUDE.md).
@@ -139,6 +139,20 @@ Unten in der App findest du vier Bereiche:
 | Teilen | **Export** | Daten für die Steuerberatung |
 
 Die **Einstellungen** erreichst du über das Zahnrad rechts oben in der Übersicht.
+
+### Hilfe in der App
+
+Rechts oben auf jedem Hauptbildschirm und im Beleg- und Rechnungsformular
+findest du ein **Fragezeichen**. Es öffnet die Hilfe: Tippe in das Feld
+**„Frag mich etwas …“** ein paar Wörter, etwa *Beleg löschen*, *Rückseite*
+oder *Kleinunternehmergrenze*. Die App sucht in diesem Handbuch – ohne
+Internet – und zeigt passende Abschnitte mit einem kurzen Auszug. Ein Tipp
+öffnet den Abschnitt zum Lesen. Aus dem Belegformular geöffnet stehen
+Beleg-Themen vorn.
+
+Findet die Hilfe nichts, tippe auf **E-Mail an den Support**. Deine Mail-App
+öffnet sich mit der Adresse office@jenibarb.com und einem Betreff samt
+App-Version. Es wird nichts angehängt; du schreibst und schickst selbst.
 
 **Auf dem Tablet oder im Querformat** stehen die vier Bereiche nicht unten,
 sondern als Leiste am linken Rand. Ist der Bildschirm breit genug (etwa ein

@@ -1,6 +1,6 @@
 # Lastenheft – Buchhaltungsapp für Österreich und Deutschland
 
-**Dokumentversion:** 1.44 · **Stand:** 2026-10-14 · **Status:** Entwurf zur Abstimmung
+**Dokumentversion:** 1.45 · **Stand:** 2026-10-14 · **Status:** Entwurf zur Abstimmung
 **Auftraggeber:** Jürgen Jesenko (privates Vorhaben) · **Umsetzung:** Claude Code
 
 > Ein Lastenheft beschreibt, **was** das Produkt leisten soll und **warum** — nicht,
@@ -921,6 +921,23 @@ Spezifikation 14, P-S33, P-S34, P-R24.
 | L-25.8 | Stufe 2: lokale Benachrichtigungen vor Terminen | KANN | B |
 | L-25.9 | Bezahlte Ausgangsrechnung ist Einnahme am Tag des Zahlungseingangs (Zuflussprinzip), Datum beim Markieren „bezahlt“ vorbelegt mit heute; offene Rechnungen zählen in der EÜR nicht; keine Doppelbuchung (Gerätetest 0.3.4, P-S35) | MUSS | A |
 
+### 5.26 Hilfe in der App
+
+Entscheidung der Auftraggeberin 2026-10-14: Stufe 1 offline, ohne Server.
+Stufe 2 (KI-Antworten) erst nach der Server-Entscheidung. Real zu prüfen:
+Spezifikation 14, P-R25, P-R26 (Stufe 2), P-D26.
+
+| ID | Anforderung | Priorität | Stufe |
+|---|---|---|---|
+| L-26.1 | Hilfe-Symbol auf allen Hauptbildschirmen gut erreichbar, ohne die Erfassungsknöpfe zu verdecken | MUSS | A |
+| L-26.2 | Suchfeld „Frag mich etwas …“; Treffer aus Benutzerhandbuch und Häufigen Fragen mit Überschrift und Auszug; deutsche Normalisierung und Synonyme („löschen“ findet „stornieren“) | MUSS | A |
+| L-26.3 | Das Benutzerhandbuch ist die einzige Quelle; kein zweiter Hilfetext. Ein Test schlägt fehl, wenn die Hilfe nicht zum Handbuch passt | MUSS | A |
+| L-26.4 | Kontext: aus dem Belegformular geöffnet zuerst Beleg-Themen | SOLL | A |
+| L-26.5 | Ohne Treffer: E-Mail an den Support über die Mail-App, Betreff mit App-Version, keine Daten automatisch angehängt | MUSS | A |
+| L-26.6 | Stufe 2: Antworten durch ein KI-Modell auf einem Server, als KI gekennzeichnet, Opt-in, nur mit Prüfung P-R25/P-R26 | KANN | B |
+
+Umsetzung Stufe 1: Spezifikation 5.8, FA-11.1 bis FA-11.3.
+
 ## 6. Nichtfunktionale Anforderungen
 
 | ID | Anforderung |
@@ -1202,6 +1219,7 @@ Zu entscheiden, bevor die betroffene Anforderung umgesetzt wird:
 
 | Version | Datum | Änderung |
 |---|---|---|
+| 1.45 | 2026-10-14 | Neuer Block L-26 Hilfe in der App: Stufe 1 offline umgesetzt (Spezifikation 5.8, FA-11.1 bis FA-11.3), Stufe 2 KI nach Server-Entscheidung (P-R25, P-R26). |
 | 1.44 | 2026-10-14 | Neue Blöcke L-24 Wirtschaftsjahr und L-25 Steuer- und Abgabetermine (Entscheidungen der Auftraggeberin 2026-10-14); L-25.9 bezahlte Rechnung als Einnahme nach Zahlungseingang (Gerätetest 0.3.4). |
 | 1.43 | 2026-10-14 | Leitprinzip Einfachheit als fundamentale Anforderung (2.1a, L-0.1 bis L-0.5): Erkennung überall, Vorschläge statt Pflichteingaben, Bestätigungen zusammenlegen, Belege gelten als betrieblich. |
 | 1.42 | 2026-10-12 | L-2.24 bis L-2.26, L-13.3, L-19.29 Fremdwährung bei Eingangsbelegen umgesetzt (Spezifikation 1.28, FA-2.24 bis FA-2.27, Schema 10); Datenfluss EZB-Kursabruf in 5.19. |

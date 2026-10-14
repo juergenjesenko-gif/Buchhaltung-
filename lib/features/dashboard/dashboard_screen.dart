@@ -15,6 +15,7 @@ import '../backup/backup_screen.dart';
 import '../onboarding/company_setup_screen.dart';
 import '../receipts/receipt_edit_screen.dart';
 import '../settings/settings_screen.dart';
+import '../help/help_screen.dart';
 
 /// Kassabuch-Übersicht: das Erste, was der Nutzer sieht.
 ///
@@ -122,6 +123,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
       appBar: AppBar(
         title: Text(profile?.companyName ?? 'Übersicht'),
         actions: [
+          const HelpButton(),
           IconButton(
             tooltip: 'Einstellungen',
             icon: const Icon(Icons.settings_outlined),

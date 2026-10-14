@@ -8,6 +8,7 @@ import '../../services/export/exporters.dart';
 import '../../services/share_service.dart';
 import '../../widgets/common.dart';
 import '../../widgets/adaptive.dart';
+import '../help/help_screen.dart';
 
 /// Export an die Steuerberatung.
 ///
@@ -116,7 +117,10 @@ class _ExportScreenState extends State<ExportScreen> {
     final relevantFormats = _formatsFor(state);
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Export')),
+      appBar: AppBar(
+        title: const Text('Export'),
+        actions: const [HelpButton()],
+      ),
       body: ReadableWidth(
         child: ListView(
           padding: const EdgeInsets.fromLTRB(16, 12, 16, 32),

@@ -13,6 +13,7 @@ import '../../domain/receipt.dart';
 import '../../widgets/common.dart';
 import '../onboarding/company_setup_screen.dart';
 import '../../widgets/adaptive.dart';
+import '../help/help_screen.dart';
 
 /// Einstellungen: Stammdaten, Kategorien und die rechtlichen Hinweise.
 class SettingsScreen extends StatelessWidget {
@@ -25,7 +26,10 @@ class SettingsScreen extends StatelessWidget {
     final tax = profile?.taxProfile;
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Einstellungen')),
+      appBar: AppBar(
+        title: const Text('Einstellungen'),
+        actions: const [HelpButton()],
+      ),
       body: ReadableWidth(
         child: ListView(
           padding: const EdgeInsets.fromLTRB(16, 12, 16, 32),

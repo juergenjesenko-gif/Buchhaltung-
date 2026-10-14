@@ -16,6 +16,8 @@ import '../../theme.dart';
 import '../../widgets/common.dart';
 import 'customer_edit_screen.dart';
 import '../../widgets/adaptive.dart';
+import '../help/help_screen.dart';
+import '../../services/help/help_index.dart';
 
 /// Rechnung erstellen und bearbeiten.
 ///
@@ -295,6 +297,8 @@ class _InvoiceEditScreenState extends State<InvoiceEditScreen> {
         title: Text(
           _isEditing ? 'Rechnung ${widget.existing!.number}' : 'Neue Rechnung',
         ),
+
+        actions: const [HelpButton(context: HelpTopic.invoices)],
       ),
       body: ReadableWidth(
         child: ListView(

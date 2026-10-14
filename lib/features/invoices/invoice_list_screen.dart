@@ -15,6 +15,8 @@ import '../../widgets/adaptive.dart';
 import '../../widgets/common.dart';
 import 'customer_edit_screen.dart';
 import 'invoice_edit_screen.dart';
+import '../help/help_screen.dart';
+import '../../services/help/help_index.dart';
 
 /// Rechnungsübersicht mit PDF-Versand und Zahlungsstatus.
 class InvoiceListScreen extends StatefulWidget {
@@ -194,6 +196,7 @@ class _InvoiceListScreenState extends State<InvoiceListScreen> {
       appBar: AppBar(
         title: const Text('Rechnungen'),
         actions: [
+          const HelpButton(context: HelpTopic.invoices),
           IconButton(
             tooltip: 'Kunden',
             icon: const Icon(Icons.people_outline),

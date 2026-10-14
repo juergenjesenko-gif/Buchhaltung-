@@ -1,7 +1,9 @@
 package at.jesenko.buchhaltung
 
 import android.content.Context
+import android.content.ActivityNotFoundException
 import android.content.Intent
+import android.net.Uri
 import androidx.core.content.pm.ShortcutInfoCompat
 import androidx.core.content.pm.ShortcutManagerCompat
 import androidx.core.graphics.drawable.IconCompat
@@ -33,6 +35,28 @@ class LauncherChannel(private val context: Context, messenger: BinaryMessenger) 
                         .build()
                     result.success(ShortcutManagerCompat.requestPinShortcut(context, info, null))
                 }
+                // Hilfe Stufe 1 (FA-11.3): Mail-App mit vorausgefülltem Betreff
+                // öffnen. ACTION_SENDTO mit mailto: zeigt nur Mail-Apps; es
+                // wird nichts angehängt und nichts gesendet.
+                "openMail" -> {
+                    val uri = call.arguments as? String
+                    if (uri == null || !uri.startsWith("mailto:")) {
+                        result.success(false)
+                        return@setMethodCallHandler
+                    }
+                    val intent = Intent(Intent.ACTION_SENDTO, Uri.parse(uri))
+                        .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                    try {
+                        context.startActivity(intent)
+                        result.success(true)
+                    } catch (e: ActivityNotFoundException) {
+                        result.success(false)
+                    }
+                }
+                "appVersion" ->
+                    result.success(
+                        context.packageManager.getPackageInfo(context.packageName, 0).versionName
+                    )
                 else -> result.notImplemented()
             }
         }
