@@ -56,7 +56,9 @@ bestätigen? Der Weg mit den wenigsten Schritten und den wenigsten Fragen gewinn
   Weg anbieten, ohne darauf zu warten, dass er gefragt wird. Downloads immer
   als **direkter, anklickbarer Link auf die Datei** (bei CI-Builds der
   Artefakt-Link `…/actions/runs/<Lauf>/artifacts/<ID>`), nie als Textadresse
-  oder Link auf eine Übersichtsseite. Upload-Ziele, Formulare und Einstellungen
+  oder Link auf eine Übersichtsseite. Darunter immer der Hinweis „Im Fenster der
+  Claude-App ⋮ → In Chrome öffnen“: Der eingebaute Browser der Claude-App lädt
+  APKs bis 100 %, speichert sie aber nicht (Gerätetest 2026-10-14); Chrome schon. Upload-Ziele, Formulare und Einstellungen
   ebenfalls als direkte Links. Anleitungen in nummerierten, kurzen Schritten.
 - Vor jeder Antwort und jedem Feature fragen: Geht es mit einem Schritt weniger?
 

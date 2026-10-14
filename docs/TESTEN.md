@@ -41,6 +41,7 @@ Sicherheitsfunktion, kein Fehler.
 Erfahrungen aus dem ersten Test auf einem Pixel 10 (12.10.2026):
 
 - **„App not installed“ beim Update** bedeutet fast immer: der neue Build hat einen kleineren versionCode als der installierte. Build 73 (12.10.2026) hatte diesen Fehler; ab Build 74 behoben. Build 73 nicht verwenden.
+- **Download aus der Claude-App:** Der eingebaute Browser der Claude-App lädt die APK bis 100 %, speichert sie aber nicht. Im Fenster oben rechts ⋮ → „In Chrome öffnen“ – Chrome speichert und bietet „Öffnen“ an (Pixel 10, 14.10.2026).
 - **Nur 64 Bit.** Aktuelle Handys laufen nur noch mit 64 Bit; die CI baut
   deshalb seit 2026-10-12 nur noch die `arm64`-APK.
 - Die APK über die vorinstallierte App **„Dateien"** öffnen. Manche
