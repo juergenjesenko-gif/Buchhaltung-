@@ -28,6 +28,8 @@ import '../../theme.dart';
 import '../../widgets/common.dart';
 import '../../widgets/adaptive.dart';
 import 'receipt_save_bar.dart';
+import 'vat_split_editor.dart';
+import '../../services/receipt_vat_split.dart';
 import '../help/help_screen.dart';
 import '../../services/help/help_index.dart';
 
@@ -90,6 +92,9 @@ class _ReceiptEditScreenState extends State<ReceiptEditScreen> {
   late BookingDirection _direction;
   DateTime _date = DateTime.now();
   int _vatPermille = 0;
+
+  /// Aufteilung nach Steuersätzen (L-2.27), leer bei einem Satz.
+  final _splitParts = VatSplitController();
   int? _categoryId;
   PaymentMethod _paymentMethod = PaymentMethod.bank;
 
@@ -140,6 +145,13 @@ class _ReceiptEditScreenState extends State<ReceiptEditScreen> {
       _direction = existing.direction;
       _date = existing.date;
       _vatPermille = existing.vatPermille;
+      if (existing.isSplit) {
+        _splitParts.load([
+          for (final line in existing.vatLines)
+            (permille: line.vatPermille, gross: line.gross),
+        ]);
+        _splitParts.parts.last.auto = false;
+      }
       _categoryId = existing.categoryId;
       _paymentMethod = existing.paymentMethod;
       _grossController.text = Fmt.amount(existing.gross);
@@ -252,6 +264,7 @@ class _ReceiptEditScreenState extends State<ReceiptEditScreen> {
   @override
   void dispose() {
     _grossController.dispose();
+    _splitParts.dispose();
     _currencyController.dispose();
     _originalController.dispose();
     _rateController.dispose();
@@ -354,6 +367,13 @@ class _ReceiptEditScreenState extends State<ReceiptEditScreen> {
           _vatPermille = prefill.vatPermille!;
           _recognized.add('vat');
         }
+        if (prefill.vatParts.length > 1) {
+          _splitParts.load(prefill.vatParts);
+          _vatPermille = prefill.vatParts.first.permille;
+          _recognized.add('vat');
+        } else {
+          _splitParts.clear();
+        }
         if (prefill.counterparty != null) {
           _counterpartyController.text = prefill.counterparty!;
           _recognized.add('counterparty');
@@ -406,7 +426,59 @@ class _ReceiptEditScreenState extends State<ReceiptEditScreen> {
   VatSplit? get _split {
     final gross = _gross;
     if (gross == null) return null;
+    if (_splitParts.active) {
+      final lines = _vatLines;
+      if (lines == null) return null;
+      final header = ReceiptVatSplit.header(lines);
+      return VatSplit(
+        net: header.net,
+        vat: header.vat,
+        gross: header.gross,
+        permille: header.permille,
+      );
+    }
     return VatCalculator.fromGross(gross, _vatPermille);
+  }
+
+  /// Zeilen der Aufteilung, `null` wenn ein Teilbetrag fehlt.
+  List<ReceiptVatLine>? get _vatLines {
+    final values = _splitParts.values;
+    if (values == null) return null;
+    return ReceiptVatSplit.lines(ReceiptVatSplit.normalize(values));
+  }
+
+  /// „Weiteren Steuersatz hinzufügen“: zweiter Satz ist der erste andere
+  /// Satz mit Steuer, sonst der erste andere überhaupt.
+  void _addVatRate(TaxProfile tax) {
+    final rates = tax.vatRatesOn(_date).map((r) => r.permille).toList();
+    final used = _splitParts.active
+        ? _splitParts.parts.map((p) => p.permille).toSet()
+        : {_vatPermille};
+    final next = rates.firstWhere(
+      (p) => p > 0 && !used.contains(p),
+      orElse: () => rates.firstWhere((p) => !used.contains(p), orElse: () => 0),
+    );
+    setState(() {
+      if (_splitParts.active) {
+        _splitParts.add(next, _gross);
+      } else {
+        _splitParts.start(
+          total: _gross,
+          firstPermille: _vatPermille,
+          secondPermille: next,
+        );
+      }
+    });
+  }
+
+  /// Belegbetrag geändert: Rest der Aufteilung nachziehen.
+  void _totalChanged() => setState(() => _splitParts.recalc(_gross));
+
+  void _removeVatPart(int index) {
+    setState(() {
+      final remaining = _splitParts.remove(index, _gross);
+      if (remaining != null) _vatPermille = remaining;
+    });
   }
 
   /// Nimmt eine weitere Seite auf und hängt sie hinten an.
@@ -573,9 +645,17 @@ class _ReceiptEditScreenState extends State<ReceiptEditScreen> {
     if (split == null) {
       if (_foreign) {
         showSnack(context, 'Bitte Originalbetrag und Kurs angeben.');
+      } else if (_splitParts.active) {
+        showSnack(context, 'Bitte jeden Teilbetrag eingeben.');
       }
       return;
     }
+    final splitError = _splitParts.check(_gross);
+    if (splitError != null) {
+      showSnack(context, splitError);
+      return;
+    }
+    final lines = _splitParts.active ? _vatLines! : const <ReceiptVatLine>[];
     // Neue Seiten: Das Tippen auf „Vollständig – Beleg speichern“ ist die
     // Vollständigkeitsbestätigung (L-2.16, FA-2.14, Prüfpunkt P-S31).
     final confirmsCompleteness = _hasNewPages;
@@ -593,7 +673,8 @@ class _ReceiptEditScreenState extends State<ReceiptEditScreen> {
       net: split.net,
       vat: split.vat,
       gross: split.gross,
-      vatPermille: _vatPermille,
+      vatPermille: _splitParts.active ? split.permille : _vatPermille,
+      vatLines: lines.length > 1 ? lines : const [],
       categoryId: _categoryId,
       paymentMethod: _paymentMethod,
       imagePath: _pages.isEmpty ? null : _pages.first,
@@ -855,7 +936,7 @@ class _ReceiptEditScreenState extends State<ReceiptEditScreen> {
                     labelText: 'Betrag laut Beleg',
                     suffixText: _currencyController.text.toUpperCase(),
                   ),
-                  onChanged: (_) => setState(() {}),
+                  onChanged: (_) => _totalChanged(),
                   validator: (v) {
                     final m = Money.tryParse(v ?? '');
                     if (m == null || m.isZero || m.isNegative) {
@@ -880,6 +961,7 @@ class _ReceiptEditScreenState extends State<ReceiptEditScreen> {
                     labelText: 'Kurs (Einheiten je 1 €)',
                   ),
                   onChanged: (_) => setState(() {
+                    _splitParts.recalc(_gross);
                     // Von Hand geänderter Kurs ist kein EZB-Kurs mehr.
                     if (_rateSource == ExchangeRateSource.ecbMonthlyAvg ||
                         _rateSource == ExchangeRateSource.ecbDaily) {
@@ -1087,7 +1169,7 @@ class _ReceiptEditScreenState extends State<ReceiptEditScreen> {
                               ? 'Bruttobetrag – erkannt, bitte prüfen'
                               : 'Bruttobetrag (wie auf dem Beleg)',
                           autofocus: !_isEditing,
-                          onChanged: (_) => setState(() {}),
+                          onChanged: (_) => _totalChanged(),
                           validator: (value) {
                             final money = Money.tryParse(value ?? '');
                             if (money == null) {
@@ -1103,25 +1185,35 @@ class _ReceiptEditScreenState extends State<ReceiptEditScreen> {
                           },
                         ),
                       const SizedBox(height: 16),
-                      DropdownButtonFormField<int>(
-                        key: ValueKey('vat$_vatPermille'),
-                        initialValue: _vatPermille,
-                        decoration: const InputDecoration(
-                          labelText: 'Umsatzsteuersatz',
+                      if (_splitParts.active)
+                        VatSplitEditor(
+                          controller: _splitParts,
+                          total: _gross,
+                          tax: tax,
+                          date: _date,
+                          onChanged: () => setState(() {}),
+                          onRemove: _removeVatPart,
+                        )
+                      else
+                        DropdownButtonFormField<int>(
+                          key: ValueKey('vat$_vatPermille'),
+                          initialValue: _vatPermille,
+                          decoration: const InputDecoration(
+                            labelText: 'Umsatzsteuersatz',
+                          ),
+                          items: [
+                            for (final rate in tax.vatRatesOn(
+                              _date,
+                              keep: _vatPermille,
+                            ))
+                              DropdownMenuItem(
+                                value: rate.permille,
+                                child: Text('${rate.display} – ${rate.label}'),
+                              ),
+                          ],
+                          onChanged: (value) =>
+                              setState(() => _vatPermille = value ?? 0),
                         ),
-                        items: [
-                          for (final rate in tax.vatRatesOn(
-                            _date,
-                            keep: _vatPermille,
-                          ))
-                            DropdownMenuItem(
-                              value: rate.permille,
-                              child: Text('${rate.display} – ${rate.label}'),
-                            ),
-                        ],
-                        onChanged: (value) =>
-                            setState(() => _vatPermille = value ?? 0),
-                      ),
                       if (split != null) ...[
                         const SizedBox(height: 12),
                         Container(
@@ -1139,8 +1231,9 @@ class _ReceiptEditScreenState extends State<ReceiptEditScreen> {
                                 value: Fmt.money(split.net),
                               ),
                               LabeledValue(
-                                label:
-                                    'Umsatzsteuer ${Fmt.vatRate(_vatPermille)}',
+                                label: _splitParts.active
+                                    ? 'Umsatzsteuer gesamt'
+                                    : 'Umsatzsteuer ${Fmt.vatRate(_vatPermille)}',
                                 value: Fmt.money(split.vat),
                               ),
                               LabeledValue(
@@ -1156,9 +1249,20 @@ class _ReceiptEditScreenState extends State<ReceiptEditScreen> {
                           ),
                         ),
                       ],
+                      if (_gross != null && !_isCancelled) ...[
+                        const SizedBox(height: 12),
+                        AddVatRateButton(onPressed: () => _addVatRate(tax)),
+                      ],
+                      if (_splitParts.active) ...[
+                        const SizedBox(height: 12),
+                        const VatSplitNote(),
+                      ],
                       if (profile != null &&
                           profile.isSmallBusiness &&
-                          _vatPermille > 0) ...[
+                          (_vatPermille > 0 ||
+                              _splitParts.parts.any(
+                                (p) => p.permille > 0,
+                              ))) ...[
                         const SizedBox(height: 12),
                         NoticeBanner(
                           icon: Icons.info_outline,

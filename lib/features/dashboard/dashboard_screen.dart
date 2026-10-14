@@ -59,8 +59,14 @@ class _DashboardScreenState extends State<DashboardScreen> {
     );
   }
 
+  /// Zählt Ladevorgänge. Nur der jüngste darf sein Ergebnis anzeigen;
+  /// ein älterer, langsamerer Lauf überschreibt sonst neue Summen mit alten
+  /// (zwei Läufe nach einer Buchung: Revision und Rückkehr vom Formular).
+  int _loadSequence = 0;
+
   Future<void> _load() async {
     if (!mounted) return;
+    final sequence = ++_loadSequence;
     setState(() => _loading = true);
 
     final state = AppScope.read(context);
@@ -68,11 +74,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
     final totals = await state.repositories.receipts.totals(
       from: period.from,
       to: period.to,
+      inputVatDeductible: state.inputVatDeductible,
     );
     final recent = await state.repositories.receipts.query(limit: 5);
     final trend = await _loadTrend(state);
 
-    if (!mounted) return;
+    if (!mounted || sequence != _loadSequence) return;
     setState(() {
       _totals = totals;
       _recent = recent;
@@ -92,6 +99,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
       final totals = await state.repositories.receipts.totals(
         from: period.from,
         to: period.to,
+        inputVatDeductible: state.inputVatDeductible,
       );
       bars.add(
         _MonthBar(
@@ -193,13 +201,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
               const SizedBox(height: 16),
             ],
 
-            if (state.deadlines != null &&
-                (state.deadlines!.upcoming.isNotEmpty ||
-                    state.deadlines!.advisorNote != null)) ...[
-              _DeadlineCard(overview: state.deadlines!),
-              const SizedBox(height: 16),
-            ],
-
             _rangeSelector(),
             const SizedBox(height: 16),
 
@@ -209,7 +210,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 child: Center(child: CircularProgressIndicator()),
               )
             else if (totals != null) ...[
-              _TotalsCard(totals: totals, period: _period),
+              _TotalsCard(
+                totals: totals,
+                period: _period,
+                inputVatDeductible: state.inputVatDeductible,
+              ),
               const SizedBox(height: 16),
               if (!totals.isEmpty) ...[
                 _VatCard(
@@ -228,6 +233,15 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 const SizedBox(height: 16),
               ],
               _recentCard(),
+            ],
+
+            // Termine stehen am Ende: zuerst die Zahlen, dann der Ausblick
+            // (Gerätetest 0.6.0).
+            if (state.deadlines != null &&
+                (state.deadlines!.upcoming.isNotEmpty ||
+                    state.deadlines!.advisorNote != null)) ...[
+              const SizedBox(height: 16),
+              _DeadlineCard(overview: state.deadlines!),
             ],
           ],
         ),
@@ -388,10 +402,17 @@ enum _Range {
 }
 
 class _TotalsCard extends StatelessWidget {
-  const _TotalsCard({required this.totals, required this.period});
+  const _TotalsCard({
+    required this.totals,
+    required this.period,
+    required this.inputVatDeductible,
+  });
 
   final PeriodTotals totals;
   final Period period;
+
+  /// Ohne Vorsteuerabzug zählen Ausgaben brutto.
+  final bool inputVatDeductible;
 
   @override
   Widget build(BuildContext context) {
@@ -406,7 +427,10 @@ class _TotalsCard extends StatelessWidget {
             valueColor: AppTheme.amountColor(true, context),
           ),
           LabeledValue(
-            label: 'Ausgaben (netto)',
+            key: const Key('dashboard-expense'),
+            label: inputVatDeductible
+                ? 'Ausgaben (netto)'
+                : 'Ausgaben (brutto)',
             value: Fmt.money(totals.expenseNet),
             valueColor: AppTheme.amountColor(false, context),
           ),
@@ -640,9 +664,10 @@ class _TrendChart extends StatelessWidget {
   }
 
   Widget _bar(BuildContext context, double fraction, bool isIncome) {
-    // Mindesthöhe 2, damit ein kleiner Betrag nicht unsichtbar wird.
+    // Mindesthöhe 6, damit ein kleiner Betrag neben einem großen sichtbar
+    // bleibt (Gerätetest 0.6.0: 12 € Ausgabe neben 2.500 € Einnahme).
     final height = (fraction.clamp(0.0, 1.0) * 88).clamp(
-      fraction > 0 ? 2.0 : 0.0,
+      fraction > 0 ? 6.0 : 0.0,
       88.0,
     );
     return Container(

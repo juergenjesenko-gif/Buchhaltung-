@@ -3,6 +3,7 @@ import '../domain/dunning.dart';
 import '../domain/invoice.dart';
 import '../domain/money.dart';
 import 'dunning_calculator.dart';
+import 'invoice_texts.dart';
 
 /// Entwurf eines Mahnschreibens samt Zinsabschnitten.
 class DunningDraft {
@@ -20,6 +21,29 @@ class DunningService {
   /// Nächste Mahnstufe nach den nicht stornierten Schreiben.
   static int nextLevel(List<DunningNotice> notices) =>
       notices.where((n) => !n.isCancelled).length + 1;
+
+  /// Maßgebliche Zahlungsfrist: die neue Frist des letzten nicht
+  /// stornierten Schreibens, sonst die Fälligkeit der Rechnung. Die
+  /// Rechnung selbst bleibt unverändert (GR-8); die neue Frist steht im
+  /// Schreiben (`dunning_notices.new_due_date`).
+  static DateTime? effectiveDueDate(Invoice invoice, DunningNotice? latest) {
+    if (latest != null && !latest.isCancelled) return latest.newDueDate;
+    return invoice.dueDate;
+  }
+
+  /// „Überfällig – erinnern/mahnen“ erst, wenn die maßgebliche Frist
+  /// abgelaufen ist, also ab dem Tag nach der Frist.
+  static bool needsReminder(
+    Invoice invoice,
+    DunningNotice? latest,
+    DateTime today,
+  ) {
+    if (invoice.status != InvoiceStatus.issued) return false;
+    final due = effectiveDueDate(invoice, latest);
+    if (due == null) return false;
+    final day = DateTime(today.year, today.month, today.day);
+    return DateTime(due.year, due.month, due.day).isBefore(day);
+  }
 
   /// Offene Hauptforderung: Bruttobetrag der Rechnung.
   static Money principalOf(Invoice invoice) => invoice.grossTotal;
@@ -99,18 +123,17 @@ class DunningService {
     final due = invoice.dueDate == null
         ? ''
         : ' war am ${Fmt.date(invoice.dueDate!)} fällig und';
-    final pay =
-        'Bitte überweise den Betrag von ${Fmt.money(notice.total)} bis '
-        '${Fmt.date(notice.newDueDate)}.';
+    final pay = InvoiceTexts.dunningPay(
+      Fmt.money(notice.total),
+      Fmt.date(notice.newDueDate),
+    );
     if (notice.level <= 1) {
       return 'Vielleicht ist es im Alltag untergegangen: $ref$due ist noch '
-          'offen. $pay Falls du bereits bezahlt hast, betrachte dieses '
-          'Schreiben bitte als gegenstandslos.';
+          'offen. $pay ${InvoiceTexts.dunningAlreadyPaid}';
     }
     return '${ref[0].toUpperCase()}${ref.substring(1)}$due ist trotz '
         'unserer bisherigen Erinnerung noch nicht beglichen. $pay '
-        'Falls du bereits bezahlt hast, betrachte dieses Schreiben bitte als '
-        'gegenstandslos.';
+        '${InvoiceTexts.dunningAlreadyPaid}';
   }
 
   /// Hinweis bei Verbraucherinnen neben den Mahnkosten (P-R32).

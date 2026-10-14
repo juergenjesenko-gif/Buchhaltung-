@@ -3,6 +3,8 @@ import 'dart:typed_data';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 
+import 'pdf_fonts.dart';
+
 import '../core/formatting.dart';
 import '../domain/company_profile.dart';
 import '../domain/customer.dart';
@@ -50,8 +52,9 @@ class InvoicePdf {
       author: profile.companyName,
     );
 
-    final base = pw.Font.helvetica();
-    final bold = pw.Font.helveticaBold();
+    final fonts = await PdfFonts.load();
+    final base = fonts.base;
+    final bold = fonts.bold;
 
     doc.addPage(
       pw.MultiPage(
@@ -438,10 +441,7 @@ class InvoicePdf {
     final terms = InvoiceTexts.paymentTerms(invoice);
     if (terms.isNotEmpty) parts.add(terms);
     if (profile.iban.isNotEmpty) {
-      parts.add(
-        'Bitte überweise den Betrag unter Angabe der Rechnungsnummer '
-        '${invoice.number} auf folgendes Konto:',
-      );
+      parts.add(InvoiceTexts.transferRequest(invoice.number));
     }
 
     return pw.Column(

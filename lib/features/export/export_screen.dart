@@ -66,6 +66,7 @@ class _ExportScreenState extends State<ExportScreen> {
     final totals = await state.repositories.receipts.totals(
       from: period.from,
       to: period.to,
+      inputVatDeductible: state.inputVatDeductible,
     );
     final receipts = await state.repositories.receipts.query(
       from: period.from,

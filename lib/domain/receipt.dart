@@ -53,6 +53,7 @@ class Receipt {
     this.createdAt,
     this.updatedAt,
     this.cancelledAt,
+    this.vatLines = const [],
   });
 
   final int? id;
@@ -123,6 +124,28 @@ class Receipt {
 
   bool get isCancelled => cancelledAt != null;
 
+  /// Aufteilung nach Steuersätzen (Schema 14, L-2.27). Leer bei Belegen mit
+  /// nur einem Satz, dann gilt der Kopf ([net], [vat], [gross],
+  /// [vatPermille]) als einzige Zeile. Bei einer Aufteilung sind die
+  /// Kopfbeträge die Summen der Zeilen und [vatPermille] der Satz der
+  /// Zeile mit dem größten Bruttobetrag.
+  final List<ReceiptVatLine> vatLines;
+
+  /// Die Zeilen, nach denen ausgewertet wird – immer mindestens eine.
+  List<ReceiptVatLine> get lines => vatLines.isEmpty
+      ? [
+          ReceiptVatLine(
+            vatPermille: vatPermille,
+            net: net,
+            vat: vat,
+            gross: gross,
+          ),
+        ]
+      : vatLines;
+
+  /// Beleg mit mehreren Steuersätzen.
+  bool get isSplit => vatLines.length > 1;
+
   bool get hasImage => imagePath != null && imagePath!.isNotEmpty;
 
   /// Vorzeichenbehafteter Bruttobetrag für Saldenrechnungen.
@@ -157,6 +180,7 @@ class Receipt {
     bool clearFx = false,
     DateTime? createdAt,
     DateTime? updatedAt,
+    List<ReceiptVatLine>? vatLines,
   }) {
     return Receipt(
       id: id ?? this.id,
@@ -184,6 +208,7 @@ class Receipt {
       bankGross: clearFx ? null : (bankGross ?? this.bankGross),
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
+      vatLines: vatLines ?? this.vatLines,
     );
   }
 
@@ -213,7 +238,11 @@ class Receipt {
     'updated_at': DateTime.now().toIso8601String(),
   };
 
-  static Receipt fromMap(Map<String, Object?> map) => Receipt(
+  static Receipt fromMap(
+    Map<String, Object?> map, [
+    List<ReceiptVatLine> vatLines = const [],
+  ]) => Receipt(
+    vatLines: vatLines.length > 1 ? vatLines : const [],
     id: map['id'] as int?,
     date: DateTime.parse(map['date'] as String),
     direction: (map['direction'] as String) == 'income'
@@ -248,6 +277,52 @@ class Receipt {
 
   static DateTime? _parseOrNull(Object? value) =>
       value is String && value.isNotEmpty ? DateTime.tryParse(value) : null;
+}
+
+/// Teilbetrag eines Belegs zu einem Steuersatz (Schema 14, L-2.27), z. B.
+/// Speisen 10 % und Getränke 20 % auf einem Bewirtungsbeleg. Es gilt je Zeile
+/// `net + vat == gross` (GR-2).
+class ReceiptVatLine {
+  const ReceiptVatLine({
+    required this.vatPermille,
+    required this.net,
+    required this.vat,
+    required this.gross,
+  });
+
+  final int vatPermille;
+  final Money net;
+  final Money vat;
+  final Money gross;
+
+  bool get isConsistent => net + vat == gross;
+
+  Map<String, Object?> toMap(int receiptId, int position) => {
+    'receipt_id': receiptId,
+    'position': position,
+    'vat_permille': vatPermille,
+    'net_cents': net.cents,
+    'vat_cents': vat.cents,
+    'gross_cents': gross.cents,
+  };
+
+  static ReceiptVatLine fromMap(Map<String, Object?> map) => ReceiptVatLine(
+    vatPermille: map['vat_permille'] as int? ?? 0,
+    net: Money(map['net_cents'] as int? ?? 0),
+    vat: Money(map['vat_cents'] as int? ?? 0),
+    gross: Money(map['gross_cents'] as int? ?? 0),
+  );
+
+  @override
+  bool operator ==(Object other) =>
+      other is ReceiptVatLine &&
+      other.vatPermille == vatPermille &&
+      other.net == net &&
+      other.vat == vat &&
+      other.gross == gross;
+
+  @override
+  int get hashCode => Object.hash(vatPermille, net, vat, gross);
 }
 
 /// Eine Seite (ein Foto) eines Belegs, seit Schema 8 (Lastenheft L-2.15).

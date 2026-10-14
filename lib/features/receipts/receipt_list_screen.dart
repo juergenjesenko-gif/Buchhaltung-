@@ -269,10 +269,15 @@ class _ReceiptListScreenState extends State<ReceiptListScreen> {
           ),
         ],
       ),
-      floatingActionButton: FloatingActionButton(
+      // Zentriert und beschriftet, mit beiden Daumen erreichbar
+      // (DESIGN_SPEC 5a, Regel 1 und 9).
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
+      floatingActionButton: FloatingActionButton.extended(
+        key: const Key('receipt-new'),
+        heroTag: 'receipt-new',
         onPressed: () => _open(null),
-        tooltip: 'Beleg erfassen',
-        child: const Icon(Icons.add),
+        icon: const Icon(Icons.add),
+        label: const Text('Beleg erfassen'),
       ),
     );
   }
@@ -338,7 +343,12 @@ class _ReceiptTile extends StatelessWidget {
             Fmt.money(receipt.gross),
             style: TextStyle(fontWeight: FontWeight.w600, color: color),
           ),
-          if (receipt.vatPermille > 0)
+          if (receipt.isSplit)
+            Text(
+              receipt.lines.map((l) => Fmt.vatRate(l.vatPermille)).join(' + '),
+              style: Theme.of(context).textTheme.labelSmall,
+            )
+          else if (receipt.vatPermille > 0)
             Text(
               '${Fmt.vatRate(receipt.vatPermille)} USt',
               style: Theme.of(context).textTheme.labelSmall,

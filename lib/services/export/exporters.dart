@@ -199,36 +199,48 @@ class Exporter {
       'Notiz',
       'Seiten',
       'Kommentare',
+      'Teil',
     ]);
 
+    // Je Steuersatz eine Zeile (L-2.27). Belegweite Angaben (Originalbetrag,
+    // Bankbetrag) stehen nur in der ersten Zeile, damit eine Summe über die
+    // Spalte nichts doppelt zählt.
     for (final receipt in receipts) {
-      csv.writeRow([
-        Fmt.isoDate(receipt.date),
-        receipt.direction.label,
-        receipt.description,
-        receipt.counterparty,
-        _categoryName(receipt.categoryId),
-        _accountForCountry(receipt.categoryId),
-        receipt.paymentMethod.label,
-        csvAmount(receipt.net.cents),
-        Fmt.vatRate(receipt.vatPermille),
-        csvAmount(receipt.vat.cents),
-        csvAmount(receipt.gross.cents),
-        receipt.currency,
-        receipt.originalGross == null
-            ? ''
-            : csvAmount(receipt.originalGross!.cents),
-        receipt.fxRateMicros == null
-            ? ''
-            : CurrencyConverter.formatRate(receipt.fxRateMicros!),
-        receipt.fxRateSource?.label ?? '',
-        receipt.fxRateDate ?? '',
-        receipt.bankGross == null ? '' : csvAmount(receipt.bankGross!.cents),
-        receipt.hasImage ? 'ja' : 'nein',
-        receipt.note,
-        _pagesOf(receipt).toString(),
-        _commentCell(receipt),
-      ]);
+      final lines = receipt.lines;
+      for (var i = 0; i < lines.length; i++) {
+        final line = lines[i];
+        final first = i == 0;
+        csv.writeRow([
+          Fmt.isoDate(receipt.date),
+          receipt.direction.label,
+          receipt.description,
+          receipt.counterparty,
+          _categoryName(receipt.categoryId),
+          _accountForCountry(receipt.categoryId),
+          receipt.paymentMethod.label,
+          csvAmount(line.net.cents),
+          Fmt.vatRate(line.vatPermille),
+          csvAmount(line.vat.cents),
+          csvAmount(line.gross.cents),
+          receipt.currency,
+          !first || receipt.originalGross == null
+              ? ''
+              : csvAmount(receipt.originalGross!.cents),
+          receipt.fxRateMicros == null
+              ? ''
+              : CurrencyConverter.formatRate(receipt.fxRateMicros!),
+          receipt.fxRateSource?.label ?? '',
+          receipt.fxRateDate ?? '',
+          !first || receipt.bankGross == null
+              ? ''
+              : csvAmount(receipt.bankGross!.cents),
+          receipt.hasImage ? 'ja' : 'nein',
+          receipt.note,
+          _pagesOf(receipt).toString(),
+          _commentCell(receipt),
+          lines.length > 1 ? '${i + 1}/${lines.length}' : '',
+        ]);
+      }
     }
 
     // Summenzeile: erspart der Kanzlei das Nachrechnen und macht sofort
@@ -370,27 +382,30 @@ class Exporter {
       // DATEV bucht immer brutto; die Steuer ergibt sich aus dem BU-Schlüssel
       // bzw. dem Automatikkonto. Das Vorzeichen steckt im Soll/Haben-Kennzeichen,
       // nicht im Betrag.
+      // Mehrere Steuersätze: eine Buchung je Satz (L-2.27).
       final isIncome = receipt.direction == BookingDirection.income;
-      csv.writeRow([
-        csvAmount(receipt.gross.cents.abs()),
-        isIncome ? 'H' : 'S',
-        'EUR',
-        '',
-        '',
-        '',
-        isIncome
-            ? _account(receipt.categoryId)
-            : _contraAccount(receipt.paymentMethod),
-        isIncome
-            ? _contraAccount(receipt.paymentMethod)
-            : _account(receipt.categoryId),
-        '', // BU-Schlüssel: leer = Automatikkonto entscheidet
-        _datevDayMonth(receipt.date),
-        receipt.id?.toString() ?? '',
-        '',
-        '',
-        _bookingText(receipt),
-      ]);
+      for (final line in receipt.lines) {
+        csv.writeRow([
+          csvAmount(line.gross.cents.abs()),
+          isIncome ? 'H' : 'S',
+          'EUR',
+          '',
+          '',
+          '',
+          isIncome
+              ? _account(receipt.categoryId)
+              : _contraAccount(receipt.paymentMethod),
+          isIncome
+              ? _contraAccount(receipt.paymentMethod)
+              : _account(receipt.categoryId),
+          '', // BU-Schlüssel: leer = Automatikkonto entscheidet
+          _datevDayMonth(receipt.date),
+          receipt.id?.toString() ?? '',
+          '',
+          '',
+          _bookingText(receipt),
+        ]);
+      }
     }
 
     return ExportResult(
@@ -443,19 +458,22 @@ class Exporter {
     for (final receipt in receipts) {
       final isIncome = receipt.direction == BookingDirection.income;
       final account = _austrianAccount(_account(receipt.categoryId));
-      csv.writeRow([
-        '0', // Buchungszeile
-        isIncome ? _contraAccount(receipt.paymentMethod) : account,
-        isIncome ? account : _contraAccount(receipt.paymentMethod),
-        Fmt.isoDate(receipt.date),
-        receipt.id?.toString() ?? '',
-        _bookingText(receipt),
-        csvAmount(receipt.gross.cents.abs()),
-        _bmdTaxCode(receipt),
-        Fmt.vatRate(receipt.vatPermille),
-        csvAmount(receipt.vat.cents.abs()),
-        receipt.paymentMethod == PaymentMethod.cash ? 'KA' : 'BK',
-      ]);
+      // Je Steuersatz ein Buchungssatz mit eigenem Steuercode (L-2.27).
+      for (final line in receipt.lines) {
+        csv.writeRow([
+          '0', // Buchungszeile
+          isIncome ? _contraAccount(receipt.paymentMethod) : account,
+          isIncome ? account : _contraAccount(receipt.paymentMethod),
+          Fmt.isoDate(receipt.date),
+          receipt.id?.toString() ?? '',
+          _bookingText(receipt),
+          csvAmount(line.gross.cents.abs()),
+          _bmdTaxCode(receipt.direction, line.vatPermille),
+          Fmt.vatRate(line.vatPermille),
+          csvAmount(line.vat.cents.abs()),
+          receipt.paymentMethod == PaymentMethod.cash ? 'KA' : 'BK',
+        ]);
+      }
     }
 
     return ExportResult(
@@ -468,10 +486,10 @@ class Exporter {
   /// Steuercodes nach BMD-Standard. Bei 0 % wird zwischen echter Steuerfreiheit
   /// und Kleinunternehmerbefreiung nicht unterschieden – beides ist für die
   /// Kanzlei am Code 0 erkennbar und wird dort feinjustiert.
-  static String _bmdTaxCode(Receipt receipt) {
-    if (receipt.vatPermille == 0) return '0';
-    final isIncome = receipt.direction == BookingDirection.income;
-    return switch (receipt.vatPermille) {
+  static String _bmdTaxCode(BookingDirection direction, int vatPermille) {
+    if (vatPermille == 0) return '0';
+    final isIncome = direction == BookingDirection.income;
+    return switch (vatPermille) {
       200 => isIncome ? '1' : '11',
       130 => isIncome ? '3' : '13',
       100 => isIncome ? '2' : '12',

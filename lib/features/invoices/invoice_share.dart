@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../../services/invoice_texts.dart';
+
 import '../../app_state.dart';
 import '../../domain/invoice.dart';
 import '../../services/invoice_logo.dart';
@@ -40,7 +42,7 @@ Future<void> shareInvoicePdf(BuildContext context, Invoice invoice) async {
       fileName: 'Rechnung_$safeNumber.pdf',
       bytes: bytes,
       subject: 'Rechnung ${invoice.number}',
-      text: 'Im Anhang findest du die Rechnung ${invoice.number}.',
+      text: InvoiceTexts.shareInvoice(invoice.number),
     );
   } on Exception catch (error) {
     if (context.mounted) {

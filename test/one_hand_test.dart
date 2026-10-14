@@ -5,6 +5,7 @@ import 'package:buchhaltung/domain/customer.dart';
 import 'package:buchhaltung/features/dashboard/dashboard_screen.dart';
 import 'package:buchhaltung/features/invoices/customer_edit_screen.dart';
 import 'package:buchhaltung/features/receipts/receipt_list_screen.dart';
+import 'package:buchhaltung/features/invoices/invoice_list_screen.dart';
 
 import 'package:buchhaltung/widgets/primary_action_bar.dart';
 import 'package:flutter/material.dart';
@@ -70,6 +71,38 @@ void main() {
     expect((tester.getRect(fab).center.dx - size.width / 2).abs(), lessThan(2));
     expect(tester.takeException(), isNull);
   });
+
+  for (final (name, screen, key, label) in [
+    ('Belegliste', const ReceiptListScreen(), 'receipt-new', 'Beleg erfassen'),
+    (
+      'Rechnungsliste',
+      const InvoiceListScreen(),
+      'invoice-new',
+      'Neue Rechnung',
+    ),
+  ]) {
+    for (final size in const [Size(360, 640), Size(412, 915)]) {
+      testWidgets(
+        '$name: zentrierter Knopf „$label“ (${size.width.toInt()} dp)',
+        (tester) async {
+          await pump(tester, screen, size);
+          final fab = find.byKey(Key(key));
+          expect(fab, findsOneWidget);
+          expect(
+            find.descendant(of: fab, matching: find.text(label)),
+            findsOneWidget,
+          );
+          expectBottomThird(tester, fab, size);
+          expect(tester.getSize(fab).height, greaterThanOrEqualTo(56));
+          expect(
+            (tester.getRect(fab).center.dx - size.width / 2).abs(),
+            lessThan(2),
+          );
+          expect(tester.takeException(), isNull);
+        },
+      );
+    }
+  }
 
   testWidgets('Belegliste: Jahr in der Chip-Reihe, kein Überlauf bei 360 dp', (
     tester,

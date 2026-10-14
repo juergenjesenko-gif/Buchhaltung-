@@ -12,6 +12,7 @@ import 'customer_edit_screen.dart';
 import 'invoice_edit_screen.dart';
 import 'invoice_share.dart';
 import 'dunning_sheet.dart';
+import '../../services/dunning_service.dart';
 import '../../domain/dunning.dart';
 import '../help/help_screen.dart';
 import '../../services/help/help_index.dart';
@@ -103,8 +104,69 @@ class _InvoiceListScreenState extends State<InvoiceListScreen> {
     return ok ?? false;
   }
 
-  List<Invoice> get _overdue =>
-      _invoices.where((invoice) => invoice.isOverdue).toList();
+  /// Überfällig nach der maßgeblichen Frist: nach einer Erinnerung oder
+  /// Mahnung erst wieder, wenn deren neue Frist abgelaufen ist.
+  bool _needsReminder(Invoice invoice) => DunningService.needsReminder(
+    invoice,
+    _dunning[invoice.id],
+    DateTime.now(),
+  );
+
+  List<Invoice> get _overdue => _invoices.where(_needsReminder).toList();
+
+  /// Mahnverlauf einer Rechnung als Bottom-Sheet.
+  Future<void> _showDunningHistory(Invoice invoice) async {
+    final notices = await AppScope.read(
+      context,
+    ).repositories.dunning.forInvoice(invoice.id!);
+    if (!mounted) return;
+    await showModalBottomSheet<void>(
+      context: context,
+      showDragHandle: true,
+      isScrollControlled: true,
+      builder: (context) => SafeArea(
+        child: ListView(
+          key: const Key('dunningHistory'),
+          shrinkWrap: true,
+          padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+          children: [
+            Text(
+              'Mahnverlauf ${invoice.number}',
+              style: Theme.of(context).textTheme.titleMedium,
+            ),
+            if (invoice.dueDate != null)
+              ListTile(
+                contentPadding: EdgeInsets.zero,
+                leading: const Icon(Icons.description_outlined),
+                title: Text('Rechnung vom ${Fmt.date(invoice.issueDate)}'),
+                subtitle: Text('fällig ${Fmt.date(invoice.dueDate!)}'),
+              ),
+            for (final notice in notices)
+              ListTile(
+                contentPadding: EdgeInsets.zero,
+                leading: Icon(
+                  notice.isCancelled
+                      ? Icons.block
+                      : Icons.mark_email_read_outlined,
+                ),
+                title: Text(
+                  '${notice.title} vom ${Fmt.date(notice.issuedOn)}',
+                  style: notice.isCancelled
+                      ? const TextStyle(decoration: TextDecoration.lineThrough)
+                      : null,
+                ),
+                subtitle: Text(
+                  notice.isCancelled
+                      ? 'Storniert: ${notice.cancelReason}'
+                      : '${Fmt.money(notice.total)}, neue Frist '
+                            '${Fmt.date(notice.newDueDate)}',
+                ),
+              ),
+          ],
+        ),
+      ),
+    );
+  }
 
   /// Zahlungserinnerung bzw. Mahnung (L-3.10): Sheet mit Vorschau, ein Tipp
   /// auf „erstellen und senden“ öffnet den Teilen-Dialog.
@@ -353,7 +415,9 @@ class _InvoiceListScreenState extends State<InvoiceListScreen> {
                             ? () => _setStatus(invoice, InvoiceStatus.paid)
                             : null,
                         dunning: _dunning[invoice.id],
-                        onRemind: invoice.isOverdue
+                        overdue: _needsReminder(invoice),
+                        onDunningHistory: () => _showDunningHistory(invoice),
+                        onRemind: _needsReminder(invoice)
                             ? () => _remind(invoice)
                             : null,
                         onCancel: invoice.status == InvoiceStatus.issued
@@ -367,10 +431,15 @@ class _InvoiceListScreenState extends State<InvoiceListScreen> {
                 ],
               ),
             ),
-      floatingActionButton: FloatingActionButton(
+      // Zentriert und beschriftet, mit beiden Daumen erreichbar
+      // (DESIGN_SPEC 5a, Regel 1 und 9).
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
+      floatingActionButton: FloatingActionButton.extended(
+        key: const Key('invoice-new'),
+        heroTag: 'invoice-new',
         onPressed: () => _openEditor(),
-        tooltip: 'Rechnung schreiben',
-        child: const Icon(Icons.add),
+        icon: const Icon(Icons.add),
+        label: const Text('Neue Rechnung'),
       ),
     );
   }
@@ -385,6 +454,8 @@ class _InvoiceTile extends StatelessWidget {
     this.onMarkPaid,
     this.onRemind,
     this.dunning,
+    this.overdue = false,
+    this.onDunningHistory,
     this.onCancel,
     this.onDelete,
   });
@@ -396,6 +467,10 @@ class _InvoiceTile extends StatelessWidget {
   final VoidCallback? onMarkPaid;
   final VoidCallback? onRemind;
   final DunningNotice? dunning;
+
+  /// Maßgebliche Frist abgelaufen (nach Mahnung: deren neue Frist).
+  final bool overdue;
+  final VoidCallback? onDunningHistory;
   final VoidCallback? onCancel;
   final VoidCallback? onDelete;
 
@@ -405,7 +480,7 @@ class _InvoiceTile extends StatelessWidget {
     final (statusColor, statusLabel) = switch (invoice.status) {
       InvoiceStatus.draft => (scheme.outline, 'Entwurf'),
       InvoiceStatus.issued =>
-        invoice.isOverdue
+        overdue
             ? (AppTheme.expense, 'Überfällig')
             : (AppTheme.warning, 'Offen'),
       InvoiceStatus.paid => (AppTheme.income, 'Bezahlt'),
@@ -464,13 +539,20 @@ class _InvoiceTile extends StatelessWidget {
                   if (invoice.dueDate != null)
                     'fällig ${Fmt.date(invoice.dueDate!)}',
                   '${invoice.items.length} ${invoice.items.length == 1 ? 'Position' : 'Positionen'}',
-                  if (dunning != null)
-                    '${dunning!.title} am ${Fmt.date(dunning!.issuedOn)}',
                 ].join(' · '),
                 style: Theme.of(
                   context,
                 ).textTheme.bodySmall?.copyWith(color: scheme.onSurfaceVariant),
               ),
+              if (dunning != null) ...[
+                const SizedBox(height: 4),
+                _DunningBadge(
+                  key: Key('dunning-badge-${invoice.id}'),
+                  notice: dunning!,
+                  overdue: overdue,
+                  onTap: onDunningHistory,
+                ),
+              ],
               const SizedBox(height: 8),
               Row(
                 children: [
@@ -481,11 +563,6 @@ class _InvoiceTile extends StatelessWidget {
                     ),
                   ),
                   const Spacer(),
-                  IconButton(
-                    tooltip: 'PDF teilen',
-                    icon: const Icon(Icons.picture_as_pdf_outlined),
-                    onPressed: onShare,
-                  ),
                   PopupMenuButton<String>(
                     tooltip: 'Weitere Aktionen',
                     itemBuilder: (context) {
@@ -519,41 +596,136 @@ class _InvoiceTile extends StatelessWidget {
                   ),
                 ],
               ),
-              if (onMarkPaid != null || onRemind != null) ...[
-                const SizedBox(height: 8),
-                Row(
-                  children: [
-                    if (onRemind != null) ...[
-                      Expanded(
-                        child: FilledButton.tonalIcon(
-                          key: Key('remind-${invoice.id}'),
-                          style: FilledButton.styleFrom(
-                            minimumSize: const Size(48, 48),
-                          ),
-                          onPressed: onRemind,
-                          icon: const Icon(Icons.mark_email_unread_outlined),
-                          label: Text(dunning == null ? 'Erinnern' : 'Mahnen'),
-                        ),
+              // Aktionen als Leiste über die volle Kartenbreite: mit beiden
+              // Daumen erreichbar, Senden nicht nur rechts oben
+              // (DESIGN_SPEC 5a, Regel 9). Stornieren bleibt im Menü.
+              const SizedBox(height: 8),
+              _ActionRow(
+                children: [
+                  if (onRemind != null)
+                    FilledButton.tonalIcon(
+                      key: Key('remind-${invoice.id}'),
+                      style: FilledButton.styleFrom(
+                        minimumSize: const Size(48, 48),
                       ),
-                      const SizedBox(width: 12),
-                    ],
-                    if (onMarkPaid != null)
-                      Expanded(
-                        child: FilledButton.tonalIcon(
-                          key: Key('paid-${invoice.id}'),
-                          style: FilledButton.styleFrom(
-                            minimumSize: const Size(48, 48),
-                          ),
-                          onPressed: onMarkPaid,
-                          icon: const Icon(Icons.check),
-                          label: const Text('Bezahlt'),
-                        ),
+                      onPressed: onRemind,
+                      icon: const Icon(Icons.mark_email_unread_outlined),
+                      label: Text(dunning == null ? 'Erinnern' : 'Mahnen'),
+                    ),
+                  if (onMarkPaid != null)
+                    FilledButton.tonalIcon(
+                      key: Key('paid-${invoice.id}'),
+                      style: FilledButton.styleFrom(
+                        minimumSize: const Size(48, 48),
                       ),
-                    const SizedBox(width: 8),
-                  ],
-                ),
-              ],
+                      onPressed: onMarkPaid,
+                      icon: const Icon(Icons.check),
+                      label: const Text('Bezahlt'),
+                    ),
+                  OutlinedButton.icon(
+                    key: Key('share-${invoice.id}'),
+                    style: OutlinedButton.styleFrom(
+                      minimumSize: const Size(48, 48),
+                    ),
+                    onPressed: onShare,
+                    icon: const Icon(Icons.picture_as_pdf_outlined),
+                    label: const Text('PDF senden'),
+                  ),
+                ],
+              ),
             ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// Bis zu zwei Knöpfe nebeneinander über die volle Breite; ein dritter
+/// steht darunter, damit Beschriftungen auch auf 360 dp und bei großer
+/// Schrift nicht abgeschnitten werden.
+class _ActionRow extends StatelessWidget {
+  const _ActionRow({required this.children});
+
+  final List<Widget> children;
+
+  @override
+  Widget build(BuildContext context) {
+    Widget row(List<Widget> items) => Row(
+      children: [
+        for (var i = 0; i < items.length; i++) ...[
+          if (i > 0) const SizedBox(width: 12),
+          Expanded(child: items[i]),
+        ],
+        const SizedBox(width: 8),
+      ],
+    );
+    if (children.length <= 2) return row(children);
+    return Column(
+      children: [
+        row(children.take(2).toList()),
+        const SizedBox(height: 8),
+        row(children.skip(2).toList()),
+      ],
+    );
+  }
+}
+
+/// Symbol einer gemahnten Rechnung: Stufe und neue Frist, Tipp zeigt den
+/// Mahnverlauf. Mindestens 48 dp hoch.
+class _DunningBadge extends StatelessWidget {
+  const _DunningBadge({
+    super.key,
+    required this.notice,
+    required this.overdue,
+    this.onTap,
+  });
+
+  final DunningNotice notice;
+  final bool overdue;
+  final VoidCallback? onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final color = overdue ? AppTheme.expense : AppTheme.warning;
+    return Semantics(
+      button: true,
+      label: 'Mahnverlauf anzeigen',
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(20),
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(minHeight: 48),
+          child: Align(
+            alignment: Alignment.centerLeft,
+            widthFactor: 1,
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+              decoration: BoxDecoration(
+                color: color.withValues(alpha: 0.14),
+                borderRadius: BorderRadius.circular(20),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(Icons.mark_email_read_outlined, size: 16, color: color),
+                  const SizedBox(width: 6),
+                  Flexible(
+                    child: Text(
+                      '${dunningBadge(notice.level)} · Frist '
+                      '${Fmt.date(notice.newDueDate)}',
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600,
+                        color: color,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 4),
+                  Icon(Icons.chevron_right, size: 16, color: color),
+                ],
+              ),
+            ),
           ),
         ),
       ),
@@ -639,9 +811,13 @@ class _CustomerListScreenState extends State<_CustomerListScreen> {
                 );
               },
             ),
-      floatingActionButton: FloatingActionButton(
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
+      floatingActionButton: FloatingActionButton.extended(
+        key: const Key('customer-new'),
+        heroTag: 'customer-new',
         onPressed: () => _open(),
-        child: const Icon(Icons.person_add_alt),
+        icon: const Icon(Icons.person_add_alt),
+        label: const Text('Neuer Kunde'),
       ),
     );
   }

@@ -1,6 +1,6 @@
 # Lastenheft – Buchhaltungsapp für Österreich und Deutschland
 
-**Dokumentversion:** 1.47 · **Stand:** 2026-10-14 · **Status:** Entwurf zur Abstimmung
+**Dokumentversion:** 1.48 · **Stand:** 2026-10-14 · **Status:** Entwurf zur Abstimmung
 **Auftraggeber:** Jürgen Jesenko (privates Vorhaben) · **Umsetzung:** Claude Code
 
 > Ein Lastenheft beschreibt, **was** das Produkt leisten soll und **warum** — nicht,
@@ -199,6 +199,7 @@ Priorität: **MUSS** = ohne das kein Release · **SOLL** = wichtig, verhandelbar
 | L-2.24 | **Fremdwährung bei Eingangsbelegen:** Originalbetrag (kleinste Einheit), ISO-Code, Kurs als Ganzzahl (Kurs × 10^6), Kursdatum, Kursquelle (BMF-Monat, EZB-Monatsmittel als Näherung, EZB-Tag, manuell, Bank); gebucht wird in Euro (Entscheidung Auftraggeberin 2026-10-12). **Umgesetzt** (Spezifikation FA-2.24, GR-9; Kurs als Einheiten je 1 € × 10^6) | MUSS | A |
 | L-2.25 | Umsatzsteuer-Kurs: Monatskurs des Leistungs- bzw. Zahlungsmonats (§ 20 Abs 6 UStG AT, § 16 Abs 6 UStG DE); Tageskurs nur mit im Profil vermerkter Genehmigung des Finanzamts. **Umgesetzt** (FA-2.25; EZB-Monatsmittel als gekennzeichnete Näherung, BMF-Kurs manuell) | MUSS | A |
 | L-2.26 | Einnahmen-Ausgaben-Rechnung: tatsächlicher Euro-Betrag laut Bank überschreibt den umgerechneten Wert; der Vorschlag bleibt protokolliert. **Umgesetzt** (FA-2.26, FA-2.27) | MUSS | A |
+| L-2.27 | Ein Beleg mit **mehreren Steuersätzen** (Bewirtung Speisen/Getränke, Supermarkt) wird nach Sätzen aufgeteilt: Brutto je Satz, Netto und Steuer je Teil, Summe = Belegbetrag, Rest automatisch im letzten Teil; alle Auswertungen und Exporte je Satz (DATEV eine Buchung je Satz); Belegerkennung belegt die Aufteilung vor. Abzugsbeschränkung Bewirtung nur nach Steuerberatung (P-S46). **Umgesetzt** in 0.7.0 (FA-2.33, FA-2.34, Schema 14) | MUSS | A |
 | L-2.18 | Kommentare lassen sich über die Diktierfunktion der Systemtastatur sprechen; die App selbst überträgt keine Sprache. Ein Hinweis nennt, dass die Tastatur je nach Gerät Sprache an Google oder Apple senden kann | SOLL | A |
 
 ### 5.3 Ausgangsrechnungen
@@ -233,6 +234,7 @@ Priorität: **MUSS** = ohne das kein Release · **SOLL** = wichtig, verhandelbar
 | L-3.26 | Beim Eintragen der AGB-Adresse einmaliger Hinweis, dass der Verweis auf der Rechnung allein die AGB nicht einbezieht | SOLL | A |
 | L-3.27 | **Mahnkosten** 10,00 € je Mahnung ab der 1. Mahnung (Zahlungserinnerung kostenlos), änderbar; bei Privatkunden Hinweis, dass nur angemessene, tatsächliche Kosten zulässig sind. **Verzugszinsen** optional mit gesetzlichem Vorschlag (AT § 1000 ABGB, § 456 UGB; DE § 288 BGB), Basiszinssatz mit Gültigkeitsbeginn; 40-€-Pauschale nur gegenüber Unternehmen (§ 458 UGB, § 288 Abs 5 BGB) | MUSS | A |
 | L-3.28 | Kundenmerkmal **Unternehmen** (vorbelegt Ja mit UID); in DE tragen Rechnungen an Privatkunden den Hinweis nach § 286 Abs 3 BGB | MUSS | A |
+| L-3.31 | Jedes Mahnschreiben setzt eine **neue Zahlungsfrist** (vorbelegt +14 Tage), die im Schreiben steht und an der Rechnung gespeichert ist; „überfällig“ erst nach deren Ablauf. Gemahnte Rechnungen tragen in der Liste ein Symbol mit Stufe und Frist, Tipp zeigt den Verlauf. Kundendokumente in Sie-Form. **Umgesetzt** in 0.7.0 (FA-5.26 bis FA-5.28) | MUSS | A |
 | L-3.29 | Mahnschreiben sind **unveränderlich** (Text, Sätze, Beträge, PDF-Prüfsumme); nur Storno mit Begründung; sachlicher Ton ohne Drohungen; Versand wie Rechnung | MUSS | A |
 | L-3.30 | Mahnkosten, Zinsen und Pauschale sind **nicht umsatzsteuerbar**, getrennt ausgewiesen und werden bei Zahlung als Einnahme gebucht; Anrechnung Kosten → Zinsen → Hauptforderung (§ 1416 ABGB, § 367 BGB) | MUSS | A |
 
@@ -1229,6 +1231,7 @@ Zu entscheiden, bevor die betroffene Anforderung umgesetzt wird:
 
 | Version | Datum | Änderung |
 |---|---|---|
+| 1.48 | 2026-10-14 | Neu L-2.27 (Beleg mit mehreren Steuersätzen) und L-3.31 (neue Frist, Mahnsymbol, Sie-Form); umgesetzt in App-Version 0.7.0 (Spezifikation 1.46). Keine neue Datenübertragung (5.19 unverändert). |
 | 1.47 | 2026-10-14 | Mahnwesen: L-3.10 präzisiert (Stufen, beliebig oft), neu L-3.27 bis L-3.30; umgesetzt in App-Version 0.5.0 (Spezifikation GR-13, FA-5.21 bis FA-5.25). |
 | 1.46 | 2026-10-14 | Rabatt, Versandkosten, Skonto, AGB-Verweis (L-3.21 bis L-3.26), umgesetzt in App-Version 0.4.0 (Spezifikation 5.5, GR-12). |
 | 1.45 | 2026-10-14 | Neuer Block L-26 Hilfe in der App: Stufe 1 offline umgesetzt (Spezifikation 5.8, FA-11.1 bis FA-11.3), Stufe 2 KI nach Server-Entscheidung (P-R25, P-R26). |

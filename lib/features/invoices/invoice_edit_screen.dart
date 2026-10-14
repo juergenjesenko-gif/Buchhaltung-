@@ -468,6 +468,31 @@ class _InvoiceEditScreenState extends State<InvoiceEditScreen> {
                             onPicked: (date) => _deliveryDate = date,
                           ),
                   ),
+                  if (InvoiceTexts.deliveryAfterIssueHint(
+                        _issueDate,
+                        _deliveryDate,
+                      )
+                      case final hint?)
+                    Padding(
+                      key: const Key('deliveryAfterIssueHint'),
+                      padding: const EdgeInsets.only(bottom: 8),
+                      child: Row(
+                        children: [
+                          const Icon(
+                            Icons.info_outline,
+                            size: 18,
+                            color: AppTheme.warning,
+                          ),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: Text(
+                              hint,
+                              style: Theme.of(context).textTheme.bodySmall,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
                   _dateTile(
                     label: 'Fällig am',
                     value: _dueDate,

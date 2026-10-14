@@ -1,6 +1,6 @@
 # Spezifikation – Buchhaltung
 
-**Dokumentversion:** 1.45 · **App-Version:** 0.6.0 · **Stand:** 2026-10-14
+**Dokumentversion:** 1.46 · **App-Version:** 0.7.0 · **Stand:** 2026-10-14
 **Status:** Sprint 1 umgesetzt und verifiziert
 
 > Das **Zielbild** des Produkts steht im [`LASTENHEFT.md`](LASTENHEFT.md); dieses
@@ -245,6 +245,7 @@ Anwendungsdokumentenverzeichnis. Aktuelle Schemaversion: **13**
 | `customers` | Rechnungsempfänger | Löschen blockiert, solange Rechnungen bestehen. Seit Schema 13 `is_business` (1 = Unternehmen; bei der Migration 1, wo eine UID eingetragen ist) |
 | `dunning_notices` | Zahlungserinnerungen und Mahnungen: `invoice_id`, `level`, `issued_on`, `new_due_date`, `principal_cents`, `fee_cents`, `fees_total_cents`, `interest_cents`, `interest_rate_bp`, `flat_fee_cents`, `total_cents`, `text`, `pdf_sha256`, `cancelled_at`, `cancel_reason`, `created_at` | Schema 13. Unveränderlich (Trigger); einzig erlaubt: einmaliges Storno mit Begründung |
 | `receipts` | Belege | Index auf `date` und `direction`. Werden nie gelöscht, nur storniert (`cancelled_at`). Seit Schema 11 `invoice_id` (Einnahme aus bezahlter Rechnung, eindeutig je Rechnung und Steuersatz) |
+| `receipt_vat_lines` | Steuersatzzeilen eines Belegs: `receipt_id`, `position` ab 1, `vat_permille`, `net_cents`, `vat_cents`, `gross_cents` | Schema 14. Je Zeile `net + vat == gross`, Summe der Zeilen = `receipts.gross_cents` (erzwungen in `ReceiptRepository.writeVatLines`). Bei der Migration wurde jeder bestehende Beleg zu genau einer Zeile; Einnahmen aus bezahlten Rechnungen und Mahnkosten schreiben ihre Zeile mit. Kopf des Belegs: Summen, `vat_permille` = Satz der größten Zeile. Auswertungen lesen nur Zeilen (ein Beleg ohne Zeile zählt mit seinem Kopf) |
 | `receipt_pages` | Seiten (Fotos) eines Belegs: `receipt_id`, `position` ab 1, `image_path`, `created_at` | Schema 8. Nach dem Speichern nur Anhängen; bestehende Einzelfotos wurden bei der Migration zur Seite 1 |
 | `receipt_comments` | Kommentare zu Belegen: `receipt_id`, `text`, `created_at` (Systemzeit) | Schema 8. Nur Einfügen; ein Trigger verhindert `UPDATE`. Löschen bietet die App nicht an (die Wiederherstellung leert alle Tabellen) |
 | `invoices` | Ausgangsrechnungen | `UNIQUE INDEX` auf `number`. Seit Schema 12 Gesamtrabatt, Versand, Skonto (GR-12) |
@@ -390,7 +391,7 @@ prüft `InvoiceRequirements` (FA-1.4).
 | FA-2.30 | **Mehrsprachige Erkennung** (0.3.4): Schlüsselwörter für Brutto, Netto, Steuer, Datum, „nicht Belegdatum“ und Rechnungsnummer stehen als Tabellen in `receipt_keywords.dart` für DE, EN, SL, HR, IT, HU, CS, SK, PL, FR, ES, NL, DK, SE, NO (z. B. Skupaj, Ukupno, Totale, Összesen, Celkem, Razem, Totaal, I alt, Summa, Totalt; DDV, PDV, IVA, ÁFA, DPH, PTU, VAT, BTW, MOMS, MVA, TVA, MwSt, USt). Kurze Einträge nur als ganzes Wort. Satz auch nach dem Prozentzeichen („DDV % 22,0“) und mit Dezimalstelle („4,90 %“); die Satzangabe zählt nicht als Betrag. Ein Satz außerhalb der Profile und EU-Sätze gilt nur mit Rechenprobe (Netto + Steuer = Brutto bzw. Steuer zum Brutto). Steuerzeilen mit Rechenprobe gehen einem unsicheren Gesamtbetrag vor (Summe der Zeilen = Brutto), z. B. wenn „Summe“ verdeckt ist. Steuertabelle mit Kopfzeile mit „%“ und Satz ohne Prozentzeichen in der Zeile darunter („22,0  1,62  9,00“, Basis eine Zeile tiefer): Spalten über die Rechenprobe zugeordnet, weil die Kopfwörter oft entstellt sind. Ein Satz eines anderen EU-Staats gilt auch ohne lesbare Aussteller-UID als ausländisch. Datum auch mit gemischtem Trenner „05.09,2026“ und JJJJ.MM.TT.; entstellte Jahreszahl neben einem Datums-Schlüsselwort („03.10.2ULG“) ergibt das Datum im Jahr des Stichtags bzw. im Vorjahr mit Konfidenz 60. Logo-Rauschen bei bekannten Ketten („SPARO“ → SPAR), Rechtsform beendet den Händlernamen |
 | FA-2.31 | **Beschreibung und Kategorie vorschlagen** (0.3.4, `ReceiptClassifier`): Branche aus bekannter Kette oder Schlüsselwörtern (Maut/Vignette, Parken, Tankstelle, Taxi, Hotel, Fahrkarte, Supermarkt, Drogerie, Büro, Elektronik, Post, Telefon, Fachliteratur). Beschreibung „Händler – Branche“, bei Handel mit bis zu drei Artikeln, höchstens 60 Zeichen; nur in ein leeres Feld. Kategorie nur aus den Startkategorien und nur, wenn eine Kategorie mit diesem Namen existiert: Maut/Parken/Treibstoff → Kfz-Kosten, Taxi/Hotel/Fahrkarte → Reisekosten, Supermarkt/Drogerie → Sonstige Ausgaben. Beide Felder „erkannt – bitte prüfen“. Neue Belege starten mit „Sonstige Ausgaben“ bzw. „Sonstige Einnahmen“ statt der alphabetisch ersten Kategorie (vorher „Bankspesen“) |
 | FA-2.32 | **Beleg ohne Steuerausweis** (z. B. nur Kartenbeleg): kein Satz erkannt, Betrag erkannt, Ausgabe → 0 % („ohne Vorsteuer“) mit Hinweis aus `TaxProfile.noVatShownHint` (AT § 11 Abs 6 UStG, DE § 33 UStDV); die App erfindet keinen Satz (P-S29). Erkannter Satz, den die App nicht kennt: nicht vorbelegen, Hinweis „in der App noch nicht hinterlegt“. Satz vor seinem Gültigkeitsbeginn: nicht vorbelegen, Hinweis „gilt aber erst ab …“ |
-| FA-2.20 | Formularfelder **Rechnungsnummer** und **UID des Ausstellers** (Schema 9). Mehrere Steuersätze erkannt: Hinweis mit Brutto je Satz, vorbelegt wird der Satz mit dem größten Anteil; ein Satz, den das eigene Land nicht kennt, wird nicht vorbelegt |
+| FA-2.20 | Formularfelder **Rechnungsnummer** und **UID des Ausstellers** (Schema 9). Mehrere Steuersätze erkannt: seit 0.7.0 Aufteilung vorbelegt (FA-2.34) |
 | FA-2.21 | **Fremdwährung** (L-2.21): nur bei Ausgaben. Erkannte Währung ≠ EUR füllt das Euro-Feld nicht, sondern schaltet das Formular auf Fremdwährung (FA-2.24) mit Betrag laut Beleg. Einnahmen bleiben immer Euro |
 | FA-2.24 | **Fremdwährung umrechnen** (L-2.24): Schalter „Beleg in fremder Währung“ bei Ausgaben; Felder Währung (ISO 4217), Betrag laut Beleg, Kurs (Einheiten je 1 €, höchstens 6 Nachkommastellen), Kursquelle, Kursdatum; das Euro-Brutto wird nach GR-9 berechnet und angezeigt, Netto/Steuer nach GR-2 |
 | FA-2.25 | **Kurs abrufen** (L-2.25, L-19.29): nur auf Knopfdruck lädt `EcbClient` `eurofxref-hist-90d.xml` (Beleg bis 80 Tage alt) bzw. `eurofxref-hist.xml` direkt bei der EZB, speichert alle Kurse in `ecb_rates` und nutzt danach den Speicher. Standard ist das **Mittel aller EZB-Tageskurse des Belegmonats** (half-up auf 10^-6), gekennzeichnet „EZB-Monatsmittel – Näherung an BMF-Kurs“; im laufenden Monat als vorläufig markiert. Den **Tageskurs** (letzter Kurs am oder vor dem Belegdatum) nutzt die App nur, wenn in den Einstellungen „Tageskurs vom Finanzamt genehmigt“ eingeschaltet ist. Manueller Kurs (Quelle `manual`, `bmf_monthly`, `bank`) jederzeit; ein von Hand geänderter EZB-Kurs wird zu `manual`. Hinweis „EZB-Referenzkurs, ohne Gewähr“ |
@@ -398,6 +399,8 @@ prüft `InvoiceRequirements` (FA-1.4).
 | FA-2.27 | **Protokoll** (L-2.26): jedes Speichern eines Fremdwährungsbelegs schreibt `audit_log`-Eintrag `fx` mit Währung, Originalbetrag, Kurs, Quelle, Kursdatum, umgerechnetem Betrag und ggf. Bankbetrag mit Differenz |
 | FA-2.22 | **Protokoll** (L-2.22): beim Speichern eines ausgelesenen Belegs ein `audit_log`-Eintrag `scan` mit Engine und Version, je Feld erkannter Wert mit Konfidenz, bestätigter Wert und Kennzeichen `GEÄNDERT`, sowie SHA-256 jedes Originalbilds. Keine Bilddaten, kein Volltext |
 | FA-2.23 | **Abschaltbar** (L-2.23): Einstellungen → „Belege auslesen“, Standard an (`company_profile.receipt_scan_enabled`) |
+| FA-2.33 | **Beleg mit mehreren Steuersätzen aufteilen** (L-2.27, 0.7.0), z. B. Bewirtung Speisen 10 %/Getränke 20 %, Supermarkt 4,9/10/20 %: im Formular „Weiteren Steuersatz hinzufügen“ (volle Breite, 48 dp). Je Teil Satz und **Bruttobetrag**; Netto und Steuer je Teil nach GR-2 (Steuer als Restgröße). Der erste Teil startet mit dem ganzen Betrag, der letzte Teil übernimmt automatisch den Rest (Belegbetrag − übrige Teile), bis er von Hand geändert wird. Speichern nur, wenn die Summe der Teile den Belegbetrag exakt ergibt; sonst Meldung mit Differenz. Teile mit gleichem Satz werden zusammengefasst, Teile mit 0 € entfallen; bleibt ein Teil, ist der Beleg wieder einfach. Bei Fremdwährung sind die Teile Euro-Beträge des umgerechneten Betrags. Belegliste zeigt die Sätze („10 % + 20 %“). Ausländische Steuer und 0 %-Regeln gelten je Teil (FA-2.29). Die Abzugsbeschränkung für Bewirtung (Ertragsteuer, Vorsteuer) setzt die App **nicht** um (P-S46) |
+| FA-2.34 | **Belegerkennung mit mehreren Sätzen** (0.7.0): erkennt der Parser mehrere Sätze, belegt die App die Aufteilung (FA-2.33) mit Brutto je Satz vor statt nur eines Hinweises. Je Zeile: eigener, am Belegdatum gültiger Satz → dieser Satz; ausländischer Satz bzw. ausländische Aussteller-UID bei Ausgaben → 0 %; unbekannter Satz oder Fremdwährung → keine Aufteilung, nur Hinweis |
 | FA-2.18 | **Stornierte Belege lesbar**: Filter „Storniert“ in der Belegliste; die Ansicht ist schreibgeschützt (Hinweisbanner, kein Speichern), Kommentare bleiben anhängbar |
 
 ### 5.3 Kassabuch und Auswertung
@@ -405,10 +408,11 @@ prüft `InvoiceRequirements` (FA-1.4).
 | ID | Anforderung |
 |---|---|
 | FA-3.1 | Zeiträume: dieser Monat, letzter Monat, dieses Quartal, dieses Jahr, letztes Jahr. „Jahr“ ist das Wirtschaftsjahr (GR-10); bei abweichendem Wirtschaftsjahr heißen die Chips „Dieses WJ (2027)“ und „Letztes WJ (2026)“ |
-| FA-3.2 | Anzeige von Einnahmen netto, Ausgaben netto und Ergebnis; das Ergebnis enthält Kursdifferenzen laut Bank (FA-2.26) |
+| FA-3.2 | Anzeige von Einnahmen netto, Ausgaben netto und Ergebnis; das Ergebnis enthält Kursdifferenzen laut Bank (FA-2.26). Ausgewertet wird je Steuersatzzeile (`receipt_vat_lines`). **Kleinunternehmer** haben keinen Vorsteuerabzug: Ausgaben zählen **brutto** („Ausgaben (brutto)“), Vorsteuer 0, auch in Export und UVA-Zusammenfassung (AT § 12 iVm § 6 Abs 1 Z 27 UStG 1994; DE § 19 Abs 1 UStG, § 9b Abs 1 EStG; P-S47). Maßgeblich ist die aktuelle Einstellung, nicht die des Belegjahres |
 | FA-3.3 | Bei Regelbesteuerung: Umsatz je Steuersatz, Umsatzsteuer, Vorsteuer, Zahllast oder Guthaben |
 | FA-3.4 | Bei Kleinunternehmern entfällt die Umsatzsteuerauswertung mit Erklärung |
-| FA-3.5 | Balkenverlauf über die letzten sechs Monate, Einnahmen und Ausgaben getrennt |
+| FA-3.5 | Balkenverlauf über die letzten sechs Monate, Einnahmen und Ausgaben getrennt; ein Betrag > 0 ist mindestens 6 dp hoch, damit eine kleine Ausgabe neben einer großen Einnahme sichtbar bleibt |
+| FA-3.7 | Reihenfolge der Übersicht: Hinweise, Kleinunternehmergrenze, Zeitraum, Einnahmen/Ausgaben, Umsatzsteuer, Verlauf, Letzte Belege, **Termin-Box am Ende** (0.7.0). Nur der jüngste Ladevorgang zeigt sein Ergebnis an (kein Überschreiben neuer Summen durch einen älteren Lauf) |
 | FA-3.6 | Die letzten fünf Belege sind als Schnellzugriff sichtbar |
 
 ### 5.4 Kleinunternehmer-Grenzwertüberwachung
@@ -469,6 +473,11 @@ Grenzwerte siehe Abschnitt 12.
 | FA-5.23 | Verzugszinsen optional mit gesetzlichem Vorschlag (GR-13), Pauschale 40 € nur bei Unternehmen; Standardwerte in den Stammdaten (L-3.27) |
 | FA-5.24 | Kundenmerkmal „Unternehmen“ (Schalter, folgt der UID bis zur ersten eigenen Wahl); DE: Rechnungen an Privatkunden tragen den Hinweis nach § 286 Abs 3 BGB aus `TaxProfile.dunning.consumerDefaultNotice` (L-3.28) |
 | FA-5.25 | „Bezahlt“ fragt bei vorhandener Mahnung „Mahnkosten und Zinsen mitbezahlt?“; Ja bucht die Kosten des letzten nicht stornierten Schreibens als nicht umsatzsteuerbare Einnahme (GR-13, L-3.30) |
+| FA-5.26 | **Neue Zahlungsfrist** (0.7.0): jedes Schreiben setzt eine neue Frist (im Sheet vorbelegt +`dunning_period_days`, änderbar), die im Text steht und in `dunning_notices.new_due_date` an der Rechnung gespeichert ist; die Rechnung selbst bleibt unverändert (GR-8). „Überfällig“, Banner „mahnen?“ und „Erinnern/Mahnen“ erscheinen erst ab dem Tag nach der maßgeblichen Frist (letztes nicht storniertes Schreiben, sonst Fälligkeit; `DunningService.needsReminder`) |
+| FA-5.27 | **Mahnsymbol** in der Rechnungsliste: Badge mit Stufe „Erinnert“, „1. Mahnung“, „2. Mahnung“ … und neuer Frist, ≥ 48 dp; Tipp zeigt den Mahnverlauf (Rechnung, jedes Schreiben mit Datum, Betrag, Frist, Storno) als Bottom-Sheet |
+| FA-5.28 | **Anrede in Kundendokumenten** (0.7.0): Rechnung, Mahnschreiben und Begleittext beim Senden in Sie-Form („Bitte überweisen Sie …“, „Falls Sie bereits bezahlt haben …“), Texte zentral in `InvoiceTexts`; die App-Oberfläche duzt weiter. Umschaltbarkeit offen (Entscheidung der Auftraggeberin) |
+| FA-5.29 | Hinweis im Rechnungsformular, wenn das Leistungsdatum nach dem Rechnungsdatum liegt: „Leistungsdatum liegt nach dem Rechnungsdatum – stimmt das?“ – kein Blocker |
+| FA-5.30 | **PDF-Schrift** (0.7.0): alle PDFs (Rechnung, Mahnung) betten Work Sans (SIL OFL 1.1, `assets/fonts/`, Lizenz `OFL.txt`) ein; €, „–“, „“ und Umlaute sind echte Glyphen (vorher Helvetica ohne €, Gerätetest 0.6.0). Lizenzprüfung P-L19 |
 | FA-5.20 | Bedienung (UX-Prüfinstanz): Primärleiste `PrimaryActionBar` 56 dp unten über der Tastatur mit „Entwurf“ / „Rechnung ausstellen“, nach dem Ausstellen „PDF senden“; „Position hinzufügen“ volle Breite; Zielflächen ≥ 48 dp; Rechnungskarte mit Tonal-Knopf „Bezahlt“; Stornieren/Löschen im Menü nach Trennlinie in Fehlerfarbe mit Bestätigung (Nummer, Betrag) |
 
 **Pflichtangaben im PDF** (§ 11 UStG AT, § 14 UStG DE): Name und Anschrift von
@@ -580,6 +589,7 @@ beide Hände, keine Händigkeits-Einstellung).
 | FA-12.4 | Chip-Reihen (Übersicht Zeitraum, Belegliste Filter) umbrechen (`Wrap`); das Jahr der Belegliste ist der erste Chip (Auswahl im Bottom-Sheet) statt AppBar-Menü |
 | FA-12.5 | Belegdatum mit Schnellchips „Heute“ / „Gestern“ |
 | FA-12.6 | Kunden- und Stammdatenformular speichern über `PrimaryActionBar` |
+| FA-12.7 | **Links und rechts gleich** (Entscheidung der Auftraggeberin 2026-10-14, 0.7.0): Belegliste „Beleg erfassen“, Rechnungsliste „Neue Rechnung“ und Kundenliste „Neuer Kunde“ als zentrierter, verlängerter Knopf (`centerFloat`, 56 dp) statt Plus rechts unten. Rechnungskarte: Aktionsleiste über die volle Breite mit „Erinnern/Mahnen“, „Bezahlt“ und „PDF senden“ (dritter Knopf in eigener Zeile); Stornieren/Löschen bleiben im Menü. Einstellungsseiten dürfen rechtslastig bleiben |
 
 ### 5.8 Hilfe
 
@@ -701,7 +711,8 @@ verfälschen.
 Spalten: Datum, Art, Beschreibung, Geschäftspartner, Kategorie, Konto,
 Zahlungsart, Netto, USt-Satz, USt-Betrag, Brutto, Währung, Originalbetrag, Kurs (je EUR, 6 Nachkommastellen), Kursquelle,
 Kursdatum, Bankbetrag EUR, Beleg vorhanden, Notiz, Seiten, Kommentare (je
-`TT.MM.JJJJ, hh:mm: Text`, getrennt durch ` | `).
+`TT.MM.JJJJ, hh:mm: Text`, getrennt durch ` | `), Teil („1/2“ bei aufgeteilten Belegen, sonst leer).
+Je Steuersatzzeile eine Zeile; Originalbetrag und Bankbetrag nur in der ersten Zeile eines Belegs.
 Danach Summenzeilen für Einnahmen, Ausgaben, ggf. „Kursdifferenzen laut Bank“
 (FA-2.26) und Ergebnis.
 
@@ -715,6 +726,7 @@ Spaltenüberschriften, ab Zeile 3 die Buchungen.
 - Belegdatum als `TTMM`; das Jahr steht im Header
 - Header-Feld „WJ-Beginn“: erster Tag des Wirtschaftsjahres, das den Zeitraum enthält (GR-10)
 - Buchungstext maximal 60 Zeichen, Semikola werden durch Komma ersetzt
+- **Mehrere Steuersätze:** eine Buchung je Satz mit dem Brutto der Zeile; BU-Schlüssel bleibt leer (Automatikkonto), Zuordnung je Satz prüft die Kanzlei (P-S48)
 - Berater- und Mandantennummer stehen als `0` – die Kanzlei ordnet den Stapel beim Import zu
 - **Fremdwährung:** gebucht wird der umgerechnete Euro-Betrag mit `WKZ Umsatz` = `EUR`; die Felder `Kurs`, `Basis-Umsatz` und `WKZ Basis-Umsatz` bleiben leer, weil Kursrichtung und Pflichtkombination im EXTF-Format nicht gesichert geprüft sind (P-D23). Originalbetrag und Kurs stehen in der Belegliste (8.2). BMD (8.4) ebenso nur Euro
 
@@ -725,7 +737,7 @@ Betrag, Steuercode, Steuersatz, Steuerbetrag, Buchsymbol.
 
 Steuercodes: Einnahme 20 % → `1`, 13 % → `3`, 10 % → `2`; Ausgabe 20 % → `11`,
 13 % → `13`, 10 % → `12`; 0 % → `0`.
-Buchsymbol: `KA` bei Barzahlung, sonst `BK`.
+Buchsymbol: `KA` bei Barzahlung, sonst `BK`. Aufgeteilte Belege: ein Buchungssatz je Steuersatz mit eigenem Steuercode.
 
 ### 8.5 Umsatzsteuer-Zusammenfassung (`vatReturn`)
 
@@ -815,9 +827,11 @@ Offen benannt, weil eine Spezifikation, die ihre Lücken verschweigt, wertlos is
 | **Keine E-Rechnung** | Ein PDF ist keine E-Rechnung nach EN 16931. In Deutschland gilt die Empfangspflicht seit 1.1.2025, die Versandpflicht kommt gestaffelt bis 2028 | Backlog G1 |
 | **Keine Storno-/Gutschriftsrechnung** | Eine gestellte Rechnung ist gesperrt; es gibt derzeit keinen Korrekturweg innerhalb der App | Backlog F4, Sprint 2 |
 | **Steuerwerte fest im Code** | Kennwerte außer Steuersätzen (seit 0.3.4 `validFrom`, GR-3) haben kein Gültig-ab-Datum und ändern sich nur per App-Update; eine kurzfristige Gesetzesänderung erreicht die Nutzerin erst nach Store-Freigabe | Rechtsstand-Überwachung, Lastenheft L-20 und L-13.5, Stufe B |
-| **Belegerkennung nicht auf Gerät erprobt** | Android-Teil im CI-Emulator mit R8 an einem synthetischen Kassenbon geprüft, Swift-Teil nur kompiliert; Korpus mit sechs echten Belegen (`test/fixtures/belege/`); Quote auf dem Gerät noch zu bestätigen (P-D22). Mehrsprachige Schlüsselwörter sind teils nur an synthetischen Texten geprüft. Lernen je Händler (Korrekturen merken) fehlt noch. Ein Beleg mit mehreren Steuersätzen wird mit einem Satz gebucht | vor Release |
+| **Belegerkennung nicht auf Gerät erprobt** | Android-Teil im CI-Emulator mit R8 an einem synthetischen Kassenbon geprüft, Swift-Teil nur kompiliert; Korpus mit sechs echten Belegen (`test/fixtures/belege/`); Quote auf dem Gerät noch zu bestätigen (P-D22). Mehrsprachige Schlüsselwörter sind teils nur an synthetischen Texten geprüft. Lernen je Händler (Korrekturen merken) fehlt noch | vor Release |
 | **Fremdwährung nur bei Ausgaben** | Eingangsbelege werden umgerechnet (FA-2.24 bis FA-2.27); Ausgangsrechnungen nur in Euro. Den BMF-Monatskurs lädt die App nicht, er wird von Hand übernommen; das EZB-Monatsmittel ist nur eine Näherung (P-S23, P-S24). DATEV/BMD exportieren nur Euro (P-D23). Ein Land mit anderer Währung setzt Mehrwährungsfähigkeit voraus | Backlog G7 |
 | **Termine nur als Anzeige** | Die Termin-Box (FA-10.3) erinnert nicht aktiv; Bescheid-Termine (z. B. abweichende Vorauszahlungen, Nachzahlungen) kennt sie nicht. Teil- und Anzahlungen auf Rechnungen bildet die App nicht ab (P-S35) | Stufe 2: Benachrichtigungen |
+| **Bewirtung ohne Abzugsbeschränkung** | Ein Bewirtungsbeleg wird nach Sätzen aufgeteilt, aber voll als Ausgabe und Vorsteuer gezählt; die Kürzung (AT 50 %, DE 70 % Betriebsausgabe) macht die Kanzlei (P-S46) | nach P-S46 |
+| **Kleinunternehmerstatus nicht je Jahr** | Ob Ausgaben brutto zählen, richtet sich nach der aktuellen Einstellung, auch für Vorjahre | später |
 | **Keine Teilzahlungen** | Mahnkosten und Zinsen werden nur bei voller Zahlung mitgebucht; Teilzahlungen und deren Anrechnung (§ 1416 ABGB, § 367 BGB) bildet die App noch nicht ab; Basiszinssätze ändern sich nur per App-Update (P-S44) | später |
 | **Mengen mit zwei Dezimalstellen** | Die Mengeneingabe verarbeitet zwei Nachkommastellen, obwohl das Datenmodell drei erlaubt | – |
 | **Offene Detailseite beim Wechsel der Breitenklasse** | Wird ein Tablet von quer (expanded) auf hoch (medium) gedreht oder das Fenster verkleinert, während rechts ein Beleg, eine Rechnung oder ein Kunde in Bearbeitung ist, schließt sich der Detailbereich; ungespeicherte Eingaben gehen verloren. Gespeichertes bleibt unberührt | später |
@@ -832,7 +846,7 @@ Offen benannt, weil eine Spezifikation, die ihre Lücken verschweigt, wertlos is
 > Das ist der Mechanismus, der dieses Dokument aktuell hält.
 
 ```properties
-spec.schema_version = 13
+spec.schema_version = 14
 spec.primary_action_height_dp = 56
 spec.min_touch_target_dp = 48
 spec.dunning_default_fee_cents = 1000
@@ -941,6 +955,7 @@ Dauerfristverlängerung, `02-15,…` = feste Tage, `+1j07-31` = Folgejahr,
 
 | Version | Datum | App-Version | Änderung |
 |---|---|---|---|
+| 1.46 | 2026-10-14 | 0.7.0 | App-Version 0.7.0 (Testbuild). Beleg mit mehreren Steuersätzen (FA-2.33, FA-2.34, Lastenheft L-2.27), Schema 14 mit `receipt_vat_lines`, Auswertungen und Exporte je Satz (8.2 bis 8.4). Fehlerbehebung Gerätetest 0.6.0: Kleinunternehmer-Ausgaben brutto, Balken-Mindesthöhe, Ladevorgang ohne Überschreiben (FA-3.2, FA-3.5, FA-3.7); Termin-Box ans Ende. Mahnwesen: neue Frist, Mahnsymbol mit Verlauf (FA-5.26, FA-5.27); Sie-Form in Kundendokumenten (FA-5.28); Hinweis Leistungsdatum (FA-5.29); eingebettete PDF-Schrift mit € (FA-5.30). Einhandbedienung links und rechts (FA-12.7). Neue Prüfpunkte P-S46 bis P-S48, P-L19, P-X7. |
 | 1.45 | 2026-10-14 | 0.6.0 | App-Version 0.6.0 (Testbuild) „Einhandbedienung“ nach DESIGN_SPEC 5a (Abschnitt 5.7a, FA-12.1 bis FA-12.6): zentrierter Knopf „Beleg fotografieren“, Stornieren/Löschen am Formularende in Fehlerfarbe, Seitenleiste 48 dp, umbrechende Chips, Jahr als Chip, Datum „Heute/Gestern“, `PrimaryActionBar` in Kunden- und Stammdatenformular. Kein Schemawechsel. Neue Prüfpunkte P-X1 bis P-X6. |
 | 1.44 | 2026-10-14 | 0.5.0 | App-Version 0.5.0 (Testbuild): Mahnwesen (GR-13, FA-5.21 bis FA-5.25, Abschnitt 8.0, Lastenheft L-3.10, L-3.27 bis L-3.30): Zahlungserinnerung und Mahnungen beliebig oft, unveränderlich mit Storno, Mahnkosten 10 € ab 1. Mahnung mit Verbraucherhinweis, optionale Verzugszinsen act/365 je Halbjahr, Pauschale B2B, Kundenmerkmal „Unternehmen“, DE-Hinweis § 286 Abs 3 BGB, Mahnkosten bei Zahlung als nicht steuerbare Einnahme. Schema 13. Neue Kennwerte `spec.dunning_*`, `spec.*.dunning_*`. Neue Prüfpunkte P-S44, P-S45, P-R32 bis P-R34. |
 | 1.43 | 2026-10-14 | 0.4.0 | App-Version 0.4.0 (Testbuild): Rabatt je Position und Gesamtrabatt anteilig je Satz, Versandkosten wie Hauptleistung, Skonto mit festem Datum und Betrag, Zahlung mit Skonto mindert Einnahme je Satz, AGB-Verweis (GR-12, FA-5.15 bis FA-5.19, Lastenheft L-3.21 bis L-3.26). UX-Vorgaben: `PrimaryActionBar`, „PDF senden“ nach dem Ausstellen, Tonal-Knopf „Bezahlt“, Bestätigung bei Storno/Löschen (FA-5.20). Schema 12. Neue Kennwerte `spec.primary_action_height_dp`, `spec.min_touch_target_dp`. Neue Prüfpunkte P-S40 bis P-S43, P-R30, P-R31. |
@@ -1081,6 +1096,7 @@ Status: *offen* · *bestätigt* (mit Datum und Prüfer) · *widerlegt* (mit Folg
 | P-X4 | Systemschrift 200 %: keine abgeschnittenen Knöpfe und Chips, Formulare scrollbar | nicht automatisiert geprüft | Release | offen |
 | P-X5 | Nutzung im Auto (Beifahrerin), mit Handschuhen, in direktem Sonnenlicht: Kontrast und Trefferflächen | — | Release | offen |
 | P-X6 | System-Einhandmodus (Android) und Reachability (iOS) mit der App | — | Release | offen |
+| P-X7 | Links- und Rechtshand auf dem Pixel 10: „Beleg erfassen“, „Neue Rechnung“, Rechnungskarte (Erinnern, Bezahlt, PDF senden), Mahnsymbol, „Weiteren Steuersatz hinzufügen“ ohne Umgreifen | Widget-Tests für Lage und Größe der zentrierten Knöpfe (Regel 12) | Release | offen |
 
 ### Softwareentwicklung (echte Geräte und Stores)
 
@@ -1152,6 +1168,9 @@ Status: *offen* · *bestätigt* (mit Datum und Prüfer) · *widerlegt* (mit Folg
 | P-S42 | Skonto bei Zahlung: Minderung je Satz nach Brutto-Anteil; Berichtigung im Zahlungsmonat (§ 16 UStG AT, § 17 UStG DE). App bucht nach Zufluss; bei Soll-Versteuerung wäre eine Korrekturbuchung im Zahlungsmonat zu den ursprünglichen Umsätzen nötig – reicht die geminderte Einnahme? Kein Beleg nötig (DE Abschn. 17.1 Abs 3 UStAE)? | Vorbefund: für Ist-Versteuerer korrekt, Soll nicht abgebildet (wie P-S35) | Release | offen |
 | P-S43 | Skontotext auf der Rechnung: Pflichtangabe „Vereinbarung über Entgeltminderung“ (§ 14 Abs 4 Nr. 7 UStG DE) mit festem Datum und Betrag erfüllt; AT: ausreichend? Kleinunternehmer: nur geringere Einnahme | Vorbefund: Hinweis „Bei Zahlung bis … 2 % Skonto“ genügt (Abschn. 14.5 Abs 19 UStAE) | Release | offen |
 | P-S44 | Basiszinssätze 2025–2026 je Halbjahr: AT OeNB (253, 153, 153 Bp), DE § 247 BGB (227, 127, 127 Bp) – amtlich abgleichen; Berechnung act/365 je Halbjahr, half-up je Abschnitt | Werte aus Fachwissen der Prüfinstanz, nicht amtlich abgerufen | Release | offen |
+| P-S46 | Bewirtung: soll die App die Abzugsbeschränkung abbilden? AT § 20 Abs 1 Z 3 EStG (50 % abzugsfähig, Vorsteuer voll bei Werbezweck), DE § 4 Abs 5 Nr. 2 EStG (70 % Betriebsausgabe, Vorsteuer voll bei Angemessenheit und Nachweis) samt Bewirtungsbeleg-Angaben (Anlass, Teilnehmer) | App teilt nur nach Sätzen auf (FA-2.33), zählt 100 %; keine Kategorie „Bewirtung“ mit Kürzung | Release | offen |
+| P-S47 | Kleinunternehmer: Ausgaben brutto in der Einnahmen-Ausgaben-Rechnung, keine Vorsteuer (AT § 12 iVm § 6 Abs 1 Z 27 UStG 1994; DE § 19 Abs 1 UStG, § 9b Abs 1 EStG); Behandlung beim Wechsel des Status innerhalb eines Jahres | umgesetzt nach aktueller Einstellung (FA-3.2) | Release | offen |
+| P-S48 | DATEV: Buchung je Satz eines aufgeteilten Belegs ohne BU-Schlüssel auf ein Automatikkonto – richtig importiert, oder braucht es Schlüssel bzw. Konto je Satz? | eine Buchung je Satz, BU leer (8.3) | Release | offen |
 | P-S45 | Mahnkosten, Verzugszinsen und Pauschale als nicht umsatzsteuerbarer Schadenersatz (UStR Rz 9 AT, Abschn. 1.3 Abs 6 UStAE DE), Einnahme bei Zufluss mit 0 %, Kategorie „Sonstige Einnahmen“; Anrechnung nach § 1416 ABGB / § 367 BGB | Vorbefund Steuerberater: nicht steuerbar, Betriebseinnahme bei Zufluss | Release | offen |
 | P-L12 | Anwältin: Diktat über die Systemtastatur – Anbieterin nicht verantwortlich, Hinweistext genügt | — | Release | offen |
 | P-L13 | Gerätetest, nur bei eigener Spracherkennung: Erkennung im Flugmodus | — | später | offen |
@@ -1159,6 +1178,7 @@ Status: *offen* · *bestätigt* (mit Datum und Prüfer) · *widerlegt* (mit Folg
 | P-L15 | Anwältin bzw. Datenschutzberatung: DSFA und TIA; DPF-Zertifikat, Zero Data Retention und Speicherdauer bei Anthropic verifizieren | — | Stufe C | offen |
 | P-L16 | Anwältin: KI-Ausgabetexte zu Verträgen auf RDG, RAO und UWG | — | Stufe C | offen |
 | P-L17 | Anwältin: Art. 50 AI Act (Kennzeichnung) und aktuelle Fristen | — | Stufe C | offen |
+| P-L19 | Anwältin: Schriftlizenz Work Sans (SIL OFL 1.1) für in PDFs eingebettete Teilmengen und Auslieferung in der App; Lizenznennung | `assets/fonts/OFL.txt` liegt bei; OFL erlaubt Einbetten und Bündeln | Release | offen |
 | P-L18 | Anwältin: Lizenzpflichten ML Kit (Google APIs / ML Kit Terms), Lizenznennung in der App | — | Release | offen |
 | P-R10 | Öffentliche Händleradresse und Telefon (DSA-„Trader"-Angaben) festlegen, identisch mit dem Impressum | Postfach reicht nicht; Geschäftsadresse ratsam | erster Upload | festgelegt 2026-10-12 (Arnoldstein, +43 660 3124252); anwaltliche Bestätigung offen |
 | P-R11 | Nutzungsbedingungen als eigene EULA (Apple) bzw. verlinkt (Google): Gewährleistung und Regress, Rolle der Stores, Herabstufung/Nur-Lese-Modus, Volljährigkeit | — | Release | offen |

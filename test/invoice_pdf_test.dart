@@ -14,6 +14,7 @@ import 'package:intl/date_symbol_data_local.dart';
 /// erzeugbar ist. Ein Layoutfehler im pdf-Paket wirft zur Laufzeit – und zwar
 /// genau dann, wenn der Nutzer seine erste Rechnung verschicken will.
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
   setUpAll(() => initializeDateFormatting('de'));
 
   const customer = Customer(

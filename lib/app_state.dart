@@ -351,6 +351,10 @@ class AppState extends ChangeNotifier {
 
   /// Der Umsatzsteuersatz, der bei neuen Belegen vorausgewählt wird.
   /// Kleinunternehmer buchen ohne Umsatzsteuer.
+  /// Vorsteuerabzug möglich? Kleinunternehmer haben keinen; ihre Ausgaben
+  /// zählen brutto (siehe `ReceiptRepository.totals`).
+  bool get inputVatDeductible => !(_profile?.isSmallBusiness ?? false);
+
   int get defaultVatPermille {
     final profile = _profile;
     if (profile == null) return 0;

@@ -92,6 +92,11 @@ class DunningRules {
 String dunningTitle(int level) =>
     level <= 1 ? 'Zahlungserinnerung' : '${level - 1}. Mahnung';
 
+/// Kurzbezeichnung für das Symbol in der Rechnungsliste: „Erinnert“,
+/// „1. Mahnung“, „2. Mahnung“ …
+String dunningBadge(int level) =>
+    level <= 1 ? 'Erinnert' : '${level - 1}. Mahnung';
+
 /// Eine gestellte Zahlungserinnerung oder Mahnung. Unveränderlich: Text,
 /// Sätze und Beträge sind als Momentaufnahme gespeichert; nur ein Storno mit
 /// Begründung ist möglich (L-3.29).

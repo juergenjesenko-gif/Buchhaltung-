@@ -2,6 +2,7 @@ import '../../core/formatting.dart';
 import '../../domain/country.dart';
 import '../../domain/money.dart';
 import '../../domain/receipt.dart';
+import '../receipt_vat_split.dart';
 import 'ocr_text.dart';
 import 'receipt_classifier.dart';
 import 'receipt_text_parser.dart';
@@ -25,6 +26,7 @@ class ReceiptScanPrefill {
     this.hints = const [],
     this.description,
     this.categoryName,
+    this.vatParts = const [],
   });
 
   factory ReceiptScanPrefill.from(
@@ -111,11 +113,48 @@ class ReceiptScanPrefill {
       permille = 0;
       hints.add(profile.noVatShownHint);
     }
+    // Mehrere Sätze (L-2.27): als Aufteilung vorbelegen, je Zeile mit
+    // denselben Regeln wie oben – ausländischer Satz bei Ausgaben 0 %, ein
+    // unbekannter oder noch nicht gültiger Satz verhindert die Vorbelegung.
+    var vatParts = const <VatPart>[];
     if (r.vatLines.length > 1) {
-      hints.add(
-        'Mehrere Steuersätze erkannt: ${[for (final l in r.vatLines) '${l.permille ~/ 10} % brutto ${Fmt.amount(l.gross)}'].join(', ')}. '
-        'Das Formular bucht einen Satz – bei Bedarf Beleg aufteilen.',
-      );
+      final listed = [
+        for (final l in r.vatLines)
+          '${Fmt.vatRate(l.permille)} brutto ${Fmt.amount(l.gross)}',
+      ].join(', ');
+      final parts = <VatPart>[];
+      var mappable = !foreign && !unclearCurrency;
+      for (final line in r.vatLines) {
+        final own = profile.rateByPermille(line.permille);
+        final foreignRate = own == null || foreignIssuer;
+        if (own != null && !foreignIssuer && own.isValidOn(onDate)) {
+          parts.add((permille: line.permille, gross: line.gross));
+        } else if (foreignRate &&
+            expense &&
+            profile.rateByPermille(0) != null &&
+            (foreignIssuer ||
+                Country.values.any(
+                  (c) => c.taxProfile.rateByPermille(line.permille) != null,
+                ) ||
+                ReceiptTextParser.euRates.contains(line.permille))) {
+          parts.add((permille: 0, gross: line.gross));
+        } else {
+          mappable = false;
+        }
+      }
+      final normalized = ReceiptVatSplit.normalize(parts);
+      if (mappable && normalized.length > 1) {
+        vatParts = normalized;
+        hints.add(
+          'Mehrere Steuersätze erkannt ($listed) – als Aufteilung '
+          'vorbelegt, bitte prüfen.',
+        );
+      } else {
+        hints.add(
+          'Mehrere Steuersätze erkannt: $listed. Bitte bei Bedarf '
+          '„Weiteren Steuersatz hinzufügen“.',
+        );
+      }
     }
     if (foreign && ok(r.gross)) {
       hints.add(
@@ -138,6 +177,7 @@ class ReceiptScanPrefill {
       hints: hints,
       description: classification?.description,
       categoryName: classification?.categoryName,
+      vatParts: vatParts,
     );
   }
 
@@ -157,6 +197,9 @@ class ReceiptScanPrefill {
   /// Name einer Startkategorie als Vorschlag; das Formular wählt sie nur,
   /// wenn es eine Kategorie dieses Namens gibt.
   final String? categoryName;
+
+  /// Erkannte Aufteilung nach Steuersätzen (L-2.27), leer bei einem Satz.
+  final List<VatPart> vatParts;
 }
 
 /// Protokolltext „erkannt gegenüber bestätigt“ für das audit_log (L-2.22,

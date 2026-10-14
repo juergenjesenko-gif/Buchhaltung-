@@ -1,6 +1,6 @@
 # Benutzerhandbuch – Buchhaltung
 
-**Für App-Version 0.6.0** · Stand 2026-10-14
+**Für App-Version 0.7.0** · Stand 2026-10-14
 
 Dieses Handbuch beschreibt die App aus Nutzersicht. Es wird bei jeder Änderung,
 die du in der App siehst, mitgeführt – siehe [`CLAUDE.md`](../CLAUDE.md).
@@ -179,10 +179,13 @@ Das ist die Funktion, die du täglich nutzt. Sie ist auf Geschwindigkeit gebaut.
    die Kamera öffnet sich sofort. Der Knopf liegt mittig, damit du ihn mit dem
    rechten wie dem linken Daumen erreichst. Ob **Einnahme** oder **Ausgabe**,
    wählst du oben im Formular (vorbelegt: Ausgabe). Alternativ im Bereich
-   **Belege** auf das Plus.
+   **Belege** unten in der Mitte auf **Beleg erfassen**.
 2. **Bruttobetrag** eintippen – also die Zahl, die auf dem Beleg steht, inklusive
    Umsatzsteuer. Netto und Steuer rechnet die App sofort darunter aus.
 3. **Umsatzsteuersatz** prüfen. Die App wählt deinen Standardsatz vor.
+   Stehen auf dem Beleg **mehrere Steuersätze** (z. B. im Restaurant Speisen
+   10 % und Getränke 20 %, im Supermarkt 10 % und 20 %), siehe unten
+   „Beleg mit mehreren Steuersätzen“.
 4. **Fotografieren** oder ein vorhandenes Foto **auswählen**. Hat der Beleg
    mehrere Seiten, tippe danach auf **Seite fotografieren** bzw. **Seite
    wählen** – so oft du brauchst. Vor dem Speichern kannst du Seiten mit den
@@ -199,6 +202,26 @@ Das ist die Funktion, die du täglich nutzt. Sie ist auf Geschwindigkeit gebaut.
    Rückseiten erfasst sind – ein eigenes Häkchen gibt es nicht. Der Knopf
    bleibt sichtbar, auch wenn die Tastatur offen ist. Ohne neue Fotos heißt er
    einfach **Beleg speichern** bzw. **Änderungen speichern**.
+
+### Beleg mit mehreren Steuersätzen
+
+1. Bruttobetrag des ganzen Belegs eintragen.
+2. Auf **Weiteren Steuersatz hinzufügen** tippen. Es erscheinen zwei Teile:
+   der erste trägt zunächst den ganzen Betrag, der zweite den Rest.
+3. Im ersten Teil den Satz wählen und den **Bruttobetrag dieses Satzes**
+   eintippen, so wie er auf dem Beleg steht (z. B. Speisen 33,00 €). Der
+   letzte Teil rechnet sich selbst aus (Rest, z. B. Getränke 14,40 €).
+4. Für einen dritten Satz noch einmal **Weiteren Steuersatz hinzufügen**.
+   Mit dem Minus-Symbol entfernst du einen Teil.
+
+Unter jedem Teil stehen Netto und Steuer. Gespeichert wird nur, wenn die Teile
+genau den Belegbetrag ergeben – sonst zeigt die App, wie viel fehlt oder zu
+viel ist. Liest die App einen Beleg mit mehreren Sätzen aus, ist die Aufteilung
+schon vorbelegt – bitte prüfen.
+
+**Bewirtung:** Die App teilt den Beleg nur nach Steuersätzen auf und zählt ihn
+voll. Ob und wie viel du als Betriebsausgabe und Vorsteuer absetzen darfst,
+klärt deine Steuerberatung.
 
 ### Belege automatisch auslesen
 
@@ -232,8 +255,8 @@ Lieferant, Rechnungsnummer und UID des Ausstellers**. Solche Felder sind mit
   nachdem du eine weitere Seite ergänzt hast. Achtung: bereits eingetragene
   Werte werden dabei durch die erkannten ersetzt.
 - **Mehrere Steuersätze** (z. B. Hotel mit Übernachtung und Frühstück): die
-  App zeigt Brutto je Satz an und wählt den größten Anteil vor. Teile den
-  Beleg bei Bedarf in zwei Buchungen auf.
+  App belegt die Aufteilung je Satz vor (siehe „Beleg mit mehreren
+  Steuersätzen“). Bitte die Beträge prüfen.
 - **Fremde Währung** (z. B. eine Rechnung in US-Dollar) bei Ausgaben: die App
   schaltet auf „Beleg in fremder Währung“ und trägt den Betrag laut Beleg ein.
   Den Kurs holst du mit **Kurs abrufen** (siehe *Belege in fremder Währung*).
@@ -374,19 +397,11 @@ Umsätzen quartalsweise abzugeben ist. „Jahr“ ist dein Wirtschaftsjahr; hast
 in den Stammdaten einen anderen ersten Monat als Jänner gewählt, heißen die
 Knöpfe „Dieses WJ (2027)“ und „Letztes WJ (2026)“.
 
-**Nächste Termine** – die nächsten vier Steuertermine: Voranmeldung (nur bei
-Regelbesteuerung), Zusammenfassende Meldung (wenn eingeschaltet),
-Einkommensteuer-Vorauszahlungen, Steuererklärung und in Österreich die
-SVS-Beiträge (als „ca.“, das genaue Datum steht auf deiner Vorschreibung).
-Fällt ein Termin auf ein Wochenende oder einen Feiertag, zeigt die App den
-nächsten Werktag. Tippe auf einen Termin, um die Rechtsgrundlage zu sehen. Mit
-Steuerberatung steht bei der Steuererklärung „Frist laut Kanzlei“. Die Termine
-sind berechnet, zur Orientierung und ohne Gewähr – maßgeblich sind Bescheid,
-Finanzamt bzw. deine Steuerberatung.
-
 **Einnahmen, Ausgaben, Ergebnis** – jeweils netto. Netto, weil die
 Umsatzsteuer für dich ein durchlaufender Posten ist und nicht zu deinem Gewinn
-gehört.
+gehört. **Als Kleinunternehmer** zählen deine Ausgaben **brutto** („Ausgaben
+(brutto)“): du kannst keine Vorsteuer abziehen, also ist die Steuer auf dem
+Beleg für dich Aufwand.
 
 **Umsatzsteuer** (nur bei Regelbesteuerung):
 - Umsatz je Steuersatz
@@ -398,8 +413,20 @@ Als Kleinunternehmer siehst du hier stattdessen einen Hinweis, warum keine
 Umsatzsteuer anfällt.
 
 **Letzte 6 Monate** – zwei Balken je Monat, grün für Einnahmen, rot für Ausgaben.
+Auch eine kleine Ausgabe neben einer großen Einnahme bleibt als kurzer Balken
+sichtbar.
 
 **Letzte Belege** – die fünf neuesten zum direkten Antippen.
+
+**Nächste Termine** (ganz unten) – die nächsten vier Steuertermine: Voranmeldung (nur bei
+Regelbesteuerung), Zusammenfassende Meldung (wenn eingeschaltet),
+Einkommensteuer-Vorauszahlungen, Steuererklärung und in Österreich die
+SVS-Beiträge (als „ca.“, das genaue Datum steht auf deiner Vorschreibung).
+Fällt ein Termin auf ein Wochenende oder einen Feiertag, zeigt die App den
+nächsten Werktag. Tippe auf einen Termin, um die Rechtsgrundlage zu sehen. Mit
+Steuerberatung steht bei der Steuererklärung „Frist laut Kanzlei“. Die Termine
+sind berechnet, zur Orientierung und ohne Gewähr – maßgeblich sind Bescheid,
+Finanzamt bzw. deine Steuerberatung.
 
 Nach unten ziehen aktualisiert die Ansicht.
 
@@ -460,7 +487,7 @@ Unter der Ampel steht immer im Klartext, was der Status für dich bedeutet.
 
 ### Eine Rechnung erstellen
 
-1. Bereich **Rechnungen** → Plus
+1. Bereich **Rechnungen** → unten in der Mitte **Neue Rechnung**
 2. **Empfänger** → *Wählen*. Noch kein Kunde da? Im Auswahlfenster unten auf
    *Neuen Kunden anlegen*.
 3. **Zeitraum** prüfen:
@@ -555,7 +582,11 @@ Stammdaten bearbeitest.
 ### Rechnung versenden
 
 Direkt nach dem Ausstellen mit **PDF senden** unten im Formular, oder später in
-der Rechnungsliste auf das PDF-Symbol. Die App erzeugt das PDF und öffnet den
+der Rechnungsliste auf der Karte mit **PDF senden**. Eine neue Rechnung beginnst
+du unten in der Mitte mit **Neue Rechnung**. Rechnung und Mahnung sprechen
+deine Kunden mit **Sie** an; € und Gedankenstrich erscheinen im PDF richtig.
+Liegt das Leistungsdatum nach dem Rechnungsdatum, fragt das Formular dezent
+nach („stimmt das?“) – speichern kannst du trotzdem. Die App erzeugt das PDF und öffnet den
 Teilen-Dialog deines Telefons: E-Mail, Messenger, Cloud-Ordner – du entscheidest.
 
 ### Status pflegen
@@ -568,7 +599,7 @@ mit Nummer und Betrag nach.
 |---|---|
 | **Entwurf** | Noch nicht gestellt, änderbar, löschbar |
 | **Offen** | Gestellt, Zahlung ausstehend |
-| **Überfällig** | Gestellt, Fälligkeit verstrichen – wird rot |
+| **Überfällig** | Gestellt, Fälligkeit (bzw. nach einer Mahnung deren neue Frist) verstrichen – wird rot |
 | **Bezahlt** | Erledigt – die App bucht den Betrag als Einnahme |
 | **Storniert** | Zurückgenommen, bleibt aber erhalten |
 
@@ -623,6 +654,11 @@ Hinweis, dass sie nach 30 Tagen auch ohne Mahnung in Verzug kommen
 **Bezahlt nach einer Mahnung:** Die App fragt „Mahnkosten und Zinsen
 mitbezahlt?“. Bei *Ja* bucht sie diese getrennt als Einnahme ohne
 Umsatzsteuer. Teilzahlungen kann die App noch nicht abbilden.
+
+**Nach dem Erinnern oder Mahnen:** Die Rechnung trägt in der Liste ein Symbol,
+z. B. **Erinnert · Frist 28.10.2026** oder **1. Mahnung · Frist …**. Antippen
+zeigt den ganzen Mahnverlauf. „Überfällig“ und der Knopf **Mahnen** erscheinen
+erst wieder, wenn diese neue Frist abgelaufen ist.
 
 Standardwerte (Mahnkosten, Frist, Zinsen, Pauschale) stellst du in den
 Stammdaten unter *Rechnungen → Mahnungen* ein.
@@ -1008,7 +1044,8 @@ Damit du nicht darauf wartest:
 - **Die Belegerkennung merkt sich noch keine Korrekturen.** Änderst du
   Beschreibung oder Kategorie eines Händlers, schlägt sie beim nächsten Beleg
   wieder dasselbe vor. Geplant.
-- **Belegerkennung mit einem Steuersatz je Beleg.** Die App liest Belege auf dem Gerät aus; bei mehreren Steuersätzen auf einem Beleg füllt sie den größten Anteil vor, aufteilen musst du von Hand.
+- **Keine Kürzung bei Bewirtung.** Bewirtungsbelege werden nach Steuersätzen
+  aufgeteilt, aber voll gezählt; die steuerliche Kürzung macht deine Kanzlei.
 - **Keine Lohnverrechnung, keine Bilanz, keine doppelte Buchführung**
 - **Keine automatische Übermittlung** an FinanzOnline oder ELSTER. Die App
   liefert dir die Zahlen; die Erklärung machst du oder deine Kanzlei.

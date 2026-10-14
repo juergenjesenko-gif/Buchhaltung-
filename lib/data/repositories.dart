@@ -196,7 +196,72 @@ class ReceiptRepository {
       orderBy: 'date DESC, id DESC',
       limit: limit,
     );
-    return rows.map(Receipt.fromMap).toList();
+    final split = await splitLines();
+    return [
+      for (final row in rows)
+        Receipt.fromMap(row, split[row['id']] ?? const []),
+    ];
+  }
+
+  /// Zeilen aller Belege mit mehr als einem Steuersatz (L-2.27), je
+  /// Beleg-ID in Positionsreihenfolge. Belege mit einem Satz brauchen keine
+  /// Zeilen zu laden, ihr Kopf ist die Zeile.
+  Future<Map<int, List<ReceiptVatLine>>> splitLines([
+    DatabaseExecutor? db,
+  ]) async {
+    final rows = await (db ?? _db).rawQuery('''
+      SELECT * FROM receipt_vat_lines
+      WHERE receipt_id IN (
+        SELECT receipt_id FROM receipt_vat_lines
+        GROUP BY receipt_id HAVING COUNT(*) > 1
+      )
+      ORDER BY receipt_id, position
+    ''');
+    final result = <int, List<ReceiptVatLine>>{};
+    for (final row in rows) {
+      result
+          .putIfAbsent(row['receipt_id'] as int, () => [])
+          .add(ReceiptVatLine.fromMap(row));
+    }
+    return result;
+  }
+
+  /// Steuersatzzeilen eines Belegs; immer mindestens eine.
+  Future<List<ReceiptVatLine>> vatLines(int receiptId) async {
+    final rows = await _db.query(
+      'receipt_vat_lines',
+      where: 'receipt_id = ?',
+      whereArgs: [receiptId],
+      orderBy: 'position',
+    );
+    return rows.map(ReceiptVatLine.fromMap).toList();
+  }
+
+  /// Schreibt die Steuersatzzeilen eines Belegs neu (L-2.27). Belege mit
+  /// einem Satz bekommen genau eine Zeile aus dem Kopf.
+  static Future<void> writeVatLines(
+    DatabaseExecutor db,
+    int receiptId,
+    Receipt receipt,
+  ) async {
+    final lines = receipt.lines;
+    for (final line in lines) {
+      if (!line.isConsistent) {
+        throw StateError('Steuersatzzeile verletzt net + vat == gross');
+      }
+    }
+    final header = lines.map((l) => l.gross).sum;
+    if (header != receipt.gross) {
+      throw StateError('Summe der Steuersätze ungleich Belegbetrag');
+    }
+    await db.delete(
+      'receipt_vat_lines',
+      where: 'receipt_id = ?',
+      whereArgs: [receiptId],
+    );
+    for (var i = 0; i < lines.length; i++) {
+      await db.insert('receipt_vat_lines', lines[i].toMap(receiptId, i + 1));
+    }
   }
 
   Future<Receipt?> byId(int id) async {
@@ -206,7 +271,8 @@ class ReceiptRepository {
       whereArgs: [id],
       limit: 1,
     );
-    return rows.isEmpty ? null : Receipt.fromMap(rows.first);
+    if (rows.isEmpty) return null;
+    return Receipt.fromMap(rows.first, await vatLines(id));
   }
 
   /// Speichert einen Beleg samt Seiten (L-2.15) und optional einem ersten
@@ -291,6 +357,7 @@ class ReceiptRepository {
           txn: txn,
         );
       }
+      await writeVatLines(txn, id, receipt);
       if (pages != null) await _writePages(txn, id, pages);
       // Kurs, Quelle und Überschreibung durch den Bankbetrag (L-2.26).
       final fx = fxAuditDetail(receipt);
@@ -471,18 +538,44 @@ class ReceiptRepository {
   }
 
   /// Summen je Richtung für einen Zeitraum – Basis für Kassabuch und UVA.
+  ///
+  /// Ausgewertet wird je Steuersatzzeile (L-2.27); ein Beleg ohne Zeilen
+  /// zählt mit seinem Kopf als eine Zeile.
+  ///
+  /// Ohne Vorsteuerabzug ([inputVatDeductible] `false`, Kleinunternehmer)
+  /// ist die Umsatzsteuer auf Ausgaben Teil des Aufwands: Ausgaben zählen
+  /// brutto, Vorsteuer gibt es keine (AT § 12 Abs 1 iVm § 6 Abs 1 Z 27
+  /// UStG 1994; DE § 19 Abs 1 S 4 UStG, § 9b Abs 1 EStG).
   Future<PeriodTotals> totals({
     required DateTime from,
     required DateTime to,
+    bool inputVatDeductible = true,
   }) async {
     final rows = await _db.rawQuery(
       '''
-      SELECT direction, vat_permille,
-             SUM(net_cents) AS net, SUM(vat_cents) AS vat, SUM(gross_cents) AS gross,
-             SUM(COALESCE(bank_gross_cents, gross_cents) - gross_cents) AS fx_diff
+      SELECT r.direction AS direction, l.vat_permille AS vat_permille,
+             SUM(l.net_cents) AS net, SUM(l.vat_cents) AS vat,
+             SUM(l.gross_cents) AS gross
+      FROM receipts r
+      JOIN (
+        SELECT receipt_id, vat_permille, net_cents, vat_cents, gross_cents
+        FROM receipt_vat_lines
+        UNION ALL
+        SELECT id, vat_permille, net_cents, vat_cents, gross_cents
+        FROM receipts
+        WHERE id NOT IN (SELECT receipt_id FROM receipt_vat_lines)
+      ) l ON l.receipt_id = r.id
+      WHERE r.date >= ? AND r.date <= ? AND r.cancelled_at IS NULL
+      GROUP BY r.direction, l.vat_permille
+      ''',
+      [_day(from), _day(to)],
+    );
+    final fx = await _db.rawQuery(
+      '''
+      SELECT SUM(COALESCE(bank_gross_cents, gross_cents) - gross_cents) AS fx_diff
       FROM receipts
-      WHERE date >= ? AND date <= ? AND cancelled_at IS NULL
-      GROUP BY direction, vat_permille
+      WHERE direction = 'expense' AND date >= ? AND date <= ?
+        AND cancelled_at IS NULL
       ''',
       [_day(from), _day(to)],
     );
@@ -493,7 +586,6 @@ class ReceiptRepository {
     var expenseNet = const Money.zero();
     var expenseVat = const Money.zero();
     var expenseGross = const Money.zero();
-    var expenseFxDifference = const Money.zero();
     final incomeByRate = <int, Money>{};
     final expenseVatByRate = <int, Money>{};
 
@@ -510,13 +602,15 @@ class ReceiptRepository {
         incomeGross += gross;
         incomeByRate[permille] =
             (incomeByRate[permille] ?? const Money.zero()) + net;
-      } else {
+      } else if (inputVatDeductible) {
         expenseNet += net;
         expenseVat += vat;
         expenseGross += gross;
-        expenseFxDifference += Money((row['fx_diff'] as int?) ?? 0);
         expenseVatByRate[permille] =
             (expenseVatByRate[permille] ?? const Money.zero()) + vat;
+      } else {
+        expenseNet += gross;
+        expenseGross += gross;
       }
     }
 
@@ -529,7 +623,7 @@ class ReceiptRepository {
       expenseNet: expenseNet,
       expenseVat: expenseVat,
       expenseGross: expenseGross,
-      expenseFxDifference: expenseFxDifference,
+      expenseFxDifference: Money((fx.first['fx_diff'] as int?) ?? 0),
       incomeNetByRate: incomeByRate,
       inputVatByRate: expenseVatByRate,
     );
@@ -933,10 +1027,11 @@ class InvoiceRepository {
         categoryId: category.isEmpty ? null : category.first['id'] as int?,
         documentNumber: invoice.number,
       );
-      await txn.insert('receipts', {
+      final receiptId = await txn.insert('receipts', {
         ...receipt.toMap(),
         'invoice_id': invoice.id,
       });
+      await ReceiptRepository.writeVatLines(txn, receiptId, receipt);
     }
   }
 
@@ -975,10 +1070,19 @@ class InvoiceRepository {
       categoryId: category.isEmpty ? null : category.first['id'] as int?,
       documentNumber: invoice.number,
     );
-    await txn.insert('receipts', {
+    final booked = await txn.query(
+      'receipts',
+      columns: ['id'],
+      where: 'dunning_invoice_id = ?',
+      whereArgs: [invoice.id],
+      limit: 1,
+    );
+    if (booked.isNotEmpty) return;
+    final receiptId = await txn.insert('receipts', {
       ...receipt.toMap(),
       'dunning_invoice_id': invoice.id,
-    }, conflictAlgorithm: ConflictAlgorithm.ignore);
+    });
+    await ReceiptRepository.writeVatLines(txn, receiptId, receipt);
   }
 
   Future<bool> numberExists(String number, {int? exceptId}) async {

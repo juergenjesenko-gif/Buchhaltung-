@@ -10,6 +10,7 @@ import '../../services/dunning_calculator.dart';
 import '../../services/dunning_pdf.dart';
 import '../../services/dunning_service.dart';
 import '../../services/invoice_seller.dart';
+import '../../services/invoice_texts.dart';
 import '../../services/share_service.dart';
 import '../../theme.dart';
 import '../../widgets/common.dart';
@@ -136,9 +137,7 @@ class _DunningSheetState extends State<_DunningSheet> {
         fileName: '${notice.title.replaceAll(' ', '_')}_$safe.pdf',
         bytes: bytes,
         subject: '${notice.title} zu Rechnung ${widget.invoice.number}',
-        text:
-            'Im Anhang findest du die ${notice.title} zu Rechnung '
-            '${widget.invoice.number}.',
+        text: InvoiceTexts.shareDunning(notice.title, widget.invoice.number),
       );
       if (mounted) Navigator.of(context).pop(true);
     } on Exception catch (error) {

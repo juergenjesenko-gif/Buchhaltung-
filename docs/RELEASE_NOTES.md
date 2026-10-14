@@ -29,11 +29,39 @@ gebaut, und was war darin geprüft?*
 
 ## Unveröffentlicht
 
-Änderungen seit 0.6.0+11, die noch in keinem Build stecken. Wandern beim
+Änderungen seit 0.7.0+12, die noch in keinem Build stecken. Wandern beim
 nächsten Versionssprung in den neuen Eintrag.
 
 | Art | Änderung | Bezug | Commit |
 |---|---|---|---|
+
+---
+
+## 0.7.0+12 — 2026-10-14
+
+| Feld | Wert |
+|---|---|
+| Art | Testbuild (ungezippte arm64-APK, fester Testschlüssel); Steuersätze aufteilen, Mahnfrist, Einhandbedienung links/rechts |
+| Commit | siehe Git-Tag `v0.7.0` |
+| Branch | `claude/agile-accounting-app-mobile-wa5j3h` |
+| Dokumentstände | Lastenheft 1.48, Spezifikation 1.46, Benutzerhandbuch für 0.7.0, DESIGN_SPEC 1.2 |
+| Datenbankschema | 14 |
+| Prüfung | `flutter analyze` ohne Befund, alle Tests grün (neu `receipt_vat_split_test.dart`, `manual_expense_dashboard_test.dart`, `dunning_followup_test.dart`, `pdf_fonts_test.dart`), Emulator-Job `android-ocr-emulator`, CI siehe Lauf zum Tag |
+| Steuerliche Kennwerte | `spec.schema_version` 13 → 14 |
+| Offene reale Prüfpunkte | wie 0.6.0+11, dazu P-S46 bis P-S48, P-L19, P-X7 |
+
+**Änderungen seit 0.6.0+11**
+
+| Art | Änderung | Bezug | Commit |
+|---|---|---|---|
+| Behoben | Gerätetest 0.6.0: Ausgabe in der Übersicht – Kleinunternehmer zählen Ausgaben brutto (keine Vorsteuer), Balken-Mindesthöhe 6 dp, nur der jüngste Ladevorgang zeigt Summen | FA-3.2, FA-3.5, FA-3.7, P-S47 | siehe Tag |
+| Behoben | € und Gedankenstrich in allen PDFs: eingebettete Schrift Work Sans (OFL) statt Helvetica | FA-5.30, P-L19 | siehe Tag |
+| Geändert | Termin-Box ans Ende der Übersicht | FA-3.7 | siehe Tag |
+| Neu | Beleg mit mehreren Steuersätzen aufteilen, Rest automatisch, Auswertungen/UVA/Exporte je Satz (DATEV eine Buchung je Satz), Belegerkennung belegt Aufteilung vor; Schema 14 `receipt_vat_lines` | L-2.27, FA-2.33, FA-2.34, P-S46, P-S48 | siehe Tag |
+| Neu | Mahnwesen: neue Frist je Schreiben, „überfällig“ erst nach deren Ablauf; Mahnsymbol mit Stufe und Frist, Tipp zeigt Verlauf | L-3.31, FA-5.26, FA-5.27 | siehe Tag |
+| Geändert | Kundendokumente (Rechnung, Mahnung, Begleittext) in Sie-Form | FA-5.28 | siehe Tag |
+| Neu | Hinweis „Leistungsdatum liegt nach dem Rechnungsdatum – stimmt das?“ | FA-5.29 | siehe Tag |
+| Geändert | Einhandbedienung links und rechts: zentrierte Knöpfe „Beleg erfassen“, „Neue Rechnung“, „Neuer Kunde“; Rechnungskarte mit Aktionsleiste inkl. „PDF senden“ | FA-12.7, P-X7 | siehe Tag |
 
 ---
 

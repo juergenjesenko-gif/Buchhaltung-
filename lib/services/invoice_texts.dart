@@ -6,6 +6,48 @@ import '../domain/invoice.dart';
 class InvoiceTexts {
   const InvoiceTexts._();
 
+  // ---------------------------------------------------------------------------
+  // Anrede in Kundendokumenten (Rechnung, Mahnung, Begleittext beim Senden).
+  // Die App-Oberfläche duzt, Briefe an Kunden siezen (Vorbelegung bis zur
+  // Entscheidung der Auftraggeberin, Gerätetest 0.6.0). Alle Sätze mit
+  // Anrede stehen hier, damit eine spätere Umschaltung an einer Stelle
+  // ansetzt.
+  // ---------------------------------------------------------------------------
+
+  /// Zahlungsaufforderung auf der Rechnung.
+  static String transferRequest(String invoiceNumber) =>
+      'Bitte überweisen Sie den Betrag unter Angabe der Rechnungsnummer '
+      '$invoiceNumber auf folgendes Konto:';
+
+  /// Zahlungsaufforderung im Mahnschreiben.
+  static String dunningPay(String total, String until) =>
+      'Bitte überweisen Sie den Betrag von $total bis $until.';
+
+  /// Schlusssatz jedes Mahnschreibens.
+  static const dunningAlreadyPaid =
+      'Falls Sie bereits bezahlt haben, betrachten Sie dieses Schreiben '
+      'bitte als gegenstandslos.';
+
+  /// Begleittext beim Senden der Rechnung.
+  static String shareInvoice(String number) =>
+      'Im Anhang finden Sie die Rechnung $number.';
+
+  /// Begleittext beim Senden einer Erinnerung oder Mahnung.
+  static String shareDunning(String title, String number) =>
+      'Im Anhang finden Sie die $title zu Rechnung $number.';
+
+  /// Dezenter Hinweis, kein Blocker: Leistungsdatum nach dem
+  /// Rechnungsdatum ist zulässig (Vorausrechnung), aber oft ein Tippfehler
+  /// (Gerätetest 0.6.0). `null`, wenn kein Hinweis nötig ist.
+  static String? deliveryAfterIssueHint(DateTime issue, DateTime? delivery) {
+    if (delivery == null) return null;
+    final i = DateTime(issue.year, issue.month, issue.day);
+    final d = DateTime(delivery.year, delivery.month, delivery.day);
+    return d.isAfter(i)
+        ? 'Leistungsdatum liegt nach dem Rechnungsdatum – stimmt das?'
+        : null;
+  }
+
   /// Prozentsatz aus Promille, z. B. 25 → „2,5 %“, 100 → „10 %“.
   static String percent(int permille) => Fmt.vatRate(permille);
 

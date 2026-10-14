@@ -16,7 +16,7 @@ class AppDatabase {
 
   /// Aktuelle Schemaversion. Öffentlich, weil docs/SPECIFICATION.md sie
   /// dokumentiert und test/specification_sync_test.dart beide vergleicht.
-  static const schemaVersion = 13;
+  static const schemaVersion = 14;
 
   Database? _db;
 
@@ -451,6 +451,27 @@ class AppDatabase {
       'ALTER TABLE receipts ADD COLUMN dunning_invoice_id INTEGER REFERENCES invoices(id)',
       'CREATE UNIQUE INDEX idx_receipts_dunning ON receipts(dunning_invoice_id) '
           'WHERE dunning_invoice_id IS NOT NULL',
+    ],
+    // Beleg mit mehreren Steuersätzen (L-2.27): je Satz eine Zeile mit
+    // net + vat == gross. Bestehende Belege werden zu genau einer Zeile.
+    14: [
+      '''
+      CREATE TABLE receipt_vat_lines (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        receipt_id INTEGER NOT NULL REFERENCES receipts(id) ON DELETE CASCADE,
+        position INTEGER NOT NULL,
+        vat_permille INTEGER NOT NULL,
+        net_cents INTEGER NOT NULL,
+        vat_cents INTEGER NOT NULL,
+        gross_cents INTEGER NOT NULL,
+        UNIQUE (receipt_id, position)
+      )
+      ''',
+      'CREATE INDEX idx_receipt_vat_lines ON receipt_vat_lines(receipt_id)',
+      'INSERT INTO receipt_vat_lines '
+          '(receipt_id, position, vat_permille, net_cents, vat_cents, gross_cents) '
+          'SELECT id, 1, vat_permille, net_cents, vat_cents, gross_cents '
+          'FROM receipts',
     ],
   };
 

@@ -1,6 +1,7 @@
 import 'package:buchhaltung/app_state.dart';
 import 'package:buchhaltung/data/app_database.dart';
 import 'package:buchhaltung/data/repositories.dart';
+import 'package:buchhaltung/domain/dunning.dart';
 import 'package:buchhaltung/domain/invoice.dart';
 import 'package:buchhaltung/domain/money.dart';
 import 'package:buchhaltung/features/invoices/invoice_list_screen.dart';
@@ -93,9 +94,98 @@ void main() {
     expect(tester.getSize(create).height, greaterThanOrEqualTo(56));
     // Zahlungserinnerung kostenlos: kein Verbraucherhinweis.
     expect(find.byKey(const Key('consumerFeeHint')), findsNothing);
+    final fee = tester.widget<TextField>(find.byKey(const Key('dunningFee')));
+    expect(fee.controller!.text, '0,00');
     await tester.enterText(find.byKey(const Key('dunningFee')), '10,00');
     await tester.pump();
     expect(find.text(DunningService.consumerFeeHint), findsOneWidget);
     await tester.runAsync(db.close);
   });
+
+  testWidgets(
+    'nach Erinnerung: Symbol mit Frist, kein Überfällig bis Fristablauf',
+    (tester) async {
+      final db = await tester.runAsync(
+        () => databaseFactoryFfi.openDatabase(
+          inMemoryDatabasePath,
+          options: OpenDatabaseOptions(
+            version: AppDatabase.schemaVersion,
+            onCreate: AppDatabase.createSchema,
+            singleInstance: false,
+          ),
+        ),
+      );
+      final state = AppState(Repositories(db!));
+      await tester.runAsync(() async {
+        await db.insert('company_profile', {
+          'id': 1,
+          'company_name': 'Test',
+          'country_code': 'DE',
+        });
+        final customerId = await db.insert('customers', {
+          'name': 'Privatkundin',
+          'street': 'Weg 1',
+          'postal_code': '10115',
+          'city': 'Berlin',
+        });
+        await state.repositories.invoices.save(
+          Invoice(
+            number: 'RE-2026-0001',
+            issueDate: DateTime(2026, 1, 1),
+            dueDate: DateTime(2026, 1, 15),
+            customerId: customerId,
+            status: InvoiceStatus.issued,
+            items: [
+              InvoiceItem(
+                position: 1,
+                description: 'Beratung',
+                quantityMilli: 1000,
+                unitPrice: const Money(10000),
+                vatPermille: 190,
+              ),
+            ],
+          ),
+        );
+        final now = DateTime.now();
+        await state.repositories.dunning.insert(
+          DunningNotice(
+            invoiceId: 1,
+            level: 1,
+            issuedOn: DateTime(now.year, now.month, now.day),
+            newDueDate: DateTime(now.year, now.month, now.day + 14),
+            principal: const Money(11900),
+            fee: const Money.zero(),
+            feesTotal: const Money.zero(),
+            interest: const Money.zero(),
+            interestRateBp: 0,
+            flatFee: const Money.zero(),
+            text: 'Text',
+          ),
+        );
+        await state.reload();
+      });
+      tester.view.physicalSize = const Size(390, 1600);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.reset);
+      await tester.pumpWidget(
+        AppScope(
+          state: state,
+          child: const MaterialApp(home: InvoiceListScreen()),
+        ),
+      );
+      await settle(tester);
+
+      expect(find.byKey(const Key('overdueBanner')), findsNothing);
+      expect(find.byKey(const ValueKey('remind-1')), findsNothing);
+      final badge = find.byKey(const Key('dunning-badge-1'));
+      expect(badge, findsOneWidget);
+      expect(tester.getSize(badge).height, greaterThanOrEqualTo(48));
+      expect(find.textContaining('Erinnert · Frist'), findsOneWidget);
+      await tester.tap(badge);
+      await settle(tester);
+      expect(find.byKey(const Key('dunningHistory')), findsOneWidget);
+      expect(find.textContaining('Zahlungserinnerung vom'), findsOneWidget);
+      await tester.runAsync(db.close);
+    },
+  );
 }

@@ -4,6 +4,8 @@ import 'package:cryptography/cryptography.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 
+import 'pdf_fonts.dart';
+
 import '../core/formatting.dart';
 import '../domain/company_profile.dart';
 import '../domain/customer.dart';
@@ -61,8 +63,9 @@ class DunningPdf {
       title: '${notice.title} zu Rechnung ${invoice.number}',
       author: profile.companyName,
     );
-    final base = pw.Font.helvetica();
-    final bold = pw.Font.helveticaBold();
+    final fonts = await PdfFonts.load();
+    final base = fonts.base;
+    final bold = fonts.bold;
     final tableRows = rows(notice, rules, business: customer.isBusiness);
     doc.addPage(
       pw.Page(
