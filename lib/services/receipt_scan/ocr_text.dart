@@ -30,6 +30,7 @@ class OcrDocument {
     required this.lines,
     this.engine = 'unbekannt',
     this.engineVersion = '',
+    this.codes = const [],
   });
 
   /// Erzeugt ein Dokument aus Klartext, eine Zeile je Zeilenumbruch (Tests).
@@ -39,6 +40,10 @@ class OcrDocument {
   );
 
   final List<OcrLine> lines;
+
+  /// Rohinhalte der QR- und Barcodes auf denselben Fotos (L-27.1), in der
+  /// Reihenfolge der Seiten. Zerlegt in `receipt_codes.dart`.
+  final List<String> codes;
 
   /// Name und Version der Engine, für das Änderungsprotokoll.
   final String engine;

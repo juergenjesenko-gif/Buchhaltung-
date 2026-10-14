@@ -9,7 +9,8 @@ import 'ocr_text.dart';
 /// Android Google ML Kit Text Recognition (Latin, gebündeltes Modell) in
 /// `android/.../ReceiptTextChannel.kt`, iOS Apple Vision in
 /// `ios/Runner/ReceiptTextChannel.swift`. Bilder und Text verlassen das Gerät
-/// nicht; zur Telemetrie von ML Kit siehe docs/PRIVACY.md.
+/// nicht. Auf demselben Bild werden QR- und Barcodes gelesen (ML Kit Barcode
+/// Scanning gebündelt bzw. VNDetectBarcodesRequest, L-27.1); zur Telemetrie von ML Kit siehe docs/PRIVACY.md.
 class PlatformReceiptTextRecognizer implements ReceiptTextRecognizer {
   const PlatformReceiptTextRecognizer();
 
@@ -29,6 +30,7 @@ class PlatformReceiptTextRecognizer implements ReceiptTextRecognizer {
   @override
   Future<OcrDocument> recognize(List<String> absoluteImagePaths) async {
     final lines = <OcrLine>[];
+    final codes = <String>[];
     var engine = 'unbekannt';
     var version = '';
     for (var i = 0; i < absoluteImagePaths.length; i++) {
@@ -39,6 +41,9 @@ class PlatformReceiptTextRecognizer implements ReceiptTextRecognizer {
       if (result == null) continue;
       engine = result['engine'] as String? ?? engine;
       version = result['engineVersion'] as String? ?? version;
+      for (final code in (result['codes'] as List? ?? const [])) {
+        if (code is String && code.isNotEmpty) codes.add(code);
+      }
       for (final raw in (result['lines'] as List? ?? const [])) {
         final map = (raw as Map).cast<String, Object?>();
         lines.add(
@@ -52,7 +57,12 @@ class PlatformReceiptTextRecognizer implements ReceiptTextRecognizer {
         );
       }
     }
-    return OcrDocument(lines: lines, engine: engine, engineVersion: version);
+    return OcrDocument(
+      lines: lines,
+      engine: engine,
+      engineVersion: version,
+      codes: codes,
+    );
   }
 }
 

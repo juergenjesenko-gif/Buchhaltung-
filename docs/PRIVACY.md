@@ -116,7 +116,8 @@ ausgelesen (Datum, Betrag, Steuersatz, Lieferant, UID, Rechnungsnummer).
 Foto und erkannter Text verlassen das Gerät dafür **nicht**; die Erkennung
 funktioniert auch im Flugmodus. Unter **iOS** nutzt die App die
 Texterkennung von Apple (Vision), die nichts überträgt. Unter **Android**
-nutzt sie die in die App eingebundene Bibliothek Google ML Kit. Diese sendet
+nutzt sie die in die App eingebundene Bibliothek Google ML Kit (Text- und
+QR-Code-Erkennung, beide fest in der App enthalten). Diese sendet
 nach Angaben von Google **Nutzungs- und Diagnosedaten** (etwa Gerätetyp,
 App-Version, Leistung und Fehler der Erkennung) an Google – **keine Fotos und
 keinen erkannten Text**. Ein offizielles Abschalten bietet Google nicht an;

@@ -1,6 +1,6 @@
 # Lastenheft – Buchhaltungsapp für Österreich und Deutschland
 
-**Dokumentversion:** 1.49 · **Stand:** 2026-10-14 · **Status:** Entwurf zur Abstimmung
+**Dokumentversion:** 1.50 · **Stand:** 2026-10-14 · **Status:** Entwurf zur Abstimmung
 **Auftraggeber:** Jürgen Jesenko (privates Vorhaben) · **Umsetzung:** Claude Code
 
 > Ein Lastenheft beschreibt, **was** das Produkt leisten soll und **warum** — nicht,
@@ -640,7 +640,7 @@ Jede Übertragung vom Gerät weg, auch die unscheinbaren:
 | Rechnung/Export teilen | vom Nutzer gewählt | PDF, CSV | Tippen auf Teilen | je Vorgang | vorhanden |
 | Sicherung von Hand (L-7.1) | vom Nutzer gewählt (Teilen-Dialog) | mit Kennwort verschlüsselte Vollsicherung samt Fotos | Tippen auf „Sicherung erstellen“ | je Vorgang | vorhanden |
 | Sicherung automatisch (L-7.2, L-7.6 ff.) | einmal gewählter Ordner, z. B. iCloud Drive oder Google Drive; Upload durch das Betriebssystem bzw. den Dokumentanbieter | mit Schlüssel verschlüsselte Vollsicherung samt Fotos | nach jeder Änderung höchstens täglich, beim Öffnen der App | **ja**, standardmäßig aus | vorhanden |
-| Diagnose der Belegerkennung, nur Android (L-2.20) | Google (Google ML Kit, in der App eingebunden) | Nutzungs- und Diagnosedaten der Bibliothek (z. B. Gerätetyp, Leistung, Fehler); **keine Bilder, kein erkannter Text** | Nutzung der Belegerkennung | nein, kein offizielles Abschalten; Erkennung insgesamt abschaltbar (L-2.23). Prüfung P-R19, P-D21 | vorhanden |
+| Diagnose der Belegerkennung, nur Android (L-2.20, L-27.1) | Google (Google ML Kit Texterkennung und Barcode-Erkennung, beide gebündelt in der App) | Nutzungs- und Diagnosedaten der Bibliotheken (z. B. Gerätetyp, Leistung, Fehler); **keine Bilder, kein erkannter Text** | Nutzung der Belegerkennung | nein, kein offizielles Abschalten; Erkennung insgesamt abschaltbar (L-2.23). Prüfung P-R19, P-D21 | vorhanden |
 | EZB-Kursabruf (L-2.25, L-19.29) | Europäische Zentralbank, direkt vom Gerät | nur Abruf einer festen Kursdatei: IP-Adresse, Zeitpunkt, technische Verbindungsdaten; **keine Belegdaten, keine Währung, kein Betrag** | Tippen auf „Kurs abrufen“ | je Vorgang | vorhanden |
 | Foto-Zweitablage (L-2.11) | Fotobibliothek, ggf. deren Cloud | Belegfotos | Einschalten | ja | A |
 | UID-Prüfung auf Tippen (L-1.3) | EU-Kommission (VIES), direkt vom Gerät | UID, eigene UID als Anfragende, IP-Adresse | Tippen auf „Jetzt prüfen“ | je Vorgang | vorhanden |
@@ -950,6 +950,26 @@ Spezifikation 14, P-R25, P-R26 (Stufe 2), P-D26.
 
 Umsetzung Stufe 1: Spezifikation 5.8, FA-11.1 bis FA-11.3.
 
+### 5.27 Belege aus Codes, PDF und E-Rechnungen übernehmen
+
+Entscheidung der Auftraggeberin 2026-10-14: Stufen A1 (Codes auf dem Foto,
+Teilen-Ziel), A2 (PDF und E-Rechnungen), A3 (Link-QR) und B1 umsetzen; echte
+Plattform-Schnittstellen (B2) zurückgestellt (O-32). Alles läuft auf dem
+Gerät; einzige neue Übertragung ist der Abruf über einen Link-QR nach Tipp
+(L-27.7, 5.19). Real zu prüfen: Spezifikation 14, P-S49, P-S50, P-R35, P-U5,
+P-U6.
+
+| ID | Anforderung | Priorität | Stufe |
+|---|---|---|---|
+| L-27.1 | QR- und 2D-Codes werden auf **demselben Foto** wie der Text erkannt, offline, ohne zweiten Schritt | MUSS | A1 |
+| L-27.2 | **Kassen-QR** (AT RKSV, DE TSE nach DSFinV-K) hat Vorrang bei Betrag, Datum und Steuersätzen (Aufteilung je Satz); Händler aus dem Text bzw. aus einem Lernspeicher Kasse → Händler; dezenter Vermerk „vom Kassen-QR“; das Foto bleibt der Beleg. Ein Satz, der aus dem Code nicht eindeutig hervorgeht (AT „Betrag-Satz-Besonders“: 19 % oder 4,9 %), wird nicht geraten | MUSS | A1 |
+| L-27.3 | **Zahlungs-QR** (EPC069-12, „GiroCode“): Empfänger, IBAN, Betrag und Referenz vorbelegen | MUSS | A1 |
+| L-27.4 | **Teilen-Ziel**: Bilder, PDF und XML aus anderen Apps an die App teilen ergibt direkt einen Buchungsvorschlag (Android; iOS über Share Extension) | MUSS | A1/A2 |
+| L-27.5 | **PDF-Rechnungen**: Textebene auslesen; ohne Textebene Rückfall auf Texterkennung eines Seitenbilds | MUSS | A2 |
+| L-27.6 | **E-Rechnungen** strukturiert übernehmen: ZUGFeRD/Factur-X (eingebettetes XML), XRechnung (UBL und CII), ebInterface (AT) – Lieferant, UID, Datum, Sätze, Beträge, IBAN | MUSS | A2 |
+| L-27.7 | **Link-QR**: Hinweisstreifen unten „Rechnung von ‹Domain› laden?“, nur nach Tipp, nur https, Domain groß, Weiterleitung auf fremde Domain nur nach erneuter Anzeige, nur PDF/XML, Größenlimit, kein Login im Web-Fenster; sonst „Im Browser öffnen“ | MUSS | A3 |
+| L-27.8 | Die **Originaldatei** (PDF, XML) wird unverändert mit SHA-256 aufbewahrt und ist Teil von Sicherung und Export (§ 132 BAO, § 147 AO, GoBD Rz 131 ff.) | MUSS | A2 |
+
 ## 6. Nichtfunktionale Anforderungen
 
 | ID | Anforderung |
@@ -1217,6 +1237,7 @@ Zu entscheiden, bevor die betroffene Anforderung umgesetzt wird:
 | O-27 | **Laufende Kosten der Rechtsstand-Überwachung:** API-Kosten des Agenten (Annahme 30–90 €/Monat) und Bereitschaft plus Freigaben der Steuerberaterin (0,5–2 h je Änderung). Angebot einholen | vor Stufe B |
 | ~~O-28~~ | **Entschieden am 2026-10-10:** direkt Anthropic API, ein eigenes neues Konto. EU-Verarbeitung von den Prüfinstanzen geprüft: nicht vorgeschrieben; Buchhaltungsdaten und Belege dürfen trotzdem nicht über die US-Route laufen (L-21.8 bis L-21.12) | erledigt |
 | ~~O-29~~ | **Entschieden am 2026-10-10:** Sicherung und Synchronisierung bleiben in der Cloud der Nutzerin; kein Server und kein Konto beim Anbieter. Mehrere Geräte und mehrere Personen über gemeinsamen Ordner (L-19.12 ff.) | erledigt |
+| O-32 | **Anbieter-Server für Plattform-Connectoren** (Stufe B2: echte Schnittstellen zu Amazon, Booking & Co. statt Teilen/PDF/Link): zurückgestellt am 2026-10-14, mit der KI-Server-Frage (L-26.6, L-21) gemeinsam zu entscheiden | Stufe B2 |
 | O-30 | **Verifizierung von E-Mail und Telefon** (Wunsch aus dem Gerätetest): bräuchte einen Server bzw. SMS-Dienst und widerspricht O-29; die Angaben dienen nur als Kontaktdaten auf Rechnungen. Empfehlung: nur Formatprüfung. Entscheidung des Auftraggebers offen | vor Release |
 | ~~O-31~~ | **Anbieterexklusive Verschlüsselung zur Kundenbindung?** Frage des Auftraggebers vom 2026-10-12, von den drei Prüfinstanzen verneint: Aufbewahrungs- und Prüfpflichten (§ 147 AO, § 131/132 BAO) nach Kündigung oder Wegfall des Anbieters nicht erfüllbar, AGB- und UWG-Risiko, technisch ohne Server wirkungslos. Bindung über Funktionen, Komfort und Importe; Produktschutz über Marke, Lizenzprüfung, Obfuskierung (L-7.12 bis L-7.16) | Empfehlung abgegeben |
 | O-20 | Welche Vorsoftware-Formate sind beim Import vorrangig zu unterstützen? Richtet sich nach dem, womit die ersten Nutzer tatsächlich kommen | Stufe B |
@@ -1231,6 +1252,7 @@ Zu entscheiden, bevor die betroffene Anforderung umgesetzt wird:
 
 | Version | Datum | Änderung |
 |---|---|---|
+| 1.50 | 2026-10-14 | Neu 5.27 (L-27.1 bis L-27.8: Codes, Teilen-Ziel, PDF/E-Rechnung, Link-QR) und O-32 (Plattform-Connectoren zurückgestellt). 5.19: Barcode-Erkennung von ML Kit in der bestehenden Diagnosezeile. A1 umgesetzt in 0.8.0. |
 | 1.49 | 2026-10-14 | L-3.31: Kundendokumente fest in Sie-Form, keine Du-Umschaltung (Entscheidung Auftraggeberin). |
 | 1.48 | 2026-10-14 | Neu L-2.27 (Beleg mit mehreren Steuersätzen) und L-3.31 (neue Frist, Mahnsymbol, Sie-Form); umgesetzt in App-Version 0.7.0 (Spezifikation 1.46). Keine neue Datenübertragung (5.19 unverändert). |
 | 1.47 | 2026-10-14 | Mahnwesen: L-3.10 präzisiert (Stufen, beliebig oft), neu L-3.27 bis L-3.30; umgesetzt in App-Version 0.5.0 (Spezifikation GR-13, FA-5.21 bis FA-5.25). |

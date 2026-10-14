@@ -92,4 +92,7 @@ dependencies {
     // offline, kein Download über Google Play Services. Version auch in
     // ReceiptTextChannel.ENGINE_VERSION.
     implementation("com.google.mlkit:text-recognition:16.0.1")
+    // QR-/Barcodes auf demselben Foto (L-27.1), ebenfalls GEBÜNDELT
+    // (nicht play-services-mlkit-barcode-scanning): offline, kein Download.
+    implementation("com.google.mlkit:barcode-scanning:17.3.0")
 }

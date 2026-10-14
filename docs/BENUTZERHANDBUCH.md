@@ -1,6 +1,6 @@
 # Benutzerhandbuch – Buchhaltung
 
-**Für App-Version 0.7.0** · Stand 2026-10-14
+**Für App-Version 0.8.0** · Stand 2026-10-14
 
 Dieses Handbuch beschreibt die App aus Nutzersicht. Es wird bei jeder Änderung,
 die du in der App siehst, mitgeführt – siehe [`CLAUDE.md`](../CLAUDE.md).
@@ -280,6 +280,35 @@ Datenschutz: Foto und Text verlassen dein Telefon dafür nicht, die Erkennung
 läuft auch im Flugmodus. Unter Android sendet die eingebaute Erkennung von
 Google (ML Kit) allerdings Nutzungs- und Diagnosedaten ohne Fotos und Text an
 Google; unter iOS überträgt die Apple-Erkennung nichts.
+
+### Kassen-QR und Zahlungs-QR
+
+Viele Kassenbons tragen einen **QR-Code** – in Österreich seit 2017 auf jedem
+Bon einer Registrierkasse, in Deutschland bei Kassen mit TSE. Die App liest
+ihn **auf demselben Foto** mit, du musst nichts extra tun.
+
+- **Betrag, Datum und Steuersätze** kommen dann aus dem QR-Code statt aus dem
+  Text. Diese Felder tragen den Vermerk **„vom Kassen-QR“**. Sie sind von der
+  Kasse signiert und daher zuverlässiger als die Texterkennung.
+- **Mehrere Sätze** (z. B. Lebensmittel 10 % und Haushaltswaren 20 %) belegt
+  die App als Aufteilung vor.
+- **4,9 %** (Österreich ab 1. Juli 2026): der QR-Code unterscheidet nicht
+  zwischen 4,9 % und 19 %. Steht der Satz lesbar auf dem Bon, nimmt die App
+  ihn von dort; sonst bittet sie dich, den Satz zu wählen.
+- **Händler**: der QR-Code enthält keinen Namen. Die App nimmt ihn vom Bon und
+  merkt sich beim Speichern, zu welcher Kasse er gehört. Beim nächsten Bon
+  derselben Kasse steht dein Name schon drin.
+- **Zahlungs-QR** („GiroCode“, z. B. auf Handwerkerrechnungen): Empfänger,
+  Betrag, IBAN und Verwendungszweck werden übernommen; IBAN und Referenz
+  stehen in der Notiz. Zahlen musst du weiterhin in deiner Banking-App.
+- Das **Foto bleibt der Beleg**. Der QR-Code ist nur eine Lesehilfe.
+
+### Beleg aus einer anderen App teilen
+
+Ein Foto in der Galerie, ein Bild aus einer Mail oder einem Messenger:
+**Teilen → Buchhaltung**. Die App öffnet sofort „Ausgabe erfassen“ mit dem
+Bild als Seite und liest es aus. Du prüfst und tippst auf Speichern.
+(Android; PDF- und XML-Dateien ab Version 0.9.0.)
 
 ### Belege in fremder Währung
 

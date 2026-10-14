@@ -24,11 +24,12 @@ class ReceiptTextChannel {
           let outcome = ReceiptTextChannel.recognize(path: path)
           DispatchQueue.main.async {
             switch outcome {
-            case .success(let lines):
+            case .success(let found):
               result([
                 "engine": "Apple Vision VNRecognizeTextRequest",
                 "engineVersion": UIDevice.current.systemVersion,
-                "lines": lines,
+                "lines": found.0,
+                "codes": found.1,
               ])
             case .failure(let error):
               result(FlutterError(code: "ocr_failed", message: error.localizedDescription, details: nil))
@@ -41,7 +42,7 @@ class ReceiptTextChannel {
     }
   }
 
-  private static func recognize(path: String) -> Result<[[String: Any]], Error> {
+  private static func recognize(path: String) -> Result<([[String: Any]], [String]), Error> {
     guard let image = UIImage(contentsOfFile: path), let cgImage = image.cgImage else {
       return .failure(NSError(domain: "ReceiptText", code: 1,
                               userInfo: [NSLocalizedDescriptionKey: "Bild nicht lesbar"]))
@@ -57,8 +58,11 @@ class ReceiptTextChannel {
     let handler = VNImageRequestHandler(cgImage: cgImage,
                                         orientation: orientation(image.imageOrientation),
                                         options: [:])
+    // QR- und Barcodes auf demselben Bild (L-27.1), ebenfalls auf dem Gerät.
+    let barcodes = VNDetectBarcodesRequest()
+    barcodes.symbologies = [.qr, .dataMatrix, .aztec]
     do {
-      try handler.perform([request])
+      try handler.perform([request, barcodes])
     } catch {
       return .failure(error)
     }
@@ -75,7 +79,8 @@ class ReceiptTextChannel {
         "height": Int(box.height * scale),
       ])
     }
-    return .success(lines)
+    let codes = (barcodes.results ?? []).compactMap { $0.payloadStringValue }
+    return .success((lines, codes))
   }
 
   private static func orientation(_ o: UIImage.Orientation) -> CGImagePropertyOrientation {

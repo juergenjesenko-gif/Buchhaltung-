@@ -9,6 +9,7 @@ import 'package:image_picker/image_picker.dart';
 import '../../app_state.dart';
 import '../../core/formatting.dart';
 import '../../data/app_database.dart';
+import '../../data/cash_register_merchants.dart';
 import '../../data/exchange_rate_repository.dart';
 import '../../data/receipt_scan_settings.dart';
 import '../../domain/country.dart';
@@ -21,6 +22,8 @@ import '../../services/receipt_image_store.dart';
 import '../../services/receipt_scan/ocr_text.dart';
 import '../../services/receipt_scan/platform_text_recognizer.dart';
 import '../../services/receipt_scan/receipt_classifier.dart';
+import '../../services/receipt_scan/receipt_code_prefill.dart';
+import '../../services/receipt_scan/receipt_codes.dart';
 import '../../services/receipt_scan/receipt_scan_prefill.dart';
 import '../../services/receipt_scan/receipt_text_parser.dart';
 import '../../services/vat_calculator.dart';
@@ -44,7 +47,12 @@ class ReceiptEditScreen extends StatefulWidget {
     required this.direction,
     this.existing,
     this.startWithCamera = false,
+    this.sharedFiles = const [],
   });
+
+  /// Über „Teilen“ aus einer anderen App empfangene Bilder (L-27.4): werden
+  /// als Seiten übernommen und sofort ausgelesen.
+  final List<File> sharedFiles;
 
   /// Öffnet beim Start direkt die Kamera (zentraler Knopf „Beleg
   /// fotografieren“ auf der Übersicht, DESIGN_SPEC 5a).
@@ -125,7 +133,11 @@ class _ReceiptEditScreenState extends State<ReceiptEditScreen> {
   void initState() {
     super.initState();
     _direction = widget.direction;
-    if (widget.startWithCamera && widget.existing == null) {
+    if (widget.sharedFiles.isNotEmpty && widget.existing == null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) _addSharedFiles(widget.sharedFiles);
+      });
+    } else if (widget.startWithCamera && widget.existing == null) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (mounted) _addPage(ImageSource.camera);
       });
@@ -344,11 +356,29 @@ class _ReceiptEditScreenState extends State<ReceiptEditScreen> {
         tax,
         ownVatId: state.profile?.vatId,
       ).parse(document);
-      final prefill = ReceiptScanPrefill.from(
+      final ocrPrefill = ReceiptScanPrefill.from(
         result,
         direction: _direction,
         profile: tax,
         classification: ReceiptClassifier.classify(document.rows, result),
+      );
+      // Codes auf demselben Foto (L-27.1 bis L-27.3): Kassen-QR hat Vorrang
+      // bei Betrag, Datum und Sätzen; Händler aus dem Lernspeicher.
+      final codes = [for (final raw in document.codes) ?ReceiptCode.parse(raw)];
+      final registerKey = ReceiptCodePrefill.registerIdOf(codes);
+      final known = registerKey == null
+          ? null
+          : await CashRegisterMerchants.lookup(
+              await AppDatabase.instance.database,
+              registerKey,
+            );
+      final prefill = ReceiptCodePrefill.merge(
+        ocrPrefill,
+        codes,
+        profile: tax,
+        direction: _direction,
+        ocr: result,
+        knownMerchant: known,
       );
       if (!mounted) return;
       setState(() {
@@ -396,6 +426,12 @@ class _ReceiptEditScreenState extends State<ReceiptEditScreen> {
           _categoryId = category;
           _recognized.add('category');
         }
+        if (prefill.note != null && _noteController.text.trim().isEmpty) {
+          _noteController.text = prefill.note!;
+          _recognized.add('note');
+        }
+        _codeSource = prefill.codeSource;
+        _registerKey = prefill.registerId;
         _applyForeign(prefill.currency, prefill.originalGross);
         _scanHints = prefill.hints;
       });
@@ -420,8 +456,20 @@ class _ReceiptEditScreenState extends State<ReceiptEditScreen> {
     }
   }
 
-  String? _checkHint(String field) =>
-      _recognized.contains(field) ? 'erkannt – bitte prüfen' : null;
+  String? _checkHint(String field) => !_recognized.contains(field)
+      ? null
+      : (_codeSource != null && _codeFields.contains(field)
+            ? 'vom $_codeSource'
+            : 'erkannt – bitte prüfen');
+
+  /// Felder, die ein Code vorbelegt; dort lautet der Vermerk „vom Kassen-QR“.
+  static const _codeFields = {'date', 'gross', 'vat', 'counterparty', 'note'};
+
+  /// „Kassen-QR“/„Zahlungs-QR“, wenn Werte aus einem Code stammen.
+  String? _codeSource;
+
+  /// Kassen-ID für den Lernspeicher (L-27.2).
+  String? _registerKey;
 
   VatSplit? get _split {
     final gross = _gross;
@@ -506,6 +554,20 @@ class _ReceiptEditScreenState extends State<ReceiptEditScreen> {
         showSnack(context, 'Foto konnte nicht übernommen werden: $error');
       }
     }
+  }
+
+  /// Geteilte Bilder als Seiten übernehmen (Kopie, Original bleibt in der
+  /// teilenden App) und auslesen.
+  Future<void> _addSharedFiles(List<File> files) async {
+    for (final file in files) {
+      final relative = await ReceiptImageStore.store(file);
+      if (!mounted) return;
+      setState(() => _pages.add(relative));
+    }
+    await _resolveFiles();
+    // Einstellung erst laden, falls didChangeDependencies noch läuft.
+    await _loadScanSetting();
+    if (_scanEnabled) await _scan();
   }
 
   /// Verschiebt eine noch nicht gespeicherte Seite um [delta] Plätze.
@@ -717,6 +779,14 @@ class _ReceiptEditScreenState extends State<ReceiptEditScreen> {
       completenessConfirmed: confirmsCompleteness,
     );
     _saved = true;
+    final registerKey = _registerKey;
+    if (registerKey != null && receipt.counterparty.isNotEmpty) {
+      await CashRegisterMerchants.remember(
+        await AppDatabase.instance.database,
+        registerKey,
+        receipt.counterparty,
+      );
+    }
     await state.onBookingsChanged();
     if (!mounted) return;
     Navigator.of(context).pop(true);

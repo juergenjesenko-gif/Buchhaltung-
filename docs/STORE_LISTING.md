@@ -111,6 +111,7 @@ Safety: „Finanzinformationen – andere“, geteilt mit Dritten, verschlüssel
 übertragen, für die App-Funktion, vom Nutzer ausgelöst. Apple: „Sonstige
 Finanzinfos“, nicht verknüpft, App-Funktionalität (Prüfpunkt P-U4).
 **Belegerkennung (nur Android):** die eingebundene Bibliothek Google ML Kit
+(Text- und Barcode-Erkennung, gebündelt)
 sendet Nutzungs- und Diagnosedaten an Google (keine Fotos, kein Text). Google
 Data Safety daher zusätzlich: „App-Info und -Leistung – Absturzprotokolle /
 Diagnosedaten“, **geteilt mit Google**, verschlüsselt übertragen, nicht

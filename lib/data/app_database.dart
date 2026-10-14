@@ -16,7 +16,7 @@ class AppDatabase {
 
   /// Aktuelle Schemaversion. Öffentlich, weil docs/SPECIFICATION.md sie
   /// dokumentiert und test/specification_sync_test.dart beide vergleicht.
-  static const schemaVersion = 14;
+  static const schemaVersion = 15;
 
   Database? _db;
 
@@ -472,6 +472,17 @@ class AppDatabase {
           '(receipt_id, position, vat_permille, net_cents, vat_cents, gross_cents) '
           'SELECT id, 1, vat_permille, net_cents, vat_cents, gross_cents '
           'FROM receipts',
+    ],
+    // Lernspeicher Kassen-ID → Händler (L-27.2): der Kassen-QR enthält keinen
+    // Namen; den bestätigten Namen merkt sich die App je Kasse.
+    15: [
+      '''
+      CREATE TABLE cash_register_merchants (
+        register_key TEXT PRIMARY KEY,
+        merchant TEXT NOT NULL,
+        updated_at TEXT NOT NULL
+      )
+      ''',
     ],
   };
 

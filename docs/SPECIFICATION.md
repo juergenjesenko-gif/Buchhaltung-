@@ -1,6 +1,6 @@
 # Spezifikation – Buchhaltung
 
-**Dokumentversion:** 1.46 · **App-Version:** 0.7.0 · **Stand:** 2026-10-14
+**Dokumentversion:** 1.47 · **App-Version:** 0.8.0 · **Stand:** 2026-10-14
 **Status:** Sprint 1 umgesetzt und verifiziert
 
 > Das **Zielbild** des Produkts steht im [`LASTENHEFT.md`](LASTENHEFT.md); dieses
@@ -246,6 +246,7 @@ Anwendungsdokumentenverzeichnis. Aktuelle Schemaversion: **13**
 | `dunning_notices` | Zahlungserinnerungen und Mahnungen: `invoice_id`, `level`, `issued_on`, `new_due_date`, `principal_cents`, `fee_cents`, `fees_total_cents`, `interest_cents`, `interest_rate_bp`, `flat_fee_cents`, `total_cents`, `text`, `pdf_sha256`, `cancelled_at`, `cancel_reason`, `created_at` | Schema 13. Unveränderlich (Trigger); einzig erlaubt: einmaliges Storno mit Begründung |
 | `receipts` | Belege | Index auf `date` und `direction`. Werden nie gelöscht, nur storniert (`cancelled_at`). Seit Schema 11 `invoice_id` (Einnahme aus bezahlter Rechnung, eindeutig je Rechnung und Steuersatz) |
 | `receipt_vat_lines` | Steuersatzzeilen eines Belegs: `receipt_id`, `position` ab 1, `vat_permille`, `net_cents`, `vat_cents`, `gross_cents` | Schema 14. Je Zeile `net + vat == gross`, Summe der Zeilen = `receipts.gross_cents` (erzwungen in `ReceiptRepository.writeVatLines`). Bei der Migration wurde jeder bestehende Beleg zu genau einer Zeile; Einnahmen aus bezahlten Rechnungen und Mahnkosten schreiben ihre Zeile mit. Kopf des Belegs: Summen, `vat_permille` = Satz der größten Zeile. Auswertungen lesen nur Zeilen (ein Beleg ohne Zeile zählt mit seinem Kopf) |
+| `cash_register_merchants` | Lernspeicher Kasse → Händler (FA-2.36): `register_key` (`AT:<Kassen-ID>`, `DE:<Seriennummer>`), `merchant`, `updated_at` | Schema 15. Ersetzt beim Speichern eines Belegs mit Kassen-QR |
 | `receipt_pages` | Seiten (Fotos) eines Belegs: `receipt_id`, `position` ab 1, `image_path`, `created_at` | Schema 8. Nach dem Speichern nur Anhängen; bestehende Einzelfotos wurden bei der Migration zur Seite 1 |
 | `receipt_comments` | Kommentare zu Belegen: `receipt_id`, `text`, `created_at` (Systemzeit) | Schema 8. Nur Einfügen; ein Trigger verhindert `UPDATE`. Löschen bietet die App nicht an (die Wiederherstellung leert alle Tabellen) |
 | `invoices` | Ausgangsrechnungen | `UNIQUE INDEX` auf `number`. Seit Schema 12 Gesamtrabatt, Versand, Skonto (GR-12) |
@@ -401,6 +402,10 @@ prüft `InvoiceRequirements` (FA-1.4).
 | FA-2.23 | **Abschaltbar** (L-2.23): Einstellungen → „Belege auslesen“, Standard an (`company_profile.receipt_scan_enabled`) |
 | FA-2.33 | **Beleg mit mehreren Steuersätzen aufteilen** (L-2.27, 0.7.0), z. B. Bewirtung Speisen 10 %/Getränke 20 %, Supermarkt 4,9/10/20 %: im Formular „Weiteren Steuersatz hinzufügen“ (volle Breite, 48 dp). Je Teil Satz und **Bruttobetrag**; Netto und Steuer je Teil nach GR-2 (Steuer als Restgröße). Der erste Teil startet mit dem ganzen Betrag, der letzte Teil übernimmt automatisch den Rest (Belegbetrag − übrige Teile), bis er von Hand geändert wird. Speichern nur, wenn die Summe der Teile den Belegbetrag exakt ergibt; sonst Meldung mit Differenz. Teile mit gleichem Satz werden zusammengefasst, Teile mit 0 € entfallen; bleibt ein Teil, ist der Beleg wieder einfach. Bei Fremdwährung sind die Teile Euro-Beträge des umgerechneten Betrags. Belegliste zeigt die Sätze („10 % + 20 %“). Ausländische Steuer und 0 %-Regeln gelten je Teil (FA-2.29). Die Abzugsbeschränkung für Bewirtung (Ertragsteuer, Vorsteuer) setzt die App **nicht** um (P-S46) |
 | FA-2.34 | **Belegerkennung mit mehreren Sätzen** (0.7.0): erkennt der Parser mehrere Sätze, belegt die App die Aufteilung (FA-2.33) mit Brutto je Satz vor statt nur eines Hinweises. Je Zeile: eigener, am Belegdatum gültiger Satz → dieser Satz; ausländischer Satz bzw. ausländische Aussteller-UID bei Ausgaben → 0 %; unbekannter Satz oder Fremdwährung → keine Aufteilung, nur Hinweis |
+| FA-2.35 | **Codes auf dem Foto** (Lastenheft L-27.1, 0.8.0): dieselbe Erkennung liest QR, Data Matrix und Aztec auf denselben Bildern (Android `com.google.mlkit:barcode-scanning` 17.3.0 gebündelt, iOS `VNDetectBarcodesRequest`) und liefert die Rohinhalte im Feld `codes` des Channels `buchhaltung/receipt_text`. Ein Fehler beim Code-Lesen bricht die Texterkennung nicht ab. Zerlegung in `lib/services/receipt_scan/receipt_codes.dart` (reines Dart): **RKSV** `_R1-AT<n>_` mit 13 Feldern (Detailspezifikation Abschnitt 7, A-SIT-Mustercode `MachineCodeValue`), Beträge brutto mit Komma und Tausenderpunkt, Felder Normal 20 %, Ermäßigt-1 10 %, Ermäßigt-2 13 %, Null 0 %, Besonders (19 % **oder** 4,9 %, P-S49); **TSE** `V0;…;Kassenbeleg-V1;Beleg^B1_…_B5^…` mit IDs 19 %, 7 %, 10,7 %, 5,5 %, 0 % (DSFinV-K Anhang I, P-S50); **EPC069-12** `BCD` Version 001/002 mit IBAN-Prüfziffer; **Link** nur `https` ohne Benutzerangabe. Ein Code, der nicht exakt dem Format folgt, wird verworfen |
+| FA-2.36 | **Kassen-QR zuerst** (L-27.2, `ReceiptCodePrefill`): Betrag (Summe der Felder), Datum und Sätze aus dem Code ersetzen die Texterkennung; mehrere Sätze als Aufteilung (FA-2.33). „Besonders“: Satz aus dem Text, wenn dort genau 4,9 % oder 19 % steht; vor dem 01.07.2026 19 %; sonst keine Aufteilung und Hinweis „Steuersatz (4,9 % oder 19 %) bitte wählen“. Code eines anderen Landes als das Profil (z. B. RKSV bei DE-Profil): Betrag und Datum, bei Ausgaben 0 % (FA-2.29). Storno/Nullbeleg: nur Datum. Händler: gelernter Name zur Kasse (Schema 15 `cash_register_merchants`, Schlüssel `AT:<Kassen-ID>` bzw. `DE:<Seriennummer>`, gespeichert beim Speichern des Belegs mit dem bestätigten Partner), sonst aus dem Text. Belegnummer des Codes, wenn der Text keine Rechnungsnummer ergab. Felder aus dem Code tragen statt „erkannt – bitte prüfen“ den Vermerk „vom Kassen-QR“; das Foto bleibt der Beleg |
+| FA-2.37 | **Zahlungs-QR** (L-27.3): Empfänger → Partner, Betrag → Brutto, IBAN, BIC und Referenz → Notiz (nur wenn leer); Vermerk „vom Zahlungs-QR“. Gezahlt wird nicht aus der App |
+| FA-2.38 | **Teilen-Ziel Android** (L-27.4): `ACTION_SEND`/`ACTION_SEND_MULTIPLE` mit `image/*`; `ShareInChannel.kt` kopiert sofort in den App-Cache (höchstens 20 MB je Datei), Channel `buchhaltung/share_in`. Die Startseite öffnet „Ausgabe erfassen“ mit den Bildern als Seiten und liest sie aus. PDF und XML folgen in 0.9.0 |
 | FA-2.18 | **Stornierte Belege lesbar**: Filter „Storniert“ in der Belegliste; die Ansicht ist schreibgeschützt (Hinweisbanner, kein Speichern), Kommentare bleiben anhängbar |
 
 ### 5.3 Kassabuch und Auswertung
@@ -792,6 +797,11 @@ offizielles Abschalten gibt es nicht. Offengelegt in `PRIVACY.md`,
 Lastenheft 5.19 und `STORE_LISTING.md`; Prüfung P-R19, P-D21. Apple Vision
 (iOS) überträgt nichts.
 
+**Codes auf dem Foto (FA-2.35):** dieselbe gebündelte ML-Kit-Familie (Barcode
+Scanning) mit denselben Diagnosedaten an Google wie die Texterkennung; kein
+neuer Empfänger. Geteilte Dateien (FA-2.38) kommen von einer anderen App auf
+das Gerät, nichts geht hinaus.
+
 **EZB-Kursabruf (FA-2.25):** nur auf Tippen „Kurs abrufen“ ruft die App eine
 feste Datei der Europäischen Zentralbank ab (`eurofxref-hist-90d.xml` bzw.
 `eurofxref-hist.xml`). Übertragen werden nur IP-Adresse und technische
@@ -846,7 +856,7 @@ Offen benannt, weil eine Spezifikation, die ihre Lücken verschweigt, wertlos is
 > Das ist der Mechanismus, der dieses Dokument aktuell hält.
 
 ```properties
-spec.schema_version = 14
+spec.schema_version = 15
 spec.primary_action_height_dp = 56
 spec.min_touch_target_dp = 48
 spec.dunning_default_fee_cents = 1000
@@ -955,6 +965,7 @@ Dauerfristverlängerung, `02-15,…` = feste Tage, `+1j07-31` = Folgejahr,
 
 | Version | Datum | App-Version | Änderung |
 |---|---|---|---|
+| 1.47 | 2026-10-14 | 0.8.0 | App-Version 0.8.0 (Testbuild), Stufe A1: Codes auf dem Foto (FA-2.35 bis FA-2.38, Lastenheft L-27.1 bis L-27.4): Kassen-QR RKSV/TSE mit Vorrang bei Betrag, Datum, Sätzen, Zahlungs-QR EPC, Lernspeicher Kasse → Händler (Schema 15), Teilen-Ziel Android für Bilder. Neue Prüfpunkte P-S49, P-S50, P-U5. |
 | 1.46 | 2026-10-14 | 0.7.0 | App-Version 0.7.0 (Testbuild). Beleg mit mehreren Steuersätzen (FA-2.33, FA-2.34, Lastenheft L-2.27), Schema 14 mit `receipt_vat_lines`, Auswertungen und Exporte je Satz (8.2 bis 8.4). Fehlerbehebung Gerätetest 0.6.0: Kleinunternehmer-Ausgaben brutto, Balken-Mindesthöhe, Ladevorgang ohne Überschreiben (FA-3.2, FA-3.5, FA-3.7); Termin-Box ans Ende. Mahnwesen: neue Frist, Mahnsymbol mit Verlauf (FA-5.26, FA-5.27); Sie-Form in Kundendokumenten (FA-5.28); Hinweis Leistungsdatum (FA-5.29); eingebettete PDF-Schrift mit € (FA-5.30). Einhandbedienung links und rechts (FA-12.7). Neue Prüfpunkte P-S46 bis P-S48, P-L19, P-X7. |
 | 1.45 | 2026-10-14 | 0.6.0 | App-Version 0.6.0 (Testbuild) „Einhandbedienung“ nach DESIGN_SPEC 5a (Abschnitt 5.7a, FA-12.1 bis FA-12.6): zentrierter Knopf „Beleg fotografieren“, Stornieren/Löschen am Formularende in Fehlerfarbe, Seitenleiste 48 dp, umbrechende Chips, Jahr als Chip, Datum „Heute/Gestern“, `PrimaryActionBar` in Kunden- und Stammdatenformular. Kein Schemawechsel. Neue Prüfpunkte P-X1 bis P-X6. |
 | 1.44 | 2026-10-14 | 0.5.0 | App-Version 0.5.0 (Testbuild): Mahnwesen (GR-13, FA-5.21 bis FA-5.25, Abschnitt 8.0, Lastenheft L-3.10, L-3.27 bis L-3.30): Zahlungserinnerung und Mahnungen beliebig oft, unveränderlich mit Storno, Mahnkosten 10 € ab 1. Mahnung mit Verbraucherhinweis, optionale Verzugszinsen act/365 je Halbjahr, Pauschale B2B, Kundenmerkmal „Unternehmen“, DE-Hinweis § 286 Abs 3 BGB, Mahnkosten bei Zahlung als nicht steuerbare Einnahme. Schema 13. Neue Kennwerte `spec.dunning_*`, `spec.*.dunning_*`. Neue Prüfpunkte P-S44, P-S45, P-R32 bis P-R34. |
@@ -1113,6 +1124,7 @@ Status: *offen* · *bestätigt* (mit Datum und Prüfer) · *widerlegt* (mit Folg
 | P-U2 | Nachweiswert von VIES mit Abfragenummer gegenüber FinanzOnline Stufe 2 (AT) und qualifizierter Bestätigungsabfrage § 18e UStG (DE) | VIES schwächer, aber als Hilfsnachweis anerkannt | Release | offen |
 | P-U3 | Steuernummer auf österreichischen Rechnungen nicht nötig; DE Steuernummer oder USt-IdNr. genügt | beide Prüfinstanzen | Release | offen |
 | P-U4 | Datenschutzerklärung und Store-Formulare (Google Data Safety, Apple Label) zur VIES-Abfrage durch Fachperson | Nutzerin Verantwortliche, Kommission Empfängerin, Anbieter unbeteiligt | erster Upload | offen |
+| P-U5 | Kassen- und Zahlungs-QR auf echtem Gerät: SPAR-/Hofer-/Billa-Bon mit RKSV-QR (auch zerknittert, schräg, schwaches Licht), deutscher TSE-Bon, Rechnung mit GiroCode; Vermerk „vom Kassen-QR“ sichtbar; Teilen eines Fotos aus Galerie und Mail öffnet den Buchungsvorschlag mit einer Hand | Emulator prüft nur synthetische QR-Bilder (FA-2.35); Korpus Belege 1–6 wird im CI-Artefakt `ocr-belege` auf Codes ausgewertet | Release | offen |
 | P-B1 | Android: bietet die Google-Drive-App bei der Ordnerwahl (Storage Access Framework) Ordner an? Test auf Pixel und Samsung mit aktueller Drive-App. Wenn nein: Entscheidung über Anbindung der Drive-Schnittstelle | Drive bot lange keine Ordner an; unsicher | vor Release | **bestanden 2026-10-12** (Auftraggeberin, Pixel 10: Sicherung und automatische Sicherung nach Google Drive). Wiederherstellung aus Drive siehe P-B12 |
 | P-B2 | iOS: Bookmark auf einen iCloud-Drive-Ordner nach Neustart, Update und offline; Upload durch das System | — | vor Release | offen |
 | P-B3 | Laufzeit einer großen Sicherung (viele Fotos) beim Öffnen der App; Verhalten bei Wechsel in den Hintergrund | — | vor Release | offen |
@@ -1171,6 +1183,8 @@ Status: *offen* · *bestätigt* (mit Datum und Prüfer) · *widerlegt* (mit Folg
 | P-S46 | Bewirtung: soll die App die Abzugsbeschränkung abbilden? AT § 20 Abs 1 Z 3 EStG (50 % abzugsfähig, Vorsteuer voll bei Werbezweck), DE § 4 Abs 5 Nr. 2 EStG (70 % Betriebsausgabe, Vorsteuer voll bei Angemessenheit und Nachweis) samt Bewirtungsbeleg-Angaben (Anlass, Teilnehmer) | App teilt nur nach Sätzen auf (FA-2.33), zählt 100 %; keine Kategorie „Bewirtung“ mit Kürzung | Release | offen |
 | P-S47 | Kleinunternehmer: Ausgaben brutto in der Einnahmen-Ausgaben-Rechnung, keine Vorsteuer (AT § 12 iVm § 6 Abs 1 Z 27 UStG 1994; DE § 19 Abs 1 UStG, § 9b Abs 1 EStG); Behandlung beim Wechsel des Status innerhalb eines Jahres | umgesetzt nach aktueller Einstellung (FA-3.2) | Release | offen |
 | P-S48 | DATEV: Buchung je Satz eines aufgeteilten Belegs ohne BU-Schlüssel auf ein Automatikkonto – richtig importiert, oder braucht es Schlüssel bzw. Konto je Satz? | eine Buchung je Satz, BU leer (8.3) | Release | offen |
+| P-S49 | RKSV-Kassen-QR ab 01.07.2026: Feld „Betrag-Satz-Besonders“ trägt 19 % **und** 4,9 % gemeinsam; ist die Zuordnung über den Belegtext (Satzzeile) zulässig, und reicht der Vorrang des QR für Betrag und Datum gegenüber dem Text? Echten Beleg mit 4,9 % prüfen | „Besonders“ nicht aus dem Code bestimmbar (BMF-Hinweis im A-SIT-Mustercode-Repository 13.03.2026, fiskaly); App nimmt den Satz aus dem Text, sonst Rückfrage (FA-2.36); finale Detailspezifikation nicht abrufbar | Release | offen |
+| P-S50 | DSFinV-K Anhang I: Reihenfolge der Bruttobeträge im TSE-QR (`Kassenbeleg-V1`, IDs 1–5: 19 %, 7 %, 10,7 %, 5,5 %, 0 %) und Dezimalpunkt; mit echtem deutschem Kassenbeleg gegenprüfen | aus Fachwissen, amtliche DSFinV-K nicht abgerufen (FA-2.35) | Release | offen |
 | P-S45 | Mahnkosten, Verzugszinsen und Pauschale als nicht umsatzsteuerbarer Schadenersatz (UStR Rz 9 AT, Abschn. 1.3 Abs 6 UStAE DE), Einnahme bei Zufluss mit 0 %, Kategorie „Sonstige Einnahmen“; Anrechnung nach § 1416 ABGB / § 367 BGB | Vorbefund Steuerberater: nicht steuerbar, Betriebseinnahme bei Zufluss | Release | offen |
 | P-L12 | Anwältin: Diktat über die Systemtastatur – Anbieterin nicht verantwortlich, Hinweistext genügt | — | Release | offen |
 | P-L13 | Gerätetest, nur bei eigener Spracherkennung: Erkennung im Flugmodus | — | später | offen |

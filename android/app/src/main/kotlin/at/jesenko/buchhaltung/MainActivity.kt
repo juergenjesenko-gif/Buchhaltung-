@@ -11,12 +11,16 @@ class MainActivity : FlutterFragmentActivity() {
     private var backupFolder: BackupFolderChannel? = null
     private var receiptText: ReceiptTextChannel? = null
     private var launcher: LauncherChannel? = null
+    private var shareIn: ShareInChannel? = null
 
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
         backupFolder = BackupFolderChannel(this, flutterEngine.dartExecutor.binaryMessenger)
         receiptText = ReceiptTextChannel(applicationContext, flutterEngine.dartExecutor.binaryMessenger)
         launcher = LauncherChannel(this, flutterEngine.dartExecutor.binaryMessenger)
+        shareIn = ShareInChannel(applicationContext, flutterEngine.dartExecutor.binaryMessenger)
+        // Start über „Teilen“ (L-27.4): Intent des Starts auswerten.
+        shareIn?.handle(intent)
         // App-Sperre (FA-1.17): Vorschau im App-Umschalter ausblenden, ohne
         // Bildschirmfotos zu verbieten (kein FLAG_SECURE). Erst ab Android 13.
         MethodChannel(flutterEngine.dartExecutor.binaryMessenger, "buchhaltung/app_lock")
@@ -31,6 +35,11 @@ class MainActivity : FlutterFragmentActivity() {
                     result.notImplemented()
                 }
             }
+    }
+
+    override fun onNewIntent(intent: android.content.Intent) {
+        super.onNewIntent(intent)
+        shareIn?.handle(intent)
     }
 
     @Deprecated("Activity Result API wäre moderner; hier genügt der klassische Weg")

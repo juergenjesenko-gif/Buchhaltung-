@@ -27,6 +27,9 @@ class ReceiptScanPrefill {
     this.description,
     this.categoryName,
     this.vatParts = const [],
+    this.note,
+    this.codeSource,
+    this.registerId,
   });
 
   factory ReceiptScanPrefill.from(
@@ -200,6 +203,16 @@ class ReceiptScanPrefill {
 
   /// Erkannte Aufteilung nach Steuersätzen (L-2.27), leer bei einem Satz.
   final List<VatPart> vatParts;
+
+  /// Notizvorschlag (z. B. IBAN und Referenz aus einem Zahlungs-QR, L-27.3).
+  final String? note;
+
+  /// „Kassen-QR“ oder „Zahlungs-QR“, wenn Werte aus einem Code stammen
+  /// (L-27.2); das Formular zeigt dann den dezenten Vermerk.
+  final String? codeSource;
+
+  /// Kassen-ID aus dem Kassen-QR für den Lernspeicher Kasse → Händler.
+  final String? registerId;
 }
 
 /// Protokolltext „erkannt gegenüber bestätigt“ für das audit_log (L-2.22,

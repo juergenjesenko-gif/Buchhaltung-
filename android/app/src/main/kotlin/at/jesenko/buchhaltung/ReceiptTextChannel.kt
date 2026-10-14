@@ -6,6 +6,9 @@ import android.media.ExifInterface
 import android.os.Handler
 import android.os.Looper
 import com.google.mlkit.common.sdkinternal.MlKitContext
+import com.google.mlkit.vision.barcode.BarcodeScanning
+import com.google.mlkit.vision.barcode.BarcodeScannerOptions
+import com.google.mlkit.vision.barcode.common.Barcode
 import com.google.mlkit.vision.common.InputImage
 import com.google.mlkit.vision.text.TextRecognition
 import com.google.mlkit.vision.text.latin.TextRecognizerOptions
@@ -33,6 +36,21 @@ class ReceiptTextChannel(private val context: Context, messenger: BinaryMessenge
         // Pixel 10. Darum hier ausdrücklich initialisieren; doppelt ist harmlos.
         MlKitContext.initializeIfNeeded(context.applicationContext)
         TextRecognition.getClient(TextRecognizerOptions.DEFAULT_OPTIONS)
+    }
+
+    /**
+     * QR- und Barcodes auf demselben Bild (L-27.1): Kassen-QR (RKSV/TSE),
+     * Zahlungs-QR (EPC069-12), Link-QR. Gebündeltes Modell
+     * `com.google.mlkit:barcode-scanning`, offline; Telemetrie wie bei der
+     * Texterkennung (docs/PRIVACY.md). QR, Data Matrix und Aztec genügen.
+     */
+    private val barcodes by lazy {
+        MlKitContext.initializeIfNeeded(context.applicationContext)
+        BarcodeScanning.getClient(
+            BarcodeScannerOptions.Builder()
+                .setBarcodeFormats(Barcode.FORMAT_QR_CODE, Barcode.FORMAT_DATA_MATRIX, Barcode.FORMAT_AZTEC)
+                .build(),
+        )
     }
 
     init {
@@ -113,6 +131,16 @@ class ReceiptTextChannel(private val context: Context, messenger: BinaryMessenge
     }
 
     private fun process(image: InputImage, result: MethodChannel.Result) {
+        // Erst Codes, dann Text. Ein Fehler beim Code-Lesen bricht die
+        // Texterkennung nicht ab: dann eben ohne Codes.
+        barcodes.process(image)
+            .addOnSuccessListener { found ->
+                recognizeText(image, found.mapNotNull { it.rawValue }, result)
+            }
+            .addOnFailureListener { recognizeText(image, emptyList(), result) }
+    }
+
+    private fun recognizeText(image: InputImage, codes: List<String>, result: MethodChannel.Result) {
         recognizer.process(image)
             .addOnSuccessListener { text ->
                 val lines = ArrayList<Map<String, Any>>()
@@ -134,6 +162,7 @@ class ReceiptTextChannel(private val context: Context, messenger: BinaryMessenge
                         "engine" to "Google ML Kit Text Recognition (Latin, gebündelt)",
                         "engineVersion" to ENGINE_VERSION,
                         "lines" to lines,
+                        "codes" to codes,
                     ),
                 )
             }
@@ -162,6 +191,6 @@ class ReceiptTextChannel(private val context: Context, messenger: BinaryMessenge
         const val MAX_EDGE = 2400
 
         /** Muss zur Abhängigkeit in android/app/build.gradle.kts passen. */
-        const val ENGINE_VERSION = "16.0.1"
+        const val ENGINE_VERSION = "16.0.1 + barcode 17.3.0"
     }
 }

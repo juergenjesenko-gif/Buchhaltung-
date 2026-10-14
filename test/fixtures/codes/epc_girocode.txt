@@ -1,0 +1,11 @@
+BCD
+002
+1
+SCT
+
+Franz Mustermann
+AT611904300234573201
+EUR123.45
+
+
+Rechnung 2026-17

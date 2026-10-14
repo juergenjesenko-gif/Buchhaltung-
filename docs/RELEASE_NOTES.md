@@ -29,11 +29,35 @@ gebaut, und was war darin geprüft?*
 
 ## Unveröffentlicht
 
-Änderungen seit 0.7.0+12, die noch in keinem Build stecken. Wandern beim
+Änderungen seit 0.8.0+13, die noch in keinem Build stecken. Wandern beim
 nächsten Versionssprung in den neuen Eintrag.
 
 | Art | Änderung | Bezug | Commit |
 |---|---|---|---|
+
+---
+
+## 0.8.0+13 — 2026-10-14
+
+| Feld | Wert |
+|---|---|
+| Art | Testbuild (ungezippte arm64-APK, fester Testschlüssel); Stufe A1 Kassen-QR, Zahlungs-QR, Teilen-Ziel |
+| Commit | siehe Git-Tag `v0.8.0` |
+| Branch | `claude/agile-accounting-app-mobile-wa5j3h` |
+| Dokumentstände | Lastenheft 1.50, Spezifikation 1.47, Benutzerhandbuch für 0.8.0, DESIGN_SPEC 1.2 |
+| Datenbankschema | 15 |
+| Prüfung | `flutter analyze` ohne Befund, alle Tests grün (neu `receipt_codes_test.dart`), Emulator-Job `android-ocr-emulator` mit synthetischem RKSV- und EPC-QR, CI siehe Lauf zum Tag |
+| Steuerliche Kennwerte | `spec.schema_version` 14 → 15 |
+| Offene reale Prüfpunkte | wie 0.7.0+12, dazu P-S49, P-S50, P-U5 |
+
+**Änderungen seit 0.7.0+12**
+
+| Art | Änderung | Bezug | Commit |
+|---|---|---|---|
+| Neu | QR-/Barcodes auf demselben Foto (ML Kit Barcode Scanning gebündelt, iOS Vision) | L-27.1, FA-2.35 | siehe Tag |
+| Neu | Kassen-QR RKSV/TSE mit Vorrang bei Betrag, Datum, Sätzen; „Besonders“ nicht geraten; Lernspeicher Kasse → Händler (Schema 15); Vermerk „vom Kassen-QR“ | L-27.2, FA-2.36, P-S49, P-S50 | siehe Tag |
+| Neu | Zahlungs-QR EPC069-12: Empfänger, Betrag, IBAN, Referenz | L-27.3, FA-2.37 | siehe Tag |
+| Neu | Teilen-Ziel Android für Bilder | L-27.4, FA-2.38, P-U5 | siehe Tag |
 
 ---
 

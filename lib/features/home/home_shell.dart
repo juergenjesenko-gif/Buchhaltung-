@@ -1,10 +1,15 @@
 import 'package:flutter/material.dart';
 
+import 'dart:async';
+
+import '../../domain/receipt.dart';
 import '../../services/launcher/platform_home_shortcut.dart';
+import '../../services/share_in/share_in_service.dart';
 import '../../widgets/adaptive.dart';
 import '../dashboard/dashboard_screen.dart';
 import '../export/export_screen.dart';
 import '../invoices/invoice_list_screen.dart';
+import '../receipts/receipt_edit_screen.dart';
 import '../receipts/receipt_list_screen.dart';
 
 /// Hauptnavigation. Vier Bereiche – mehr passt weder auf eine Tab-Leiste noch
@@ -53,7 +58,38 @@ class _HomeShellState extends State<HomeShell> {
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) => _offerHomeShortcut());
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _takeShared();
+      _offerHomeShortcut();
+    });
+    _sharedSub = ShareInService.instance.onShared.listen((_) => _takeShared());
+  }
+
+  StreamSubscription<void>? _sharedSub;
+
+  @override
+  void dispose() {
+    _sharedSub?.cancel();
+    super.dispose();
+  }
+
+  /// Über „Teilen“ empfangene Dateien direkt als Beleg vorschlagen (L-27.4).
+  Future<void> _takeShared() async {
+    final files = await ShareInService.instance.take();
+    if (files.isEmpty || !mounted) return;
+    final images = [
+      for (final f in files)
+        if (sharedKindOf(f.path) == SharedKind.image) f,
+    ];
+    if (images.isEmpty) return;
+    await Navigator.of(context).push(
+      MaterialPageRoute<bool>(
+        builder: (_) => ReceiptEditScreen(
+          direction: BookingDirection.expense,
+          sharedFiles: images,
+        ),
+      ),
+    );
   }
 
   /// Einmaliges Angebot nach dem ersten Start (FA-1.19).

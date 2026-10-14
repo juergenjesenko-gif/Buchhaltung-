@@ -12,6 +12,7 @@ import 'dart:io';
 import 'dart:ui' as ui;
 
 import 'package:buchhaltung/services/receipt_scan/platform_text_recognizer.dart';
+import 'package:buchhaltung/services/receipt_scan/receipt_codes.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 
@@ -92,6 +93,14 @@ Future<void> main() async {
       ok = false;
     }
   }
+  // Kassen- und Zahlungs-QR (L-27.1): synthetische Codes aus
+  // test/fixtures/codes/*.png müssen erkannt und zerlegt werden.
+  try {
+    if (!await _codes()) ok = false;
+  } catch (e) {
+    ok = false;
+    _log('FEHLER QR $e');
+  }
   try {
     await _korpus();
   } catch (e, st) {
@@ -99,6 +108,36 @@ Future<void> main() async {
     _log('FEHLER KORPUS $e ${st.toString().split('\n').take(3).join(' < ')}');
   }
   _log(ok ? 'ERGEBNIS OK' : 'ERGEBNIS FEHLER');
+}
+
+Future<bool> _codes() async {
+  final manifest = await AssetManifest.loadFromAssetBundle(rootBundle);
+  final assets = manifest
+      .listAssets()
+      .where((a) => a.startsWith('test/fixtures/codes/'))
+      .where((a) => a.endsWith('.png'))
+      .toList();
+  if (assets.isEmpty) {
+    _log('FEHLER QR keine Testbilder');
+    return false;
+  }
+  const recognizer = PlatformReceiptTextRecognizer();
+  var ok = true;
+  for (final asset in assets) {
+    final data = await rootBundle.load(asset);
+    final file = File('${Directory.systemTemp.path}/${asset.split('/').last}');
+    await file.writeAsBytes(data.buffer.asUint8List(), flush: true);
+    final doc = await recognizer.recognize([file.path]);
+    final parsed = [for (final c in doc.codes) ?ReceiptCode.parse(c)];
+    final kind = parsed.isEmpty ? 'keiner' : parsed.first.runtimeType;
+    _log('QR ${asset.split('/').last} ${doc.codes.length} Code(s), Art $kind');
+    final want = asset.contains('rksv') ? RksvCode : EpcCode;
+    if (parsed.isEmpty || parsed.first.runtimeType != want) {
+      ok = false;
+      _log('FEHLER QR $asset nicht als $want erkannt');
+    }
+  }
+  return ok;
 }
 
 /// Die Fotos aus test/fixtures/belege/ bindet tool/ci/ocr_emulator_test.sh
@@ -136,6 +175,7 @@ Future<void> _korpus() async {
         'datei': name,
         'engine': doc.engine,
         'engineVersion': doc.engineVersion,
+        'codes': doc.codes,
         'lines': [
           for (final l in doc.lines)
             {
@@ -165,6 +205,7 @@ Future<void> _korpus() async {
       // logcat verwirft bei zu schnellen Zeilen („chatty“); kurz drosseln.
       await Future<void>.delayed(const Duration(milliseconds: 5));
     }
+    _log('KORPUS $name CODES ${(json['codes'] as List?)?.length ?? 0}');
     _log(
       'KORPUS $name ${json['lines'] is List ? (json['lines'] as List).length : 0} Zeilen',
     );
