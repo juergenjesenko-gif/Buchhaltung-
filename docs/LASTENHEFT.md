@@ -1,6 +1,6 @@
 # Lastenheft – Buchhaltungsapp für Österreich und Deutschland
 
-**Dokumentversion:** 1.42 · **Stand:** 2026-10-12 · **Status:** Entwurf zur Abstimmung
+**Dokumentversion:** 1.43 · **Stand:** 2026-10-12 · **Status:** Entwurf zur Abstimmung
 **Auftraggeber:** Jürgen Jesenko (privates Vorhaben) · **Umsetzung:** Claude Code
 
 > Ein Lastenheft beschreibt, **was** das Produkt leisten soll und **warum** — nicht,
@@ -51,6 +51,20 @@ grundlegend — der bestehende Code bleibt Grundlage, ist aber nicht das Ziel.
 > Beleg fotografieren oder diktieren statt sammeln, Rechnung unterwegs schreiben,
 > Meldungen und Jahresabschluss ohne Zettelwirtschaft vorbereiten. Was heute Abende
 > kostet, soll Minuten kosten.
+
+### 2.1a Leitprinzip Einfachheit (fundamentale Anforderung)
+
+Festgelegt von der Auftraggeberin am 2026-10-14: Oberstes Produktziel ist die
+einfachste mögliche Nutzung aus Sicht der Anwenderin. Jede Funktion wird daran
+gemessen, wie viele Schritte, Eingaben und Entscheidungen sie verlangt.
+
+| ID | Anforderung | Priorität | Stufe |
+|---|---|---|---|
+| L-0.1 | Beleg fotografieren und auslesen funktioniert überall und jederzeit mit hoher Trefferquote; die Erkennung ist die Kernfunktion des Produkts | MUSS | A |
+| L-0.2 | Felder werden aus dem Beleg vorgeschlagen (Betrag, Datum, Steuersatz, Händler, Beschreibung, Kategorie); die Nutzerin übernimmt mit einem Tipp und korrigiert nur Abweichungen | MUSS | A |
+| L-0.3 | Wiederkehrende Bestätigungen werden mit der Hauptaktion zusammengelegt (z. B. Vollständigkeit = Speichern) | MUSS | A |
+| L-0.4 | Gebuchte Belege gelten als betrieblich; die App stellt das nicht in Frage | MUSS | A |
+| L-0.5 | Jede neue Funktion wird vor der Umsetzung auf die Zahl der Schritte geprüft; der kürzere Weg gewinnt | MUSS | A |
 
 ### 2.2 Geschäftsziele
 
@@ -1154,6 +1168,7 @@ Zu entscheiden, bevor die betroffene Anforderung umgesetzt wird:
 
 | Version | Datum | Änderung |
 |---|---|---|
+| 1.43 | 2026-10-14 | Leitprinzip Einfachheit als fundamentale Anforderung (2.1a, L-0.1 bis L-0.5): Erkennung überall, Vorschläge statt Pflichteingaben, Bestätigungen zusammenlegen, Belege gelten als betrieblich. |
 | 1.42 | 2026-10-12 | L-2.24 bis L-2.26, L-13.3, L-19.29 Fremdwährung bei Eingangsbelegen umgesetzt (Spezifikation 1.28, FA-2.24 bis FA-2.27, Schema 10); Datenfluss EZB-Kursabruf in 5.19. |
 | 1.41 | 2026-10-12 | Fremdwährung bei Eingangsbelegen (L-2.24 bis L-2.26, L-13.3, L-19.29), KI-Auslesung nur Opt-in (L-21.24); geprüft von Steuerberater und Rechtsanwalt; Android-Erkennung mit ML Kit entschieden. |
 | 1.40 | 2026-10-12 | L-2.20 bis L-2.23 Belege automatisch auslesen, umgesetzt (Spezifikation FA-2.19 bis FA-2.23). Entscheidung der Auftraggeberin: Android Google ML Kit (gebündelt), dessen Diagnosedaten an Google in 5.19 offengelegt. Fremdwährung nur bei Eingangsbelegen. |

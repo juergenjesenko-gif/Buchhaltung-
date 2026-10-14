@@ -33,6 +33,28 @@ Vorgehen:
 Eine Prüfinstanz ersetzt keine echte Rechts- oder Steuerberatung. Sie bereitet
 sie vor, damit die echte Prüfung kurz, gezielt und billig wird.
 
+## Leitprinzip: Aus Sicht der Anwenderin denken
+
+Festgelegt vom Auftraggeber am 2026-10-14. Gilt für das Produkt **und** für die
+Zusammenarbeit.
+
+Jede Entscheidung wird zuerst aus Sicht der Person geprüft, die das Ergebnis
+benutzt: Wie viele Schritte braucht sie? Muss sie suchen, kopieren, verstehen,
+bestätigen? Der Weg mit den wenigsten Schritten und den wenigsten Fragen gewinnt.
+
+- **Im Produkt:** Beleg fotografieren muss überall und jederzeit funktionieren
+  (Supermarkt, Post, Auto, nachts). Vorschläge statt Pflichtfelder,
+  übernehmen mit einem Tipp, korrigieren nur wenn nötig. Wiederkehrende
+  Bestätigungen zu einer Aktion zusammenlegen. Wer einen Beleg bucht, bucht ihn
+  betrieblich – keine Rückfragen, die das in Zweifel ziehen.
+- **In der Zusammenarbeit mit dem Auftraggeber:** Von sich aus den einfachsten
+  Weg anbieten, ohne darauf zu warten, dass er gefragt wird. Downloads immer
+  als **direkter, anklickbarer Link auf die Datei** (bei CI-Builds der
+  Artefakt-Link `…/actions/runs/<Lauf>/artifacts/<ID>`), nie als Textadresse
+  oder Link auf eine Übersichtsseite. Upload-Ziele, Formulare und Einstellungen
+  ebenfalls als direkte Links. Anleitungen in nummerierten, kurzen Schritten.
+- Vor jeder Antwort und jedem Feature fragen: Geht es mit einem Schritt weniger?
+
 ## Die wichtigste Regel: Dokumentation ist Teil der Änderung
 
 `docs/SPECIFICATION.md` und `docs/BENUTZERHANDBUCH.md` werden **im selben Commit**
