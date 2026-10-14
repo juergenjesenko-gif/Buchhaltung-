@@ -24,6 +24,8 @@ import '../../services/receipt_scan/platform_text_recognizer.dart';
 import '../../services/receipt_scan/receipt_classifier.dart';
 import '../../services/receipt_scan/receipt_code_prefill.dart';
 import '../../services/receipt_scan/receipt_codes.dart';
+import '../../services/receipt_scan/document_import.dart';
+import '../../services/share_in/share_in_service.dart';
 import '../../services/receipt_scan/receipt_scan_prefill.dart';
 import '../../services/receipt_scan/receipt_text_parser.dart';
 import '../../services/vat_calculator.dart';
@@ -293,6 +295,9 @@ class _ReceiptEditScreenState extends State<ReceiptEditScreen> {
       for (final path in _pages.skip(_savedPageCount)) {
         ReceiptImageStore.delete(path);
       }
+      for (final doc in _documents) {
+        ReceiptImageStore.delete(doc.filePath);
+      }
     }
     super.dispose();
   }
@@ -302,6 +307,7 @@ class _ReceiptEditScreenState extends State<ReceiptEditScreen> {
     final id = existing.id!;
     final pages = await repo.pages(id);
     final comments = await repo.comments(id);
+    final documents = await repo.documents(id);
     // Belege vor Schema 8 ohne Seiteneintrag: das Einzelfoto zählt als Seite.
     final paths = pages.isEmpty && existing.hasImage
         ? [existing.imagePath!]
@@ -313,6 +319,7 @@ class _ReceiptEditScreenState extends State<ReceiptEditScreen> {
         ..addAll(paths);
       _savedPageCount = paths.length;
       _comments = comments;
+      _savedDocuments = documents;
     });
     await _resolveFiles();
   }
@@ -351,7 +358,7 @@ class _ReceiptEditScreenState extends State<ReceiptEditScreen> {
         for (final path in _pages)
           if (_pageFiles[path] != null) _pageFiles[path]!.path,
       ];
-      final document = await _recognizer.recognize(files);
+      final document = _textLayer ?? await _recognizer.recognize(files);
       final result = ReceiptTextParser(
         tax,
         ownVatId: state.profile?.vatId,
@@ -384,56 +391,7 @@ class _ReceiptEditScreenState extends State<ReceiptEditScreen> {
       setState(() {
         _scanDocument = document;
         _scanResult = result;
-        _recognized.clear();
-        if (prefill.date != null) {
-          _date = prefill.date!;
-          _recognized.add('date');
-        }
-        if (prefill.gross != null) {
-          _grossController.text = Fmt.amount(prefill.gross!);
-          _recognized.add('gross');
-        }
-        if (prefill.vatPermille != null) {
-          _vatPermille = prefill.vatPermille!;
-          _recognized.add('vat');
-        }
-        if (prefill.vatParts.length > 1) {
-          _splitParts.load(prefill.vatParts);
-          _vatPermille = prefill.vatParts.first.permille;
-          _recognized.add('vat');
-        } else {
-          _splitParts.clear();
-        }
-        if (prefill.counterparty != null) {
-          _counterpartyController.text = prefill.counterparty!;
-          _recognized.add('counterparty');
-        }
-        if (prefill.documentNumber != null) {
-          _documentNumberController.text = prefill.documentNumber!;
-          _recognized.add('documentNumber');
-        }
-        if (prefill.issuerVatId != null) {
-          _issuerVatIdController.text = prefill.issuerVatId!;
-          _recognized.add('issuerVatId');
-        }
-        if (prefill.description != null &&
-            _descriptionController.text.trim().isEmpty) {
-          _descriptionController.text = prefill.description!;
-          _recognized.add('description');
-        }
-        final category = _categoryNamed(state, prefill.categoryName);
-        if (category != null) {
-          _categoryId = category;
-          _recognized.add('category');
-        }
-        if (prefill.note != null && _noteController.text.trim().isEmpty) {
-          _noteController.text = prefill.note!;
-          _recognized.add('note');
-        }
-        _codeSource = prefill.codeSource;
-        _registerKey = prefill.registerId;
-        _applyForeign(prefill.currency, prefill.originalGross);
-        _scanHints = prefill.hints;
+        _applyPrefill(prefill, state);
       });
       showSnack(
         context,
@@ -456,11 +414,69 @@ class _ReceiptEditScreenState extends State<ReceiptEditScreen> {
     }
   }
 
-  String? _checkHint(String field) => !_recognized.contains(field)
-      ? null
-      : (_codeSource != null && _codeFields.contains(field)
-            ? 'vom $_codeSource'
-            : 'erkannt – bitte prüfen');
+  /// Übernimmt einen Vorschlag ins Formular (Foto, Code oder E-Rechnung).
+  /// Nur innerhalb von setState aufrufen.
+  void _applyPrefill(ReceiptScanPrefill prefill, AppState state) {
+    _recognized.clear();
+    if (prefill.date != null) {
+      _date = prefill.date!;
+      _recognized.add('date');
+    }
+    if (prefill.gross != null) {
+      _grossController.text = Fmt.amount(prefill.gross!);
+      _recognized.add('gross');
+    }
+    if (prefill.vatPermille != null) {
+      _vatPermille = prefill.vatPermille!;
+      _recognized.add('vat');
+    }
+    if (prefill.vatParts.length > 1) {
+      _splitParts.load(prefill.vatParts);
+      _vatPermille = prefill.vatParts.first.permille;
+      _recognized.add('vat');
+    } else {
+      _splitParts.clear();
+    }
+    if (prefill.counterparty != null) {
+      _counterpartyController.text = prefill.counterparty!;
+      _recognized.add('counterparty');
+    }
+    if (prefill.documentNumber != null) {
+      _documentNumberController.text = prefill.documentNumber!;
+      _recognized.add('documentNumber');
+    }
+    if (prefill.issuerVatId != null) {
+      _issuerVatIdController.text = prefill.issuerVatId!;
+      _recognized.add('issuerVatId');
+    }
+    if (prefill.description != null &&
+        _descriptionController.text.trim().isEmpty) {
+      _descriptionController.text = prefill.description!;
+      _recognized.add('description');
+    }
+    final category = _categoryNamed(state, prefill.categoryName);
+    if (category != null) {
+      _categoryId = category;
+      _recognized.add('category');
+    }
+    if (prefill.note != null && _noteController.text.trim().isEmpty) {
+      _noteController.text = prefill.note!;
+      _recognized.add('note');
+    }
+    _codeSource = prefill.codeSource;
+    _registerKey = prefill.registerId;
+    _applyForeign(prefill.currency, prefill.originalGross);
+    _scanHints = prefill.hints;
+  }
+
+  String? _checkHint(String field) {
+    if (!_recognized.contains(field)) return null;
+    if (_codeSource == 'E-Rechnung') return 'aus der E-Rechnung';
+    if (_codeSource != null && _codeFields.contains(field)) {
+      return 'vom $_codeSource';
+    }
+    return 'erkannt – bitte prüfen';
+  }
 
   /// Felder, die ein Code vorbelegt; dort lautet der Vermerk „vom Kassen-QR“.
   static const _codeFields = {'date', 'gross', 'vat', 'counterparty', 'note'};
@@ -556,19 +572,79 @@ class _ReceiptEditScreenState extends State<ReceiptEditScreen> {
     }
   }
 
-  /// Geteilte Bilder als Seiten übernehmen (Kopie, Original bleibt in der
-  /// teilenden App) und auslesen.
+  /// Geteilte Dateien übernehmen (L-27.4): Bilder als Seiten, PDF und XML
+  /// als Originaldatei (L-27.8) mit Seitenbildern bzw. E-Rechnung (L-27.5,
+  /// L-27.6). Die teilende App behält ihr Original.
   Future<void> _addSharedFiles(List<File> files) async {
+    final state = AppScope.read(context);
+    final tax = state.profile?.taxProfile ?? TaxProfile.austria;
+    ReceiptScanPrefill? invoicePrefill;
+    final failed = <String>[];
     for (final file in files) {
-      final relative = await ReceiptImageStore.store(file);
-      if (!mounted) return;
-      setState(() => _pages.add(relative));
+      if (sharedKindOf(file.path) == SharedKind.image) {
+        final relative = await ReceiptImageStore.store(file);
+        if (!mounted) return;
+        setState(() => _pages.add(relative));
+        continue;
+      }
+      try {
+        final doc = await const DocumentImporter().import(file);
+        final stored = await ReceiptImageStore.store(file);
+        _documents.add(
+          ReceiptDocument(
+            filePath: stored,
+            fileName: doc.fileName,
+            mime: doc.mime,
+            sha256: doc.sha256,
+            sizeBytes: doc.sizeBytes,
+            source: 'Teilen',
+          ),
+        );
+        for (final page in doc.pageImages) {
+          final relative = await ReceiptImageStore.store(page);
+          _pages.add(relative);
+        }
+        _textLayer ??= doc.textLayer;
+        if (doc.eInvoice != null) {
+          invoicePrefill ??= ReceiptCodePrefill.fromEInvoice(
+            doc.eInvoice!,
+            profile: tax,
+            direction: _direction,
+          );
+        }
+      } on Exception {
+        failed.add(file.uri.pathSegments.last);
+      }
     }
+    if (!mounted) return;
+    setState(() {});
     await _resolveFiles();
-    // Einstellung erst laden, falls didChangeDependencies noch läuft.
+    if (!mounted) return;
+    if (failed.isNotEmpty) {
+      showSnack(
+        context,
+        'Nicht übernommen: ${failed.join(', ')} – kein Bild, keine PDF oder '
+        'kein bekanntes Rechnungsformat.',
+      );
+    }
+    final prefill = invoicePrefill;
+    if (prefill != null) {
+      setState(() => _applyPrefill(prefill, state));
+      showSnack(context, 'E-Rechnung übernommen – bitte kurz prüfen.');
+      return;
+    }
     await _loadScanSetting();
     if (_scanEnabled) await _scan();
   }
+
+  /// Bereits gespeicherte Originaldateien (nur Anzeige).
+  List<ReceiptDocument> _savedDocuments = const [];
+
+  /// Originaldateien (PDF, XML), die beim Speichern angehängt werden.
+  final List<ReceiptDocument> _documents = [];
+
+  /// Textebene einer geteilten PDF (iOS), ersetzt dann die Texterkennung.
+  OcrDocument? _textLayer;
 
   /// Verschiebt eine noch nicht gespeicherte Seite um [delta] Plätze.
   void _movePage(int index, int delta) {
@@ -769,7 +845,7 @@ class _ReceiptEditScreenState extends State<ReceiptEditScreen> {
       );
     }
 
-    await state.repositories.receipts.save(
+    final receiptId = await state.repositories.receipts.save(
       receipt,
       pages: List.of(_pages),
       // Beim Erfassen wird das Kommentarfeld zum ersten Kommentar; bei einem
@@ -778,6 +854,7 @@ class _ReceiptEditScreenState extends State<ReceiptEditScreen> {
       scanAudit: scanAudit,
       completenessConfirmed: confirmsCompleteness,
     );
+    await state.repositories.receipts.addDocuments(receiptId, _documents);
     _saved = true;
     final registerKey = _registerKey;
     if (registerKey != null && receipt.counterparty.isNotEmpty) {
@@ -822,6 +899,24 @@ class _ReceiptEditScreenState extends State<ReceiptEditScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
+        // Originaldateien (L-27.8): unverändert aufbewahrt, mit Prüfsumme.
+        for (final doc in [..._savedDocuments, ..._documents])
+          Padding(
+            padding: const EdgeInsets.only(bottom: 8),
+            child: Row(
+              children: [
+                const Icon(Icons.description_outlined),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    '${doc.fileName} · Original aufbewahrt · SHA-256 '
+                    '${doc.sha256.substring(0, 12)}…',
+                    style: muted,
+                  ),
+                ),
+              ],
+            ),
+          ),
         if (_pages.isNotEmpty)
           SizedBox(
             height: 206,

@@ -3,6 +3,7 @@ import '../../domain/country.dart';
 import '../../domain/money.dart';
 import '../../domain/receipt.dart';
 import '../receipt_vat_split.dart';
+import 'e_invoice_parser.dart';
 import 'receipt_codes.dart';
 import 'receipt_scan_prefill.dart';
 import 'receipt_text_parser.dart';
@@ -190,6 +191,86 @@ class ReceiptCodePrefill {
       note: note,
       codeSource: 'Zahlungs-QR',
     );
+  }
+
+  /// Vorschlag aus einer E-Rechnung (L-27.6). Die Werte stammen aus dem
+  /// strukturierten Teil und haben Vorrang vor jedem Text.
+  static ReceiptScanPrefill fromEInvoice(
+    EInvoice inv, {
+    required TaxProfile profile,
+    required BookingDirection direction,
+  }) {
+    final hints = <String>[];
+    final foreignCurrency =
+        inv.currency != 'EUR' && direction == BookingDirection.expense;
+    final day = inv.date;
+    final expense = direction == BookingDirection.expense;
+    final ownPrefix = profile.country == Country.at ? 'AT' : 'DE';
+    final foreignIssuer =
+        inv.sellerVatId != null &&
+        inv.sellerVatId!.length > 2 &&
+        !inv.sellerVatId!.startsWith(ownPrefix);
+    final parts = <VatPart>[];
+    var mappable = !foreignCurrency;
+    for (final l in inv.vatLines) {
+      final gross = Money(l.net.cents + l.vat.cents);
+      final own = profile.rateByPermille(l.permille);
+      if (own != null &&
+          !foreignIssuer &&
+          (day == null || own.isValidOn(day))) {
+        parts.add((permille: l.permille, gross: gross));
+      } else if (expense && profile.rateByPermille(0) != null) {
+        parts.add((permille: 0, gross: gross));
+      } else {
+        mappable = false;
+      }
+    }
+    final sum = parts.fold(0, (s, p) => s + p.gross.cents);
+    final normalized = mappable && inv.gross != null && sum == inv.gross!.cents
+        ? ReceiptVatSplit.normalize(parts)
+        : const <VatPart>[];
+    if (inv.vatLines.isNotEmpty && normalized.isEmpty) {
+      hints.add(
+        'Steuersätze der E-Rechnung konnten nicht übernommen werden – '
+        'bitte Satz prüfen.',
+      );
+    }
+    if (foreignIssuer && expense) {
+      hints.add(
+        'Aussteller aus einem anderen Staat – Umsatzsteuer nicht als '
+        'Vorsteuer abziehbar, deshalb 0 % vorbelegt. ${profile.foreignVatHint}',
+      );
+    }
+    if (inv.isCreditNote) {
+      hints.add('Gutschrift bzw. Rechnungskorrektur – bitte Richtung prüfen.');
+    }
+    hints.add('Werte aus der E-Rechnung (${inv.format}).');
+    return ReceiptScanPrefill(
+      date: day,
+      gross: foreignCurrency ? null : inv.gross,
+      currency: foreignCurrency ? inv.currency : 'EUR',
+      originalGross: foreignCurrency ? inv.gross : null,
+      vatPermille: normalized.isEmpty ? null : normalized.first.permille,
+      vatParts: normalized.length > 1 ? normalized : const [],
+      counterparty: inv.seller,
+      documentNumber: inv.number,
+      issuerVatId: inv.sellerVatId,
+      note: inv.iban == null ? null : 'IBAN ${inv.iban}',
+      description: _invoiceDescription(inv),
+      hints: hints,
+      codeSource: 'E-Rechnung',
+    );
+  }
+
+  /// „Lieferant – Rechnung 123“, höchstens 60 Zeichen wie FA-2.31.
+  static String? _invoiceDescription(EInvoice inv) {
+    final parts = [
+      if (inv.seller != null) inv.seller!,
+      if (inv.number != null) 'Rechnung ${inv.number}',
+    ];
+    if (parts.isEmpty) return null;
+    final text = parts.join(' – ');
+    return text.length <= 60 ? text : text.substring(0, 60);
   }
 
   static ReceiptScanPrefill _copy(

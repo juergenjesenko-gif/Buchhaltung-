@@ -29,11 +29,36 @@ gebaut, und was war darin geprüft?*
 
 ## Unveröffentlicht
 
-Änderungen seit 0.8.0+13, die noch in keinem Build stecken. Wandern beim
+Änderungen seit 0.9.0+14, die noch in keinem Build stecken. Wandern beim
 nächsten Versionssprung in den neuen Eintrag.
 
 | Art | Änderung | Bezug | Commit |
 |---|---|---|---|
+
+---
+
+## 0.9.0+14 — 2026-10-14
+
+| Feld | Wert |
+|---|---|
+| Art | Testbuild (ungezippte arm64-APK, fester Testschlüssel); Stufe A2 PDF- und E-Rechnungen |
+| Commit | siehe Git-Tag `v0.9.0` |
+| Branch | `claude/agile-accounting-app-mobile-wa5j3h` |
+| Dokumentstände | Lastenheft 1.51, Spezifikation 1.48, Benutzerhandbuch für 0.9.0, DESIGN_SPEC 1.2 |
+| Datenbankschema | 16 |
+| Prüfung | `flutter analyze` ohne Befund, alle Tests grün (neu `e_invoice_test.dart` mit KoSIT-Testsuite 01.01a UBL/CII, ebInterface 6.1, ZUGFeRD-PDF), Emulator-Job `android-ocr-emulator` mit PDF-Seitenbild, CI siehe Lauf zum Tag |
+| Steuerliche Kennwerte | `spec.schema_version` 15 → 16 |
+| Offene reale Prüfpunkte | wie 0.8.0+13 |
+
+**Änderungen seit 0.8.0+13**
+
+| Art | Änderung | Bezug | Commit |
+|---|---|---|---|
+| Neu | PDF-Rechnungen: eingebettetes XML, Seitenbilder (PdfRenderer/PDFKit), Texterkennung als Rückfall, iOS-Textebene | L-27.5, FA-2.39 | siehe Tag |
+| Neu | E-Rechnung CII (ZUGFeRD/Factur-X/XRechnung), UBL (XRechnung), ebInterface strukturiert | L-27.6, FA-2.40 | siehe Tag |
+| Neu | Originaldatei unverändert mit SHA-256, in Sicherung und Belegliste; Schema 16 `receipt_documents` | L-27.8, FA-2.41 | siehe Tag |
+| Neu | Teilen-Ziel für PDF/XML, iOS „Öffnen in“ | L-27.4, FA-2.38 | siehe Tag |
+| Neu | Abhängigkeit `xml` 7.1 (MIT) | FA-2.40 | siehe Tag |
 
 ---
 

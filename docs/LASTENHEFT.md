@@ -1,6 +1,6 @@
 # Lastenheft – Buchhaltungsapp für Österreich und Deutschland
 
-**Dokumentversion:** 1.50 · **Stand:** 2026-10-14 · **Status:** Entwurf zur Abstimmung
+**Dokumentversion:** 1.51 · **Stand:** 2026-10-14 · **Status:** Entwurf zur Abstimmung
 **Auftraggeber:** Jürgen Jesenko (privates Vorhaben) · **Umsetzung:** Claude Code
 
 > Ein Lastenheft beschreibt, **was** das Produkt leisten soll und **warum** — nicht,
@@ -1252,6 +1252,7 @@ Zu entscheiden, bevor die betroffene Anforderung umgesetzt wird:
 
 | Version | Datum | Änderung |
 |---|---|---|
+| 1.51 | 2026-10-14 | A2 umgesetzt in 0.9.0 (L-27.4 bis L-27.6, L-27.8; Spezifikation FA-2.38 bis FA-2.41). iOS-Teilen über „Öffnen in“ statt Share Extension. Keine neue Datenübertragung (5.19 unverändert). |
 | 1.50 | 2026-10-14 | Neu 5.27 (L-27.1 bis L-27.8: Codes, Teilen-Ziel, PDF/E-Rechnung, Link-QR) und O-32 (Plattform-Connectoren zurückgestellt). 5.19: Barcode-Erkennung von ML Kit in der bestehenden Diagnosezeile. A1 umgesetzt in 0.8.0. |
 | 1.49 | 2026-10-14 | L-3.31: Kundendokumente fest in Sie-Form, keine Du-Umschaltung (Entscheidung Auftraggeberin). |
 | 1.48 | 2026-10-14 | Neu L-2.27 (Beleg mit mehreren Steuersätzen) und L-3.31 (neue Frist, Mahnsymbol, Sie-Form); umgesetzt in App-Version 0.7.0 (Spezifikation 1.46). Keine neue Datenübertragung (5.19 unverändert). |

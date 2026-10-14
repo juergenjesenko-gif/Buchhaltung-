@@ -72,7 +72,11 @@ class Exporter {
     required this.period,
     this.comments = const {},
     this.pageCounts = const {},
+    this.originals = const {},
   });
+
+  /// Originaldateien je Beleg-ID mit SHA-256 (L-27.8).
+  final Map<int, String> originals;
 
   final CompanyProfile profile;
   final List<Receipt> receipts;
@@ -200,6 +204,7 @@ class Exporter {
       'Seiten',
       'Kommentare',
       'Teil',
+      'Originaldatei',
     ]);
 
     // Je Steuersatz eine Zeile (L-2.27). Belegweite Angaben (Originalbetrag,
@@ -239,6 +244,7 @@ class Exporter {
           _pagesOf(receipt).toString(),
           _commentCell(receipt),
           lines.length > 1 ? '${i + 1}/${lines.length}' : '',
+          first ? (originals[receipt.id] ?? '') : '',
         ]);
       }
     }

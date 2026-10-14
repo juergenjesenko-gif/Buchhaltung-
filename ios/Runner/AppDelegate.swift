@@ -13,6 +13,8 @@ import UIKit
   private var backupFolder: BackupFolderChannel?
   private var receiptText: ReceiptTextChannel?
   private var launcher: FlutterMethodChannel?
+  private var pdf: PdfChannel?
+  private var shareIn: ShareInChannel?
 
   func didInitializeImplicitFlutterEngine(_ engineBridge: FlutterImplicitEngineBridge) {
     GeneratedPluginRegistrant.register(with: engineBridge.pluginRegistry)
@@ -21,6 +23,14 @@ import UIKit
     }
     if let registrar = engineBridge.pluginRegistry.registrar(forPlugin: "ReceiptTextChannel") {
       receiptText = ReceiptTextChannel(messenger: registrar.messenger())
+    }
+    if let registrar = engineBridge.pluginRegistry.registrar(forPlugin: "PdfChannel") {
+      pdf = PdfChannel(messenger: registrar.messenger())
+    }
+    if let registrar = engineBridge.pluginRegistry.registrar(forPlugin: "ShareInChannel") {
+      let channel = ShareInChannel(messenger: registrar.messenger())
+      registrar.addSceneDelegate(channel)
+      shareIn = channel
     }
     if let registrar = engineBridge.pluginRegistry.registrar(forPlugin: "LauncherChannel") {
       launcher = FlutterMethodChannel(

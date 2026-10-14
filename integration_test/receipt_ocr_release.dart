@@ -12,6 +12,7 @@ import 'dart:io';
 import 'dart:ui' as ui;
 
 import 'package:buchhaltung/services/receipt_scan/platform_text_recognizer.dart';
+import 'package:buchhaltung/services/receipt_scan/document_import.dart';
 import 'package:buchhaltung/services/receipt_scan/receipt_codes.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
@@ -100,6 +101,25 @@ Future<void> main() async {
   } catch (e) {
     ok = false;
     _log('FEHLER QR $e');
+  }
+  // PDF (L-27.5): Seitenbild über PdfRenderer und eingebettete E-Rechnung.
+  try {
+    final data = await rootBundle.load(
+      'test/fixtures/einvoice/zugferd_synthetisch.pdf',
+    );
+    final file = File('${Directory.systemTemp.path}/zugferd.pdf');
+    await file.writeAsBytes(data.buffer.asUint8List(), flush: true);
+    final doc = await const DocumentImporter().import(file);
+    _log(
+      'PDF Seiten ${doc.pageImages.length}, E-Rechnung ${doc.eInvoice?.number}',
+    );
+    if (doc.pageImages.isEmpty || doc.eInvoice == null) {
+      ok = false;
+      _log('FEHLER PDF');
+    }
+  } catch (e) {
+    ok = false;
+    _log('FEHLER PDF $e');
   }
   try {
     await _korpus();

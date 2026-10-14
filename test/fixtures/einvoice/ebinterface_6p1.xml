@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Invoice xmlns="http://www.ebinterface.at/schema/6p1/" GeneratingSystem="Testdaten" DocumentType="Invoice" InvoiceCurrency="EUR" Language="ger">
+  <InvoiceNumber>2026-0815</InvoiceNumber>
+  <InvoiceDate>2026-09-30</InvoiceDate>
+  <Biller>
+    <VATIdentificationNumber>ATU13585627</VATIdentificationNumber>
+    <Address>
+      <Name>Muster Installationen GmbH</Name>
+      <Street>Hauptplatz 1</Street>
+      <Town>Klagenfurt</Town>
+      <ZIP>9020</ZIP>
+      <Country CountryCode="AT">Österreich</Country>
+    </Address>
+  </Biller>
+  <InvoiceRecipient>
+    <VATIdentificationNumber>00000000</VATIdentificationNumber>
+    <Address>
+      <Name>Kundin</Name>
+      <Street>Weg 2</Street>
+      <Town>Villach</Town>
+      <ZIP>9500</ZIP>
+      <Country CountryCode="AT">Österreich</Country>
+    </Address>
+  </InvoiceRecipient>
+  <Details>
+    <ItemList>
+      <ListLineItem>
+        <Description>Montage</Description>
+        <Quantity Unit="STK">1</Quantity>
+        <UnitPrice>100.00</UnitPrice>
+        <TaxItem>
+          <TaxableAmount>100.00</TaxableAmount>
+          <TaxPercent TaxCategoryCode="S">20</TaxPercent>
+        </TaxItem>
+        <LineItemAmount>100.00</LineItemAmount>
+      </ListLineItem>
+      <ListLineItem>
+        <Description>Fachbuch</Description>
+        <Quantity Unit="STK">1</Quantity>
+        <UnitPrice>50.00</UnitPrice>
+        <TaxItem>
+          <TaxableAmount>50.00</TaxableAmount>
+          <TaxPercent TaxCategoryCode="AA">10</TaxPercent>
+        </TaxItem>
+        <LineItemAmount>50.00</LineItemAmount>
+      </ListLineItem>
+    </ItemList>
+  </Details>
+  <Tax>
+    <TaxItem>
+      <TaxableAmount>100.00</TaxableAmount>
+      <TaxPercent TaxCategoryCode="S">20</TaxPercent>
+      <TaxAmount>20.00</TaxAmount>
+    </TaxItem>
+    <TaxItem>
+      <TaxableAmount>50.00</TaxableAmount>
+      <TaxPercent TaxCategoryCode="AA">10</TaxPercent>
+      <TaxAmount>5.00</TaxAmount>
+    </TaxItem>
+  </Tax>
+  <TotalGrossAmount>175.00</TotalGrossAmount>
+  <PayableAmount>175.00</PayableAmount>
+  <PaymentMethod>
+    <UniversalBankTransaction>
+      <BeneficiaryAccount>
+        <IBAN>AT611904300234573201</IBAN>
+      </BeneficiaryAccount>
+    </UniversalBankTransaction>
+  </PaymentMethod>
+</Invoice>

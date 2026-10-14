@@ -1,6 +1,6 @@
 # Spezifikation – Buchhaltung
 
-**Dokumentversion:** 1.47 · **App-Version:** 0.8.0 · **Stand:** 2026-10-14
+**Dokumentversion:** 1.48 · **App-Version:** 0.9.0 · **Stand:** 2026-10-14
 **Status:** Sprint 1 umgesetzt und verifiziert
 
 > Das **Zielbild** des Produkts steht im [`LASTENHEFT.md`](LASTENHEFT.md); dieses
@@ -247,6 +247,7 @@ Anwendungsdokumentenverzeichnis. Aktuelle Schemaversion: **13**
 | `receipts` | Belege | Index auf `date` und `direction`. Werden nie gelöscht, nur storniert (`cancelled_at`). Seit Schema 11 `invoice_id` (Einnahme aus bezahlter Rechnung, eindeutig je Rechnung und Steuersatz) |
 | `receipt_vat_lines` | Steuersatzzeilen eines Belegs: `receipt_id`, `position` ab 1, `vat_permille`, `net_cents`, `vat_cents`, `gross_cents` | Schema 14. Je Zeile `net + vat == gross`, Summe der Zeilen = `receipts.gross_cents` (erzwungen in `ReceiptRepository.writeVatLines`). Bei der Migration wurde jeder bestehende Beleg zu genau einer Zeile; Einnahmen aus bezahlten Rechnungen und Mahnkosten schreiben ihre Zeile mit. Kopf des Belegs: Summen, `vat_permille` = Satz der größten Zeile. Auswertungen lesen nur Zeilen (ein Beleg ohne Zeile zählt mit seinem Kopf) |
 | `cash_register_merchants` | Lernspeicher Kasse → Händler (FA-2.36): `register_key` (`AT:<Kassen-ID>`, `DE:<Seriennummer>`), `merchant`, `updated_at` | Schema 15. Ersetzt beim Speichern eines Belegs mit Kassen-QR |
+| `receipt_documents` | Originaldateien (FA-2.41): `receipt_id`, `file_path` (relativ, `belege/…`), `file_name`, `mime`, `sha256`, `size_bytes`, `source`, `created_at` | Schema 16. Nur Einfügen; Trigger verhindern `UPDATE` und `DELETE` |
 | `receipt_pages` | Seiten (Fotos) eines Belegs: `receipt_id`, `position` ab 1, `image_path`, `created_at` | Schema 8. Nach dem Speichern nur Anhängen; bestehende Einzelfotos wurden bei der Migration zur Seite 1 |
 | `receipt_comments` | Kommentare zu Belegen: `receipt_id`, `text`, `created_at` (Systemzeit) | Schema 8. Nur Einfügen; ein Trigger verhindert `UPDATE`. Löschen bietet die App nicht an (die Wiederherstellung leert alle Tabellen) |
 | `invoices` | Ausgangsrechnungen | `UNIQUE INDEX` auf `number`. Seit Schema 12 Gesamtrabatt, Versand, Skonto (GR-12) |
@@ -405,7 +406,10 @@ prüft `InvoiceRequirements` (FA-1.4).
 | FA-2.35 | **Codes auf dem Foto** (Lastenheft L-27.1, 0.8.0): dieselbe Erkennung liest QR, Data Matrix und Aztec auf denselben Bildern (Android `com.google.mlkit:barcode-scanning` 17.3.0 gebündelt, iOS `VNDetectBarcodesRequest`) und liefert die Rohinhalte im Feld `codes` des Channels `buchhaltung/receipt_text`. Ein Fehler beim Code-Lesen bricht die Texterkennung nicht ab. Zerlegung in `lib/services/receipt_scan/receipt_codes.dart` (reines Dart): **RKSV** `_R1-AT<n>_` mit 13 Feldern (Detailspezifikation Abschnitt 7, A-SIT-Mustercode `MachineCodeValue`), Beträge brutto mit Komma und Tausenderpunkt, Felder Normal 20 %, Ermäßigt-1 10 %, Ermäßigt-2 13 %, Null 0 %, Besonders (19 % **oder** 4,9 %, P-S49); **TSE** `V0;…;Kassenbeleg-V1;Beleg^B1_…_B5^…` mit IDs 19 %, 7 %, 10,7 %, 5,5 %, 0 % (DSFinV-K Anhang I, P-S50); **EPC069-12** `BCD` Version 001/002 mit IBAN-Prüfziffer; **Link** nur `https` ohne Benutzerangabe. Ein Code, der nicht exakt dem Format folgt, wird verworfen |
 | FA-2.36 | **Kassen-QR zuerst** (L-27.2, `ReceiptCodePrefill`): Betrag (Summe der Felder), Datum und Sätze aus dem Code ersetzen die Texterkennung; mehrere Sätze als Aufteilung (FA-2.33). „Besonders“: Satz aus dem Text, wenn dort genau 4,9 % oder 19 % steht; vor dem 01.07.2026 19 %; sonst keine Aufteilung und Hinweis „Steuersatz (4,9 % oder 19 %) bitte wählen“. Code eines anderen Landes als das Profil (z. B. RKSV bei DE-Profil): Betrag und Datum, bei Ausgaben 0 % (FA-2.29). Storno/Nullbeleg: nur Datum. Händler: gelernter Name zur Kasse (Schema 15 `cash_register_merchants`, Schlüssel `AT:<Kassen-ID>` bzw. `DE:<Seriennummer>`, gespeichert beim Speichern des Belegs mit dem bestätigten Partner), sonst aus dem Text. Belegnummer des Codes, wenn der Text keine Rechnungsnummer ergab. Felder aus dem Code tragen statt „erkannt – bitte prüfen“ den Vermerk „vom Kassen-QR“; das Foto bleibt der Beleg |
 | FA-2.37 | **Zahlungs-QR** (L-27.3): Empfänger → Partner, Betrag → Brutto, IBAN, BIC und Referenz → Notiz (nur wenn leer); Vermerk „vom Zahlungs-QR“. Gezahlt wird nicht aus der App |
-| FA-2.38 | **Teilen-Ziel Android** (L-27.4): `ACTION_SEND`/`ACTION_SEND_MULTIPLE` mit `image/*`; `ShareInChannel.kt` kopiert sofort in den App-Cache (höchstens 20 MB je Datei), Channel `buchhaltung/share_in`. Die Startseite öffnet „Ausgabe erfassen“ mit den Bildern als Seiten und liest sie aus. PDF und XML folgen in 0.9.0 |
+| FA-2.38 | **Teilen-Ziel** (L-27.4): Android `ACTION_SEND`/`ACTION_SEND_MULTIPLE` mit `image/*`, seit 0.9.0 auch `application/pdf`, `application/xml`, `text/xml`; `ShareInChannel.kt` kopiert sofort in den App-Cache (höchstens 20 MB je Datei), Channel `buchhaltung/share_in`. iOS (0.9.0): „Öffnen in …“/„Kopieren nach“ über `CFBundleDocumentTypes` (PDF, XML, Bilder, Rang `Alternate`) und `FlutterSceneLifeCycleDelegate` – keine Share Extension, damit `project.pbxproj` und App Group unverändert bleiben (P-U5). Die Startseite öffnet „Ausgabe erfassen“: Bilder als Seiten mit Erkennung, PDF/XML nach FA-2.39 |
+| FA-2.39 | **PDF-Rechnungen** (L-27.5, 0.9.0): `DocumentImporter` liest die Datei (höchstens 20 MB). Eingebettete XML-Dateien (`/Type /EmbeddedFile`, ungefiltert oder `FlateDecode`) liest `PdfEmbeddedFiles` in reinem Dart. Seitenbilder (höchstens 5 Seiten, lange Kante 2000 px) liefert der Channel `buchhaltung/pdf`: Android `PdfRenderer`, iOS PDFKit. Android hat vor API 35 keine Textebene: die Seitenbilder laufen durch die Texterkennung (FA-2.19) samt Codes (FA-2.35). iOS liefert zusätzlich die Textebene (`PDFPage.string`); ab drei Zeilen ersetzt sie die Texterkennung. Paketwahl: keine PDF-Bibliothek – pdfrx (PDFium, mehrere MB je Architektur) und syncfusion_flutter_pdf (kommerzielle Lizenz) verworfen; XML über `package:xml` 7.1 (MIT, reines Dart) |
+| FA-2.40 | **E-Rechnung strukturiert** (L-27.6, `EInvoiceParser`, unabhängig vom Namensraum-Präfix): CII (`CrossIndustryInvoice`: ZUGFeRD 2.x, Factur-X, XRechnung-CII; EN 16931 / CEN/TS 16931-3-3), UBL 2.1 (`Invoice`, `CreditNote`: XRechnung-UBL; CEN/TS 16931-3-2), ebInterface 4.x–6.x (`Tax/VAT/VATItem` bzw. `Tax/TaxItem`). Übernommen: Nummer, Datum, Lieferant, UID, Währung, Brutto (GrandTotal/TaxInclusive/TotalGross), je Satz Bemessung und Steuer, IBAN (Prüfziffer). Beträge ohne Gleitkomma auf Cent (kaufmännisch), Sätze mit höchstens einer Promillestelle. DOCTYPE/ENTITY wird abgelehnt. Vorschlag (`ReceiptCodePrefill.fromEInvoice`): Aufteilung je Satz (Brutto = Bemessung + Steuer) nur, wenn die Summe exakt dem Rechnungsbetrag entspricht; Aussteller-UID eines anderen Staats bzw. unbekannter Satz bei Ausgaben → 0 % (FA-2.29); Fremdwährung → FA-2.21; Gutschrift → Hinweis; Beschreibung „Lieferant – Rechnung Nr“; IBAN in die Notiz; Vermerk „aus der E-Rechnung“. XML ohne bekanntes Format wird nicht übernommen |
+| FA-2.41 | **Originaldatei aufbewahren** (L-27.8, Schema 16 `receipt_documents`): PDF bzw. XML unverändert im Belegordner (`belege/`, damit in jeder Sicherung, 5.5a), SHA-256 beim Übernehmen, Eintrag erst beim Speichern des Belegs, `audit_log` `document` mit Name, Typ, Größe, Prüfsumme, Quelle. Trigger verbieten Ändern und Löschen. Im Formular je Datei „Original aufbewahrt · SHA-256 …“. Belegliste (8.2) Spalte „Originaldatei“. Ohne Speichern werden die Kopien gelöscht |
 | FA-2.18 | **Stornierte Belege lesbar**: Filter „Storniert“ in der Belegliste; die Ansicht ist schreibgeschützt (Hinweisbanner, kein Speichern), Kommentare bleiben anhängbar |
 
 ### 5.3 Kassabuch und Auswertung
@@ -716,7 +720,8 @@ verfälschen.
 Spalten: Datum, Art, Beschreibung, Geschäftspartner, Kategorie, Konto,
 Zahlungsart, Netto, USt-Satz, USt-Betrag, Brutto, Währung, Originalbetrag, Kurs (je EUR, 6 Nachkommastellen), Kursquelle,
 Kursdatum, Bankbetrag EUR, Beleg vorhanden, Notiz, Seiten, Kommentare (je
-`TT.MM.JJJJ, hh:mm: Text`, getrennt durch ` | `), Teil („1/2“ bei aufgeteilten Belegen, sonst leer).
+`TT.MM.JJJJ, hh:mm: Text`, getrennt durch ` | `), Teil („1/2“ bei aufgeteilten Belegen, sonst leer), Originaldatei
+(„Name (SHA-256 …)“, mehrere durch ` | `; nur erste Zeile, FA-2.41).
 Je Steuersatzzeile eine Zeile; Originalbetrag und Bankbetrag nur in der ersten Zeile eines Belegs.
 Danach Summenzeilen für Einnahmen, Ausgaben, ggf. „Kursdifferenzen laut Bank“
 (FA-2.26) und Ergebnis.
@@ -800,7 +805,8 @@ Lastenheft 5.19 und `STORE_LISTING.md`; Prüfung P-R19, P-D21. Apple Vision
 **Codes auf dem Foto (FA-2.35):** dieselbe gebündelte ML-Kit-Familie (Barcode
 Scanning) mit denselben Diagnosedaten an Google wie die Texterkennung; kein
 neuer Empfänger. Geteilte Dateien (FA-2.38) kommen von einer anderen App auf
-das Gerät, nichts geht hinaus.
+das Gerät, nichts geht hinaus. PDF und E-Rechnungen (FA-2.39, FA-2.40)
+werden vollständig auf dem Gerät verarbeitet.
 
 **EZB-Kursabruf (FA-2.25):** nur auf Tippen „Kurs abrufen“ ruft die App eine
 feste Datei der Europäischen Zentralbank ab (`eurofxref-hist-90d.xml` bzw.
@@ -856,7 +862,7 @@ Offen benannt, weil eine Spezifikation, die ihre Lücken verschweigt, wertlos is
 > Das ist der Mechanismus, der dieses Dokument aktuell hält.
 
 ```properties
-spec.schema_version = 15
+spec.schema_version = 16
 spec.primary_action_height_dp = 56
 spec.min_touch_target_dp = 48
 spec.dunning_default_fee_cents = 1000
@@ -965,6 +971,7 @@ Dauerfristverlängerung, `02-15,…` = feste Tage, `+1j07-31` = Folgejahr,
 
 | Version | Datum | App-Version | Änderung |
 |---|---|---|---|
+| 1.48 | 2026-10-14 | 0.9.0 | App-Version 0.9.0 (Testbuild), Stufe A2: PDF-Rechnungen (FA-2.39), E-Rechnungen CII/UBL/ebInterface (FA-2.40), Originaldatei mit SHA-256 in Sicherung und Belegliste (FA-2.41, Schema 16), Teilen-Ziel für PDF/XML und iOS „Öffnen in“ (FA-2.38). |
 | 1.47 | 2026-10-14 | 0.8.0 | App-Version 0.8.0 (Testbuild), Stufe A1: Codes auf dem Foto (FA-2.35 bis FA-2.38, Lastenheft L-27.1 bis L-27.4): Kassen-QR RKSV/TSE mit Vorrang bei Betrag, Datum, Sätzen, Zahlungs-QR EPC, Lernspeicher Kasse → Händler (Schema 15), Teilen-Ziel Android für Bilder. Neue Prüfpunkte P-S49, P-S50, P-U5. |
 | 1.46 | 2026-10-14 | 0.7.0 | App-Version 0.7.0 (Testbuild). Beleg mit mehreren Steuersätzen (FA-2.33, FA-2.34, Lastenheft L-2.27), Schema 14 mit `receipt_vat_lines`, Auswertungen und Exporte je Satz (8.2 bis 8.4). Fehlerbehebung Gerätetest 0.6.0: Kleinunternehmer-Ausgaben brutto, Balken-Mindesthöhe, Ladevorgang ohne Überschreiben (FA-3.2, FA-3.5, FA-3.7); Termin-Box ans Ende. Mahnwesen: neue Frist, Mahnsymbol mit Verlauf (FA-5.26, FA-5.27); Sie-Form in Kundendokumenten (FA-5.28); Hinweis Leistungsdatum (FA-5.29); eingebettete PDF-Schrift mit € (FA-5.30). Einhandbedienung links und rechts (FA-12.7). Neue Prüfpunkte P-S46 bis P-S48, P-L19, P-X7. |
 | 1.45 | 2026-10-14 | 0.6.0 | App-Version 0.6.0 (Testbuild) „Einhandbedienung“ nach DESIGN_SPEC 5a (Abschnitt 5.7a, FA-12.1 bis FA-12.6): zentrierter Knopf „Beleg fotografieren“, Stornieren/Löschen am Formularende in Fehlerfarbe, Seitenleiste 48 dp, umbrechende Chips, Jahr als Chip, Datum „Heute/Gestern“, `PrimaryActionBar` in Kunden- und Stammdatenformular. Kein Schemawechsel. Neue Prüfpunkte P-X1 bis P-X6. |

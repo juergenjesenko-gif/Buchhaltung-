@@ -1,4 +1,5 @@
 import Flutter
+import PDFKit
 import UIKit
 import Vision
 
@@ -95,5 +96,116 @@ class ReceiptTextChannel {
     case .rightMirrored: return .rightMirrored
     @unknown default: return .up
     }
+  }
+}
+
+// Die folgenden Klassen stehen bewusst in dieser bereits im Xcode-Projekt
+// eingetragenen Datei: so bleibt project.pbxproj unverändert (iOS-Build nur
+// in der CI prüfbar).
+
+/// PDF-Seiten als Bild und Textebene (L-27.5) mit PDFKit, auf dem Gerät.
+/// Gegenstück zu PdfChannel.kt; zusätzlich liefert iOS die Textebene.
+class PdfChannel {
+  private let channel: FlutterMethodChannel
+
+  init(messenger: FlutterBinaryMessenger) {
+    channel = FlutterMethodChannel(name: "buchhaltung/pdf", binaryMessenger: messenger)
+    channel.setMethodCallHandler { call, result in
+      guard call.method == "render" else {
+        result(FlutterMethodNotImplemented)
+        return
+      }
+      guard let args = call.arguments as? [String: Any],
+            let path = args["path"] as? String else {
+        result(FlutterError(code: "bad_args", message: "path fehlt", details: nil))
+        return
+      }
+      let maxPages = args["maxPages"] as? Int ?? 5
+      DispatchQueue.global(qos: .userInitiated).async {
+        let out = PdfChannel.render(path: path, maxPages: maxPages)
+        DispatchQueue.main.async {
+          if let out = out {
+            result(out)
+          } else {
+            result(FlutterError(code: "pdf_failed", message: "PDF nicht lesbar", details: nil))
+          }
+        }
+      }
+    }
+  }
+
+  private static func render(path: String, maxPages: Int) -> [String: Any]? {
+    guard let doc = PDFDocument(url: URL(fileURLWithPath: path)) else { return nil }
+    let dir = FileManager.default.temporaryDirectory.appendingPathComponent("pdf_pages")
+    try? FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
+    var pages: [String] = []
+    var texts: [String] = []
+    for i in 0..<min(doc.pageCount, maxPages) {
+      guard let page = doc.page(at: i) else { continue }
+      texts.append(page.string ?? "")
+      let box = page.bounds(for: .mediaBox)
+      let scale = 2000.0 / max(box.width, box.height)
+      let size = CGSize(width: box.width * scale, height: box.height * scale)
+      let image = page.thumbnail(of: size, for: .mediaBox)
+      let target = dir.appendingPathComponent("\(Int(Date().timeIntervalSince1970 * 1000))_\(i + 1).png")
+      if let data = image.pngData(), (try? data.write(to: target)) != nil {
+        pages.append(target.path)
+      }
+    }
+    return ["pages": pages, "pageCount": doc.pageCount, "text": texts]
+  }
+}
+
+/// Teilen-Ziel iOS (L-27.4): „Öffnen in …“/„Kopieren nach Buchhaltung“ aus
+/// dem Teilen-Menü für Bilder, PDF und XML (CFBundleDocumentTypes in
+/// Info.plist). Die Datei wird in den temporären Ordner kopiert und über
+/// denselben Channel wie unter Android gemeldet.
+class ShareInChannel: NSObject, FlutterSceneLifeCycleDelegate {
+  private let channel: FlutterMethodChannel
+  private var pending: [String] = []
+  private static let maxBytes = 20 * 1024 * 1024
+
+  init(messenger: FlutterBinaryMessenger) {
+    channel = FlutterMethodChannel(name: "buchhaltung/share_in", binaryMessenger: messenger)
+    super.init()
+    channel.setMethodCallHandler { [weak self] call, result in
+      guard call.method == "takePending" else {
+        result(FlutterMethodNotImplemented)
+        return
+      }
+      result(self?.pending ?? [])
+      self?.pending.removeAll()
+    }
+  }
+
+  func scene(_ scene: UIScene, willConnectTo session: UISceneSession,
+             options connectionOptions: UIScene.ConnectionOptions?) -> Bool {
+    guard let contexts = connectionOptions?.urlContexts, !contexts.isEmpty else { return false }
+    return handle(contexts.map { $0.url })
+  }
+
+  func scene(_ scene: UIScene, openURLContexts URLContexts: Set<UIOpenURLContext>) -> Bool {
+    return handle(URLContexts.map { $0.url })
+  }
+
+  private func handle(_ urls: [URL]) -> Bool {
+    var any = false
+    let dir = FileManager.default.temporaryDirectory.appendingPathComponent("shared_in")
+    try? FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
+    for (i, url) in urls.enumerated() where url.isFileURL {
+      let scoped = url.startAccessingSecurityScopedResource()
+      defer { if scoped { url.stopAccessingSecurityScopedResource() } }
+      let size = (try? url.resourceValues(forKeys: [.fileSizeKey]).fileSize) ?? 0
+      if size > ShareInChannel.maxBytes { continue }
+      let name = url.lastPathComponent.replacingOccurrences(
+        of: "[^A-Za-z0-9._-]", with: "_", options: .regularExpression)
+      let target = dir.appendingPathComponent("\(Int(Date().timeIntervalSince1970 * 1000))_\(i)_\(name)")
+      if (try? FileManager.default.copyItem(at: url, to: target)) != nil {
+        pending.append(target.path)
+        any = true
+      }
+    }
+    if any { channel.invokeMethod("shared", arguments: nil) }
+    return any
   }
 }

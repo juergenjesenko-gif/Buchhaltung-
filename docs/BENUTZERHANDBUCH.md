@@ -1,6 +1,6 @@
 # Benutzerhandbuch – Buchhaltung
 
-**Für App-Version 0.8.0** · Stand 2026-10-14
+**Für App-Version 0.9.0** · Stand 2026-10-14
 
 Dieses Handbuch beschreibt die App aus Nutzersicht. Es wird bei jeder Änderung,
 die du in der App siehst, mitgeführt – siehe [`CLAUDE.md`](../CLAUDE.md).
@@ -308,7 +308,28 @@ ihn **auf demselben Foto** mit, du musst nichts extra tun.
 Ein Foto in der Galerie, ein Bild aus einer Mail oder einem Messenger:
 **Teilen → Buchhaltung**. Die App öffnet sofort „Ausgabe erfassen“ mit dem
 Bild als Seite und liest es aus. Du prüfst und tippst auf Speichern.
-(Android; PDF- und XML-Dateien ab Version 0.9.0.)
+Am iPhone heißt es **Teilen → In Buchhaltung öffnen** bzw. „Kopieren nach“.
+
+### PDF-Rechnungen und E-Rechnungen
+
+Rechnung als PDF aus der Mail, dem Kundenportal oder dem Download-Ordner:
+**Teilen → Buchhaltung**.
+
+- **E-Rechnung** (ZUGFeRD, Factur-X, XRechnung, ebInterface): die App liest
+  die maschinenlesbaren Daten – Lieferant, UID, Rechnungsnummer, Datum,
+  Beträge je Steuersatz und IBAN. Die Felder tragen **„aus der E-Rechnung“**.
+  Das ist die genaueste Art, eine Rechnung zu erfassen.
+- **Gewöhnliche PDF**: die App zeigt die Seiten als Bild und liest sie wie ein
+  Foto aus (bis zu 5 Seiten).
+- **XML-Datei** allein (z. B. XRechnung von einer Behörde): wird genauso
+  übernommen, nur ohne Seitenbild.
+- Die **Originaldatei** bewahrt die App unverändert auf, mit Prüfsumme
+  (SHA-256). Im Beleg steht „Original aufbewahrt“. Sie ist in jeder
+  Datensicherung enthalten, und die Belegliste für die Kanzlei nennt sie in
+  der Spalte „Originaldatei“.
+- Verlässt du das Formular ohne Speichern, wird die Kopie wieder gelöscht.
+
+Alles läuft auf deinem Telefon; die Datei wird nirgends hochgeladen.
 
 ### Belege in fremder Währung
 
@@ -751,7 +772,7 @@ Bereich **Export**.
 
 | Format | Wann |
 |---|---|
-| **Belegliste (CSV)** | Der sichere Standard. Öffnet in Excel, Numbers und jedem Buchhaltungsprogramm. Nimm den, wenn du nicht weißt, womit deine Kanzlei arbeitet. Enthält auch die Seitenzahl, alle Kommentare mit Zeitpunkt und bei Fremdwährung Währung, Originalbetrag, Kurs, Kursquelle, Kursdatum und Bankbetrag. |
+| **Belegliste (CSV)** | Spalte „Originaldatei“: Name und Prüfsumme einer übernommenen PDF- oder E-Rechnung. Der sichere Standard. Öffnet in Excel, Numbers und jedem Buchhaltungsprogramm. Nimm den, wenn du nicht weißt, womit deine Kanzlei arbeitet. Enthält auch die Seitenzahl, alle Kommentare mit Zeitpunkt und bei Fremdwährung Währung, Originalbetrag, Kurs, Kursquelle, Kursdatum und Bankbetrag. |
 | *Hinweis Fremdwährung* | DATEV und BMD erhalten nur den Euro-Betrag; Originalbetrag und Kurs findet deine Kanzlei in der Belegliste. |
 | **DATEV-Buchungsstapel** | Nur bei Land Deutschland. Für DATEV-Kanzleien. Der jüngste Kommentar steht gekürzt im Buchungstext (wie auch bei BMD). |
 | **BMD-Buchungssätze** | Nur bei Land Österreich. Für BMD NTCS. |

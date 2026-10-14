@@ -343,7 +343,10 @@ void main() {
     test('Belegliste enthält Seitenzahl und Kommentare mit Zeitpunkt', () {
       final csv = withExtras(Country.at).build(ExportFormat.plainCsv).content;
       final lines = csv.split('\r\n');
-      expect(lines.first, endsWith('Notiz;Seiten;Kommentare;Teil'));
+      expect(
+        lines.first,
+        endsWith('Notiz;Seiten;Kommentare;Teil;Originaldatei'),
+      );
       expect(csv, contains('3;13.03.2026, 08:05: Rückseite leer'));
     });
 

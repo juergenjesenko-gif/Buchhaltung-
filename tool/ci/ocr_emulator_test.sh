@@ -13,9 +13,9 @@ python3 - <<'PY'
 s = open('pubspec.yaml').read()
 # Vorhandenen assets-Block ergänzen (Handbuch, FA-11.2), sonst neu anlegen.
 if '\n  assets:\n' in s:
-    s = s.replace('\n  assets:\n', '\n  assets:\n    - test/fixtures/belege/\n    - test/fixtures/codes/\n', 1)
+    s = s.replace('\n  assets:\n', '\n  assets:\n    - test/fixtures/belege/\n    - test/fixtures/codes/\n    - test/fixtures/einvoice/\n', 1)
 else:
-    s = s.replace('  uses-material-design: true', '  uses-material-design: true\n  assets:\n    - test/fixtures/belege/\n    - test/fixtures/codes/', 1)
+    s = s.replace('  uses-material-design: true', '  uses-material-design: true\n  assets:\n    - test/fixtures/belege/\n    - test/fixtures/codes/\n    - test/fixtures/einvoice/', 1)
 open('pubspec.yaml', 'w').write(s)
 PY
 grep -A3 'uses-material-design' pubspec.yaml

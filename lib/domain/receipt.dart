@@ -415,3 +415,52 @@ class ExpenseCategory {
     isSystem: (map['is_system'] as int? ?? 0) == 1,
   );
 }
+
+/// Originaldatei eines Belegs (PDF, XML), unverändert aufbewahrt (L-27.8).
+class ReceiptDocument {
+  const ReceiptDocument({
+    required this.filePath,
+    required this.fileName,
+    required this.mime,
+    required this.sha256,
+    required this.sizeBytes,
+    required this.source,
+    this.createdAt,
+  });
+
+  factory ReceiptDocument.fromMap(Map<String, Object?> m) => ReceiptDocument(
+    filePath: m['file_path'] as String,
+    fileName: m['file_name'] as String,
+    mime: m['mime'] as String,
+    sha256: m['sha256'] as String,
+    sizeBytes: m['size_bytes'] as int,
+    source: m['source'] as String,
+    createdAt: DateTime.tryParse(m['created_at'] as String? ?? ''),
+  );
+
+  /// Relativer Pfad im Belegordner (`belege/…`).
+  final String filePath;
+
+  /// Ursprünglicher Dateiname.
+  final String fileName;
+  final String mime;
+
+  /// SHA-256 der Datei in Hex, beim Übernehmen berechnet.
+  final String sha256;
+  final int sizeBytes;
+
+  /// Herkunft: „Teilen“, „Link“.
+  final String source;
+  final DateTime? createdAt;
+
+  Map<String, Object?> toMap(int receiptId) => {
+    'receipt_id': receiptId,
+    'file_path': filePath,
+    'file_name': fileName,
+    'mime': mime,
+    'sha256': sha256,
+    'size_bytes': sizeBytes,
+    'source': source,
+    'created_at': (createdAt ?? DateTime.now()).toIso8601String(),
+  };
+}

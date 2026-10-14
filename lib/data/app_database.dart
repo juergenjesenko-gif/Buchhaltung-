@@ -16,7 +16,7 @@ class AppDatabase {
 
   /// Aktuelle Schemaversion. Öffentlich, weil docs/SPECIFICATION.md sie
   /// dokumentiert und test/specification_sync_test.dart beide vergleicht.
-  static const schemaVersion = 15;
+  static const schemaVersion = 16;
 
   Database? _db;
 
@@ -482,6 +482,38 @@ class AppDatabase {
         merchant TEXT NOT NULL,
         updated_at TEXT NOT NULL
       )
+      ''',
+    ],
+    // Originaldateien (PDF, XML) eines Belegs, unverändert mit SHA-256
+    // (L-27.8; § 132 BAO, § 147 AO, GoBD Rz 131 ff.). Nur Einfügen.
+    16: [
+      '''
+      CREATE TABLE receipt_documents (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        receipt_id INTEGER NOT NULL REFERENCES receipts(id),
+        file_path TEXT NOT NULL,
+        file_name TEXT NOT NULL,
+        mime TEXT NOT NULL,
+        sha256 TEXT NOT NULL,
+        size_bytes INTEGER NOT NULL,
+        source TEXT NOT NULL,
+        created_at TEXT NOT NULL
+      )
+      ''',
+      'CREATE INDEX idx_receipt_documents ON receipt_documents(receipt_id)',
+      '''
+      CREATE TRIGGER receipt_documents_no_update
+      BEFORE UPDATE ON receipt_documents
+      BEGIN
+        SELECT RAISE(ABORT, 'Originaldateien sind unveränderlich');
+      END
+      ''',
+      '''
+      CREATE TRIGGER receipt_documents_no_delete
+      BEFORE DELETE ON receipt_documents
+      BEGIN
+        SELECT RAISE(ABORT, 'Originaldateien werden nicht gelöscht');
+      END
       ''',
     ],
   };

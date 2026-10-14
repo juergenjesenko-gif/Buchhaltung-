@@ -77,16 +77,11 @@ class _HomeShellState extends State<HomeShell> {
   Future<void> _takeShared() async {
     final files = await ShareInService.instance.take();
     if (files.isEmpty || !mounted) return;
-    final images = [
-      for (final f in files)
-        if (sharedKindOf(f.path) == SharedKind.image) f,
-    ];
-    if (images.isEmpty) return;
     await Navigator.of(context).push(
       MaterialPageRoute<bool>(
         builder: (_) => ReceiptEditScreen(
           direction: BookingDirection.expense,
-          sharedFiles: images,
+          sharedFiles: files,
         ),
       ),
     );

@@ -427,6 +427,50 @@ class ReceiptRepository {
   }
 
   /// Seitenzahl je Beleg, für Liste und Export.
+  /// Originaldateien je Beleg für den Export (L-27.8): „Name (SHA-256 …)“.
+  Future<Map<int, String>> documentSummaries() async {
+    final rows = await _db.query(
+      'receipt_documents',
+      orderBy: 'receipt_id, id',
+    );
+    final result = <int, String>{};
+    for (final r in rows) {
+      final id = r['receipt_id'] as int;
+      final entry = '${r['file_name']} (SHA-256 ${r['sha256']})';
+      result[id] = result.containsKey(id) ? '${result[id]} | $entry' : entry;
+    }
+    return result;
+  }
+
+  /// Hängt Originaldateien an einen gespeicherten Beleg (nur Einfügen).
+  Future<void> addDocuments(int receiptId, List<ReceiptDocument> docs) async {
+    if (docs.isEmpty) return;
+    await _db.transaction((txn) async {
+      for (final d in docs) {
+        await txn.insert('receipt_documents', d.toMap(receiptId));
+        await txn.insert('audit_log', {
+          'entity': 'receipt',
+          'entity_id': receiptId,
+          'action': 'document',
+          'detail':
+              '${d.fileName}; ${d.mime}; ${d.sizeBytes} Byte; '
+              'sha256=${d.sha256}; Quelle ${d.source}',
+          'created_at': DateTime.now().toIso8601String(),
+        });
+      }
+    });
+  }
+
+  Future<List<ReceiptDocument>> documents(int receiptId) async {
+    final rows = await _db.query(
+      'receipt_documents',
+      where: 'receipt_id = ?',
+      whereArgs: [receiptId],
+      orderBy: 'id',
+    );
+    return [for (final r in rows) ReceiptDocument.fromMap(r)];
+  }
+
   Future<Map<int, int>> pageCounts() async {
     final rows = await _db.rawQuery(
       'SELECT receipt_id, COUNT(*) AS n FROM receipt_pages GROUP BY receipt_id',
