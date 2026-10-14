@@ -353,6 +353,10 @@ class AppState extends ChangeNotifier {
   /// Kleinunternehmer buchen ohne Umsatzsteuer.
   /// Vorsteuerabzug möglich? Kleinunternehmer haben keinen; ihre Ausgaben
   /// zählen brutto (siehe `ReceiptRepository.totals`).
+  /// Satz für die Steuer aus Reverse Charge (L-28.4): Normalsatz des Landes.
+  int get reverseChargePermille =>
+      _profile?.taxProfile.standardVatPermille ?? 0;
+
   bool get inputVatDeductible => !(_profile?.isSmallBusiness ?? false);
 
   int get defaultVatPermille {

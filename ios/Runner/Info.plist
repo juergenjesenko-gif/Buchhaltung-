@@ -98,6 +98,9 @@
 				<string>com.adobe.pdf</string>
 				<string>public.xml</string>
 				<string>public.image</string>
+				<string>public.comma-separated-values-text</string>
+				<string>public.tab-separated-values-text</string>
+				<string>public.plain-text</string>
 			</array>
 		</dict>
 	</array>

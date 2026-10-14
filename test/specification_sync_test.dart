@@ -16,6 +16,7 @@ import 'package:buchhaltung/services/invoice_numbering.dart';
 import 'package:buchhaltung/services/dunning_calculator.dart';
 import 'package:buchhaltung/services/small_business_monitor.dart';
 import 'package:buchhaltung/services/logo_store.dart';
+import 'package:buchhaltung/services/platform_import/platform_import_plan.dart';
 import 'package:buchhaltung/widgets/primary_action_bar.dart';
 import 'package:flutter/material.dart' show kMinInteractiveDimension;
 import 'package:flutter_test/flutter_test.dart';
@@ -185,6 +186,10 @@ void main() {
 
     test('Schemaversion der Datenbank stimmt', () {
       expect(intValue('spec.schema_version'), AppDatabase.schemaVersion);
+    });
+
+    test('OSS-Schwelle stimmt (FA-2.47)', () {
+      expect(moneyValue('spec.oss_threshold_cents'), ossThreshold);
     });
 
     test('Anzahl und Aufteilung der Startkategorien stimmt', () {
@@ -416,6 +421,11 @@ void main() {
       expect(
         value('spec.$prefix.deadline_rules'),
         profile.deadlineRules.map(_ruleSpec).join(' | '),
+      );
+      final rc = profile.reverseCharge;
+      expect(
+        value('spec.$prefix.reverse_charge_kz'),
+        '${rc.baseKz ?? '-'},${rc.taxKz},${rc.inputVatKz}',
       );
     }
 

@@ -75,6 +75,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
       from: period.from,
       to: period.to,
       inputVatDeductible: state.inputVatDeductible,
+      reverseChargePermille: state.reverseChargePermille,
     );
     final recent = await state.repositories.receipts.query(limit: 5);
     final trend = await _loadTrend(state);
@@ -100,6 +101,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
         from: period.from,
         to: period.to,
         inputVatDeductible: state.inputVatDeductible,
+        reverseChargePermille: state.reverseChargePermille,
       );
       bars.add(
         _MonthBar(
@@ -220,6 +222,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 _VatCard(
                   totals: totals,
                   isSmallBusiness: profile?.isSmallBusiness ?? true,
+                  reverseCharge:
+                      (profile?.country ?? Country.at).taxProfile.reverseCharge,
                 ),
                 const SizedBox(height: 16),
               ],
@@ -448,13 +452,61 @@ class _TotalsCard extends StatelessWidget {
 }
 
 class _VatCard extends StatelessWidget {
-  const _VatCard({required this.totals, required this.isSmallBusiness});
+  const _VatCard({
+    required this.totals,
+    required this.isSmallBusiness,
+    required this.reverseCharge,
+  });
 
   final PeriodTotals totals;
   final bool isSmallBusiness;
+  final ReverseChargeRules reverseCharge;
+
+  /// Reverse Charge mit Kennzahlen (L-28.4), z. B. Amazon-Gebühren.
+  List<Widget> _reverseChargeRows() => [
+    if (reverseCharge.baseKz != null)
+      LabeledValue(
+        label: 'Reverse Charge Kz ${reverseCharge.baseKz} (Basis)',
+        value: Fmt.money(totals.reverseChargeBase),
+      ),
+    LabeledValue(
+      key: const Key('dashboard-reverse-charge'),
+      label: 'Reverse Charge Kz ${reverseCharge.taxKz} (Steuer)',
+      value: Fmt.money(totals.reverseChargeVat),
+    ),
+    LabeledValue(
+      label: 'Vorsteuer daraus Kz ${reverseCharge.inputVatKz}',
+      value: Fmt.money(totals.reverseChargeInputVat),
+    ),
+  ];
 
   @override
   Widget build(BuildContext context) {
+    if (isSmallBusiness && totals.hasReverseCharge) {
+      // Auch Kleinunternehmer schulden die Steuer aus Reverse Charge, ohne
+      // Vorsteuerabzug (AT § 19 Abs 1, DE § 13b Abs 5 UStG).
+      final payable = totals.vatPayable;
+      return SectionCard(
+        title: 'Umsatzsteuer',
+        child: Column(
+          children: [
+            const Text(
+              'Als Kleinunternehmer weist du keine Umsatzsteuer aus. Für '
+              'Leistungen aus dem EU-Ausland (z. B. Amazon-Gebühren) '
+              'schuldest du sie trotzdem – ohne Vorsteuerabzug.',
+            ),
+            const Divider(height: 20),
+            ..._reverseChargeRows(),
+            const Divider(height: 20),
+            LabeledValue(
+              label: 'Zahllast',
+              value: Fmt.money(payable),
+              emphasize: true,
+            ),
+          ],
+        ),
+      );
+    }
     if (isSmallBusiness) {
       return SectionCard(
         title: 'Umsatzsteuer',
@@ -489,6 +541,10 @@ class _VatCard extends StatelessWidget {
             value: Fmt.money(totals.incomeVat),
           ),
           LabeledValue(label: 'Vorsteuer', value: Fmt.money(totals.expenseVat)),
+          if (totals.hasReverseCharge) ...[
+            const Divider(height: 20),
+            ..._reverseChargeRows(),
+          ],
           const Divider(height: 20),
           LabeledValue(
             label: payable.isNegative ? 'Guthaben' : 'Zahllast',

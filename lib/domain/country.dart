@@ -110,6 +110,7 @@ class TaxProfile {
     required this.hasPermanentExtension,
     required this.asksSocialInsurance,
     required this.deadlineRules,
+    required this.reverseCharge,
   });
 
   final Country country;
@@ -234,6 +235,16 @@ class TaxProfile {
 
   /// Steuer- und Abgabetermine (L-25), ohne Länder-ifs im Widget.
   final List<DeadlineRule> deadlineRules;
+
+  /// Steuerschuld des Leistungsempfängers für sonstige Leistungen eines im
+  /// EU-Ausland ansässigen Unternehmers (L-28.4): Fundstelle und Kennzahlen
+  /// der Voranmeldung. Prüfpunkt P-S52.
+  final ReverseChargeRules reverseCharge;
+
+  /// Normalsteuersatz (für die Steuer aus Reverse Charge).
+  int get standardVatPermille => vatRates
+      .firstWhere((r) => r.isDefault, orElse: () => vatRates.first)
+      .permille;
 
   VatRate get defaultVatRate =>
       vatRates.firstWhere((r) => r.isDefault, orElse: () => vatRates.first);
@@ -380,6 +391,14 @@ class TaxProfile {
     vatIntervalLegalRef: '§ 21 Abs 2 UStG',
     hasPermanentExtension: false,
     asksSocialInsurance: true,
+    // § 19 Abs 1 zweiter Satz iVm § 3a Abs 6 UStG 1994; Formular U 30:
+    // Kz 057 Steuerschuld, Kz 066 Vorsteuer daraus (P-S52).
+    reverseCharge: const ReverseChargeRules(
+      legalRef: '§ 19 Abs 1 zweiter Satz iVm § 3a Abs 6 UStG 1994',
+      baseKz: null,
+      taxKz: '057',
+      inputVatKz: '066',
+    ),
     deadlineRules: const [
       // § 21 Abs 1 UStG 1994: 15. des zweitfolgenden Monats.
       DeadlineRule(
@@ -541,6 +560,14 @@ class TaxProfile {
     vatIntervalLegalRef: '§ 18 Abs 2 UStG',
     hasPermanentExtension: true,
     asksSocialInsurance: false,
+    // § 13b Abs 1, Abs 2 Nr 1 und Abs 5 UStG; UStVA: Kz 46 Bemessungs-
+    // grundlage, Kz 47 Steuer, Kz 67 Vorsteuer (P-S52).
+    reverseCharge: const ReverseChargeRules(
+      legalRef: '§ 13b Abs 1 und Abs 5 UStG',
+      baseKz: '46',
+      taxKz: '47',
+      inputVatKz: '67',
+    ),
     deadlineRules: const [
       // § 18 Abs 1 UStG: 10. Tag nach Ablauf des Voranmeldungszeitraums;
       // Dauerfristverlängerung um einen Monat, §§ 46 ff. UStDV.
@@ -573,4 +600,21 @@ class TaxProfile {
       ),
     ],
   );
+}
+
+/// Kennzahlen der Voranmeldung für die Steuerschuld des Leistungsempfängers.
+class ReverseChargeRules {
+  const ReverseChargeRules({
+    required this.legalRef,
+    required this.baseKz,
+    required this.taxKz,
+    required this.inputVatKz,
+  });
+
+  final String legalRef;
+
+  /// Kennzahl der Bemessungsgrundlage; `null`, wenn das Formular keine hat.
+  final String? baseKz;
+  final String taxKz;
+  final String inputVatKz;
 }

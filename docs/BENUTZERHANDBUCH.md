@@ -1,6 +1,6 @@
 # Benutzerhandbuch – Buchhaltung
 
-**Für App-Version 0.10.0** · Stand 2026-10-14
+**Für App-Version 0.11.0** · Stand 2026-10-14
 
 Dieses Handbuch beschreibt die App aus Nutzersicht. Es wird bei jeder Änderung,
 die du in der App siehst, mitgeführt – siehe [`CLAUDE.md`](../CLAUDE.md).
@@ -353,6 +353,81 @@ erscheint unten ein Streifen: **„QR-Code: Rechnung laden von“** und groß di
 Datenschutz: Der Server des Rechnungsausstellers erfährt die Adresse aus dem
 QR-Code und deine IP-Adresse – sonst nichts aus der App.
 
+### Verkäufe von Amazon, PayPal, Shopify und Stripe übernehmen
+
+Du verkaufst über eine Plattform? Statt jeden Verkauf einzeln zu erfassen,
+lädst du den **Standardbericht** herunter und teilst ihn an die App:
+
+1. Bericht herunterladen (Links unten).
+2. In der Download-Meldung, in **Dateien** oder im Download-Ordner:
+   **Teilen → Buchhaltung** bzw. **Öffnen mit → Buchhaltung**
+   (iPhone: **Teilen → In Buchhaltung öffnen**).
+3. Die App erkennt das Format selbst und zeigt **je Monat eine Zeile**, z. B.
+   „März 2026: 42 Verkäufe 1.230,00 €, Gebühren 210,00 € (Reverse Charge),
+   Auszahlung 1.020,00 €“.
+4. Unten auf **Übernehmen** tippen. Fertig.
+
+**Wo du die Berichte findest** (Links öffnen direkt die Berichtsseite; vorher
+anmelden):
+
+- **Amazon – Transaktionsbericht** (empfohlen):
+  [Seller Central → Berichte → Zahlungen → Datumsbereichsberichte](https://sellercentral.amazon.de/payments/reports/custom/request)
+  → „Bericht erstellen“ → *Transaktion*, Zeitraum wählen → Herunterladen (CSV).
+  Spaltennamen auf Deutsch, Englisch, Französisch, Italienisch oder Spanisch
+  sind alle in Ordnung.
+- **Amazon – Abrechnung (Flatfile V2)**, alternativ:
+  [Seller Central → Berichte → Zahlungen → Alle Abrechnungen](https://sellercentral.amazon.de/payments/allstatements/index.html)
+  → bei der Abrechnung „Flatfile V2 herunterladen“. Verwende **nur einen** der
+  beiden Amazon-Berichte für denselben Monat; sonst warnt die App vor doppelten
+  Umsätzen.
+- **Amazon – Gebührenrechnungen** (eigener Beleg, siehe unten):
+  [Seller Central → Steuerdokumente → Gebührenrechnungen](https://sellercentral.amazon.de/tax/seller-fee-invoices).
+- **PayPal**:
+  [Aktivitäten → Berichte → Aktivitätendownload](https://www.paypal.com/reports/dlog)
+  → Format *CSV*, Zeitraum wählen → Bericht erstellen → Herunterladen.
+- **Shopify**:
+  [Finanzen → Auszahlungen](https://admin.shopify.com/payments/payouts)
+  → *Transaktionen exportieren*; oder
+  [Bestellungen](https://admin.shopify.com/orders) → *Exportieren* (CSV).
+- **Stripe**:
+  [Saldo → Exportieren](https://dashboard.stripe.com/balance)
+  → *Saldo-Transaktionen* (CSV).
+
+**Wie die App bucht** (Bruttoprinzip):
+
+- **Verkäufe** abzüglich Erstattungen → eine Einnahme je Monat
+  („Amazon März 2026: 42 Verkäufe“). Als Kleinunternehmer ohne
+  Umsatzsteuer; sonst mit der Steuer laut Bericht oder, wenn der Bericht keine
+  nennt, zum Normalsatz herausgerechnet.
+- **Gebühren** und **Werbung** → je eine Ausgabe je Monat, mit dem Anbieter als
+  Geschäftspartner. Amazon (Luxemburg), Stripe und Shopify (Irland) rechnen
+  ohne österreichische bzw. deutsche Umsatzsteuer ab: **Reverse Charge** – die
+  Steuer schuldest du selbst. **Das gilt auch für Kleinunternehmer**, nur ohne
+  Vorsteuerabzug; du brauchst dafür eine UID bzw. USt-IdNr. PayPal-Gebühren
+  sind ein steuerfreier Finanzumsatz.
+- Die **Auszahlung** auf dein Bankkonto ist nur ein Geldtransfer und wird
+  nicht gebucht.
+- Schon übernommene Zeilen erkennt die App und **überspringt sie still** – du
+  kannst also überlappende Zeiträume teilen.
+- Nur Euro-Beträge; Marktplätze in anderer Währung (z. B. amazon.co.uk) zählt
+  die App mit, übernimmt sie aber nicht.
+
+**Hinweise, die erscheinen können:**
+
+- **OSS:** Verkaufst du im Jahr für mehr als 10.000 € an Privatpersonen in
+  andere EU-Länder, gilt dort deren Umsatzsteuer (One-Stop-Shop). Mit der
+  Steuerberatung klären.
+- **Versand durch Amazon:** Lagert Amazon deine Ware in anderen Ländern
+  (Pan-EU), brauchst du dort meist eine Steuerregistrierung.
+
+**Gebührenrechnung als Beleg:** Amazon stellt die Gebühren monatlich in
+Rechnung. Diese PDF bleibt ein eigener Beleg: in der Zusammenfassung auf
+**Gebührenrechnungen öffnen** tippen, PDF herunterladen und an die App teilen.
+
+**Datenschutz:** Namen, Adressen, E-Mail-Adressen und Telefonnummern deiner
+Käufer übernimmt die App nie. Die Datei wird auf deinem Telefon gelesen und
+nirgends hochgeladen.
+
 ### Belege in fremder Währung
 
 Nur bei **Ausgaben** (z. B. Software-Abo in US-Dollar). Deine eigenen
@@ -479,10 +554,15 @@ Beleg für dich Aufwand.
 - Umsatz je Steuersatz
 - Umsatzsteuer, die du eingenommen hast
 - Vorsteuer, die du gezahlt hast
+- **Reverse Charge** (z. B. Amazon-Gebühren): Steuer und Vorsteuer mit den
+  Kennzahlen deiner Voranmeldung – Österreich Kz 057 und Kz 066, Deutschland
+  Kz 46 (Bemessungsgrundlage), Kz 47 und Kz 67
 - **Zahllast** (du zahlst) oder **Guthaben** (du bekommst)
 
 Als Kleinunternehmer siehst du hier stattdessen einen Hinweis, warum keine
-Umsatzsteuer anfällt.
+Umsatzsteuer anfällt. Hast du Leistungen mit **Reverse Charge** (z. B.
+Amazon-Gebühren), zeigt die Karte die Steuer, die du trotzdem schuldest, und
+die Kennzahlen dafür – ohne Vorsteuer.
 
 **Letzte 6 Monate** – zwei Balken je Monat, grün für Einnahmen, rot für Ausgaben.
 Auch eine kleine Ausgabe neben einer großen Einnahme bleibt als kurzer Balken
@@ -1001,6 +1081,12 @@ deiner Steuerberatung.
 
 ## 13. Wenn etwas nicht geht
 
+**„Format nicht erkannt. Unterstützt: Amazon, PayPal, Shopify, Stripe …"** —
+die geteilte CSV- oder Textdatei ist kein bekannter Plattformbericht. Prüf,
+ob du den richtigen Bericht heruntergeladen hast (Kapitel 4, „Verkäufe von
+Amazon, PayPal, Shopify und Stripe übernehmen“), und teile die Datei
+unverändert, ohne sie vorher in einer Tabellenkalkulation zu speichern.
+
 
 **„Auf dem Foto wurde nichts erkannt – bitte von Hand erfassen."** — das Foto
 ist unscharf, zu dunkel oder schräg. Neu fotografieren und „Erneut auslesen",
@@ -1125,6 +1211,10 @@ Damit du nicht darauf wartest:
   Benachrichtigungen sind geplant. Teilzahlungen auf Rechnungen kann die App
   noch nicht buchen – auch nicht nach einer Mahnung.
 - **Keine Synchronisierung** zwischen Geräten
+- **Plattformberichte nur über Teilen.** Eine Dateiauswahl in der App gibt
+  es noch nicht, und eine direkte Verbindung zu Amazon & Co. ist nicht
+  geplant, solange die App ohne Server auskommt. Fremdwährungen aus
+  Plattformberichten übernimmt die App nicht.
 
 ### Und der wichtigste Satz
 

@@ -16,7 +16,7 @@ class AppDatabase {
 
   /// Aktuelle Schemaversion. Öffentlich, weil docs/SPECIFICATION.md sie
   /// dokumentiert und test/specification_sync_test.dart beide vergleicht.
-  static const schemaVersion = 16;
+  static const schemaVersion = 17;
 
   Database? _db;
 
@@ -515,6 +515,24 @@ class AppDatabase {
         SELECT RAISE(ABORT, 'Originaldateien werden nicht gelöscht');
       END
       ''',
+    ],
+    // Plattformimport (L-28.3, L-28.5): Gebühren mit Steuerschuld des
+    // Leistungsempfängers und übernommene Zeilen je Plattform. Der
+    // Primärschlüssel lässt Dubletten still überspringen (INSERT OR IGNORE).
+    17: [
+      'ALTER TABLE receipts ADD COLUMN reverse_charge INTEGER NOT NULL DEFAULT 0',
+      '''
+      CREATE TABLE platform_import_rows (
+        platform TEXT NOT NULL,
+        external_id TEXT NOT NULL,
+        format TEXT NOT NULL,
+        month TEXT NOT NULL,
+        receipt_id INTEGER REFERENCES receipts(id),
+        imported_at TEXT NOT NULL,
+        PRIMARY KEY (platform, external_id)
+      )
+      ''',
+      'CREATE INDEX idx_platform_import_month ON platform_import_rows(platform, month)',
     ],
   };
 

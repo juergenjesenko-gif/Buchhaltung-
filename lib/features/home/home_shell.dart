@@ -4,7 +4,9 @@ import 'dart:async';
 
 import '../../domain/receipt.dart';
 import '../../services/launcher/platform_home_shortcut.dart';
+import '../../services/platform_import/platform_parsers.dart';
 import '../../services/share_in/share_in_service.dart';
+import '../import/platform_import_screen.dart';
 import '../../widgets/adaptive.dart';
 import '../dashboard/dashboard_screen.dart';
 import '../export/export_screen.dart';
@@ -75,8 +77,39 @@ class _HomeShellState extends State<HomeShell> {
 
   /// Über „Teilen“ empfangene Dateien direkt als Beleg vorschlagen (L-27.4).
   Future<void> _takeShared() async {
-    final files = await ShareInService.instance.take();
+    var files = await ShareInService.instance.take();
     if (files.isEmpty || !mounted) return;
+    // Plattformexporte (L-28.1) gehen in den Import, alles andere wird Beleg.
+    final tables = [
+      for (final f in files)
+        if (sharedKindOf(f.path) == SharedKind.table) f,
+    ];
+    files = [
+      for (final f in files)
+        if (sharedKindOf(f.path) != SharedKind.table) f,
+    ];
+    for (final table in tables) {
+      final parsed = PlatformImportParser.parse(await table.readAsBytes());
+      if (!mounted) return;
+      if (parsed == null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text(
+              'Format nicht erkannt. Unterstützt: Amazon, PayPal, Shopify, '
+              'Stripe (siehe Hilfe).',
+            ),
+          ),
+        );
+        continue;
+      }
+      await Navigator.of(context).push(
+        MaterialPageRoute<bool>(
+          builder: (_) => PlatformImportScreen(file: parsed),
+        ),
+      );
+      if (!mounted) return;
+    }
+    if (files.isEmpty) return;
     await Navigator.of(context).push(
       MaterialPageRoute<bool>(
         builder: (_) => ReceiptEditScreen(

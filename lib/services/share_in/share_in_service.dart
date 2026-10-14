@@ -37,7 +37,7 @@ class ShareInService {
 }
 
 /// Art einer geteilten Datei nach Endung bzw. Inhalt.
-enum SharedKind { image, pdf, xml, other }
+enum SharedKind { image, pdf, xml, table, other }
 
 SharedKind sharedKindOf(String path) {
   final lower = path.toLowerCase();
@@ -46,5 +46,7 @@ SharedKind sharedKindOf(String path) {
   }
   if (lower.endsWith('.pdf')) return SharedKind.pdf;
   if (lower.endsWith('.xml')) return SharedKind.xml;
+  // Plattformexporte (L-28.1): CSV, Amazon-Flatfile als .txt/.tsv.
+  if (RegExp(r'\.(csv|tsv|txt)$').hasMatch(lower)) return SharedKind.table;
   return SharedKind.other;
 }

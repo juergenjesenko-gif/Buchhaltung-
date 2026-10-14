@@ -1,6 +1,6 @@
 # Lastenheft – Buchhaltungsapp für Österreich und Deutschland
 
-**Dokumentversion:** 1.52 · **Stand:** 2026-10-14 · **Status:** Entwurf zur Abstimmung
+**Dokumentversion:** 1.53 · **Stand:** 2026-10-14 · **Status:** Entwurf zur Abstimmung
 **Auftraggeber:** Jürgen Jesenko (privates Vorhaben) · **Umsetzung:** Claude Code
 
 > Ein Lastenheft beschreibt, **was** das Produkt leisten soll und **warum** — nicht,
@@ -971,6 +971,25 @@ P-U6.
 | L-27.7 | **Link-QR**: Hinweisstreifen unten „Rechnung von ‹Domain› laden?“, nur nach Tipp, nur https, Domain groß, Weiterleitung auf fremde Domain nur nach erneuter Anzeige, nur PDF/XML, Größenlimit, kein Login im Web-Fenster; sonst „Im Browser öffnen“ | MUSS | A3 |
 | L-27.8 | Die **Originaldatei** (PDF, XML) wird unverändert mit SHA-256 aufbewahrt und ist Teil von Sicherung und Export (§ 132 BAO, § 147 AO, GoBD Rz 131 ff.) | MUSS | A2 |
 
+### 5.28 Standardexporte von Verkaufsplattformen übernehmen (Stufe B1)
+
+Ohne Server und ohne Zugangsdaten: die Nutzerin lädt den Standardbericht der
+Plattform herunter und teilt ihn an die App. Echte Schnittstellen bleiben
+Stufe B2 (O-32). Befund Steuerberater 2026-10-14 verbindlich (Bruttoprinzip,
+Reverse Charge auch beim Kleinunternehmer). Real zu prüfen: Spezifikation 14,
+P-S51 bis P-S55, P-R36, P-U7. Umsetzung 0.11.0: Spezifikation FA-2.43 bis
+FA-2.49, FA-3.3, FA-3.4.
+
+| ID | Anforderung | Priorität | Stufe |
+|---|---|---|---|
+| L-28.1 | Über Teilen bzw. „Öffnen mit“ wird das **Format automatisch erkannt**: Amazon Seller Central Transaktionsbericht (Datumsbereich) und Abrechnung Flatfile V2 mit Spaltennamen in DE/EN/FR/IT/ES, PayPal Aktivitäten, Shopify Auszahlungen und Bestellungen, Stripe Saldo-Transaktionen | MUSS | B1 |
+| L-28.2 | **Eine Zusammenfassung je Monat** („März: 42 Verkäufe 1.230 €, Gebühren 210 € (Reverse Charge), Auszahlung 1.020 €“) und **ein Knopf „Übernehmen“** unten (≥ 56 dp); keine Rückfrage je Zeile | MUSS | B1 |
+| L-28.3 | **Bruttoprinzip**: Umsätze getrennt von Gebühren und Werbung; die Auszahlung ist nur Geldtransfer und wird nicht als Einnahme gebucht | MUSS | B1 |
+| L-28.4 | Gebühren und Werbung von Amazon EU S.à r.l. (Luxemburg) mit **Reverse Charge** (AT § 19 Abs 1 iVm § 3a Abs 6 UStG 1994; DE § 13b Abs 1/5 UStG), auch beim Kleinunternehmer Steuerschuld ohne Vorsteuerabzug; in der UVA-Auswertung als Reverse-Charge-Kennzahl je Land (`TaxProfile`). PayPal-, Stripe- und Shopify-Gebühren nach Leistendem behandeln, Unsicheres als Prüfpunkt | MUSS | B1 |
+| L-28.5 | **Dubletten** über Abrechnungs-/Transaktions-ID still überspringen (eindeutiger Index, neue Migration); **Warnungen**: OSS bei B2C-Fernverkäufen in andere EU-Länder über 10.000 €/Jahr, Lager in anderen Ländern (FBA Pan-EU) | MUSS | B1 |
+| L-28.6 | **Datensparsamkeit**: Käuferdaten (Name, Adresse, E-Mail, Telefon) werden nie übernommen; die Spalten werden verworfen, ein Test prüft es | MUSS | B1 |
+| L-28.7 | Die Monatsrechnungen von Amazon bleiben **eigene Belege**: Hinweis „Gebührenrechnung aus Seller Central als Beleg ablegen“ mit direktem Link; Anleitung je Plattform im Handbuch mit direktem Link zur Berichtsseite | MUSS | B1 |
+
 ## 6. Nichtfunktionale Anforderungen
 
 | ID | Anforderung |
@@ -1253,6 +1272,7 @@ Zu entscheiden, bevor die betroffene Anforderung umgesetzt wird:
 
 | Version | Datum | Änderung |
 |---|---|---|
+| 1.53 | 2026-10-14 | Neu 5.28 (L-28.1 bis L-28.7, Stufe B1: Plattformexporte Amazon, PayPal, Shopify, Stripe), umgesetzt in 0.11.0 (Spezifikation FA-2.43 bis FA-2.49). Keine neue Datenübertragung (5.19 unverändert: Datei kommt aufs Gerät). Prüfpunkte P-S51 bis P-S55, P-R36, P-U7. |
 | 1.52 | 2026-10-14 | A3 umgesetzt in 0.10.0 (L-27.7, Spezifikation FA-2.42). Neuer Datenfluss „Rechnung über Link-QR“ in 5.19, PRIVACY und STORE_LISTING (L-19.5); Prüfung P-R35. |
 | 1.51 | 2026-10-14 | A2 umgesetzt in 0.9.0 (L-27.4 bis L-27.6, L-27.8; Spezifikation FA-2.38 bis FA-2.41). iOS-Teilen über „Öffnen in“ statt Share Extension. Keine neue Datenübertragung (5.19 unverändert). |
 | 1.50 | 2026-10-14 | Neu 5.27 (L-27.1 bis L-27.8: Codes, Teilen-Ziel, PDF/E-Rechnung, Link-QR) und O-32 (Plattform-Connectoren zurückgestellt). 5.19: Barcode-Erkennung von ML Kit in der bestehenden Diagnosezeile. A1 umgesetzt in 0.8.0. |

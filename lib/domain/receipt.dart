@@ -54,7 +54,13 @@ class Receipt {
     this.updatedAt,
     this.cancelledAt,
     this.vatLines = const [],
+    this.reverseCharge = false,
   });
+
+  /// Steuerschuld des Leistungsempfängers (Reverse Charge, Schema 17,
+  /// L-28.4): Beleg ohne ausgewiesene Steuer; die Steuer berechnet die
+  /// Auswertung zum Normalsatz (`TaxProfile.reverseCharge`).
+  final bool reverseCharge;
 
   final int? id;
   final DateTime date;
@@ -181,6 +187,7 @@ class Receipt {
     DateTime? createdAt,
     DateTime? updatedAt,
     List<ReceiptVatLine>? vatLines,
+    bool? reverseCharge,
   }) {
     return Receipt(
       id: id ?? this.id,
@@ -209,6 +216,7 @@ class Receipt {
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
       vatLines: vatLines ?? this.vatLines,
+      reverseCharge: reverseCharge ?? this.reverseCharge,
     );
   }
 
@@ -234,6 +242,7 @@ class Receipt {
     'fx_rate_date': fxRateDate,
     'fx_rate_source': fxRateSource?.code,
     'bank_gross_cents': bankGross?.cents,
+    'reverse_charge': reverseCharge ? 1 : 0,
     'created_at': (createdAt ?? DateTime.now()).toIso8601String(),
     'updated_at': DateTime.now().toIso8601String(),
   };
@@ -243,6 +252,7 @@ class Receipt {
     List<ReceiptVatLine> vatLines = const [],
   ]) => Receipt(
     vatLines: vatLines.length > 1 ? vatLines : const [],
+    reverseCharge: (map['reverse_charge'] as int? ?? 0) == 1,
     id: map['id'] as int?,
     date: DateTime.parse(map['date'] as String),
     direction: (map['direction'] as String) == 'income'

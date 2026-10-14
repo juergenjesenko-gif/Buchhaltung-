@@ -1,6 +1,6 @@
 # Spezifikation – Buchhaltung
 
-**Dokumentversion:** 1.49 · **App-Version:** 0.10.0 · **Stand:** 2026-10-14
+**Dokumentversion:** 1.50 · **App-Version:** 0.11.0 · **Stand:** 2026-10-14
 **Status:** Sprint 1 umgesetzt und verifiziert
 
 > Das **Zielbild** des Produkts steht im [`LASTENHEFT.md`](LASTENHEFT.md); dieses
@@ -244,10 +244,11 @@ Anwendungsdokumentenverzeichnis. Aktuelle Schemaversion: **13**
 | `categories` | Buchhaltungskategorien | 16 Startkategorien, `is_system = 1` schützt vor Löschen |
 | `customers` | Rechnungsempfänger | Löschen blockiert, solange Rechnungen bestehen. Seit Schema 13 `is_business` (1 = Unternehmen; bei der Migration 1, wo eine UID eingetragen ist) |
 | `dunning_notices` | Zahlungserinnerungen und Mahnungen: `invoice_id`, `level`, `issued_on`, `new_due_date`, `principal_cents`, `fee_cents`, `fees_total_cents`, `interest_cents`, `interest_rate_bp`, `flat_fee_cents`, `total_cents`, `text`, `pdf_sha256`, `cancelled_at`, `cancel_reason`, `created_at` | Schema 13. Unveränderlich (Trigger); einzig erlaubt: einmaliges Storno mit Begründung |
-| `receipts` | Belege | Index auf `date` und `direction`. Werden nie gelöscht, nur storniert (`cancelled_at`). Seit Schema 11 `invoice_id` (Einnahme aus bezahlter Rechnung, eindeutig je Rechnung und Steuersatz) |
+| `receipts` | Belege | Index auf `date` und `direction`. Werden nie gelöscht, nur storniert (`cancelled_at`). Seit Schema 11 `invoice_id` (Einnahme aus bezahlter Rechnung, eindeutig je Rechnung und Steuersatz); seit Schema 17 `reverse_charge` (0/1, Steuerschuld des Leistungsempfängers, FA-2.46) |
 | `receipt_vat_lines` | Steuersatzzeilen eines Belegs: `receipt_id`, `position` ab 1, `vat_permille`, `net_cents`, `vat_cents`, `gross_cents` | Schema 14. Je Zeile `net + vat == gross`, Summe der Zeilen = `receipts.gross_cents` (erzwungen in `ReceiptRepository.writeVatLines`). Bei der Migration wurde jeder bestehende Beleg zu genau einer Zeile; Einnahmen aus bezahlten Rechnungen und Mahnkosten schreiben ihre Zeile mit. Kopf des Belegs: Summen, `vat_permille` = Satz der größten Zeile. Auswertungen lesen nur Zeilen (ein Beleg ohne Zeile zählt mit seinem Kopf) |
 | `cash_register_merchants` | Lernspeicher Kasse → Händler (FA-2.36): `register_key` (`AT:<Kassen-ID>`, `DE:<Seriennummer>`), `merchant`, `updated_at` | Schema 15. Ersetzt beim Speichern eines Belegs mit Kassen-QR |
 | `receipt_documents` | Originaldateien (FA-2.41): `receipt_id`, `file_path` (relativ, `belege/…`), `file_name`, `mime`, `sha256`, `size_bytes`, `source`, `created_at` | Schema 16. Nur Einfügen; Trigger verhindern `UPDATE` und `DELETE` |
+| `platform_import_rows` | Übernommene Zeilen aus Plattformexporten (FA-2.45): `platform`, `external_id`, `format`, `month` (`YYYY-MM`), `receipt_id` (Sammelbeleg oder leer bei Auszahlung/Sonstigem), `imported_at` | Schema 17. Primärschlüssel (`platform`, `external_id`): Dubletten werden mit `INSERT OR IGNORE` still übersprungen. Keine Käuferdaten |
 | `receipt_pages` | Seiten (Fotos) eines Belegs: `receipt_id`, `position` ab 1, `image_path`, `created_at` | Schema 8. Nach dem Speichern nur Anhängen; bestehende Einzelfotos wurden bei der Migration zur Seite 1 |
 | `receipt_comments` | Kommentare zu Belegen: `receipt_id`, `text`, `created_at` (Systemzeit) | Schema 8. Nur Einfügen; ein Trigger verhindert `UPDATE`. Löschen bietet die App nicht an (die Wiederherstellung leert alle Tabellen) |
 | `invoices` | Ausgangsrechnungen | `UNIQUE INDEX` auf `number`. Seit Schema 12 Gesamtrabatt, Versand, Skonto (GR-12) |
@@ -411,6 +412,13 @@ prüft `InvoiceRequirements` (FA-1.4).
 | FA-2.40 | **E-Rechnung strukturiert** (L-27.6, `EInvoiceParser`, unabhängig vom Namensraum-Präfix): CII (`CrossIndustryInvoice`: ZUGFeRD 2.x, Factur-X, XRechnung-CII; EN 16931 / CEN/TS 16931-3-3), UBL 2.1 (`Invoice`, `CreditNote`: XRechnung-UBL; CEN/TS 16931-3-2), ebInterface 4.x–6.x (`Tax/VAT/VATItem` bzw. `Tax/TaxItem`). Übernommen: Nummer, Datum, Lieferant, UID, Währung, Brutto (GrandTotal/TaxInclusive/TotalGross), je Satz Bemessung und Steuer, IBAN (Prüfziffer). Beträge ohne Gleitkomma auf Cent (kaufmännisch), Sätze mit höchstens einer Promillestelle. DOCTYPE/ENTITY wird abgelehnt. Vorschlag (`ReceiptCodePrefill.fromEInvoice`): Aufteilung je Satz (Brutto = Bemessung + Steuer) nur, wenn die Summe exakt dem Rechnungsbetrag entspricht; Aussteller-UID eines anderen Staats bzw. unbekannter Satz bei Ausgaben → 0 % (FA-2.29); Fremdwährung → FA-2.21; Gutschrift → Hinweis; Beschreibung „Lieferant – Rechnung Nr“; IBAN in die Notiz; Vermerk „aus der E-Rechnung“. XML ohne bekanntes Format wird nicht übernommen |
 | FA-2.41 | **Originaldatei aufbewahren** (L-27.8, Schema 16 `receipt_documents`): PDF bzw. XML unverändert im Belegordner (`belege/`, damit in jeder Sicherung, 5.5a), SHA-256 beim Übernehmen, Eintrag erst beim Speichern des Belegs, `audit_log` `document` mit Name, Typ, Größe, Prüfsumme, Quelle. Trigger verbieten Ändern und Löschen. Im Formular je Datei „Original aufbewahrt · SHA-256 …“. Belegliste (8.2) Spalte „Originaldatei“. Ohne Speichern werden die Kopien gelöscht |
 | FA-2.42 | **Link-QR** (L-27.7, 0.10.0): steht auf dem Foto ein QR-Code mit `https`-Adresse (ohne Benutzerangabe), zeigt das Belegformular über der Speicherleiste den Streifen `LinkInvoiceStrip`: „QR-Code: Rechnung laden von“ und darunter die **Domain groß** (titleLarge, fett), Knöpfe „Im Browser öffnen“ und „Laden“ (je ≥ 48 dp, 12 dp Abstand) und „Hinweis schließen“ (48 dp). Geladen wird **nur nach Tipp** auf „Laden“ (`LinkInvoiceFetcher`, `dart:io` `HttpClient`, keine Cookies, kein Login, kein WebView): `followRedirects = false`; Weiterleitungen auf derselben Domain bis 5, eine **andere Domain** wird nicht angefragt, sondern im Streifen erneut angezeigt („Weiterleitung – Rechnung jetzt von“) und erst nach erneutem Tipp geladen. Übernommen wird nur ein Inhalt mit PDF-Signatur `%PDF` oder XML (`<?xml`, kein HTML), höchstens 20 MB (Content-Length und beim Lesen), Zeitlimit 30 s. Danach wie eine geteilte Datei (FA-2.39 bis FA-2.41, Quelle „Link ‹Domain›“). HTML, Login oder Fehlerstatus → Meldung „Bitte „Im Browser öffnen““; der Knopf öffnet die Adresse im Systembrowser (Channel `buchhaltung/launcher` `openUrl`, nur `https`) |
+| FA-2.43 | **Plattformexporte erkennen** (L-28.1, 0.11.0, `PlatformImportParser`): geteilte bzw. mit „Öffnen mit“ geöffnete Datei mit Endung `.csv`, `.tsv` oder `.txt` (Android `SEND`/`VIEW` mit `text/csv`, `text/comma-separated-values`, `text/tab-separated-values`, `text/plain`, `application/vnd.ms-excel`; iOS „Öffnen in“ für CSV/TSV/Text). Trennzeichen `,` `;` Tab automatisch, UTF-8 mit/ohne BOM, sonst Latin-1; Kopfzeile in den ersten 20 Zeilen (Amazon-Erklärzeilen). Erkannt nach Spaltennamen (normalisiert, ohne Akzente): **Amazon Transaktionsbericht** (Datumsbereich) DE/EN/FR/IT/ES, **Amazon Abrechnung Flatfile V2** (Tab), **PayPal Aktivitäten** (DE/EN/FR/IT/ES), **Shopify** Auszahlungs-Transaktionen und Bestellungen, **Stripe** Saldo-Transaktionen (itemized und klassisch). Beträge ganzzahlig in Cent (`1.234,56`, `1,234.56`, Klammer = negativ), Datum ISO, `TT.MM.JJJJ`, Schrägstrich (Monat zuerst nur, wenn eine Zeile es beweist) oder mit Monatsnamen in fünf Sprachen. Nur EUR: andere Währungen und Amazon-Marktplätze außerhalb des Euroraums (UK, US, PL, SE, TR, CZ) werden gezählt und nicht übernommen. Unbekannte Datei → Meldung „Format nicht erkannt“ |
+| FA-2.44 | **Eine Zusammenfassung je Monat** (L-28.2, `PlatformImportScreen`): je Monat „März 2026: 42 Verkäufe 1.230,00 €, Gebühren 210,00 € (Reverse Charge), Werbung …, Auszahlung 1.020,00 €“, darunter dieselben Werte als Zeilen, Hinweise, bei Amazon die Karte „Gebührenrechnung als Beleg ablegen“ (FA-2.48). Unten **ein** Knopf „Übernehmen“ (`PrimaryActionBar`, 56 dp, Telefon volle Breite); Erklärzeile mit Zahl der Buchungen und „Auszahlungen … werden nicht gebucht“. Keine Rückfrage je Zeile |
+| FA-2.45 | **Dubletten** (L-28.5, Schema 17): jede Zeile hat eine Kennung je Plattform – PayPal/Stripe Transaktions-ID, Shopify Bestellnummer (`order:#1001`, gleich in Auszahlungs- und Bestellexport), Amazon Abrechnungsnummer + FNV-1a-Prüfsumme der buchungsrelevanten Spalten (ohne Käuferspalten), gleiche Zeilen in einer Datei werden durchgezählt. Schon übernommene Kennungen werden still übersprungen („n Zeilen waren schon übernommen“). Wurde für einen Monat schon ein anderer Amazon-Berichtstyp übernommen, warnt die Zusammenfassung vor doppelten Umsätzen |
+| FA-2.46 | **Buchung nach Bruttoprinzip** (L-28.3, Befund Steuerberater, P-S51): je Plattform und Monat ein Sammelbeleg **Einnahme** „‹Plattform› ‹Monat›: n Verkäufe“ (Verkäufe inkl. Versand, Geschenkverpackung, Aktionsrabatte, abzüglich Erstattungen; Kategorie Umsatzerlöse). Umsatzsteuer: Kleinunternehmer 0; sonst Steuer laut Bericht, wenn vorhanden, sonst aus dem Normalsatz herausgerechnet (Annahme Inlandsumsatz, P-S51). Je Monat ein Beleg **Gebühren** (Verkaufs-, Versand-, Abo-, Transaktionsgebühren; Kategorie „Beiträge & Gebühren“ bei Amazon, sonst „Bankspesen“) und ein Beleg **Werbung** („Werbung & Marketing“), jeweils mit Leistendem als Geschäftspartner, ohne ausgewiesene Steuer. **Auszahlungen** sind Geldtransfer und werden nicht gebucht; sonstige Zeilen (Anpassungen, Einbehalte) ebenfalls nicht, mit Hinweis. Mehr Erstattungen als Verkäufe bzw. Gebührengutschriften im Saldo → Hinweis, keine Buchung. Leistende (`FeeSupplier`): Amazon EU S.à r.l. (LU) und Stripe Technology Europe Ltd. bzw. Shopify International Ltd. (IE) → **Reverse Charge** (`receipts.reverse_charge = 1`); PayPal (Europe) S.à r.l. et Cie, S.C.A. (LU) → steuerfreier Finanzumsatz ohne Reverse Charge (P-S54) |
+| FA-2.47 | **Warnungen** (L-28.4, L-28.5): **OSS**, wenn Verkäufe und Erstattungen eines Kalenderjahres in andere EU-Länder als das eigene (Bestimmungsland = Amazon-Marktplatz bzw. Shopify-Lieferland; PayPal und Stripe ohne Land) 10.000 € übersteigen (`ossThreshold`, Art 59c MwStSystRL, AT Art 3 Abs 5 UStG 1994, DE § 3c Abs 4 UStG; P-S53); **Versand durch Amazon** (FBA/AFN) → Hinweis auf Lager in anderen Ländern (Pan-EU), nur Warnung; vom Marktplatz einbehaltene Steuer; Reverse Charge für Kleinunternehmer („schuldest du die Umsatzsteuer darauf, ohne Vorsteuerabzug, UID nötig“) |
+| FA-2.48 | **Gebührenrechnung als eigener Beleg** (L-28.7): bei Amazon zeigt die Zusammenfassung „Gebührenrechnung als Beleg ablegen“ mit Knopf „Gebührenrechnungen öffnen“ (48 dp, Systembrowser, `https://sellercentral.amazon.de/tax/seller-fee-invoices`); die PDF wird über Teilen als Beleg übernommen (FA-2.39) |
+| FA-2.49 | **Datensparsamkeit** (L-28.6, P-R36): gelesen werden nur benannte Spalten (Datum, Typ, Bestell-/Transaktionsnummer, SKU, Beträge, Währung, Marktplatz bzw. Lieferland, Versandart). Name, Adresse, Ort, PLZ, Region, E-Mail, Telefon der Käufer werden nie angesprochen und weder gespeichert noch protokolliert; die geteilte Datei bleibt nur im Cache. Geprüft in `platform_import_test.dart` über alle Tabellen der Datenbank |
 | FA-2.18 | **Stornierte Belege lesbar**: Filter „Storniert“ in der Belegliste; die Ansicht ist schreibgeschützt (Hinweisbanner, kein Speichern), Kommentare bleiben anhängbar |
 
 ### 5.3 Kassabuch und Auswertung
@@ -419,8 +427,8 @@ prüft `InvoiceRequirements` (FA-1.4).
 |---|---|
 | FA-3.1 | Zeiträume: dieser Monat, letzter Monat, dieses Quartal, dieses Jahr, letztes Jahr. „Jahr“ ist das Wirtschaftsjahr (GR-10); bei abweichendem Wirtschaftsjahr heißen die Chips „Dieses WJ (2027)“ und „Letztes WJ (2026)“ |
 | FA-3.2 | Anzeige von Einnahmen netto, Ausgaben netto und Ergebnis; das Ergebnis enthält Kursdifferenzen laut Bank (FA-2.26). Ausgewertet wird je Steuersatzzeile (`receipt_vat_lines`). **Kleinunternehmer** haben keinen Vorsteuerabzug: Ausgaben zählen **brutto** („Ausgaben (brutto)“), Vorsteuer 0, auch in Export und UVA-Zusammenfassung (AT § 12 iVm § 6 Abs 1 Z 27 UStG 1994; DE § 19 Abs 1 UStG, § 9b Abs 1 EStG; P-S47). Maßgeblich ist die aktuelle Einstellung, nicht die des Belegjahres |
-| FA-3.3 | Bei Regelbesteuerung: Umsatz je Steuersatz, Umsatzsteuer, Vorsteuer, Zahllast oder Guthaben |
-| FA-3.4 | Bei Kleinunternehmern entfällt die Umsatzsteuerauswertung mit Erklärung |
+| FA-3.3 | Bei Regelbesteuerung: Umsatz je Steuersatz, Umsatzsteuer, Vorsteuer, Zahllast oder Guthaben. **Reverse Charge** (0.11.0, FA-2.46): Belege mit `reverse_charge` zählen netto als Ausgabe; die Steuer rechnet die Auswertung je Beleg zum Normalsatz des Landes (`TaxProfile.standardVatPermille`) und zeigt sie mit Kennzahlen aus `TaxProfile.reverseCharge`: AT Kz 057 Steuer, Kz 066 Vorsteuer (§ 19 Abs 1 zweiter Satz iVm § 3a Abs 6 UStG 1994); DE Kz 46 Bemessungsgrundlage, Kz 47 Steuer, Kz 67 Vorsteuer (§ 13b Abs 1 und 5 UStG); P-S52. Zahllast = Umsatzsteuer − Vorsteuer + RC-Steuer − RC-Vorsteuer |
+| FA-3.4 | Bei Kleinunternehmern entfällt die Umsatzsteuerauswertung mit Erklärung – außer bei Reverse Charge: dann Karte mit RC-Kennzahlen, Vorsteuer 0 und Zahllast (Steuerschuld ohne Vorsteuerabzug, P-S52) |
 | FA-3.5 | Balkenverlauf über die letzten sechs Monate, Einnahmen und Ausgaben getrennt; ein Betrag > 0 ist mindestens 6 dp hoch, damit eine kleine Ausgabe neben einer großen Einnahme sichtbar bleibt |
 | FA-3.7 | Reihenfolge der Übersicht: Hinweise, Kleinunternehmergrenze, Zeitraum, Einnahmen/Ausgaben, Umsatzsteuer, Verlauf, Letzte Belege, **Termin-Box am Ende** (0.7.0). Nur der jüngste Ladevorgang zeigt sein Ergebnis an (kein Überschreiben neuer Summen durch einen älteren Lauf) |
 | FA-3.6 | Die letzten fünf Belege sind als Schnellzugriff sichtbar |
@@ -675,6 +683,7 @@ Kleinunternehmer:
 | Rechnung bearbeiten | `features/invoices/invoice_edit_screen.dart` | Kunde, Positionen mit Rabatt, Karte „Rabatt, Versand, Skonto“, Summe je Satz; Leiste `PrimaryActionBar` (`widgets/primary_action_bar.dart`) mit Ausstellen bzw. „PDF senden“ (FA-5.15 bis FA-5.20) |
 | Kunde bearbeiten | `features/invoices/customer_edit_screen.dart` | Kundenstammdaten, Schalter „Unternehmen“ (FA-5.24) |
 | Mahnung (Bottom-Sheet) | `features/invoices/dunning_sheet.dart` | Stufe, bisherige Schreiben mit Storno, Frist, Mahnkosten mit Verbraucherhinweis, Zinsen, Pauschale, Vorschau, „erstellen und senden“ (FA-5.21 bis FA-5.23) |
+| Plattformimport | `features/import/platform_import_screen.dart` | Eine Karte je Monat, Hinweise, Amazon-Gebührenrechnung, unten „Übernehmen“ (FA-2.43 bis FA-2.49); geöffnet aus der Hauptnavigation, wenn eine CSV/TSV/TXT geteilt wird |
 | Datensicherung | `features/backup/backup_screen.dart` | Sicherung erstellen und teilen, wiederherstellen mit Vorschau |
 | Export | `features/export/export_screen.dart` | Zeitraum, Vorschau, Format |
 | Einstellungen | `features/settings/settings_screen.dart` | Stammdaten, App-Sperre, Symbol auf Startbildschirm (FA-1.19, nur Android), Belege auslesen, Fremdwährung (Tageskurs-Genehmigung), Kategorien, Rechtsrahmen, Hinweise |
@@ -753,8 +762,10 @@ Buchsymbol: `KA` bei Barzahlung, sonst `BK`. Aufgeteilte Belege: ein Buchungssat
 ### 8.5 Umsatzsteuer-Zusammenfassung (`vatReturn`)
 
 Stammdaten, Zeitraum, steuerpflichtige Umsätze je Satz mit Bemessungsgrundlage
-und Steuer, Vorsteuer je Satz, Zahllast oder Guthaben, Ergebnis netto. Bei
-Kleinunternehmern zusätzlich der Befreiungsvermerk.
+und Steuer, Vorsteuer je Satz, Reverse Charge mit Kennzahlen des Landes
+(Bemessungsgrundlage nur DE Kz 46, Steuer, Vorsteuer; FA-3.3), Zahllast oder
+Guthaben, Ergebnis netto. Bei Kleinunternehmern zusätzlich der
+Befreiungsvermerk.
 
 ### 8.6 Kontenzuordnung
 
@@ -809,6 +820,11 @@ neuer Empfänger. Geteilte Dateien (FA-2.38) kommen von einer anderen App auf
 das Gerät, nichts geht hinaus. PDF und E-Rechnungen (FA-2.39, FA-2.40)
 werden vollständig auf dem Gerät verarbeitet.
 
+**Plattformimport (FA-2.43 bis FA-2.49):** die Datei kommt über Teilen bzw.
+„Öffnen mit“ auf das Gerät und wird dort gelesen; nichts geht hinaus. Der Knopf
+„Gebührenrechnungen öffnen“ übergibt nur die feste Adresse an den Browser.
+Käuferdaten werden nicht übernommen (P-R36).
+
 **Rechnung über Link-QR (FA-2.42):** nur auf Tippen „Laden“ ruft die App die
 Adresse aus dem QR-Code beim Server dieser Domain ab (Betreiber ist der
 Rechnungsaussteller bzw. sein Dienstleister). Übertragen werden die Adresse
@@ -858,6 +874,7 @@ Offen benannt, weil eine Spezifikation, die ihre Lücken verschweigt, wertlos is
 | **Bewirtung ohne Abzugsbeschränkung** | Ein Bewirtungsbeleg wird nach Sätzen aufgeteilt, aber voll als Ausgabe und Vorsteuer gezählt; die Kürzung (AT 50 %, DE 70 % Betriebsausgabe) macht die Kanzlei (P-S46) | nach P-S46 |
 | **Kleinunternehmerstatus nicht je Jahr** | Ob Ausgaben brutto zählen, richtet sich nach der aktuellen Einstellung, auch für Vorjahre | später |
 | **Keine Teilzahlungen** | Mahnkosten und Zinsen werden nur bei voller Zahlung mitgebucht; Teilzahlungen und deren Anrechnung (§ 1416 ABGB, § 367 BGB) bildet die App noch nicht ab; Basiszinssätze ändern sich nur per App-Update (P-S44) | später |
+| **Plattformimport ohne Dateiauswahl in der App** | Die Exportdatei kommt über Teilen bzw. „Öffnen mit“ (Dateien-App, Downloads); eine eigene Dateiauswahl fehlt. Nur EUR; Bestimmungsland für OSS nur näherungsweise (Marktplatz, Lieferland), bei PayPal/Stripe keins. Umsatzsteuer der Verkäufe ohne Steuerspalte zum Normalsatz (P-S51); Spaltennamen nur an synthetischen Dateien geprüft (P-S55) | später |
 | **Mengen mit zwei Dezimalstellen** | Die Mengeneingabe verarbeitet zwei Nachkommastellen, obwohl das Datenmodell drei erlaubt | – |
 | **Offene Detailseite beim Wechsel der Breitenklasse** | Wird ein Tablet von quer (expanded) auf hoch (medium) gedreht oder das Fenster verkleinert, während rechts ein Beleg, eine Rechnung oder ein Kunde in Bearbeitung ist, schließt sich der Detailbereich; ungespeicherte Eingaben gehen verloren. Gespeichertes bleibt unberührt | später |
 | **Android-APK-Build nicht lokal verifiziert** | Im Entwicklungscontainer ist `dl.google.com` per Netzwerk-Policy gesperrt, das Android SDK ließ sich nicht installieren. Analyse, Format und Tests laufen lokal; die Plattform-Builds verifiziert die CI | – |
@@ -871,7 +888,8 @@ Offen benannt, weil eine Spezifikation, die ihre Lücken verschweigt, wertlos is
 > Das ist der Mechanismus, der dieses Dokument aktuell hält.
 
 ```properties
-spec.schema_version = 16
+spec.schema_version = 17
+spec.oss_threshold_cents = 1000000
 spec.primary_action_height_dp = 56
 spec.min_touch_target_dp = 48
 spec.dunning_default_fee_cents = 1000
@@ -934,6 +952,7 @@ spec.at.dunning_flat_fee_cents = 4000
 spec.at.dunning_base_rates = 2025-01-01:253,2025-07-01:153,2026-01-01:153
 spec.at.dunning_consumer_notice = nein
 spec.at.dunning_interest_legal_ref = § 1000 Abs 1 ABGB | § 456 UGB
+spec.at.reverse_charge_kz = -,057,066
 spec.at.deadline_rules = UVA@15+2m | ZM@0+1m | ESt-Vorauszahlung@02-15,05-15,08-15,11-15 | ESt-/USt-Erklärung (FinanzOnline)@+1j06-30 | SVS-Beitrag@02-00,05-00,08-00,11-00~
 
 # Deutschland – § 19 UStG, § 33 UStDV, § 147 AO
@@ -964,6 +983,7 @@ spec.de.dunning_flat_fee_cents = 4000
 spec.de.dunning_base_rates = 2025-01-01:227,2025-07-01:127,2026-01-01:127
 spec.de.dunning_consumer_notice = ja
 spec.de.dunning_interest_legal_ref = § 288 Abs 1 BGB | § 288 Abs 2 BGB
+spec.de.reverse_charge_kz = 46,47,67
 spec.de.deadline_rules = UStVA@10+1m+1x | ZM@25+1m | ESt-Vorauszahlung@03-10,06-10,09-10,12-10 | Steuererklärungen@+1j07-31
 ```
 
@@ -980,6 +1000,7 @@ Dauerfristverlängerung, `02-15,…` = feste Tage, `+1j07-31` = Folgejahr,
 
 | Version | Datum | App-Version | Änderung |
 |---|---|---|---|
+| 1.50 | 2026-10-14 | 0.11.0 | App-Version 0.11.0 (Testbuild), Stufe B1: Plattformexporte Amazon (Transaktionsbericht DE/EN/FR/IT/ES, Abrechnung V2), PayPal, Shopify, Stripe über Teilen/„Öffnen mit“ (FA-2.43 bis FA-2.49), Bruttoprinzip, Reverse Charge mit Kennzahlen in Übersicht und UVA-Export (FA-3.3, FA-3.4, 8.5), OSS-/FBA-Warnung, Dubletten über Schema 17. Kenndaten `oss_threshold_cents`, `reverse_charge_kz`. Neue Prüfpunkte P-S51 bis P-S55, P-R36, P-U7. |
 | 1.49 | 2026-10-14 | 0.10.0 | App-Version 0.10.0 (Testbuild), Stufe A3: Link-QR mit Hinweisstreifen, Laden nur nach Tipp, Domainwechsel nur nach erneuter Anzeige, nur PDF/XML ≤ 20 MB, sonst Browser (FA-2.42); neuer Datenfluss in 10.1. Neue Prüfpunkte P-R35, P-U6. |
 | 1.48 | 2026-10-14 | 0.9.0 | App-Version 0.9.0 (Testbuild), Stufe A2: PDF-Rechnungen (FA-2.39), E-Rechnungen CII/UBL/ebInterface (FA-2.40), Originaldatei mit SHA-256 in Sicherung und Belegliste (FA-2.41, Schema 16), Teilen-Ziel für PDF/XML und iOS „Öffnen in“ (FA-2.38). |
 | 1.47 | 2026-10-14 | 0.8.0 | App-Version 0.8.0 (Testbuild), Stufe A1: Codes auf dem Foto (FA-2.35 bis FA-2.38, Lastenheft L-27.1 bis L-27.4): Kassen-QR RKSV/TSE mit Vorrang bei Betrag, Datum, Sätzen, Zahlungs-QR EPC, Lernspeicher Kasse → Händler (Schema 15), Teilen-Ziel Android für Bilder. Neue Prüfpunkte P-S49, P-S50, P-U5. |
@@ -1143,6 +1164,7 @@ Status: *offen* · *bestätigt* (mit Datum und Prüfer) · *widerlegt* (mit Folg
 | P-U4 | Datenschutzerklärung und Store-Formulare (Google Data Safety, Apple Label) zur VIES-Abfrage durch Fachperson | Nutzerin Verantwortliche, Kommission Empfängerin, Anbieter unbeteiligt | erster Upload | offen |
 | P-U5 | Kassen- und Zahlungs-QR auf echtem Gerät: SPAR-/Hofer-/Billa-Bon mit RKSV-QR (auch zerknittert, schräg, schwaches Licht), deutscher TSE-Bon, Rechnung mit GiroCode; Vermerk „vom Kassen-QR“ sichtbar; Teilen eines Fotos aus Galerie und Mail öffnet den Buchungsvorschlag mit einer Hand | Emulator prüft nur synthetische QR-Bilder (FA-2.35); Korpus Belege 1–6 wird im CI-Artefakt `ocr-belege` auf Codes ausgewertet | Release | offen |
 | P-U6 | Link-QR auf echtem Gerät: Rechnung eines Anbieters mit QR-Link (z. B. Energie, Telefon), Streifen einhändig erreichbar, Domain lesbar, Laden einer PDF, Weiterleitung auf andere Domain zeigt neue Domain, HTML-Portal führt zu „Im Browser öffnen“ | Logik mit Testserver geprüft (`link_invoice_test.dart`), kein echter Anbieter | Release | offen |
+| P-U7 | Plattformimport auf echtem Gerät: Transaktionsbericht in der Seller-Central-App bzw. im Browser herunterladen, mit einer Hand teilen bzw. in Dateien „Öffnen mit“ → Buchhaltung, Zusammenfassung lesbar, „Übernehmen“ mit dem Daumen; zweites Teilen derselben Datei bucht nichts doppelt | Widget-Test (Knopf unten, volle Breite, ≥ 56 dp), kein echtes Gerät | Release | offen |
 | P-B1 | Android: bietet die Google-Drive-App bei der Ordnerwahl (Storage Access Framework) Ordner an? Test auf Pixel und Samsung mit aktueller Drive-App. Wenn nein: Entscheidung über Anbindung der Drive-Schnittstelle | Drive bot lange keine Ordner an; unsicher | vor Release | **bestanden 2026-10-12** (Auftraggeberin, Pixel 10: Sicherung und automatische Sicherung nach Google Drive). Wiederherstellung aus Drive siehe P-B12 |
 | P-B2 | iOS: Bookmark auf einen iCloud-Drive-Ordner nach Neustart, Update und offline; Upload durch das System | — | vor Release | offen |
 | P-B3 | Laufzeit einer großen Sicherung (viele Fotos) beim Öffnen der App; Verhalten bei Wechsel in den Hintergrund | — | vor Release | offen |
@@ -1203,6 +1225,11 @@ Status: *offen* · *bestätigt* (mit Datum und Prüfer) · *widerlegt* (mit Folg
 | P-S48 | DATEV: Buchung je Satz eines aufgeteilten Belegs ohne BU-Schlüssel auf ein Automatikkonto – richtig importiert, oder braucht es Schlüssel bzw. Konto je Satz? | eine Buchung je Satz, BU leer (8.3) | Release | offen |
 | P-S49 | RKSV-Kassen-QR ab 01.07.2026: Feld „Betrag-Satz-Besonders“ trägt 19 % **und** 4,9 % gemeinsam; ist die Zuordnung über den Belegtext (Satzzeile) zulässig, und reicht der Vorrang des QR für Betrag und Datum gegenüber dem Text? Echten Beleg mit 4,9 % prüfen | „Besonders“ nicht aus dem Code bestimmbar (BMF-Hinweis im A-SIT-Mustercode-Repository 13.03.2026, fiskaly); App nimmt den Satz aus dem Text, sonst Rückfrage (FA-2.36); finale Detailspezifikation nicht abrufbar | Release | offen |
 | P-S50 | DSFinV-K Anhang I: Reihenfolge der Bruttobeträge im TSE-QR (`Kassenbeleg-V1`, IDs 1–5: 19 %, 7 %, 10,7 %, 5,5 %, 0 %) und Dezimalpunkt; mit echtem deutschem Kassenbeleg gegenprüfen | aus Fachwissen, amtliche DSFinV-K nicht abgerufen (FA-2.35) | Release | offen |
+| P-S51 | Steuerberatung: Plattform-Sammelbuchung je Monat nach Bruttoprinzip (Umsatz als Einnahme inkl. Versand/Aktionsrabatt abzüglich Erstattungen, Gebühren und Werbung als eigene Ausgaben, Auszahlung nicht gebucht) – genügt ein Sammelbeleg je Monat (Einzelaufzeichnung § 131 BAO / § 146 AO über den Bericht)? Umsatzsteuer der Verkäufe ohne Steuerspalte zum Normalsatz herausgerechnet; Datum = letzter Buchungstag im Monat (Zufluss vs. Leistung) | Befund Steuerberater (Bruttoprinzip) umgesetzt (FA-2.46); Normalsatz-Annahme und Datum unsicher | vor Release | offen |
+| P-S52 | Steuerberatung: Reverse Charge für Amazon-Gebühren (Amazon EU S.à r.l.) auch beim Kleinunternehmer (AT § 19 Abs 1 zweiter Satz iVm § 3a Abs 6 UStG 1994; DE § 13b Abs 1/5 UStG, Abs 8) ohne Vorsteuerabzug; Kennzahlen AT Kz 057/066, DE Kz 46/47/67; Leistender der Amazon-Werbung (Amazon Online Services/Amazon EU bzw. Inlandsgesellschaft?) | umgesetzt (FA-2.46, FA-3.3); Kennzahlen aus Fachwissen, Formular nicht abgerufen | vor Release | offen |
+| P-S53 | Steuerberatung: OSS-Schwelle 10.000 € (Art 59c MwStSystRL; AT Art 3 Abs 5 UStG 1994; DE § 3c Abs 4 UStG) – Näherung Bestimmungsland über Amazon-Marktplatz bzw. Shopify-Lieferland ausreichend für eine Warnung? Lager in anderen Ländern (FBA Pan-EU/CEE) nur als Hinweis | umgesetzt als Warnung (FA-2.47) | vor Release | offen |
+| P-S54 | Steuerberatung: Gebühren von PayPal (Europe) S.à r.l. et Cie, S.C.A. (LU) als steuerfreier Finanzumsatz (Art 135 Abs 1 lit d MwStSystRL; AT § 6 Abs 1 Z 8 UStG 1994; DE § 4 Nr 8 Buchst d UStG) ohne Reverse Charge; Stripe (Stripe Technology Europe Ltd./Stripe Payments Europe Ltd., IE) und Shopify Payments (Shopify International Ltd., IE) als steuerpflichtige Leistung mit Reverse Charge – Leistender und Behandlung je Vertrag/Rechnung bestätigen | nicht gesichert recherchiert (Quellen der Anbieter nicht abrufbar); so umgesetzt (FA-2.46) | vor Release | offen |
+| P-S55 | Spaltennamen und Typwerte mit echten Exporten je Sprache abgleichen: Amazon Transaktionsbericht DE/EN/FR/IT/ES, Abrechnung V2 (amount-type/-description), PayPal Aktivitäten DE/EN, Shopify, Stripe | nur synthetische Dateien (`test/fixtures/plattform/`), Spaltennamen nach Hilfeseiten und Fachwissen | vor Release | offen |
 | P-S45 | Mahnkosten, Verzugszinsen und Pauschale als nicht umsatzsteuerbarer Schadenersatz (UStR Rz 9 AT, Abschn. 1.3 Abs 6 UStAE DE), Einnahme bei Zufluss mit 0 %, Kategorie „Sonstige Einnahmen“; Anrechnung nach § 1416 ABGB / § 367 BGB | Vorbefund Steuerberater: nicht steuerbar, Betriebseinnahme bei Zufluss | Release | offen |
 | P-L12 | Anwältin: Diktat über die Systemtastatur – Anbieterin nicht verantwortlich, Hinweistext genügt | — | Release | offen |
 | P-L13 | Gerätetest, nur bei eigener Spracherkennung: Erkennung im Flugmodus | — | später | offen |
@@ -1233,6 +1260,7 @@ Status: *offen* · *bestätigt* (mit Datum und Prüfer) · *widerlegt* (mit Folg
 | P-R33 | Wortlaut der Zahlungserinnerung und Mahnung (sachlich, ohne Drohung, UWG/§ 4a UWG, KSchG), Hinweis § 286 Abs 3 BGB auf DE-Verbraucherrechnungen | Texte in `DunningService.bodyText`, `TaxProfile.dunning.consumerDefaultNotice` | Release | offen |
 | P-R34 | Pauschale 40 € (§ 458 UGB, § 288 Abs 5 BGB) nur B2B, Anrechnung auf Rechtsverfolgungskosten; Verzugszinsen ohne Vereinbarung erst ab Verzug (DE: Mahnung oder 30 Tage mit Hinweis) | umgesetzt als Vorschlag, Entscheidung bei der Nutzerin | Release | offen |
 | P-R35 | Link-QR (FA-2.42): Abruf beim Server des Rechnungsausstellers auf Tippen – Rolle der Nutzerin bzw. des Anbieters (DSGVO), Offenlegung in Datenschutzerklärung und Google Data Safety/Apple Label (Datenerhebung durch die App ja/nein), Warnhinweis gegen Phishing ausreichend? | keine Daten aus der App, nur Adresse/IP an die gezeigte Domain; Domain groß, Wechsel nur nach erneuter Anzeige, kein Login in der App | erster Upload | offen |
+| P-R36 | Plattformimport (FA-2.49): Käuferdaten (Name, Adresse, E-Mail, Telefon) werden verworfen; bleiben Bestellnummern und Bestimmungsland (Aggregat) zulässig (Art 5 Abs 1 lit c DSGVO)? Rolle der Nutzerin gegenüber Käuferdaten in der geteilten Datei (Cache) | Test über alle Tabellen (`platform_import_test.dart`); keine Übertragung | erster Upload | offen |
 | P-R26 | Hilfe Stufe 2: Übermittlung der Frage an einen Server bzw. KI-Anbieter – Rechtsgrundlage, Auftragsverarbeitung, Drittlandtransfer, Eintrag in Datenflusstabelle und Store-Angaben | noch nicht gebaut | vor Stufe 2 | offen |
 | P-S11 | USt-Kette der Store-Abos: Leistung an Apple/Google in Irland, Reverse Charge, UID, ZM, UVA; gelten die Store-Abrechnungen als Gutschrift (§ 11 Abs 7 UStG AT)? | Kette sicher, Rechnungsstellung offen | erster Verkauf | offen |
 | P-S12 | Vorsteuerabzug für Unternehmerinnen aus Store-Quittungen | unklar; kein Versprechen in App oder Werbung | erster Verkauf | offen |

@@ -29,11 +29,38 @@ gebaut, und was war darin geprüft?*
 
 ## Unveröffentlicht
 
-Änderungen seit 0.10.0+15, die noch in keinem Build stecken. Wandern beim
+Änderungen seit 0.11.0+16, die noch in keinem Build stecken. Wandern beim
 nächsten Versionssprung in den neuen Eintrag.
 
 | Art | Änderung | Bezug | Commit |
 |---|---|---|---|
+
+---
+
+## 0.11.0+16 — 2026-10-14
+
+| Feld | Wert |
+|---|---|
+| Art | Testbuild (ungezippte arm64-APK, fester Testschlüssel); Stufe B1 Plattformexporte |
+| Commit | siehe Git-Tag `v0.11.0` |
+| Branch | `claude/agile-accounting-app-mobile-wa5j3h` |
+| Dokumentstände | Lastenheft 1.53, Spezifikation 1.50, Benutzerhandbuch für 0.11.0, DESIGN_SPEC 1.2 |
+| Datenbankschema | 17 |
+| Prüfung | `flutter analyze` ohne Befund, alle Tests grün (neu `platform_import_test.dart`: zehn synthetische Exporte in fünf Sprachen, Datensparsamkeit über alle Tabellen, Knopf ≥ 56 dp), Emulator-Job `android-ocr-emulator`, CI siehe Lauf zum Tag |
+| Steuerliche Kennwerte | neu `spec.oss_threshold_cents = 1000000`, `spec.at.reverse_charge_kz = -,057,066`, `spec.de.reverse_charge_kz = 46,47,67` |
+| Offene reale Prüfpunkte | wie 0.10.0+15, dazu P-S51 bis P-S55, P-R36, P-U7 |
+
+**Änderungen seit 0.10.0+15**
+
+| Art | Änderung | Bezug | Commit |
+|---|---|---|---|
+| Neu | Plattformexporte über Teilen/„Öffnen mit“: Amazon Transaktionsbericht (DE/EN/FR/IT/ES) und Abrechnung V2, PayPal, Shopify, Stripe; Format automatisch erkannt | L-28.1, FA-2.43 | siehe Tag |
+| Neu | Eine Zusammenfassung je Monat, ein Knopf „Übernehmen“ unten (56 dp) | L-28.2, FA-2.44, P-U7 | siehe Tag |
+| Neu | Bruttoprinzip: Umsatz, Gebühren, Werbung getrennt, Auszahlung nicht gebucht; Reverse Charge für Amazon/Stripe/Shopify, PayPal steuerfrei | L-28.3, L-28.4, FA-2.46, P-S51, P-S52, P-S54 | siehe Tag |
+| Neu | Reverse Charge in Übersicht und UVA-Export mit Kennzahlen je Land (AT Kz 057/066, DE Kz 46/47/67), auch für Kleinunternehmer | L-28.4, FA-3.3, FA-3.4 | siehe Tag |
+| Neu | Dubletten still übersprungen (Schema 17 `platform_import_rows`), OSS- und FBA-Warnung | L-28.5, FA-2.45, FA-2.47, P-S53 | siehe Tag |
+| Neu | Käuferdaten werden nie übernommen (Test über alle Tabellen) | L-28.6, FA-2.49, P-R36 | siehe Tag |
+| Neu | Hinweis „Gebührenrechnung als Beleg ablegen“ mit direktem Link, Anleitung je Plattform im Handbuch | L-28.7, FA-2.48 | siehe Tag |
 
 ---
 

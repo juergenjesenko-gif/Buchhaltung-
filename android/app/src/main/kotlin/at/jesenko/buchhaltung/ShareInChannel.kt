@@ -42,6 +42,8 @@ class ShareInChannel(private val context: Context, messenger: BinaryMessenger) {
                 @Suppress("DEPRECATION")
                 intent.getParcelableArrayListExtra<Uri>(Intent.EXTRA_STREAM)?.let { uris.addAll(it) }
             }
+            // „Öffnen mit“ aus der Dateien-App (Plattformexporte, L-28.1).
+            Intent.ACTION_VIEW -> intent.data?.let { uris.add(it) }
             else -> return
         }
         if (uris.isEmpty()) return
@@ -87,6 +89,10 @@ class ShareInChannel(private val context: Context, messenger: BinaryMessenger) {
             clean += when {
                 mime == "application/pdf" -> ".pdf"
                 mime?.contains("xml") == true -> ".xml"
+                mime == "text/tab-separated-values" -> ".tsv"
+                mime == "text/plain" -> ".txt"
+                mime == "text/csv" || mime == "text/comma-separated-values" ||
+                    mime == "application/vnd.ms-excel" -> ".csv"
                 mime == "image/png" -> ".png"
                 mime?.startsWith("image/") == true -> ".jpg"
                 else -> ""

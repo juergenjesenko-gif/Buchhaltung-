@@ -570,6 +570,31 @@ class Exporter {
     csv.writeRow(['Summe Vorsteuer', csvAmount(totals.expenseVat.cents)]);
     csv.writeRow([]);
 
+    // Reverse Charge (L-28.4): Kennzahlen je Land aus TaxProfile.
+    if (totals.hasReverseCharge) {
+      final rc = tax.reverseCharge;
+      csv.writeRow(['Steuerschuld des Leistungsempfängers', rc.legalRef]);
+      csv.writeRow(['Kennzahl', 'Bezeichnung', 'Betrag']);
+      if (rc.baseKz != null) {
+        csv.writeRow([
+          rc.baseKz!,
+          'Bemessungsgrundlage',
+          csvAmount(totals.reverseChargeBase.cents),
+        ]);
+      }
+      csv.writeRow([
+        rc.taxKz,
+        'Umsatzsteuer',
+        csvAmount(totals.reverseChargeVat.cents),
+      ]);
+      csv.writeRow([
+        rc.inputVatKz,
+        'Vorsteuer',
+        csvAmount(totals.reverseChargeInputVat.cents),
+      ]);
+      csv.writeRow([]);
+    }
+
     final payable = totals.vatPayable;
     csv.writeRow([
       payable.isNegative ? 'Guthaben' : 'Zahllast',

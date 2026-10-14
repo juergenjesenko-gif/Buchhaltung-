@@ -7,6 +7,8 @@ import '../domain/dunning.dart';
 import '../domain/invoice.dart';
 import '../domain/money.dart';
 import '../domain/receipt.dart';
+import '../domain/platform_import.dart';
+import '../services/vat_calculator.dart';
 import 'consent_repository.dart';
 import 'vat_check_repository.dart';
 
@@ -594,7 +596,25 @@ class ReceiptRepository {
     required DateTime from,
     required DateTime to,
     bool inputVatDeductible = true,
+    int reverseChargePermille = 0,
   }) async {
+    // Reverse Charge (L-28.4): Steuer je Beleg zum Normalsatz gerundet;
+    // Vorsteuer daraus nur bei Vorsteuerabzug (nicht für Kleinunternehmer).
+    final rcRows = await _db.rawQuery(
+      '''
+      SELECT net_cents FROM receipts
+      WHERE reverse_charge = 1 AND direction = 'expense'
+        AND date >= ? AND date <= ? AND cancelled_at IS NULL
+      ''',
+      [_day(from), _day(to)],
+    );
+    var rcBase = const Money.zero();
+    var rcVat = const Money.zero();
+    for (final row in rcRows) {
+      final net = Money(row['net_cents'] as int? ?? 0);
+      rcBase += net;
+      rcVat += VatCalculator.fromNet(net, reverseChargePermille).vat;
+    }
     final rows = await _db.rawQuery(
       '''
       SELECT r.direction AS direction, l.vat_permille AS vat_permille,
@@ -670,6 +690,9 @@ class ReceiptRepository {
       expenseFxDifference: Money((fx.first['fx_diff'] as int?) ?? 0),
       incomeNetByRate: incomeByRate,
       inputVatByRate: expenseVatByRate,
+      reverseChargeBase: rcBase,
+      reverseChargeVat: rcVat,
+      reverseChargeInputVat: inputVatDeductible ? rcVat : const Money.zero(),
     );
   }
 
@@ -753,7 +776,22 @@ class PeriodTotals {
     this.expenseFxDifference = const Money.zero(),
     required this.incomeNetByRate,
     required this.inputVatByRate,
+    this.reverseChargeBase = const Money.zero(),
+    this.reverseChargeVat = const Money.zero(),
+    this.reverseChargeInputVat = const Money.zero(),
   });
+
+  /// Bemessungsgrundlage der Leistungen mit Steuerschuld des Empfängers
+  /// (Reverse Charge, L-28.4), z. B. Amazon-Gebühren aus Luxemburg.
+  final Money reverseChargeBase;
+
+  /// Darauf geschuldete Umsatzsteuer – auch für Kleinunternehmer.
+  final Money reverseChargeVat;
+
+  /// Als Vorsteuer abziehbarer Teil (0 ohne Vorsteuerabzug).
+  final Money reverseChargeInputVat;
+
+  bool get hasReverseCharge => !reverseChargeBase.isZero;
 
   final DateTime from;
   final DateTime to;
@@ -785,7 +823,8 @@ class PeriodTotals {
   Money get profit => incomeNet - expenseNet - expenseFxDifference;
 
   /// Zahllast bzw. Guthaben gegenüber dem Finanzamt.
-  Money get vatPayable => incomeVat - expenseVat;
+  Money get vatPayable =>
+      incomeVat - expenseVat + reverseChargeVat - reverseChargeInputVat;
 
   bool get isEmpty => incomeGross.isZero && expenseGross.isZero;
 }
@@ -1218,12 +1257,14 @@ class Repositories {
       dunning = DunningRepository(db),
       vatChecks = VatCheckRepository(db),
       consents = ConsentRepository(db),
+      platformImports = PlatformImportRepository(db),
       audit = AuditLog(db);
 
   final CompanyRepository company;
   final CategoryRepository categories;
   final CustomerRepository customers;
   final ReceiptRepository receipts;
+  final PlatformImportRepository platformImports;
   final OpeningTurnoverRepository openingTurnover;
   final InvoiceRepository invoices;
   final DunningRepository dunning;
@@ -1234,3 +1275,89 @@ class Repositories {
 
 /// Hilfsfunktion für die Länderauswahl in Formularen.
 List<Country> get supportedCountries => Country.values;
+
+/// Übernommene Zeilen aus Plattformexporten (L-28.5, Schema 17).
+class PlatformImportRepository {
+  const PlatformImportRepository(this._db);
+
+  final Database _db;
+
+  /// Bereits übernommene Kennungen einer Plattform.
+  Future<Set<String>> knownIds(SalesPlatform platform) async {
+    final rows = await _db.query(
+      'platform_import_rows',
+      columns: ['external_id'],
+      where: 'platform = ?',
+      whereArgs: [platform.name],
+    );
+    return {for (final r in rows) r['external_id'] as String};
+  }
+
+  /// Monat (`YYYY-MM`) → bereits verwendete Formate einer Plattform.
+  Future<Map<String, Set<String>>> formatsByMonth(
+    SalesPlatform platform,
+  ) async {
+    final rows = await _db.rawQuery(
+      'SELECT DISTINCT month, format FROM platform_import_rows '
+      'WHERE platform = ?',
+      [platform.name],
+    );
+    final result = <String, Set<String>>{};
+    for (final r in rows) {
+      result
+          .putIfAbsent(r['month'] as String, () => {})
+          .add(r['format'] as String);
+    }
+    return result;
+  }
+
+  /// Bucht die Belege und merkt sich alle neuen Zeilen in einer
+  /// Transaktion. Liefert die Zahl der angelegten Belege.
+  Future<int> commit({
+    required PlatformFormat format,
+    required List<({Receipt receipt, int? categoryId, List<String> ids})>
+    bookings,
+    required List<({String id, String month})> entries,
+  }) {
+    return _db.transaction((txn) async {
+      final audit = AuditLog(_db);
+      final receiptOf = <String, int>{};
+      for (final b in bookings) {
+        final receipt = b.receipt.copyWith(categoryId: b.categoryId);
+        final id = await txn.insert('receipts', receipt.toMap());
+        await ReceiptRepository.writeVatLines(txn, id, receipt);
+        await audit.record(
+          entity: 'receipt',
+          entityId: id,
+          action: 'create',
+          detail:
+              '${receipt.description} ${receipt.gross}, '
+              'Import ${format.platform.label} ${format.label}',
+          txn: txn,
+        );
+        for (final e in b.ids) {
+          receiptOf[e] = id;
+        }
+      }
+      final now = DateTime.now().toIso8601String();
+      final batch = txn.batch();
+      for (final e in entries) {
+        batch.rawInsert(
+          'INSERT OR IGNORE INTO platform_import_rows '
+          '(platform, external_id, format, month, receipt_id, imported_at) '
+          'VALUES (?, ?, ?, ?, ?, ?)',
+          [
+            format.platform.name,
+            e.id,
+            format.name,
+            e.month,
+            receiptOf[e.id],
+            now,
+          ],
+        );
+      }
+      await batch.commit(noResult: true);
+      return bookings.length;
+    });
+  }
+}

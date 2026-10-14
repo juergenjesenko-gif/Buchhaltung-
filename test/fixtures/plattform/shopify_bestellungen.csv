@@ -1,0 +1,4 @@
+"Name","Email","Financial Status","Paid at","Fulfillment Status","Currency","Subtotal","Shipping","Taxes","Total","Discount Code","Refunded Amount","Lineitem name","Billing Name","Billing Street","Billing City","Billing Zip","Shipping Name","Shipping Street","Shipping City","Shipping Zip","Shipping Country","Phone"
+"#1001","erika@example.invalid","partially_refunded","2026-03-04 12:00:00 +0100","fulfilled","EUR","50.00","10.00","10.00","60.00","","10.00","Testartikel A","Erika Musterfrau","Musterweg 1","Musterstadt","12345","Erika Musterfrau","Musterweg 1","Musterstadt","12345","DE","+49 000 000"
+"#1001","","","","","","","","","","","","Testartikel B","","","","","","","","","",""
+"#1003","max@example.invalid","paid","2026-03-07 09:00:00 +0100","fulfilled","EUR","10000.00","0.00","1900.00","11900.00","","0.00","Testartikel C","Max Mustermann","Musterweg 2","Musterstadt","12345","Max Mustermann","Rue Test 2","Paris","75001","FR",""

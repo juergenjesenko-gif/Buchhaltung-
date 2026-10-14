@@ -1,0 +1,9 @@
+settlement-id	settlement-start-date	settlement-end-date	deposit-date	total-amount	currency	transaction-type	order-id	merchant-order-id	adjustment-id	shipment-id	marketplace-name	amount-type	amount-description	amount	fulfillment-id	posted-date	posted-date-time	order-item-code	merchant-order-item-id	merchant-adjustment-item-id	sku	quantity-purchased	promotion-id
+44444444444	2026-03-01	2026-03-15	2026-03-17	101.50	EUR																		
+44444444444					EUR	Order	303-1				Amazon.de	ItemPrice	Principal	100.00	AFN	2026-03-02					SKU-A	1	
+44444444444					EUR	Order	303-1				Amazon.de	ItemPrice	Tax	19.00	AFN	2026-03-02					SKU-A	1	
+44444444444					EUR	Order	303-1				Amazon.de	ItemFees	Commission	-17.85	AFN	2026-03-02					SKU-A	1	
+44444444444					EUR	Order	303-1				Amazon.de	ItemFees	FBAPerUnitFulfillmentFee	-4.65	AFN	2026-03-02					SKU-A	1	
+44444444444					EUR	other-transaction						Cost of Advertising	TransactionTotalAmount	-15.00		2026-03-10					SKU-A	1	
+44444444444					EUR	Refund	303-2				Amazon.de	ItemPrice	Principal	-20.00	AFN	2026-03-11					SKU-A	1	
+44444444444					EUR	Refund	303-2				Amazon.de	ItemFees	Commission	3.00	AFN	2026-03-11					SKU-A	1	

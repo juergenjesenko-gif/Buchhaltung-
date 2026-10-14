@@ -1,0 +1,5 @@
+"Test header line"
+"date/time","settlement id","type","order id","sku","description","quantity","marketplace","fulfillment","order city","order state","order postal","tax collection model","product sales","product sales tax","shipping credits","shipping credits tax","gift wrap credits","giftwrap credits tax","promotional rebates","promotional rebates tax","marketplace withheld tax","selling fees","fba fees","other transaction fees","other","total"
+"Mar 1, 2026 10:15:00 AM PST","33333333333","Order","402-1","SKU-A","Testartikel","1","amazon.it","Amazon","Musterstadt","Musterregion","12345","","40.00","0.00","0.00","0.00","0.00","0.00","0.00","0.00","0.00","-6.00","0.00","0.00","0.00","34.00"
+"Mar 1, 2026 10:15:00 AM PST","33333333333","Service Fee","","SKU-A","Subscription","1","amazon.it","Amazon","","Musterregion","12345","","0.00","0.00","0.00","0.00","0.00","0.00","0.00","0.00","0.00","0.00","0.00","0.00","0.00","-39.00"
+"Mar 1, 2026 10:15:00 AM PST","33333333333","Transfer","","SKU-A","Bank","1","amazon.it","Amazon","","Musterregion","12345","","0.00","0.00","0.00","0.00","0.00","0.00","0.00","0.00","0.00","0.00","0.00","0.00","0.00","-20.00"
