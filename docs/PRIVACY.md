@@ -12,8 +12,8 @@
 
 ```
 Spirits by JeNiBarb e.U.
-<Straße und Hausnummer>
-<PLZ> Arnoldstein
+Sankt Leonhard bei Siebenbrünn 96
+9587 Arnoldstein
 Österreich
 E-Mail: office@jenibarb.com
 ```
