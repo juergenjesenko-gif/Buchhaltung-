@@ -11,7 +11,11 @@ cp pubspec.yaml pubspec.yaml.orig
 trap 'mv -f pubspec.yaml.orig pubspec.yaml' EXIT
 python3 - <<'PY'
 s = open('pubspec.yaml').read()
-s = s.replace('  uses-material-design: true', '  uses-material-design: true\n  assets:\n    - test/fixtures/belege/', 1)
+# Vorhandenen assets-Block ergänzen (Handbuch, FA-11.2), sonst neu anlegen.
+if '\n  assets:\n' in s:
+    s = s.replace('\n  assets:\n', '\n  assets:\n    - test/fixtures/belege/\n', 1)
+else:
+    s = s.replace('  uses-material-design: true', '  uses-material-design: true\n  assets:\n    - test/fixtures/belege/', 1)
 open('pubspec.yaml', 'w').write(s)
 PY
 grep -A3 'uses-material-design' pubspec.yaml
