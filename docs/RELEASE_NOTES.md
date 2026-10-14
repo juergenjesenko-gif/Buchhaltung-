@@ -29,11 +29,33 @@ gebaut, und was war darin geprüft?*
 
 ## Unveröffentlicht
 
-Änderungen seit 0.9.0+14, die noch in keinem Build stecken. Wandern beim
+Änderungen seit 0.10.0+15, die noch in keinem Build stecken. Wandern beim
 nächsten Versionssprung in den neuen Eintrag.
 
 | Art | Änderung | Bezug | Commit |
 |---|---|---|---|
+
+---
+
+## 0.10.0+15 — 2026-10-14
+
+| Feld | Wert |
+|---|---|
+| Art | Testbuild (ungezippte arm64-APK, fester Testschlüssel); Stufe A3 Link-QR |
+| Commit | siehe Git-Tag `v0.10.0` |
+| Branch | `claude/agile-accounting-app-mobile-wa5j3h` |
+| Dokumentstände | Lastenheft 1.52, Spezifikation 1.49, Benutzerhandbuch für 0.10.0, DESIGN_SPEC 1.2 |
+| Datenbankschema | 16 |
+| Prüfung | `flutter analyze` ohne Befund, alle Tests grün (neu `link_invoice_test.dart` inkl. Touchflächen ≥ 48 dp), Emulator-Job `android-ocr-emulator`, CI siehe Lauf zum Tag |
+| Steuerliche Kennwerte | keine Änderung |
+| Offene reale Prüfpunkte | wie 0.9.0+14, dazu P-R35, P-U6 |
+
+**Änderungen seit 0.9.0+14**
+
+| Art | Änderung | Bezug | Commit |
+|---|---|---|---|
+| Neu | Link-QR: Hinweisstreifen mit Domain groß, Laden nur nach Tipp, nur https/PDF/XML ≤ 20 MB, andere Domain nur nach erneuter Anzeige, sonst „Im Browser öffnen“ | L-27.7, FA-2.42, P-U6 | siehe Tag |
+| Neu | Datenfluss „Rechnung über Link-QR“ dreifach dokumentiert (Lastenheft 5.19, PRIVACY, STORE_LISTING) | L-19.5, P-R35 | siehe Tag |
 
 ---
 

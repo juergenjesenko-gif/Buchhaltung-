@@ -110,6 +110,12 @@ Nur in diesen Fällen, die du auslöst oder einschaltest:
   eingeschaltet hast: UID-Nummern gehen an die EU-Kommission
 - **Kurs abrufen** – nur auf Tippen bei einem Beleg in fremder Währung: die App
   lädt die Referenzkurse der Europäischen Zentralbank
+- **Rechnung über einen QR-Link laden** – nur auf Tippen „Laden“: die App ruft
+  die Adresse aus dem QR-Code beim Server der angezeigten Domain ab (betrieben
+  vom Rechnungsaussteller). Dieser erfährt die Adresse – sie kann eine
+  Rechnungs- oder Kundennummer enthalten –, deine IP-Adresse und technische
+  Verbindungsdaten. Daten aus der App werden nicht gesendet. „Im Browser
+  öffnen“ übergibt die Adresse an deinen Browser
 
 **Hinweis zur Belegerkennung:** Fotografierte Belege werden auf deinem Gerät
 ausgelesen (Datum, Betrag, Steuersatz, Lieferant, UID, Rechnungsnummer).

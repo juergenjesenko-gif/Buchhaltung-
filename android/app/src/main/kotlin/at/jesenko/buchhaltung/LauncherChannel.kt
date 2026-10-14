@@ -53,6 +53,23 @@ class LauncherChannel(private val context: Context, messenger: BinaryMessenger) 
                         result.success(false)
                     }
                 }
+                // Link-QR (L-27.7): „Im Browser öffnen“, nur https.
+                "openUrl" -> {
+                    val uri = call.arguments as? String
+                    if (uri == null || !uri.startsWith("https://")) {
+                        result.success(false)
+                        return@setMethodCallHandler
+                    }
+                    val intent = Intent(Intent.ACTION_VIEW, Uri.parse(uri))
+                        .addCategory(Intent.CATEGORY_BROWSABLE)
+                        .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                    try {
+                        context.startActivity(intent)
+                        result.success(true)
+                    } catch (e: ActivityNotFoundException) {
+                        result.success(false)
+                    }
+                }
                 "appVersion" ->
                     result.success(
                         context.packageManager.getPackageInfo(context.packageName, 0).versionName

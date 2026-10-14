@@ -32,7 +32,10 @@ import '../../services/vat_calculator.dart';
 import '../../theme.dart';
 import '../../widgets/common.dart';
 import '../../widgets/adaptive.dart';
+import 'link_invoice_strip.dart';
 import 'receipt_save_bar.dart';
+import '../../services/launcher/open_url.dart';
+import '../../services/link_invoice/link_invoice_fetcher.dart';
 import 'vat_split_editor.dart';
 import '../../services/receipt_vat_split.dart';
 import '../help/help_screen.dart';
@@ -388,10 +391,16 @@ class _ReceiptEditScreenState extends State<ReceiptEditScreen> {
         knownMerchant: known,
       );
       if (!mounted) return;
+      final link = codes.whereType<LinkCode>().firstOrNull;
       setState(() {
         _scanDocument = document;
         _scanResult = result;
         _applyPrefill(prefill, state);
+        if (link != null && _documents.isEmpty) {
+          _linkUri = link.uri;
+          _linkHost = link.domain;
+          _linkRedirected = false;
+        }
       });
       showSnack(
         context,
@@ -575,7 +584,10 @@ class _ReceiptEditScreenState extends State<ReceiptEditScreen> {
   /// Geteilte Dateien übernehmen (L-27.4): Bilder als Seiten, PDF und XML
   /// als Originaldatei (L-27.8) mit Seitenbildern bzw. E-Rechnung (L-27.5,
   /// L-27.6). Die teilende App behält ihr Original.
-  Future<void> _addSharedFiles(List<File> files) async {
+  Future<void> _addSharedFiles(
+    List<File> files, {
+    String source = 'Teilen',
+  }) async {
     final state = AppScope.read(context);
     final tax = state.profile?.taxProfile ?? TaxProfile.austria;
     ReceiptScanPrefill? invoicePrefill;
@@ -597,7 +609,7 @@ class _ReceiptEditScreenState extends State<ReceiptEditScreen> {
             mime: doc.mime,
             sha256: doc.sha256,
             sizeBytes: doc.sizeBytes,
-            source: 'Teilen',
+            source: source,
           ),
         );
         for (final page in doc.pageImages) {
@@ -635,6 +647,43 @@ class _ReceiptEditScreenState extends State<ReceiptEditScreen> {
     }
     await _loadScanSetting();
     if (_scanEnabled) await _scan();
+  }
+
+  // Link-QR (L-27.7): angezeigte Domain und Adresse; null = kein Streifen.
+  Uri? _linkUri;
+  String? _linkHost;
+  bool _linkLoading = false;
+  bool _linkRedirected = false;
+
+  /// Lädt die Rechnung hinter dem Link-QR – nur nach Tipp auf „Laden“.
+  Future<void> _loadLink() async {
+    final uri = _linkUri;
+    final host = _linkHost;
+    if (uri == null || host == null || _linkLoading) return;
+    setState(() => _linkLoading = true);
+    final result = await LinkInvoiceFetcher().fetch(uri, confirmedHost: host);
+    if (!mounted) return;
+    setState(() => _linkLoading = false);
+    switch (result) {
+      case LinkFile():
+        final dir = await Directory.systemTemp.createTemp('link_');
+        final file = File('${dir.path}/rechnung_$host.${result.kind}');
+        await file.writeAsBytes(result.bytes, flush: true);
+        if (!mounted) return;
+        setState(() => _linkUri = null);
+        await _addSharedFiles([file], source: 'Link $host');
+      case LinkRedirect():
+        // Andere Domain: erst nach erneuter Anzeige und Tipp laden.
+        setState(() {
+          _linkUri = result.target;
+          _linkHost = result.target.host.toLowerCase();
+          _linkRedirected = true;
+        });
+      case LinkNeedsBrowser():
+        showSnack(context, '${result.reason} Bitte „Im Browser öffnen“.');
+      case LinkRejected():
+        showSnack(context, result.reason);
+    }
   }
 
   /// Bereits gespeicherte Originaldateien (nur Anzeige).
@@ -1604,13 +1653,28 @@ class _ReceiptEditScreenState extends State<ReceiptEditScreen> {
       ),
       bottomNavigationBar: _isCancelled
           ? null
-          : ReceiptSaveBar(
-              totalPages: _pages.length,
-              hasNewPages: _hasNewPages,
-              editing: _isEditing,
-              saving: _saving,
-              onSave: _save,
-              onAddPage: () => _addPage(ImageSource.camera),
+          : Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                if (_linkUri != null && _linkHost != null)
+                  LinkInvoiceStrip(
+                    domain: _linkHost!,
+                    loading: _linkLoading,
+                    redirected: _linkRedirected,
+                    onLoad: _loadLink,
+                    onBrowser: () => openInBrowser(_linkUri!),
+                    onDismiss: () => setState(() => _linkUri = null),
+                  ),
+                ReceiptSaveBar(
+                  totalPages: _pages.length,
+                  hasNewPages: _hasNewPages,
+                  editing: _isEditing,
+                  saving: _saving,
+                  onSave: _save,
+                  onAddPage: () => _addPage(ImageSource.camera),
+                ),
+              ],
             ),
     );
   }

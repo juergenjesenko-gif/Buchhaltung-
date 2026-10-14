@@ -1,6 +1,6 @@
 # Lastenheft – Buchhaltungsapp für Österreich und Deutschland
 
-**Dokumentversion:** 1.51 · **Stand:** 2026-10-14 · **Status:** Entwurf zur Abstimmung
+**Dokumentversion:** 1.52 · **Stand:** 2026-10-14 · **Status:** Entwurf zur Abstimmung
 **Auftraggeber:** Jürgen Jesenko (privates Vorhaben) · **Umsetzung:** Claude Code
 
 > Ein Lastenheft beschreibt, **was** das Produkt leisten soll und **warum** — nicht,
@@ -641,6 +641,7 @@ Jede Übertragung vom Gerät weg, auch die unscheinbaren:
 | Sicherung von Hand (L-7.1) | vom Nutzer gewählt (Teilen-Dialog) | mit Kennwort verschlüsselte Vollsicherung samt Fotos | Tippen auf „Sicherung erstellen“ | je Vorgang | vorhanden |
 | Sicherung automatisch (L-7.2, L-7.6 ff.) | einmal gewählter Ordner, z. B. iCloud Drive oder Google Drive; Upload durch das Betriebssystem bzw. den Dokumentanbieter | mit Schlüssel verschlüsselte Vollsicherung samt Fotos | nach jeder Änderung höchstens täglich, beim Öffnen der App | **ja**, standardmäßig aus | vorhanden |
 | Diagnose der Belegerkennung, nur Android (L-2.20, L-27.1) | Google (Google ML Kit Texterkennung und Barcode-Erkennung, beide gebündelt in der App) | Nutzungs- und Diagnosedaten der Bibliotheken (z. B. Gerätetyp, Leistung, Fehler); **keine Bilder, kein erkannter Text** | Nutzung der Belegerkennung | nein, kein offizielles Abschalten; Erkennung insgesamt abschaltbar (L-2.23). Prüfung P-R19, P-D21 | vorhanden |
+| Rechnung über Link-QR (L-27.7) | Server der im QR-Code genannten Domain (Rechnungsaussteller bzw. dessen Dienstleister), direkt vom Gerät | Adresse aus dem QR-Code (kann eine Rechnungs- oder Kundenkennung enthalten), IP-Adresse, technische Verbindungsdaten; **keine Daten aus der App** | Tippen auf „Laden“ im Hinweisstreifen | je Vorgang | vorhanden |
 | EZB-Kursabruf (L-2.25, L-19.29) | Europäische Zentralbank, direkt vom Gerät | nur Abruf einer festen Kursdatei: IP-Adresse, Zeitpunkt, technische Verbindungsdaten; **keine Belegdaten, keine Währung, kein Betrag** | Tippen auf „Kurs abrufen“ | je Vorgang | vorhanden |
 | Foto-Zweitablage (L-2.11) | Fotobibliothek, ggf. deren Cloud | Belegfotos | Einschalten | ja | A |
 | UID-Prüfung auf Tippen (L-1.3) | EU-Kommission (VIES), direkt vom Gerät | UID, eigene UID als Anfragende, IP-Adresse | Tippen auf „Jetzt prüfen“ | je Vorgang | vorhanden |
@@ -1252,6 +1253,7 @@ Zu entscheiden, bevor die betroffene Anforderung umgesetzt wird:
 
 | Version | Datum | Änderung |
 |---|---|---|
+| 1.52 | 2026-10-14 | A3 umgesetzt in 0.10.0 (L-27.7, Spezifikation FA-2.42). Neuer Datenfluss „Rechnung über Link-QR“ in 5.19, PRIVACY und STORE_LISTING (L-19.5); Prüfung P-R35. |
 | 1.51 | 2026-10-14 | A2 umgesetzt in 0.9.0 (L-27.4 bis L-27.6, L-27.8; Spezifikation FA-2.38 bis FA-2.41). iOS-Teilen über „Öffnen in“ statt Share Extension. Keine neue Datenübertragung (5.19 unverändert). |
 | 1.50 | 2026-10-14 | Neu 5.27 (L-27.1 bis L-27.8: Codes, Teilen-Ziel, PDF/E-Rechnung, Link-QR) und O-32 (Plattform-Connectoren zurückgestellt). 5.19: Barcode-Erkennung von ML Kit in der bestehenden Diagnosezeile. A1 umgesetzt in 0.8.0. |
 | 1.49 | 2026-10-14 | L-3.31: Kundendokumente fest in Sie-Form, keine Du-Umschaltung (Entscheidung Auftraggeberin). |

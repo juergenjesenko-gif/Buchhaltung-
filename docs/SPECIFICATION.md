@@ -1,6 +1,6 @@
 # Spezifikation – Buchhaltung
 
-**Dokumentversion:** 1.48 · **App-Version:** 0.9.0 · **Stand:** 2026-10-14
+**Dokumentversion:** 1.49 · **App-Version:** 0.10.0 · **Stand:** 2026-10-14
 **Status:** Sprint 1 umgesetzt und verifiziert
 
 > Das **Zielbild** des Produkts steht im [`LASTENHEFT.md`](LASTENHEFT.md); dieses
@@ -410,6 +410,7 @@ prüft `InvoiceRequirements` (FA-1.4).
 | FA-2.39 | **PDF-Rechnungen** (L-27.5, 0.9.0): `DocumentImporter` liest die Datei (höchstens 20 MB). Eingebettete XML-Dateien (`/Type /EmbeddedFile`, ungefiltert oder `FlateDecode`) liest `PdfEmbeddedFiles` in reinem Dart. Seitenbilder (höchstens 5 Seiten, lange Kante 2000 px) liefert der Channel `buchhaltung/pdf`: Android `PdfRenderer`, iOS PDFKit. Android hat vor API 35 keine Textebene: die Seitenbilder laufen durch die Texterkennung (FA-2.19) samt Codes (FA-2.35). iOS liefert zusätzlich die Textebene (`PDFPage.string`); ab drei Zeilen ersetzt sie die Texterkennung. Paketwahl: keine PDF-Bibliothek – pdfrx (PDFium, mehrere MB je Architektur) und syncfusion_flutter_pdf (kommerzielle Lizenz) verworfen; XML über `package:xml` 7.1 (MIT, reines Dart) |
 | FA-2.40 | **E-Rechnung strukturiert** (L-27.6, `EInvoiceParser`, unabhängig vom Namensraum-Präfix): CII (`CrossIndustryInvoice`: ZUGFeRD 2.x, Factur-X, XRechnung-CII; EN 16931 / CEN/TS 16931-3-3), UBL 2.1 (`Invoice`, `CreditNote`: XRechnung-UBL; CEN/TS 16931-3-2), ebInterface 4.x–6.x (`Tax/VAT/VATItem` bzw. `Tax/TaxItem`). Übernommen: Nummer, Datum, Lieferant, UID, Währung, Brutto (GrandTotal/TaxInclusive/TotalGross), je Satz Bemessung und Steuer, IBAN (Prüfziffer). Beträge ohne Gleitkomma auf Cent (kaufmännisch), Sätze mit höchstens einer Promillestelle. DOCTYPE/ENTITY wird abgelehnt. Vorschlag (`ReceiptCodePrefill.fromEInvoice`): Aufteilung je Satz (Brutto = Bemessung + Steuer) nur, wenn die Summe exakt dem Rechnungsbetrag entspricht; Aussteller-UID eines anderen Staats bzw. unbekannter Satz bei Ausgaben → 0 % (FA-2.29); Fremdwährung → FA-2.21; Gutschrift → Hinweis; Beschreibung „Lieferant – Rechnung Nr“; IBAN in die Notiz; Vermerk „aus der E-Rechnung“. XML ohne bekanntes Format wird nicht übernommen |
 | FA-2.41 | **Originaldatei aufbewahren** (L-27.8, Schema 16 `receipt_documents`): PDF bzw. XML unverändert im Belegordner (`belege/`, damit in jeder Sicherung, 5.5a), SHA-256 beim Übernehmen, Eintrag erst beim Speichern des Belegs, `audit_log` `document` mit Name, Typ, Größe, Prüfsumme, Quelle. Trigger verbieten Ändern und Löschen. Im Formular je Datei „Original aufbewahrt · SHA-256 …“. Belegliste (8.2) Spalte „Originaldatei“. Ohne Speichern werden die Kopien gelöscht |
+| FA-2.42 | **Link-QR** (L-27.7, 0.10.0): steht auf dem Foto ein QR-Code mit `https`-Adresse (ohne Benutzerangabe), zeigt das Belegformular über der Speicherleiste den Streifen `LinkInvoiceStrip`: „QR-Code: Rechnung laden von“ und darunter die **Domain groß** (titleLarge, fett), Knöpfe „Im Browser öffnen“ und „Laden“ (je ≥ 48 dp, 12 dp Abstand) und „Hinweis schließen“ (48 dp). Geladen wird **nur nach Tipp** auf „Laden“ (`LinkInvoiceFetcher`, `dart:io` `HttpClient`, keine Cookies, kein Login, kein WebView): `followRedirects = false`; Weiterleitungen auf derselben Domain bis 5, eine **andere Domain** wird nicht angefragt, sondern im Streifen erneut angezeigt („Weiterleitung – Rechnung jetzt von“) und erst nach erneutem Tipp geladen. Übernommen wird nur ein Inhalt mit PDF-Signatur `%PDF` oder XML (`<?xml`, kein HTML), höchstens 20 MB (Content-Length und beim Lesen), Zeitlimit 30 s. Danach wie eine geteilte Datei (FA-2.39 bis FA-2.41, Quelle „Link ‹Domain›“). HTML, Login oder Fehlerstatus → Meldung „Bitte „Im Browser öffnen““; der Knopf öffnet die Adresse im Systembrowser (Channel `buchhaltung/launcher` `openUrl`, nur `https`) |
 | FA-2.18 | **Stornierte Belege lesbar**: Filter „Storniert“ in der Belegliste; die Ansicht ist schreibgeschützt (Hinweisbanner, kein Speichern), Kommentare bleiben anhängbar |
 
 ### 5.3 Kassabuch und Auswertung
@@ -808,6 +809,14 @@ neuer Empfänger. Geteilte Dateien (FA-2.38) kommen von einer anderen App auf
 das Gerät, nichts geht hinaus. PDF und E-Rechnungen (FA-2.39, FA-2.40)
 werden vollständig auf dem Gerät verarbeitet.
 
+**Rechnung über Link-QR (FA-2.42):** nur auf Tippen „Laden“ ruft die App die
+Adresse aus dem QR-Code beim Server dieser Domain ab (Betreiber ist der
+Rechnungsaussteller bzw. sein Dienstleister). Übertragen werden die Adresse
+(sie kann eine Rechnungs- oder Kundenkennung enthalten), IP-Adresse und
+technische Verbindungsdaten; keine Daten aus der App. Offengelegt in
+`PRIVACY.md`, Lastenheft 5.19 und `STORE_LISTING.md`; Prüfung P-R35.
+„Im Browser öffnen“ übergibt die Adresse an den Browser des Systems.
+
 **EZB-Kursabruf (FA-2.25):** nur auf Tippen „Kurs abrufen“ ruft die App eine
 feste Datei der Europäischen Zentralbank ab (`eurofxref-hist-90d.xml` bzw.
 `eurofxref-hist.xml`). Übertragen werden nur IP-Adresse und technische
@@ -971,6 +980,7 @@ Dauerfristverlängerung, `02-15,…` = feste Tage, `+1j07-31` = Folgejahr,
 
 | Version | Datum | App-Version | Änderung |
 |---|---|---|---|
+| 1.49 | 2026-10-14 | 0.10.0 | App-Version 0.10.0 (Testbuild), Stufe A3: Link-QR mit Hinweisstreifen, Laden nur nach Tipp, Domainwechsel nur nach erneuter Anzeige, nur PDF/XML ≤ 20 MB, sonst Browser (FA-2.42); neuer Datenfluss in 10.1. Neue Prüfpunkte P-R35, P-U6. |
 | 1.48 | 2026-10-14 | 0.9.0 | App-Version 0.9.0 (Testbuild), Stufe A2: PDF-Rechnungen (FA-2.39), E-Rechnungen CII/UBL/ebInterface (FA-2.40), Originaldatei mit SHA-256 in Sicherung und Belegliste (FA-2.41, Schema 16), Teilen-Ziel für PDF/XML und iOS „Öffnen in“ (FA-2.38). |
 | 1.47 | 2026-10-14 | 0.8.0 | App-Version 0.8.0 (Testbuild), Stufe A1: Codes auf dem Foto (FA-2.35 bis FA-2.38, Lastenheft L-27.1 bis L-27.4): Kassen-QR RKSV/TSE mit Vorrang bei Betrag, Datum, Sätzen, Zahlungs-QR EPC, Lernspeicher Kasse → Händler (Schema 15), Teilen-Ziel Android für Bilder. Neue Prüfpunkte P-S49, P-S50, P-U5. |
 | 1.46 | 2026-10-14 | 0.7.0 | App-Version 0.7.0 (Testbuild). Beleg mit mehreren Steuersätzen (FA-2.33, FA-2.34, Lastenheft L-2.27), Schema 14 mit `receipt_vat_lines`, Auswertungen und Exporte je Satz (8.2 bis 8.4). Fehlerbehebung Gerätetest 0.6.0: Kleinunternehmer-Ausgaben brutto, Balken-Mindesthöhe, Ladevorgang ohne Überschreiben (FA-3.2, FA-3.5, FA-3.7); Termin-Box ans Ende. Mahnwesen: neue Frist, Mahnsymbol mit Verlauf (FA-5.26, FA-5.27); Sie-Form in Kundendokumenten (FA-5.28); Hinweis Leistungsdatum (FA-5.29); eingebettete PDF-Schrift mit € (FA-5.30). Einhandbedienung links und rechts (FA-12.7). Neue Prüfpunkte P-S46 bis P-S48, P-L19, P-X7. |
@@ -1132,6 +1142,7 @@ Status: *offen* · *bestätigt* (mit Datum und Prüfer) · *widerlegt* (mit Folg
 | P-U3 | Steuernummer auf österreichischen Rechnungen nicht nötig; DE Steuernummer oder USt-IdNr. genügt | beide Prüfinstanzen | Release | offen |
 | P-U4 | Datenschutzerklärung und Store-Formulare (Google Data Safety, Apple Label) zur VIES-Abfrage durch Fachperson | Nutzerin Verantwortliche, Kommission Empfängerin, Anbieter unbeteiligt | erster Upload | offen |
 | P-U5 | Kassen- und Zahlungs-QR auf echtem Gerät: SPAR-/Hofer-/Billa-Bon mit RKSV-QR (auch zerknittert, schräg, schwaches Licht), deutscher TSE-Bon, Rechnung mit GiroCode; Vermerk „vom Kassen-QR“ sichtbar; Teilen eines Fotos aus Galerie und Mail öffnet den Buchungsvorschlag mit einer Hand | Emulator prüft nur synthetische QR-Bilder (FA-2.35); Korpus Belege 1–6 wird im CI-Artefakt `ocr-belege` auf Codes ausgewertet | Release | offen |
+| P-U6 | Link-QR auf echtem Gerät: Rechnung eines Anbieters mit QR-Link (z. B. Energie, Telefon), Streifen einhändig erreichbar, Domain lesbar, Laden einer PDF, Weiterleitung auf andere Domain zeigt neue Domain, HTML-Portal führt zu „Im Browser öffnen“ | Logik mit Testserver geprüft (`link_invoice_test.dart`), kein echter Anbieter | Release | offen |
 | P-B1 | Android: bietet die Google-Drive-App bei der Ordnerwahl (Storage Access Framework) Ordner an? Test auf Pixel und Samsung mit aktueller Drive-App. Wenn nein: Entscheidung über Anbindung der Drive-Schnittstelle | Drive bot lange keine Ordner an; unsicher | vor Release | **bestanden 2026-10-12** (Auftraggeberin, Pixel 10: Sicherung und automatische Sicherung nach Google Drive). Wiederherstellung aus Drive siehe P-B12 |
 | P-B2 | iOS: Bookmark auf einen iCloud-Drive-Ordner nach Neustart, Update und offline; Upload durch das System | — | vor Release | offen |
 | P-B3 | Laufzeit einer großen Sicherung (viele Fotos) beim Öffnen der App; Verhalten bei Wechsel in den Hintergrund | — | vor Release | offen |
@@ -1221,6 +1232,7 @@ Status: *offen* · *bestätigt* (mit Datum und Prüfer) · *widerlegt* (mit Folg
 | P-R32 | Mahnkosten 10 € je Mahnung (Entscheidung der Auftraggeberin): B2C nur angemessene, tatsächliche Kosten (AT § 1333 Abs 2 ABGB; DE §§ 280, 286 BGB, erste verzugsbegründende Mahnung nicht ersatzfähig, Rechtsprechung ca. 1–3 €). Genügt der Hinweis in der App, Entscheidung bei der Nutzerin? | Vorbefund Rechtsanwalt: 10 € gegenüber Verbrauchern regelmäßig zu hoch; Hinweis umgesetzt (FA-5.22) | Release | offen |
 | P-R33 | Wortlaut der Zahlungserinnerung und Mahnung (sachlich, ohne Drohung, UWG/§ 4a UWG, KSchG), Hinweis § 286 Abs 3 BGB auf DE-Verbraucherrechnungen | Texte in `DunningService.bodyText`, `TaxProfile.dunning.consumerDefaultNotice` | Release | offen |
 | P-R34 | Pauschale 40 € (§ 458 UGB, § 288 Abs 5 BGB) nur B2B, Anrechnung auf Rechtsverfolgungskosten; Verzugszinsen ohne Vereinbarung erst ab Verzug (DE: Mahnung oder 30 Tage mit Hinweis) | umgesetzt als Vorschlag, Entscheidung bei der Nutzerin | Release | offen |
+| P-R35 | Link-QR (FA-2.42): Abruf beim Server des Rechnungsausstellers auf Tippen – Rolle der Nutzerin bzw. des Anbieters (DSGVO), Offenlegung in Datenschutzerklärung und Google Data Safety/Apple Label (Datenerhebung durch die App ja/nein), Warnhinweis gegen Phishing ausreichend? | keine Daten aus der App, nur Adresse/IP an die gezeigte Domain; Domain groß, Wechsel nur nach erneuter Anzeige, kein Login in der App | erster Upload | offen |
 | P-R26 | Hilfe Stufe 2: Übermittlung der Frage an einen Server bzw. KI-Anbieter – Rechtsgrundlage, Auftragsverarbeitung, Drittlandtransfer, Eintrag in Datenflusstabelle und Store-Angaben | noch nicht gebaut | vor Stufe 2 | offen |
 | P-S11 | USt-Kette der Store-Abos: Leistung an Apple/Google in Irland, Reverse Charge, UID, ZM, UVA; gelten die Store-Abrechnungen als Gutschrift (§ 11 Abs 7 UStG AT)? | Kette sicher, Rechnungsstellung offen | erster Verkauf | offen |
 | P-S12 | Vorsteuerabzug für Unternehmerinnen aus Store-Quittungen | unklar; kein Versprechen in App oder Werbung | erster Verkauf | offen |

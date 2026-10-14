@@ -117,6 +117,11 @@ Data Safety daher zusätzlich: „App-Info und -Leistung – Absturzprotokolle /
 Diagnosedaten“, **geteilt mit Google**, verschlüsselt übertragen, nicht
 löschbar über die App, Zweck Analyse/App-Funktion – genaue Einordnung zu
 prüfen (P-R19, P-D21). Apple: Vision überträgt nichts, keine Angabe nötig.
+**Rechnung über Link-QR** (nur auf Tippen „Laden“): Abruf der Adresse aus
+dem QR-Code beim Server des Rechnungsausstellers; gesendet werden nur Adresse,
+IP-Adresse und Verbindungsdaten, keine Nutzerdaten aus der App. Wie beim
+EZB-Abruf voraussichtlich keine „Erhebung“ im Sinne von Google Data Safety
+bzw. Apple Privacy Label; Einordnung zu prüfen (P-R35).
 Alles andere bleibt auf dem Gerät, und Androids Auto-Backup ist
 per `data_extraction_rules.xml` deaktiviert. Die Datensicherung ist eine von
 der Nutzerin ausgelöste, mit ihrem Kennwort verschlüsselte Datei, die sie selbst

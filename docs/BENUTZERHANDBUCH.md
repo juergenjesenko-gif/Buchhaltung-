@@ -1,6 +1,6 @@
 # Benutzerhandbuch – Buchhaltung
 
-**Für App-Version 0.9.0** · Stand 2026-10-14
+**Für App-Version 0.10.0** · Stand 2026-10-14
 
 Dieses Handbuch beschreibt die App aus Nutzersicht. Es wird bei jeder Änderung,
 die du in der App siehst, mitgeführt – siehe [`CLAUDE.md`](../CLAUDE.md).
@@ -330,6 +330,28 @@ Rechnung als PDF aus der Mail, dem Kundenportal oder dem Download-Ordner:
 - Verlässt du das Formular ohne Speichern, wird die Kopie wieder gelöscht.
 
 Alles läuft auf deinem Telefon; die Datei wird nirgends hochgeladen.
+
+### Rechnung über einen QR-Link laden
+
+Manche Rechnungen und Bons tragen einen QR-Code mit einer Webadresse
+(„Rechnung online abrufen“). Erkennt die App so einen Code auf dem Foto,
+erscheint unten ein Streifen: **„QR-Code: Rechnung laden von“** und groß die
+**Domain**, z. B. *rechnung.energie-beispiel.at*.
+
+1. Prüf die Domain: Kennst du den Absender?
+2. Tipp auf **Laden**. Erst jetzt verbindet sich die App mit diesem Server.
+3. Kommt eine PDF- oder E-Rechnung zurück, übernimmt die App sie wie eine
+   geteilte Datei (siehe oben).
+
+- Leitet der Server auf eine **andere Domain** weiter, lädt die App nicht,
+  sondern zeigt die neue Domain im Streifen. Erst ein erneuter Tipp lädt.
+- Verlangt die Seite ein **Login** oder ist sie eine normale Webseite, tipp
+  auf **Im Browser öffnen**. In der App gibst du nie ein Passwort ein.
+- Nur sichere Adressen (https), nur PDF oder XML, höchstens 20 MB.
+- Mit **×** schließt du den Streifen.
+
+Datenschutz: Der Server des Rechnungsausstellers erfährt die Adresse aus dem
+QR-Code und deine IP-Adresse – sonst nichts aus der App.
 
 ### Belege in fremder Währung
 

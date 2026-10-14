@@ -49,6 +49,15 @@ import UIKit
             return
           }
           UIApplication.shared.open(url) { ok in result(ok) }
+        case "openUrl":
+          // Link-QR (L-27.7): „Im Browser öffnen“, nur https.
+          guard let text = call.arguments as? String, text.hasPrefix("https://"),
+            let url = URL(string: text)
+          else {
+            result(false)
+            return
+          }
+          UIApplication.shared.open(url) { ok in result(ok) }
         case "isSupported", "requestPin":
           result(false)
         default:
