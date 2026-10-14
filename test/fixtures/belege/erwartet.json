@@ -10,7 +10,13 @@
       "brutto": 1000,
       "uid": "ATU26016600",
       "rechnungsnummer": "37549",
-      "steuer": [{"promille": 200, "netto": 833, "steuer": 167}]
+      "steuer": [
+        {
+          "promille": 200,
+          "netto": 833,
+          "steuer": 167
+        }
+      ]
     },
     {
       "datei": "PXL_20261013_043853962.jpg",
@@ -31,8 +37,65 @@
       "waehrung": "DKK",
       "brutto": 68588,
       "uid": "CVR 33807910",
-      "steuer": [{"promille": 250, "netto": 54870, "steuer": 13718}],
+      "steuer": [
+        {
+          "promille": 250,
+          "netto": 54870,
+          "steuer": 13718
+        }
+      ],
       "anmerkung": "„HERAF MOMS“ = darin enthaltene Mehrwertsteuer 25 %; ausländische Vorsteuer ist im AT/DE-Inland nicht abziehbar."
+    },
+    {
+      "datei": "PXL_20261013_050737221.jpg",
+      "beschreibung": "Zahlungsbeleg Villacher Alpenstraßen (Maut), nur Kartenbeleg ohne Steuerausweis, im Auto, Display im Hintergrund",
+      "haendler": "Villacher Alpenstrassen GmbH",
+      "datum": "2026-09-05",
+      "waehrung": "EUR",
+      "brutto": 700,
+      "uid": "ATU25368606",
+      "steuer": [],
+      "anmerkung": "Kein Steuersatz auf dem Beleg; die App darf keinen erfinden. Ob ein Kartenbeleg ohne Steuerausweis zum Vorsteuerabzug reicht, klärt P-S28."
+    },
+    {
+      "datei": "PXL_20261013_050750093.MP.jpg",
+      "beschreibung": "SPAR Kassenbon AT, zerknittert, Daumen verdeckt „Summe“, zwei Steuersätze",
+      "haendler": "SPAR",
+      "datum": "2026-09-10",
+      "waehrung": "EUR",
+      "brutto": 857,
+      "uid": null,
+      "steuer": [
+        {
+          "promille": 49,
+          "netto": 484,
+          "steuer": 24
+        },
+        {
+          "promille": 100,
+          "netto": 317,
+          "steuer": 32
+        }
+      ],
+      "anmerkung": "Ermäßigter Satz 4,9 % auf Grundnahrungsmittel (AT ab 2026) – muss im TaxProfile Österreich vorhanden sein (P-S29). Summe der Zeilen 5,08 + 3,49 = 8,57."
+    },
+    {
+      "datei": "PXL_20261014_045325288.MP.jpg",
+      "beschreibung": "Vignetten-/Mautbeleg DARS Slowenien, Slowenisch, zerknittert, nachts im Auto",
+      "haendler": "DARS d.d.",
+      "datum": "2026-10-03",
+      "waehrung": "EUR",
+      "brutto": 900,
+      "uid": "SI92473717",
+      "rechnungsnummer": "U109-1122-260296226",
+      "steuer": [
+        {
+          "promille": 220,
+          "netto": 738,
+          "steuer": 162
+        }
+      ],
+      "anmerkung": "Slowenische DDV 22 % erkennen, aber als ausländische Umsatzsteuer nicht als Vorsteuer abziehbar → 0 % vorbelegen (P-S27). Schlüsselwörter: Skupaj EUR, DDV %, Osnova za DDV, Znesek DDV, Datum in čas izdaje."
     }
   ]
 }
