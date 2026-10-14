@@ -5,14 +5,9 @@ Textvorlagen für Google Play und den App Store. Deutsch, weil die Zielgruppe
 
 ## Name
 
-**Buchhaltung** (30 Zeichen Limit bei Google Play)
-
-Der Name ist generisch und in beiden Stores wahrscheinlich vergeben. Für die
-Einreichung braucht es einen unterscheidbaren Namen, zum Beispiel:
-
-- „Belegheft – Buchhaltung"
-- „Kassabuch AT/DE"
-- „<Eigenname> Buchhaltung"
+Platzhalter **Buchhaltung** (30 Zeichen Limit bei Google Play). Arbeitstitel
+„Jenny Bar“ bzw. „Jenni bucht“; der endgültige Name folgt erst nach der
+Markenrecherche (Lastenheft O-2, O-25; Spezifikation 14, P-R7).
 
 ## Kurzbeschreibung (Google Play, max. 80 Zeichen)
 
@@ -30,12 +25,18 @@ Belege, Rechnungen, Export
 
 ```
 Buchhaltung für Einzelunternehmer und Kleinunternehmer in Österreich und
-Deutschland. Ohne Konto, ohne Abo-Zwang, ohne Cloud.
+Deutschland. Ohne Konto beim Anbieter, deine Daten bleiben auf dem Gerät.
 
 BELEGE STATT SCHUHKARTON
-Beleg abfotografieren, Bruttobetrag eintippen – Netto und Umsatzsteuer rechnet
-die App heraus. Kategorie und Zahlungsart mit zwei Tipps dazu, fertig. Alles
-bleibt durchsuchbar, nach Monaten geordnet.
+Beleg abfotografieren – Betrag, Datum, Steuersatz und Händler schlägt die App
+vor, auch aus dem QR-Code der Registrierkasse. Mehrere Steuersätze auf einem
+Beleg, Belege in fremder Währung, PDF- und E-Rechnungen (XRechnung, ZUGFeRD,
+ebInterface) per Teilen übernehmen. Alles bleibt durchsuchbar, nach Monaten
+geordnet.
+
+VERKÄUFE AUF PLATTFORMEN
+Monatsberichte von Amazon, PayPal, Shopify und Stripe teilen – die App fasst
+Verkäufe, Gebühren und Auszahlungen je Monat zusammen.
 
 DEINE ZAHLEN JEDERZEIT
 Einnahmen, Ausgaben und Ergebnis für Monat, Quartal oder Jahr. Umsatzsteuer je
@@ -50,7 +51,8 @@ RECHNUNGEN, DIE HALTEN
 Kunden einmal anlegen, Positionen erfassen, fertig. Die App prüft die
 Pflichtangaben nach § 11 UStG bzw. § 14 UStG mit – auch das Leistungsdatum, das
 am häufigsten fehlt. Kleinunternehmer bekommen automatisch den vorgeschriebenen
-Hinweistext statt einer Umsatzsteuerzeile. Als PDF direkt aus der App verschicken.
+Hinweistext statt einer Umsatzsteuerzeile. Rabatt, Skonto und Versandkosten,
+Zahlungserinnerung und Mahnung. Als PDF direkt aus der App verschicken.
 
 ÜBERGABE AN DIE KANZLEI
 Belegliste als CSV, DATEV-Buchungsstapel für Deutschland, BMD-Format für
@@ -59,8 +61,9 @@ Bemessungsgrundlagen. Zeitraum wählen, Vorschau prüfen, teilen.
 
 DEINE DATEN BLEIBEN DEINE
 Alles liegt auf deinem Gerät. Kein Server, kein Nutzerkonto, keine Werbung, keine
-Analyse. Daten verlassen das Telefon nur, wenn du selbst teilst oder eine
-UID-Nummer beim EU-Prüfsystem prüfen lässt.
+Analyse. Daten verlassen das Telefon nur, wenn du selbst teilst, sicherst, eine
+UID-Nummer prüfen lässt, einen Wechselkurs abrufst oder eine Rechnung über
+einen QR-Link lädst. App-Sperre mit PIN oder Fingerabdruck.
 
 Hinweis: Diese App unterstützt bei der Buchhaltung, ist aber keine
 Steuerberatung und keine Registrierkasse nach RKSV.
@@ -132,7 +135,7 @@ Partner und gilt daher nicht als Datenerhebung.
 ## Altersfreigabe
 
 Ohne Einschränkung. Keine nutzergenerierten Inhalte, keine Interaktion zwischen
-Nutzern, keine Käufe.
+Nutzern. Heute keine Käufe; mit dem Abo (Lastenheft 5.22) In-App-Käufe angeben.
 
 ## Werbe-Negativliste
 

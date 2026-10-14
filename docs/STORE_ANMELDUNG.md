@@ -28,7 +28,7 @@ Firmenbuch eingetragenes e.U. als Organisation durchgeht, ist nicht gesichert
 
 **Empfehlung:** Google als **Organisation** versuchen (D-U-N-S beantragen, dauert
 bis 30 Tage). Lehnt Google ab, Konto als Privatperson anlegen und den 14-Tage-Test
-mit 12 Testerinnen einplanen – die Beta mit der Zielgruppe (P-Z1) deckt das ohnehin ab.
+mit 12 Testerinnen einplanen – die Beta mit der Zielgruppe (P-D27) deckt das ohnehin ab.
 
 ## Reihenfolge
 

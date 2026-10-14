@@ -692,7 +692,7 @@ gewollt. Korrekturen laufen über eine Storno- oder Gutschriftsrechnung.
 > **Hinweis:** Storno- und Gutschriftsrechnungen kann diese Version noch nicht.
 > Wenn du eine gestellte Rechnung korrigieren musst, kannst du sie derzeit nur
 > stornieren und eine neue schreiben; das Storno-Dokument musst du außerhalb der
-> App erstellen. Die Funktion ist für die nächste Version geplant.
+> App erstellen. Die Funktion ist geplant.
 
 ### Die Checkliste am Ende
 
@@ -1195,13 +1195,15 @@ Damit du nicht darauf wartest:
   Registrierkassensicherheitsverordnung nicht. Wer mehr als 15.000 € Umsatz und
   7.500 € Barumsätze im Jahr hat, braucht zusätzlich eine
   registrierkassenpflichtige Lösung.
-- **Keine E-Rechnung.** Das PDF der App ist keine strukturierte E-Rechnung
-  (XRechnung, ZUGFeRD, ebInterface). Für Geschäftskunden in Deutschland wird das
-  mittelfristig wichtig.
+- **E-Rechnungen nur empfangen.** Eingehende E-Rechnungen (XRechnung,
+  ZUGFeRD, ebInterface) übernimmt die App. Deine eigenen Rechnungen sind ein
+  PDF, keine strukturierte E-Rechnung. Für Geschäftskunden in Deutschland wird
+  das mittelfristig wichtig.
 - **Keine Storno-/Gutschriftsrechnung** – geplant
 - **Die Belegerkennung merkt sich noch keine Korrekturen.** Änderst du
   Beschreibung oder Kategorie eines Händlers, schlägt sie beim nächsten Beleg
-  wieder dasselbe vor. Geplant.
+  wieder dasselbe vor. Gemerkt wird nur, welcher Händler zu einer Kasse mit
+  Kassen-QR gehört. Mehr ist geplant.
 - **Keine Kürzung bei Bewirtung.** Bewirtungsbelege werden nach Steuersätzen
   aufgeteilt, aber voll gezählt; die steuerliche Kürzung macht deine Kanzlei.
 - **Keine Lohnverrechnung, keine Bilanz, keine doppelte Buchführung**

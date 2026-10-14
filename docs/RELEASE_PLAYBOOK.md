@@ -59,11 +59,13 @@ Store), wird in `docs/RELEASE_NOTES.md` ein Eintrag angelegt: Abschnitt
 *Unveröffentlicht* übernehmen, Pflichtfelder ausfüllen, `version` in
 `pubspec.yaml` im selben Commit erhöhen. Setzt die CI eine abweichende
 Buildnummer (`github.run_number`), wird sie im Feld *Prüfung* mit Link zum
-CI-Lauf vermerkt. Nach dem Build:
+CI-Lauf vermerkt. Testbuilds bekommen keinen Git-Tag (Entscheidung Auftraggeber
+2026-10-14), der Eintrag nennt den Commit-Hash. Nur für Store-Releases ab 1.0.0
+nach dem Build, z. B. über GitHub Releases:
 
 ```bash
-git tag -a v0.2.0+2 -m "Release 0.2.0+2, siehe docs/RELEASE_NOTES.md"
-git push origin v0.2.0+2
+git tag -a v1.0.0+N -m "Release 1.0.0+N, siehe docs/RELEASE_NOTES.md"
+git push origin v1.0.0+N
 ```
 
 ## Android: Google Play
@@ -175,7 +177,7 @@ werden (`teamID`).
 3. Datenschutzerklärung veröffentlichen (GitHub Pages genügt)
 4. Icon und Screenshots erstellen
 5. Android intern testen → iOS über TestFlight testen
-6. Backlog F1 (Backup) umsetzen – vor dem öffentlichen Release, nicht danach
+6. ~~Backlog F1 (Backup) umsetzen~~ – erledigt seit 0.2.0 (manuelle und automatische Sicherung)
 7. Geschlossener Test mit echten Nutzern, mindestens einen Monatsabschluss lang
 8. Produktion
 

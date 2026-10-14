@@ -408,7 +408,7 @@ class SonnigTheme {
 }
 ```
 
-`AppTokens` (`lib/core/theme/app_tokens.dart`) ist gemeinsam für alle
+`AppTokens` (`lib/core/theme/app_tokens.dart`, entsteht mit der ersten Variante; heute gibt es nur `lib/theme.dart`) ist gemeinsam für alle
 Varianten und enthält die Felder aus Abschnitt 2 mit `copyWith`/`lerp`. Die
 heutige `lib/theme.dart` wird beim ersten Variantenbau zur Variante „Basis“
 überführt (Refactoring ohne Verhaltensänderung).

@@ -165,13 +165,16 @@ eigenen Upload-Key signierten Build. Siehe
 
 ## Was du beim ersten Durchgang prüfen solltest
 
-Ein Vorschlag für einen sinnvollen Testlauf – er deckt jede Funktion aus Sprint 1
-ab und dauert etwa zehn Minuten:
+Ein Vorschlag für einen sinnvollen Grundtestlauf – er deckt die Kernfunktionen
+ab und dauert etwa zehn Minuten. Für neuere Funktionen (Belegerkennung, QR-Codes,
+PDF- und E-Rechnungen, Mahnwesen, Plattformexporte, Hilfe, App-Sperre) stehen
+die Gerätetests als Prüfpunkte in `SPECIFICATION.md` Abschnitt 14 (P-D, P-U, P-X):
 
 1. **Onboarding** – Firma anlegen, Land Österreich, Kleinunternehmer **an**,
    Anschrift vollständig, IBAN eintragen
-2. **Ausgabe erfassen** – Beleg fotografieren, `12,50` eintippen, prüfen dass die
-   USt-Aufschlüsselung erscheint, Beschreibung setzen, speichern
+2. **Ausgabe erfassen** – „Beleg fotografieren“, prüfen dass Betrag, Datum und
+   Steuersatz vorgeschlagen werden (sonst `12,50` eintippen), USt-Aufschlüsselung
+   prüfen, speichern
 3. **Einnahme erfassen** – über das grüne Symbol, z. B. `1.200,00`
 4. **Übersicht** – stimmen Einnahmen, Ausgaben, Ergebnis? Erscheint die
    Kleinunternehmer-Ampel?
@@ -202,7 +205,7 @@ schreiben, der den Fehler festnagelt.
 Ohne Telefon, in Sekunden:
 
 ```bash
-flutter test           # 109 Tests
+flutter test           # über 400 Tests
 flutter analyze        # statische Analyse
 ```
 
@@ -211,9 +214,9 @@ Beträge, Rechnungsnummern, Grenzwertüberwachung für beide Länder, alle
 Exportformate byteweise, PDF-Erzeugung, und der Abgleich der Spezifikation mit
 dem Code.
 
-Was sie **nicht** abdecken: die Oberfläche. Es gibt noch keine Widget-Tests. Ob
-ein Knopf am richtigen Platz sitzt und ob sich die App gut anfühlt, findest du
-nur auf einem echten Gerät heraus.
+Was sie nur teilweise abdecken: die Oberfläche. Widget-Tests prüfen einzelne
+Bildschirme (z. B. Einhandbedienung, Speicherleiste, Rechnungsformular, Tablet-
+Layout). Ob sich die App gut anfühlt, findest du nur auf einem echten Gerät heraus.
 
 ### Belegerkennung im Android-Emulator (CI)
 

@@ -6,16 +6,30 @@ schreiben, Daten an die Steuerberatung übergeben.
 
 Flutter-App für Android und iOS. Offline-first: alle Daten liegen auf dem Gerät.
 
-## Was die App kann (Stand Sprint 1)
+## Stand der App
 
-| Bereich | Umfang |
+**Aktuelle Version: 0.11.0 (Testbuild vom 2026-10-14).** Noch nicht im Store.
+Was in welcher Version kam: [`docs/RELEASE_NOTES.md`](docs/RELEASE_NOTES.md);
+Zuordnung zu den Anforderungen: Lastenheft Abschnitt 10a.
+
+| Bereich | Was die App heute kann |
 |---|---|
-| **Firmenprofil** | Land (AT/DE), Rechtsform, Anschrift, Steuernummer/UID, Kleinunternehmerregelung, Bankverbindung, Rechnungsnummernkreis |
-| **Belege** | Foto aufnehmen oder auswählen, Bruttobetrag eingeben, USt wird herausgerechnet, Kategorie und Zahlungsart, Suche und Monatsgruppierung |
-| **Kassabuch** | Einnahmen-Ausgaben-Rechnung je Monat/Quartal/Jahr, Umsatzsteuer je Satz, Zahllast oder Guthaben, 6-Monats-Verlauf |
-| **Kleinunternehmer-Monitor** | Ampel zur Umsatzgrenze mit den unterschiedlichen Regeln für AT und DE |
-| **Rechnungen** | Kundenstamm, Positionen mit Teilmengen, fortlaufende Nummer, Pflichtangaben-Prüfung, PDF zum Teilen, Status (Entwurf/Gestellt/Bezahlt/Storniert) |
-| **Export** | Belegliste als CSV, DATEV-Buchungsstapel (DE), BMD-Buchungssätze (AT), Umsatzsteuer-Zusammenfassung |
+| **Einrichten** | Firmenprofil AT/DE, Kleinunternehmerregelung, Logo, Wirtschaftsjahr, Eröffnungswerte, Bestätigungen vor der ersten Nutzung |
+| **Belege** | Foto mit mehreren Seiten, automatisches Auslesen (Betrag, Datum, Steuersatz, Händler, Rechnungsnummer), Kassen-QR (AT/DE) und Zahlungs-QR, mehrere Steuersätze je Beleg, Fremdwährung mit EZB-Kurs, Kommentare, Storno statt Löschen |
+| **Übernehmen** | Bilder, PDF- und E-Rechnungen (XRechnung, ZUGFeRD, ebInterface) per Teilen bzw. „Öffnen in“, Rechnung über Link-QR, Monatsberichte von Amazon, PayPal, Shopify und Stripe |
+| **Zahlen** | Einnahmen-Ausgaben-Rechnung, Umsatzsteuer je Satz inkl. Reverse Charge, Kleinunternehmer-Ampel, Termin-Box mit den nächsten Steuerterminen |
+| **Rechnungen** | Kunden, Positionen, Rabatt, Versand, Skonto, AGB-Verweis, Pflichtangaben-Prüfung, PDF senden, „Bezahlt“ bucht die Einnahme, Zahlungserinnerung und Mahnungen mit Mahnkosten und Zinsen |
+| **Export** | Belegliste CSV, DATEV (DE), BMD (AT), Umsatzsteuer-Zusammenfassung |
+| **Sicherheit** | Verschlüsselte Sicherung (manuell oder automatisch in einen eigenen Ordner), App-Sperre mit PIN oder Fingerabdruck/Face ID |
+| **Bedienung** | Einhändig mit dem Daumen, Tablet- und Querformat, Hilfe mit Suche im Handbuch und Support-Mail |
+
+**Offen bis zum Store-Start** (Einzelheiten: [`docs/STORE_READINESS.md`](docs/STORE_READINESS.md)):
+
+1. **Entscheidungen der Auftraggeberin:** Produktname nach Markenrecherche (O-2, O-25), Verifizierung von E-Mail/Telefon (O-30), Haftpflicht (O-26)
+2. **Konten:** D-U-N-S-Nummer, Google-Play-Organisationskonto, Apple Developer Program
+3. **Funktionen aus Stufe A:** Storno- bzw. Korrekturrechnung, Angebote, Artikelverwaltung, Menü „Rechtliches“, Lizenz und Abo
+4. **Technik:** eigenes App-Symbol, Privacy Manifest (iOS), Store-Upload im Release-Workflow, Formulare (Data Safety, Privacy Labels)
+5. **Prüfung in der realen Welt:** Rechtstexte, Steuerberatung (Probeexporte), Gerätetests – alle Punkte in [`docs/SPECIFICATION.md`](docs/SPECIFICATION.md) Abschnitt 14
 
 ## Architektur
 
@@ -32,9 +46,10 @@ lib/
 │   ├── vat_calculator.dart        Umsatzsteuer auf ganzen Cent
 │   ├── invoice_numbering.dart     Fortlaufende Rechnungsnummern
 │   ├── small_business_monitor.dart Umsatzgrenzen AT/DE
-│   ├── invoice_pdf.dart
-│   ├── receipt_image_store.dart
-│   ├── share_service.dart
+│   ├── invoice_pdf.dart, dunning_*.dart  Rechnung, Mahnwesen
+│   ├── receipt_scan/              Belegerkennung, QR-Codes, E-Rechnung
+│   ├── platform_import/           Amazon, PayPal, Shopify, Stripe
+│   ├── backup/, app_lock/, help/  Sicherung, App-Sperre, Hilfe
 │   └── export/                    CSV, DATEV, BMD
 ├── data/            SQLite-Schema und Repositories
 ├── features/        Ein Ordner je Bildschirm
@@ -67,15 +82,17 @@ Voraussetzung: Flutter 3.47 oder neuer.
 ```bash
 flutter pub get
 flutter analyze          # muss ohne Befund durchlaufen
-flutter test             # 109 Tests
+flutter test             # über 400 Tests
 flutter run              # auf angeschlossenem Gerät oder Emulator
 ```
 
 ## Testen
 
 Die CI baut bei jedem Push ein installierbares Release-APK. Herunterladen unter
-**Actions → letzter Lauf → Artifacts → `test-apk`**, darin
-`app-arm64-v8a-release.apk` – dafür braucht es auf dem eigenen Rechner nichts.
+**Actions → letzter Lauf → Artifacts → `Buchhaltung-<Version>-build-<Nummer>.apk`**
+(direkt die APK, nicht gezippt) – dafür braucht es auf dem eigenen Rechner nichts.
+Aus der Claude-App: im Fenster ⋮ → „In Chrome öffnen“, sonst wird die Datei
+nicht gespeichert.
 
 Schritt für Schritt, inklusive lokalem Setup und einem Testlauf, der jede
 Funktion abdeckt: [`docs/TESTEN.md`](docs/TESTEN.md)
@@ -91,12 +108,12 @@ flutter build ipa --release         # App Store
 
 ## Dokumentation
 
-Die beiden zentralen Dokumente werden mit jeder Codeänderung mitgeführt:
+Die zentralen Dokumente werden mit jeder Codeänderung mitgeführt:
 
 - [`docs/LASTENHEFT.md`](docs/LASTENHEFT.md) – **Lastenheft.** Das Zielbild des
   Produkts: Geschäftsziele, Zielgruppe, numerierte Anforderungen mit Priorität
   und Ausbaustufe, Abgrenzung, Risiken und offene Punkte.
-- [`docs/SPECIFICATION.md`](docs/SPECIFICATION.md) – **Spezifikation.** Was die App
+- [`docs/SPECIFICATION.md`](docs/SPECIFICATION.md) – **Spezifikation (Pflichtenheft).** Was die App
   tut, mit numerierten Anforderungen, Datenmodell, Zustandsmodellen,
   Exportformaten und offen benannten Grenzen.
 - [`docs/BENUTZERHANDBUCH.md`](docs/BENUTZERHANDBUCH.md) – **Benutzerhandbuch.**

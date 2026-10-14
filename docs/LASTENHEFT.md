@@ -1,6 +1,6 @@
 # Lastenheft – Buchhaltungsapp für Österreich und Deutschland
 
-**Dokumentversion:** 1.53 · **Stand:** 2026-10-14 · **Status:** Entwurf zur Abstimmung
+**Dokumentversion:** 1.54 · **Stand:** 2026-10-14 · **Status:** Entwurf zur Abstimmung
 **Auftraggeber:** Jürgen Jesenko (privates Vorhaben) · **Umsetzung:** Claude Code
 
 > Ein Lastenheft beschreibt, **was** das Produkt leisten soll und **warum** — nicht,
@@ -21,11 +21,11 @@
 7. [Rechtliche Anforderungen](#7-rechtliche-anforderungen)
 8. [Schnittstellen](#8-schnittstellen)
 9. [Abgrenzung](#9-abgrenzung)
-10. [Ausbaustufen](#10-ausbaustufen)
+10. [Ausbaustufen](#10-ausbaustufen) · [10a. Umsetzungsstand](#10a-umsetzungsstand)
 11. [Abnahmekriterien](#11-abnahmekriterien)
 12. [Rahmenbedingungen und Annahmen](#12-rahmenbedingungen-und-annahmen)
 13. [Risiken](#13-risiken)
-14. [Offene Punkte](#14-offene-punkte)
+14. [Offene Punkte](#14-offene-punkte) · [14a. Entscheidungen der Auftraggeberin](#14a-entscheidungen-der-auftraggeberin)
 15. [Änderungshistorie](#15-änderungshistorie)
 
 ---
@@ -40,6 +40,14 @@ ohne Konto, Android und iOS. 109 automatisierte Tests, CI grün.
 Dieses Lastenheft hebt das Vorhaben von einem Werkzeug für den Eigenbedarf auf ein
 **kommerzielles Produkt**. Damit ändern sich Anspruch, Umfang und Rechtsrahmen
 grundlegend — der bestehende Code bleibt Grundlage, ist aber nicht das Ziel.
+
+**Stand 2026-10-14 (App-Version 0.11.0, Testbuild):** Seit Sprint 1 sind unter
+anderem Datensicherung (manuell und automatisch), App-Sperre, Belegerkennung mit
+Kassen- und Zahlungs-QR, PDF- und E-Rechnungs-Übernahme, Fremdwährung, Belege mit
+mehreren Steuersätzen, Rabatt/Skonto/Versand, Mahnwesen, Wirtschaftsjahr,
+Termin-Box, Hilfe, Tablet-Layout, Einhandbedienung und der Import von
+Plattformexporten umgesetzt. Welche Anforderung in welcher Version umgesetzt
+wurde, zeigt Abschnitt 10a; Datenbankschema 17, über 400 automatisierte Tests.
 
 ---
 
@@ -65,6 +73,11 @@ gemessen, wie viele Schritte, Eingaben und Entscheidungen sie verlangt.
 | L-0.3 | Wiederkehrende Bestätigungen werden mit der Hauptaktion zusammengelegt (z. B. Vollständigkeit = Speichern) | MUSS | A |
 | L-0.4 | Gebuchte Belege gelten als betrieblich; die App stellt das nicht in Frage | MUSS | A |
 | L-0.5 | Jede neue Funktion wird vor der Umsetzung auf die Zahl der Schritte geprüft; der kürzere Weg gewinnt | MUSS | A |
+| L-0.6 | **Einhandbedienung mit dem Daumen**, links wie rechts gleich gut: Hauptaktion zentriert bzw. volle Breite unten, Zielflächen ≥ 48 dp, Gefahrenknöpfe abgesetzt. **Keine Händigkeits-Einstellung** (Entscheidung Auftraggeberin 2026-10-14, DESIGN_SPEC 5a). Umgesetzt in 0.6.0 und 0.7.0 (Spezifikation FA-12.1 bis FA-12.7) | MUSS | A |
+
+Umsetzungsstand L-0.1 bis L-0.5: Belegerkennung und Vorschläge seit 0.3.0,
+Kassen-QR seit 0.8.0; Vollständigkeit = Speichern seit 0.2.0 (FA-2.14);
+Belege werden ohne Rückfrage zur betrieblichen Veranlassung gebucht.
 
 ### 2.2 Geschäftsziele
 
@@ -879,7 +892,7 @@ Charge) und erhält die Auszahlung abzüglich Provision.
 
 ---
 
-## 5.23 Vertragsarchiv (Stufe C)
+### 5.23 Vertragsarchiv (Stufe C)
 
 Wunsch der Auftraggeberin vom 2026-10-12; geprüft von Steuerberater und
 Rechtsanwalt (Prüfpunkte P-S16 bis P-S18, P-L14 bis P-L17 in Spezifikation
@@ -907,6 +920,7 @@ Wirtschaftsjahr in AT nur für im Firmenbuch eingetragene, bilanzierende
 Unternehmer mit Zustimmung des Finanzamts (§ 2 Abs 5 EStG), in DE nur für im
 Handelsregister eingetragene Gewerbetreibende (§ 4a EStG); EÜR-Rechner praktisch
 Kalenderjahr. Real zu prüfen: Spezifikation 14, P-S32.
+**Umgesetzt in 0.3.5** (Spezifikation GR-10, FA-10.1, FA-10.2).
 
 | ID | Anforderung | Priorität | Stufe |
 |---|---|---|---|
@@ -921,6 +935,9 @@ Kalenderjahr. Real zu prüfen: Spezifikation 14, P-S32.
 Entscheidung der Auftraggeberin 2026-10-14: Stufe 1 nur Anzeige auf der
 Übersicht, keine Benachrichtigungen, kein neues Paket. Real zu prüfen:
 Spezifikation 14, P-S33, P-S34, P-R24.
+**L-25.1 bis L-25.7 und L-25.9 umgesetzt in 0.3.5** (Spezifikation FA-10.3 bis
+FA-10.6, GR-11); die Termin-Box steht seit 0.7.0 am Ende der Übersicht. L-25.8
+offen (Stufe B).
 
 | ID | Anforderung | Priorität | Stufe |
 |---|---|---|---|
@@ -949,7 +966,8 @@ Spezifikation 14, P-R25, P-R26 (Stufe 2), P-D26.
 | L-26.5 | Ohne Treffer: E-Mail an den Support über die Mail-App, Betreff mit App-Version, keine Daten automatisch angehängt | MUSS | A |
 | L-26.6 | Stufe 2: Antworten durch ein KI-Modell auf einem Server, als KI gekennzeichnet, Opt-in, nur mit Prüfung P-R25/P-R26 | KANN | B |
 
-Umsetzung Stufe 1: Spezifikation 5.8, FA-11.1 bis FA-11.3.
+Umsetzung Stufe 1: Spezifikation 5.8, FA-11.1 bis FA-11.3; **L-26.1 bis L-26.5
+umgesetzt in 0.3.5**. L-26.6 offen (O-32).
 
 ### 5.27 Belege aus Codes, PDF und E-Rechnungen übernehmen
 
@@ -958,7 +976,10 @@ Teilen-Ziel), A2 (PDF und E-Rechnungen), A3 (Link-QR) und B1 umsetzen; echte
 Plattform-Schnittstellen (B2) zurückgestellt (O-32). Alles läuft auf dem
 Gerät; einzige neue Übertragung ist der Abruf über einen Link-QR nach Tipp
 (L-27.7, 5.19). Real zu prüfen: Spezifikation 14, P-S49, P-S50, P-R35, P-U5,
-P-U6.
+P-U6. **Umgesetzt:** A1 (L-27.1 bis L-27.3, L-27.4 für Bilder) in 0.8.0, A2
+(L-27.4 für PDF/XML, L-27.5, L-27.6, L-27.8) in 0.9.0, A3 (L-27.7) in 0.10.0.
+Die Kürzel A1–A3, B1, B2 bezeichnen Umsetzungsschritte dieses Blocks, nicht die
+Ausbaustufen A/B/C aus Abschnitt 10.
 
 | ID | Anforderung | Priorität | Stufe |
 |---|---|---|---|
@@ -978,7 +999,7 @@ Plattform herunter und teilt ihn an die App. Echte Schnittstellen bleiben
 Stufe B2 (O-32). Befund Steuerberater 2026-10-14 verbindlich (Bruttoprinzip,
 Reverse Charge auch beim Kleinunternehmer). Real zu prüfen: Spezifikation 14,
 P-S51 bis P-S55, P-R36, P-U7. Umsetzung 0.11.0: Spezifikation FA-2.43 bis
-FA-2.49, FA-3.3, FA-3.4.
+FA-2.49, FA-3.3, FA-3.4. **L-28.1 bis L-28.7 umgesetzt in 0.11.0.**
 
 | ID | Anforderung | Priorität | Stufe |
 |---|---|---|---|
@@ -1081,6 +1102,13 @@ Zielbilds. Der Auftraggeber hat für die erste veröffentlichte Version den voll
 Umfang der Stufen A und B benannt; die Trennung dient der Planbarkeit und der
 Möglichkeit, früher Rückmeldung von echten Nutzern zu bekommen.
 
+**Stand 0.11.0:** Teile der Stufe B sind vorgezogen und umgesetzt
+(Belegerkennung, E-Rechnung **empfangen**, Zahlungserinnerung und Mahnwesen,
+Belegübernahme über den Teilen-Dialog, Plattformexporte als Datei). Aus Stufe A
+fehlen noch u. a. Storno-/Korrekturrechnung, Angebote, Artikelverwaltung,
+Zweitablage der Belegfotos, Rechtliches-Menü, Sprachdateien und die Store-Reife
+(Release-Workflow, Privacy Manifest, Formulare). Einzelstand: Abschnitt 10a.
+
 ### Stufe A — veröffentlichungsfähig
 
 Das Produkt ist verkaufbar und löst das Kernproblem. Enthält alles aus Sprint 1
@@ -1171,6 +1199,31 @@ bis sechs Wochen hinzu.
 
 ---
 
+## 10a. Umsetzungsstand
+
+Welche Anforderungen in welcher App-Version umgesetzt sind. Maßgeblich für das
+Verhalten ist die Spezifikation; je Version die Release Notes. Nicht genannte
+Anforderungen sind offen.
+
+| Version | Umgesetzte Anforderungen | Spezifikation |
+|---|---|---|
+| 0.1.0 | Sprint 1: Firmenprofil, Belege mit Foto, EÜR, Kleinunternehmer-Ampel, Rechnungen mit PDF, Exporte CSV/DATEV/BMD/USt; Eröffnungswerte (L-16.1, L-16.2, L-16.11), Belegstorno | 5.1 bis 5.6 |
+| 0.2.0 | Datensicherung manuell und automatisch (L-7.1 bis L-7.11), Mehrseiten-Belege und Kommentare (L-2.15 bis L-2.18), Bestätigungen (L-17.1 bis L-17.4), App-Sperre (L-22.30), UID-Prüfung, Logo | 5.5a, 5.5b, FA-2.13 ff. |
+| 0.3.0 – 0.3.4 | Belegerkennung (L-2.20 bis L-2.23), Fremdwährung (L-2.24 bis L-2.26, L-13.3, L-19.29), mehrsprachige Erkennung, Steuersatz 4,9 % AT ab 1.7.2026 | FA-2.19 bis FA-2.32 |
+| 0.3.5 | Wirtschaftsjahr (L-24), Termin-Box (L-25.1 bis L-25.7), bezahlte Rechnung als Einnahme (L-25.9), Hilfe Stufe 1 (L-26.1 bis L-26.5) | 5.6a, 5.8 |
+| 0.4.0 | Rabatt, Versand, Skonto, AGB-Verweis (L-3.21 bis L-3.26) | 5.5, GR-12 |
+| 0.5.0 | Mahnwesen mit Mahnkosten 10 € (L-3.10, L-3.27 bis L-3.30) | FA-5.21 bis FA-5.25, GR-13 |
+| 0.6.0 / 0.7.0 | Einhandbedienung (L-0.6); Beleg mit mehreren Steuersätzen (L-2.27); neue Frist, Mahnsymbol, Sie-Form (L-3.31) | 5.7a, FA-2.33, FA-5.26 bis FA-5.30 |
+| 0.8.0 | Kassen- und Zahlungs-QR, Teilen-Ziel Bilder (L-27.1 bis L-27.4) | FA-2.35 bis FA-2.38 |
+| 0.9.0 | PDF- und E-Rechnungen übernehmen, Originaldatei mit SHA-256, iOS „Öffnen in“ (L-27.4 bis L-27.6, L-27.8) | FA-2.38 bis FA-2.41 |
+| 0.10.0 | Rechnung über Link-QR (L-27.7) | FA-2.42 |
+| 0.11.0 | Plattformexporte Amazon, PayPal, Shopify, Stripe (L-28.1 bis L-28.7) | FA-2.43 bis FA-2.49 |
+
+Außerdem umgesetzt ohne eigene L-ID: Tablet- und Querformat-Layout
+(Spezifikation 5.7), App-Symbol auf dem Startbildschirm (FA-1.19).
+
+---
+
 ## 11. Abnahmekriterien
 
 | ID | Kriterium |
@@ -1183,6 +1236,8 @@ bis sechs Wochen hinzu.
 | A-6 | Eine Steuerberatung hat je einen Probeexport für AT und DE eingelesen und bestätigt |
 | A-7 | Die steuerlichen Grenzwerte wurden vor dem Release gegen die geltende Rechtslage geprüft |
 | A-8 | Datenschutzerklärung, Impressum und AGB liegen vor und sind veröffentlicht |
+| A-9 | Jede Oberfläche ist von der UX-Prüfinstanz auf Einhandbedienung geprüft (L-0.6) und auf einem echten Telefon angesehen |
+| A-10 | Alle Prüfpunkte der Spezifikation Abschnitt 14 mit „Benötigt vor: Release“ sind bestätigt oder bewusst zurückgestellt |
 
 ---
 
@@ -1248,23 +1303,45 @@ Zu entscheiden, bevor die betroffene Anforderung umgesetzt wird:
 | ~~O-13~~ | **Entschieden am 2026-10-10:** Einkaufspreis als freiwilliges Feld mit Rohertragsanzeige (L-11.12, Stufe B) | erledigt |
 | O-14 | **Welche europäischen Märkte als nächste**, und in welcher Reihenfolge? Davon hängt ab, ab wann eine mehrsprachige Oberfläche gebraucht wird. **Vertagt am 2026-10-10:** Entscheidung nach dem Start in AT/DE anhand der Nachfrage | nach Release Stufe A/B |
 | ~~O-15~~ | ~~Schweiz zum Start oder als erste Erweiterung?~~ — **entschieden am 2026-10-09:** die Schweiz entfällt, Fokus auf EU und Eurozone | erledigt |
-| O-15 | **Welcher Dienst erzeugt die Marketing-Inhalte?** Davon hängen Auftragsverarbeitungsvertrag, Kosten je Erzeugung und die Frage ab, ob der Betrieb in der EU erfolgt | Stufe C |
+| O-15b | **Welcher Dienst erzeugt die Marketing-Inhalte?** (früher doppelt als O-15 vergeben) Davon hängen Auftragsverarbeitungsvertrag, Kosten je Erzeugung und die Frage ab, ob der Betrieb in der EU erfolgt | Stufe C |
 | ~~O-16~~ | Mit O-4 erledigt: es gibt keine einzeln buchbaren Module; das Marketing-Modul ist Teil von Pro | erledigt |
 | O-17 | Sollen erzeugte Werbemittel versioniert und wiederverwendbar abgelegt werden, oder sind sie Wegwerfware? | Stufe C |
 | ~~O-19~~ | **Behoben am 2026-10-09** (Umsatzanteile von L-16.1, L-16.2, L-16.11). Ursprünglich: **Bekannter Fehler:** Die Grenzwertüberwachung ermittelt den Vorjahresumsatz ausschließlich aus erfassten Belegen. Für einen neuen Nutzer ist er damit null, und die Ampel steht fälschlich auf Grün — in Deutschland entscheidet er über das ganze laufende Jahr. Behebung über L-16.1/L-16.2 | sofort; betrifft bestehenden Code |
 | O-25 | **Markenrecherche** zu „Jenny Bar" und „Jenni bucht" durch Markenanwältin (TMview, Klassen 9, 35, 36, 42), danach Unionsmarke anmelden — vor Domain und Store-Eintrag. Siehe Spezifikation Abschnitt 14, P-R7 | vor dem ersten Store-Upload |
-| O-26 | **Rechtsform und Absicherung des Anbieters:** Einzelunternehmen haftet persönlich — GmbH, Vermögensschaden- und Produkthaftpflicht prüfen (P-R8). **Entschieden 2026-10-12:** Start als Spirits by JeNiBarb e.U. (FN 643550 y, ATU81604346); Umwandlung in eine GmbH, sobald die Umsätze die Einzelunternehmerregelung übersteigen; Haftpflicht weiter prüfen | vor Release |
+| O-26 | **Teilweise entschieden. Rechtsform und Absicherung des Anbieters:** Einzelunternehmen haftet persönlich — GmbH, Vermögensschaden- und Produkthaftpflicht prüfen (P-R8). **Entschieden 2026-10-12:** Start als Spirits by JeNiBarb e.U. (FN 643550 y, ATU81604346); Umwandlung in eine GmbH, sobald die Umsätze die Einzelunternehmerregelung übersteigen; Haftpflicht weiter prüfen | vor Release |
 | O-27 | **Laufende Kosten der Rechtsstand-Überwachung:** API-Kosten des Agenten (Annahme 30–90 €/Monat) und Bereitschaft plus Freigaben der Steuerberaterin (0,5–2 h je Änderung). Angebot einholen | vor Stufe B |
 | ~~O-28~~ | **Entschieden am 2026-10-10:** direkt Anthropic API, ein eigenes neues Konto. EU-Verarbeitung von den Prüfinstanzen geprüft: nicht vorgeschrieben; Buchhaltungsdaten und Belege dürfen trotzdem nicht über die US-Route laufen (L-21.8 bis L-21.12) | erledigt |
 | ~~O-29~~ | **Entschieden am 2026-10-10:** Sicherung und Synchronisierung bleiben in der Cloud der Nutzerin; kein Server und kein Konto beim Anbieter. Mehrere Geräte und mehrere Personen über gemeinsamen Ordner (L-19.12 ff.) | erledigt |
-| O-32 | **Anbieter-Server für Plattform-Connectoren** (Stufe B2: echte Schnittstellen zu Amazon, Booking & Co. statt Teilen/PDF/Link): zurückgestellt am 2026-10-14, mit der KI-Server-Frage (L-26.6, L-21) gemeinsam zu entscheiden | Stufe B2 |
-| O-30 | **Verifizierung von E-Mail und Telefon** (Wunsch aus dem Gerätetest): bräuchte einen Server bzw. SMS-Dienst und widerspricht O-29; die Angaben dienen nur als Kontaktdaten auf Rechnungen. Empfehlung: nur Formatprüfung. Entscheidung des Auftraggebers offen | vor Release |
+| O-30 | **Verifizierung von E-Mail und Telefon** (Wunsch aus dem Gerätetest): bräuchte einen Server bzw. SMS-Dienst und widerspricht O-29; die Angaben dienen nur als Kontaktdaten auf Rechnungen. Empfehlung: nur Formatprüfung. **Entscheidung der Auftraggeberin offen** (Stand 2026-10-14) | vor Release |
 | ~~O-31~~ | **Anbieterexklusive Verschlüsselung zur Kundenbindung?** Frage des Auftraggebers vom 2026-10-12, von den drei Prüfinstanzen verneint: Aufbewahrungs- und Prüfpflichten (§ 147 AO, § 131/132 BAO) nach Kündigung oder Wegfall des Anbieters nicht erfüllbar, AGB- und UWG-Risiko, technisch ohne Server wirkungslos. Bindung über Funktionen, Komfort und Importe; Produktschutz über Marke, Lizenzprüfung, Obfuskierung (L-7.12 bis L-7.16) | Empfehlung abgegeben |
+| O-32 | **Anbieter-Server für Plattform-Connectoren** (Stufe B2: echte Schnittstellen zu Amazon, Booking & Co. statt Teilen/PDF/Link): zurückgestellt am 2026-10-14, mit der KI-Server-Frage (L-26.6, L-21) gemeinsam zu entscheiden | Stufe B2 |
 | O-20 | Welche Vorsoftware-Formate sind beim Import vorrangig zu unterstützen? Richtet sich nach dem, womit die ersten Nutzer tatsächlich kommen | Stufe B |
 | ~~O-21~~ | **Vorläufig beantwortet am 2026-10-10 (Prüfinstanz Rechtsanwalt):** BFSG/BaFG voraussichtlich nicht anwendbar (B2B, Kleinstunternehmen). Grundbarrierefreiheit trotzdem als NF-Anforderung; Bestätigung siehe Spezifikation Abschnitt 14, P-R3 | erledigt |
 | ~~O-23~~ | **Entschieden am 2026-10-09:** wählbar je Rücksendung über den Schalter „Ware wieder verkaufbar?" (L-3.20) | erledigt |
 | ~~O-24~~ | **Entschieden am 2026-10-09:** eigene Einzelseite auf einer neuen Domain, die mit dem Produktnamen festgelegt wird (L-17.12) | erledigt |
 | ~~O-18~~ | **Entschieden am 2026-10-09:** nur Versand über die Mail-App des Smartphones; keine Gmail- oder Microsoft-365-Anbindung, L-15.4 bis L-15.9 entfallen | erledigt |
+
+### 14a. Entscheidungen der Auftraggeberin
+
+Übersicht der Produktentscheidungen seit 2026-10-12, damit sie nicht nur in der
+Historie stehen. Die Einzelheiten stehen an der genannten Stelle.
+
+| Datum | Entscheidung | Fundstelle |
+|---|---|---|
+| 2026-10-12 | Rechtsform zum Start: Spirits by JeNiBarb e.U., später GmbH | O-26 |
+| 2026-10-12 | App-Sperre SOLL/A; iCloud-Ordner in der Dateien-App MUSS | L-22.30, L-7.20 |
+| 2026-10-12 | Belegerkennung Android mit Google ML Kit (gebündelt); Fremdwährung nur bei Eingangsbelegen, gebucht in Euro | L-2.20, L-2.24 |
+| 2026-10-14 | **Leitprinzip Einfachheit** als fundamentale Anforderung | 2.1a |
+| 2026-10-14 | **Belege gelten immer als betrieblich**, keine Rückfrage | L-0.4 |
+| 2026-10-14 | **Einhandbedienung ohne Händigkeits-Einstellung** | L-0.6 |
+| 2026-10-14 | Wirtschaftsjahr als Profileinstellung; USt und Kleinunternehmergrenze bleiben Kalenderjahr | 5.24 |
+| 2026-10-14 | Termin-Box nur als Anzeige, ohne Benachrichtigungen | 5.25 |
+| 2026-10-14 | Hilfe Stufe 1 offline; KI-Hilfe erst nach Server-Entscheidung | 5.26, O-32 |
+| 2026-10-14 | Mahnkosten 10 € je Mahnung ab der 1. Mahnung | L-3.27 |
+| 2026-10-14 | Kundendokumente immer in Sie-Form (App-Oberfläche duzt) | L-3.31 |
+| 2026-10-14 | Codes, PDF, E-Rechnungen, Link-QR und Plattformexporte umsetzen; iOS über „Öffnen in …“ statt Share Extension | 5.27, 5.28 |
+| 2026-10-14 | Echte Plattform-Schnittstellen (Anbieter-Server) zurückgestellt | O-32 |
+| 2026-10-14 | Testbuilds ohne Git-Tag; Release Notes nennen den Commit-Hash | RELEASE_PLAYBOOK |
 
 ---
 
@@ -1272,6 +1349,7 @@ Zu entscheiden, bevor die betroffene Anforderung umgesetzt wird:
 
 | Version | Datum | Änderung |
 |---|---|---|
+| 1.54 | 2026-10-14 | Dokumentabgleich mit Code 0.11.0 (Prüfinstanz Softwareentwickler): Ausgangslage aktualisiert; neu L-0.6 (Einhandbedienung ohne Händigkeits-Einstellung); Umsetzungsvermerke in 5.24 bis 5.28; 5.23 als Unterabschnitt eingeordnet; neuer Abschnitt 10a Umsetzungsstand und Stand-Hinweis in 10; Abnahmekriterien A-9, A-10; doppelte O-15 aufgelöst (O-15b), O-32 einsortiert, O-26 als teilweise entschieden; neuer Abschnitt 14a Entscheidungen der Auftraggeberin. |
 | 1.53 | 2026-10-14 | L-27.4/L-27.5: iOS „Öffnen in …“ statt Share Extension von der Auftraggeberin bestätigt. Neu 5.28 (L-28.1 bis L-28.7, Stufe B1: Plattformexporte Amazon, PayPal, Shopify, Stripe), umgesetzt in 0.11.0 (Spezifikation FA-2.43 bis FA-2.49). Keine neue Datenübertragung (5.19 unverändert: Datei kommt aufs Gerät). Prüfpunkte P-S51 bis P-S55, P-R36, P-U7. |
 | 1.52 | 2026-10-14 | A3 umgesetzt in 0.10.0 (L-27.7, Spezifikation FA-2.42). Neuer Datenfluss „Rechnung über Link-QR“ in 5.19, PRIVACY und STORE_LISTING (L-19.5); Prüfung P-R35. |
 | 1.51 | 2026-10-14 | A2 umgesetzt in 0.9.0 (L-27.4 bis L-27.6, L-27.8; Spezifikation FA-2.38 bis FA-2.41). iOS-Teilen über „Öffnen in“ statt Share Extension. Keine neue Datenübertragung (5.19 unverändert). |

@@ -1,6 +1,6 @@
 # Store-Reife – Checkliste bis zur Einreichung
 
-**Stand:** 2026-10-12 · Grundlage: Prüfinstanzen Softwareentwickler, Rechtsanwalt,
+**Stand:** 2026-10-14 (App 0.11.0) · Grundlage: Prüfinstanzen Softwareentwickler, Rechtsanwalt,
 Steuerberater vom 2026-10-12. Store-Regeln aus Fachwissen, nicht live in den
 Konsolen geprüft; reale Prüfpunkte stehen in `SPECIFICATION.md` Abschnitt 14.
 
@@ -33,7 +33,7 @@ für Konten und Prüfungen. Schritte 1–8 laufen parallel zur Entwicklung.
 
 | Punkt | Heute | Ziel |
 |---|---|---|
-| Android-Format | APK aus der CI | **AAB** aus eigenem Release-Workflow (Tag `v*`), signiert mit Upload-Key; Play App Signing |
+| Android-Format | APK aus der CI; Release-Workflow `release.yml` vorhanden (manuell ausgelöst, AAB), Store-Upload darin noch auskommentiert | **AAB** aus dem Release-Workflow, signiert mit Upload-Key; Play App Signing |
 | Signierung | Debug- bzw. Testschlüssel | Release-Workflow bricht ab, wenn kein Upload-Key da ist |
 | targetSdk | Flutter-Vorgabe | fest eingetragen, aktueller Play-Stichtag (2026 voraussichtlich API 36) |
 | iOS-Build | ohne Signierung; eigener Mac der Auftraggeberin vorhanden | Fastlane (`match`, `pilot`) auf macOS-Runner, Upload nach TestFlight |
@@ -43,7 +43,8 @@ für Konten und Prüfungen. Schritte 1–8 laufen parallel zur Entwicklung.
 | Crash-Berichte | keine | **kein Crash-SDK**; Absturzstatistik der Stores plus freiwilliger Fehlerbericht per E-Mail |
 | Lokalisierung | Texte im Code | Sprachdateien (L-13.8), Store-Einträge nur DE/AT |
 | Unfertiges | – | nicht ausliefern statt verstecken (Apple 2.1); Stufen über Build-Schalter |
-| Rechtliches in der App | Bestätigungen (FA-1.10) | Menü „Rechtliches“: Impressum, Datenschutz, Nutzungsbedingungen, Support, „keine Steuerberatung“ – auch offline |
+| Rechtliches in der App | Bestätigungen (FA-1.10), Hilfe mit Support-Mail (FA-11.3) | Menü „Rechtliches“: Impressum, Datenschutz, Nutzungsbedingungen, Support, „keine Steuerberatung“ – auch offline |
+| App-Symbol | Flutter-Standardsymbol (RELEASE_PLAYBOOK „Was noch fehlt“) | eigenes Symbol nach Markenentscheidung (O-25) |
 | Prüferzugang | – | kein Login nötig; Hinweis in den Review Notes, Lizenztester eintragen |
 
 ## Was bewusst nicht gemacht wird

@@ -11,11 +11,11 @@
 ## Verantwortlicher
 
 ```
-<Name>
+Spirits by JeNiBarb e.U.
 <Straße und Hausnummer>
-<PLZ Ort>
-<Land>
-E-Mail: <E-Mail-Adresse>
+<PLZ> Arnoldstein
+Österreich
+E-Mail: office@jenibarb.com
 ```
 
 ## Kurzfassung
@@ -34,7 +34,14 @@ Alle Daten gibst du selbst ein oder erzeugst sie durch die Nutzung:
 - **Belege:** Datum, Betrag, Umsatzsteuersatz, Beschreibung, Geschäftspartner,
   Kategorie, Zahlungsart, Notiz sowie das Belegfoto
 - **Kundendaten:** Name, Anschrift, UID, E-Mail-Adresse, Notiz
-- **Rechnungen:** Nummer, Datum, Positionen, Beträge, Status
+- **Rechnungen:** Nummer, Datum, Positionen, Beträge, Status, Zahlungserinnerungen
+  und Mahnungen
+- **Übernommene Dateien:** PDF- und E-Rechnungen, die du an die App teilst, als
+  unveränderte Originaldatei mit Prüfsumme
+- **Berichte von Verkaufsplattformen** (Amazon, PayPal, Shopify, Stripe), die du
+  an die App teilst: übernommen werden nur Monatssummen und Transaktionsnummern;
+  Namen, Anschriften, E-Mail-Adressen und Telefonnummern deiner Käuferinnen und
+  Käufer verwirft die App beim Einlesen
 
 ## Wo diese Daten liegen
 
