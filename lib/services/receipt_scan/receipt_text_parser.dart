@@ -106,7 +106,7 @@ class ReceiptTextParser {
         }
       }
     }
-    for (final p in _euRates) {
+    for (final p in euRates) {
       if (!rates.contains(p)) rates.add(p);
     }
     return rates;
@@ -373,6 +373,10 @@ class ReceiptTextParser {
       }
     }
 
+    if (strong.isEmpty) {
+      final table = _vatTable(rows);
+      if (table != null) strong[table.permille] = table;
+    }
     final result = <int, DetectedVat>{};
     if (strong.isEmpty && keyword.isEmpty) {
       final included = _includedVat(rows);
@@ -392,12 +396,50 @@ class ReceiptTextParser {
     return result.values.toList()..sort((x, y) => y.gross.compareTo(x.gross));
   }
 
+  /// Steuertabelle mit Kopfzeile („DDV % | Osnova | Znesek DDV | Skupaj“)
+  /// und Werten in den Zeilen darunter, der Satz ohne Prozentzeichen
+  /// („22,0  1,62  9,00“, Basis eine Zeile tiefer). Die Zeilen sind schon
+  /// über die Lage zusammengeführt; die Spalten werden über die Rechenprobe
+  /// zugeordnet (Netto + Steuer = Brutto, Steuer = Netto × Satz), weil ML Kit
+  /// die Kopfwörter auf Thermopapier oft entstellt („00Y“, „DOV“).
+  DetectedVat? _vatTable(List<String> rows) {
+    for (var i = 0; i + 1 < rows.length; i++) {
+      final header = rows[i];
+      if (!header.contains('%') || _percent.hasMatch(header)) continue;
+      if (_percentAfter.hasMatch(header)) continue;
+      final rate = RegExp(
+        r'^\s*(\d{1,2})[.,](\d)(?![\d])',
+      ).firstMatch(rows[i + 1]);
+      if (rate == null) continue;
+      final p = int.parse(rate.group(1)!) * 10 + int.parse(rate.group(2)!);
+      if (p < 10 || p > 300) continue;
+      final values = [
+        ...amounts(rows[i + 1].substring(rate.end)),
+        if (i + 2 < rows.length) ...amounts(rows[i + 2]),
+      ].map((m) => m.cents).toList();
+      for (final net in values) {
+        for (final vat in values) {
+          if (net == vat || !values.contains(net + vat)) continue;
+          if ((vat - _vatOfNet(net, p)).abs() <= _tolerance(Money(vat))) {
+            return DetectedVat(
+              permille: p,
+              net: Money(net),
+              vat: Money(vat),
+              confidence: 90,
+            );
+          }
+        }
+      }
+    }
+    return null;
+  }
+
   /// Gängige Umsatzsteuersätze der EU-Mitgliedstaaten in Promille, für
   /// Belege, die die Steuer nur als Betrag ohne Prozentsatz nennen
   /// („HERAF MOMS 137,18“). Quelle: Europäische Kommission, „VAT rates applied
   /// in the Member States of the European Union“ (Stand 2026-01-01);
   /// Rechtsgrundlage Art. 96 bis 99 MwStSystRL 2006/112/EG.
-  static const _euRates = [
+  static const euRates = [
     50, 55, 60, 70, 80, 90, 95, 100, 120, 130, 140, 150, 170, 180, 190, //
     200, 210, 220, 230, 240, 250, 255, 270,
   ];
@@ -419,7 +461,7 @@ class ReceiptTextParser {
       final vat = a.last.cents;
       final net = gross.value.cents - vat;
       if (vat <= 0 || net <= 0) continue;
-      for (final p in _euRates) {
+      for (final p in euRates) {
         if ((vat - _vatOfGross(gross.value.cents, p)).abs() <=
             _tolerance(Money(vat))) {
           return DetectedVat(
@@ -539,6 +581,23 @@ class ReceiptTextParser {
           int.parse(m.group(2)!),
         );
         if (date != null) found.add(date);
+      }
+      if (found.isEmpty && score == 92) {
+        // Jahreszahl auf Thermopapier entstellt („03.10.2ULG“, DARS-Beleg):
+        // nur neben einem Datums-Schlüsselwort, Jahr aus dem Stichtag, damit
+        // höchstens ein Jahr zurück; geringe Konfidenz, Nutzerin prüft.
+        final m = RegExp(
+          r'(?<![\d.,])(\d{1,2})\.(\d{1,2})\.2[0-9A-Za-z]{3}(?![0-9A-Za-z])',
+        ).firstMatch(row);
+        if (m != null && RegExp('[A-Za-z]').hasMatch(m.group(0)!)) {
+          final d = int.parse(m.group(1)!);
+          final mo = int.parse(m.group(2)!);
+          final date = _valid(now.year, mo, d) ?? _valid(now.year - 1, mo, d);
+          if (date != null && (best == null || best.confidence < 60)) {
+            best = Detected(date, 60);
+          }
+        }
+        continue;
       }
       if (found.isEmpty) continue;
       if (best == null || score > best.confidence) {

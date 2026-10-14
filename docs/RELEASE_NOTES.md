@@ -44,7 +44,7 @@ nächsten Versionssprung in den neuen Eintrag.
 | Art | Testbuild (ungezippte arm64-APK, fester Testschlüssel); mehrsprachige Belegerkennung |
 | Commit | siehe Git-Tag `v0.3.4` |
 | Branch | `claude/agile-accounting-app-mobile-wa5j3h` |
-| Dokumentstände | Lastenheft 1.42, Spezifikation 1.37, Benutzerhandbuch für 0.3.4 |
+| Dokumentstände | Lastenheft 1.42, Spezifikation 1.38, Benutzerhandbuch für 0.3.4 |
 | Datenbankschema | 10 |
 | Prüfung | `flutter analyze` ohne Befund, alle Tests grün (Korpus 6 Belege), Emulator-Job `android-ocr-emulator`, CI siehe Lauf zum Tag |
 | Steuerliche Kennwerte | `spec.at.vat_permille` = 200,130,100,49,0; neu `spec.at.vat_49_valid_from` = 2026-07-01 |
@@ -59,6 +59,7 @@ nächsten Versionssprung in den neuen Eintrag.
 | Neu | Beschreibung und Kategorie werden aus Händler/Branche vorgeschlagen; Logo-Rauschen „SPARO“ → SPAR; neue Belege starten mit „Sonstige Ausgaben“ statt „Bankspesen“ (Gerätetest 0.3.3) | FA-2.31 | dieser |
 | Neu | Österreich 4,9 % (Grundnahrungsmittel, § 10 Abs 1a UStG 1994) ab 1.7.2026; Steuersätze mit Gültigkeitsbeginn, Auswahllisten datumsabhängig | GR-3, P-S28 | dieser |
 | Geändert | Beleg ohne Steuerausweis: 0 % mit Hinweis statt Standardsatz; unbekannter Satz: Hinweis „noch nicht hinterlegt“; ausländische USt: Länderhinweis aus dem TaxProfile | FA-2.32, FA-2.29, P-S29, P-S30 | dieser |
+| Neu | Korpus: ML-Kit-Ergebnis des DARS-Belegs (Slowenien) aus dem Emulatorlauf 38515679584; Steuertabelle „DDV % / Osnova / Znesek / Skupaj“ ohne Prozentzeichen, EU-Satz ohne lesbare UID als ausländisch (0 %), entstellte Jahreszahl „2ULG“ | FA-2.28, FA-2.30 | dieser |
 | Behoben | Belegdatum wurde bei „05.09,2026“/„10.09,2026“ (Komma statt Punkt) nicht erkannt (Gerätetest SPAR, Villach) | FA-2.30 | dieser |
 
 ---

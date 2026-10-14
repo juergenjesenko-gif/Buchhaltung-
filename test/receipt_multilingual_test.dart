@@ -208,7 +208,7 @@ void main() {
     });
 
     test('Satz ohne Profil-Eintrag: Hinweis „noch nicht hinterlegt“', () {
-      final p = prefill('Summe 10,55\n5,50%  10,00  0,55  10,55');
+      final p = prefill('Summe 103,30\n3,30%  100,00  3,30  103,30');
       expect(p.vatPermille, isNull);
       expect(p.hints.join(), contains('in der App noch nicht hinterlegt'));
     });

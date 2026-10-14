@@ -250,6 +250,20 @@ void main() {
       expect(p.description, startsWith('SPAR – Lebensmittel'));
     });
 
+    test('DARS Slowenien: 22 % erkannt, 0 % mit Hinweis vorbelegt', () {
+      final r = ergebnisse['PXL_20261014_045325288.MP.jpg']!;
+      final p = ReceiptScanPrefill.from(
+        r,
+        direction: BookingDirection.expense,
+        profile: TaxProfile.austria,
+      );
+      expect(r.dominantPermille, 220);
+      expect(r.vatLines.first.net.cents, 738);
+      expect(p.gross?.cents, 900);
+      expect(p.vatPermille, 0);
+      expect(p.hints.join(), contains('nicht als Vorsteuer abziehbar'));
+    });
+
     test(r'Taxi Taiwan: „$“ mehrdeutig → kein Euro-Betrag, Hinweis', () {
       final p = ReceiptScanPrefill.from(
         ergebnisse['PXL_20261013_043853962.jpg']!,

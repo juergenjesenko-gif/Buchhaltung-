@@ -69,9 +69,12 @@ class ReceiptScanPrefill {
     final otherCountryRate =
         dominant != null &&
         ownRate == null &&
-        Country.values.any(
-          (c) => c.taxProfile.rateByPermille(dominant) != null,
-        );
+        (Country.values.any(
+              (c) => c.taxProfile.rateByPermille(dominant) != null,
+            ) ||
+            // Satz eines anderen EU-Staats (z. B. SI 22 %), auch wenn die
+            // Aussteller-UID nicht lesbar war.
+            ReceiptTextParser.euRates.contains(dominant));
     final onDate = ok(r.date) ? r.date!.value : (today ?? DateTime.now());
     final expense = direction == BookingDirection.expense;
     if (dominant != null && (foreignIssuer || otherCountryRate)) {

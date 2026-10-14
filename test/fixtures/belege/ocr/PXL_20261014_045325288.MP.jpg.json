@@ -1,0 +1,231 @@
+{
+  "datei": "PXL_20261014_045325288.MP.jpg",
+  "engine": "Google ML Kit Text Recognition (Latin, gebündelt)",
+  "engineVersion": "16.0.1",
+  "lines": [
+    {
+      "text": "DARS d.d.",
+      "left": 408,
+      "top": 374,
+      "height": 43,
+      "page": 1
+    },
+    {
+      "text": "Ulfca IV. divizilE 4, 3000",
+      "left": 435,
+      "top": 377,
+      "height": 79,
+      "page": 1
+    },
+    {
+      "text": "TD 6t. za DOV: ST2473717",
+      "left": 424,
+      "top": 416,
+      "height": 84,
+      "page": 1
+    },
+    {
+      "text": "Proda jno nesto U03",
+      "left": 419,
+      "top": 470,
+      "height": 63,
+      "page": 1
+    },
+    {
+      "text": "Blagajna 1122",
+      "left": 423,
+      "top": 523,
+      "height": 48,
+      "page": 1
+    },
+    {
+      "text": "S101c109tol1222h 1 00381552",
+      "left": 478,
+      "top": 624,
+      "height": 102,
+      "page": 1
+    },
+    {
+      "text": "RACUN",
+      "left": 440,
+      "top": 743,
+      "height": 38,
+      "page": 1
+    },
+    {
+      "text": "t. ratuna: U109-i 122-260296226",
+      "left": 473,
+      "top": 783,
+      "height": 81,
+      "page": 1
+    },
+    {
+      "text": "Cum in čas izdaje: 03.10.2ULG 22:58.55",
+      "left": 490,
+      "top": 863,
+      "height": 72,
+      "page": 1
+    },
+    {
+      "text": "um opravljene storitve: 8.10.2176",
+      "left": 491,
+      "top": 906,
+      "height": 67,
+      "page": 1
+    },
+    {
+      "text": "agajn ik: SLasnik",
+      "left": 478,
+      "top": 965,
+      "height": 40,
+      "page": 1
+    },
+    {
+      "text": "EOR: e4e58114-a752-4202-bat3-ddt3G6765dza",
+      "left": 434,
+      "top": 1032,
+      "height": 43,
+      "page": 1
+    },
+    {
+      "text": "ZOI: da6670f1 1cf685 18b03c 1638d058cb7f",
+      "left": 429,
+      "top": 1071,
+      "height": 43,
+      "page": 1
+    },
+    {
+      "text": "Kolicina Cena b DDY",
+      "left": 416,
+      "top": 1318,
+      "height": 40,
+      "page": 1
+    },
+    {
+      "text": "Celje",
+      "left": 868,
+      "top": 373,
+      "height": 46,
+      "page": 1
+    },
+    {
+      "text": "Skupaj ER:",
+      "left": 423,
+      "top": 1516,
+      "height": 42,
+      "page": 1
+    },
+    {
+      "text": "Predornina za vozila < 3.5t",
+      "left": 419,
+      "top": 1402,
+      "height": 39,
+      "page": 1
+    },
+    {
+      "text": "1,00 * 7,38",
+      "left": 495,
+      "top": 1440,
+      "height": 41,
+      "page": 1
+    },
+    {
+      "text": "MASTERCARO 5471***1477",
+      "left": 425,
+      "top": 1593,
+      "height": 52,
+      "page": 1
+    },
+    {
+      "text": "LOV% Znesek z DLV",
+      "left": 820,
+      "top": 1307,
+      "height": 48,
+      "page": 1
+    },
+    {
+      "text": "22,0",
+      "left": 446,
+      "top": 1790,
+      "height": 34,
+      "page": 1
+    },
+    {
+      "text": "Avtorizacija: C0711993- 1562-382733",
+      "left": 467,
+      "top": 1625,
+      "height": 66,
+      "page": 1
+    },
+    {
+      "text": "Udgovor: 000BRENO (A-/001)",
+      "left": 538,
+      "top": 1680,
+      "height": 44,
+      "page": 1
+    },
+    {
+      "text": "7,38",
+      "left": 689,
+      "top": 1811,
+      "height": 30,
+      "page": 1
+    },
+    {
+      "text": "22,0",
+      "left": 822,
+      "top": 1446,
+      "height": 34,
+      "page": 1
+    },
+    {
+      "text": "00Y % Oenova za DOy Znesek DDV",
+      "left": 434,
+      "top": 1739,
+      "height": 70,
+      "page": 1
+    },
+    {
+      "text": "1,62",
+      "left": 890,
+      "top": 1795,
+      "height": 39,
+      "page": 1
+    },
+    {
+      "text": "9,00",
+      "left": 1026,
+      "top": 1425,
+      "height": 38,
+      "page": 1
+    },
+    {
+      "text": "9,00",
+      "left": 1025,
+      "top": 1501,
+      "height": 40,
+      "page": 1
+    },
+    {
+      "text": "9,00",
+      "left": 1024,
+      "top": 1578,
+      "height": 42,
+      "page": 1
+    },
+    {
+      "text": "Skupaj",
+      "left": 994,
+      "top": 1733,
+      "height": 44,
+      "page": 1
+    },
+    {
+      "text": "9,00",
+      "left": 1022,
+      "top": 1768,
+      "height": 44,
+      "page": 1
+    }
+  ]
+}
