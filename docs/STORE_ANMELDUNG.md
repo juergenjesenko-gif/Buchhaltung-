@@ -59,12 +59,23 @@ Impressum übereinstimmen – Abweichungen sind der häufigste Grund für Ablehn
 
 ## Formular 1: D-U-N-S-Nummer (Dun & Bradstreet)
 
-- **Wo:** über Apple nicht nötig. Für Google direkt bei Dun & Bradstreet Austria
-  (dnb.com → „D-U-N-S Number“ → Österreich) oder die Suche auf
-  https://developer.apple.com/enroll/duns-lookup/ (zeigt, ob schon eine Nummer
-  existiert – österreichische Firmenbuchfirmen haben oft schon eine).
-- **Kosten:** kostenlos (nicht den kostenpflichtigen Expressdienst wählen).
-- **Dauer:** bis 30 Tage.
+**So beantragst du sie (kostenlos, über Apples Suchwerkzeug):**
+
+1. [D-U-N-S-Suche von Apple öffnen](https://developer.apple.com/enroll/duns-lookup/)
+   und mit der Firmen-Apple-ID (office@jenibarb.com) anmelden.
+2. Die Felder mit den Werten aus der Tabelle unten ausfüllen (Englisch,
+   zeichengenau) und auf **Check** tippen.
+3. **Wird die Firma gefunden:** die angezeigte 9-stellige Nummer notieren –
+   fertig. (Österreichische Firmenbuchfirmen haben oft schon eine.)
+4. **Wird sie nicht gefunden:** **Submit** wählen. Dun & Bradstreet legt die
+   Nummer kostenlos an und meldet sich per E-Mail, meist innerhalb von 5
+   Werktagen, manchmal bis 30 Tage. Eventuell ruft D&B zur Bestätigung an
+   (+43 660 3124252).
+5. Die Nummer an Claude schicken – sie wird hier eingetragen und für das
+   Google-Play-Konto verwendet.
+
+Keinen kostenpflichtigen „Express“-Dienst von D&B buchen. Für Apple selbst
+brauchst du die Nummer nicht (Anmeldung als Einzelperson, siehe oben).
 
 | Feld | Eintrag |
 |---|---|
