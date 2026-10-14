@@ -460,6 +460,16 @@ class InvoicePdf {
             style: pw.TextStyle(fontSize: 9.5, fontWeight: pw.FontWeight.bold),
           ),
         ],
+        // DE: Verzug bei Verbrauchern nach 30 Tagen nur mit Hinweis
+        // (§ 286 Abs 3 BGB, L-3.28). Text aus dem TaxProfile.
+        if (!customer.isBusiness &&
+            profile.taxProfile.dunning.consumerDefaultNotice != null) ...[
+          pw.SizedBox(height: 8),
+          pw.Text(
+            profile.taxProfile.dunning.consumerDefaultNotice!,
+            style: const pw.TextStyle(fontSize: 8.5, color: _muted),
+          ),
+        ],
         if (profile.termsUrl.trim().isNotEmpty) ...[
           pw.SizedBox(height: 10),
           pw.Text(

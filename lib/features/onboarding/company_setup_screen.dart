@@ -66,6 +66,8 @@ class _CompanySetupScreenState extends State<CompanySetupScreen> {
   File? _logoFile;
   bool _saving = false;
   bool _initialized = false;
+  bool _dunningInterest = false;
+  bool _dunningFlatFee = false;
 
   @override
   void initState() {
@@ -91,6 +93,8 @@ class _CompanySetupScreenState extends State<CompanySetupScreen> {
         'skontoDays',
         'skontoPercent',
         'termsUrl',
+        'dunningFee',
+        'dunningPeriod',
         'openingPrevious',
         'foundingYear',
         'registerNumber',
@@ -111,6 +115,8 @@ class _CompanySetupScreenState extends State<CompanySetupScreen> {
     if (profile == null) {
       _fields['invoicePattern']!.text = InvoiceNumbering.defaultPattern;
       _fields['paymentTerm']!.text = '14';
+      _fields['dunningFee']!.text = Fmt.amount(const Money(1000));
+      _fields['dunningPeriod']!.text = '14';
       return;
     }
 
@@ -147,6 +153,10 @@ class _CompanySetupScreenState extends State<CompanySetupScreen> {
       );
     }
     _fields['termsUrl']!.text = profile.termsUrl;
+    _fields['dunningFee']!.text = Fmt.amount(profile.dunningFee);
+    _fields['dunningPeriod']!.text = profile.dunningPeriodDays.toString();
+    _dunningInterest = profile.dunningInterest;
+    _dunningFlatFee = profile.dunningFlatFee;
     _fields['foundingYear']!.text = profile.foundingYear?.toString() ?? '';
     _fiscalYearStartMonth = profile.fiscalYearStartMonth;
     _fiscalYearConfirmed = profile.fiscalYearConfirmed;
@@ -451,6 +461,10 @@ class _CompanySetupScreenState extends State<CompanySetupScreen> {
           : 0,
       termsUrl: _text('termsUrl'),
       termsHintShown: (existing?.termsHintShown ?? false) || termsHint,
+      dunningFee: Money.tryParse(_text('dunningFee')) ?? const Money(1000),
+      dunningInterest: _dunningInterest,
+      dunningFlatFee: _dunningFlatFee,
+      dunningPeriodDays: int.tryParse(_text('dunningPeriod')) ?? 14,
     );
 
     // Eröffnungswerte nur schreiben, wenn sie abgefragt wurden. Wer auf
@@ -943,6 +957,61 @@ class _CompanySetupScreenState extends State<CompanySetupScreen> {
                             'Erscheint als Verweis auf neuen Rechnungen',
                       ),
                       keyboardType: TextInputType.url,
+                    ),
+                    const SizedBox(height: 16),
+                    Text(
+                      'Mahnungen',
+                      style: Theme.of(context).textTheme.titleSmall,
+                    ),
+                    const SizedBox(height: 8),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: TextFormField(
+                            controller: _fields['dunningFee'],
+                            decoration: const InputDecoration(
+                              labelText: 'Mahnkosten je Mahnung',
+                              suffixText: '€',
+                            ),
+                            keyboardType: const TextInputType.numberWithOptions(
+                              decimal: true,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: TextFormField(
+                            controller: _fields['dunningPeriod'],
+                            decoration: const InputDecoration(
+                              labelText: 'Neue Frist',
+                              suffixText: 'Tage',
+                            ),
+                            keyboardType: TextInputType.number,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      'Die Zahlungserinnerung ist immer kostenlos; Mahnkosten '
+                      'gelten ab der 1. Mahnung.',
+                      style: Theme.of(context).textTheme.bodySmall,
+                    ),
+                    SwitchListTile(
+                      contentPadding: EdgeInsets.zero,
+                      title: const Text('Verzugszinsen vorschlagen'),
+                      subtitle: const Text('Gesetzlicher Satz, änderbar'),
+                      value: _dunningInterest,
+                      onChanged: (value) =>
+                          setState(() => _dunningInterest = value),
+                    ),
+                    SwitchListTile(
+                      contentPadding: EdgeInsets.zero,
+                      title: const Text('40-€-Pauschale bei Unternehmen'),
+                      subtitle: Text(tax.dunning.flatFeeLegalRef),
+                      value: _dunningFlatFee,
+                      onChanged: (value) =>
+                          setState(() => _dunningFlatFee = value),
                     ),
                     const SizedBox(height: 12),
                     TextFormField(

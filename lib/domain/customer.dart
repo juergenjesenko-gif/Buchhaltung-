@@ -14,7 +14,13 @@ class Customer {
     this.vatId = '',
     this.email = '',
     this.note = '',
+    this.isBusiness = false,
   });
+
+  /// Unternehmen (B2B) statt Verbraucherin (B2C). Bestimmt Verzugszinssatz,
+  /// Pauschale und Hinweise im Mahnwesen (L-3.28); vorbelegt Ja, wenn eine
+  /// UID eingetragen ist.
+  final bool isBusiness;
 
   final int? id;
   final String name;
@@ -56,6 +62,7 @@ class Customer {
     String? vatId,
     String? email,
     String? note,
+    bool? isBusiness,
   }) {
     return Customer(
       id: id ?? this.id,
@@ -68,6 +75,7 @@ class Customer {
       vatId: vatId ?? this.vatId,
       email: email ?? this.email,
       note: note ?? this.note,
+      isBusiness: isBusiness ?? this.isBusiness,
     );
   }
 
@@ -82,6 +90,7 @@ class Customer {
     'vat_id': vatId,
     'email': email,
     'note': note,
+    'is_business': isBusiness ? 1 : 0,
   };
 
   static Customer fromMap(Map<String, Object?> map) => Customer(
@@ -95,5 +104,6 @@ class Customer {
     vatId: map['vat_id'] as String? ?? '',
     email: map['email'] as String? ?? '',
     note: map['note'] as String? ?? '',
+    isBusiness: (map['is_business'] as int? ?? 0) == 1,
   );
 }

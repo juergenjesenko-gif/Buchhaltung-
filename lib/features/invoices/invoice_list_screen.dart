@@ -11,6 +11,8 @@ import '../../widgets/common.dart';
 import 'customer_edit_screen.dart';
 import 'invoice_edit_screen.dart';
 import 'invoice_share.dart';
+import 'dunning_sheet.dart';
+import '../../domain/dunning.dart';
 import '../help/help_screen.dart';
 import '../../services/help/help_index.dart';
 
@@ -25,6 +27,9 @@ class InvoiceListScreen extends StatefulWidget {
 class _InvoiceListScreenState extends State<InvoiceListScreen> {
   List<Invoice> _invoices = const [];
   Map<int, Customer> _customers = const {};
+
+  /// Letztes nicht storniertes Mahnschreiben je Rechnung (L-3.10).
+  Map<int, DunningNotice> _dunning = const {};
   bool _loading = true;
 
   @override
@@ -39,9 +44,11 @@ class _InvoiceListScreenState extends State<InvoiceListScreen> {
     final state = AppScope.read(context);
     final invoices = await state.repositories.invoices.all();
     final customers = await state.repositories.customers.all();
+    final dunning = await state.repositories.dunning.latestActive();
     if (!mounted) return;
     setState(() {
       _invoices = invoices;
+      _dunning = dunning;
       _customers = {
         for (final customer in customers)
           if (customer.id != null) customer.id!: customer,
@@ -96,6 +103,25 @@ class _InvoiceListScreenState extends State<InvoiceListScreen> {
     return ok ?? false;
   }
 
+  List<Invoice> get _overdue =>
+      _invoices.where((invoice) => invoice.isOverdue).toList();
+
+  /// Zahlungserinnerung bzw. Mahnung (L-3.10): Sheet mit Vorschau, ein Tipp
+  /// auf „erstellen und senden“ öffnet den Teilen-Dialog.
+  Future<void> _remind(Invoice invoice) async {
+    final customer = _customers[invoice.customerId];
+    if (customer == null || AppScope.read(context).profile == null) {
+      showSnack(context, 'Kundendaten fehlen.');
+      return;
+    }
+    final changed = await showDunningSheet(
+      context,
+      invoice: invoice,
+      customer: customer,
+    );
+    if (changed) await _load();
+  }
+
   Future<void> _setStatus(Invoice invoice, InvoiceStatus status) async {
     final id = invoice.id;
     if (id == null) return;
@@ -107,6 +133,7 @@ class _InvoiceListScreenState extends State<InvoiceListScreen> {
         id,
         answer.date,
         withSkonto: answer.withSkonto,
+        withDunningCosts: answer.withCosts,
       );
     } else {
       if (status == InvoiceStatus.cancelled &&
@@ -125,7 +152,7 @@ class _InvoiceListScreenState extends State<InvoiceListScreen> {
   ///
   /// Hat die Rechnung Skonto, fragt der Dialog „Mit Skonto bezahlt?“ – ein
   /// Tipp (L-3.24); vorbelegt mit Ja, solange die Skontofrist läuft.
-  Future<({DateTime date, bool withSkonto})?> _askPayment(
+  Future<({DateTime date, bool withSkonto, bool withCosts})?> _askPayment(
     Invoice invoice,
   ) async {
     final today = DateTime.now();
@@ -133,7 +160,12 @@ class _InvoiceListScreenState extends State<InvoiceListScreen> {
     bool inTime(DateTime day) =>
         invoice.hasSkonto && !day.isAfter(invoice.skontoDate!);
     var withSkonto = inTime(date);
-    return showModalBottomSheet<({DateTime date, bool withSkonto})>(
+    final notice = _dunning[invoice.id];
+    final costs = notice?.costs ?? const Money.zero();
+    var withCosts = !costs.isZero;
+    return showModalBottomSheet<
+      ({DateTime date, bool withSkonto, bool withCosts})
+    >(
       context: context,
       showDragHandle: true,
       isScrollControlled: true,
@@ -186,9 +218,22 @@ class _InvoiceListScreenState extends State<InvoiceListScreen> {
                     onChanged: (value) =>
                         setSheetState(() => withSkonto = value),
                   ),
+                if (!costs.isZero)
+                  SwitchListTile(
+                    key: const Key('paidWithCosts'),
+                    contentPadding: EdgeInsets.zero,
+                    title: const Text('Mahnkosten und Zinsen mitbezahlt?'),
+                    subtitle: Text(
+                      '${Fmt.money(costs)} aus der ${notice!.title}, '
+                      'nicht umsatzsteuerbar',
+                    ),
+                    value: withCosts,
+                    onChanged: (value) =>
+                        setSheetState(() => withCosts = value),
+                  ),
                 const SizedBox(height: 8),
                 Text(
-                  '${Fmt.money(withSkonto ? invoice.grossTotal - invoice.skontoAmount : invoice.grossTotal)} '
+                  '${Fmt.money((withSkonto ? invoice.grossTotal - invoice.skontoAmount : invoice.grossTotal) + (withCosts ? costs : const Money.zero()))} '
                   'werden als Einnahme am Tag des Zahlungseingangs gebucht. '
                   'Bitte nicht zusätzlich als Einnahmebeleg erfassen.',
                 ),
@@ -198,9 +243,11 @@ class _InvoiceListScreenState extends State<InvoiceListScreen> {
                   style: FilledButton.styleFrom(
                     minimumSize: const Size.fromHeight(56),
                   ),
-                  onPressed: () => Navigator.of(
-                    context,
-                  ).pop((date: date, withSkonto: withSkonto)),
+                  onPressed: () => Navigator.of(context).pop((
+                    date: date,
+                    withSkonto: withSkonto,
+                    withCosts: withCosts,
+                  )),
                   child: const Text('Als bezahlt buchen'),
                 ),
               ],
@@ -282,6 +329,18 @@ class _InvoiceListScreenState extends State<InvoiceListScreen> {
                     ),
                     const SizedBox(height: 16),
                   ],
+                  if (_overdue.isNotEmpty) ...[
+                    NoticeBanner(
+                      key: const Key('overdueBanner'),
+                      icon: Icons.notification_important_outlined,
+                      color: AppTheme.expense,
+                      message: _overdue.length == 1
+                          ? '1 Rechnung überfällig – mahnen?'
+                          : '${_overdue.length} Rechnungen überfällig – mahnen?',
+                      onTap: () => _remind(_overdue.first),
+                    ),
+                    const SizedBox(height: 16),
+                  ],
                   for (final invoice in _invoices)
                     Padding(
                       padding: const EdgeInsets.only(bottom: 10),
@@ -292,6 +351,10 @@ class _InvoiceListScreenState extends State<InvoiceListScreen> {
                         onShare: () => _sharePdf(invoice),
                         onMarkPaid: invoice.status == InvoiceStatus.issued
                             ? () => _setStatus(invoice, InvoiceStatus.paid)
+                            : null,
+                        dunning: _dunning[invoice.id],
+                        onRemind: invoice.isOverdue
+                            ? () => _remind(invoice)
                             : null,
                         onCancel: invoice.status == InvoiceStatus.issued
                             ? () => _setStatus(invoice, InvoiceStatus.cancelled)
@@ -320,6 +383,8 @@ class _InvoiceTile extends StatelessWidget {
     required this.onTap,
     required this.onShare,
     this.onMarkPaid,
+    this.onRemind,
+    this.dunning,
     this.onCancel,
     this.onDelete,
   });
@@ -329,6 +394,8 @@ class _InvoiceTile extends StatelessWidget {
   final VoidCallback onTap;
   final VoidCallback onShare;
   final VoidCallback? onMarkPaid;
+  final VoidCallback? onRemind;
+  final DunningNotice? dunning;
   final VoidCallback? onCancel;
   final VoidCallback? onDelete;
 
@@ -397,6 +464,8 @@ class _InvoiceTile extends StatelessWidget {
                   if (invoice.dueDate != null)
                     'fällig ${Fmt.date(invoice.dueDate!)}',
                   '${invoice.items.length} ${invoice.items.length == 1 ? 'Position' : 'Positionen'}',
+                  if (dunning != null)
+                    '${dunning!.title} am ${Fmt.date(dunning!.issuedOn)}',
                 ].join(' · '),
                 style: Theme.of(
                   context,
@@ -412,18 +481,6 @@ class _InvoiceTile extends StatelessWidget {
                     ),
                   ),
                   const Spacer(),
-                  if (onMarkPaid != null) ...[
-                    FilledButton.tonalIcon(
-                      key: Key('paid-${invoice.id}'),
-                      style: FilledButton.styleFrom(
-                        minimumSize: const Size(48, 48),
-                      ),
-                      onPressed: onMarkPaid,
-                      icon: const Icon(Icons.check),
-                      label: const Text('Bezahlt'),
-                    ),
-                    const SizedBox(width: 8),
-                  ],
                   IconButton(
                     tooltip: 'PDF teilen',
                     icon: const Icon(Icons.picture_as_pdf_outlined),
@@ -462,6 +519,40 @@ class _InvoiceTile extends StatelessWidget {
                   ),
                 ],
               ),
+              if (onMarkPaid != null || onRemind != null) ...[
+                const SizedBox(height: 8),
+                Row(
+                  children: [
+                    if (onRemind != null) ...[
+                      Expanded(
+                        child: FilledButton.tonalIcon(
+                          key: Key('remind-${invoice.id}'),
+                          style: FilledButton.styleFrom(
+                            minimumSize: const Size(48, 48),
+                          ),
+                          onPressed: onRemind,
+                          icon: const Icon(Icons.mark_email_unread_outlined),
+                          label: Text(dunning == null ? 'Erinnern' : 'Mahnen'),
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                    ],
+                    if (onMarkPaid != null)
+                      Expanded(
+                        child: FilledButton.tonalIcon(
+                          key: Key('paid-${invoice.id}'),
+                          style: FilledButton.styleFrom(
+                            minimumSize: const Size(48, 48),
+                          ),
+                          onPressed: onMarkPaid,
+                          icon: const Icon(Icons.check),
+                          label: const Text('Bezahlt'),
+                        ),
+                      ),
+                    const SizedBox(width: 8),
+                  ],
+                ),
+              ],
             ],
           ),
         ),

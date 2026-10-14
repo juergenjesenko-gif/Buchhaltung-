@@ -1,6 +1,6 @@
 # Benutzerhandbuch – Buchhaltung
 
-**Für App-Version 0.4.0** · Stand 2026-10-14
+**Für App-Version 0.5.0** · Stand 2026-10-14
 
 Dieses Handbuch beschreibt die App aus Nutzersicht. Es wird bei jeder Änderung,
 die du in der App siehst, mitgeführt – siehe [`CLAUDE.md`](../CLAUDE.md).
@@ -583,6 +583,44 @@ Skonto geminderten Betrag als Einnahme, je Steuersatz anteilig; damit sinkt auch
 deine Umsatzsteuer im Monat der Zahlung automatisch. Die Rechnung selbst bleibt
 unverändert. Als Kleinunternehmer sinkt nur die Einnahme.
 
+### Erinnern und mahnen
+
+Ist eine Rechnung überfällig, steht oben in der Liste „… überfällig –
+mahnen?“, und auf der Karte erscheint **Erinnern** (beim ersten Mal) bzw.
+**Mahnen**. Ein Tipp öffnet die Vorschau:
+
+- **Stufe:** zuerst eine freundliche *Zahlungserinnerung*, danach *1. Mahnung*,
+  *2. Mahnung* und so weiter – so oft du willst.
+- **Neue Zahlungsfrist:** vorgeschlagen in 14 Tagen, antippen zum Ändern.
+- **Mahnkosten:** Die Zahlungserinnerung ist kostenlos, ab der 1. Mahnung
+  schlägt die App 10,00 € vor. Bei **Privatkunden** siehst du den Hinweis:
+  „Bei Privatkunden sind nur angemessene, tatsächlich entstandene Mahnkosten
+  zulässig – 10 € können zu hoch sein.“ Den Betrag bestimmst du.
+- **Verzugszinsen** (optional): Die App schlägt den gesetzlichen Satz vor –
+  Österreich 4 % bei Privatkunden, bei Unternehmen Basiszinssatz plus 9,2
+  Prozentpunkte; Deutschland Basiszinssatz plus 5 bzw. 9 Prozentpunkte – und
+  rechnet taggenau ab dem Tag nach der Fälligkeit. Den Satz kannst du ändern.
+- **Pauschale 40 €:** nur bei Unternehmen, auf Wunsch.
+
+Mit **… erstellen und senden** entsteht das PDF und der Teilen-Dialog öffnet
+sich. Das Schreiben ist danach unveränderlich; war es ein Versehen, stornierst
+du es in derselben Vorschau mit einer kurzen Begründung. Mahnkosten, Zinsen
+und Pauschale stehen auf dem Schreiben als „nicht umsatzsteuerbar“.
+
+**Unternehmen oder Privatkunde?** Im Kunden gibt es den Schalter
+**Unternehmen**. Er schaltet sich automatisch ein, wenn du eine UID einträgst.
+Davon hängen Zinssatz, Pauschale und der Hinweis zu den Mahnkosten ab. In
+Deutschland steht auf Rechnungen an Privatkunden außerdem automatisch der
+Hinweis, dass sie nach 30 Tagen auch ohne Mahnung in Verzug kommen
+(§ 286 Abs. 3 BGB).
+
+**Bezahlt nach einer Mahnung:** Die App fragt „Mahnkosten und Zinsen
+mitbezahlt?“. Bei *Ja* bucht sie diese getrennt als Einnahme ohne
+Umsatzsteuer. Teilzahlungen kann die App noch nicht abbilden.
+
+Standardwerte (Mahnkosten, Frist, Zinsen, Pauschale) stellst du in den
+Stammdaten unter *Rechnungen → Mahnungen* ein.
+
 ### Was auf dem PDF steht
 
 Die App setzt alle Pflichtangaben nach § 11 UStG (Österreich) bzw. § 14 UStG
@@ -970,7 +1008,7 @@ Damit du nicht darauf wartest:
   liefert dir die Zahlen; die Erklärung machst du oder deine Kanzlei.
 - **Keine Erinnerung an Termine.** Die Termin-Box zeigt sie nur an;
   Benachrichtigungen sind geplant. Teilzahlungen auf Rechnungen kann die App
-  noch nicht buchen.
+  noch nicht buchen – auch nicht nach einer Mahnung.
 - **Keine Synchronisierung** zwischen Geräten
 
 ### Und der wichtigste Satz

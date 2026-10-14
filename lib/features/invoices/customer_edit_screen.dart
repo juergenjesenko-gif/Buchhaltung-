@@ -26,6 +26,10 @@ class _CustomerEditScreenState extends State<CustomerEditScreen> {
   final _postalCode = TextEditingController();
   final _city = TextEditingController();
   final _vatId = TextEditingController();
+
+  /// Unternehmen (B2B); folgt der UID, bis die Nutzerin selbst schaltet.
+  bool _isBusiness = false;
+  bool _businessTouched = false;
   final _email = TextEditingController();
   final _note = TextEditingController();
 
@@ -43,6 +47,8 @@ class _CustomerEditScreenState extends State<CustomerEditScreen> {
     _postalCode.text = existing.postalCode;
     _city.text = existing.city;
     _vatId.text = existing.vatId;
+    _isBusiness = existing.isBusiness;
+    _businessTouched = true;
     _email.text = existing.email;
     _note.text = existing.note;
     _country = existing.country;
@@ -80,6 +86,7 @@ class _CustomerEditScreenState extends State<CustomerEditScreen> {
       vatId: _vatId.text.trim(),
       email: _email.text.trim(),
       note: _note.text.trim(),
+      isBusiness: _isBusiness,
     );
 
     final state = AppScope.read(context);
@@ -217,13 +224,30 @@ class _CustomerEditScreenState extends State<CustomerEditScreen> {
                             'Bei Kunden aus dem EU-Ausland für Reverse Charge nötig',
                       ),
                       textCapitalization: TextCapitalization.characters,
-                      onChanged: (_) => setState(() {}),
+                      onChanged: (value) => setState(() {
+                        if (!_businessTouched) {
+                          _isBusiness = value.trim().isNotEmpty;
+                        }
+                      }),
                       validator: (value) => VatIdFormat.check(value ?? ''),
                     ),
                     VatCheckStatus(
                       vatId: _vatId.text,
                       subject: 'customer',
                       subjectId: widget.existing?.id,
+                    ),
+                    SwitchListTile(
+                      key: const Key('customerIsBusiness'),
+                      contentPadding: EdgeInsets.zero,
+                      title: const Text('Unternehmen'),
+                      subtitle: const Text(
+                        'Aus: Privatkunde. Wichtig für Mahnkosten und Zinsen',
+                      ),
+                      value: _isBusiness,
+                      onChanged: (value) => setState(() {
+                        _isBusiness = value;
+                        _businessTouched = true;
+                      }),
                     ),
                     const SizedBox(height: 12),
                     TextFormField(

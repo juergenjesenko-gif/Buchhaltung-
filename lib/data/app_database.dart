@@ -16,7 +16,7 @@ class AppDatabase {
 
   /// Aktuelle Schemaversion. Öffentlich, weil docs/SPECIFICATION.md sie
   /// dokumentiert und test/specification_sync_test.dart beide vergleicht.
-  static const schemaVersion = 12;
+  static const schemaVersion = 13;
 
   Database? _db;
 
@@ -390,6 +390,67 @@ class AppDatabase {
       'ALTER TABLE company_profile ADD COLUMN default_skonto_permille INTEGER NOT NULL DEFAULT 0',
       "ALTER TABLE company_profile ADD COLUMN terms_url TEXT NOT NULL DEFAULT ''",
       'ALTER TABLE company_profile ADD COLUMN terms_hint_shown INTEGER NOT NULL DEFAULT 0',
+    ],
+    // Version 13: Mahnwesen (L-3.10, L-3.27 bis L-3.30).
+    13: [
+      // Unternehmen (B2B) oder Verbraucherin; mit UID vorbelegt Ja.
+      'ALTER TABLE customers ADD COLUMN is_business INTEGER NOT NULL DEFAULT 0',
+      "UPDATE customers SET is_business = 1 WHERE TRIM(vat_id) != ''",
+      // 10,00 EUR je Mahnung (Entscheidung der Auftraggeberin 2026-10-14).
+      'ALTER TABLE company_profile ADD COLUMN dunning_fee_cents INTEGER NOT NULL DEFAULT 1000',
+      'ALTER TABLE company_profile ADD COLUMN dunning_interest INTEGER NOT NULL DEFAULT 0',
+      'ALTER TABLE company_profile ADD COLUMN dunning_flat_fee INTEGER NOT NULL DEFAULT 0',
+      'ALTER TABLE company_profile ADD COLUMN dunning_period_days INTEGER NOT NULL DEFAULT 14',
+      // Momentaufnahme jedes Schreibens; nur Storno mit Begründung.
+      '''
+      CREATE TABLE dunning_notices (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        invoice_id INTEGER NOT NULL REFERENCES invoices(id),
+        level INTEGER NOT NULL,
+        issued_on TEXT NOT NULL,
+        new_due_date TEXT NOT NULL,
+        principal_cents INTEGER NOT NULL,
+        fee_cents INTEGER NOT NULL,
+        fees_total_cents INTEGER NOT NULL,
+        interest_cents INTEGER NOT NULL,
+        interest_rate_bp INTEGER NOT NULL,
+        flat_fee_cents INTEGER NOT NULL,
+        total_cents INTEGER NOT NULL,
+        text TEXT NOT NULL,
+        pdf_sha256 TEXT NOT NULL DEFAULT '',
+        cancelled_at TEXT,
+        cancel_reason TEXT NOT NULL DEFAULT '',
+        created_at TEXT NOT NULL
+      )
+      ''',
+      'CREATE INDEX idx_dunning_invoice ON dunning_notices(invoice_id, level)',
+      // Erlaubt ist nur das einmalige Stornieren mit Begründung.
+      '''
+      CREATE TRIGGER dunning_notices_immutable
+      BEFORE UPDATE ON dunning_notices
+      WHEN OLD.cancelled_at IS NOT NULL
+        OR NEW.cancelled_at IS NULL
+        OR TRIM(NEW.cancel_reason) = ''
+        OR NEW.invoice_id IS NOT OLD.invoice_id
+        OR NEW.level IS NOT OLD.level
+        OR NEW.issued_on IS NOT OLD.issued_on
+        OR NEW.new_due_date IS NOT OLD.new_due_date
+        OR NEW.total_cents IS NOT OLD.total_cents
+        OR NEW.fee_cents IS NOT OLD.fee_cents
+        OR NEW.fees_total_cents IS NOT OLD.fees_total_cents
+        OR NEW.interest_cents IS NOT OLD.interest_cents
+        OR NEW.flat_fee_cents IS NOT OLD.flat_fee_cents
+        OR NEW.text IS NOT OLD.text
+        OR NEW.pdf_sha256 IS NOT OLD.pdf_sha256
+      BEGIN
+        SELECT RAISE(ABORT, 'Mahnungen sind unveränderlich; nur Storno mit Begründung');
+      END
+      ''',
+      // Mahnkosten und Zinsen bei Zahlung als nicht umsatzsteuerbare
+      // Einnahme, höchstens eine je Rechnung.
+      'ALTER TABLE receipts ADD COLUMN dunning_invoice_id INTEGER REFERENCES invoices(id)',
+      'CREATE UNIQUE INDEX idx_receipts_dunning ON receipts(dunning_invoice_id) '
+          'WHERE dunning_invoice_id IS NOT NULL',
     ],
   };
 

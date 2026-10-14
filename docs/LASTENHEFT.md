@@ -1,6 +1,6 @@
 # Lastenheft – Buchhaltungsapp für Österreich und Deutschland
 
-**Dokumentversion:** 1.46 · **Stand:** 2026-10-14 · **Status:** Entwurf zur Abstimmung
+**Dokumentversion:** 1.47 · **Stand:** 2026-10-14 · **Status:** Entwurf zur Abstimmung
 **Auftraggeber:** Jürgen Jesenko (privates Vorhaben) · **Umsetzung:** Claude Code
 
 > Ein Lastenheft beschreibt, **was** das Produkt leisten soll und **warum** — nicht,
@@ -214,7 +214,7 @@ Priorität: **MUSS** = ohne das kein Release · **SOLL** = wichtig, verhandelbar
 | L-3.7 | **Stornorechnung bzw. Rechnungskorrektur** mit Verweis auf die Ursprungsrechnung; die Ursprungsrechnung bleibt erhalten und wird gekennzeichnet. Das Wort „Gutschrift" wird auf dem Beleg nicht verwendet, weil es umsatzsteuerlich die Abrechnung durch den Leistungsempfänger bezeichnet (§ 14 Abs 2 UStG DE, § 11 Abs 7 UStG AT) | MUSS | A |
 | L-3.8 | Rechnung als PDF teilen oder versenden | MUSS | A |
 | L-3.9 | Zahlungsstatus pflegen; offene und überfällige Rechnungen sind auf einen Blick erkennbar | MUSS | A |
-| L-3.10 | **Zahlungserinnerung** aus einer überfälligen Rechnung erzeugen und versenden (PDF mit Verweis auf Rechnungsnummer, offenen Betrag und neue Frist); Mahnstufen werden an der Rechnung vermerkt | MUSS | A |
+| L-3.10 | **Zahlungserinnerung und Mahnung** aus einer offenen, fälligen Rechnung beliebig oft erzeugen und versenden: Stufe 1 „Zahlungserinnerung“, danach „1. Mahnung“, „2. Mahnung“ usw. (PDF mit Verweis auf Rechnungsnummer, offenem Betrag, Kosten, Zinsen, Gesamt und neuer Frist als Datum); die Mahnstufe steht an der Rechnung; Hinweis „überfällig – mahnen?“ mit einem Tipp | MUSS | A |
 | L-3.11 | Rechnungsvorschau vor dem Ausstellen | SOLL | A |
 | L-3.12 | Wiederkehrende Rechnungen (Abo-Rechnungen an eigene Kunden) | KANN | C |
 | L-3.13 | **Angebote** mit eigenem Nummernkreis, unabhängig vom Rechnungsnummernkreis | MUSS | A |
@@ -231,6 +231,10 @@ Priorität: **MUSS** = ohne das kein Release · **SOLL** = wichtig, verhandelbar
 | L-3.24 | Beim Zahlungseingang fragt das Produkt mit einem Tipp „Mit Skonto bezahlt?“; die Einnahme je Steuersatz mindert sich anteilig, die Umsatzsteuer wird im Zahlungsmonat berichtigt (§ 16 UStG AT, § 17 UStG DE); die Rechnung bleibt unverändert | MUSS | A |
 | L-3.25 | **AGB-Verweis**: Adresse der Verkaufsbedingungen im Profil, eingefroren mit der Rechnung, Hinweis „soweit sie vereinbart wurden“ auf Rechnung (und Angebot) | SOLL | A |
 | L-3.26 | Beim Eintragen der AGB-Adresse einmaliger Hinweis, dass der Verweis auf der Rechnung allein die AGB nicht einbezieht | SOLL | A |
+| L-3.27 | **Mahnkosten** 10,00 € je Mahnung ab der 1. Mahnung (Zahlungserinnerung kostenlos), änderbar; bei Privatkunden Hinweis, dass nur angemessene, tatsächliche Kosten zulässig sind. **Verzugszinsen** optional mit gesetzlichem Vorschlag (AT § 1000 ABGB, § 456 UGB; DE § 288 BGB), Basiszinssatz mit Gültigkeitsbeginn; 40-€-Pauschale nur gegenüber Unternehmen (§ 458 UGB, § 288 Abs 5 BGB) | MUSS | A |
+| L-3.28 | Kundenmerkmal **Unternehmen** (vorbelegt Ja mit UID); in DE tragen Rechnungen an Privatkunden den Hinweis nach § 286 Abs 3 BGB | MUSS | A |
+| L-3.29 | Mahnschreiben sind **unveränderlich** (Text, Sätze, Beträge, PDF-Prüfsumme); nur Storno mit Begründung; sachlicher Ton ohne Drohungen; Versand wie Rechnung | MUSS | A |
+| L-3.30 | Mahnkosten, Zinsen und Pauschale sind **nicht umsatzsteuerbar**, getrennt ausgewiesen und werden bei Zahlung als Einnahme gebucht; Anrechnung Kosten → Zinsen → Hauptforderung (§ 1416 ABGB, § 367 BGB) | MUSS | A |
 
 ### 5.4 E-Rechnung
 
@@ -1225,6 +1229,7 @@ Zu entscheiden, bevor die betroffene Anforderung umgesetzt wird:
 
 | Version | Datum | Änderung |
 |---|---|---|
+| 1.47 | 2026-10-14 | Mahnwesen: L-3.10 präzisiert (Stufen, beliebig oft), neu L-3.27 bis L-3.30; umgesetzt in App-Version 0.5.0 (Spezifikation GR-13, FA-5.21 bis FA-5.25). |
 | 1.46 | 2026-10-14 | Rabatt, Versandkosten, Skonto, AGB-Verweis (L-3.21 bis L-3.26), umgesetzt in App-Version 0.4.0 (Spezifikation 5.5, GR-12). |
 | 1.45 | 2026-10-14 | Neuer Block L-26 Hilfe in der App: Stufe 1 offline umgesetzt (Spezifikation 5.8, FA-11.1 bis FA-11.3), Stufe 2 KI nach Server-Entscheidung (P-R25, P-R26). |
 | 1.44 | 2026-10-14 | Neue Blöcke L-24 Wirtschaftsjahr und L-25 Steuer- und Abgabetermine (Entscheidungen der Auftraggeberin 2026-10-14); L-25.9 bezahlte Rechnung als Einnahme nach Zahlungseingang (Gerätetest 0.3.4). |

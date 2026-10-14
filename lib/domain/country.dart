@@ -1,4 +1,5 @@
 import 'deadline_rule.dart';
+import 'dunning.dart';
 import 'holidays.dart';
 import 'money.dart';
 
@@ -78,6 +79,7 @@ class TaxProfile {
     required this.smallBusinessLabel,
     required this.smallBusinessLegalRef,
     required this.smallBusinessInvoiceNote,
+    required this.dunning,
     required this.vatIdExample,
     required this.invoiceRequiresTaxId,
     required this.largeInvoiceVatIdLimit,
@@ -126,6 +128,9 @@ class TaxProfile {
 
   /// Pflichthinweis, der auf jeder Rechnung eines Kleinunternehmers stehen muss.
   final String smallBusinessInvoiceNote;
+
+  /// Mahnwesen: Verzugszinsen, Pauschale, Verbraucherhinweis (L-3.27 ff.).
+  final DunningRules dunning;
 
   /// Beispiel einer gültigen UID als Eingabehilfe.
   final String vatIdExample;
@@ -251,6 +256,30 @@ class TaxProfile {
   /// Österreich – § 6 Abs 1 Z 27 UStG in der ab 1.1.2025 geltenden Fassung.
   static final austria = TaxProfile(
     country: Country.at,
+    dunning: DunningRules(
+      // § 1000 Abs 1 ABGB: 4 % p. a. gegenüber Verbrauchern.
+      consumerFixedRateBp: 400,
+      consumerSurchargeBp: 0,
+      // § 456 UGB: 9,2 Prozentpunkte über dem Basiszinssatz unter
+      // Unternehmern; Basiszinssatz am ersten Kalendertag des Halbjahrs.
+      businessSurchargeBp: 920,
+      consumerInterestLegalRef: '§ 1000 Abs 1 ABGB',
+      businessInterestLegalRef: '§ 456 UGB',
+      // Basiszinssatz der OeNB (2. Euro-JuBeG). Vorbefund, real zu prüfen:
+      // P-S44.
+      baseRates: [
+        BaseRate(DateTime(2025, 1, 1), 253),
+        BaseRate(DateTime(2025, 7, 1), 153),
+        BaseRate(DateTime(2026, 1, 1), 153),
+      ],
+      baseRateLegalRef: 'OeNB-Basiszinssatz, § 456 UGB',
+      // § 458 UGB: 40 EUR Pauschale unter Unternehmern.
+      flatFee: const Money(4000),
+      flatFeeLegalRef: '§ 458 UGB',
+      consumerDefaultNotice: null,
+      // § 1416 ABGB: Zahlung zuerst auf Kosten, dann Zinsen, dann Kapital.
+      paymentAllocationLegalRef: '§ 1416 ABGB',
+    ),
     vatRates: [
       VatRate(permille: 200, label: 'Normalsteuersatz', isDefault: true),
       VatRate(permille: 130, label: 'Ermäßigt (z. B. Wein ab Hof, Kunst)'),
@@ -397,6 +426,34 @@ class TaxProfile {
   /// Deutschland – § 19 UStG in der ab 1.1.2025 geltenden Fassung.
   static final germany = TaxProfile(
     country: Country.de,
+    dunning: DunningRules(
+      // § 288 Abs 1 BGB: 5 Prozentpunkte über dem Basiszinssatz.
+      consumerFixedRateBp: null,
+      consumerSurchargeBp: 500,
+      // § 288 Abs 2 BGB: 9 Prozentpunkte, wenn kein Verbraucher beteiligt.
+      businessSurchargeBp: 900,
+      consumerInterestLegalRef: '§ 288 Abs 1 BGB',
+      businessInterestLegalRef: '§ 288 Abs 2 BGB',
+      // § 247 BGB, Bekanntmachung der Bundesbank zum 1.1. und 1.7.
+      // Vorbefund, real zu prüfen: P-S44.
+      baseRates: [
+        BaseRate(DateTime(2025, 1, 1), 227),
+        BaseRate(DateTime(2025, 7, 1), 127),
+        BaseRate(DateTime(2026, 1, 1), 127),
+      ],
+      baseRateLegalRef: '§ 247 BGB',
+      // § 288 Abs 5 BGB: 40 EUR Pauschale, nicht gegenüber Verbrauchern.
+      flatFee: const Money(4000),
+      flatFeeLegalRef: '§ 288 Abs 5 BGB',
+      // § 286 Abs 3 Satz 1 BGB: Verbraucher kommen nach 30 Tagen nur in
+      // Verzug, wenn die Rechnung darauf hinweist.
+      consumerDefaultNotice:
+          'Hinweis nach § 286 Abs. 3 BGB: Wird die Rechnung nicht '
+          'innerhalb von 30 Tagen nach Fälligkeit und Zugang bezahlt, tritt '
+          'Verzug auch ohne Mahnung ein.',
+      // § 367 Abs 1 BGB: Kosten, dann Zinsen, dann Hauptleistung.
+      paymentAllocationLegalRef: '§ 367 BGB',
+    ),
     vatRates: [
       VatRate(permille: 190, label: 'Regelsteuersatz', isDefault: true),
       VatRate(permille: 70, label: 'Ermäßigt (z. B. Lebensmittel, Bücher)'),

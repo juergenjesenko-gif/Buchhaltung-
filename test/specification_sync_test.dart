@@ -13,6 +13,7 @@ import 'package:buchhaltung/services/deadline_calculator.dart';
 import 'package:buchhaltung/domain/money.dart';
 import 'package:buchhaltung/domain/receipt.dart';
 import 'package:buchhaltung/services/invoice_numbering.dart';
+import 'package:buchhaltung/services/dunning_calculator.dart';
 import 'package:buchhaltung/services/small_business_monitor.dart';
 import 'package:buchhaltung/services/logo_store.dart';
 import 'package:buchhaltung/widgets/primary_action_bar.dart';
@@ -158,6 +159,28 @@ void main() {
         PrimaryActionBar.height.toInt(),
       );
       expect(intValue('spec.min_touch_target_dp'), kMinInteractiveDimension);
+    });
+
+    test('Mahnwesen: Standardwerte stimmen (L-3.27)', () {
+      expect(
+        moneyValue('spec.dunning_default_fee_cents'),
+        DunningCalculator.defaultFee,
+      );
+      expect(
+        const CompanyProfile(companyName: '', country: Country.at).dunningFee,
+        DunningCalculator.defaultFee,
+      );
+      expect(
+        intValue('spec.dunning_period_days'),
+        DunningCalculator.defaultPeriodDays,
+      );
+      expect(
+        const CompanyProfile(
+          companyName: '',
+          country: Country.at,
+        ).dunningPeriodDays,
+        DunningCalculator.defaultPeriodDays,
+      );
     });
 
     test('Schemaversion der Datenbank stimmt', () {
@@ -352,6 +375,43 @@ void main() {
       expect(
         value('spec.$prefix.asks_federal_state'),
         profile.asksFederalState ? 'ja' : 'nein',
+      );
+      final dunning = profile.dunning;
+      final consumerRate = value('spec.$prefix.dunning_consumer_rate_bp');
+      expect(
+        consumerRate == 'none' ? null : int.parse(consumerRate),
+        dunning.consumerFixedRateBp,
+      );
+      expect(
+        intValue('spec.$prefix.dunning_consumer_surcharge_bp'),
+        dunning.consumerSurchargeBp,
+      );
+      expect(
+        intValue('spec.$prefix.dunning_business_surcharge_bp'),
+        dunning.businessSurchargeBp,
+      );
+      expect(
+        moneyValue('spec.$prefix.dunning_flat_fee_cents'),
+        dunning.flatFee,
+      );
+      expect(
+        value('spec.$prefix.dunning_base_rates'),
+        dunning.baseRates
+            .map(
+              (r) =>
+                  '${r.validFrom.toIso8601String().substring(0, 10)}:'
+                  '${r.basisPoints}',
+            )
+            .join(','),
+      );
+      expect(
+        value('spec.$prefix.dunning_consumer_notice'),
+        dunning.consumerDefaultNotice == null ? 'nein' : 'ja',
+      );
+      expect(
+        value('spec.$prefix.dunning_interest_legal_ref'),
+        '${dunning.consumerInterestLegalRef} | '
+        '${dunning.businessInterestLegalRef}',
       );
       expect(
         value('spec.$prefix.deadline_rules'),

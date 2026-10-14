@@ -3,6 +3,7 @@ import 'package:sqflite/sqflite.dart';
 import '../domain/company_profile.dart';
 import '../domain/country.dart';
 import '../domain/customer.dart';
+import '../domain/dunning.dart';
 import '../domain/invoice.dart';
 import '../domain/money.dart';
 import '../domain/receipt.dart';
@@ -816,10 +817,17 @@ class InvoiceRepository {
   /// je Satz), damit auch die Umsatzsteuer im Zahlungsmonat (§ 16 UStG AT,
   /// § 17 UStG DE). Die Rechnung selbst bleibt unverändert (GR-8); nur der
   /// Zahlungsvorgang `skonto_taken_cents` wird vermerkt.
+  ///
+  /// Mit [withDunningCosts] werden Mahnkosten, Zinsen und Pauschale des
+  /// letzten nicht stornierten Mahnschreibens als eine nicht
+  /// umsatzsteuerbare Einnahme gebucht (L-3.30). Anrechnung nach § 1416 ABGB
+  /// bzw. § 367 BGB: bei voller Zahlung sind Kosten, Zinsen und
+  /// Hauptforderung gedeckt; Teilzahlungen bildet die App nicht ab.
   Future<void> markPaid(
     int id,
     DateTime paidAt, {
     bool withSkonto = false,
+    bool withDunningCosts = false,
   }) async {
     var invoice = await byId(id);
     if (invoice == null) return;
@@ -840,6 +848,7 @@ class InvoiceRepository {
         whereArgs: [id],
       );
       await _bookIncome(txn, invoice!, day);
+      if (withDunningCosts) await _bookDunningCosts(txn, invoice!, day);
       await AuditLog(_db).record(
         entity: 'invoice',
         entityId: id,
@@ -931,6 +940,47 @@ class InvoiceRepository {
     }
   }
 
+  Future<void> _bookDunningCosts(
+    DatabaseExecutor txn,
+    Invoice invoice,
+    DateTime day,
+  ) async {
+    final rows = await txn.query(
+      'dunning_notices',
+      where: 'invoice_id = ? AND cancelled_at IS NULL',
+      whereArgs: [invoice.id],
+      orderBy: 'level DESC',
+      limit: 1,
+    );
+    if (rows.isEmpty) return;
+    final notice = DunningNotice.fromMap(rows.first);
+    if (notice.costs.isZero) return;
+    final category = await txn.query(
+      'categories',
+      columns: ['id'],
+      where: "direction = 'income' AND name = ?",
+      whereArgs: ['Sonstige Einnahmen'],
+      limit: 1,
+    );
+    final receipt = Receipt(
+      date: day,
+      direction: BookingDirection.income,
+      description:
+          'Mahnkosten und Zinsen zu Rechnung ${invoice.number} '
+          '(nicht umsatzsteuerbar)',
+      net: notice.costs,
+      vat: const Money.zero(),
+      gross: notice.costs,
+      vatPermille: 0,
+      categoryId: category.isEmpty ? null : category.first['id'] as int?,
+      documentNumber: invoice.number,
+    );
+    await txn.insert('receipts', {
+      ...receipt.toMap(),
+      'dunning_invoice_id': invoice.id,
+    }, conflictAlgorithm: ConflictAlgorithm.ignore);
+  }
+
   Future<bool> numberExists(String number, {int? exceptId}) async {
     final rows = await _db.query(
       'invoices',
@@ -943,6 +993,71 @@ class InvoiceRepository {
   }
 }
 
+/// Zahlungserinnerungen und Mahnungen (L-3.27 bis L-3.30). Nur Einfügen und
+/// Stornieren; ein Trigger verhindert jede andere Änderung.
+class DunningRepository {
+  const DunningRepository(this._db);
+
+  final Database _db;
+
+  Future<List<DunningNotice>> forInvoice(int invoiceId) async {
+    final rows = await _db.query(
+      'dunning_notices',
+      where: 'invoice_id = ?',
+      whereArgs: [invoiceId],
+      orderBy: 'level ASC, id ASC',
+    );
+    return rows.map(DunningNotice.fromMap).toList();
+  }
+
+  /// Letztes nicht storniertes Schreiben je Rechnung.
+  Future<Map<int, DunningNotice>> latestActive() async {
+    final rows = await _db.query(
+      'dunning_notices',
+      where: 'cancelled_at IS NULL',
+      orderBy: 'level ASC',
+    );
+    return {
+      for (final notice in rows.map(DunningNotice.fromMap))
+        notice.invoiceId: notice,
+    };
+  }
+
+  Future<int> insert(DunningNotice notice) async {
+    final id = await _db.insert(
+      'dunning_notices',
+      notice.toMap()..remove('id'),
+    );
+    await AuditLog(_db).record(
+      entity: 'dunning',
+      entityId: id,
+      action: 'create',
+      detail:
+          '${notice.title} Rechnung ${notice.invoiceId} ${notice.total} '
+          'sha256 ${notice.pdfSha256}',
+    );
+    return id;
+  }
+
+  Future<void> cancel(int id, String reason) async {
+    if (reason.trim().isEmpty) {
+      throw ArgumentError('Ein Storno braucht eine Begründung.');
+    }
+    await _db.update(
+      'dunning_notices',
+      {
+        'cancelled_at': DateTime.now().toIso8601String(),
+        'cancel_reason': reason.trim(),
+      },
+      where: 'id = ?',
+      whereArgs: [id],
+    );
+    await AuditLog(
+      _db,
+    ).record(entity: 'dunning', entityId: id, action: 'cancel', detail: reason);
+  }
+}
+
 /// Bündel aller Repositories, damit die UI nur eine Abhängigkeit kennt.
 class Repositories {
   Repositories(Database db)
@@ -952,6 +1067,7 @@ class Repositories {
       receipts = ReceiptRepository(db),
       openingTurnover = OpeningTurnoverRepository(db),
       invoices = InvoiceRepository(db),
+      dunning = DunningRepository(db),
       vatChecks = VatCheckRepository(db),
       consents = ConsentRepository(db),
       audit = AuditLog(db);
@@ -962,6 +1078,7 @@ class Repositories {
   final ReceiptRepository receipts;
   final OpeningTurnoverRepository openingTurnover;
   final InvoiceRepository invoices;
+  final DunningRepository dunning;
   final VatCheckRepository vatChecks;
   final ConsentRepository consents;
   final AuditLog audit;

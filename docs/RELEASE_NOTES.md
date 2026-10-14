@@ -29,11 +29,36 @@ gebaut, und was war darin geprüft?*
 
 ## Unveröffentlicht
 
-Änderungen seit 0.4.0+9, die noch in keinem Build stecken. Wandern beim
+Änderungen seit 0.5.0+10, die noch in keinem Build stecken. Wandern beim
 nächsten Versionssprung in den neuen Eintrag.
 
 | Art | Änderung | Bezug | Commit |
 |---|---|---|---|
+
+---
+
+## 0.5.0+10 — 2026-10-14
+
+| Feld | Wert |
+|---|---|
+| Art | Testbuild (ungezippte arm64-APK, fester Testschlüssel); Mahnwesen |
+| Commit | siehe Git-Tag `v0.5.0` |
+| Branch | `claude/agile-accounting-app-mobile-wa5j3h` |
+| Dokumentstände | Lastenheft 1.47, Spezifikation 1.44, Benutzerhandbuch für 0.5.0 |
+| Datenbankschema | 13 |
+| Prüfung | `flutter analyze` ohne Befund, alle Tests grün (neu `dunning_test.dart`, `invoice_list_ux_test.dart`), Emulator-Job `android-ocr-emulator`, CI siehe Lauf zum Tag |
+| Steuerliche Kennwerte | `spec.schema_version` = 13; neu `spec.dunning_default_fee_cents` = 1000, `spec.dunning_period_days` = 14, `spec.*.dunning_consumer_rate_bp` (AT 400), `spec.*.dunning_consumer_surcharge_bp` (DE 500), `spec.*.dunning_business_surcharge_bp` (AT 920, DE 900), `spec.*.dunning_flat_fee_cents` = 4000, `spec.*.dunning_base_rates`, `spec.*.dunning_consumer_notice`, `spec.*.dunning_interest_legal_ref` |
+| Offene reale Prüfpunkte | P-D21, P-D22, P-D25, P-D26, P-S27 bis P-S35, P-S40 bis P-S45, P-R24 bis P-R26, P-R30 bis P-R34 |
+
+**Änderungen seit 0.4.0+9**
+
+| Art | Änderung | Bezug | Commit |
+|---|---|---|---|
+| Neu | Zahlungserinnerung und Mahnungen beliebig oft (Stufe 1 Erinnerung, dann 1., 2. … Mahnung) als Bottom-Sheet mit Vorschau, PDF mit Tabelle und neuer Frist, Teilen; unveränderlich mit SHA-256, Storno mit Begründung. Schema 13 (`dunning_notices`). Test `dunning_test.dart`, `invoice_list_ux_test.dart` | L-3.10, L-3.29, FA-5.21, P-R33 | siehe Tag |
+| Neu | Mahnkosten 10 € ab 1. Mahnung (änderbar) mit Hinweis bei Privatkunden; optionale Verzugszinsen act/365 je Halbjahr aus Basiszinssatz; Pauschale 40 € nur B2B | L-3.27, GR-13, FA-5.22, FA-5.23, P-R32, P-R34, P-S44 | siehe Tag |
+| Neu | Kundenmerkmal „Unternehmen“ (folgt der UID); DE-Rechnungen an Privatkunden mit Hinweis § 286 Abs 3 BGB | L-3.28, FA-5.24 | siehe Tag |
+| Neu | „Bezahlt“ fragt „Mahnkosten und Zinsen mitbezahlt?“ und bucht sie als nicht umsatzsteuerbare Einnahme | L-3.30, FA-5.25, P-S45 | siehe Tag |
+| Geändert | Rechnungsliste: Hinweis „überfällig – mahnen?“, Tonal-Knöpfe „Erinnern/Mahnen“ und „Bezahlt“ in eigener Zeile (≥ 48 dp) | FA-5.13, FA-5.20 | siehe Tag |
 
 ---
 

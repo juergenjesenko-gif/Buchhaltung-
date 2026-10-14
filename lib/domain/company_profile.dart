@@ -1,6 +1,7 @@
 import 'country.dart';
 import 'deadline_rule.dart';
 import 'fiscal_year.dart';
+import 'money.dart';
 
 /// Die Stammdaten des eigenen Unternehmens. Genau ein Datensatz pro Installation.
 class CompanyProfile {
@@ -45,7 +46,23 @@ class CompanyProfile {
     this.defaultSkontoPermille = 0,
     this.termsUrl = '',
     this.termsHintShown = false,
+    this.dunningFee = const Money(1000),
+    this.dunningInterest = false,
+    this.dunningFlatFee = false,
+    this.dunningPeriodDays = 14,
   });
+
+  /// Mahnkosten je Mahnung ab der 1. Mahnung (L-3.27); änderbar.
+  final Money dunningFee;
+
+  /// Verzugszinsen standardmäßig verrechnen (L-3.27, optional).
+  final bool dunningInterest;
+
+  /// 40-€-Pauschale bei Unternehmen standardmäßig verrechnen.
+  final bool dunningFlatFee;
+
+  /// Neue Zahlungsfrist in Tagen ab Mahndatum.
+  final int dunningPeriodDays;
 
   /// Vorbelegung für Skonto auf neuen Rechnungen (L-3.23); 0 = ohne.
   final int defaultSkontoDays;
@@ -244,6 +261,10 @@ class CompanyProfile {
     int? defaultSkontoPermille,
     String? termsUrl,
     bool? termsHintShown,
+    Money? dunningFee,
+    bool? dunningInterest,
+    bool? dunningFlatFee,
+    int? dunningPeriodDays,
   }) {
     return CompanyProfile(
       companyName: companyName ?? this.companyName,
@@ -289,6 +310,10 @@ class CompanyProfile {
           defaultSkontoPermille ?? this.defaultSkontoPermille,
       termsUrl: termsUrl ?? this.termsUrl,
       termsHintShown: termsHintShown ?? this.termsHintShown,
+      dunningFee: dunningFee ?? this.dunningFee,
+      dunningInterest: dunningInterest ?? this.dunningInterest,
+      dunningFlatFee: dunningFlatFee ?? this.dunningFlatFee,
+      dunningPeriodDays: dunningPeriodDays ?? this.dunningPeriodDays,
     );
   }
 
@@ -334,6 +359,10 @@ class CompanyProfile {
     'default_skonto_permille': defaultSkontoPermille,
     'terms_url': termsUrl,
     'terms_hint_shown': termsHintShown ? 1 : 0,
+    'dunning_fee_cents': dunningFee.cents,
+    'dunning_interest': dunningInterest ? 1 : 0,
+    'dunning_flat_fee': dunningFlatFee ? 1 : 0,
+    'dunning_period_days': dunningPeriodDays,
   };
 
   static CompanyProfile fromMap(Map<String, Object?> map) => CompanyProfile(
@@ -387,6 +416,10 @@ class CompanyProfile {
     defaultSkontoPermille: map['default_skonto_permille'] as int? ?? 0,
     termsUrl: map['terms_url'] as String? ?? '',
     termsHintShown: (map['terms_hint_shown'] as int? ?? 0) == 1,
+    dunningFee: Money(map['dunning_fee_cents'] as int? ?? 1000),
+    dunningInterest: (map['dunning_interest'] as int? ?? 0) == 1,
+    dunningFlatFee: (map['dunning_flat_fee'] as int? ?? 0) == 1,
+    dunningPeriodDays: map['dunning_period_days'] as int? ?? 14,
   );
 
   static DateTime? _parseDate(Object? value) =>

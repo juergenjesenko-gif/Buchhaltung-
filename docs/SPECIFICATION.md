@@ -1,6 +1,6 @@
 # Spezifikation – Buchhaltung
 
-**Dokumentversion:** 1.43 · **App-Version:** 0.4.0 · **Stand:** 2026-10-14
+**Dokumentversion:** 1.44 · **App-Version:** 0.5.0 · **Stand:** 2026-10-14
 **Status:** Sprint 1 umgesetzt und verifiziert
 
 > Das **Zielbild** des Produkts steht im [`LASTENHEFT.md`](LASTENHEFT.md); dieses
@@ -210,10 +210,29 @@ Rechnungssummen rechnet ausschließlich `InvoiceTotals`
 Beispiel AT: 100,00 € zu 20 % und 50,00 € zu 10 %, 10 % Gesamtrabatt →
 90,00 + 18,00 und 45,00 + 4,50, brutto 157,50 €.
 
+### GR-13 · Mahnwesen: Nebenforderungen sind nicht umsatzsteuerbar
+
+Zahlungserinnerung (Stufe 1) und Mahnungen (Stufe 2 = „1. Mahnung“ usw.)
+sind unveränderliche Momentaufnahmen (`dunning_notices`, Trigger). Mahnkosten,
+Verzugszinsen und Pauschale sind Schadenersatz bzw. Zinsen, kein Entgelt: sie
+stehen getrennt mit „nicht umsatzsteuerbar“ und werden erst bei Zahlung als
+Einnahme mit 0 % gebucht (Kategorie „Sonstige Einnahmen“). Anrechnung einer
+Zahlung: Kosten → Zinsen → Hauptforderung (§ 1416 ABGB, § 367 BGB,
+`DunningCalculator.allocatePayment`).
+
+Zinsen: Basispunkte (1/100 %), weil der Basiszinssatz zwei Nachkommastellen
+hat. Zeitraum Tag nach Fälligkeit bis Mahndatum einschließlich, act/365, je
+Halbjahr ein Abschnitt mit dem Basiszinssatz am ersten Tag des Halbjahrs;
+je Abschnitt `Betrag × Satz × Tage / 3.650.000`, half-up. Gesetzliche Sätze
+im `TaxProfile.dunning`: AT Verbraucher 4 % (§ 1000 ABGB), AT Unternehmen
+Basiszins + 9,2 Pp (§ 456 UGB), DE Verbraucher + 5 Pp, Unternehmen + 9 Pp
+(§ 288 BGB); Pauschale 40 € nur B2B (§ 458 UGB, § 288 Abs 5 BGB). Der Satz ist
+ein änderbarer Vorschlag.
+
 ## 4. Datenmodell
 
 **Speicher:** SQLite auf dem Gerät, Datei `buchhaltung.db` im
-Anwendungsdokumentenverzeichnis. Aktuelle Schemaversion: **12**
+Anwendungsdokumentenverzeichnis. Aktuelle Schemaversion: **13**
 (`spec.schema_version`). Bilder liegen als Dateien daneben: Belegseiten in
 `belege/`, Firmenlogos in `logo/`.
 
@@ -223,7 +242,8 @@ Anwendungsdokumentenverzeichnis. Aktuelle Schemaversion: **12**
 |---|---|---|
 | `company_profile` | Firmenstammdaten | Genau eine Zeile, erzwungen durch `CHECK (id = 1)` |
 | `categories` | Buchhaltungskategorien | 16 Startkategorien, `is_system = 1` schützt vor Löschen |
-| `customers` | Rechnungsempfänger | Löschen blockiert, solange Rechnungen bestehen |
+| `customers` | Rechnungsempfänger | Löschen blockiert, solange Rechnungen bestehen. Seit Schema 13 `is_business` (1 = Unternehmen; bei der Migration 1, wo eine UID eingetragen ist) |
+| `dunning_notices` | Zahlungserinnerungen und Mahnungen: `invoice_id`, `level`, `issued_on`, `new_due_date`, `principal_cents`, `fee_cents`, `fees_total_cents`, `interest_cents`, `interest_rate_bp`, `flat_fee_cents`, `total_cents`, `text`, `pdf_sha256`, `cancelled_at`, `cancel_reason`, `created_at` | Schema 13. Unveränderlich (Trigger); einzig erlaubt: einmaliges Storno mit Begründung |
 | `receipts` | Belege | Index auf `date` und `direction`. Werden nie gelöscht, nur storniert (`cancelled_at`). Seit Schema 11 `invoice_id` (Einnahme aus bezahlter Rechnung, eindeutig je Rechnung und Steuersatz) |
 | `receipt_pages` | Seiten (Fotos) eines Belegs: `receipt_id`, `position` ab 1, `image_path`, `created_at` | Schema 8. Nach dem Speichern nur Anhängen; bestehende Einzelfotos wurden bei der Migration zur Seite 1 |
 | `receipt_comments` | Kommentare zu Belegen: `receipt_id`, `text`, `created_at` (Systemzeit) | Schema 8. Nur Einfügen; ein Trigger verhindert `UPDATE`. Löschen bietet die App nicht an (die Wiederherstellung leert alle Tabellen) |
@@ -301,6 +321,8 @@ Anwendungsdokumentenverzeichnis. Aktuelle Schemaversion: **12**
 | `quantity_milli` | INTEGER | Menge × 1000, siehe GR-4 |
 | `unit_price_cents` | INTEGER | Einzelpreis **netto** |
 | `discount_permille`, `discount_cents` | INTEGER | Positionsrabatt in Promille oder Cent (Schema 12) |
+
+**`company_profile`** — seit Schema 13: `dunning_fee_cents` (Standard 1000), `dunning_interest`, `dunning_flat_fee` (INTEGER 0/1), `dunning_period_days` (Standard 14). **`receipts`** — seit Schema 13: `dunning_invoice_id` (Einnahme aus Mahnkosten und Zinsen, eindeutig je Rechnung).
 
 **`company_profile`** — seit Schema 12: `default_skonto_days`, `default_skonto_permille` (INTEGER, Vorschlag für neue Rechnungen, 0 = ohne), `terms_url` (TEXT, Adresse der AGB), `terms_hint_shown` (INTEGER, einmaliger Hinweis gezeigt)
 
@@ -435,13 +457,18 @@ Grenzwerte siehe Abschnitt 12.
 | FA-5.10 | Teilen über den Systemdialog |
 | FA-5.11 | Nur Entwürfe sind löschbar; gestellte Rechnungen werden storniert |
 | FA-5.12 | *Bezahlt* fragt den Zahlungseingang (vorbelegt heute, änderbar), setzt `paid_at` und bucht die Einnahme je Steuersatz an diesem Tag (GR-11). Vor Schema 11 bezahlte Rechnungen bucht die App beim Start einmal nach (`paid_at`, sonst Rechnungsdatum). Hinweis im Dialog: nicht zusätzlich als Einnahmebeleg erfassen |
-| FA-5.13 | Eine gestellte Rechnung mit überschrittener Fälligkeit wird als überfällig gekennzeichnet |
+| FA-5.13 | Eine gestellte Rechnung mit überschrittener Fälligkeit wird als überfällig gekennzeichnet; die Rechnungsliste zeigt oben „n Rechnungen überfällig – mahnen?“ und auf der Karte den Tonal-Knopf „Erinnern“ bzw. „Mahnen“ (L-3.10) |
 | FA-5.14 | Die Übersicht zeigt die Summe der gestellten, nicht bezahlten Rechnungen |
 | FA-5.15 | Rabatt je Position und auf die Rechnung, Prozent oder Betrag, eingeklappt („Rabatt hinzufügen“, Bottom-Sheet mit „% / €“); Gesamtrabatt anteilig je Satz (GR-12, L-3.21) |
 | FA-5.16 | Versandkosten (eingeklappt) mit Satz „wie Hauptleistung (automatisch)“ oder festem Satz (GR-12, L-3.22) |
 | FA-5.17 | Skonto als Schalter mit Prozent und Tagen, vorbelegt aus dem Profil; PDF: „Zahlbar bis <Fälligkeit> ohne Abzug. Bei Zahlung bis <Datum> <p> % Skonto (= <Betrag>).“ (L-3.23) |
 | FA-5.18 | „Bezahlt“ als Bottom-Sheet mit Zahlungsdatum und, bei Skonto, Schalter „Mit Skonto bezahlt?“ (vorbelegt Ja innerhalb der Frist); Einnahme je Satz um anteiliges Skonto gemindert (GR-12, L-3.24) |
 | FA-5.19 | AGB-Adresse im Profil; Verweis „Es gelten unsere Verkaufsbedingungen, abrufbar unter <URL>, soweit sie vereinbart wurden.“ auf dem PDF; eingefroren in `seller_snapshot`; einmaliger Hinweis beim ersten Eintragen (L-3.25, L-3.26) |
+| FA-5.21 | Mahnen beliebig oft: Stufe 1 „Zahlungserinnerung“, danach „1. Mahnung“, „2. Mahnung“ …; Bottom-Sheet mit Vorschau (Frist +`dunning_period_days`, Mahnkosten, Zinsen, Pauschale, Gesamt, Text), ein Tipp „… erstellen und senden“ erzeugt das PDF, speichert die Momentaufnahme mit SHA-256 und öffnet den Teilen-Dialog; Storno mit Pflicht-Begründung (L-3.10, L-3.29) |
+| FA-5.22 | Mahnkosten 10,00 € je Mahnung ab der 1. Mahnung, Zahlungserinnerung kostenlos, änderbar; bei Privatkunden mit Kosten > 0 Hinweis „Bei Privatkunden sind nur angemessene, tatsächlich entstandene Mahnkosten zulässig – 10 € können zu hoch sein.“ (L-3.27, P-R32) |
+| FA-5.23 | Verzugszinsen optional mit gesetzlichem Vorschlag (GR-13), Pauschale 40 € nur bei Unternehmen; Standardwerte in den Stammdaten (L-3.27) |
+| FA-5.24 | Kundenmerkmal „Unternehmen“ (Schalter, folgt der UID bis zur ersten eigenen Wahl); DE: Rechnungen an Privatkunden tragen den Hinweis nach § 286 Abs 3 BGB aus `TaxProfile.dunning.consumerDefaultNotice` (L-3.28) |
+| FA-5.25 | „Bezahlt“ fragt bei vorhandener Mahnung „Mahnkosten und Zinsen mitbezahlt?“; Ja bucht die Kosten des letzten nicht stornierten Schreibens als nicht umsatzsteuerbare Einnahme (GR-13, L-3.30) |
 | FA-5.20 | Bedienung (UX-Prüfinstanz): Primärleiste `PrimaryActionBar` 56 dp unten über der Tastatur mit „Entwurf“ / „Rechnung ausstellen“, nach dem Ausstellen „PDF senden“; „Position hinzufügen“ volle Breite; Zielflächen ≥ 48 dp; Rechnungskarte mit Tonal-Knopf „Bezahlt“; Stornieren/Löschen im Menü nach Trennlinie in Fehlerfarbe mit Bestätigung (Nummer, Betrag) |
 
 **Pflichtangaben im PDF** (§ 11 UStG AT, § 14 UStG DE): Name und Anschrift von
@@ -612,7 +639,8 @@ Kleinunternehmer:
 | Beleg bearbeiten | `features/receipts/receipt_edit_screen.dart` | Erfassen, Seiten, automatisches Auslesen mit „Erneut auslesen“, Betrag, Fremdwährung mit „Kurs abrufen“ und Bankbetrag (FA-2.24 bis FA-2.26), Kategorie, Rechnungsnummer, Aussteller-UID, Kommentare; stornierte Belege nur lesen. Speicherleiste unten fixiert (`receipt_save_bar.dart`), über der Tastatur, Primärknopf 56 dp hoch: Telefon volle Breite, ab 600 dp rechtsbündig; bei neuen Seiten „Vollständig – Beleg speichern“ (FA-2.14) |
 | Rechnungsliste | `features/invoices/invoice_list_screen.dart` | Status, PDF teilen, Aktionen; Knopf „Bezahlt“ mit Bottom-Sheet Zahlungseingang und Skonto (FA-5.12, FA-5.18); Stornieren/Löschen mit Bestätigung (FA-5.20) |
 | Rechnung bearbeiten | `features/invoices/invoice_edit_screen.dart` | Kunde, Positionen mit Rabatt, Karte „Rabatt, Versand, Skonto“, Summe je Satz; Leiste `PrimaryActionBar` (`widgets/primary_action_bar.dart`) mit Ausstellen bzw. „PDF senden“ (FA-5.15 bis FA-5.20) |
-| Kunde bearbeiten | `features/invoices/customer_edit_screen.dart` | Kundenstammdaten |
+| Kunde bearbeiten | `features/invoices/customer_edit_screen.dart` | Kundenstammdaten, Schalter „Unternehmen“ (FA-5.24) |
+| Mahnung (Bottom-Sheet) | `features/invoices/dunning_sheet.dart` | Stufe, bisherige Schreiben mit Storno, Frist, Mahnkosten mit Verbraucherhinweis, Zinsen, Pauschale, Vorschau, „erstellen und senden“ (FA-5.21 bis FA-5.23) |
 | Datensicherung | `features/backup/backup_screen.dart` | Sicherung erstellen und teilen, wiederherstellen mit Vorschau |
 | Export | `features/export/export_screen.dart` | Zeitraum, Vorschau, Format |
 | Einstellungen | `features/settings/settings_screen.dart` | Stammdaten, App-Sperre, Symbol auf Startbildschirm (FA-1.19, nur Android), Belege auslesen, Fremdwährung (Tageskurs-Genehmigung), Kategorien, Rechtsrahmen, Hinweise |
@@ -633,6 +661,15 @@ Hinweis.
 ---
 
 ## 8. Exportformate
+
+### 8.0 Mahnschreiben (PDF)
+
+`DunningPdf`: Absender, Empfänger, Datum, Titel „<Stufe> zu Rechnung <Nr.> vom
+<Datum>“, sachlicher Text ohne Drohungen, Tabelle offener Rechnungsbetrag,
+Mahnkosten, Verzugszinsen (Satz, Fundstelle), Pauschale – jeweils „nicht
+umsatzsteuerbar“ – und Gesamt, neue Zahlungsfrist als Datum, Bankverbindung
+mit Rechnungsnummer als Verwendungszweck. SHA-256 des gesendeten PDFs steht
+im Datensatz und im Protokoll.
 
 ### 8.1 Allgemein
 
@@ -767,6 +804,7 @@ Offen benannt, weil eine Spezifikation, die ihre Lücken verschweigt, wertlos is
 | **Belegerkennung nicht auf Gerät erprobt** | Android-Teil im CI-Emulator mit R8 an einem synthetischen Kassenbon geprüft, Swift-Teil nur kompiliert; Korpus mit sechs echten Belegen (`test/fixtures/belege/`); Quote auf dem Gerät noch zu bestätigen (P-D22). Mehrsprachige Schlüsselwörter sind teils nur an synthetischen Texten geprüft. Lernen je Händler (Korrekturen merken) fehlt noch. Ein Beleg mit mehreren Steuersätzen wird mit einem Satz gebucht | vor Release |
 | **Fremdwährung nur bei Ausgaben** | Eingangsbelege werden umgerechnet (FA-2.24 bis FA-2.27); Ausgangsrechnungen nur in Euro. Den BMF-Monatskurs lädt die App nicht, er wird von Hand übernommen; das EZB-Monatsmittel ist nur eine Näherung (P-S23, P-S24). DATEV/BMD exportieren nur Euro (P-D23). Ein Land mit anderer Währung setzt Mehrwährungsfähigkeit voraus | Backlog G7 |
 | **Termine nur als Anzeige** | Die Termin-Box (FA-10.3) erinnert nicht aktiv; Bescheid-Termine (z. B. abweichende Vorauszahlungen, Nachzahlungen) kennt sie nicht. Teil- und Anzahlungen auf Rechnungen bildet die App nicht ab (P-S35) | Stufe 2: Benachrichtigungen |
+| **Keine Teilzahlungen** | Mahnkosten und Zinsen werden nur bei voller Zahlung mitgebucht; Teilzahlungen und deren Anrechnung (§ 1416 ABGB, § 367 BGB) bildet die App noch nicht ab; Basiszinssätze ändern sich nur per App-Update (P-S44) | später |
 | **Mengen mit zwei Dezimalstellen** | Die Mengeneingabe verarbeitet zwei Nachkommastellen, obwohl das Datenmodell drei erlaubt | – |
 | **Offene Detailseite beim Wechsel der Breitenklasse** | Wird ein Tablet von quer (expanded) auf hoch (medium) gedreht oder das Fenster verkleinert, während rechts ein Beleg, eine Rechnung oder ein Kunde in Bearbeitung ist, schließt sich der Detailbereich; ungespeicherte Eingaben gehen verloren. Gespeichertes bleibt unberührt | später |
 | **Android-APK-Build nicht lokal verifiziert** | Im Entwicklungscontainer ist `dl.google.com` per Netzwerk-Policy gesperrt, das Android SDK ließ sich nicht installieren. Analyse, Format und Tests laufen lokal; die Plattform-Builds verifiziert die CI | – |
@@ -780,9 +818,11 @@ Offen benannt, weil eine Spezifikation, die ihre Lücken verschweigt, wertlos is
 > Das ist der Mechanismus, der dieses Dokument aktuell hält.
 
 ```properties
-spec.schema_version = 12
+spec.schema_version = 13
 spec.primary_action_height_dp = 56
 spec.min_touch_target_dp = 48
+spec.dunning_default_fee_cents = 1000
+spec.dunning_period_days = 14
 spec.deadline_box_count = 4
 spec.fx_rate_scale = 1000000
 spec.vat_check_interval_days = 7
@@ -834,6 +874,13 @@ spec.at.deadline_shift_legal_ref = § 108 Abs 3 BAO
 spec.at.monthly_vat_return_threshold_cents = 10000000
 spec.at.vat_interval_basis = umsatz
 spec.at.asks_federal_state = nein
+spec.at.dunning_consumer_rate_bp = 400
+spec.at.dunning_consumer_surcharge_bp = 0
+spec.at.dunning_business_surcharge_bp = 920
+spec.at.dunning_flat_fee_cents = 4000
+spec.at.dunning_base_rates = 2025-01-01:253,2025-07-01:153,2026-01-01:153
+spec.at.dunning_consumer_notice = nein
+spec.at.dunning_interest_legal_ref = § 1000 Abs 1 ABGB | § 456 UGB
 spec.at.deadline_rules = UVA@15+2m | ZM@0+1m | ESt-Vorauszahlung@02-15,05-15,08-15,11-15 | ESt-/USt-Erklärung (FinanzOnline)@+1j06-30 | SVS-Beitrag@02-00,05-00,08-00,11-00~
 
 # Deutschland – § 19 UStG, § 33 UStDV, § 147 AO
@@ -857,6 +904,13 @@ spec.de.deadline_shift_legal_ref = § 108 Abs 3 AO
 spec.de.monthly_vat_return_threshold_cents = 900000
 spec.de.vat_interval_basis = steuer
 spec.de.asks_federal_state = ja
+spec.de.dunning_consumer_rate_bp = none
+spec.de.dunning_consumer_surcharge_bp = 500
+spec.de.dunning_business_surcharge_bp = 900
+spec.de.dunning_flat_fee_cents = 4000
+spec.de.dunning_base_rates = 2025-01-01:227,2025-07-01:127,2026-01-01:127
+spec.de.dunning_consumer_notice = ja
+spec.de.dunning_interest_legal_ref = § 288 Abs 1 BGB | § 288 Abs 2 BGB
 spec.de.deadline_rules = UStVA@10+1m+1x | ZM@25+1m | ESt-Vorauszahlung@03-10,06-10,09-10,12-10 | Steuererklärungen@+1j07-31
 ```
 
@@ -873,6 +927,7 @@ Dauerfristverlängerung, `02-15,…` = feste Tage, `+1j07-31` = Folgejahr,
 
 | Version | Datum | App-Version | Änderung |
 |---|---|---|---|
+| 1.44 | 2026-10-14 | 0.5.0 | App-Version 0.5.0 (Testbuild): Mahnwesen (GR-13, FA-5.21 bis FA-5.25, Abschnitt 8.0, Lastenheft L-3.10, L-3.27 bis L-3.30): Zahlungserinnerung und Mahnungen beliebig oft, unveränderlich mit Storno, Mahnkosten 10 € ab 1. Mahnung mit Verbraucherhinweis, optionale Verzugszinsen act/365 je Halbjahr, Pauschale B2B, Kundenmerkmal „Unternehmen“, DE-Hinweis § 286 Abs 3 BGB, Mahnkosten bei Zahlung als nicht steuerbare Einnahme. Schema 13. Neue Kennwerte `spec.dunning_*`, `spec.*.dunning_*`. Neue Prüfpunkte P-S44, P-S45, P-R32 bis P-R34. |
 | 1.43 | 2026-10-14 | 0.4.0 | App-Version 0.4.0 (Testbuild): Rabatt je Position und Gesamtrabatt anteilig je Satz, Versandkosten wie Hauptleistung, Skonto mit festem Datum und Betrag, Zahlung mit Skonto mindert Einnahme je Satz, AGB-Verweis (GR-12, FA-5.15 bis FA-5.19, Lastenheft L-3.21 bis L-3.26). UX-Vorgaben: `PrimaryActionBar`, „PDF senden“ nach dem Ausstellen, Tonal-Knopf „Bezahlt“, Bestätigung bei Storno/Löschen (FA-5.20). Schema 12. Neue Kennwerte `spec.primary_action_height_dp`, `spec.min_touch_target_dp`. Neue Prüfpunkte P-S40 bis P-S43, P-R30, P-R31. |
 | 1.42 | 2026-10-14 | 0.3.5 | App-Version 0.3.5 (Testbuild): Wirtschaftsjahr, Termin-Box, bezahlte Rechnung als Einnahme, Hilfe offline. Schema 11. |
 | 1.41 | 2026-10-14 | 0.3.4 | Hilfe Stufe 1 offline (Abschnitt 5.8, FA-11.1 bis FA-11.3, Abschnitt 7): Fragezeichen in der AppBar, BM25-Suche im als Asset eingebundenen Handbuch, Abschnitt lesen, Support-Mail ohne Anhang. Stufe 2 (KI) nur vorgemerkt. Neue Prüfpunkte P-R25, P-R26, P-D26. Kein Schemawechsel. |
@@ -1070,6 +1125,8 @@ Status: *offen* · *bestätigt* (mit Datum und Prüfer) · *widerlegt* (mit Folg
 | P-S41 | Versandkosten als Nebenleistung: Satz der Hauptleistung, bei Mischsätzen anteilig nach Entgelt (EuGH C-111/05 Aktiebolaget NN, UStR Rz 347 AT, Abschn. 3.10 Abs 6 UStAE DE); fester Satz als Ausnahme | Vorbefund: Aufteilung nach Entgelten zulässig, andere Schlüssel (Gewicht) ebenfalls | Release | offen |
 | P-S42 | Skonto bei Zahlung: Minderung je Satz nach Brutto-Anteil; Berichtigung im Zahlungsmonat (§ 16 UStG AT, § 17 UStG DE). App bucht nach Zufluss; bei Soll-Versteuerung wäre eine Korrekturbuchung im Zahlungsmonat zu den ursprünglichen Umsätzen nötig – reicht die geminderte Einnahme? Kein Beleg nötig (DE Abschn. 17.1 Abs 3 UStAE)? | Vorbefund: für Ist-Versteuerer korrekt, Soll nicht abgebildet (wie P-S35) | Release | offen |
 | P-S43 | Skontotext auf der Rechnung: Pflichtangabe „Vereinbarung über Entgeltminderung“ (§ 14 Abs 4 Nr. 7 UStG DE) mit festem Datum und Betrag erfüllt; AT: ausreichend? Kleinunternehmer: nur geringere Einnahme | Vorbefund: Hinweis „Bei Zahlung bis … 2 % Skonto“ genügt (Abschn. 14.5 Abs 19 UStAE) | Release | offen |
+| P-S44 | Basiszinssätze 2025–2026 je Halbjahr: AT OeNB (253, 153, 153 Bp), DE § 247 BGB (227, 127, 127 Bp) – amtlich abgleichen; Berechnung act/365 je Halbjahr, half-up je Abschnitt | Werte aus Fachwissen der Prüfinstanz, nicht amtlich abgerufen | Release | offen |
+| P-S45 | Mahnkosten, Verzugszinsen und Pauschale als nicht umsatzsteuerbarer Schadenersatz (UStR Rz 9 AT, Abschn. 1.3 Abs 6 UStAE DE), Einnahme bei Zufluss mit 0 %, Kategorie „Sonstige Einnahmen“; Anrechnung nach § 1416 ABGB / § 367 BGB | Vorbefund Steuerberater: nicht steuerbar, Betriebseinnahme bei Zufluss | Release | offen |
 | P-L12 | Anwältin: Diktat über die Systemtastatur – Anbieterin nicht verantwortlich, Hinweistext genügt | — | Release | offen |
 | P-L13 | Gerätetest, nur bei eigener Spracherkennung: Erkennung im Flugmodus | — | später | offen |
 | P-L14 | Anwältin: Rollen beim Vertragsarchiv mit KI (Anbieterin als Auftragsverarbeiterin), Muster-AVV, Rechtsgrundlage Beschäftigtendaten | — | Stufe C | offen |
@@ -1094,6 +1151,9 @@ Status: *offen* · *bestätigt* (mit Datum und Prüfer) · *widerlegt* (mit Folg
 | P-R25 | Hilfe Stufe 2 (KI-Antworten): Abgrenzung zur Hilfeleistung in Steuersachen (StBerG DE, WTBG AT), Haftung für falsche Antworten, Kennzeichnung als KI (Art. 50 KI-VO) | noch nicht gebaut (FA-11, Lastenheft L-26.6) | vor Stufe 2 | offen |
 | P-R30 | AGB-Verweis auf der Rechnung: Wortlaut „Es gelten unsere Verkaufsbedingungen, abrufbar unter <URL>, soweit sie vereinbart wurden.“ – irreführend oder unbedenklich? Genügt der einmalige Hinweis an die Nutzerin, dass der Verweis allein AGB nicht einbezieht (§ 864a ABGB, § 305 Abs 2 BGB; B2B kaufmännisches Bestätigungsschreiben)? | Rechnung kommt nach Vertragsschluss, Verweis bezieht AGB nicht ein; Zusatz „soweit vereinbart“ vermeidet Irreführung | Release | offen |
 | P-R31 | Rabatt- und Skontoangaben auf Rechnungen an Verbraucherinnen: Preisangaben (PAngV, PrAG), Klarheit des Skontotexts mit festem Datum und Betrag | unbedenklich, da reine Zahlungsbedingung | Release | offen |
+| P-R32 | Mahnkosten 10 € je Mahnung (Entscheidung der Auftraggeberin): B2C nur angemessene, tatsächliche Kosten (AT § 1333 Abs 2 ABGB; DE §§ 280, 286 BGB, erste verzugsbegründende Mahnung nicht ersatzfähig, Rechtsprechung ca. 1–3 €). Genügt der Hinweis in der App, Entscheidung bei der Nutzerin? | Vorbefund Rechtsanwalt: 10 € gegenüber Verbrauchern regelmäßig zu hoch; Hinweis umgesetzt (FA-5.22) | Release | offen |
+| P-R33 | Wortlaut der Zahlungserinnerung und Mahnung (sachlich, ohne Drohung, UWG/§ 4a UWG, KSchG), Hinweis § 286 Abs 3 BGB auf DE-Verbraucherrechnungen | Texte in `DunningService.bodyText`, `TaxProfile.dunning.consumerDefaultNotice` | Release | offen |
+| P-R34 | Pauschale 40 € (§ 458 UGB, § 288 Abs 5 BGB) nur B2B, Anrechnung auf Rechtsverfolgungskosten; Verzugszinsen ohne Vereinbarung erst ab Verzug (DE: Mahnung oder 30 Tage mit Hinweis) | umgesetzt als Vorschlag, Entscheidung bei der Nutzerin | Release | offen |
 | P-R26 | Hilfe Stufe 2: Übermittlung der Frage an einen Server bzw. KI-Anbieter – Rechtsgrundlage, Auftragsverarbeitung, Drittlandtransfer, Eintrag in Datenflusstabelle und Store-Angaben | noch nicht gebaut | vor Stufe 2 | offen |
 | P-S11 | USt-Kette der Store-Abos: Leistung an Apple/Google in Irland, Reverse Charge, UID, ZM, UVA; gelten die Store-Abrechnungen als Gutschrift (§ 11 Abs 7 UStG AT)? | Kette sicher, Rechnungsstellung offen | erster Verkauf | offen |
 | P-S12 | Vorsteuerabzug für Unternehmerinnen aus Store-Quittungen | unklar; kein Versprechen in App oder Werbung | erster Verkauf | offen |
