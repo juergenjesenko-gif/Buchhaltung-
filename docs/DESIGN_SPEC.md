@@ -1,6 +1,6 @@
 # Designspezifikation
 
-**Version 1.1 · Stand 2026-10-12 · Arbeitstitel „Jenny Bar“ / „Jenni bucht“**
+**Version 1.2 · Stand 2026-10-14 · Arbeitstitel „Jenny Bar“ / „Jenni bucht“**
 
 Zweck: Grundlage, gegen die eine KI (oder ein Mensch) **mehrere unterschiedliche
 Designvarianten** entwickeln kann, die alle fachlich und rechtlich korrekt
@@ -226,6 +226,32 @@ Abstände im 4-dp-Raster, Kartenstil oder Listenstil, Kopfbereiche, Position von
 Sekundäraktionen, Dichte (innerhalb der Mindestmaße).
 
 ---
+
+## 5a. Einhandbedienung (UX-Prüfinstanz)
+
+Entschieden von der Auftraggeberin am 2026-10-14: **keine Einstellung für Links-
+oder Rechtshänder**, stattdessen **symmetrische Gestaltung**, die mit beiden
+Daumen gleich gut funktioniert. Grundlage: Prüfbericht der UX-Instanz
+(Material Design 3 und Apple HIG sehen keine Händigkeits-Option vor; etwa ein
+Drittel der Einhandnutzung erfolgt mit links; die Mitte unten ist für beide
+Hände am besten erreichbar; Android-Einhandmodus und iOS-Reachability gibt es
+systemseitig). Hauptaktion auf der Übersicht ist **ein zentrierter, großer
+Knopf „Beleg fotografieren“**; Einnahme/Ausgabe wird im Formular gewählt.
+
+**FEST – Prüfregel, die die UX-Instanz bei jeder Oberflächenänderung abarbeitet:**
+
+1. Primäraktion unten im Daumenbereich, volle Breite oder zentriert, ≥ 56 dp hoch.
+2. Jede Zielfläche ≥ 48 × 48 dp, Abstand ≥ 8 dp; kein `VisualDensity.compact` bei Aktionen.
+3. Zerstörende Aktion (Löschen, Stornieren) nie neben Speichern, Teilen oder Hilfe: Abstand ≥ 24 dp oder eigener Bereich am Formularende, Fehlerfarbe, Bestätigung oder „Rückgängig“.
+4. Nichts Wichtiges nur oben in der AppBar; oben bleiben Zurück, Titel, Hilfe.
+5. Mit offener Tastatur bleibt die Primäraktion sichtbar und das aktive Feld unverdeckt.
+6. Dialoge: Abbrechen links, Aktion rechts als Verb; zerstörend in Fehlerfarbe; mehr als drei Optionen als Bottom-Sheet.
+7. Keine abgeschnittenen Chip-Reihen auf 360 dp Breite – umbrechen statt seitlich scrollen.
+8. Kernaufgaben in höchstens: Beleg erfassen 4 Tipps, Rechnung bezahlt markieren 2, mahnen 3. Mehr Schritte nur begründet.
+9. Für beide Hände nutzbar: kein Element nur in einer oberen Ecke; Hauptknopf zentriert oder als Leiste.
+10. Optionale Felder (Rabatt, Skonto, Versand) eingeklappt, Laientexte ohne Fachkürzel.
+11. Geprüft auf 360 × 640 und 412 × 915 dp, Schrift 200 %, Dunkelmodus.
+12. Widget-Test prüft Mindestgröße (≥ 48 dp) und Lage der Primäraktion (unteres Drittel).
 
 ## 6. Komponentenkatalog
 
@@ -488,5 +514,6 @@ Auftraggeber sie freigibt, und hier nur per ID verwiesen.
 
 | Version | Datum | Änderung |
 |---|---|---|
+| 1.2 | 2026-10-14 | Abschnitt 5a Einhandbedienung: Prüfregel der UX-Instanz, keine Händigkeits-Einstellung, zentrierter Hauptknopf. |
 | 1.1 | 2026-10-12 | Abschnitt 5: Status „umgesetzt“ für Breitenklassen, NavigationRail, Liste-Detail und Formularbreite. |
 | 1.0 | 2026-10-12 | Erste Fassung: feste Regeln und Gestaltungsspielraum für Designvarianten, Briefing-Vorlage, Bewertungsraster. |
