@@ -12,6 +12,8 @@ import '../../app_state.dart';
 import '../../core/formatting.dart';
 import '../../domain/company_profile.dart';
 import '../../domain/country.dart';
+import '../../domain/deadline_rule.dart';
+import '../../domain/holidays.dart';
 import '../../domain/money.dart';
 import '../../services/invoice_numbering.dart';
 import '../../services/turnover_basis.dart';
@@ -44,6 +46,17 @@ class _CompanySetupScreenState extends State<CompanySetupScreen> {
   /// behalten ihren Wert, damit Eröffnungswerte nicht verrutschen.
   DateTime _trackingStart = DateTime.now();
   bool _vatCheckEnabled = false;
+
+  // Wirtschaftsjahr und Termine (L-24, L-25). Sinnvoll vorbelegt, beim
+  // Onboarding nicht abgefragt (Leitprinzip: so wenige Fragen wie möglich).
+  int _fiscalYearStartMonth = 1;
+  bool _fiscalYearConfirmed = false;
+  String _federalState = '';
+  VatReturnInterval _vatInterval = VatReturnInterval.auto;
+  bool _permanentExtension = false;
+  bool _filesEcsl = false;
+  bool _hasTaxAdvisor = false;
+  bool _svsInsured = true;
 
   /// Firmenlogo (L-1.7): relativer Pfad und aufgelöste Datei zur Vorschau.
   String? _logoPath;
@@ -122,6 +135,144 @@ class _CompanySetupScreenState extends State<CompanySetupScreen> {
     _fields['paymentTerm']!.text = profile.defaultPaymentTermDays.toString();
     _fields['invoiceFooter']!.text = profile.invoiceFooter;
     _fields['foundingYear']!.text = profile.foundingYear?.toString() ?? '';
+    _fiscalYearStartMonth = profile.fiscalYearStartMonth;
+    _fiscalYearConfirmed = profile.fiscalYearConfirmed;
+    _federalState = profile.federalState;
+    _vatInterval = profile.vatReturnInterval;
+    _permanentExtension = profile.vatPermanentExtension;
+    _filesEcsl = profile.filesEcsl;
+    _hasTaxAdvisor = profile.hasTaxAdvisor;
+    _svsInsured = profile.svsInsured;
+  }
+
+  /// Monat ≠ Jänner nur nach einmaliger Bestätigung mit dem Text des Landes
+  /// (L-24.3).
+  Future<void> _chooseFiscalYearStart(int month) async {
+    if (month != 1 && !_fiscalYearConfirmed) {
+      final ok = await showDialog<bool>(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: const Text('Abweichendes Wirtschaftsjahr'),
+          content: Text(_country.taxProfile.fiscalYearConfirmation),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(false),
+              child: const Text('Abbrechen'),
+            ),
+            FilledButton(
+              onPressed: () => Navigator.of(context).pop(true),
+              child: const Text('Trifft zu'),
+            ),
+          ],
+        ),
+      );
+      if (ok != true) return;
+      _fiscalYearConfirmed = true;
+    }
+    setState(() => _fiscalYearStartMonth = month);
+  }
+
+  Widget _deadlineSection() {
+    final tax = _country.taxProfile;
+    final suggested = AppScope.of(context).suggestedVatInterval;
+    return SectionCard(
+      title: 'Wirtschaftsjahr und Termine',
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          DropdownButtonFormField<int>(
+            initialValue: _fiscalYearStartMonth,
+            decoration: const InputDecoration(
+              labelText: 'Erster Monat Wirtschaftsjahr',
+            ),
+            items: [
+              for (var m = 1; m <= 12; m++)
+                DropdownMenuItem(value: m, child: Text(tax.monthNames[m - 1])),
+            ],
+            onChanged: (value) {
+              if (value != null) _chooseFiscalYearStart(value);
+            },
+          ),
+          if (_fiscalYearStartMonth != 1) ...[
+            const SizedBox(height: 6),
+            Text(
+              tax.fiscalYearHint,
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+              ),
+            ),
+          ],
+          if (tax.asksFederalState) ...[
+            const SizedBox(height: 14),
+            DropdownButtonFormField<String>(
+              initialValue: _federalState,
+              decoration: const InputDecoration(
+                labelText: 'Bundesland (für Feiertage bei Fristen)',
+              ),
+              items: [
+                const DropdownMenuItem(
+                  value: '',
+                  child: Text('Nur bundesweite Feiertage'),
+                ),
+                for (final (code, name) in germanStates)
+                  DropdownMenuItem(value: code, child: Text(name)),
+              ],
+              onChanged: (value) => setState(() => _federalState = value ?? ''),
+            ),
+          ],
+          if (!_isSmallBusiness) ...[
+            const SizedBox(height: 14),
+            DropdownButtonFormField<VatReturnInterval>(
+              initialValue: _vatInterval,
+              decoration: InputDecoration(
+                labelText: '${tax.vatReturnLabel}-Rhythmus',
+              ),
+              items: [
+                for (final v in VatReturnInterval.values)
+                  DropdownMenuItem(
+                    value: v,
+                    child: Text(
+                      v == VatReturnInterval.auto
+                          ? 'Vorschlag: ${suggested.label}'
+                          : v.label,
+                    ),
+                  ),
+              ],
+              onChanged: (value) => setState(
+                () => _vatInterval = value ?? VatReturnInterval.auto,
+              ),
+            ),
+            if (tax.hasPermanentExtension)
+              SwitchListTile(
+                contentPadding: EdgeInsets.zero,
+                title: const Text('Dauerfristverlängerung'),
+                value: _permanentExtension,
+                onChanged: (v) => setState(() => _permanentExtension = v),
+              ),
+          ],
+          SwitchListTile(
+            contentPadding: EdgeInsets.zero,
+            title: const Text('Zusammenfassende Meldung (ZM)'),
+            subtitle: const Text('Nur bei Leistungen an Firmen im EU-Ausland'),
+            value: _filesEcsl,
+            onChanged: (v) => setState(() => _filesEcsl = v),
+          ),
+          SwitchListTile(
+            contentPadding: EdgeInsets.zero,
+            title: const Text('Ich habe eine Steuerberatung'),
+            value: _hasTaxAdvisor,
+            onChanged: (v) => setState(() => _hasTaxAdvisor = v),
+          ),
+          if (tax.asksSocialInsurance)
+            SwitchListTile(
+              contentPadding: EdgeInsets.zero,
+              title: const Text('SVS-Beiträge anzeigen'),
+              value: _svsInsured,
+              onChanged: (v) => setState(() => _svsInsured = v),
+            ),
+        ],
+      ),
+    );
   }
 
   @override
@@ -239,7 +390,15 @@ class _CompanySetupScreenState extends State<CompanySetupScreen> {
       nextInvoiceSequence: existing?.nextInvoiceSequence ?? 1,
       defaultPaymentTermDays: int.tryParse(_text('paymentTerm')) ?? 14,
       invoiceFooter: _text('invoiceFooter'),
-      fiscalYearStartMonth: existing?.fiscalYearStartMonth ?? 1,
+      fiscalYearStartMonth: _fiscalYearStartMonth,
+      fiscalYearConfirmed: _fiscalYearStartMonth != 1 && _fiscalYearConfirmed,
+      // Bundesland nur, wo das Land es abfragt (L-25.4).
+      federalState: _country.taxProfile.asksFederalState ? _federalState : '',
+      vatReturnInterval: _vatInterval,
+      vatPermanentExtension: _permanentExtension,
+      filesEcsl: _filesEcsl,
+      hasTaxAdvisor: _hasTaxAdvisor,
+      svsInsured: _svsInsured,
       trackingStart: existing?.trackingStart ?? _trackingStart,
       foundingYear: _foundingYear,
       // Wird nur von der Datensicherung geschrieben; beim Bearbeiten erhalten.
@@ -578,6 +737,11 @@ class _CompanySetupScreenState extends State<CompanySetupScreen> {
                 ),
               ),
               const SizedBox(height: 16),
+
+              if (!widget.isOnboarding) ...[
+                _deadlineSection(),
+                const SizedBox(height: 16),
+              ],
 
               SectionCard(
                 title: 'Bankverbindung',

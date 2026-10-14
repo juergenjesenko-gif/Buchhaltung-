@@ -784,14 +784,13 @@ class InvoiceRepository {
     return true;
   }
 
+  /// Setzt den Status. „Bezahlt“ läuft über [markPaid], weil dabei die
+  /// Einnahme gebucht wird.
   Future<void> setStatus(int id, InvoiceStatus status) async {
+    if (status == InvoiceStatus.paid) return markPaid(id, DateTime.now());
     await _db.update(
       'invoices',
-      {
-        'status': status.name,
-        if (status == InvoiceStatus.paid)
-          'paid_at': DateTime.now().toIso8601String(),
-      },
+      {'status': status.name},
       where: 'id = ?',
       whereArgs: [id],
     );
@@ -801,6 +800,111 @@ class InvoiceRepository {
       action: 'status',
       detail: status.name,
     );
+  }
+
+  /// Markiert die Rechnung als bezahlt am [paidAt] und bucht die Einnahme
+  /// (L-25.9, Gerätetest 0.3.4).
+  ///
+  /// Einnahmen-Ausgaben-Rechnung nach dem Zuflussprinzip (§ 19 EStG AT,
+  /// § 11 EStG DE): Die Einnahme zählt am Tag des Zahlungseingangs, eine
+  /// offene Rechnung zählt nicht. Je Steuersatz entsteht ein Einnahmebeleg
+  /// mit `invoice_id`; der eindeutige Index (Schema 11) verhindert, dass
+  /// dieselbe Rechnung zweimal gebucht wird.
+  Future<void> markPaid(int id, DateTime paidAt) async {
+    final invoice = await byId(id);
+    if (invoice == null) return;
+    final day = DateTime(paidAt.year, paidAt.month, paidAt.day);
+    await _db.transaction((txn) async {
+      await txn.update(
+        'invoices',
+        {'status': InvoiceStatus.paid.name, 'paid_at': day.toIso8601String()},
+        where: 'id = ?',
+        whereArgs: [id],
+      );
+      await _bookIncome(txn, invoice, day);
+      await AuditLog(_db).record(
+        entity: 'invoice',
+        entityId: id,
+        action: 'status',
+        detail: 'paid ${day.toIso8601String().substring(0, 10)}',
+        txn: txn,
+      );
+    });
+  }
+
+  /// Bucht die Einnahme für bezahlte Rechnungen nach, die noch keine haben
+  /// (Rechnungen, die vor Schema 11 als bezahlt markiert wurden). Liefert
+  /// die Zahl der nachgebuchten Rechnungen.
+  Future<int> bookMissingPayments() async {
+    final rows = await _db.rawQuery('''
+      SELECT id FROM invoices
+      WHERE status = 'paid'
+        AND id NOT IN (SELECT invoice_id FROM receipts WHERE invoice_id IS NOT NULL)
+    ''');
+    var count = 0;
+    for (final row in rows) {
+      final invoice = await byId(row['id'] as int);
+      if (invoice == null) continue;
+      final day = invoice.paidAt ?? invoice.issueDate;
+      await _db.transaction(
+        (txn) =>
+            _bookIncome(txn, invoice, DateTime(day.year, day.month, day.day)),
+      );
+      count++;
+    }
+    return count;
+  }
+
+  Future<void> _bookIncome(
+    DatabaseExecutor txn,
+    Invoice invoice,
+    DateTime day,
+  ) async {
+    final existing = await txn.query(
+      'receipts',
+      columns: ['id'],
+      where: 'invoice_id = ?',
+      whereArgs: [invoice.id],
+      limit: 1,
+    );
+    if (existing.isNotEmpty) return;
+    final category = await txn.query(
+      'categories',
+      columns: ['id'],
+      where: "direction = 'income' AND name = ?",
+      whereArgs: ['Umsatzerlöse'],
+      limit: 1,
+    );
+    final customer = await txn.query(
+      'customers',
+      columns: ['name'],
+      where: 'id = ?',
+      whereArgs: [invoice.customerId],
+      limit: 1,
+    );
+    final counterparty = customer.isEmpty
+        ? ''
+        : customer.first['name'] as String? ?? '';
+    for (final entry in invoice.vatBreakdown.entries) {
+      final net = entry.value.net;
+      final vat = entry.value.vat;
+      final receipt = Receipt(
+        date: day,
+        direction: BookingDirection.income,
+        description: 'Rechnung ${invoice.number}',
+        counterparty: counterparty,
+        net: net,
+        vat: vat,
+        gross: net + vat,
+        vatPermille: entry.key,
+        categoryId: category.isEmpty ? null : category.first['id'] as int?,
+        documentNumber: invoice.number,
+      );
+      await txn.insert('receipts', {
+        ...receipt.toMap(),
+        'invoice_id': invoice.id,
+      });
+    }
   }
 
   Future<bool> numberExists(String number, {int? exceptId}) async {

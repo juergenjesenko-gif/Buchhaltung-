@@ -1,3 +1,4 @@
+import '../domain/fiscal_year.dart';
 import 'package:intl/intl.dart';
 
 import '../domain/country.dart';
@@ -97,6 +98,18 @@ class Period {
 
   factory Period.year(int year) =>
       Period(DateTime(year, 1, 1), DateTime(year, 12, 31), year.toString());
+
+  /// Wirtschaftsjahr der Gewinnermittlung, das im Kalenderjahr [endYear]
+  /// endet (L-24). Beim Kalenderjahr identisch mit [Period.year].
+  factory Period.fiscalYear(
+    FiscalYear fiscalYear,
+    int endYear,
+    List<String> monthNames,
+  ) => Period(
+    fiscalYear.startOf(endYear),
+    fiscalYear.endOf(endYear),
+    fiscalYear.label(endYear, monthNames),
+  );
 
   final DateTime from;
   final DateTime to;

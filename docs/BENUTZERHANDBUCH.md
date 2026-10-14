@@ -350,7 +350,19 @@ Die **Übersicht** zeigt dir für einen wählbaren Zeitraum:
 
 **Zeitraum wählen:** dieser Monat, letzter Monat, dieses Quartal, dieses Jahr,
 letztes Jahr. Quartal ist dabei, weil die Umsatzsteuervoranmeldung bei kleineren
-Umsätzen quartalsweise abzugeben ist.
+Umsätzen quartalsweise abzugeben ist. „Jahr“ ist dein Wirtschaftsjahr; hast du
+in den Stammdaten einen anderen ersten Monat als Jänner gewählt, heißen die
+Knöpfe „Dieses WJ (2027)“ und „Letztes WJ (2026)“.
+
+**Nächste Termine** – die nächsten vier Steuertermine: Voranmeldung (nur bei
+Regelbesteuerung), Zusammenfassende Meldung (wenn eingeschaltet),
+Einkommensteuer-Vorauszahlungen, Steuererklärung und in Österreich die
+SVS-Beiträge (als „ca.“, das genaue Datum steht auf deiner Vorschreibung).
+Fällt ein Termin auf ein Wochenende oder einen Feiertag, zeigt die App den
+nächsten Werktag. Tippe auf einen Termin, um die Rechtsgrundlage zu sehen. Mit
+Steuerberatung steht bei der Steuererklärung „Frist laut Kanzlei“. Die Termine
+sind berechnet, zur Orientierung und ohne Gewähr – maßgeblich sind Bescheid,
+Finanzamt bzw. deine Steuerberatung.
 
 **Einnahmen, Ausgaben, Ergebnis** – jeweils netto. Netto, weil die
 Umsatzsteuer für dich ein durchlaufender Posten ist und nicht zu deinem Gewinn
@@ -508,11 +520,19 @@ Teilen-Dialog deines Telefons: E-Mail, Messenger, Cloud-Ordner – du entscheide
 | **Entwurf** | Noch nicht gestellt, änderbar, löschbar |
 | **Offen** | Gestellt, Zahlung ausstehend |
 | **Überfällig** | Gestellt, Fälligkeit verstrichen – wird rot |
-| **Bezahlt** | Erledigt |
+| **Bezahlt** | Erledigt – die App bucht den Betrag als Einnahme |
 | **Storniert** | Zurückgenommen, bleibt aber erhalten |
 
 Oben in der Liste steht die Summe aller gestellten, noch nicht bezahlten
 Rechnungen.
+
+**Als bezahlt markieren:** Die App fragt nach dem Tag des Zahlungseingangs
+(vorbelegt mit heute, antippen zum Ändern) und bucht die Rechnung an diesem Tag
+als Einnahme – in Übersicht, Kleinunternehmergrenze und Export. Eine offene
+Rechnung zählt noch nicht als Einnahme, denn in der Einnahmen-Ausgaben-Rechnung
+zählt der Tag, an dem das Geld eingeht. **Erfasse die Zahlung nicht zusätzlich
+als Einnahmebeleg**, sonst zählt sie doppelt. Rechnungen, die du vor dieser
+Version als bezahlt markiert hast, bucht die App beim Start einmal nach.
 
 ### Was auf dem PDF steht
 
@@ -552,8 +572,9 @@ Rechnungen dürfen ihren Empfänger nicht verlieren.
 
 Bereich **Export**.
 
-1. **Jahr** wählen
-2. Optional **eingrenzen** auf Quartal oder Monat
+1. **Jahr** wählen (bei abweichendem Wirtschaftsjahr „WJ 2027“ usw.)
+2. Optional **eingrenzen** auf Quartal oder Monat – Quartale und Monate sind
+   immer Kalenderzeiträume, wie bei der Umsatzsteuer
 3. **Vorschau** prüfen: Anzahl der Belege und Summen. Wenn hier 0 Belege stehen,
    wäre die Datei leer – der Export ist dann gesperrt.
 4. **Format** antippen → Teilen-Dialog
@@ -584,7 +605,19 @@ deine Kanzlei ordnet den Stapel beim Import selbst zu.
 
 Übersicht → Zahnrad.
 
-**Stammdaten** – dein Firmenprofil ändern
+**Stammdaten** – dein Firmenprofil ändern. Unten im Abschnitt
+**Wirtschaftsjahr und Termine**:
+
+- **Erster Monat Wirtschaftsjahr** – normalerweise Jänner. Einen anderen Monat
+  darfst du nur wählen, wenn dein Unternehmen im Firmenbuch (AT) bzw.
+  Handelsregister (DE) eingetragen ist und das Finanzamt zugestimmt hat; die
+  App fragt einmal nach. Umsatzsteuer und Kleinunternehmergrenze bleiben
+  trotzdem beim Kalenderjahr.
+- **Bundesland** (nur Deutschland) – für Landesfeiertage bei Fristen
+- **UVA- bzw. UStVA-Rhythmus** (nur Regelbesteuerung) – die App schlägt ihn aus
+  dem Vorjahr vor; ändere ihn, wenn dein Finanzamt etwas anderes festgelegt hat
+- **Dauerfristverlängerung** (nur Deutschland), **Zusammenfassende Meldung**,
+  **Steuerberatung**, **SVS-Beiträge** (nur Österreich)
 
 **Fremdwährung** – Schalter „Tageskurs vom Finanzamt genehmigt“. Standardmäßig
 aus; dann rechnet die App mit dem Monatskurs. Nur einschalten, wenn dir das
@@ -876,6 +909,9 @@ Damit du nicht darauf wartest:
 - **Keine Lohnverrechnung, keine Bilanz, keine doppelte Buchführung**
 - **Keine automatische Übermittlung** an FinanzOnline oder ELSTER. Die App
   liefert dir die Zahlen; die Erklärung machst du oder deine Kanzlei.
+- **Keine Erinnerung an Termine.** Die Termin-Box zeigt sie nur an;
+  Benachrichtigungen sind geplant. Teilzahlungen auf Rechnungen kann die App
+  noch nicht buchen.
 - **Keine Synchronisierung** zwischen Geräten
 
 ### Und der wichtigste Satz

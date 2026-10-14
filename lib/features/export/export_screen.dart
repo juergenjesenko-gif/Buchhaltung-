@@ -22,7 +22,8 @@ class ExportScreen extends StatefulWidget {
 }
 
 class _ExportScreenState extends State<ExportScreen> {
-  late int _year;
+  int _year = DateTime.now().year;
+  bool _yearInitialized = false;
   int? _quarter;
   int? _month;
 
@@ -34,18 +35,30 @@ class _ExportScreenState extends State<ExportScreen> {
   @override
   void initState() {
     super.initState();
-    _year = DateTime.now().year;
     WidgetsBinding.instance.addPostFrameCallback((_) => _load());
   }
 
   Period get _period {
     if (_month != null) return Period.month(DateTime(_year, _month!, 1));
     if (_quarter != null) return Period.quarter(_year, _quarter!);
-    return Period.year(_year);
+    // Ganzes Jahr = Wirtschaftsjahr der Gewinnermittlung (L-24.5);
+    // Quartale und Monate bleiben Kalenderzeiträume der Umsatzsteuer.
+    final profile = AppScope.read(context).profile;
+    if (profile == null) return Period.year(_year);
+    return Period.fiscalYear(
+      profile.fiscalYear,
+      _year,
+      profile.taxProfile.monthNames,
+    );
   }
 
   Future<void> _load() async {
     if (!mounted) return;
+    if (!_yearInitialized) {
+      _yearInitialized = true;
+      final profile = AppScope.read(context).profile;
+      if (profile != null) _year = profile.fiscalYear.yearOf(DateTime.now());
+    }
     setState(() => _loading = true);
     final state = AppScope.read(context);
     final period = _period;
@@ -121,13 +134,18 @@ class _ExportScreenState extends State<ExportScreen> {
                           decoration: const InputDecoration(labelText: 'Jahr'),
                           items: [
                             for (
-                              var year = DateTime.now().year;
+                              var year =
+                                  profile?.fiscalYear.yearOf(DateTime.now()) ??
+                                  DateTime.now().year;
                               year >= DateTime.now().year - 7;
                               year--
                             )
                               DropdownMenuItem(
                                 value: year,
-                                child: Text('$year'),
+                                child: Text(
+                                  profile?.fiscalYear.shortLabel(year) ??
+                                      '$year',
+                                ),
                               ),
                           ],
                           onChanged: (value) {
@@ -149,7 +167,11 @@ class _ExportScreenState extends State<ExportScreen> {
                     runSpacing: 8,
                     children: [
                       ChoiceChip(
-                        label: const Text('Ganzes Jahr'),
+                        label: Text(
+                          profile == null || profile.fiscalYear.isCalendarYear
+                              ? 'Ganzes Jahr'
+                              : 'Wirtschaftsjahr',
+                        ),
                         selected: _quarter == null && _month == null,
                         onSelected: (_) {
                           setState(() {

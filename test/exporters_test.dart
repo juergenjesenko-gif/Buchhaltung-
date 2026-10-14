@@ -172,6 +172,24 @@ void main() {
   });
 
   group('DATEV', () {
+    test('WJ-Beginn im Header folgt dem Wirtschaftsjahr (L-24.5)', () {
+      final calendar = exporterFor(Country.de).build(ExportFormat.datev);
+      expect(calendar.content.split('\r\n').first.split(';')[12], '20260101');
+      final april = Exporter(
+        profile: const CompanyProfile(
+          companyName: 'Muster',
+          country: Country.de,
+          fiscalYearStartMonth: 4,
+        ),
+        receipts: receipts,
+        categories: categories,
+        totals: totals,
+        period: Period.month(DateTime(2026, 3, 1)),
+      ).build(ExportFormat.datev);
+      // März 2026 gehört zum WJ April 2025 – März 2026.
+      expect(april.content.split('\r\n').first.split(';')[12], '20250401');
+    });
+
     test('beginnt mit der EXTF-Kennung und Formatversion 700', () {
       final result = exporterFor(Country.de).build(ExportFormat.datev);
       final lines = result.content.split('\r\n');

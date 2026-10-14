@@ -1,6 +1,6 @@
 # Lastenheft – Buchhaltungsapp für Österreich und Deutschland
 
-**Dokumentversion:** 1.43 · **Stand:** 2026-10-12 · **Status:** Entwurf zur Abstimmung
+**Dokumentversion:** 1.44 · **Stand:** 2026-10-14 · **Status:** Entwurf zur Abstimmung
 **Auftraggeber:** Jürgen Jesenko (privates Vorhaben) · **Umsetzung:** Claude Code
 
 > Ein Lastenheft beschreibt, **was** das Produkt leisten soll und **warum** — nicht,
@@ -887,6 +887,40 @@ Einnahmen-Ausgaben-Rechnung, Abschreibung, Privatanteile und Aufbewahrung.
 | L-23.10 | KI-Ergebnisse gekennzeichnet (Art. 50 AI Act), mit Modell, Zeitpunkt, Vorschlag und bestätigtem Wert protokolliert; keine Bewertung von Beschäftigten (Anhang III Nr. 4) | MUSS | C |
 | L-23.11 | Vertragsarchiv in Vollexport und Sicherung; Auskunftsexport je Vertragspartner | SOLL | C |
 
+### 5.24 Wirtschaftsjahr
+
+Entscheidung der Auftraggeberin 2026-10-14. Steuerberater-Befund: abweichendes
+Wirtschaftsjahr in AT nur für im Firmenbuch eingetragene, bilanzierende
+Unternehmer mit Zustimmung des Finanzamts (§ 2 Abs 5 EStG), in DE nur für im
+Handelsregister eingetragene Gewerbetreibende (§ 4a EStG); EÜR-Rechner praktisch
+Kalenderjahr. Real zu prüfen: Spezifikation 14, P-S32.
+
+| ID | Anforderung | Priorität | Stufe |
+|---|---|---|---|
+| L-24.1 | Profileinstellung „Erster Monat Wirtschaftsjahr“ (Monatsauswahl, Standard Jänner/Januar) | MUSS | A |
+| L-24.2 | Das Wirtschaftsjahr wird nach dem Kalenderjahr bezeichnet, in dem es endet, z. B. „April 2026 – März 2027“ = 2027 | MUSS | A |
+| L-24.3 | Monat ≠ Jänner nur nach einmaliger Bestätigung mit länderspezifischem Text aus dem `TaxProfile`; danach dauerhafter dezenter Hinweis | MUSS | A |
+| L-24.4 | Umsatzsteuer, Voranmeldung und Kleinunternehmergrenze bleiben immer Kalenderjahr (Regressionstest) | MUSS | A |
+| L-24.5 | Wirtschaftsjahr gilt für Kassabuch-Jahr, EÜR/E1a-Auswertung, Jahresfilter der Übersicht und des Exports, Exportdateinamen und DATEV-Header „WJ-Beginn“ | MUSS | A |
+
+### 5.25 Steuer- und Abgabetermine
+
+Entscheidung der Auftraggeberin 2026-10-14: Stufe 1 nur Anzeige auf der
+Übersicht, keine Benachrichtigungen, kein neues Paket. Real zu prüfen:
+Spezifikation 14, P-S33, P-S34, P-R24.
+
+| ID | Anforderung | Priorität | Stufe |
+|---|---|---|---|
+| L-25.1 | Termin-Box auf der Übersicht mit den nächsten 3–4 Terminen: Datum, Bezeichnung, Tage bis dahin; Tipp zeigt Rechtsgrundlage | MUSS | A |
+| L-25.2 | Regeln je Land im `TaxProfile` mit Fundstelle; Berechnung als reines Dart in `lib/services` | MUSS | A |
+| L-25.3 | Feiertage AT/DE mit Ostern-Berechnung; Verschiebung auf den nächsten Werktag (§ 108 Abs 3 BAO, § 108 Abs 3 AO) | MUSS | A |
+| L-25.4 | Bundesland nur in DE abfragen (Landesfeiertage); in AT nicht | MUSS | A |
+| L-25.5 | Profilangaben mit Vorbelegung, später änderbar: Voranmeldungsrhythmus (aus dem Vorjahr vorgeschlagen), Dauerfristverlängerung (DE), ZM, Steuerberatung, SVS (AT) | MUSS | A |
+| L-25.6 | Mit Steuerberatung: Erklärungsfrist „laut Kanzlei“; SVS-Termine als „ca.“ | MUSS | A |
+| L-25.7 | Hinweis „Berechnete Termine zur Orientierung, ohne Gewähr. Maßgeblich sind Bescheid, Finanzamt bzw. deine Steuerberatung.“ | MUSS | A |
+| L-25.8 | Stufe 2: lokale Benachrichtigungen vor Terminen | KANN | B |
+| L-25.9 | Bezahlte Ausgangsrechnung ist Einnahme am Tag des Zahlungseingangs (Zuflussprinzip), Datum beim Markieren „bezahlt“ vorbelegt mit heute; offene Rechnungen zählen in der EÜR nicht; keine Doppelbuchung (Gerätetest 0.3.4, P-S35) | MUSS | A |
+
 ## 6. Nichtfunktionale Anforderungen
 
 | ID | Anforderung |
@@ -1168,6 +1202,7 @@ Zu entscheiden, bevor die betroffene Anforderung umgesetzt wird:
 
 | Version | Datum | Änderung |
 |---|---|---|
+| 1.44 | 2026-10-14 | Neue Blöcke L-24 Wirtschaftsjahr und L-25 Steuer- und Abgabetermine (Entscheidungen der Auftraggeberin 2026-10-14); L-25.9 bezahlte Rechnung als Einnahme nach Zahlungseingang (Gerätetest 0.3.4). |
 | 1.43 | 2026-10-14 | Leitprinzip Einfachheit als fundamentale Anforderung (2.1a, L-0.1 bis L-0.5): Erkennung überall, Vorschläge statt Pflichteingaben, Bestätigungen zusammenlegen, Belege gelten als betrieblich. |
 | 1.42 | 2026-10-12 | L-2.24 bis L-2.26, L-13.3, L-19.29 Fremdwährung bei Eingangsbelegen umgesetzt (Spezifikation 1.28, FA-2.24 bis FA-2.27, Schema 10); Datenfluss EZB-Kursabruf in 5.19. |
 | 1.41 | 2026-10-12 | Fremdwährung bei Eingangsbelegen (L-2.24 bis L-2.26, L-13.3, L-19.29), KI-Auslesung nur Opt-in (L-21.24); geprüft von Steuerberater und Rechtsanwalt; Android-Erkennung mit ML Kit entschieden. |

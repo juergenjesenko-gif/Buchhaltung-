@@ -3,8 +3,11 @@ import 'package:flutter/material.dart';
 import '../../app_state.dart';
 import '../../core/formatting.dart';
 import '../../data/repositories.dart';
+import '../../domain/country.dart';
+import '../../domain/fiscal_year.dart';
 import '../../domain/money.dart';
 import '../../domain/receipt.dart';
+import '../../services/deadline_calculator.dart';
 import '../../services/small_business_monitor.dart';
 import '../../theme.dart';
 import '../../widgets/common.dart';
@@ -46,7 +49,14 @@ class _DashboardScreenState extends State<DashboardScreen> {
     WidgetsBinding.instance.addPostFrameCallback((_) => _load());
   }
 
-  Period get _period => _range.toPeriod(DateTime.now());
+  Period get _period {
+    final profile = AppScope.read(context).profile;
+    return _range.toPeriod(
+      DateTime.now(),
+      profile?.fiscalYear ?? const FiscalYear(1),
+      profile?.taxProfile.monthNames ?? TaxProfile.austria.monthNames,
+    );
+  }
 
   Future<void> _load() async {
     if (!mounted) return;
@@ -124,7 +134,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
       body: RefreshIndicator(
         onRefresh: _load,
         child: ListView(
-          padding: const EdgeInsets.fromLTRB(16, 8, 16, 100),
+          // Unten Platz für beide schwebenden Knöpfe (40 + 10 + 56 dp plus
+          // 16 dp Rand) und Luft, damit keine Karte verdeckt bleibt
+          // (Gerätetest 0.3.4).
+          padding: const EdgeInsets.fromLTRB(16, 8, 16, 160),
           children: [
             if (profile != null && !profile.canIssueInvoices) ...[
               NoticeBanner(
@@ -170,6 +183,13 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 state.smallBusiness!.status !=
                     SmallBusinessStatus.notApplicable) ...[
               _SmallBusinessCard(assessment: state.smallBusiness!),
+              const SizedBox(height: 16),
+            ],
+
+            if (state.deadlines != null &&
+                (state.deadlines!.upcoming.isNotEmpty ||
+                    state.deadlines!.advisorNote != null)) ...[
+              _DeadlineCard(overview: state.deadlines!),
               const SizedBox(height: 16),
             ],
 
@@ -219,7 +239,13 @@ class _DashboardScreenState extends State<DashboardScreen> {
             Padding(
               padding: const EdgeInsets.only(right: 8),
               child: ChoiceChip(
-                label: Text(range.label),
+                label: Text(
+                  range.labelFor(
+                    AppScope.of(context).profile?.fiscalYear ??
+                        const FiscalYear(1),
+                    DateTime.now(),
+                  ),
+                ),
                 selected: _range == range,
                 onSelected: (_) {
                   setState(() => _range = range);
@@ -320,15 +346,31 @@ enum _Range {
   const _Range(this.label);
   final String label;
 
-  Period toPeriod(DateTime now) => switch (this) {
-    _Range.currentMonth => Period.month(now),
-    _Range.lastMonth => Period.month(DateTime(now.year, now.month - 1, 1)),
-    _Range.currentQuarter => Period.quarter(
-      now.year,
-      ((now.month - 1) ~/ 3) + 1,
-    ),
-    _Range.currentYear => Period.year(now.year),
-    _Range.lastYear => Period.year(now.year - 1),
+  /// „Dieses Jahr“ und „Letztes Jahr“ folgen dem Wirtschaftsjahr der
+  /// Gewinnermittlung (L-24.5); Monat und Quartal bleiben Kalenderzeiträume.
+  Period toPeriod(DateTime now, FiscalYear fy, List<String> monthNames) =>
+      switch (this) {
+        _Range.currentMonth => Period.month(now),
+        _Range.lastMonth => Period.month(DateTime(now.year, now.month - 1, 1)),
+        _Range.currentQuarter => Period.quarter(
+          now.year,
+          ((now.month - 1) ~/ 3) + 1,
+        ),
+        _Range.currentYear => Period.fiscalYear(fy, fy.yearOf(now), monthNames),
+        _Range.lastYear => Period.fiscalYear(
+          fy,
+          fy.yearOf(now) - 1,
+          monthNames,
+        ),
+      };
+
+  /// Beschriftung des Chips; beim abweichenden Wirtschaftsjahr „WJ 2027“.
+  String labelFor(FiscalYear fy, DateTime now) => switch (this) {
+    _Range.currentYear when !fy.isCalendarYear =>
+      'Dieses WJ (${fy.shortLabel(fy.yearOf(now)).substring(3)})',
+    _Range.lastYear when !fy.isCalendarYear =>
+      'Letztes WJ (${fy.shortLabel(fy.yearOf(now) - 1).substring(3)})',
+    _ => label,
   };
 }
 
@@ -649,4 +691,62 @@ class _AddReceiptButton extends StatelessWidget {
       ],
     );
   }
+}
+
+/// Termin-Box (L-25, Stufe 1: nur Anzeige). Ein Tipp auf einen Termin zeigt
+/// die Rechtsgrundlage.
+class _DeadlineCard extends StatelessWidget {
+  const _DeadlineCard({required this.overview});
+
+  final DeadlineOverview overview;
+
+  @override
+  Widget build(BuildContext context) {
+    final today = DateTime.now();
+    final muted = Theme.of(context).textTheme.bodySmall?.copyWith(
+      color: Theme.of(context).colorScheme.onSurfaceVariant,
+    );
+    return SectionCard(
+      title: 'Nächste Termine',
+      padding: const EdgeInsets.fromLTRB(16, 16, 8, 12),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          for (final deadline in overview.upcoming)
+            ListTile(
+              contentPadding: EdgeInsets.zero,
+              dense: true,
+              leading: const Icon(Icons.event_outlined),
+              title: Text(deadline.label),
+              subtitle: Text(
+                '${deadline.approximate ? 'ca. ' : ''}'
+                '${Fmt.date(deadline.date)}',
+              ),
+              trailing: Text(_daysText(deadline.daysFrom(today))),
+              onTap: () => showSnack(
+                context,
+                'Rechtsgrundlage: ${deadline.legalRef}'
+                '${deadline.approximate ? ' – Datum ungefähr' : ''}',
+              ),
+            ),
+          if (overview.advisorNote != null)
+            Padding(
+              padding: const EdgeInsets.only(top: 4, bottom: 4),
+              child: Text(overview.advisorNote!),
+            ),
+          const SizedBox(height: 6),
+          Padding(
+            padding: const EdgeInsets.only(right: 8),
+            child: Text(deadlineDisclaimer, style: muted),
+          ),
+        ],
+      ),
+    );
+  }
+
+  static String _daysText(int days) => switch (days) {
+    0 => 'heute',
+    1 => 'morgen',
+    _ => 'in $days Tagen',
+  };
 }

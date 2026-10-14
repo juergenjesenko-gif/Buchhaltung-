@@ -35,6 +35,10 @@ nächsten Versionssprung in den neuen Eintrag.
 | Art | Änderung | Bezug | Commit |
 |---|---|---|---|
 | Geändert | Belegformular: Vollständigkeitsbestätigung und Speichern zu einem Knopf zusammengelegt („Vollständig – Beleg speichern (n Seiten)“, unten fixiert, über der Tastatur, Telefon volle Breite, Tablet rechts); Häkchen entfällt; bei einer Seite Knopf „Rückseite?“; Protokoll „Vollständigkeit bestätigt“. Test `receipt_save_bar_test.dart` | FA-2.14, P-S31 | dieser |
+| Behoben | Bezahlte Ausgangsrechnung erschien nicht in Übersicht, Grenze und Verlauf (Gerätetest 0.3.4): „Bezahlt“ fragt den Zahlungseingang (vorbelegt heute) und bucht die Einnahme je Steuersatz an diesem Tag; alte bezahlte Rechnungen werden beim Start nachgebucht; keine Doppelbuchung (eindeutiger Index). Schema 11. Test `invoice_payment_test.dart` | L-25.9, FA-5.12, GR-11, P-S35 | dieser |
+| Behoben | Übersicht: schwebende Knöpfe verdeckten den rechten Rand der Karten; 160 dp Abstand unten | Spezifikation 7 | dieser |
+| Neu | Wirtschaftsjahr: „Erster Monat Wirtschaftsjahr“ in den Stammdaten mit einmaliger Bestätigung; Übersicht „Dieses WJ“, Export „Wirtschaftsjahr“, DATEV „WJ-Beginn“; Umsatzsteuer und Kleinunternehmergrenze bleiben Kalenderjahr (Regressionstest) | L-24, GR-10, FA-10.1, FA-10.2, P-S32 | dieser |
+| Neu | Termin-Box „Nächste Termine“ auf der Übersicht (nur Anzeige): UVA/UStVA, ZM, ESt-Vorauszahlung, Erklärung, SVS (ca.), Feiertage AT/DE mit Verschiebung auf den nächsten Werktag, Bundesland (DE), Rhythmus-Vorschlag aus dem Vorjahr. Test `deadline_calculator_test.dart` | L-25, FA-10.3 bis FA-10.8, P-S33, P-S34, P-R24, P-D25 | dieser |
 
 ---
 

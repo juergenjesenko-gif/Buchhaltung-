@@ -8,6 +8,8 @@ import 'package:buchhaltung/services/app_lock/app_lock_service.dart';
 import 'package:buchhaltung/services/backup/auto_backup_service.dart';
 import 'package:buchhaltung/services/backup/backup_retention.dart';
 import 'package:buchhaltung/domain/country.dart';
+import 'package:buchhaltung/domain/deadline_rule.dart';
+import 'package:buchhaltung/services/deadline_calculator.dart';
 import 'package:buchhaltung/domain/money.dart';
 import 'package:buchhaltung/domain/receipt.dart';
 import 'package:buchhaltung/services/invoice_numbering.dart';
@@ -256,6 +258,10 @@ void main() {
     });
   });
 
+  test('Termin-Box zeigt die dokumentierte Anzahl', () {
+    expect(intValue('spec.deadline_box_count'), DeadlineCalculator.boxCount);
+  });
+
   group('Länderprofile', () {
     void checkCountry(String prefix, TaxProfile profile) {
       expect(
@@ -313,6 +319,33 @@ void main() {
       expect(
         value('spec.$prefix.small_business_legal_ref'),
         profile.smallBusinessLegalRef,
+      );
+      // Wirtschaftsjahr und Termine (L-24, L-25).
+      expect(
+        value('spec.$prefix.fiscal_year_legal_ref'),
+        profile.fiscalYearLegalRef,
+      );
+      expect(
+        value('spec.$prefix.deadline_shift_legal_ref'),
+        profile.deadlineShiftLegalRef,
+      );
+      expect(
+        moneyValue('spec.$prefix.monthly_vat_return_threshold_cents'),
+        profile.monthlyVatReturnThreshold,
+      );
+      expect(
+        value('spec.$prefix.vat_interval_basis'),
+        profile.vatIntervalBasis == VatIntervalBasis.previousYearTurnover
+            ? 'umsatz'
+            : 'steuer',
+      );
+      expect(
+        value('spec.$prefix.asks_federal_state'),
+        profile.asksFederalState ? 'ja' : 'nein',
+      );
+      expect(
+        value('spec.$prefix.deadline_rules'),
+        profile.deadlineRules.map(_ruleSpec).join(' | '),
       );
     }
 
@@ -408,4 +441,21 @@ Map<String, String> _parseSpecBlock(String markdown) {
     result[key] = value;
   }
   return result;
+}
+
+/// Kurzform einer Terminregel für Abschnitt 12: `Bezeichnung@Regel`.
+/// `15+2m` = 15. im zweiten Monat nach Zeitraumende (0 = Monatsletzter,
+/// `+Nx` = Dauerfristverlängerung), `02-15,…` = feste Tage, `+1j07-31` =
+/// Folgejahr, `~` = ungefähr.
+String _ruleSpec(DeadlineRule rule) {
+  String two(int v) => v.toString().padLeft(2, '0');
+  final schedule = switch (rule.schedule) {
+    AfterPeriod(:final dueDay, :final monthsAfter, :final extensionMonths) =>
+      '$dueDay+${monthsAfter}m'
+          '${extensionMonths == 0 ? '' : '+${extensionMonths}x'}',
+    FixedDates(:final monthDays) =>
+      monthDays.map((md) => '${two(md.$1)}-${two(md.$2)}').join(','),
+    FollowingYear(:final month, :final day) => '+1j${two(month)}-${two(day)}',
+  };
+  return '${rule.label}@$schedule${rule.approximate ? '~' : ''}';
 }

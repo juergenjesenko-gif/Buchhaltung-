@@ -329,7 +329,8 @@ class Exporter {
         '""', // Importiert von
         '0', // Beraternummer – von der Kanzlei zu ergänzen
         '0', // Mandantennummer – von der Kanzlei zu ergänzen
-        '${period.from.year}0101', // Beginn Wirtschaftsjahr
+        // Beginn des Wirtschaftsjahres, das den Zeitraum enthält (L-24.5).
+        _datevDate(profile.fiscalYear.periodFor(period.from).from),
         '4', // Sachkontenlänge
         _datevDate(period.from),
         _datevDate(period.to),

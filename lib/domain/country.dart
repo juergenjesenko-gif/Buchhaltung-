@@ -1,3 +1,5 @@
+import 'deadline_rule.dart';
+import 'holidays.dart';
 import 'money.dart';
 
 /// Unterstützte Länder. Die App bildet Österreich und Deutschland ab; die
@@ -92,6 +94,20 @@ class TaxProfile {
     required this.retentionYears,
     required this.foreignVatHint,
     required this.noVatShownHint,
+    required this.monthNames,
+    required this.fiscalYearLegalRef,
+    required this.fiscalYearConfirmation,
+    required this.fiscalYearHint,
+    required this.holidayCalendar,
+    required this.asksFederalState,
+    required this.deadlineShiftLegalRef,
+    required this.vatReturnLabel,
+    required this.monthlyVatReturnThreshold,
+    required this.vatIntervalBasis,
+    required this.vatIntervalLegalRef,
+    required this.hasPermanentExtension,
+    required this.asksSocialInsurance,
+    required this.deadlineRules,
   });
 
   final Country country;
@@ -171,6 +187,48 @@ class TaxProfile {
   /// Hinweis bei einem Beleg ohne Steuerausweis (z. B. nur Kartenbeleg).
   /// Real zu prüfen: Spezifikation 14, P-S29.
   final String noVatShownHint;
+
+  /// Monatsnamen in der Landessprache (AT „Jänner“, DE „Januar“).
+  final List<String> monthNames;
+
+  /// Fundstelle für das abweichende Wirtschaftsjahr (L-24).
+  final String fiscalYearLegalRef;
+
+  /// Einmalige Bestätigung bei einem Wirtschaftsjahr, das nicht im Jänner
+  /// beginnt (L-24.3). Steuerberater-Befund 2026-10-14, Spezifikation 14,
+  /// P-S32.
+  final String fiscalYearConfirmation;
+
+  /// Dauerhafter Hinweis in den Einstellungen bei abweichendem
+  /// Wirtschaftsjahr.
+  final String fiscalYearHint;
+
+  /// Feiertage für die Verschiebung von Fristen (L-25.3).
+  final HolidayCalendar holidayCalendar;
+
+  /// Bundesland abfragen? Nur DE: Landesfeiertage verschieben Fristen.
+  final bool asksFederalState;
+
+  /// Fundstelle für die Verschiebung auf den nächsten Werktag.
+  final String deadlineShiftLegalRef;
+
+  /// „UVA“ (AT) bzw. „UStVA“ (DE).
+  final String vatReturnLabel;
+
+  /// Über diesem Vorjahreswert schlägt die App monatliche Voranmeldung vor;
+  /// gemessen nach [vatIntervalBasis].
+  final Money monthlyVatReturnThreshold;
+  final VatIntervalBasis vatIntervalBasis;
+  final String vatIntervalLegalRef;
+
+  /// Kennt das Land die Dauerfristverlängerung (DE § 46 UStDV)?
+  final bool hasPermanentExtension;
+
+  /// SVS-Beiträge abfragen (nur AT)?
+  final bool asksSocialInsurance;
+
+  /// Steuer- und Abgabetermine (L-25), ohne Länder-ifs im Widget.
+  final List<DeadlineRule> deadlineRules;
 
   VatRate get defaultVatRate =>
       vatRates.firstWhere((r) => r.isDefault, orElse: () => vatRates.first);
@@ -253,6 +311,87 @@ class TaxProfile {
         'Beleg ohne Steuerausweis – kein Vorsteuerabzug. Für den Abzug '
         'Rechnung mit Steuersatz beim Aussteller anfordern '
         '(Kleinbetragsrechnung § 11 Abs. 6 UStG).',
+    monthNames: const [
+      'Jänner',
+      'Februar',
+      'März',
+      'April',
+      'Mai',
+      'Juni',
+      'Juli',
+      'August',
+      'September',
+      'Oktober',
+      'November',
+      'Dezember',
+    ],
+    // § 2 Abs 5 EStG 1988: abweichendes Wirtschaftsjahr nur für
+    // protokollierte (im Firmenbuch eingetragene), bilanzierende
+    // Gewerbetreibende; Umstellung nur mit Zustimmung des Finanzamts.
+    fiscalYearLegalRef: '§ 2 Abs 5 EStG',
+    fiscalYearConfirmation:
+        'Ein Wirtschaftsjahr, das nicht im Jänner beginnt, ist nur zulässig, '
+        'wenn dein Unternehmen im Firmenbuch eingetragen ist, bilanziert und '
+        'die Zustimmung des Finanzamts vorliegt (§ 2 Abs 5 EStG). '
+        'Umsatzsteuer, UVA und Kleinunternehmergrenze bleiben beim '
+        'Kalenderjahr.',
+    fiscalYearHint:
+        'Abweichendes Wirtschaftsjahr: nur für eingetragene, bilanzierende '
+        'Unternehmen mit Zustimmung des Finanzamts. Umsatzsteuer bleibt '
+        'beim Kalenderjahr.',
+    holidayCalendar: HolidayCalendar.austria,
+    // Abgabenfristen: bundeseinheitliche Feiertage reichen, § 108 Abs 3 BAO.
+    asksFederalState: false,
+    deadlineShiftLegalRef: '§ 108 Abs 3 BAO',
+    vatReturnLabel: 'UVA',
+    // § 21 Abs 2 UStG 1994: Vorjahresumsatz bis 100.000 EUR →
+    // Kalendervierteljahr, darüber Kalendermonat. Real zu prüfen: P-S33.
+    monthlyVatReturnThreshold: Money(10000000), // 100.000,00 EUR
+    vatIntervalBasis: VatIntervalBasis.previousYearTurnover,
+    vatIntervalLegalRef: '§ 21 Abs 2 UStG',
+    hasPermanentExtension: false,
+    asksSocialInsurance: true,
+    deadlineRules: const [
+      // § 21 Abs 1 UStG 1994: 15. des zweitfolgenden Monats.
+      DeadlineRule(
+        label: 'UVA',
+        legalRef: '§ 21 Abs 1 UStG',
+        schedule: AfterPeriod(dueDay: 15, monthsAfter: 2),
+        condition: DeadlineCondition.notSmallBusiness,
+      ),
+      // Art. 21 Abs 10 UStG 1994 (Binnenmarktregelung): Ende des auf den
+      // Meldezeitraum folgenden Monats.
+      DeadlineRule(
+        label: 'ZM',
+        legalRef: 'Art. 21 Abs 10 UStG',
+        schedule: AfterPeriod(dueDay: 0, monthsAfter: 1),
+        condition: DeadlineCondition.filesEcsl,
+      ),
+      // § 45 Abs 2 EStG 1988: Vorauszahlungen am 15.2., 15.5., 15.8., 15.11.
+      DeadlineRule(
+        label: 'ESt-Vorauszahlung',
+        legalRef: '§ 45 Abs 2 EStG',
+        schedule: FixedDates([(2, 15), (5, 15), (8, 15), (11, 15)]),
+      ),
+      // § 134 Abs 1 BAO: Erklärungen bis 30.04. (Papier) bzw. 30.06.
+      // (FinanzOnline) des Folgejahres; mit Steuerberatung Quotenregelung
+      // § 134a BAO, daher „laut Kanzlei“. Real zu prüfen: P-S33.
+      DeadlineRule(
+        label: 'ESt-/USt-Erklärung (FinanzOnline)',
+        legalRef: '§ 134 Abs 1 BAO',
+        schedule: FollowingYear(month: 6, day: 30),
+        condition: DeadlineCondition.annualReturn,
+      ),
+      // § 35 Abs 1 GSVG: Beiträge Ende Feb., Mai, Aug., Nov. fällig.
+      // Verschiebung bei Wochenende unsicher → „ca.“ (P-S34).
+      DeadlineRule(
+        label: 'SVS-Beitrag',
+        legalRef: '§ 35 Abs 1 GSVG',
+        schedule: FixedDates([(2, 0), (5, 0), (8, 0), (11, 0)]),
+        condition: DeadlineCondition.socialInsurance,
+        approximate: true,
+      ),
+    ],
   );
 
   /// Deutschland – § 19 UStG in der ab 1.1.2025 geltenden Fassung.
@@ -307,5 +446,74 @@ class TaxProfile {
         'Beleg ohne Steuerausweis – kein Vorsteuerabzug. Für den Abzug '
         'Rechnung mit Steuersatz beim Aussteller anfordern '
         '(Kleinbetragsrechnung § 33 UStDV).',
+    monthNames: const [
+      'Januar',
+      'Februar',
+      'März',
+      'April',
+      'Mai',
+      'Juni',
+      'Juli',
+      'August',
+      'September',
+      'Oktober',
+      'November',
+      'Dezember',
+    ],
+    // § 4a Abs 1 Nr 2 EStG: abweichendes Wirtschaftsjahr nur für im
+    // Handelsregister eingetragene Gewerbetreibende; Umstellung nur im
+    // Einvernehmen mit dem Finanzamt.
+    fiscalYearLegalRef: '§ 4a EStG',
+    fiscalYearConfirmation:
+        'Ein Wirtschaftsjahr, das nicht im Januar beginnt, ist nur zulässig, '
+        'wenn dein Unternehmen im Handelsregister eingetragen ist und das '
+        'Einvernehmen mit dem Finanzamt besteht (§ 4a EStG). Umsatzsteuer, '
+        'UStVA und Kleinunternehmergrenze bleiben beim Kalenderjahr.',
+    fiscalYearHint:
+        'Abweichendes Wirtschaftsjahr: nur für im Handelsregister '
+        'eingetragene Gewerbetreibende im Einvernehmen mit dem Finanzamt. '
+        'Umsatzsteuer bleibt beim Kalenderjahr.',
+    holidayCalendar: HolidayCalendar.germany,
+    asksFederalState: true,
+    deadlineShiftLegalRef: '§ 108 Abs 3 AO',
+    vatReturnLabel: 'UStVA',
+    // § 18 Abs 2 UStG idF ab 2025: Vorjahressteuer über 9.000 EUR →
+    // Kalendermonat, sonst Kalendervierteljahr. Real zu prüfen: P-S33.
+    monthlyVatReturnThreshold: Money(900000), // 9.000,00 EUR
+    vatIntervalBasis: VatIntervalBasis.previousYearVat,
+    vatIntervalLegalRef: '§ 18 Abs 2 UStG',
+    hasPermanentExtension: true,
+    asksSocialInsurance: false,
+    deadlineRules: const [
+      // § 18 Abs 1 UStG: 10. Tag nach Ablauf des Voranmeldungszeitraums;
+      // Dauerfristverlängerung um einen Monat, §§ 46 ff. UStDV.
+      DeadlineRule(
+        label: 'UStVA',
+        legalRef: '§ 18 Abs 1 UStG, § 46 UStDV',
+        schedule: AfterPeriod(dueDay: 10, monthsAfter: 1, extensionMonths: 1),
+        condition: DeadlineCondition.notSmallBusiness,
+      ),
+      // § 18a Abs 1 UStG: 25. Tag nach Ablauf des Meldezeitraums.
+      DeadlineRule(
+        label: 'ZM',
+        legalRef: '§ 18a Abs 1 UStG',
+        schedule: AfterPeriod(dueDay: 25, monthsAfter: 1),
+        condition: DeadlineCondition.filesEcsl,
+      ),
+      // § 37 Abs 1 EStG: 10.3., 10.6., 10.9., 10.12.
+      DeadlineRule(
+        label: 'ESt-Vorauszahlung',
+        legalRef: '§ 37 Abs 1 EStG',
+        schedule: FixedDates([(3, 10), (6, 10), (9, 10), (12, 10)]),
+      ),
+      // § 149 Abs 2 AO: 31.07. des Folgejahres; mit Beratung § 149 Abs 3 AO
+      // (später, „laut Kanzlei“). Real zu prüfen: P-S33.
+      DeadlineRule(
+        label: 'Steuererklärungen',
+        legalRef: '§ 149 Abs 2 AO',
+        schedule: FollowingYear(month: 7, day: 31),
+        condition: DeadlineCondition.annualReturn,
+      ),
+    ],
   );
 }

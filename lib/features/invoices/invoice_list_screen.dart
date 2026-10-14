@@ -107,8 +107,71 @@ class _InvoiceListScreenState extends State<InvoiceListScreen> {
   Future<void> _setStatus(Invoice invoice, InvoiceStatus status) async {
     final id = invoice.id;
     if (id == null) return;
-    await AppScope.read(context).repositories.invoices.setStatus(id, status);
+    final state = AppScope.read(context);
+    if (status == InvoiceStatus.paid) {
+      final paidAt = await _askPaymentDate(invoice);
+      if (paidAt == null) return;
+      await state.repositories.invoices.markPaid(id, paidAt);
+    } else {
+      await state.repositories.invoices.setStatus(id, status);
+    }
+    await state.onBookingsChanged();
     await _load();
+  }
+
+  /// Zahlungseingang erfragen: vorbelegt mit heute, ein Tipp bestätigt
+  /// (Leitprinzip: Vorschlag statt Pflicht). Die Einnahme zählt am Tag des
+  /// Zahlungseingangs (Zuflussprinzip).
+  Future<DateTime?> _askPaymentDate(Invoice invoice) async {
+    final today = DateTime.now();
+    var date = DateTime(today.year, today.month, today.day);
+    return showDialog<DateTime>(
+      context: context,
+      builder: (context) => StatefulBuilder(
+        builder: (context, setDialogState) => AlertDialog(
+          title: Text('${invoice.number} bezahlt'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              ListTile(
+                contentPadding: EdgeInsets.zero,
+                leading: const Icon(Icons.event_outlined),
+                title: const Text('Zahlungseingang'),
+                subtitle: Text(Fmt.date(date)),
+                onTap: () async {
+                  final picked = await showDatePicker(
+                    context: context,
+                    initialDate: date,
+                    firstDate: invoice.issueDate.subtract(
+                      const Duration(days: 366),
+                    ),
+                    lastDate: DateTime(today.year + 1, 12, 31),
+                  );
+                  if (picked != null) setDialogState(() => date = picked);
+                },
+              ),
+              const SizedBox(height: 8),
+              Text(
+                '${Fmt.money(invoice.grossTotal)} werden als Einnahme am '
+                'Tag des Zahlungseingangs gebucht. Bitte nicht zusätzlich '
+                'als Einnahmebeleg erfassen.',
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text('Abbrechen'),
+            ),
+            FilledButton(
+              onPressed: () => Navigator.of(context).pop(date),
+              child: const Text('Als bezahlt buchen'),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 
   Future<void> _deleteDraft(Invoice invoice) async {

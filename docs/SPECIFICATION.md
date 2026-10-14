@@ -1,6 +1,6 @@
 # Spezifikation – Buchhaltung
 
-**Dokumentversion:** 1.39 · **App-Version:** 0.3.4 · **Stand:** 2026-10-14
+**Dokumentversion:** 1.41 · **App-Version:** 0.3.4 · **Stand:** 2026-10-14
 **Status:** Sprint 1 umgesetzt und verifiziert
 
 > Das **Zielbild** des Produkts steht im [`LASTENHEFT.md`](LASTENHEFT.md); dieses
@@ -162,10 +162,29 @@ wirkt als Kursdifferenz auf das Ergebnis, nie auf die Vorsteuer.
 
 ---
 
+### GR-10 · Wirtschaftsjahr nur für die Gewinnermittlung
+
+Das Wirtschaftsjahr (`FiscalYear`, `lib/domain/fiscal_year.dart`) beginnt am
+Ersten des Monats „Erster Monat Wirtschaftsjahr“ (Standard Jänner/Januar) und
+wird nach dem Kalenderjahr bezeichnet, in dem es endet (AT § 2 Abs 5 EStG,
+DE § 4a Abs 2 Nr 2 EStG; `spec.*.fiscal_year_legal_ref`). Es gilt für
+Kassabuch-Jahr, Einnahmen-Ausgaben-Auswertung, Jahresexport, Exportdateinamen
+und den DATEV-Header „WJ-Beginn“. **Umsatzsteuer, Voranmeldung und
+Kleinunternehmergrenze bleiben immer beim Kalenderjahr**; ein Regressionstest
+(`test/invoice_payment_test.dart`) sichert das.
+
+### GR-11 · Einnahmen nach Zahlungseingang
+
+Die Einnahmen-Ausgaben-Rechnung folgt dem Zuflussprinzip (AT § 19 EStG,
+DE § 11 EStG): Eine Ausgangsrechnung wird Einnahme am Tag des
+Zahlungseingangs, eine offene Rechnung zählt nicht. Beim Markieren „bezahlt“
+entsteht je Steuersatz ein Einnahmebeleg mit `invoice_id`; ein eindeutiger
+Index verhindert Doppelbuchungen. Prüfpunkt P-S35.
+
 ## 4. Datenmodell
 
 **Speicher:** SQLite auf dem Gerät, Datei `buchhaltung.db` im
-Anwendungsdokumentenverzeichnis. Aktuelle Schemaversion: **10**
+Anwendungsdokumentenverzeichnis. Aktuelle Schemaversion: **11**
 (`spec.schema_version`). Bilder liegen als Dateien daneben: Belegseiten in
 `belege/`, Firmenlogos in `logo/`.
 
@@ -176,7 +195,7 @@ Anwendungsdokumentenverzeichnis. Aktuelle Schemaversion: **10**
 | `company_profile` | Firmenstammdaten | Genau eine Zeile, erzwungen durch `CHECK (id = 1)` |
 | `categories` | Buchhaltungskategorien | 16 Startkategorien, `is_system = 1` schützt vor Löschen |
 | `customers` | Rechnungsempfänger | Löschen blockiert, solange Rechnungen bestehen |
-| `receipts` | Belege | Index auf `date` und `direction`. Werden nie gelöscht, nur storniert (`cancelled_at`) |
+| `receipts` | Belege | Index auf `date` und `direction`. Werden nie gelöscht, nur storniert (`cancelled_at`). Seit Schema 11 `invoice_id` (Einnahme aus bezahlter Rechnung, eindeutig je Rechnung und Steuersatz) |
 | `receipt_pages` | Seiten (Fotos) eines Belegs: `receipt_id`, `position` ab 1, `image_path`, `created_at` | Schema 8. Nach dem Speichern nur Anhängen; bestehende Einzelfotos wurden bei der Migration zur Seite 1 |
 | `receipt_comments` | Kommentare zu Belegen: `receipt_id`, `text`, `created_at` (Systemzeit) | Schema 8. Nur Einfügen; ein Trigger verhindert `UPDATE`. Löschen bietet die App nicht an (die Wiederherstellung leert alle Tabellen) |
 | `invoices` | Ausgangsrechnungen | `UNIQUE INDEX` auf `number` |
@@ -198,6 +217,11 @@ Anwendungsdokumentenverzeichnis. Aktuelle Schemaversion: **10**
 | `legal_form` | TEXT | `soleTrader`, `freelancer`, `gbr`, `gmbh` |
 | `tax_number` | TEXT | Steuernummer beim Finanzamt |
 | `vat_id` | TEXT | UID (AT) bzw. USt-IdNr. (DE). Optional, Pflicht nur je Rechnung (FA-1.4) |
+| `fiscal_year_start_month` | INTEGER | Erster Monat Wirtschaftsjahr, 1–12 (GR-10) |
+| `fiscal_year_confirmed` | INTEGER | Abweichendes Wirtschaftsjahr bestätigt (Schema 11, FA-10.2) |
+| `federal_state` | TEXT | Bundesland-Kürzel, nur DE, leer = bundesweite Feiertage (Schema 11) |
+| `vat_return_interval` | TEXT | `auto`, `monthly`, `quarterly` (Schema 11, FA-10.6) |
+| `vat_permanent_extension`, `files_ecsl`, `has_tax_advisor`, `svs_insured` | INTEGER | Dauerfristverlängerung (DE), ZM, Steuerberatung, SVS (AT); Schema 11 |
 | `is_small_business` | INTEGER | 1 = Kleinunternehmerregelung wird genutzt |
 | `invoice_number_pattern` | TEXT | Muster, Standard `RE-{YYYY}-{NNNN}` |
 | `next_invoice_sequence` | INTEGER | Nächste laufende Nummer. Wird nur erhöht, nie zurückgesetzt |
@@ -322,7 +346,7 @@ prüft `InvoiceRequirements` (FA-1.4).
 
 | ID | Anforderung |
 |---|---|
-| FA-3.1 | Zeiträume: dieser Monat, letzter Monat, dieses Quartal, dieses Jahr, letztes Jahr |
+| FA-3.1 | Zeiträume: dieser Monat, letzter Monat, dieses Quartal, dieses Jahr, letztes Jahr. „Jahr“ ist das Wirtschaftsjahr (GR-10); bei abweichendem Wirtschaftsjahr heißen die Chips „Dieses WJ (2027)“ und „Letztes WJ (2026)“ |
 | FA-3.2 | Anzeige von Einnahmen netto, Ausgaben netto und Ergebnis; das Ergebnis enthält Kursdifferenzen laut Bank (FA-2.26) |
 | FA-3.3 | Bei Regelbesteuerung: Umsatz je Steuersatz, Umsatzsteuer, Vorsteuer, Zahllast oder Guthaben |
 | FA-3.4 | Bei Kleinunternehmern entfällt die Umsatzsteuerauswertung mit Erklärung |
@@ -374,7 +398,7 @@ Grenzwerte siehe Abschnitt 12.
 | FA-5.9 | PDF im A4-Format mit allen Pflichtangaben, mehrseitig lauffähig |
 | FA-5.10 | Teilen über den Systemdialog |
 | FA-5.11 | Nur Entwürfe sind löschbar; gestellte Rechnungen werden storniert |
-| FA-5.12 | Statuswechsel nach *bezahlt* setzt `paid_at` |
+| FA-5.12 | *Bezahlt* fragt den Zahlungseingang (vorbelegt heute, änderbar), setzt `paid_at` und bucht die Einnahme je Steuersatz an diesem Tag (GR-11). Vor Schema 11 bezahlte Rechnungen bucht die App beim Start einmal nach (`paid_at`, sonst Rechnungsdatum). Hinweis im Dialog: nicht zusätzlich als Einnahmebeleg erfassen |
 | FA-5.13 | Eine gestellte Rechnung mit überschrittener Fälligkeit wird als überfällig gekennzeichnet |
 | FA-5.14 | Die Übersicht zeigt die Summe der gestellten, nicht bezahlten Rechnungen |
 
@@ -435,13 +459,30 @@ Fachlogik: `lib/services/launcher/home_shortcut_service.dart`, Plattform:
 
 | ID | Anforderung |
 |---|---|
-| FA-6.1 | Zeitraum wählbar: Jahr, Quartal oder Monat |
+| FA-6.1 | Zeitraum wählbar: Jahr, Quartal oder Monat. „Ganzes Jahr“ ist das Wirtschaftsjahr (bei abweichendem WJ „Wirtschaftsjahr“, Auswahl „WJ 2027“); Quartale und Monate bleiben Kalenderzeiträume der Umsatzsteuer |
 | FA-6.2 | Vorschau mit Belegzahl und Summen **vor** dem Teilen |
 | FA-6.3 | Bei leerem Zeitraum ist der Export gesperrt und ein Hinweis sichtbar |
 | FA-6.4 | DATEV wird nur bei Land DE angeboten, BMD nur bei Land AT |
 | FA-6.5 | Dateiname enthält Firma und Zeitraum |
 | FA-6.6 | CSV mit Semikolon, CRLF und UTF-8-BOM |
 | FA-6.7 | Belegliste mit Seitenzahl und allen Kommentaren samt Zeitpunkt; DATEV und BMD hängen den jüngsten Kommentar gekürzt an den Buchungstext an (`Beschreibung / K: …`, höchstens 60 Zeichen) |
+
+### 5.6a Wirtschaftsjahr und Steuertermine
+
+Lastenheft L-24 und L-25. Termine in `lib/services/deadline_calculator.dart`,
+Regeln je Land in `TaxProfile.deadlineRules` (`spec.*.deadline_rules`),
+Feiertage in `lib/domain/holidays.dart`.
+
+| ID | Anforderung |
+|---|---|
+| FA-10.1 | Stammdaten, Abschnitt „Wirtschaftsjahr und Termine“ (nicht im Onboarding): „Erster Monat Wirtschaftsjahr“, Standard Jänner/Januar |
+| FA-10.2 | Monat ≠ Jänner nur nach einmaliger Bestätigung mit dem Text aus `TaxProfile.fiscalYearConfirmation` (AT: Firmenbuch, bilanzierend, Zustimmung FA; DE: Handelsregister, Einvernehmen FA); danach dauerhafter Hinweis unter der Auswahl. Prüfpunkt P-S32 |
+| FA-10.3 | Termin-Box „Nächste Termine“ auf der Übersicht: die nächsten **4** Termine (`spec.deadline_box_count`) mit Bezeichnung, Datum und „in n Tagen“; Tipp zeigt die Rechtsgrundlage. Nur Anzeige, keine Benachrichtigung |
+| FA-10.4 | Darunter: „Berechnete Termine zur Orientierung, ohne Gewähr. Maßgeblich sind Bescheid, Finanzamt bzw. deine Steuerberatung.“ (P-R24) |
+| FA-10.5 | Fällt ein Termin auf Samstag, Sonntag oder Feiertag, gilt der nächste Werktag (`spec.*.deadline_shift_legal_ref`). AT: bundeseinheitliche Feiertage plus Karfreitag und 24.12. (§ 108 Abs 3 BAO), kein Bundesland. DE: bundesweite Feiertage plus Landesfeiertage des gewählten Bundeslands (`spec.*.asks_federal_state`). Ostern nach der Gaußschen Formel |
+| FA-10.6 | Voranmeldung nur bei Regelbesteuerung. Rhythmus „Vorschlag“ aus dem Vorjahr: AT Vorjahresumsatz über 100.000 €, DE Vorjahressteuer über 9.000 € → monatlich, sonst vierteljährlich (`spec.*.monthly_vat_return_threshold_cents`, `spec.*.vat_interval_basis`; P-S33); immer Kalenderjahr |
+| FA-10.7 | AT: UVA 15. des zweitfolgenden Monats, ZM Ende des Folgemonats, ESt-Vorauszahlung 15.2./15.5./15.8./15.11., Erklärung 30.06. Folgejahr (FinanzOnline), SVS Ende Feb./Mai/Aug./Nov. als „ca.“ ohne Verschiebung (P-S34). DE: UStVA 10. nach Zeitraum (+1 Monat Dauerfristverlängerung), ZM 25. nach Zeitraum, ESt-Vorauszahlung 10.3./10.6./10.9./10.12., Erklärung 31.07. Folgejahr. ZM-Zeitraum folgt dem Voranmeldungsrhythmus (Vereinfachung, P-S33) |
+| FA-10.8 | Mit Steuerberatung keine Erklärungsfrist, sondern „Steuererklärungen JJJJ: Frist laut Kanzlei“ |
 
 ### 5.7 Tablet und Querformat
 
@@ -456,6 +497,20 @@ Umsetzung von DESIGN_SPEC Abschnitt 5. Schwellen nur in
 | FA-9.3 | **Liste-Detail** ab expanded für Belege, Rechnungen und Kunden: Liste links (2/5), Bearbeitung rechts (3/5) in einem eigenen Navigator; Speichern schließt den Detailbereich und aktualisiert die Liste. Auf compact und medium wie bisher eigene Seite. Medium quer (z. B. Telefon quer) bleibt einspaltig, weil zwei Spalten unter 840 dp das Formular zu schmal machen |
 | FA-9.4 | Formulare und Lesebereiche (Beleg, Rechnung, Kunde, Stammdaten, Bestätigungen, Einstellungen, App-Sperre, Datensicherung, Export) höchstens 640 dp breit, zentriert (`spec.max_content_width_dp`, DESIGN_SPEC D-5). Sperrbildschirm höchstens 360 dp, zentriert und scrollbar; Dialoge nach Material 3 höchstens 560 dp |
 | FA-9.5 | Hoch- und Querformat ohne Sperre: Android ohne `screenOrientation`, iOS iPhone hoch und quer, iPad alle vier Ausrichtungen. **Kein `UIRequiresFullScreen`**: die App unterstützt Split View und Slide Over auf dem iPad; Apple verlangt dafür alle vier iPad-Ausrichtungen. Gerätetest: P-D19, P-D20 |
+
+### 5.8 Hilfe
+
+Lastenheft L-26. Stufe 1: offline, ohne Server, ohne neues Paket. Suche in
+`lib/services/help/help_index.dart`, Bildschirm `lib/features/help/help_screen.dart`,
+Support-Mail `lib/services/help/support_mail.dart`. **Stufe 2** (Antworten
+durch ein KI-Modell auf einem Server) ist nicht gebaut und wartet auf die
+Server-Entscheidung; Prüfpunkte P-R25, P-R26.
+
+| ID | Anforderung |
+|---|---|
+| FA-11.1 | **Hilfe-Symbol** (Fragezeichen, Tooltip „Hilfe“) in der AppBar rechts auf Übersicht, Belege, Rechnungen, Export, Einstellungen, Beleg- und Rechnungsformular. Nicht als FAB: unten rechts liegen bereits die Erfassungsknöpfe (Übersicht zwei, Listen ein Plus) in der Daumenzone, die der Hauptaktion vorbehalten ist (DESIGN_SPEC „Hauptaktion in Daumenreichweite“); Hilfe ist eine seltene Nebenaktion und darf oben liegen, wo auch das Zahnrad sitzt |
+| FA-11.2 | **Suche** im Benutzerhandbuch: `docs/BENUTZERHANDBUCH.md` ist selbst als Asset eingebunden (pubspec.yaml) – keine Kopie, kein zweiter Text. Zerlegung in `##`/`###`-Abschnitte; in „Häufige Fragen“ und „Wenn etwas nicht geht“ ist jede fett gesetzte Frage bzw. Meldung ein eigener Treffer; „Inhalt“ entfällt. Rangfolge BM25 (k1 1,2, b 0,75), Überschrift dreifach gewichtet, Normalisierung Kleinschreibung, ä/ö/ü/ß, Füllwörter, einfache Endungs-Stammbildung, Präfixtreffer für zusammengesetzte Wörter, Synonyme mit Gewicht 0,6 (z. B. „löschen“ → „stornieren“, „Backup“ → „Sicherung“, „MwSt“ → „Umsatzsteuer“). Treffer zeigen Überschrift, Kapitel und Auszug; Tipp öffnet den Abschnitt mit eigenem Markdown-Darsteller (Absätze, Listen, fett, kursiv, Code, Tabellenzeilen), Text auswählbar. **Kontext:** vom Beleg-Bildschirm geöffnet zeigt die leere Suche die Beleg-Kapitel, Treffer aus Beleg-Kapiteln wiegen 1,3-fach; analog Rechnungen. Test `test/help_test.dart` prüft, dass jede Handbuchüberschrift und jede FAQ-Frage im Index steht |
+| FA-11.3 | **Ohne Treffer:** Hinweis und Knopf „E-Mail an den Support“; mit Treffern zusätzlich „Nicht dabei? Support fragen“. Öffnet die Mail-App (`mailto:office@jenibarb.com`, Android `ACTION_SENDTO`, iOS `UIApplication.open`, Kanal `buchhaltung/launcher` Methoden `openMail`, `appVersion`) mit Betreff „Frage zur Buchhaltungs-App (Version x.y.z): <Suchtext>“. Kein Text, kein Anhang, keine Daten automatisch; gesendet wird nur, was die Nutzerin selbst abschickt. Ohne Mail-App: Dialog mit Adresse und „Adresse kopieren“ |
 
 ---
 
@@ -508,12 +563,12 @@ Kleinunternehmer:
 | Bildschirm | Datei | Zweck |
 |---|---|---|
 | Bestätigungen | `features/onboarding/consent_screen.dart` | Hinweis „keine Steuerberatung“, Nutzungsbedingungen und Datenschutz bestätigen |
-| Onboarding / Stammdaten | `features/onboarding/company_setup_screen.dart` | Firmenprofil anlegen und bearbeiten, Firmenlogo |
+| Onboarding / Stammdaten | `features/onboarding/company_setup_screen.dart` | Firmenprofil anlegen und bearbeiten, Firmenlogo; Abschnitt „Wirtschaftsjahr und Termine“ (FA-10.1, nur Stammdaten) |
 | Hauptnavigation | `features/home/home_shell.dart` | Vier Bereiche: Tab-Leiste (compact) oder Navigationsleiste links (medium, expanded), FA-9.2; einmaliges Angebot „App-Symbol auf den Startbildschirm“ (FA-1.19) |
-| Übersicht | `features/dashboard/dashboard_screen.dart` | Kassabuch, Umsatzsteuer, Grenzwertampel, Verlauf |
+| Übersicht | `features/dashboard/dashboard_screen.dart` | Kassabuch, Umsatzsteuer, Grenzwertampel, Termin-Box „Nächste Termine“ (FA-10.3), Verlauf; unten 160 dp Abstand, damit die zwei schwebenden Knöpfe keine Karte verdecken |
 | Belegliste | `features/receipts/receipt_list_screen.dart` | Suchen, filtern, öffnen; Filter „Storniert“ |
 | Beleg bearbeiten | `features/receipts/receipt_edit_screen.dart` | Erfassen, Seiten, automatisches Auslesen mit „Erneut auslesen“, Betrag, Fremdwährung mit „Kurs abrufen“ und Bankbetrag (FA-2.24 bis FA-2.26), Kategorie, Rechnungsnummer, Aussteller-UID, Kommentare; stornierte Belege nur lesen. Speicherleiste unten fixiert (`receipt_save_bar.dart`), über der Tastatur, Primärknopf 56 dp hoch: Telefon volle Breite, ab 600 dp rechtsbündig; bei neuen Seiten „Vollständig – Beleg speichern“ (FA-2.14) |
-| Rechnungsliste | `features/invoices/invoice_list_screen.dart` | Status, PDF teilen, Aktionen |
+| Rechnungsliste | `features/invoices/invoice_list_screen.dart` | Status, PDF teilen, Aktionen; „Bezahlt“ mit Dialog Zahlungseingang (FA-5.12) |
 | Rechnung bearbeiten | `features/invoices/invoice_edit_screen.dart` | Kunde, Positionen, Ausstellen |
 | Kunde bearbeiten | `features/invoices/customer_edit_screen.dart` | Kundenstammdaten |
 | Datensicherung | `features/backup/backup_screen.dart` | Sicherung erstellen und teilen, wiederherstellen mit Vorschau |
@@ -521,10 +576,12 @@ Kleinunternehmer:
 | Einstellungen | `features/settings/settings_screen.dart` | Stammdaten, App-Sperre, Symbol auf Startbildschirm (FA-1.19, nur Android), Belege auslesen, Fremdwährung (Tageskurs-Genehmigung), Kategorien, Rechtsrahmen, Hinweise |
 | App-Sperre einrichten | `features/app_lock/app_lock_settings_screen.dart` | PIN, Biometrie, Sperrzeit, Hinweis „PIN vergessen“, Warnung ohne Sicherung |
 | Sperrbildschirm | `features/app_lock/lock_screen.dart` | PIN oder Biometrie, Wartezeit nach Fehlversuchen; Abdeckung im App-Umschalter |
+| Hilfe | `features/help/help_screen.dart` | Suche im Handbuch (FA-11.2), Abschnitt lesen, Support-Mail ohne Treffer (FA-11.3); erreichbar über das Fragezeichen oben rechts (FA-11.1) |
 
 **Navigation:** Vier Ziele – Übersicht, Belege, Rechnungen, Export – in der
 Tab-Leiste (Telefon) bzw. in der Navigationsleiste links (Tablet, Querformat,
-FA-9.2). Einstellungen erreicht man über das Zahnrad in der Übersicht.
+FA-9.2). Einstellungen erreicht man über das Zahnrad in der Übersicht, die
+Hilfe über das Fragezeichen oben rechts auf jedem Hauptbildschirm (FA-11.1).
 
 **Liste-Detail (expanded, FA-9.3):** Belegliste mit „Beleg bearbeiten“,
 Rechnungsliste mit „Rechnung bearbeiten“ und Kundenliste mit „Kunde
@@ -563,6 +620,7 @@ Spaltenüberschriften, ab Zeile 3 die Buchungen.
 - Gebucht wird immer **brutto**, ohne Vorzeichen
 - Das Vorzeichen steckt im Soll/Haben-Kennzeichen: Einnahme `H`, Ausgabe `S`
 - Belegdatum als `TTMM`; das Jahr steht im Header
+- Header-Feld „WJ-Beginn“: erster Tag des Wirtschaftsjahres, das den Zeitraum enthält (GR-10)
 - Buchungstext maximal 60 Zeichen, Semikola werden durch Komma ersetzt
 - Berater- und Mandantennummer stehen als `0` – die Kanzlei ordnet den Stapel beim Import zu
 - **Fremdwährung:** gebucht wird der umgerechnete Euro-Betrag mit `WKZ Umsatz` = `EUR`; die Felder `Kurs`, `Basis-Umsatz` und `WKZ Basis-Umsatz` bleiben leer, weil Kursrichtung und Pflichtkombination im EXTF-Format nicht gesichert geprüft sind (P-D23). Originalbetrag und Kurs stehen in der Belegliste (8.2). BMD (8.4) ebenso nur Euro
@@ -666,6 +724,7 @@ Offen benannt, weil eine Spezifikation, die ihre Lücken verschweigt, wertlos is
 | **Steuerwerte fest im Code** | Kennwerte außer Steuersätzen (seit 0.3.4 `validFrom`, GR-3) haben kein Gültig-ab-Datum und ändern sich nur per App-Update; eine kurzfristige Gesetzesänderung erreicht die Nutzerin erst nach Store-Freigabe | Rechtsstand-Überwachung, Lastenheft L-20 und L-13.5, Stufe B |
 | **Belegerkennung nicht auf Gerät erprobt** | Android-Teil im CI-Emulator mit R8 an einem synthetischen Kassenbon geprüft, Swift-Teil nur kompiliert; Korpus mit sechs echten Belegen (`test/fixtures/belege/`); Quote auf dem Gerät noch zu bestätigen (P-D22). Mehrsprachige Schlüsselwörter sind teils nur an synthetischen Texten geprüft. Lernen je Händler (Korrekturen merken) fehlt noch. Ein Beleg mit mehreren Steuersätzen wird mit einem Satz gebucht | vor Release |
 | **Fremdwährung nur bei Ausgaben** | Eingangsbelege werden umgerechnet (FA-2.24 bis FA-2.27); Ausgangsrechnungen nur in Euro. Den BMF-Monatskurs lädt die App nicht, er wird von Hand übernommen; das EZB-Monatsmittel ist nur eine Näherung (P-S23, P-S24). DATEV/BMD exportieren nur Euro (P-D23). Ein Land mit anderer Währung setzt Mehrwährungsfähigkeit voraus | Backlog G7 |
+| **Termine nur als Anzeige** | Die Termin-Box (FA-10.3) erinnert nicht aktiv; Bescheid-Termine (z. B. abweichende Vorauszahlungen, Nachzahlungen) kennt sie nicht. Teil- und Anzahlungen auf Rechnungen bildet die App nicht ab (P-S35) | Stufe 2: Benachrichtigungen |
 | **Mengen mit zwei Dezimalstellen** | Die Mengeneingabe verarbeitet zwei Nachkommastellen, obwohl das Datenmodell drei erlaubt | – |
 | **Offene Detailseite beim Wechsel der Breitenklasse** | Wird ein Tablet von quer (expanded) auf hoch (medium) gedreht oder das Fenster verkleinert, während rechts ein Beleg, eine Rechnung oder ein Kunde in Bearbeitung ist, schließt sich der Detailbereich; ungespeicherte Eingaben gehen verloren. Gespeichertes bleibt unberührt | später |
 | **Android-APK-Build nicht lokal verifiziert** | Im Entwicklungscontainer ist `dl.google.com` per Netzwerk-Policy gesperrt, das Android SDK ließ sich nicht installieren. Analyse, Format und Tests laufen lokal; die Plattform-Builds verifiziert die CI | – |
@@ -679,7 +738,8 @@ Offen benannt, weil eine Spezifikation, die ihre Lücken verschweigt, wertlos is
 > Das ist der Mechanismus, der dieses Dokument aktuell hält.
 
 ```properties
-spec.schema_version = 10
+spec.schema_version = 11
+spec.deadline_box_count = 4
 spec.fx_rate_scale = 1000000
 spec.vat_check_interval_days = 7
 spec.backup_reminder_days = 30
@@ -725,6 +785,12 @@ spec.at.vat_id_label = UID-Nummer
 spec.at.invoice_legal_ref = § 11 UStG
 spec.at.fx_rate_legal_ref = § 20 Abs 6 UStG
 spec.at.small_business_legal_ref = § 6 Abs 1 Z 27 UStG
+spec.at.fiscal_year_legal_ref = § 2 Abs 5 EStG
+spec.at.deadline_shift_legal_ref = § 108 Abs 3 BAO
+spec.at.monthly_vat_return_threshold_cents = 10000000
+spec.at.vat_interval_basis = umsatz
+spec.at.asks_federal_state = nein
+spec.at.deadline_rules = UVA@15+2m | ZM@0+1m | ESt-Vorauszahlung@02-15,05-15,08-15,11-15 | ESt-/USt-Erklärung (FinanzOnline)@+1j06-30 | SVS-Beitrag@02-00,05-00,08-00,11-00~
 
 # Deutschland – § 19 UStG, § 33 UStDV, § 147 AO
 spec.de.vat_permille = 190,70,0
@@ -742,9 +808,20 @@ spec.de.vat_id_label = USt-IdNr.
 spec.de.invoice_legal_ref = § 14 UStG
 spec.de.fx_rate_legal_ref = § 16 Abs 6 UStG
 spec.de.small_business_legal_ref = § 19 UStG
+spec.de.fiscal_year_legal_ref = § 4a EStG
+spec.de.deadline_shift_legal_ref = § 108 Abs 3 AO
+spec.de.monthly_vat_return_threshold_cents = 900000
+spec.de.vat_interval_basis = steuer
+spec.de.asks_federal_state = ja
+spec.de.deadline_rules = UStVA@10+1m+1x | ZM@25+1m | ESt-Vorauszahlung@03-10,06-10,09-10,12-10 | Steuererklärungen@+1j07-31
 ```
 
 Umrechnung: Beträge in Cent. `5500000` Cent = 55.000,00 €.
+
+Terminregeln (`deadline_rules`): `15+2m` = 15. im zweiten Monat nach Ende des
+Zeitraums (0 = Monatsletzter), `+1x` = zusätzlicher Monat bei
+Dauerfristverlängerung, `02-15,…` = feste Tage, `+1j07-31` = Folgejahr,
+`~` = ungefähr, ohne Verschiebung.
 
 ---
 
@@ -752,6 +829,8 @@ Umrechnung: Beträge in Cent. `5500000` Cent = 55.000,00 €.
 
 | Version | Datum | App-Version | Änderung |
 |---|---|---|---|
+| 1.41 | 2026-10-14 | 0.3.4 | Hilfe Stufe 1 offline (Abschnitt 5.8, FA-11.1 bis FA-11.3, Abschnitt 7): Fragezeichen in der AppBar, BM25-Suche im als Asset eingebundenen Handbuch, Abschnitt lesen, Support-Mail ohne Anhang. Stufe 2 (KI) nur vorgemerkt. Neue Prüfpunkte P-R25, P-R26, P-D26. Kein Schemawechsel. |
+| 1.40 | 2026-10-14 | 0.3.4 | Wirtschaftsjahr (GR-10, FA-10.1, FA-10.2, FA-3.1, FA-6.1, DATEV „WJ-Beginn“) und Termin-Box Stufe 1 (Abschnitt 5.6a, FA-10.3 bis FA-10.8) mit Feiertagen AT/DE und Verschiebung auf den nächsten Werktag. Fehlerbehebung Gerätetest 0.3.4: bezahlte Rechnung wird Einnahme am Tag des Zahlungseingangs (GR-11, FA-5.12), Nachbuchung alter Rechnungen; Übersicht mit 160 dp Abstand unten. Schema 11. Neue Kennwerte `spec.deadline_box_count`, `spec.*.fiscal_year_legal_ref`, `spec.*.deadline_shift_legal_ref`, `spec.*.monthly_vat_return_threshold_cents`, `spec.*.vat_interval_basis`, `spec.*.asks_federal_state`, `spec.*.deadline_rules`. Neue Prüfpunkte P-S32 bis P-S35, P-R24, P-D25. |
 | 1.39 | 2026-10-14 | 0.3.4 | Vollständigkeitsbestätigung und Speichern zu einer Aktion zusammengelegt (FA-2.14, Abschnitt 7): Knopf „Vollständig – Beleg speichern (n Seiten)“, kein Häkchen mehr, Protokoll „Vollständigkeit bestätigt“. Neuer Prüfpunkt P-S31. Kein Schemawechsel. |
 | 1.38 | 2026-10-14 | 0.3.4 | Korpus vollständig (6 Belege, OCR des DARS-Belegs aus dem Emulator); Steuertabelle ohne Prozentzeichen, EU-Satz ohne UID als ausländisch, entstellte Jahreszahl (FA-2.30, FA-2.29). |
 | 1.37 | 2026-10-14 | 0.3.4 | Mehrsprachige Belegerkennung (FA-2.30) mit Schlüsselwort-Tabellen in 15 Sprachen, Satz nach „%“, Dezimalsätze, Steuerzeilen vor unsicherem Brutto; Beschreibungs- und Kategorievorschlag (FA-2.31); Beleg ohne Steuerausweis (FA-2.32); ausländische USt mit Länderhinweis aus dem TaxProfile (FA-2.29). Österreich 4,9 % (§ 10 Abs 1a UStG 1994) mit Gültigkeitsbeginn 1.7.2026 (GR-3, `spec.at.vat_permille`, neu `spec.at.vat_49_valid_from`). Neue Prüfpunkte P-S28 bis P-S30. Kein Schemawechsel. |
@@ -937,6 +1016,10 @@ Status: *offen* · *bestätigt* (mit Datum und Prüfer) · *widerlegt* (mit Folg
 | P-S29 | Steuerberatung: Kartenbeleg ohne Steuerausweis – Betriebsausgabe ja, Vorsteuer nein (§ 11 Abs 6, § 12 Abs 1 Z 1 UStG 1994; DE § 33 UStDV, § 15 UStG). Hinweistext bestätigen | Umgesetzt (FA-2.32): 0 % vorbelegt, Hinweis `noVatShownHint` | vor Release | offen |
 | P-S30 | Steuerberatung: Hinweistext ausländische USt je Land (AT FinanzOnline, DE BZSt; Frist 30.09. Folgejahr; Mindestbeträge 50 €/400 €; nicht für Kleinunternehmer) | Umgesetzt (FA-2.29, `foreignVatHint`) | vor Release | offen |
 | P-S31 | Steuerberatung: Genügt Speichern über den Knopf „Vollständig – Beleg speichern (n Seiten)“ mit Erklärzeile als Vollständigkeitsbestätigung (GoBD Rz. 136 ff. zum ersetzenden Scannen, Vollständigkeit § 146 Abs. 1 AO; AT § 131 BAO)? Eigenes Häkchen entfällt | Vorbefund Softwareentwickler: aktive, eindeutig beschriftete Handlung je Buchung mit neuen Seiten, Aussage steht unmittelbar am Knopf, Protokoll im `audit_log` mit Seitenzahl und „Vollständigkeit bestätigt“; ein vorab gesetztes Häkchen wäre schwächer. Gesetzlich ist keine bestimmte Form der Bestätigung vorgeschrieben (Verfahrensdokumentation) | vor Release | offen |
+| P-S32 | Abweichendes Wirtschaftsjahr: Voraussetzungen und Bestätigungstexte (AT § 2 Abs 5 EStG, DE § 4a EStG); EÜR-Rechner/Freiberufler praktisch Kalenderjahr – reicht eine Bestätigung, oder soll die App die Auswahl bei EÜR sperren? | Steuerberater-Befund 2026-10-14: AT nur Firmenbuch + Bilanzierung + Zustimmung FA, DE nur Handelsregister + Einvernehmen FA; USt immer Kalenderjahr. Umgesetzt als einmalige Bestätigung (FA-10.2) | Release | offen |
+| P-S33 | Termine: UVA-Grenzen (AT 100.000 € Vorjahresumsatz § 21 Abs 2 UStG; DE 9.000 € Vorjahressteuer § 18 Abs 2 UStG ab 2025), Jänner-/Dezember-Sonderregeln, Erklärungsfristen mit Steuerberatung (§ 134a BAO, § 149 Abs 3 AO), ZM-Zeitraum gleich Voranmeldungszeitraum (Vereinfachung), ESt-Vorauszahlungen immer angezeigt | Werte laut Befund im Code (FA-10.6, FA-10.7); Beraterfrist als „laut Kanzlei“ | Release | offen |
+| P-S34 | SVS-Beitragsfälligkeit (§ 35 GSVG): Ende Feb./Mai/Aug./Nov.; Verschiebung bei Wochenende/Feiertag? | unsicher, daher „ca.“ ohne Verschiebung (FA-10.7) | Release | offen |
+| P-S35 | Bezahlte Rechnung als Einnahme am Zahlungstag (Zuflussprinzip § 19 EStG AT, § 11 EStG DE); Kleinunternehmergrenze AT: App zählt Einnahmen nach Zahlungseingang (Ist) – richtig für Ist-Versteuerer (§ 17 UStG), bei Soll-Versteuerung nach Leistung? Teilzahlungen und Anzahlungen bildet die App nicht ab | umgesetzt nach Zufluss (GR-11); Soll-Basis nicht abgebildet | Release | offen |
 | P-L12 | Anwältin: Diktat über die Systemtastatur – Anbieterin nicht verantwortlich, Hinweistext genügt | — | Release | offen |
 | P-L13 | Gerätetest, nur bei eigener Spracherkennung: Erkennung im Flugmodus | — | später | offen |
 | P-L14 | Anwältin: Rollen beim Vertragsarchiv mit KI (Anbieterin als Auftragsverarbeiterin), Muster-AVV, Rechtsgrundlage Beschäftigtendaten | — | Stufe C | offen |
@@ -957,6 +1040,9 @@ Status: *offen* · *bestätigt* (mit Datum und Prüfer) · *widerlegt* (mit Folg
 | P-R20 | Anwältin: Haftungsbegrenzung bei Fehlerkennung in den Nutzungsbedingungen (KSchG, BGB) | — | Release | offen |
 | P-R22 | Google Play: wird ein eingetragenes Einzelunternehmen (e.U.) als Organisationskonto angenommen? Welche Nachweise (D-U-N-S, Firmenbuchauszug)? | Organisationskonto erspart den 14-Tage-Test mit 12 Testerinnen | vor Kontoanlage | offen |
 | P-R23 | Apple: Anmeldung als Einzelperson (Einzelunternehmen ist laut Apple keine Organisation); Verkäufername im Store = persönlicher Name; Migration bei späterer GmbH | Apple Account Help D-U-N-S | vor Kontoanlage | offen |
+| P-R24 | Termin-Box: Formulierung „Berechnete Termine zur Orientierung, ohne Gewähr. Maßgeblich sind Bescheid, Finanzamt bzw. deine Steuerberatung.“ – genügt das gegenüber Verbraucherinnen/Unternehmerinnen (Haftung für falsch berechnete Fristen, AGB/Nutzungsbedingungen)? | Hinweis sichtbar unter jeder Termin-Box (FA-10.4); Nutzungsbedingungen noch nicht ergänzt | Release | offen |
+| P-R25 | Hilfe Stufe 2 (KI-Antworten): Abgrenzung zur Hilfeleistung in Steuersachen (StBerG DE, WTBG AT), Haftung für falsche Antworten, Kennzeichnung als KI (Art. 50 KI-VO) | noch nicht gebaut (FA-11, Lastenheft L-26.6) | vor Stufe 2 | offen |
+| P-R26 | Hilfe Stufe 2: Übermittlung der Frage an einen Server bzw. KI-Anbieter – Rechtsgrundlage, Auftragsverarbeitung, Drittlandtransfer, Eintrag in Datenflusstabelle und Store-Angaben | noch nicht gebaut | vor Stufe 2 | offen |
 | P-S11 | USt-Kette der Store-Abos: Leistung an Apple/Google in Irland, Reverse Charge, UID, ZM, UVA; gelten die Store-Abrechnungen als Gutschrift (§ 11 Abs 7 UStG AT)? | Kette sicher, Rechnungsstellung offen | erster Verkauf | offen |
 | P-S12 | Vorsteuerabzug für Unternehmerinnen aus Store-Quittungen | unklar; kein Versprechen in App oder Werbung | erster Verkauf | offen |
 | P-S13 | Verbuchung der Store-Auszahlungen (netto als Erlös empfohlen, Zufluss/Abgrenzung, Fremdwährung), W-8BEN(-E) | — | erster Verkauf | offen |
@@ -977,4 +1063,5 @@ Status: *offen* · *bestätigt* (mit Datum und Prüfer) · *widerlegt* (mit Folg
 | P-D21 | Gerätetest mit Netzwerkmitschnitt: Erkennung läuft offline; welche Endpunkte ruft ML Kit auf (Firelog)? | gehört zu P-R19 | Release | offen |
 | P-D20 | iPad hoch und quer (alle vier Ausrichtungen), Split View und Slide Over (1/3, 1/2, 2/3), Stage Manager; App Review akzeptiert Multitasking ohne `UIRequiresFullScreen` | Info.plist enthält alle vier iPad-Ausrichtungen, kein `UIRequiresFullScreen`; nur auf macOS/Gerät prüfbar | Release | offen |
 | P-D24 | App-Symbol auf dem Startbildschirm auf echtem Pixel (per APK installiert): Angebot erscheint einmal nach dem Onboarding, Systemdialog „Zum Startbildschirm hinzufügen“, Symbol erscheint, Tippen startet die App; Eintrag in den Einstellungen; Verhalten unter Android 8 und mit einem Fremd-Launcher | Dart-Logik getestet, Kotlin nur kompiliert (CI) | Release | offen |
+| P-D25 | Auf echtem Gerät: Update auf Schema 11 mit bereits bezahlter Rechnung (Nachbuchung, Übersicht und Grenze), Termin-Box, Dialog „bezahlt“, Abstand unter den schwebenden Knöpfen | Tests mit ffi und Widget-Logik; Gerät fehlt | Release | offen |
 | P-D8 | Zusatzsicherung unter Windows (`tool/sicherung/sicherung.ps1`): Erstlauf, Aufgabenplanung, Wiederherstellung | Linux-Variante getestet, Windows-Skript nie ausgeführt | sofort | offen |

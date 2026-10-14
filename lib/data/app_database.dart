@@ -16,7 +16,7 @@ class AppDatabase {
 
   /// Aktuelle Schemaversion. Öffentlich, weil docs/SPECIFICATION.md sie
   /// dokumentiert und test/specification_sync_test.dart beide vergleicht.
-  static const schemaVersion = 10;
+  static const schemaVersion = 11;
 
   Database? _db;
 
@@ -349,6 +349,25 @@ class AppDatabase {
         PRIMARY KEY (date, currency)
       )
       ''',
+    ],
+    // Version 11: bezahlte Rechnungen als Einnahme (L-25.9), Wirtschaftsjahr
+    // (L-24) und Steuertermine (L-25).
+    11: [
+      // Einnahme aus einer bezahlten Ausgangsrechnung, je Steuersatz eine
+      // Zeile. Der eindeutige Index verhindert Doppelbuchungen.
+      'ALTER TABLE receipts ADD COLUMN invoice_id INTEGER REFERENCES invoices(id)',
+      'CREATE UNIQUE INDEX idx_receipts_invoice ON receipts(invoice_id, vat_permille) '
+          'WHERE invoice_id IS NOT NULL',
+      // Abweichendes Wirtschaftsjahr bestätigt (L-24.3).
+      'ALTER TABLE company_profile ADD COLUMN fiscal_year_confirmed INTEGER NOT NULL DEFAULT 0',
+      // Bundesland (nur DE) für Feiertage der Fristberechnung (L-25.4).
+      "ALTER TABLE company_profile ADD COLUMN federal_state TEXT NOT NULL DEFAULT ''",
+      // auto | monthly | quarterly (L-25.5).
+      "ALTER TABLE company_profile ADD COLUMN vat_return_interval TEXT NOT NULL DEFAULT 'auto'",
+      'ALTER TABLE company_profile ADD COLUMN vat_permanent_extension INTEGER NOT NULL DEFAULT 0',
+      'ALTER TABLE company_profile ADD COLUMN files_ecsl INTEGER NOT NULL DEFAULT 0',
+      'ALTER TABLE company_profile ADD COLUMN has_tax_advisor INTEGER NOT NULL DEFAULT 0',
+      'ALTER TABLE company_profile ADD COLUMN svs_insured INTEGER NOT NULL DEFAULT 1',
     ],
   };
 

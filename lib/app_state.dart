@@ -8,7 +8,9 @@ import 'domain/company_profile.dart';
 import 'domain/legal_texts.dart';
 import 'domain/money.dart';
 import 'domain/receipt.dart';
+import 'services/deadline_calculator.dart';
 import 'services/small_business_monitor.dart';
+import 'domain/deadline_rule.dart';
 import 'services/vat_id/vat_check_service.dart';
 import 'data/auto_backup_settings.dart';
 import 'services/backup/auto_backup_service.dart';
@@ -239,6 +241,8 @@ class AppState extends ChangeNotifier {
     _missingConsents = await repositories.consents.missing();
     _profile = await repositories.company.load();
     _categories = await repositories.categories.all();
+    // Vor Schema 11 als bezahlt markierte Rechnungen nachbuchen (L-25.9).
+    await repositories.invoices.bookMissingPayments();
     if (_profile != null) {
       Fmt.setCountry(_profile!.country);
       await _refreshSmallBusiness();
@@ -285,7 +289,37 @@ class AppState extends ChangeNotifier {
       currentYearComplete: current.isComplete,
       isFoundingYear: profile.isFoundingYear(now.year),
     );
+    // Steuertermine (L-25): Voranmeldungszeitraum aus dem Vorjahr
+    // vorschlagen, wenn die Anwenderin nichts gewählt hat. Immer
+    // Kalenderjahr, auch bei abweichendem Wirtschaftsjahr (L-24.4).
+    final lastYear = await repositories.receipts.totals(
+      from: DateTime(now.year - 1, 1, 1),
+      to: DateTime(now.year - 1, 12, 31),
+    );
+    _suggestedInterval = DeadlineCalculator.suggestInterval(
+      profile.taxProfile,
+      previousYearTurnover: previous.isComplete ? previous.amount : null,
+      previousYearVat: lastYear.isEmpty
+          ? null
+          : lastYear.incomeVat - lastYear.expenseVat,
+    );
+    _deadlines = DeadlineCalculator.upcoming(
+      profile: profile,
+      today: now,
+      interval: profile.vatReturnInterval == VatReturnInterval.auto
+          ? _suggestedInterval
+          : profile.vatReturnInterval,
+    );
   }
+
+  VatReturnInterval _suggestedInterval = VatReturnInterval.quarterly;
+  DeadlineOverview? _deadlines;
+
+  /// Vorschlag für den Voranmeldungszeitraum aus dem Vorjahr (L-25.5).
+  VatReturnInterval get suggestedVatInterval => _suggestedInterval;
+
+  /// Nächste Steuertermine für die Übersicht (L-25), `null` ohne Profil.
+  DeadlineOverview? get deadlines => _deadlines;
 
   Future<YearTurnover> _yearTurnover(int year, DateTime? trackingStart) async {
     return TurnoverBasis.forYear(

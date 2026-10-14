@@ -1,4 +1,6 @@
 import 'country.dart';
+import 'deadline_rule.dart';
+import 'fiscal_year.dart';
 
 /// Die Stammdaten des eigenen Unternehmens. Genau ein Datensatz pro Installation.
 class CompanyProfile {
@@ -32,7 +34,38 @@ class CompanyProfile {
     this.vatCheckEnabled = false,
     this.vatCheckLastRun,
     this.logoPath,
+    this.fiscalYearConfirmed = false,
+    this.federalState = '',
+    this.vatReturnInterval = VatReturnInterval.auto,
+    this.vatPermanentExtension = false,
+    this.filesEcsl = false,
+    this.hasTaxAdvisor = false,
+    this.svsInsured = true,
   });
+
+  /// Abweichendes Wirtschaftsjahr bestätigt (L-24.3).
+  final bool fiscalYearConfirmed;
+
+  /// Bundesland-Kürzel (nur DE), leer = nur bundesweite Feiertage (L-25.4).
+  final String federalState;
+
+  /// Voranmeldungszeitraum; `auto` = aus dem Vorjahr vorschlagen (L-25.5).
+  final VatReturnInterval vatReturnInterval;
+
+  /// Dauerfristverlängerung (DE, § 46 UStDV).
+  final bool vatPermanentExtension;
+
+  /// Gibt eine Zusammenfassende Meldung ab.
+  final bool filesEcsl;
+
+  /// Hat eine Steuerberatung (Erklärungsfrist „laut Kanzlei“).
+  final bool hasTaxAdvisor;
+
+  /// Bei der SVS versichert (AT).
+  final bool svsInsured;
+
+  /// Wirtschaftsjahr der Gewinnermittlung (L-24).
+  FiscalYear get fiscalYear => FiscalYear(fiscalYearStartMonth);
 
   final String companyName;
   final String ownerName;
@@ -185,6 +218,13 @@ class CompanyProfile {
     DateTime? vatCheckLastRun,
     String? logoPath,
     bool clearLogo = false,
+    bool? fiscalYearConfirmed,
+    String? federalState,
+    VatReturnInterval? vatReturnInterval,
+    bool? vatPermanentExtension,
+    bool? filesEcsl,
+    bool? hasTaxAdvisor,
+    bool? svsInsured,
   }) {
     return CompanyProfile(
       companyName: companyName ?? this.companyName,
@@ -217,6 +257,14 @@ class CompanyProfile {
       vatCheckEnabled: vatCheckEnabled ?? this.vatCheckEnabled,
       vatCheckLastRun: vatCheckLastRun ?? this.vatCheckLastRun,
       logoPath: clearLogo ? null : (logoPath ?? this.logoPath),
+      fiscalYearConfirmed: fiscalYearConfirmed ?? this.fiscalYearConfirmed,
+      federalState: federalState ?? this.federalState,
+      vatReturnInterval: vatReturnInterval ?? this.vatReturnInterval,
+      vatPermanentExtension:
+          vatPermanentExtension ?? this.vatPermanentExtension,
+      filesEcsl: filesEcsl ?? this.filesEcsl,
+      hasTaxAdvisor: hasTaxAdvisor ?? this.hasTaxAdvisor,
+      svsInsured: svsInsured ?? this.svsInsured,
     );
   }
 
@@ -251,6 +299,13 @@ class CompanyProfile {
     'vat_check_enabled': vatCheckEnabled ? 1 : 0,
     'vat_check_last_run': vatCheckLastRun?.toIso8601String(),
     'logo_path': logoPath,
+    'fiscal_year_confirmed': fiscalYearConfirmed ? 1 : 0,
+    'federal_state': federalState,
+    'vat_return_interval': vatReturnInterval.name,
+    'vat_permanent_extension': vatPermanentExtension ? 1 : 0,
+    'files_ecsl': filesEcsl ? 1 : 0,
+    'has_tax_advisor': hasTaxAdvisor ? 1 : 0,
+    'svs_insured': svsInsured ? 1 : 0,
   };
 
   static CompanyProfile fromMap(Map<String, Object?> map) => CompanyProfile(
@@ -291,6 +346,15 @@ class CompanyProfile {
         ? null
         : DateTime.tryParse(map['vat_check_last_run'] as String),
     logoPath: map['logo_path'] as String?,
+    fiscalYearConfirmed: (map['fiscal_year_confirmed'] as int? ?? 0) == 1,
+    federalState: map['federal_state'] as String? ?? '',
+    vatReturnInterval: VatReturnInterval.fromName(
+      map['vat_return_interval'] as String?,
+    ),
+    vatPermanentExtension: (map['vat_permanent_extension'] as int? ?? 0) == 1,
+    filesEcsl: (map['files_ecsl'] as int? ?? 0) == 1,
+    hasTaxAdvisor: (map['has_tax_advisor'] as int? ?? 0) == 1,
+    svsInsured: (map['svs_insured'] as int? ?? 1) == 1,
   );
 
   static DateTime? _parseDate(Object? value) =>
