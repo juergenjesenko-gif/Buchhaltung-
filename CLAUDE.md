@@ -3,18 +3,20 @@
 Buchhaltungsapp für Einzelunternehmen und Kleinunternehmer in Österreich und
 Deutschland. Flutter, Android und iOS, offline-first.
 
-## Oberstes Gesetz: Drei unabhängige Prüfinstanzen
+## Oberstes Gesetz: Unabhängige Prüfinstanzen
 
-Festgelegt vom Auftraggeber am 2026-10-10. Geht allen anderen Regeln vor.
+Festgelegt vom Auftraggeber am 2026-10-10, um die UX-Instanz erweitert am
+2026-10-14. Geht allen anderen Regeln vor.
 
 Jede fachliche, rechtliche oder technische Frage, die nicht allein der
-Auftraggeber entscheidet, wird von **drei unabhängigen Prüfinstanzen** bearbeitet:
+Auftraggeber entscheidet, wird von den **unabhängigen Prüfinstanzen** bearbeitet:
 
 | Instanz | Zuständig für |
 |---|---|
 | **Rechtsanwalt** | IT-, Datenschutz-, Wettbewerbs-, Verbraucher- und Markenrecht AT/DE, Store-Vorgaben |
 | **Steuerberater** | Umsatz- und Ertragsteuer AT/DE, Grenzwerte, Fristen, Rechnungspflichtangaben |
 | **Softwareentwickler** | Code, Architektur, Sicherheit, Store-Release, Aufwand |
+| **UX / Usability** | Prüft **jede Änderung an der Oberfläche** darauf, ob sie auf dem Smartphone **einhändig mit dem Daumen** verlässlich und einfach zu tippen und zu bestätigen ist (Daumenreichweite, Touchflächen ≥ 48 dp, Abstand zu Gefahrenknöpfen, Tastatur, Fehlbedienung, Zahl der Schritte); hat Vetorecht gegen Oberflächen, die das Leitprinzip verletzen |
 
 Vorgehen:
 
@@ -29,6 +31,9 @@ Vorgehen:
    Prüfpunkte verstreut; andere Stellen verweisen nur auf die ID dort.
 4. Danach wird **selbstständig weitergearbeitet**. Dem Auftraggeber werden nur
    Entscheidungen vorgelegt, die wirklich seine sind, Schritt für Schritt.
+
+Die UX-Instanz prüft jede Oberflächenänderung, bevor sie ausgeliefert wird; ihre
+Befunde zu echten Geräten stehen ebenfalls in Abschnitt 14.
 
 Eine Prüfinstanz ersetzt keine echte Rechts- oder Steuerberatung. Sie bereitet
 sie vor, damit die echte Prüfung kurz, gezielt und billig wird.
