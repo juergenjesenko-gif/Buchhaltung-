@@ -15,6 +15,8 @@ import 'package:buchhaltung/domain/receipt.dart';
 import 'package:buchhaltung/services/invoice_numbering.dart';
 import 'package:buchhaltung/services/small_business_monitor.dart';
 import 'package:buchhaltung/services/logo_store.dart';
+import 'package:buchhaltung/widgets/primary_action_bar.dart';
+import 'package:flutter/material.dart' show kMinInteractiveDimension;
 import 'package:flutter_test/flutter_test.dart';
 
 /// Hält `docs/SPECIFICATION.md` und den Code zusammen.
@@ -148,6 +150,14 @@ void main() {
 
     test('Skalierung des Umrechnungskurses stimmt', () {
       expect(intValue('spec.fx_rate_scale'), exchangeRateScale);
+    });
+
+    test('Bedienmaße der Primärleiste stimmen (FA-5.20)', () {
+      expect(
+        intValue('spec.primary_action_height_dp'),
+        PrimaryActionBar.height.toInt(),
+      );
+      expect(intValue('spec.min_touch_target_dp'), kMinInteractiveDimension);
     });
 
     test('Schemaversion der Datenbank stimmt', () {

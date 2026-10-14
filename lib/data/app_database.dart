@@ -16,7 +16,7 @@ class AppDatabase {
 
   /// Aktuelle Schemaversion. Öffentlich, weil docs/SPECIFICATION.md sie
   /// dokumentiert und test/specification_sync_test.dart beide vergleicht.
-  static const schemaVersion = 11;
+  static const schemaVersion = 12;
 
   Database? _db;
 
@@ -368,6 +368,28 @@ class AppDatabase {
       'ALTER TABLE company_profile ADD COLUMN files_ecsl INTEGER NOT NULL DEFAULT 0',
       'ALTER TABLE company_profile ADD COLUMN has_tax_advisor INTEGER NOT NULL DEFAULT 0',
       'ALTER TABLE company_profile ADD COLUMN svs_insured INTEGER NOT NULL DEFAULT 1',
+    ],
+    // Version 12: Rabatt, Versandkosten, Skonto und AGB-Verweis
+    // (L-3.21 bis L-3.26). Bestehende Rechnungen behalten ihre Summen: alle
+    // neuen Spalten sind 0 bzw. leer.
+    12: [
+      // Positionsrabatt: Promille oder Betrag, nie beides.
+      'ALTER TABLE invoice_items ADD COLUMN discount_permille INTEGER NOT NULL DEFAULT 0',
+      'ALTER TABLE invoice_items ADD COLUMN discount_cents INTEGER NOT NULL DEFAULT 0',
+      // Gesamtrabatt, Versandkosten (Satz NULL = wie Hauptleistung), Skonto.
+      'ALTER TABLE invoices ADD COLUMN discount_permille INTEGER NOT NULL DEFAULT 0',
+      'ALTER TABLE invoices ADD COLUMN discount_cents INTEGER NOT NULL DEFAULT 0',
+      'ALTER TABLE invoices ADD COLUMN shipping_cents INTEGER NOT NULL DEFAULT 0',
+      'ALTER TABLE invoices ADD COLUMN shipping_vat_permille INTEGER',
+      'ALTER TABLE invoices ADD COLUMN skonto_days INTEGER NOT NULL DEFAULT 0',
+      'ALTER TABLE invoices ADD COLUMN skonto_permille INTEGER NOT NULL DEFAULT 0',
+      // Beim Zahlungseingang abgezogenes Skonto (Zahlungsvorgang, nicht
+      // Rechnungsinhalt – die Rechnung bleibt unverändert).
+      'ALTER TABLE invoices ADD COLUMN skonto_taken_cents INTEGER NOT NULL DEFAULT 0',
+      'ALTER TABLE company_profile ADD COLUMN default_skonto_days INTEGER NOT NULL DEFAULT 0',
+      'ALTER TABLE company_profile ADD COLUMN default_skonto_permille INTEGER NOT NULL DEFAULT 0',
+      "ALTER TABLE company_profile ADD COLUMN terms_url TEXT NOT NULL DEFAULT ''",
+      'ALTER TABLE company_profile ADD COLUMN terms_hint_shown INTEGER NOT NULL DEFAULT 0',
     ],
   };
 

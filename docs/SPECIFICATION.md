@@ -1,6 +1,6 @@
 # Spezifikation – Buchhaltung
 
-**Dokumentversion:** 1.42 · **App-Version:** 0.3.5 · **Stand:** 2026-10-14
+**Dokumentversion:** 1.43 · **App-Version:** 0.4.0 · **Stand:** 2026-10-14
 **Status:** Sprint 1 umgesetzt und verifiziert
 
 > Das **Zielbild** des Produkts steht im [`LASTENHEFT.md`](LASTENHEFT.md); dieses
@@ -181,10 +181,39 @@ Zahlungseingangs, eine offene Rechnung zählt nicht. Beim Markieren „bezahlt�
 entsteht je Steuersatz ein Einnahmebeleg mit `invoice_id`; ein eindeutiger
 Index verhindert Doppelbuchungen. Prüfpunkt P-S35.
 
+### GR-12 · Rabatt, Versand und Skonto je Steuersatz
+
+Rechnungssummen rechnet ausschließlich `InvoiceTotals`
+(`lib/services/invoice_totals.dart`):
+
+1. Positionsbetrag = Menge × Einzelpreis (ganzzahlig, half-up), abzüglich
+   Positionsrabatt (Promille des Positionsbetrags oder Betrag, höchstens der
+   Positionsbetrag) = Entgelt der Position.
+2. Gesamtrabatt (Promille der Entgeltsumme oder Betrag) wird **anteilig nach
+   Entgelt je Steuersatz** auf je eine Rabattzeile je Satz verteilt.
+   Restcent nach dem größten Rest, bei Gleichstand an den höheren Satz.
+3. Versandkosten folgen der Hauptleistung: ein Satz → dieser; mehrere Sätze →
+   anteilig nach Entgelt nach Rabatt, eine Teilzeile je Satz; wahlweise ein
+   fester Satz (`shipping_vat_permille`).
+4. Umsatzsteuer je Position und je Zusatzzeile gerundet (GR-5); je Satz und
+   insgesamt gilt `net + vat == gross` (GR-2).
+5. Skonto = Brutto × Satz, half-up. Wird mit Skonto gezahlt, verteilt die App
+   den Abzug nach **Brutto je Satz** (größter Rest) und zerlegt jeden Anteil mit
+   `VatCalculator.fromGross` in Entgelt und Steuer; die Einnahme je Satz
+   mindert sich um diesen Anteil. Weil die App Einnahmen erst bei Zahlung bucht
+   (GR-11), ist die geminderte Einnahme im Zahlungsmonat zugleich die
+   Steuerberichtigung (§ 16 UStG AT, § 17 UStG DE); eine eigene
+   Korrekturbuchung für Soll-Versteuerung gibt es nicht (P-S35, P-S42).
+   Die Rechnung bleibt unverändert (GR-8), vermerkt wird nur
+   `skonto_taken_cents`.
+
+Beispiel AT: 100,00 € zu 20 % und 50,00 € zu 10 %, 10 % Gesamtrabatt →
+90,00 + 18,00 und 45,00 + 4,50, brutto 157,50 €.
+
 ## 4. Datenmodell
 
 **Speicher:** SQLite auf dem Gerät, Datei `buchhaltung.db` im
-Anwendungsdokumentenverzeichnis. Aktuelle Schemaversion: **11**
+Anwendungsdokumentenverzeichnis. Aktuelle Schemaversion: **12**
 (`spec.schema_version`). Bilder liegen als Dateien daneben: Belegseiten in
 `belege/`, Firmenlogos in `logo/`.
 
@@ -198,8 +227,8 @@ Anwendungsdokumentenverzeichnis. Aktuelle Schemaversion: **11**
 | `receipts` | Belege | Index auf `date` und `direction`. Werden nie gelöscht, nur storniert (`cancelled_at`). Seit Schema 11 `invoice_id` (Einnahme aus bezahlter Rechnung, eindeutig je Rechnung und Steuersatz) |
 | `receipt_pages` | Seiten (Fotos) eines Belegs: `receipt_id`, `position` ab 1, `image_path`, `created_at` | Schema 8. Nach dem Speichern nur Anhängen; bestehende Einzelfotos wurden bei der Migration zur Seite 1 |
 | `receipt_comments` | Kommentare zu Belegen: `receipt_id`, `text`, `created_at` (Systemzeit) | Schema 8. Nur Einfügen; ein Trigger verhindert `UPDATE`. Löschen bietet die App nicht an (die Wiederherstellung leert alle Tabellen) |
-| `invoices` | Ausgangsrechnungen | `UNIQUE INDEX` auf `number` |
-| `invoice_items` | Rechnungspositionen | `ON DELETE CASCADE` |
+| `invoices` | Ausgangsrechnungen | `UNIQUE INDEX` auf `number`. Seit Schema 12 Gesamtrabatt, Versand, Skonto (GR-12) |
+| `invoice_items` | Rechnungspositionen | `ON DELETE CASCADE`. Seit Schema 12 Positionsrabatt |
 | `audit_log` | Änderungsprotokoll | Nur Einfügen, kein Löschen durch die App |
 | `consents` | Bestätigte Texte: Art, Fassung, Zeitpunkt | Nur Einfügen (Schema 7) |
 | `vat_id_checks` | Protokoll der UID-Abfragen: UID, Ergebnis, Zeitpunkt, Name/Anschrift laut VIES, Abfragenummer, Fehlercode | Nur Einfügen (Schema 5) |
@@ -258,7 +287,11 @@ Anwendungsdokumentenverzeichnis. Aktuelle Schemaversion: **11**
 | `delivery_date` | TEXT | Liefer-/Leistungsdatum. Pflicht vor dem Ausstellen |
 | `status` | TEXT | `draft`, `issued`, `paid`, `cancelled` |
 | `is_small_business` | INTEGER | Momentaufnahme bei Rechnungslegung, siehe GR-8 |
-| `seller_snapshot`, `customer_snapshot` | TEXT | Eingefrorene Stammdaten als JSON |
+| `seller_snapshot`, `customer_snapshot` | TEXT | Eingefrorene Stammdaten als JSON; `terms_url` wird nie aus dem aktuellen Profil ergänzt |
+| `discount_permille`, `discount_cents` | INTEGER | Gesamtrabatt in Promille oder Cent (Schema 12) |
+| `shipping_cents`, `shipping_vat_permille` | INTEGER | Versandkosten netto; Satz `NULL` = wie Hauptleistung (Schema 12) |
+| `skonto_days`, `skonto_permille` | INTEGER | Skontofrist ab Rechnungsdatum und Satz (Schema 12) |
+| `skonto_taken_cents` | INTEGER | Bei Zahlung abgezogenes Skonto, 0 = ohne (Schema 12) |
 
 **`invoice_items`**
 
@@ -267,6 +300,9 @@ Anwendungsdokumentenverzeichnis. Aktuelle Schemaversion: **11**
 | `position` | INTEGER | Lückenlos ab 1, beim Speichern neu vergeben |
 | `quantity_milli` | INTEGER | Menge × 1000, siehe GR-4 |
 | `unit_price_cents` | INTEGER | Einzelpreis **netto** |
+| `discount_permille`, `discount_cents` | INTEGER | Positionsrabatt in Promille oder Cent (Schema 12) |
+
+**`company_profile`** — seit Schema 12: `default_skonto_days`, `default_skonto_permille` (INTEGER, Vorschlag für neue Rechnungen, 0 = ohne), `terms_url` (TEXT, Adresse der AGB), `terms_hint_shown` (INTEGER, einmaliger Hinweis gezeigt)
 
 ### 4.3 Startkategorien
 
@@ -401,6 +437,12 @@ Grenzwerte siehe Abschnitt 12.
 | FA-5.12 | *Bezahlt* fragt den Zahlungseingang (vorbelegt heute, änderbar), setzt `paid_at` und bucht die Einnahme je Steuersatz an diesem Tag (GR-11). Vor Schema 11 bezahlte Rechnungen bucht die App beim Start einmal nach (`paid_at`, sonst Rechnungsdatum). Hinweis im Dialog: nicht zusätzlich als Einnahmebeleg erfassen |
 | FA-5.13 | Eine gestellte Rechnung mit überschrittener Fälligkeit wird als überfällig gekennzeichnet |
 | FA-5.14 | Die Übersicht zeigt die Summe der gestellten, nicht bezahlten Rechnungen |
+| FA-5.15 | Rabatt je Position und auf die Rechnung, Prozent oder Betrag, eingeklappt („Rabatt hinzufügen“, Bottom-Sheet mit „% / €“); Gesamtrabatt anteilig je Satz (GR-12, L-3.21) |
+| FA-5.16 | Versandkosten (eingeklappt) mit Satz „wie Hauptleistung (automatisch)“ oder festem Satz (GR-12, L-3.22) |
+| FA-5.17 | Skonto als Schalter mit Prozent und Tagen, vorbelegt aus dem Profil; PDF: „Zahlbar bis <Fälligkeit> ohne Abzug. Bei Zahlung bis <Datum> <p> % Skonto (= <Betrag>).“ (L-3.23) |
+| FA-5.18 | „Bezahlt“ als Bottom-Sheet mit Zahlungsdatum und, bei Skonto, Schalter „Mit Skonto bezahlt?“ (vorbelegt Ja innerhalb der Frist); Einnahme je Satz um anteiliges Skonto gemindert (GR-12, L-3.24) |
+| FA-5.19 | AGB-Adresse im Profil; Verweis „Es gelten unsere Verkaufsbedingungen, abrufbar unter <URL>, soweit sie vereinbart wurden.“ auf dem PDF; eingefroren in `seller_snapshot`; einmaliger Hinweis beim ersten Eintragen (L-3.25, L-3.26) |
+| FA-5.20 | Bedienung (UX-Prüfinstanz): Primärleiste `PrimaryActionBar` 56 dp unten über der Tastatur mit „Entwurf“ / „Rechnung ausstellen“, nach dem Ausstellen „PDF senden“; „Position hinzufügen“ volle Breite; Zielflächen ≥ 48 dp; Rechnungskarte mit Tonal-Knopf „Bezahlt“; Stornieren/Löschen im Menü nach Trennlinie in Fehlerfarbe mit Bestätigung (Nummer, Betrag) |
 
 **Pflichtangaben im PDF** (§ 11 UStG AT, § 14 UStG DE): Name und Anschrift von
 Aussteller und Empfänger, Steuernummer bzw. UID des Ausstellers,
@@ -563,13 +605,13 @@ Kleinunternehmer:
 | Bildschirm | Datei | Zweck |
 |---|---|---|
 | Bestätigungen | `features/onboarding/consent_screen.dart` | Hinweis „keine Steuerberatung“, Nutzungsbedingungen und Datenschutz bestätigen |
-| Onboarding / Stammdaten | `features/onboarding/company_setup_screen.dart` | Firmenprofil anlegen und bearbeiten, Firmenlogo; Abschnitt „Wirtschaftsjahr und Termine“ (FA-10.1, nur Stammdaten) |
+| Onboarding / Stammdaten | `features/onboarding/company_setup_screen.dart` | Firmenprofil anlegen und bearbeiten, Firmenlogo, Skonto-Vorschlag und AGB-Adresse (FA-5.17, FA-5.19); Abschnitt „Wirtschaftsjahr und Termine“ (FA-10.1, nur Stammdaten) |
 | Hauptnavigation | `features/home/home_shell.dart` | Vier Bereiche: Tab-Leiste (compact) oder Navigationsleiste links (medium, expanded), FA-9.2; einmaliges Angebot „App-Symbol auf den Startbildschirm“ (FA-1.19) |
 | Übersicht | `features/dashboard/dashboard_screen.dart` | Kassabuch, Umsatzsteuer, Grenzwertampel, Termin-Box „Nächste Termine“ (FA-10.3), Verlauf; unten 160 dp Abstand, damit die zwei schwebenden Knöpfe keine Karte verdecken |
 | Belegliste | `features/receipts/receipt_list_screen.dart` | Suchen, filtern, öffnen; Filter „Storniert“ |
 | Beleg bearbeiten | `features/receipts/receipt_edit_screen.dart` | Erfassen, Seiten, automatisches Auslesen mit „Erneut auslesen“, Betrag, Fremdwährung mit „Kurs abrufen“ und Bankbetrag (FA-2.24 bis FA-2.26), Kategorie, Rechnungsnummer, Aussteller-UID, Kommentare; stornierte Belege nur lesen. Speicherleiste unten fixiert (`receipt_save_bar.dart`), über der Tastatur, Primärknopf 56 dp hoch: Telefon volle Breite, ab 600 dp rechtsbündig; bei neuen Seiten „Vollständig – Beleg speichern“ (FA-2.14) |
-| Rechnungsliste | `features/invoices/invoice_list_screen.dart` | Status, PDF teilen, Aktionen; „Bezahlt“ mit Dialog Zahlungseingang (FA-5.12) |
-| Rechnung bearbeiten | `features/invoices/invoice_edit_screen.dart` | Kunde, Positionen, Ausstellen |
+| Rechnungsliste | `features/invoices/invoice_list_screen.dart` | Status, PDF teilen, Aktionen; Knopf „Bezahlt“ mit Bottom-Sheet Zahlungseingang und Skonto (FA-5.12, FA-5.18); Stornieren/Löschen mit Bestätigung (FA-5.20) |
+| Rechnung bearbeiten | `features/invoices/invoice_edit_screen.dart` | Kunde, Positionen mit Rabatt, Karte „Rabatt, Versand, Skonto“, Summe je Satz; Leiste `PrimaryActionBar` (`widgets/primary_action_bar.dart`) mit Ausstellen bzw. „PDF senden“ (FA-5.15 bis FA-5.20) |
 | Kunde bearbeiten | `features/invoices/customer_edit_screen.dart` | Kundenstammdaten |
 | Datensicherung | `features/backup/backup_screen.dart` | Sicherung erstellen und teilen, wiederherstellen mit Vorschau |
 | Export | `features/export/export_screen.dart` | Zeitraum, Vorschau, Format |
@@ -738,7 +780,9 @@ Offen benannt, weil eine Spezifikation, die ihre Lücken verschweigt, wertlos is
 > Das ist der Mechanismus, der dieses Dokument aktuell hält.
 
 ```properties
-spec.schema_version = 11
+spec.schema_version = 12
+spec.primary_action_height_dp = 56
+spec.min_touch_target_dp = 48
 spec.deadline_box_count = 4
 spec.fx_rate_scale = 1000000
 spec.vat_check_interval_days = 7
@@ -829,6 +873,7 @@ Dauerfristverlängerung, `02-15,…` = feste Tage, `+1j07-31` = Folgejahr,
 
 | Version | Datum | App-Version | Änderung |
 |---|---|---|---|
+| 1.43 | 2026-10-14 | 0.4.0 | App-Version 0.4.0 (Testbuild): Rabatt je Position und Gesamtrabatt anteilig je Satz, Versandkosten wie Hauptleistung, Skonto mit festem Datum und Betrag, Zahlung mit Skonto mindert Einnahme je Satz, AGB-Verweis (GR-12, FA-5.15 bis FA-5.19, Lastenheft L-3.21 bis L-3.26). UX-Vorgaben: `PrimaryActionBar`, „PDF senden“ nach dem Ausstellen, Tonal-Knopf „Bezahlt“, Bestätigung bei Storno/Löschen (FA-5.20). Schema 12. Neue Kennwerte `spec.primary_action_height_dp`, `spec.min_touch_target_dp`. Neue Prüfpunkte P-S40 bis P-S43, P-R30, P-R31. |
 | 1.42 | 2026-10-14 | 0.3.5 | App-Version 0.3.5 (Testbuild): Wirtschaftsjahr, Termin-Box, bezahlte Rechnung als Einnahme, Hilfe offline. Schema 11. |
 | 1.41 | 2026-10-14 | 0.3.4 | Hilfe Stufe 1 offline (Abschnitt 5.8, FA-11.1 bis FA-11.3, Abschnitt 7): Fragezeichen in der AppBar, BM25-Suche im als Asset eingebundenen Handbuch, Abschnitt lesen, Support-Mail ohne Anhang. Stufe 2 (KI) nur vorgemerkt. Neue Prüfpunkte P-R25, P-R26, P-D26. Kein Schemawechsel. |
 | 1.40 | 2026-10-14 | 0.3.4 | Wirtschaftsjahr (GR-10, FA-10.1, FA-10.2, FA-3.1, FA-6.1, DATEV „WJ-Beginn“) und Termin-Box Stufe 1 (Abschnitt 5.6a, FA-10.3 bis FA-10.8) mit Feiertagen AT/DE und Verschiebung auf den nächsten Werktag. Fehlerbehebung Gerätetest 0.3.4: bezahlte Rechnung wird Einnahme am Tag des Zahlungseingangs (GR-11, FA-5.12), Nachbuchung alter Rechnungen; Übersicht mit 160 dp Abstand unten. Schema 11. Neue Kennwerte `spec.deadline_box_count`, `spec.*.fiscal_year_legal_ref`, `spec.*.deadline_shift_legal_ref`, `spec.*.monthly_vat_return_threshold_cents`, `spec.*.vat_interval_basis`, `spec.*.asks_federal_state`, `spec.*.deadline_rules`. Neue Prüfpunkte P-S32 bis P-S35, P-R24, P-D25. |
@@ -1021,6 +1066,10 @@ Status: *offen* · *bestätigt* (mit Datum und Prüfer) · *widerlegt* (mit Folg
 | P-S33 | Termine: UVA-Grenzen (AT 100.000 € Vorjahresumsatz § 21 Abs 2 UStG; DE 9.000 € Vorjahressteuer § 18 Abs 2 UStG ab 2025), Jänner-/Dezember-Sonderregeln, Erklärungsfristen mit Steuerberatung (§ 134a BAO, § 149 Abs 3 AO), ZM-Zeitraum gleich Voranmeldungszeitraum (Vereinfachung), ESt-Vorauszahlungen immer angezeigt | Werte laut Befund im Code (FA-10.6, FA-10.7); Beraterfrist als „laut Kanzlei“ | Release | offen |
 | P-S34 | SVS-Beitragsfälligkeit (§ 35 GSVG): Ende Feb./Mai/Aug./Nov.; Verschiebung bei Wochenende/Feiertag? | unsicher, daher „ca.“ ohne Verschiebung (FA-10.7) | Release | offen |
 | P-S35 | Bezahlte Rechnung als Einnahme am Zahlungstag (Zuflussprinzip § 19 EStG AT, § 11 EStG DE); Kleinunternehmergrenze AT: App zählt Einnahmen nach Zahlungseingang (Ist) – richtig für Ist-Versteuerer (§ 17 UStG), bei Soll-Versteuerung nach Leistung? Teilzahlungen und Anzahlungen bildet die App nicht ab | umgesetzt nach Zufluss (GR-11); Soll-Basis nicht abgebildet | Release | offen |
+| P-S40 | Gesamtrabatt anteilig nach Entgelt je Steuersatz mit Rabattzeile je Satz, Restcent nach größtem Rest (GR-12): genügt das § 11 Abs 1 Z 3 lit e UStG AT bzw. § 14 Abs 4 Nr. 7 UStG DE („im Voraus vereinbarte Minderung des Entgelts“)? | Vorbefund Steuerberater: Aufteilung nach Entgelten ist übliche und anerkannte Methode | Release | offen |
+| P-S41 | Versandkosten als Nebenleistung: Satz der Hauptleistung, bei Mischsätzen anteilig nach Entgelt (EuGH C-111/05 Aktiebolaget NN, UStR Rz 347 AT, Abschn. 3.10 Abs 6 UStAE DE); fester Satz als Ausnahme | Vorbefund: Aufteilung nach Entgelten zulässig, andere Schlüssel (Gewicht) ebenfalls | Release | offen |
+| P-S42 | Skonto bei Zahlung: Minderung je Satz nach Brutto-Anteil; Berichtigung im Zahlungsmonat (§ 16 UStG AT, § 17 UStG DE). App bucht nach Zufluss; bei Soll-Versteuerung wäre eine Korrekturbuchung im Zahlungsmonat zu den ursprünglichen Umsätzen nötig – reicht die geminderte Einnahme? Kein Beleg nötig (DE Abschn. 17.1 Abs 3 UStAE)? | Vorbefund: für Ist-Versteuerer korrekt, Soll nicht abgebildet (wie P-S35) | Release | offen |
+| P-S43 | Skontotext auf der Rechnung: Pflichtangabe „Vereinbarung über Entgeltminderung“ (§ 14 Abs 4 Nr. 7 UStG DE) mit festem Datum und Betrag erfüllt; AT: ausreichend? Kleinunternehmer: nur geringere Einnahme | Vorbefund: Hinweis „Bei Zahlung bis … 2 % Skonto“ genügt (Abschn. 14.5 Abs 19 UStAE) | Release | offen |
 | P-L12 | Anwältin: Diktat über die Systemtastatur – Anbieterin nicht verantwortlich, Hinweistext genügt | — | Release | offen |
 | P-L13 | Gerätetest, nur bei eigener Spracherkennung: Erkennung im Flugmodus | — | später | offen |
 | P-L14 | Anwältin: Rollen beim Vertragsarchiv mit KI (Anbieterin als Auftragsverarbeiterin), Muster-AVV, Rechtsgrundlage Beschäftigtendaten | — | Stufe C | offen |
@@ -1043,6 +1092,8 @@ Status: *offen* · *bestätigt* (mit Datum und Prüfer) · *widerlegt* (mit Folg
 | P-R23 | Apple: Anmeldung als Einzelperson (Einzelunternehmen ist laut Apple keine Organisation); Verkäufername im Store = persönlicher Name; Migration bei späterer GmbH | Apple Account Help D-U-N-S | vor Kontoanlage | offen |
 | P-R24 | Termin-Box: Formulierung „Berechnete Termine zur Orientierung, ohne Gewähr. Maßgeblich sind Bescheid, Finanzamt bzw. deine Steuerberatung.“ – genügt das gegenüber Verbraucherinnen/Unternehmerinnen (Haftung für falsch berechnete Fristen, AGB/Nutzungsbedingungen)? | Hinweis sichtbar unter jeder Termin-Box (FA-10.4); Nutzungsbedingungen noch nicht ergänzt | Release | offen |
 | P-R25 | Hilfe Stufe 2 (KI-Antworten): Abgrenzung zur Hilfeleistung in Steuersachen (StBerG DE, WTBG AT), Haftung für falsche Antworten, Kennzeichnung als KI (Art. 50 KI-VO) | noch nicht gebaut (FA-11, Lastenheft L-26.6) | vor Stufe 2 | offen |
+| P-R30 | AGB-Verweis auf der Rechnung: Wortlaut „Es gelten unsere Verkaufsbedingungen, abrufbar unter <URL>, soweit sie vereinbart wurden.“ – irreführend oder unbedenklich? Genügt der einmalige Hinweis an die Nutzerin, dass der Verweis allein AGB nicht einbezieht (§ 864a ABGB, § 305 Abs 2 BGB; B2B kaufmännisches Bestätigungsschreiben)? | Rechnung kommt nach Vertragsschluss, Verweis bezieht AGB nicht ein; Zusatz „soweit vereinbart“ vermeidet Irreführung | Release | offen |
+| P-R31 | Rabatt- und Skontoangaben auf Rechnungen an Verbraucherinnen: Preisangaben (PAngV, PrAG), Klarheit des Skontotexts mit festem Datum und Betrag | unbedenklich, da reine Zahlungsbedingung | Release | offen |
 | P-R26 | Hilfe Stufe 2: Übermittlung der Frage an einen Server bzw. KI-Anbieter – Rechtsgrundlage, Auftragsverarbeitung, Drittlandtransfer, Eintrag in Datenflusstabelle und Store-Angaben | noch nicht gebaut | vor Stufe 2 | offen |
 | P-S11 | USt-Kette der Store-Abos: Leistung an Apple/Google in Irland, Reverse Charge, UID, ZM, UVA; gelten die Store-Abrechnungen als Gutschrift (§ 11 Abs 7 UStG AT)? | Kette sicher, Rechnungsstellung offen | erster Verkauf | offen |
 | P-S12 | Vorsteuerabzug für Unternehmerinnen aus Store-Quittungen | unklar; kein Versprechen in App oder Werbung | erster Verkauf | offen |

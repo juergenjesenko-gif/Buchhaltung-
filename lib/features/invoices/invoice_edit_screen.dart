@@ -10,11 +10,15 @@ import '../../domain/invoice.dart';
 import '../../domain/money.dart';
 import '../../services/invoice_numbering.dart';
 import '../../services/invoice_requirements.dart';
+import '../../services/invoice_texts.dart';
+import '../../services/invoice_totals.dart';
 import '../../services/vat_id/vies_client.dart';
 import '../../widgets/vat_check_status.dart';
 import '../../theme.dart';
 import '../../widgets/common.dart';
 import 'customer_edit_screen.dart';
+import 'invoice_share.dart';
+import '../../widgets/primary_action_bar.dart';
 import '../../widgets/adaptive.dart';
 import '../help/help_screen.dart';
 import '../../services/help/help_index.dart';
@@ -35,6 +39,14 @@ class InvoiceEditScreen extends StatefulWidget {
 
 class _InvoiceEditScreenState extends State<InvoiceEditScreen> {
   final _notesController = TextEditingController();
+  final _discountController = TextEditingController();
+  final _shippingController = TextEditingController();
+  final _skontoDaysController = TextEditingController();
+  final _skontoPercentController = TextEditingController();
+  bool _discountIsPercent = true;
+
+  /// Steuersatz der Versandkosten; `null` = wie Hauptleistung (L-3.22).
+  int? _shippingVatPermille;
 
   Customer? _customer;
   DateTime _issueDate = DateTime.now();
@@ -45,7 +57,15 @@ class _InvoiceEditScreenState extends State<InvoiceEditScreen> {
   bool _initialized = false;
 
   bool get _isEditing => widget.existing != null;
-  bool get _isLocked => widget.existing?.status.isLocked ?? false;
+
+  /// Nach dem Ausstellen bleibt das Formular offen und bietet „PDF senden“.
+  Invoice? _issued;
+
+  bool get _isLocked =>
+      _issued != null || (widget.existing?.status.isLocked ?? false);
+
+  bool _showShipping = false;
+  bool _skontoOn = false;
 
   @override
   void initState() {
@@ -69,17 +89,50 @@ class _InvoiceEditScreenState extends State<InvoiceEditScreen> {
       _notesController.text = existing.notes;
       _items = existing.items.map(_ItemDraft.fromItem).toList();
       _loadCustomer(existing.customerId);
+      _discountIsPercent = existing.discountAmount.isZero;
+      _discountController.text = existing.discountPermille > 0
+          ? percentText(existing.discountPermille)
+          : (existing.discountAmount.isZero
+                ? ''
+                : Fmt.amount(existing.discountAmount));
+      _shippingController.text = existing.shipping.isZero
+          ? ''
+          : Fmt.amount(existing.shipping);
+      _shippingVatPermille = existing.shippingVatPermille;
+      _showShipping = !existing.shipping.isZero;
+      _skontoOn = existing.hasSkonto;
+      _skontoDaysController.text = existing.skontoDays > 0
+          ? existing.skontoDays.toString()
+          : '';
+      _skontoPercentController.text = existing.skontoPermille > 0
+          ? percentText(existing.skontoPermille)
+          : '';
     } else {
       _items = [_ItemDraft.empty(state.defaultVatPermille)];
       _dueDate = DateTime.now().add(
         Duration(days: state.profile?.defaultPaymentTermDays ?? 14),
       );
+      // Skonto aus dem Profil vorbelegen (L-3.23).
+      final profile = state.profile;
+      if (profile != null &&
+          profile.defaultSkontoDays > 0 &&
+          profile.defaultSkontoPermille > 0) {
+        _skontoDaysController.text = profile.defaultSkontoDays.toString();
+        _skontoPercentController.text = percentText(
+          profile.defaultSkontoPermille,
+        );
+        _skontoOn = true;
+      }
     }
   }
 
   @override
   void dispose() {
     _notesController.dispose();
+    _discountController.dispose();
+    _shippingController.dispose();
+    _skontoDaysController.dispose();
+    _skontoPercentController.dispose();
     for (final item in _items) {
       item.dispose();
     }
@@ -97,16 +150,34 @@ class _InvoiceEditScreenState extends State<InvoiceEditScreen> {
       widget.existing?.isSmallBusiness ??
       (AppScope.read(context).profile?.isSmallBusiness ?? true);
 
-  Money get _netTotal =>
-      _items.map((item) => item.net).fold(const Money.zero(), (a, b) => a + b);
+  int get _discountPermille =>
+      _discountIsPercent ? parsePermille(_discountController.text) : 0;
 
-  Money get _vatTotal => _isSmallBusiness
+  Money get _discountAmount => _discountIsPercent
       ? const Money.zero()
-      : _items
-            .map((item) => item.vat)
-            .fold(const Money.zero(), (a, b) => a + b);
+      : (Money.tryParse(_discountController.text) ?? const Money.zero());
 
-  Money get _grossTotal => _netTotal + _vatTotal;
+  Money get _shipping =>
+      Money.tryParse(_shippingController.text) ?? const Money.zero();
+
+  int get _skontoDays =>
+      _skontoOn ? (int.tryParse(_skontoDaysController.text.trim()) ?? 0) : 0;
+
+  int get _skontoPermille =>
+      _skontoOn ? parsePermille(_skontoPercentController.text) : 0;
+
+  /// Summen aus `InvoiceTotals` – gerechnet wird nicht im Widget.
+  InvoiceTotals get _totals => InvoiceTotals.compute(
+    items: [
+      for (final item in _items)
+        if (!item.isEmpty) item.toItem(),
+    ],
+    isSmallBusiness: _isSmallBusiness,
+    discountPermille: _discountPermille,
+    discountAmount: _discountAmount,
+    shipping: _shipping,
+    shippingVatPermille: _shippingVatPermille,
+  );
 
   Future<void> _pickCustomer() async {
     final state = AppScope.read(context);
@@ -156,16 +227,19 @@ class _InvoiceEditScreenState extends State<InvoiceEditScreen> {
     if (_deliveryDate == null) {
       errors.add('Liefer-/Leistungsdatum');
     }
+    if (_discountIsPercent && _discountPermille > 1000) {
+      errors.add('Rabatt höchstens 100 %');
+    }
+    if ((_skontoDays > 0) != (_skontoPermille > 0)) {
+      errors.add('Skonto mit Tagen und Prozent');
+    }
     final profile = AppScope.read(context).profile;
     if (profile != null) {
       errors.addAll(
         profile.missingInvoiceFields.map((field) => 'Stammdaten: $field'),
       );
       if (_customer != null) {
-        final gross = _items
-            .where((item) => !item.isEmpty)
-            .map((item) => item.toItem().gross)
-            .fold(const Money.zero(), (a, b) => a + b);
+        final gross = _totals.gross;
         errors.addAll(
           InvoiceRequirements.missing(
             profile: profile,
@@ -257,6 +331,12 @@ class _InvoiceEditScreenState extends State<InvoiceEditScreen> {
       isSmallBusiness:
           widget.existing?.isSmallBusiness ?? profile.isSmallBusiness,
       notes: _notesController.text.trim(),
+      discountPermille: _discountPermille,
+      discountAmount: _discountAmount,
+      shipping: _shipping,
+      shippingVatPermille: _shippingVatPermille,
+      skontoDays: _skontoPermille > 0 ? _skontoDays : 0,
+      skontoPermille: _skontoDays > 0 ? _skontoPermille : 0,
       // Eingefroren wird bei der Rechnungslegung (GR-8): ein Entwurf
       // übernimmt beim Speichern den aktuellen Stand samt Logo (L-1.7).
       sellerSnapshot: (widget.existing?.status.isLocked ?? false)
@@ -271,7 +351,7 @@ class _InvoiceEditScreenState extends State<InvoiceEditScreen> {
       createdAt: widget.existing?.createdAt,
     );
 
-    await state.repositories.invoices.save(
+    final savedId = await state.repositories.invoices.save(
       invoice,
       assignNumber: assignsNumber
           ? (sequence) => InvoiceNumbering.format(
@@ -283,6 +363,16 @@ class _InvoiceEditScreenState extends State<InvoiceEditScreen> {
     );
     if (assignsNumber) await state.reload();
     if (!mounted) return;
+    if (issue) {
+      // In derselben Leiste geht es mit „PDF senden“ weiter.
+      final issued = await state.repositories.invoices.byId(savedId);
+      if (!mounted) return;
+      setState(() {
+        _issued = issued;
+        _saving = false;
+      });
+      return;
+    }
     Navigator.of(context).pop(true);
   }
 
@@ -295,7 +385,11 @@ class _InvoiceEditScreenState extends State<InvoiceEditScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          _isEditing ? 'Rechnung ${widget.existing!.number}' : 'Neue Rechnung',
+          _issued != null
+              ? 'Rechnung ${_issued!.number}'
+              : (_isEditing
+                    ? 'Rechnung ${widget.existing!.number}'
+                    : 'Neue Rechnung'),
         ),
 
         actions: const [HelpButton(context: HelpTopic.invoices)],
@@ -391,18 +485,8 @@ class _InvoiceEditScreenState extends State<InvoiceEditScreen> {
 
             SectionCard(
               title: 'Positionen',
-              action: _isLocked
-                  ? null
-                  : IconButton(
-                      tooltip: 'Position hinzufügen',
-                      icon: const Icon(Icons.add),
-                      onPressed: () => setState(
-                        () => _items.add(
-                          _ItemDraft.empty(state.defaultVatPermille),
-                        ),
-                      ),
-                    ),
               child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   for (var i = 0; i < _items.length; i++) ...[
                     if (i > 0) const Divider(height: 24),
@@ -423,41 +507,31 @@ class _InvoiceEditScreenState extends State<InvoiceEditScreen> {
                             }),
                     ),
                   ],
-                ],
-              ),
-            ),
-            const SizedBox(height: 16),
-
-            SectionCard(
-              title: 'Summe',
-              child: Column(
-                children: [
-                  LabeledValue(label: 'Netto', value: Fmt.money(_netTotal)),
-                  if (!_isSmallBusiness) ...[
-                    for (final entry in _vatByRate().entries)
-                      LabeledValue(
-                        label: 'USt ${Fmt.vatRate(entry.key)}',
-                        value: Fmt.money(entry.value),
-                      ),
-                  ],
-                  const Divider(height: 20),
-                  LabeledValue(
-                    label: 'Gesamtbetrag',
-                    value: Fmt.money(_grossTotal),
-                    emphasize: true,
-                  ),
-                  if (_isSmallBusiness) ...[
+                  if (!_isLocked) ...[
                     const SizedBox(height: 12),
-                    NoticeBanner(
-                      icon: Icons.receipt_outlined,
-                      message:
-                          'Auf der Rechnung erscheint: '
-                          '"${tax.smallBusinessInvoiceNote}"',
+                    OutlinedButton.icon(
+                      key: const Key('addInvoiceItem'),
+                      style: OutlinedButton.styleFrom(
+                        minimumSize: const Size.fromHeight(48),
+                      ),
+                      onPressed: () => setState(
+                        () => _items.add(
+                          _ItemDraft.empty(state.defaultVatPermille),
+                        ),
+                      ),
+                      icon: const Icon(Icons.add),
+                      label: const Text('Position hinzufügen'),
                     ),
                   ],
                 ],
               ),
             ),
+            const SizedBox(height: 16),
+
+            _extrasCard(tax),
+            const SizedBox(height: 16),
+
+            _summaryCard(tax),
             const SizedBox(height: 16),
 
             SectionCard(
@@ -485,52 +559,262 @@ class _InvoiceEditScreenState extends State<InvoiceEditScreen> {
         ),
       ),
       bottomNavigationBar: _isLocked
-          ? null
-          : Padding(
-              padding: EdgeInsets.fromLTRB(
-                16,
-                8,
-                16,
-                8 + MediaQuery.of(context).padding.bottom,
+          ? PrimaryActionBar(
+              primary: PrimaryActionBar.filled(
+                key: const Key('invoice-share'),
+                label: 'PDF senden',
+                icon: Icons.send_outlined,
+                onPressed: () =>
+                    shareInvoicePdf(context, _issued ?? widget.existing!),
               ),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: OutlinedButton(
-                      onPressed: _saving ? null : () => _save(issue: false),
-                      style: OutlinedButton.styleFrom(
-                        minimumSize: const Size(0, 48),
-                      ),
-                      child: const Text('Als Entwurf'),
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    flex: 2,
-                    child: FilledButton(
-                      onPressed: _saving || errors.isNotEmpty
-                          ? null
-                          : () => _save(issue: true),
-                      child: const Text('Rechnung ausstellen'),
-                    ),
-                  ),
-                ],
+            )
+          : PrimaryActionBar(
+              secondary: PrimaryActionBar.outlined(
+                key: const Key('invoice-draft'),
+                label: 'Entwurf',
+                icon: Icons.save_outlined,
+                onPressed: _saving ? null : () => _save(issue: false),
+              ),
+              primary: PrimaryActionBar.filled(
+                key: const Key('invoice-issue'),
+                label: 'Rechnung ausstellen',
+                icon: Icons.check,
+                busy: _saving,
+                onPressed: errors.isNotEmpty ? null : () => _save(issue: true),
               ),
             ),
     );
   }
 
-  Map<int, Money> _vatByRate() {
-    final result = <int, Money>{};
-    for (final item in _items) {
-      if (item.isEmpty) continue;
-      result[item.vatPermille] =
-          (result[item.vatPermille] ?? const Money.zero()) + item.vat;
-    }
-    return Map.fromEntries(
-      result.entries.toList()..sort((a, b) => b.key.compareTo(a.key)),
+  Widget _summaryCard(TaxProfile tax) {
+    final totals = _totals;
+    final multiRate = totals.breakdown.length > 1 && !_isSmallBusiness;
+    String suffix(int permille) =>
+        multiRate ? ' (${Fmt.vatRate(permille)})' : '';
+    final skonto = totals.skontoAmount(_skontoDays > 0 ? _skontoPermille : 0);
+    return SectionCard(
+      title: 'Summe',
+      child: Column(
+        children: [
+          if (totals.discountLines.isNotEmpty ||
+              totals.shippingLines.isNotEmpty) ...[
+            LabeledValue(
+              label: 'Summe Positionen',
+              value: Fmt.money(totals.itemsNet),
+            ),
+            for (final line in totals.discountLines)
+              LabeledValue(
+                label: 'Rabatt${suffix(line.vatPermille)}',
+                value: Fmt.money(line.net),
+              ),
+            for (final line in totals.shippingLines)
+              LabeledValue(
+                label: 'Versand${suffix(line.vatPermille)}',
+                value: Fmt.money(line.net),
+              ),
+          ],
+          LabeledValue(label: 'Netto', value: Fmt.money(totals.net)),
+          if (!_isSmallBusiness) ...[
+            for (final entry in totals.breakdown.entries)
+              LabeledValue(
+                label:
+                    'USt ${Fmt.vatRate(entry.key)} auf '
+                    '${Fmt.amount(entry.value.net)}',
+                value: Fmt.money(entry.value.vat),
+              ),
+          ],
+          const Divider(height: 20),
+          LabeledValue(
+            label: 'Gesamtbetrag',
+            value: Fmt.money(totals.gross),
+            emphasize: true,
+          ),
+          if (!skonto.isZero)
+            LabeledValue(
+              label: 'Skonto ${InvoiceTexts.percent(_skontoPermille)}',
+              value: Fmt.money(skonto),
+            ),
+          if (_isSmallBusiness) ...[
+            const SizedBox(height: 12),
+            NoticeBanner(
+              icon: Icons.receipt_outlined,
+              message:
+                  'Auf der Rechnung erscheint: '
+                  '"${tax.smallBusinessInvoiceNote}"',
+            ),
+          ],
+        ],
+      ),
     );
   }
+
+  /// Gesamtrabatt, Versandkosten und Skonto (L-3.21 bis L-3.23) – alles
+  /// optional und eingeklappt, bis die Nutzerin es braucht.
+  Widget _extrasCard(TaxProfile tax) {
+    final rates = tax.vatRatesOn(
+      _deliveryDate ?? _issueDate,
+      keep: _shippingVatPermille,
+    );
+    final totals = _totals;
+    final hasDiscount = _discountController.text.trim().isNotEmpty;
+    return SectionCard(
+      title: 'Rabatt, Versand, Skonto',
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          DiscountTile(
+            key: const Key('invoiceDiscount'),
+            addLabel: 'Rabatt auf die ganze Rechnung',
+            summary: hasDiscount
+                ? 'Rabatt ${_discountIsPercent ? '${_discountController.text} % ' : ''}'
+                      '= ${Fmt.money(totals.discount)}'
+                : null,
+            readOnly: _isLocked,
+            onEdit: () async {
+              final result = await showDiscountSheet(
+                context,
+                title: 'Rabatt auf die ganze Rechnung',
+                explanation:
+                    'Wird bei mehreren Steuersätzen anteilig aufgeteilt.',
+                isPercent: _discountIsPercent,
+                text: _discountController.text,
+              );
+              if (result == null) return;
+              setState(() {
+                _discountIsPercent = result.isPercent;
+                _discountController.text = result.text;
+              });
+            },
+          ),
+          const SizedBox(height: 8),
+          if (!_showShipping)
+            _AddButton(
+              key: const Key('addShipping'),
+              label: 'Versandkosten hinzufügen',
+              icon: Icons.local_shipping_outlined,
+              onPressed: _isLocked
+                  ? null
+                  : () => setState(() => _showShipping = true),
+            )
+          else ...[
+            TextField(
+              key: const Key('invoiceShipping'),
+              controller: _shippingController,
+              readOnly: _isLocked,
+              keyboardType: const TextInputType.numberWithOptions(
+                decimal: true,
+              ),
+              textAlign: TextAlign.right,
+              decoration: const InputDecoration(
+                labelText: 'Versandkosten netto',
+                suffixText: '€',
+              ),
+              onChanged: (_) => setState(() {}),
+            ),
+            if (!_isSmallBusiness) ...[
+              const SizedBox(height: 10),
+              DropdownButtonFormField<int?>(
+                initialValue: _shippingVatPermille,
+                decoration: const InputDecoration(
+                  labelText: 'Umsatzsteuer auf Versand',
+                  helperText:
+                      'Automatisch wie die Waren – bei mehreren Sätzen anteilig',
+                ),
+                items: [
+                  const DropdownMenuItem<int?>(
+                    value: null,
+                    child: Text('wie Hauptleistung (automatisch)'),
+                  ),
+                  for (final rate in rates)
+                    DropdownMenuItem<int?>(
+                      value: rate.permille,
+                      child: Text(rate.display),
+                    ),
+                ],
+                onChanged: _isLocked
+                    ? null
+                    : (value) => setState(() => _shippingVatPermille = value),
+              ),
+            ],
+          ],
+          const SizedBox(height: 8),
+          SwitchListTile(
+            key: const Key('skontoSwitch'),
+            contentPadding: EdgeInsets.zero,
+            title: const Text('Skonto anbieten'),
+            subtitle: const Text('Nachlass, wenn deine Kundin schnell zahlt'),
+            value: _skontoOn,
+            onChanged: _isLocked
+                ? null
+                : (value) => setState(() => _skontoOn = value),
+          ),
+          if (_skontoOn) ...[
+            Row(
+              children: [
+                Expanded(
+                  child: TextField(
+                    key: const Key('skontoPercent'),
+                    controller: _skontoPercentController,
+                    readOnly: _isLocked,
+                    keyboardType: const TextInputType.numberWithOptions(
+                      decimal: true,
+                    ),
+                    textAlign: TextAlign.right,
+                    decoration: const InputDecoration(
+                      labelText: 'Skonto',
+                      suffixText: '%',
+                    ),
+                    onChanged: (_) => setState(() {}),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: TextField(
+                    key: const Key('skontoDays'),
+                    controller: _skontoDaysController,
+                    readOnly: _isLocked,
+                    keyboardType: TextInputType.number,
+                    textAlign: TextAlign.right,
+                    decoration: const InputDecoration(
+                      labelText: 'innerhalb',
+                      suffixText: 'Tage',
+                    ),
+                    onChanged: (_) => setState(() {}),
+                  ),
+                ),
+              ],
+            ),
+            if (_skontoDays > 0 && _skontoPermille > 0) ...[
+              const SizedBox(height: 8),
+              Text(
+                InvoiceTexts.paymentTerms(_draftInvoice()),
+                style: Theme.of(context).textTheme.bodySmall,
+              ),
+            ],
+          ],
+        ],
+      ),
+    );
+  }
+
+  /// Momentaufnahme des Formulars für Textvorschauen.
+  Invoice _draftInvoice() => Invoice(
+    number: '',
+    issueDate: _issueDate,
+    dueDate: _dueDate,
+    customerId: 0,
+    items: [
+      for (final item in _items)
+        if (!item.isEmpty) item.toItem(),
+    ],
+    isSmallBusiness: _isSmallBusiness,
+    discountPermille: _discountPermille,
+    discountAmount: _discountAmount,
+    shipping: _shipping,
+    shippingVatPermille: _shippingVatPermille,
+    skontoDays: _skontoDays,
+    skontoPermille: _skontoPermille,
+  );
 
   Widget _dateTile({
     required String label,
@@ -562,6 +846,8 @@ class _ItemDraft {
     required this.unitPrice,
     required this.unit,
     required this.vatPermille,
+    required this.discount,
+    this.discountIsPercent = true,
   });
 
   factory _ItemDraft.empty(int vatPermille) => _ItemDraft(
@@ -570,6 +856,7 @@ class _ItemDraft {
     unitPrice: TextEditingController(),
     unit: TextEditingController(text: 'Stk'),
     vatPermille: vatPermille,
+    discount: TextEditingController(),
   );
 
   factory _ItemDraft.fromItem(InvoiceItem item) => _ItemDraft(
@@ -578,7 +865,17 @@ class _ItemDraft {
     unitPrice: TextEditingController(text: Fmt.amount(item.unitPrice)),
     unit: TextEditingController(text: item.unit),
     vatPermille: item.vatPermille,
+    discount: TextEditingController(
+      text: item.discountPermille > 0
+          ? percentText(item.discountPermille)
+          : (item.discountAmount.isZero ? '' : Fmt.amount(item.discountAmount)),
+    ),
+    discountIsPercent: item.discountAmount.isZero,
   );
+
+  /// Positionsrabatt (L-3.21): Prozent oder Betrag.
+  final TextEditingController discount;
+  bool discountIsPercent;
 
   final TextEditingController description;
   final TextEditingController quantity;
@@ -594,9 +891,7 @@ class _ItemDraft {
 
   Money get price => Money.tryParse(unitPrice.text) ?? const Money.zero();
 
-  Money get net => Money((price.cents * quantityMilli / 1000).round());
-
-  Money get vat => Money((net.cents * vatPermille / 1000).round());
+  Money get net => toItem().net;
 
   bool get isEmpty => description.text.trim().isEmpty && price.isZero;
 
@@ -607,9 +902,14 @@ class _ItemDraft {
     unit: unit.text.trim().isEmpty ? 'Stk' : unit.text.trim(),
     unitPrice: price,
     vatPermille: vatPermille,
+    discountPermille: discountIsPercent ? parsePermille(discount.text) : 0,
+    discountAmount: discountIsPercent
+        ? const Money.zero()
+        : (Money.tryParse(discount.text) ?? const Money.zero()),
   );
 
   void dispose() {
+    discount.dispose();
     description.dispose();
     quantity.dispose();
     unitPrice.dispose();
@@ -652,13 +952,16 @@ class _ItemEditor extends StatelessWidget {
               Fmt.money(draft.net),
               style: const TextStyle(fontWeight: FontWeight.w600),
             ),
-            if (onRemove != null)
+            if (onRemove != null) ...[
+              const SizedBox(width: 8),
               IconButton(
-                visualDensity: VisualDensity.compact,
-                icon: const Icon(Icons.close, size: 18),
+                key: Key('removeItem$index'),
+                constraints: const BoxConstraints(minWidth: 48, minHeight: 48),
+                icon: const Icon(Icons.delete_outline),
                 onPressed: onRemove,
                 tooltip: 'Position entfernen',
               ),
+            ],
           ],
         ),
         const SizedBox(height: 8),
@@ -714,6 +1017,30 @@ class _ItemEditor extends StatelessWidget {
               ),
             ),
           ],
+        ),
+        const SizedBox(height: 8),
+        DiscountTile(
+          key: Key('itemDiscount$index'),
+          addLabel: 'Rabatt hinzufügen',
+          summary: draft.discount.text.trim().isEmpty
+              ? null
+              : 'Rabatt '
+                    '${draft.discountIsPercent ? '${draft.discount.text} % ' : ''}'
+                    '= ${Fmt.money(draft.toItem().discount)}',
+          readOnly: readOnly,
+          onEdit: () async {
+            final result = await showDiscountSheet(
+              context,
+              title: 'Rabatt auf Position $index',
+              explanation: 'Mindert nur diese Position.',
+              isPercent: draft.discountIsPercent,
+              text: draft.discount.text,
+            );
+            if (result == null) return;
+            draft.discountIsPercent = result.isPercent;
+            draft.discount.text = result.text;
+            onChanged();
+          },
         ),
         if (showVat) ...[
           const SizedBox(height: 10),
@@ -809,3 +1136,176 @@ class _CustomerPicker extends StatelessWidget {
     );
   }
 }
+
+/// Knopf mit 48-dp-Zielfläche zum Aufklappen eines optionalen Bereichs.
+class _AddButton extends StatelessWidget {
+  const _AddButton({
+    super.key,
+    required this.label,
+    required this.icon,
+    required this.onPressed,
+  });
+
+  final String label;
+  final IconData icon;
+  final VoidCallback? onPressed;
+
+  @override
+  Widget build(BuildContext context) => Align(
+    alignment: Alignment.centerLeft,
+    child: TextButton.icon(
+      style: TextButton.styleFrom(minimumSize: const Size(48, 48)),
+      onPressed: onPressed,
+      icon: Icon(icon),
+      label: Text(label),
+    ),
+  );
+}
+
+/// Eingeklappter Rabatt: „Rabatt hinzufügen“ oder die Zusammenfassung mit
+/// Bearbeiten-Knopf (L-3.21, UX-Vorgabe).
+class DiscountTile extends StatelessWidget {
+  const DiscountTile({
+    super.key,
+    required this.addLabel,
+    required this.summary,
+    required this.readOnly,
+    required this.onEdit,
+  });
+
+  final String addLabel;
+  final String? summary;
+  final bool readOnly;
+  final VoidCallback onEdit;
+
+  @override
+  Widget build(BuildContext context) {
+    if (summary == null) {
+      if (readOnly) return const SizedBox.shrink();
+      return _AddButton(
+        label: addLabel,
+        icon: Icons.sell_outlined,
+        onPressed: onEdit,
+      );
+    }
+    return Row(
+      children: [
+        const Icon(Icons.sell_outlined, size: 20),
+        const SizedBox(width: 8),
+        Expanded(child: Text(summary!)),
+        if (!readOnly)
+          IconButton(
+            constraints: const BoxConstraints(minWidth: 48, minHeight: 48),
+            tooltip: 'Rabatt ändern',
+            icon: const Icon(Icons.edit_outlined),
+            onPressed: onEdit,
+          ),
+      ],
+    );
+  }
+}
+
+/// Bottom-Sheet für einen Rabatt mit Umschalter „% / €“. Liefert `null` bei
+/// Abbruch; ein leerer Text entfernt den Rabatt.
+Future<({bool isPercent, String text})?> showDiscountSheet(
+  BuildContext context, {
+  required String title,
+  required String explanation,
+  required bool isPercent,
+  required String text,
+}) {
+  final controller = TextEditingController(text: text);
+  var percent = isPercent;
+  return showModalBottomSheet<({bool isPercent, String text})>(
+    context: context,
+    isScrollControlled: true,
+    showDragHandle: true,
+    builder: (context) => StatefulBuilder(
+      builder: (context, setSheetState) => Padding(
+        padding: EdgeInsets.fromLTRB(
+          16,
+          0,
+          16,
+          16 + MediaQuery.of(context).viewInsets.bottom,
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Text(title, style: Theme.of(context).textTheme.titleMedium),
+            const SizedBox(height: 4),
+            Text(explanation, style: Theme.of(context).textTheme.bodySmall),
+            const SizedBox(height: 12),
+            SegmentedButton<bool>(
+              showSelectedIcon: false,
+              segments: const [
+                ButtonSegment(value: true, label: Text('%')),
+                ButtonSegment(value: false, label: Text('€')),
+              ],
+              selected: {percent},
+              onSelectionChanged: (selection) =>
+                  setSheetState(() => percent = selection.first),
+            ),
+            const SizedBox(height: 12),
+            TextField(
+              key: const Key('discountSheetField'),
+              controller: controller,
+              autofocus: true,
+              keyboardType: const TextInputType.numberWithOptions(
+                decimal: true,
+              ),
+              textAlign: TextAlign.right,
+              decoration: InputDecoration(
+                labelText: 'Rabatt',
+                suffixText: percent ? '%' : '€',
+              ),
+            ),
+            const SizedBox(height: 16),
+            Row(
+              children: [
+                if (text.trim().isNotEmpty) ...[
+                  Expanded(
+                    child: OutlinedButton(
+                      style: OutlinedButton.styleFrom(
+                        minimumSize: const Size(0, 48),
+                      ),
+                      onPressed: () => Navigator.of(
+                        context,
+                      ).pop((isPercent: percent, text: '')),
+                      child: const Text('Entfernen'),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                ],
+                Expanded(
+                  child: FilledButton(
+                    key: const Key('discountSheetApply'),
+                    style: FilledButton.styleFrom(
+                      minimumSize: const Size(0, 48),
+                    ),
+                    onPressed: () => Navigator.of(
+                      context,
+                    ).pop((isPercent: percent, text: controller.text.trim())),
+                    child: const Text('Übernehmen'),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    ),
+  );
+}
+
+/// Prozenteingabe („2,5“) in Promille (25). Ungültig oder leer: 0.
+int parsePermille(String input) {
+  final parsed = Money.tryParse(input.replaceAll('%', ''));
+  if (parsed == null || parsed.isNegative) return 0;
+  return divideRounded(parsed.cents, 10);
+}
+
+/// Promille als Eingabetext: 25 → „2,5“, 100 → „10“.
+String percentText(int permille) => permille % 10 == 0
+    ? '${permille ~/ 10}'
+    : '${permille ~/ 10},${permille % 10}';

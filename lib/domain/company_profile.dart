@@ -41,7 +41,22 @@ class CompanyProfile {
     this.filesEcsl = false,
     this.hasTaxAdvisor = false,
     this.svsInsured = true,
+    this.defaultSkontoDays = 0,
+    this.defaultSkontoPermille = 0,
+    this.termsUrl = '',
+    this.termsHintShown = false,
   });
+
+  /// Vorbelegung für Skonto auf neuen Rechnungen (L-3.23); 0 = ohne.
+  final int defaultSkontoDays;
+  final int defaultSkontoPermille;
+
+  /// Adresse der eigenen Verkaufsbedingungen (AGB), leer = kein Verweis
+  /// (L-3.25). Wird mit dem Profil in `seller_snapshot` eingefroren.
+  final String termsUrl;
+
+  /// Der einmalige Hinweis zur Einbeziehung der AGB wurde gezeigt.
+  final bool termsHintShown;
 
   /// Abweichendes Wirtschaftsjahr bestätigt (L-24.3).
   final bool fiscalYearConfirmed;
@@ -225,6 +240,10 @@ class CompanyProfile {
     bool? filesEcsl,
     bool? hasTaxAdvisor,
     bool? svsInsured,
+    int? defaultSkontoDays,
+    int? defaultSkontoPermille,
+    String? termsUrl,
+    bool? termsHintShown,
   }) {
     return CompanyProfile(
       companyName: companyName ?? this.companyName,
@@ -265,6 +284,11 @@ class CompanyProfile {
       filesEcsl: filesEcsl ?? this.filesEcsl,
       hasTaxAdvisor: hasTaxAdvisor ?? this.hasTaxAdvisor,
       svsInsured: svsInsured ?? this.svsInsured,
+      defaultSkontoDays: defaultSkontoDays ?? this.defaultSkontoDays,
+      defaultSkontoPermille:
+          defaultSkontoPermille ?? this.defaultSkontoPermille,
+      termsUrl: termsUrl ?? this.termsUrl,
+      termsHintShown: termsHintShown ?? this.termsHintShown,
     );
   }
 
@@ -306,6 +330,10 @@ class CompanyProfile {
     'files_ecsl': filesEcsl ? 1 : 0,
     'has_tax_advisor': hasTaxAdvisor ? 1 : 0,
     'svs_insured': svsInsured ? 1 : 0,
+    'default_skonto_days': defaultSkontoDays,
+    'default_skonto_permille': defaultSkontoPermille,
+    'terms_url': termsUrl,
+    'terms_hint_shown': termsHintShown ? 1 : 0,
   };
 
   static CompanyProfile fromMap(Map<String, Object?> map) => CompanyProfile(
@@ -355,6 +383,10 @@ class CompanyProfile {
     filesEcsl: (map['files_ecsl'] as int? ?? 0) == 1,
     hasTaxAdvisor: (map['has_tax_advisor'] as int? ?? 0) == 1,
     svsInsured: (map['svs_insured'] as int? ?? 1) == 1,
+    defaultSkontoDays: map['default_skonto_days'] as int? ?? 0,
+    defaultSkontoPermille: map['default_skonto_permille'] as int? ?? 0,
+    termsUrl: map['terms_url'] as String? ?? '',
+    termsHintShown: (map['terms_hint_shown'] as int? ?? 0) == 1,
   );
 
   static DateTime? _parseDate(Object? value) =>

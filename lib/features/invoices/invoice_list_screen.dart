@@ -5,16 +5,12 @@ import '../../core/formatting.dart';
 import '../../domain/customer.dart';
 import '../../domain/invoice.dart';
 import '../../domain/money.dart';
-import '../../services/invoice_logo.dart';
-import '../../services/invoice_pdf.dart';
-import '../../services/invoice_seller.dart';
-import '../../services/logo_store.dart';
-import '../../services/share_service.dart';
 import '../../theme.dart';
 import '../../widgets/adaptive.dart';
 import '../../widgets/common.dart';
 import 'customer_edit_screen.dart';
 import 'invoice_edit_screen.dart';
+import 'invoice_share.dart';
 import '../help/help_screen.dart';
 import '../../services/help/help_index.dart';
 
@@ -64,46 +60,40 @@ class _InvoiceListScreenState extends State<InvoiceListScreen> {
       context,
       (_) => InvoiceEditScreen(existing: invoice),
     );
-    if (changed == true) await _load();
+    // Auch nach dem Ausstellen im Formular (ohne Rückgabewert) neu laden.
+    if (changed != false) await _load();
   }
 
-  Future<void> _sharePdf(Invoice invoice) async {
-    final state = AppScope.read(context);
-    final profile = state.profile;
-    final customer = _customers[invoice.customerId];
+  Future<void> _sharePdf(Invoice invoice) => shareInvoicePdf(context, invoice);
 
-    if (profile == null || customer == null) {
-      showSnack(context, 'Kundendaten fehlen – PDF kann nicht erzeugt werden.');
-      return;
-    }
-
-    try {
-      final logo = await LogoStore.readBytes(
-        InvoiceLogo.pathFor(invoice, profile),
-      );
-      final bytes = await InvoicePdf(
-        invoice: invoice,
-        customer: customer,
-        // Gestellte Rechnungen mit den eingefrorenen Absenderangaben (GR-8).
-        profile: InvoiceSeller.profileFor(invoice, profile),
-        logo: logo,
-      ).build();
-
-      final safeNumber = invoice.number.replaceAll(
-        RegExp(r'[^A-Za-z0-9\-_]'),
-        '-',
-      );
-      await ShareService.sharePdf(
-        fileName: 'Rechnung_$safeNumber.pdf',
-        bytes: bytes,
-        subject: 'Rechnung ${invoice.number}',
-        text: 'Im Anhang findest du die Rechnung ${invoice.number}.',
-      );
-    } on Exception catch (error) {
-      if (mounted) {
-        showSnack(context, 'PDF konnte nicht erstellt werden: $error');
-      }
-    }
+  /// Stornieren und Löschen nur nach Bestätigung mit Nummer und Betrag.
+  Future<bool> _confirmDestructive(Invoice invoice, String verb) async {
+    final error = Theme.of(context).colorScheme.error;
+    final ok = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(
+          '${invoice.status == InvoiceStatus.draft ? 'Entwurf' : invoice.number} $verb?',
+        ),
+        content: Text(
+          '${invoice.status == InvoiceStatus.draft ? 'Entwurf' : 'Rechnung ${invoice.number}'} '
+          'über ${Fmt.money(invoice.grossTotal)}. Das lässt sich nicht rückgängig machen.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: const Text('Abbrechen'),
+          ),
+          FilledButton(
+            key: const Key('confirmDestructive'),
+            style: FilledButton.styleFrom(backgroundColor: error),
+            onPressed: () => Navigator.of(context).pop(true),
+            child: Text(verb),
+          ),
+        ],
+      ),
+    );
+    return ok ?? false;
   }
 
   Future<void> _setStatus(Invoice invoice, InvoiceStatus status) async {
@@ -111,10 +101,18 @@ class _InvoiceListScreenState extends State<InvoiceListScreen> {
     if (id == null) return;
     final state = AppScope.read(context);
     if (status == InvoiceStatus.paid) {
-      final paidAt = await _askPaymentDate(invoice);
-      if (paidAt == null) return;
-      await state.repositories.invoices.markPaid(id, paidAt);
+      final answer = await _askPayment(invoice);
+      if (answer == null) return;
+      await state.repositories.invoices.markPaid(
+        id,
+        answer.date,
+        withSkonto: answer.withSkonto,
+      );
     } else {
+      if (status == InvoiceStatus.cancelled &&
+          !await _confirmDestructive(invoice, 'Stornieren')) {
+        return;
+      }
       await state.repositories.invoices.setStatus(id, status);
     }
     await state.onBookingsChanged();
@@ -124,53 +122,90 @@ class _InvoiceListScreenState extends State<InvoiceListScreen> {
   /// Zahlungseingang erfragen: vorbelegt mit heute, ein Tipp bestätigt
   /// (Leitprinzip: Vorschlag statt Pflicht). Die Einnahme zählt am Tag des
   /// Zahlungseingangs (Zuflussprinzip).
-  Future<DateTime?> _askPaymentDate(Invoice invoice) async {
+  ///
+  /// Hat die Rechnung Skonto, fragt der Dialog „Mit Skonto bezahlt?“ – ein
+  /// Tipp (L-3.24); vorbelegt mit Ja, solange die Skontofrist läuft.
+  Future<({DateTime date, bool withSkonto})?> _askPayment(
+    Invoice invoice,
+  ) async {
     final today = DateTime.now();
     var date = DateTime(today.year, today.month, today.day);
-    return showDialog<DateTime>(
+    bool inTime(DateTime day) =>
+        invoice.hasSkonto && !day.isAfter(invoice.skontoDate!);
+    var withSkonto = inTime(date);
+    return showModalBottomSheet<({DateTime date, bool withSkonto})>(
       context: context,
+      showDragHandle: true,
+      isScrollControlled: true,
       builder: (context) => StatefulBuilder(
-        builder: (context, setDialogState) => AlertDialog(
-          title: Text('${invoice.number} bezahlt'),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              ListTile(
-                contentPadding: EdgeInsets.zero,
-                leading: const Icon(Icons.event_outlined),
-                title: const Text('Zahlungseingang'),
-                subtitle: Text(Fmt.date(date)),
-                onTap: () async {
-                  final picked = await showDatePicker(
-                    context: context,
-                    initialDate: date,
-                    firstDate: invoice.issueDate.subtract(
-                      const Duration(days: 366),
+        builder: (context, setSheetState) => SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Text(
+                  '${invoice.number} bezahlt',
+                  style: Theme.of(context).textTheme.titleMedium,
+                ),
+                ListTile(
+                  contentPadding: EdgeInsets.zero,
+                  leading: const Icon(Icons.event_outlined),
+                  title: const Text('Zahlungseingang'),
+                  subtitle: Text(Fmt.date(date)),
+                  trailing: const Icon(Icons.chevron_right),
+                  onTap: () async {
+                    final picked = await showDatePicker(
+                      context: context,
+                      initialDate: date,
+                      firstDate: invoice.issueDate.subtract(
+                        const Duration(days: 366),
+                      ),
+                      lastDate: DateTime(today.year + 1, 12, 31),
+                    );
+                    if (picked != null) {
+                      setSheetState(() {
+                        date = picked;
+                        withSkonto = inTime(picked);
+                      });
+                    }
+                  },
+                ),
+                if (invoice.hasSkonto)
+                  SwitchListTile(
+                    key: const Key('paidWithSkonto'),
+                    contentPadding: EdgeInsets.zero,
+                    title: const Text('Mit Skonto bezahlt?'),
+                    subtitle: Text(
+                      '${Fmt.vatRate(invoice.skontoPermille)} = '
+                      '${Fmt.money(invoice.skontoAmount)}, '
+                      'Frist bis ${Fmt.date(invoice.skontoDate!)}',
                     ),
-                    lastDate: DateTime(today.year + 1, 12, 31),
-                  );
-                  if (picked != null) setDialogState(() => date = picked);
-                },
-              ),
-              const SizedBox(height: 8),
-              Text(
-                '${Fmt.money(invoice.grossTotal)} werden als Einnahme am '
-                'Tag des Zahlungseingangs gebucht. Bitte nicht zusätzlich '
-                'als Einnahmebeleg erfassen.',
-              ),
-            ],
+                    value: withSkonto,
+                    onChanged: (value) =>
+                        setSheetState(() => withSkonto = value),
+                  ),
+                const SizedBox(height: 8),
+                Text(
+                  '${Fmt.money(withSkonto ? invoice.grossTotal - invoice.skontoAmount : invoice.grossTotal)} '
+                  'werden als Einnahme am Tag des Zahlungseingangs gebucht. '
+                  'Bitte nicht zusätzlich als Einnahmebeleg erfassen.',
+                ),
+                const SizedBox(height: 16),
+                FilledButton(
+                  key: const Key('confirmPaid'),
+                  style: FilledButton.styleFrom(
+                    minimumSize: const Size.fromHeight(56),
+                  ),
+                  onPressed: () => Navigator.of(
+                    context,
+                  ).pop((date: date, withSkonto: withSkonto)),
+                  child: const Text('Als bezahlt buchen'),
+                ),
+              ],
+            ),
           ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(),
-              child: const Text('Abbrechen'),
-            ),
-            FilledButton(
-              onPressed: () => Navigator.of(context).pop(date),
-              child: const Text('Als bezahlt buchen'),
-            ),
-          ],
         ),
       ),
     );
@@ -179,6 +214,8 @@ class _InvoiceListScreenState extends State<InvoiceListScreen> {
   Future<void> _deleteDraft(Invoice invoice) async {
     final id = invoice.id;
     if (id == null) return;
+    if (!await _confirmDestructive(invoice, 'Löschen')) return;
+    if (!mounted) return;
     final deleted = await AppScope.read(
       context,
     ).repositories.invoices.deleteDraft(id);
@@ -375,6 +412,18 @@ class _InvoiceTile extends StatelessWidget {
                     ),
                   ),
                   const Spacer(),
+                  if (onMarkPaid != null) ...[
+                    FilledButton.tonalIcon(
+                      key: Key('paid-${invoice.id}'),
+                      style: FilledButton.styleFrom(
+                        minimumSize: const Size(48, 48),
+                      ),
+                      onPressed: onMarkPaid,
+                      icon: const Icon(Icons.check),
+                      label: const Text('Bezahlt'),
+                    ),
+                    const SizedBox(width: 8),
+                  ],
                   IconButton(
                     tooltip: 'PDF teilen',
                     icon: const Icon(Icons.picture_as_pdf_outlined),
@@ -382,23 +431,28 @@ class _InvoiceTile extends StatelessWidget {
                   ),
                   PopupMenuButton<String>(
                     tooltip: 'Weitere Aktionen',
-                    itemBuilder: (context) => [
-                      if (onMarkPaid != null)
-                        const PopupMenuItem(
-                          value: 'paid',
-                          child: Text('Als bezahlt markieren'),
-                        ),
-                      if (onCancel != null)
-                        const PopupMenuItem(
-                          value: 'cancel',
-                          child: Text('Stornieren'),
-                        ),
-                      if (onDelete != null)
-                        const PopupMenuItem(
-                          value: 'delete',
-                          child: Text('Entwurf löschen'),
-                        ),
-                    ],
+                    itemBuilder: (context) {
+                      final error = TextStyle(color: scheme.error);
+                      return [
+                        if (onMarkPaid != null)
+                          const PopupMenuItem(
+                            value: 'paid',
+                            child: Text('Als bezahlt markieren'),
+                          ),
+                        if (onCancel != null || onDelete != null)
+                          const PopupMenuDivider(),
+                        if (onCancel != null)
+                          PopupMenuItem(
+                            value: 'cancel',
+                            child: Text('Stornieren', style: error),
+                          ),
+                        if (onDelete != null)
+                          PopupMenuItem(
+                            value: 'delete',
+                            child: Text('Entwurf löschen', style: error),
+                          ),
+                      ];
+                    },
                     onSelected: (value) => switch (value) {
                       'paid' => onMarkPaid?.call(),
                       'cancel' => onCancel?.call(),

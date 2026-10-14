@@ -29,11 +29,35 @@ gebaut, und was war darin geprüft?*
 
 ## Unveröffentlicht
 
-Änderungen seit 0.3.5+8, die noch in keinem Build stecken. Wandern beim
+Änderungen seit 0.4.0+9, die noch in keinem Build stecken. Wandern beim
 nächsten Versionssprung in den neuen Eintrag.
 
 | Art | Änderung | Bezug | Commit |
 |---|---|---|---|
+
+---
+
+## 0.4.0+9 — 2026-10-14
+
+| Feld | Wert |
+|---|---|
+| Art | Testbuild (ungezippte arm64-APK, fester Testschlüssel); Rabatt, Versand, Skonto, AGB-Verweis |
+| Commit | siehe Git-Tag `v0.4.0` |
+| Branch | `claude/agile-accounting-app-mobile-wa5j3h` |
+| Dokumentstände | Lastenheft 1.46, Spezifikation 1.43, Benutzerhandbuch für 0.4.0 |
+| Datenbankschema | 12 |
+| Prüfung | `flutter analyze` ohne Befund, alle Tests grün (neu `invoice_totals_test.dart`, `invoice_form_ux_test.dart`), Emulator-Job `android-ocr-emulator`, CI siehe Lauf zum Tag |
+| Steuerliche Kennwerte | `spec.schema_version` = 12; neu `spec.primary_action_height_dp` = 56, `spec.min_touch_target_dp` = 48 |
+| Offene reale Prüfpunkte | P-D21, P-D22, P-D25, P-D26, P-S27 bis P-S35, P-S40 bis P-S43, P-R24 bis P-R26, P-R30, P-R31 |
+
+**Änderungen seit 0.3.5+8**
+
+| Art | Änderung | Bezug | Commit |
+|---|---|---|---|
+| Neu | Rabatt je Position und auf die Rechnung (Prozent oder Betrag), Gesamtrabatt anteilig je Steuersatz mit Restcent nach größtem Rest; Versandkosten wie Hauptleistung (anteilig bei Mischsätzen) oder fester Satz; Rechnen in `InvoiceTotals`. Schema 12. Test `invoice_totals_test.dart` | L-3.21, L-3.22, GR-12, FA-5.15, FA-5.16, P-S40, P-S41 | siehe Tag |
+| Neu | Skonto (Tage + Prozent, Vorschlag aus dem Profil), auf dem PDF mit festem Datum und Betrag; „Bezahlt“ fragt „Mit Skonto bezahlt?“ und mindert die Einnahme je Satz; Rechnung bleibt unverändert | L-3.23, L-3.24, FA-5.17, FA-5.18, P-S42, P-S43 | siehe Tag |
+| Neu | AGB-Adresse im Profil, Verweis „soweit sie vereinbart wurden“ auf dem PDF, eingefroren mit der Rechnung; einmaliger Hinweis zur Einbeziehung | L-3.25, L-3.26, FA-5.19, P-R30 | siehe Tag |
+| Geändert | Bedienung nach UX-Prüfinstanz: `PrimaryActionBar` (56 dp, über der Tastatur) im Rechnungsformular, nach dem Ausstellen „PDF senden“; „Position hinzufügen“ volle Breite, Entfernen 48 dp; Rabatt/Versand/Skonto eingeklappt; Tonal-Knopf „Bezahlt“ mit Bottom-Sheet; Stornieren/Löschen in Fehlerfarbe mit Bestätigung. Test `invoice_form_ux_test.dart` | FA-5.20 | siehe Tag |
 
 ---
 

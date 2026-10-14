@@ -810,23 +810,43 @@ class InvoiceRepository {
   /// offene Rechnung zählt nicht. Je Steuersatz entsteht ein Einnahmebeleg
   /// mit `invoice_id`; der eindeutige Index (Schema 11) verhindert, dass
   /// dieselbe Rechnung zweimal gebucht wird.
-  Future<void> markPaid(int id, DateTime paidAt) async {
-    final invoice = await byId(id);
+  ///
+  /// Mit [withSkonto] wird der Skontobetrag laut Rechnung abgezogen (L-3.24):
+  /// die Einnahme je Satz mindert sich um den anteiligen Skonto (nach Brutto
+  /// je Satz), damit auch die Umsatzsteuer im Zahlungsmonat (§ 16 UStG AT,
+  /// § 17 UStG DE). Die Rechnung selbst bleibt unverändert (GR-8); nur der
+  /// Zahlungsvorgang `skonto_taken_cents` wird vermerkt.
+  Future<void> markPaid(
+    int id,
+    DateTime paidAt, {
+    bool withSkonto = false,
+  }) async {
+    var invoice = await byId(id);
     if (invoice == null) return;
+    final skonto = withSkonto && invoice.hasSkonto
+        ? invoice.skontoAmount
+        : const Money.zero();
+    invoice = invoice.copyWith(skontoTaken: skonto);
     final day = DateTime(paidAt.year, paidAt.month, paidAt.day);
     await _db.transaction((txn) async {
       await txn.update(
         'invoices',
-        {'status': InvoiceStatus.paid.name, 'paid_at': day.toIso8601String()},
+        {
+          'status': InvoiceStatus.paid.name,
+          'paid_at': day.toIso8601String(),
+          'skonto_taken_cents': skonto.cents,
+        },
         where: 'id = ?',
         whereArgs: [id],
       );
-      await _bookIncome(txn, invoice, day);
+      await _bookIncome(txn, invoice!, day);
       await AuditLog(_db).record(
         entity: 'invoice',
         entityId: id,
         action: 'status',
-        detail: 'paid ${day.toIso8601String().substring(0, 10)}',
+        detail:
+            'paid ${day.toIso8601String().substring(0, 10)}'
+            '${skonto.isZero ? '' : ' skonto ${skonto.cents}'}',
         txn: txn,
       );
     });
@@ -885,13 +905,17 @@ class InvoiceRepository {
     final counterparty = customer.isEmpty
         ? ''
         : customer.first['name'] as String? ?? '';
-    for (final entry in invoice.vatBreakdown.entries) {
+    final booked = invoice.totals.breakdownAfterSkonto(invoice.skontoTaken);
+    for (final entry in booked.entries) {
       final net = entry.value.net;
       final vat = entry.value.vat;
+      if (net.isZero && vat.isZero) continue;
       final receipt = Receipt(
         date: day,
         direction: BookingDirection.income,
-        description: 'Rechnung ${invoice.number}',
+        description: invoice.skontoTaken.isZero
+            ? 'Rechnung ${invoice.number}'
+            : 'Rechnung ${invoice.number} abzgl. Skonto',
         counterparty: counterparty,
         net: net,
         vat: vat,

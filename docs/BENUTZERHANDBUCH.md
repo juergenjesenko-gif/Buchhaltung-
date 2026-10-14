@@ -1,6 +1,6 @@
 # Benutzerhandbuch – Buchhaltung
 
-**Für App-Version 0.3.5** · Stand 2026-10-14
+**Für App-Version 0.4.0** · Stand 2026-10-14
 
 Dieses Handbuch beschreibt die App aus Nutzersicht. Es wird bei jeder Änderung,
 die du in der App siehst, mitgeführt – siehe [`CLAUDE.md`](../CLAUDE.md).
@@ -464,10 +464,36 @@ Unter der Ampel steht immer im Klartext, was der Status für dich bedeutet.
      verliert den Vorsteuerabzug.
    - *Fällig am* – aus deinem Zahlungsziel vorbelegt
 4. **Positionen** erfassen: Bezeichnung, Menge, Einheit, Einzelpreis **netto**,
-   Steuersatz. Weitere Position über das Plus in der Kartenüberschrift.
-5. **Summe** kontrollieren
-6. Optional **Anmerkungen** – erscheinen unter den Positionen
-7. **Als Entwurf** speichern oder **Rechnung ausstellen**
+   Steuersatz. Weitere Position mit **Position hinzufügen** unter der letzten
+   Position; entfernen mit dem Papierkorb neben dem Betrag.
+5. Optional **Rabatt, Versand, Skonto** (siehe unten)
+6. **Summe** kontrollieren
+7. Optional **Anmerkungen** – erscheinen unter den Positionen
+8. Unten **Entwurf** speichern oder **Rechnung ausstellen**. Die Leiste bleibt
+   auch bei offener Tastatur sichtbar. Nach dem Ausstellen steht dort
+   **PDF senden** – ein Tipp, und der Teilen-Dialog öffnet sich.
+
+### Rabatt, Versandkosten und Skonto
+
+Alles davon ist optional und bleibt eingeklappt, bis du es brauchst.
+
+- **Rabatt auf eine Position:** unter der Position *Rabatt hinzufügen*. Wähle
+  oben **%** oder **€** und gib den Wert ein. Der Rabatt mindert nur diese
+  Position; auf dem PDF steht er unter der Bezeichnung.
+- **Rabatt auf die ganze Rechnung:** in der Karte *Rabatt, Versand, Skonto*.
+  Hast du Positionen mit verschiedenen Steuersätzen (z. B. 20 % und 10 %),
+  verteilt die App den Rabatt anteilig auf die Sätze – so verlangt es das
+  Steuerrecht. Beispiel: 100 € zu 20 % und 50 € zu 10 %, 10 % Rabatt → 90 €
+  plus 18 € USt und 45 € plus 4,50 € USt, zusammen 157,50 €.
+- **Versandkosten:** *Versandkosten hinzufügen*, Betrag netto. Die Umsatzsteuer
+  richtet sich automatisch nach den Waren; bei mehreren Steuersätzen teilt die
+  App die Versandkosten anteilig auf. Wenn deine Steuerberatung etwas anderes
+  sagt, kannst du einen festen Satz wählen.
+- **Skonto:** Schalter *Skonto anbieten*, dann Prozent und Tage, z. B. 2 %
+  innerhalb 10 Tagen. Auf der Rechnung steht ein festes Datum und der Betrag:
+  „Zahlbar bis 28.10.2026 ohne Abzug. Bei Zahlung bis 24.10.2026 2 % Skonto
+  (= 3,50 €).“ Einen Vorschlag für neue Rechnungen trägst du in den
+  Stammdaten unter *Rechnungen* ein.
 
 ### Entwurf oder Ausstellen?
 
@@ -522,12 +548,15 @@ Stammdaten bearbeitest.
 
 ### Rechnung versenden
 
-In der Rechnungsliste auf das PDF-Symbol. Die App erzeugt das PDF und öffnet den
+Direkt nach dem Ausstellen mit **PDF senden** unten im Formular, oder später in
+der Rechnungsliste auf das PDF-Symbol. Die App erzeugt das PDF und öffnet den
 Teilen-Dialog deines Telefons: E-Mail, Messenger, Cloud-Ordner – du entscheidest.
 
 ### Status pflegen
 
-Über das Dreipunkt-Menü in der Rechnungskachel:
+Offene Rechnungen haben auf der Karte den Knopf **Bezahlt**. Stornieren und
+Entwürfe löschen stehen im Dreipunkt-Menü unten, rot, und fragen noch einmal
+mit Nummer und Betrag nach.
 
 | Status | Bedeutung |
 |---|---|
@@ -540,13 +569,19 @@ Teilen-Dialog deines Telefons: E-Mail, Messenger, Cloud-Ordner – du entscheide
 Oben in der Liste steht die Summe aller gestellten, noch nicht bezahlten
 Rechnungen.
 
-**Als bezahlt markieren:** Die App fragt nach dem Tag des Zahlungseingangs
+**Bezahlt:** Die App fragt nach dem Tag des Zahlungseingangs
 (vorbelegt mit heute, antippen zum Ändern) und bucht die Rechnung an diesem Tag
 als Einnahme – in Übersicht, Kleinunternehmergrenze und Export. Eine offene
 Rechnung zählt noch nicht als Einnahme, denn in der Einnahmen-Ausgaben-Rechnung
 zählt der Tag, an dem das Geld eingeht. **Erfasse die Zahlung nicht zusätzlich
 als Einnahmebeleg**, sonst zählt sie doppelt. Rechnungen, die du vor dieser
 Version als bezahlt markiert hast, bucht die App beim Start einmal nach.
+
+**Mit Skonto bezahlt?** Hat die Rechnung Skonto, fragt die App das gleich mit –
+vorbelegt mit *Ja*, solange die Skontofrist läuft. Bei *Ja* bucht sie den um das
+Skonto geminderten Betrag als Einnahme, je Steuersatz anteilig; damit sinkt auch
+deine Umsatzsteuer im Monat der Zahlung automatisch. Die Rechnung selbst bleibt
+unverändert. Als Kleinunternehmer sinkt nur die Einnahme.
 
 ### Was auf dem PDF steht
 
@@ -557,6 +592,16 @@ Entgelt je Steuersatz und den Steuerbetrag.
 
 Als Kleinunternehmer fehlt die Steuerspalte vollständig, dafür erscheint der
 gesetzliche Befreiungshinweis.
+
+Rabatte und Versandkosten stehen unter den Positionen, bei mehreren
+Steuersätzen je Satz getrennt; darunter das Entgelt und die Steuer je Satz.
+
+**Deine AGB:** Trägst du in den Stammdaten unter *Rechnungen* die Adresse
+deiner Verkaufsbedingungen ein, steht auf neuen Rechnungen: „Es gelten unsere
+Verkaufsbedingungen, abrufbar unter …, soweit sie vereinbart wurden.“ Wichtig:
+Der Verweis auf der Rechnung allein macht deine AGB nicht wirksam – binde sie
+schon im Angebot bzw. bei der Bestellung ein. Bereits ausgestellte Rechnungen
+behalten den Stand vom Ausstellen.
 
 **Firmenlogo:** In den Stammdaten unter **Rechnungen → Logo wählen** suchst du
 ein Bild aus deiner Fotobibliothek aus (am besten PNG oder JPEG). Die App

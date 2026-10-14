@@ -1,6 +1,9 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+
+import '../../services/invoice_texts.dart';
+import '../invoices/invoice_edit_screen.dart' show parsePermille, percentText;
 import 'package:image_picker/image_picker.dart';
 
 import '../../services/logo_store.dart';
@@ -85,6 +88,9 @@ class _CompanySetupScreenState extends State<CompanySetupScreen> {
         'invoicePattern',
         'paymentTerm',
         'invoiceFooter',
+        'skontoDays',
+        'skontoPercent',
+        'termsUrl',
         'openingPrevious',
         'foundingYear',
         'registerNumber',
@@ -134,6 +140,13 @@ class _CompanySetupScreenState extends State<CompanySetupScreen> {
     _fields['invoicePattern']!.text = profile.invoiceNumberPattern;
     _fields['paymentTerm']!.text = profile.defaultPaymentTermDays.toString();
     _fields['invoiceFooter']!.text = profile.invoiceFooter;
+    if (profile.defaultSkontoDays > 0) {
+      _fields['skontoDays']!.text = profile.defaultSkontoDays.toString();
+      _fields['skontoPercent']!.text = percentText(
+        profile.defaultSkontoPermille,
+      );
+    }
+    _fields['termsUrl']!.text = profile.termsUrl;
     _fields['foundingYear']!.text = profile.foundingYear?.toString() ?? '';
     _fiscalYearStartMonth = profile.fiscalYearStartMonth;
     _fiscalYearConfirmed = profile.fiscalYearConfirmed;
@@ -361,12 +374,36 @@ class _CompanySetupScreenState extends State<CompanySetupScreen> {
     _logoFile = null;
   });
 
+  int get _skontoDays {
+    final days = int.tryParse(_text('skontoDays')) ?? 0;
+    return days > 0 && parsePermille(_text('skontoPercent')) > 0 ? days : 0;
+  }
+
   Future<void> _save() async {
     if (!_formKey.currentState!.validate()) return;
     setState(() => _saving = true);
 
     final state = AppScope.read(context);
     final existing = state.profile;
+    // Einmaliger Hinweis beim ersten Eintragen der AGB-Adresse (L-3.26).
+    final termsHint =
+        _text('termsUrl').isNotEmpty && !(existing?.termsHintShown ?? false);
+    if (termsHint) {
+      await showDialog<void>(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: const Text('Verkaufsbedingungen'),
+          content: const Text(InvoiceTexts.termsHint),
+          actions: [
+            FilledButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text('Verstanden'),
+            ),
+          ],
+        ),
+      );
+      if (!mounted) return;
+    }
     final profile = CompanyProfile(
       companyName: _text('companyName'),
       ownerName: _text('ownerName'),
@@ -408,6 +445,12 @@ class _CompanySetupScreenState extends State<CompanySetupScreen> {
       vatCheckEnabled: _vatCheckEnabled,
       vatCheckLastRun: existing?.vatCheckLastRun,
       logoPath: _logoPath,
+      defaultSkontoDays: _skontoDays,
+      defaultSkontoPermille: _skontoDays > 0
+          ? parsePermille(_text('skontoPercent'))
+          : 0,
+      termsUrl: _text('termsUrl'),
+      termsHintShown: (existing?.termsHintShown ?? false) || termsHint,
     );
 
     // Eröffnungswerte nur schreiben, wenn sie abgefragt wurden. Wer auf
@@ -856,6 +899,50 @@ class _CompanySetupScreenState extends State<CompanySetupScreen> {
                         suffixText: 'Tage',
                       ),
                       keyboardType: TextInputType.number,
+                    ),
+                    const SizedBox(height: 12),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: TextFormField(
+                            controller: _fields['skontoDays'],
+                            decoration: const InputDecoration(
+                              labelText: 'Skonto innerhalb',
+                              suffixText: 'Tagen',
+                            ),
+                            keyboardType: TextInputType.number,
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: TextFormField(
+                            controller: _fields['skontoPercent'],
+                            decoration: const InputDecoration(
+                              labelText: 'Skonto',
+                              suffixText: '%',
+                            ),
+                            keyboardType: const TextInputType.numberWithOptions(
+                              decimal: true,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      'Vorschlag für neue Rechnungen, z. B. 10 Tage 2 %. Leer '
+                      'lassen für Rechnungen ohne Skonto.',
+                      style: Theme.of(context).textTheme.bodySmall,
+                    ),
+                    const SizedBox(height: 12),
+                    TextFormField(
+                      controller: _fields['termsUrl'],
+                      decoration: const InputDecoration(
+                        labelText: 'Adresse deiner AGB (optional)',
+                        helperText:
+                            'Erscheint als Verweis auf neuen Rechnungen',
+                      ),
+                      keyboardType: TextInputType.url,
                     ),
                     const SizedBox(height: 12),
                     TextFormField(

@@ -14,7 +14,7 @@ import '../domain/invoice.dart';
 /// unlesbar, gilt das aktuelle Profil. Fehlt nur ein Feld (Snapshot aus einer
 /// Schemaversion, die das Feld noch nicht kannte, z. B. `register_number` vor
 /// Schema 5), gilt für dieses Feld der aktuelle Wert. Ausnahme Logo: es wird
-/// nie ergänzt, siehe `InvoiceLogo`. Ob Umsatzsteuer ausgewiesen wird, steht
+/// nie ergänzt, siehe `InvoiceLogo`; ebenso der AGB-Verweis `terms_url`. Ob Umsatzsteuer ausgewiesen wird, steht
 /// ohnehin in `invoices.is_small_business`.
 class InvoiceSeller {
   const InvoiceSeller._();
@@ -32,6 +32,9 @@ class InvoiceSeller {
         if (value != null) merged[key] = value;
       });
       merged['logo_path'] = frozen['logo_path'];
+      // Wie das Logo: der AGB-Verweis (L-3.25) wird nie aus dem aktuellen
+      // Profil ergänzt – eine alte Rechnung bekäme sonst nachträglich AGB.
+      merged['terms_url'] = frozen['terms_url'] ?? '';
       return CompanyProfile.fromMap(merged);
     } on FormatException {
       return current;

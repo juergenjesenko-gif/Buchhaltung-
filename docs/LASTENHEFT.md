@@ -1,6 +1,6 @@
 # Lastenheft – Buchhaltungsapp für Österreich und Deutschland
 
-**Dokumentversion:** 1.45 · **Stand:** 2026-10-14 · **Status:** Entwurf zur Abstimmung
+**Dokumentversion:** 1.46 · **Stand:** 2026-10-14 · **Status:** Entwurf zur Abstimmung
 **Auftraggeber:** Jürgen Jesenko (privates Vorhaben) · **Umsetzung:** Claude Code
 
 > Ein Lastenheft beschreibt, **was** das Produkt leisten soll und **warum** — nicht,
@@ -225,6 +225,12 @@ Priorität: **MUSS** = ohne das kein Release · **SOLL** = wichtig, verhandelbar
 | L-3.18 | **Erstattung:** zu einer Rechnungskorrektur (L-3.7), auch über einen Teilbetrag oder einzelne Positionen, wird die Rückzahlung an den Kunden als Ausgabe mit Zahlungsdatum erfasst. Die Umsatzsteuer wird bei **Ist-Versteuerung im Zeitraum der Rückzahlung**, bei Soll-Versteuerung im Zeitraum der Korrektur berichtigt (§ 17 UStG DE, § 16 UStG AT) | MUSS | A |
 | L-3.19 | Die im Kundenstamm hinterlegte **E-Mail-Adresse ist Standardempfänger** beim Versand von Rechnung, Angebot und Zahlungserinnerung; je Kunde ist eine abweichende Rechnungsadresse für E-Mails möglich | MUSS | A |
 | L-3.20 | **Rücksendeschein** zu einer Rechnung: welche Positionen in welcher Menge zurückgehen, mit Grund; ohne steuerliche Wirkung, bis daraus eine Gutschrift (L-3.7) erzeugt wird. Je Rücksendung wählbar „Ware wieder verkaufbar? Ja / Nein"; bei Ja wird die Menge dem Lagerstand (L-11) wieder zugebucht, bei Nein nicht | SOLL | B |
+| L-3.21 | **Rabatt** je Position und auf die ganze Rechnung, wahlweise in Prozent oder als Betrag. Der Gesamtrabatt wird anteilig nach Entgelt je Steuersatz verteilt und je Satz als Rabattzeile ausgewiesen (Entgeltminderung je Satz, § 11 Abs 1 Z 3 lit e UStG AT, § 14 Abs 4 Nr. 7 UStG DE) | MUSS | A |
+| L-3.22 | **Versandkosten** als eigene Zeile; Steuer wie die Hauptleistung (Nebenleistung): ein Satz → dieser Satz, mehrere Sätze → anteilig nach Entgelt; ein fester Satz ist wählbar | MUSS | A |
+| L-3.23 | **Skonto** als Tage und Prozent, Vorschlag aus den Stammdaten; auf der Rechnung mit festem Datum und Betrag | MUSS | A |
+| L-3.24 | Beim Zahlungseingang fragt das Produkt mit einem Tipp „Mit Skonto bezahlt?“; die Einnahme je Steuersatz mindert sich anteilig, die Umsatzsteuer wird im Zahlungsmonat berichtigt (§ 16 UStG AT, § 17 UStG DE); die Rechnung bleibt unverändert | MUSS | A |
+| L-3.25 | **AGB-Verweis**: Adresse der Verkaufsbedingungen im Profil, eingefroren mit der Rechnung, Hinweis „soweit sie vereinbart wurden“ auf Rechnung (und Angebot) | SOLL | A |
+| L-3.26 | Beim Eintragen der AGB-Adresse einmaliger Hinweis, dass der Verweis auf der Rechnung allein die AGB nicht einbezieht | SOLL | A |
 
 ### 5.4 E-Rechnung
 
@@ -1219,6 +1225,7 @@ Zu entscheiden, bevor die betroffene Anforderung umgesetzt wird:
 
 | Version | Datum | Änderung |
 |---|---|---|
+| 1.46 | 2026-10-14 | Rabatt, Versandkosten, Skonto, AGB-Verweis (L-3.21 bis L-3.26), umgesetzt in App-Version 0.4.0 (Spezifikation 5.5, GR-12). |
 | 1.45 | 2026-10-14 | Neuer Block L-26 Hilfe in der App: Stufe 1 offline umgesetzt (Spezifikation 5.8, FA-11.1 bis FA-11.3), Stufe 2 KI nach Server-Entscheidung (P-R25, P-R26). |
 | 1.44 | 2026-10-14 | Neue Blöcke L-24 Wirtschaftsjahr und L-25 Steuer- und Abgabetermine (Entscheidungen der Auftraggeberin 2026-10-14); L-25.9 bezahlte Rechnung als Einnahme nach Zahlungseingang (Gerätetest 0.3.4). |
 | 1.43 | 2026-10-14 | Leitprinzip Einfachheit als fundamentale Anforderung (2.1a, L-0.1 bis L-0.5): Erkennung überall, Vorschläge statt Pflichteingaben, Bestätigungen zusammenlegen, Belege gelten als betrieblich. |

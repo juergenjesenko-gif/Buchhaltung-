@@ -8,6 +8,7 @@ import '../domain/company_profile.dart';
 import '../domain/customer.dart';
 import '../domain/invoice.dart';
 import '../domain/money.dart';
+import 'invoice_texts.dart';
 
 /// Erzeugt das Rechnungs-PDF.
 ///
@@ -287,7 +288,11 @@ class InvoicePdf {
             ),
             children: [
               _cell(item.position.toString()),
-              _cell(item.description),
+              _cell(
+                item.hasDiscount
+                    ? '${item.description}\n${InvoiceTexts.itemDiscount(item)}'
+                    : item.description,
+              ),
               _cell(
                 '${Fmt.quantity(item.quantityMilli)} ${item.unit}',
                 align: pw.TextAlign.right,
@@ -329,13 +334,33 @@ class InvoicePdf {
       );
 
   pw.Widget _buildTotals() {
-    final rows = <pw.Widget>[
-      _totalRow('Zwischensumme netto', invoice.netTotal),
-    ];
+    final totals = invoice.totals;
+    final multiRate = totals.breakdown.length > 1;
+    String rateSuffix(int permille) => multiRate && !invoice.isSmallBusiness
+        ? ' (${Fmt.vatRate(permille)})'
+        : '';
+    final rows = <pw.Widget>[];
+    if (totals.discountLines.isNotEmpty || totals.shippingLines.isNotEmpty) {
+      rows.add(_totalRow('Summe Positionen', totals.itemsNet));
+      for (final line in totals.discountLines) {
+        rows.add(
+          _totalRow(
+            '${InvoiceTexts.invoiceDiscountLabel(invoice)}'
+            '${rateSuffix(line.vatPermille)}',
+            line.net,
+          ),
+        );
+      }
+      for (final line in totals.shippingLines) {
+        rows.add(
+          _totalRow('Versandkosten${rateSuffix(line.vatPermille)}', line.net),
+        );
+      }
+    }
+    rows.add(_totalRow('Zwischensumme netto', invoice.netTotal));
 
     if (!invoice.isSmallBusiness) {
-      final breakdown = invoice.vatBreakdown.entries.toList()
-        ..sort((a, b) => b.key.compareTo(a.key));
+      final breakdown = totals.breakdown.entries.toList();
       for (final entry in breakdown) {
         rows.add(
           _totalRow(
@@ -410,9 +435,8 @@ class InvoicePdf {
 
   pw.Widget _buildPaymentBlock() {
     final parts = <String>[];
-    if (invoice.dueDate != null) {
-      parts.add('Zahlbar ohne Abzug bis ${Fmt.date(invoice.dueDate!)}.');
-    }
+    final terms = InvoiceTexts.paymentTerms(invoice);
+    if (terms.isNotEmpty) parts.add(terms);
     if (profile.iban.isNotEmpty) {
       parts.add(
         'Bitte überweise den Betrag unter Angabe der Rechnungsnummer '
@@ -434,6 +458,13 @@ class InvoicePdf {
               if (profile.bic.isNotEmpty) 'BIC ${profile.bic}',
             ].join('  ·  '),
             style: pw.TextStyle(fontSize: 9.5, fontWeight: pw.FontWeight.bold),
+          ),
+        ],
+        if (profile.termsUrl.trim().isNotEmpty) ...[
+          pw.SizedBox(height: 10),
+          pw.Text(
+            InvoiceTexts.termsReference(profile.termsUrl),
+            style: const pw.TextStyle(fontSize: 8.5, color: _muted),
           ),
         ],
       ],

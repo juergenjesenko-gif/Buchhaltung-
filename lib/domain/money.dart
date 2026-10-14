@@ -72,3 +72,11 @@ class Money implements Comparable<Money> {
 extension MoneyIterable on Iterable<Money> {
   Money get sum => fold(const Money.zero(), (a, b) => a + b);
 }
+
+/// Ganzzahlige Division mit kaufmännischer Rundung: halbe Cent von der Null
+/// weg, ohne Umweg über `double` (GR-1).
+int divideRounded(int numerator, int denominator) {
+  assert(denominator > 0);
+  final magnitude = (2 * numerator.abs() + denominator) ~/ (2 * denominator);
+  return numerator < 0 ? -magnitude : magnitude;
+}

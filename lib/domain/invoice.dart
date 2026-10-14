@@ -1,3 +1,4 @@
+import '../services/invoice_totals.dart';
 import 'money.dart';
 
 enum InvoiceStatus {
@@ -29,6 +30,8 @@ class InvoiceItem {
     required this.unitPrice,
     required this.vatPermille,
     this.unit = 'Stk',
+    this.discountPermille = 0,
+    this.discountAmount = const Money.zero(),
   });
 
   final int? id;
@@ -46,15 +49,38 @@ class InvoiceItem {
 
   final int vatPermille;
 
+  /// Positionsrabatt in Promille des Positionsbetrags (L-3.21). 0 = keiner.
+  final int discountPermille;
+
+  /// Positionsrabatt als fester Betrag; gilt nur, wenn [discountPermille] 0
+  /// ist. Höchstens der Positionsbetrag.
+  final Money discountAmount;
+
   double get quantity => quantityMilli / 1000;
 
-  /// Nettobetrag der Position, kaufmännisch auf ganze Cent gerundet.
-  Money get net => Money((unitPrice.cents * quantityMilli / 1000).round());
+  /// Menge × Einzelpreis vor Rabatt, kaufmännisch auf ganze Cent gerundet.
+  Money get lineAmount =>
+      Money(divideRounded(unitPrice.cents * quantityMilli, 1000));
+
+  /// Positionsrabatt als positiver Betrag.
+  Money get discount {
+    final line = lineAmount.cents;
+    if (discountPermille > 0) {
+      return Money(divideRounded(line * discountPermille, 1000));
+    }
+    if (discountAmount.cents <= 0) return const Money.zero();
+    return Money(discountAmount.cents > line ? line : discountAmount.cents);
+  }
+
+  bool get hasDiscount => !discount.isZero;
+
+  /// Entgelt der Position nach Positionsrabatt.
+  Money get net => lineAmount - discount;
 
   /// Umsatzsteuer der Position. Die Rundung passiert bewusst pro Position und
   /// nicht erst auf der Summe – so stimmt der ausgewiesene Steuerbetrag mit der
   /// Summe der Positionen überein.
-  Money get vat => Money((net.cents * vatPermille / 1000).round());
+  Money get vat => Money(divideRounded(net.cents * vatPermille, 1000));
 
   Money get gross => net + vat;
 
@@ -67,6 +93,8 @@ class InvoiceItem {
     String? unit,
     Money? unitPrice,
     int? vatPermille,
+    int? discountPermille,
+    Money? discountAmount,
   }) {
     return InvoiceItem(
       id: id ?? this.id,
@@ -77,12 +105,16 @@ class InvoiceItem {
       unit: unit ?? this.unit,
       unitPrice: unitPrice ?? this.unitPrice,
       vatPermille: vatPermille ?? this.vatPermille,
+      discountPermille: discountPermille ?? this.discountPermille,
+      discountAmount: discountAmount ?? this.discountAmount,
     );
   }
 
   Map<String, Object?> toMap() => {
     if (id != null) 'id': id,
     'invoice_id': invoiceId,
+    'discount_permille': discountPermille,
+    'discount_cents': discountAmount.cents,
     'position': position,
     'description': description,
     'quantity_milli': quantityMilli,
@@ -100,6 +132,8 @@ class InvoiceItem {
     unit: map['unit'] as String? ?? 'Stk',
     unitPrice: Money(map['unit_price_cents'] as int? ?? 0),
     vatPermille: map['vat_permille'] as int? ?? 0,
+    discountPermille: map['discount_permille'] as int? ?? 0,
+    discountAmount: Money(map['discount_cents'] as int? ?? 0),
   );
 }
 
@@ -120,6 +154,13 @@ class Invoice {
     this.customerSnapshot,
     this.paidAt,
     this.createdAt,
+    this.discountPermille = 0,
+    this.discountAmount = const Money.zero(),
+    this.shipping = const Money.zero(),
+    this.shippingVatPermille,
+    this.skontoDays = 0,
+    this.skontoPermille = 0,
+    this.skontoTaken = const Money.zero(),
   });
 
   final int? id;
@@ -153,10 +194,42 @@ class Invoice {
   final DateTime? paidAt;
   final DateTime? createdAt;
 
-  Money get netTotal => items.map((i) => i.net).sum;
-  Money get vatTotal =>
-      isSmallBusiness ? const Money.zero() : items.map((i) => i.vat).sum;
-  Money get grossTotal => netTotal + vatTotal;
+  /// Gesamtrabatt in Promille der Positionssumme (L-3.21). 0 = keiner.
+  final int discountPermille;
+
+  /// Gesamtrabatt als Betrag; gilt nur, wenn [discountPermille] 0 ist.
+  final Money discountAmount;
+
+  /// Versandkosten netto (L-3.22).
+  final Money shipping;
+
+  /// Steuersatz der Versandkosten; `null` = wie Hauptleistung (anteilig).
+  final int? shippingVatPermille;
+
+  /// Skonto: Tage ab Rechnungsdatum und Satz in Promille (L-3.23).
+  final int skontoDays;
+  final int skontoPermille;
+
+  /// Beim Zahlungseingang abgezogenes Skonto; 0 = ohne Skonto bezahlt.
+  /// Die Rechnung selbst bleibt unverändert (GR-8).
+  final Money skontoTaken;
+
+  bool get hasSkonto => skontoDays > 0 && skontoPermille > 0;
+
+  /// Letzter Tag, an dem mit Skonto gezahlt werden darf.
+  DateTime? get skontoDate => hasSkonto
+      ? DateTime(issueDate.year, issueDate.month, issueDate.day + skontoDays)
+      : null;
+
+  /// Summen samt Rabatt, Versand und Steuer je Satz.
+  InvoiceTotals get totals => InvoiceTotals.of(this);
+
+  Money get netTotal => totals.net;
+  Money get vatTotal => totals.vat;
+  Money get grossTotal => totals.gross;
+
+  /// Skontobetrag laut Rechnung.
+  Money get skontoAmount => totals.skontoAmount(skontoPermille);
 
   bool get isOverdue =>
       status == InvoiceStatus.issued &&
@@ -165,19 +238,7 @@ class Invoice {
 
   /// Umsatzsteuer je Steuersatz – so muss sie auf der Rechnung ausgewiesen und
   /// in der UVA gemeldet werden.
-  Map<int, ({Money net, Money vat})> get vatBreakdown {
-    final result = <int, ({Money net, Money vat})>{};
-    if (isSmallBusiness) {
-      return {0: (net: netTotal, vat: const Money.zero())};
-    }
-    for (final item in items) {
-      final existing = result[item.vatPermille];
-      result[item.vatPermille] = existing == null
-          ? (net: item.net, vat: item.vat)
-          : (net: existing.net + item.net, vat: existing.vat + item.vat);
-    }
-    return result;
-  }
+  Map<int, ({Money net, Money vat})> get vatBreakdown => totals.breakdown;
 
   Invoice copyWith({
     int? id,
@@ -194,6 +255,13 @@ class Invoice {
     String? customerSnapshot,
     DateTime? paidAt,
     DateTime? createdAt,
+    int? discountPermille,
+    Money? discountAmount,
+    Money? shipping,
+    int? shippingVatPermille,
+    int? skontoDays,
+    int? skontoPermille,
+    Money? skontoTaken,
   }) {
     return Invoice(
       id: id ?? this.id,
@@ -210,6 +278,13 @@ class Invoice {
       customerSnapshot: customerSnapshot ?? this.customerSnapshot,
       paidAt: paidAt ?? this.paidAt,
       createdAt: createdAt ?? this.createdAt,
+      discountPermille: discountPermille ?? this.discountPermille,
+      discountAmount: discountAmount ?? this.discountAmount,
+      shipping: shipping ?? this.shipping,
+      shippingVatPermille: shippingVatPermille ?? this.shippingVatPermille,
+      skontoDays: skontoDays ?? this.skontoDays,
+      skontoPermille: skontoPermille ?? this.skontoPermille,
+      skontoTaken: skontoTaken ?? this.skontoTaken,
     );
   }
 
@@ -227,6 +302,13 @@ class Invoice {
     'customer_snapshot': customerSnapshot,
     'paid_at': paidAt?.toIso8601String(),
     'created_at': (createdAt ?? DateTime.now()).toIso8601String(),
+    'discount_permille': discountPermille,
+    'discount_cents': discountAmount.cents,
+    'shipping_cents': shipping.cents,
+    'shipping_vat_permille': shippingVatPermille,
+    'skonto_days': skontoDays,
+    'skonto_permille': skontoPermille,
+    'skonto_taken_cents': skontoTaken.cents,
   };
 
   static Invoice fromMap(Map<String, Object?> map, List<InvoiceItem> items) =>
@@ -245,6 +327,13 @@ class Invoice {
         customerSnapshot: map['customer_snapshot'] as String?,
         paidAt: _parseOrNull(map['paid_at']),
         createdAt: _parseOrNull(map['created_at']),
+        discountPermille: map['discount_permille'] as int? ?? 0,
+        discountAmount: Money(map['discount_cents'] as int? ?? 0),
+        shipping: Money(map['shipping_cents'] as int? ?? 0),
+        shippingVatPermille: map['shipping_vat_permille'] as int?,
+        skontoDays: map['skonto_days'] as int? ?? 0,
+        skontoPermille: map['skonto_permille'] as int? ?? 0,
+        skontoTaken: Money(map['skonto_taken_cents'] as int? ?? 0),
       );
 
   static DateTime? _parseOrNull(Object? value) =>
