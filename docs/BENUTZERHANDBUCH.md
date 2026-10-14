@@ -170,14 +170,18 @@ Das ist die Funktion, die du täglich nutzt. Sie ist auf Geschwindigkeit gebaut.
 4. **Fotografieren** oder ein vorhandenes Foto **auswählen**. Hat der Beleg
    mehrere Seiten, tippe danach auf **Seite fotografieren** bzw. **Seite
    wählen** – so oft du brauchst. Vor dem Speichern kannst du Seiten mit den
-   Pfeilen umsortieren oder mit dem Papierkorb löschen. Setze dann das Häkchen
-   **„Alle Seiten inkl. beschriebener Rückseiten erfasst"** – ohne es speichert
-   die App keine neuen Seiten.
+   Pfeilen umsortieren oder mit dem Papierkorb löschen. Ist die Rückseite
+   beschrieben, fotografiere sie mit – bei nur einer Seite erinnert dich der
+   Knopf **Rückseite?** unten links daran.
 5. **Beschreibung** eintragen – Pflichtfeld. „Bürostuhl" ist gut, „Rechnung"
    nützt dir in zwei Jahren nichts.
 6. Optional: Datum, Lieferant bzw. Kunde, Kategorie, Zahlungsart, Notiz und
    ein **Kommentar** (siehe unten)
-7. **Beleg speichern**
+7. Unten auf den großen Knopf **„Vollständig – Beleg speichern (2 Seiten)"**
+   tippen. Damit bestätigst du zugleich, dass alle Seiten samt beschriebener
+   Rückseiten erfasst sind – ein eigenes Häkchen gibt es nicht. Der Knopf
+   bleibt sichtbar, auch wenn die Tastatur offen ist. Ohne neue Fotos heißt er
+   einfach **Beleg speichern** bzw. **Änderungen speichern**.
 
 ### Belege automatisch auslesen
 

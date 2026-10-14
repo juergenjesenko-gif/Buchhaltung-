@@ -25,6 +25,7 @@ import '../../services/vat_calculator.dart';
 import '../../theme.dart';
 import '../../widgets/common.dart';
 import '../../widgets/adaptive.dart';
+import 'receipt_save_bar.dart';
 
 /// Beleg erfassen oder bearbeiten.
 ///
@@ -88,9 +89,6 @@ class _ReceiptEditScreenState extends State<ReceiptEditScreen> {
   /// So viele Seiten sind bereits gespeichert und damit fest: sie lassen sich
   /// weder löschen noch umsortieren, nur ergänzen.
   int _savedPageCount = 0;
-
-  /// Vollständigkeitsbestätigung vor dem Buchen neuer Seiten (L-2.16).
-  bool _pagesConfirmed = false;
 
   List<ReceiptComment> _comments = const [];
 
@@ -410,7 +408,6 @@ class _ReceiptEditScreenState extends State<ReceiptEditScreen> {
       if (!mounted) return;
       setState(() {
         _pages.add(relative);
-        _pagesConfirmed = false;
       });
       await _resolveFiles();
       if (_scanEnabled && !_isEditing) await _scan();
@@ -442,7 +439,6 @@ class _ReceiptEditScreenState extends State<ReceiptEditScreen> {
     setState(() {
       _pages.removeAt(index);
       _pageFiles.remove(path);
-      _pagesConfirmed = false;
     });
     await ReceiptImageStore.delete(path);
   }
@@ -515,13 +511,9 @@ class _ReceiptEditScreenState extends State<ReceiptEditScreen> {
       }
       return;
     }
-    if (_hasNewPages && !_pagesConfirmed) {
-      showSnack(
-        context,
-        'Bitte bestätige, dass alle Seiten des Belegs erfasst sind.',
-      );
-      return;
-    }
+    // Neue Seiten: Das Tippen auf „Vollständig – Beleg speichern“ ist die
+    // Vollständigkeitsbestätigung (L-2.16, FA-2.14, Prüfpunkt P-S31).
+    final confirmsCompleteness = _hasNewPages;
 
     setState(() => _saving = true);
     final state = AppScope.read(context);
@@ -576,6 +568,7 @@ class _ReceiptEditScreenState extends State<ReceiptEditScreen> {
       // gespeicherten Beleg hängt man Kommentare über die eigene Schaltfläche an.
       comment: _isEditing ? null : _commentController.text,
       scanAudit: scanAudit,
+      completenessConfirmed: confirmsCompleteness,
     );
     _saved = true;
     await state.onBookingsChanged();
@@ -739,17 +732,6 @@ class _ReceiptEditScreenState extends State<ReceiptEditScreen> {
               child: Text(hint, style: muted),
             ),
         ],
-        if (_hasNewPages && !_isCancelled)
-          CheckboxListTile(
-            contentPadding: EdgeInsets.zero,
-            controlAffinity: ListTileControlAffinity.leading,
-            value: _pagesConfirmed,
-            onChanged: (value) =>
-                setState(() => _pagesConfirmed = value ?? false),
-            title: const Text(
-              'Alle Seiten inkl. beschriebener Rückseiten erfasst',
-            ),
-          ),
         const SizedBox(height: 8),
         Text(
           'Belege sind ${tax.retentionYears} Jahre aufzubewahren. '
@@ -1269,25 +1251,13 @@ class _ReceiptEditScreenState extends State<ReceiptEditScreen> {
       ),
       bottomNavigationBar: _isCancelled
           ? null
-          : Padding(
-              padding: EdgeInsets.fromLTRB(
-                16,
-                8,
-                16,
-                8 + MediaQuery.of(context).padding.bottom,
-              ),
-              child: FilledButton(
-                onPressed: _saving ? null : _save,
-                child: _saving
-                    ? const SizedBox(
-                        height: 20,
-                        width: 20,
-                        child: CircularProgressIndicator(strokeWidth: 2),
-                      )
-                    : Text(
-                        _isEditing ? 'Änderungen speichern' : 'Beleg speichern',
-                      ),
-              ),
+          : ReceiptSaveBar(
+              totalPages: _pages.length,
+              hasNewPages: _hasNewPages,
+              editing: _isEditing,
+              saving: _saving,
+              onSave: _save,
+              onAddPage: () => _addPage(ImageSource.camera),
             ),
     );
   }

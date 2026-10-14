@@ -221,7 +221,14 @@ class ReceiptRepository {
     List<String>? pages,
     String? comment,
     String? scanAudit,
+    bool completenessConfirmed = false,
   }) async {
+    // Vollständigkeitsbestätigung (L-2.16, FA-2.14): wer neue Seiten mit
+    // „Vollständig – Beleg speichern“ bucht, bestätigt damit ausdrücklich,
+    // dass alle Seiten erfasst sind. Das steht wörtlich im Protokoll.
+    final confirmation = completenessConfirmed
+        ? ', Vollständigkeit bestätigt'
+        : '';
     return _db.transaction((txn) async {
       final audit = AuditLog(_db);
       final withCover = pages == null
@@ -238,7 +245,7 @@ class ReceiptRepository {
           action: 'create',
           detail:
               '${receipt.description} ${receipt.gross}, '
-              '${pages?.length ?? 0} Seite(n)',
+              '${pages?.length ?? 0} Seite(n)$confirmation',
           txn: txn,
         );
       } else {
@@ -278,7 +285,8 @@ class ReceiptRepository {
           action: 'update',
           detail:
               '${receipt.description} ${receipt.gross}'
-              '${pages == null ? '' : ', ${pages.length} Seite(n)'}',
+              '${pages == null ? '' : ', ${pages.length} Seite(n)'}'
+              '$confirmation',
           txn: txn,
         );
       }

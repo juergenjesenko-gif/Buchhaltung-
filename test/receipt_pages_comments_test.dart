@@ -102,6 +102,39 @@ void main() {
         expect(await repo.pageCounts(), {id: 3});
         final log = await db.query('audit_log', where: "action = 'create'");
         expect(log.single['detail'], contains('3 Seite(n)'));
+        expect(log.single['detail'], isNot(contains('Vollständigkeit')));
+        await db.close();
+      },
+    );
+
+    test(
+      'Speichern mit Bestätigung protokolliert die Vollständigkeit',
+      () async {
+        final db = await openAt('s.db', AppDatabase.schemaVersion);
+        final repo = ReceiptRepository(db);
+        final id = await repo.save(
+          receipt(),
+          pages: ['belege/1.jpg', 'belege/2.jpg'],
+          completenessConfirmed: true,
+        );
+        await repo.save(
+          receipt(id: id),
+          pages: ['belege/1.jpg', 'belege/2.jpg', 'belege/3.jpg'],
+          completenessConfirmed: true,
+        );
+        final log = await db.query(
+          'audit_log',
+          where: "action IN ('create', 'update')",
+          orderBy: 'id',
+        );
+        expect(
+          log.first['detail'],
+          contains('2 Seite(n), Vollständigkeit bestätigt'),
+        );
+        expect(
+          log.last['detail'],
+          contains('3 Seite(n), Vollständigkeit bestätigt'),
+        );
         await db.close();
       },
     );

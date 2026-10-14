@@ -1,6 +1,6 @@
 # Spezifikation – Buchhaltung
 
-**Dokumentversion:** 1.38 · **App-Version:** 0.3.4 · **Stand:** 2026-10-14
+**Dokumentversion:** 1.39 · **App-Version:** 0.3.4 · **Stand:** 2026-10-14
 **Status:** Sprint 1 umgesetzt und verifiziert
 
 > Das **Zielbild** des Produkts steht im [`LASTENHEFT.md`](LASTENHEFT.md); dieses
@@ -298,7 +298,7 @@ prüft `InvoiceRequirements` (FA-1.4).
 | FA-2.11 | Bearbeiten möglich. **Belege werden nicht gelöscht, sondern storniert** (nach Rückfrage): sie bleiben samt Foto gespeichert, erscheinen in keiner Liste und zählen in keiner Auswertung, keinem Export und nicht zur Umsatzgrenze (Aufbewahrungspflicht § 132 BAO, § 147 AO; GoBD) |
 | FA-2.12 | Anlegen, Ändern und Stornieren werden im `audit_log` protokolliert, mit Seitenzahl |
 | FA-2.13 | **Mehrseitige Belege** (L-2.15): weitere Seiten fotografieren oder wählen; vor dem ersten Speichern Reihenfolge ändern (nach vorne/hinten) und einzelne Seiten löschen (Datei wird entfernt). Wird die Erfassung ohne Speichern verlassen, löscht die App die neu aufgenommenen Dateien. Nach dem Speichern sind Seiten fest: nur Anhängen, kein Löschen oder Umsortieren – erzwungen in `ReceiptRepository.save` |
-| FA-2.14 | **Vollständigkeitsbestätigung** (L-2.16): sind neue Seiten hinzugekommen, verlangt das Speichern das Häkchen „Alle Seiten inkl. beschriebener Rückseiten erfasst“ |
+| FA-2.14 | **Vollständigkeitsbestätigung** (L-2.16): sind neue Seiten hinzugekommen, ist Speichern zugleich die Bestätigung. Der unten fixierte Primärknopf heißt dann „Vollständig – Beleg speichern (n Seiten)“ mit Häkchen-Symbol, darüber steht „Mit Speichern bestätigst du, dass alle Seiten inkl. beschriebener Rückseiten erfasst sind.“ Kein eigenes Kontrollkästchen, kein Dialog. Bei genau einer Seite links daneben der sekundäre Knopf „Rückseite?“ (Kamera, weitere Seite). Der `audit_log`-Eintrag `create`/`update` trägt „n Seite(n), Vollständigkeit bestätigt“. Ohne neue Seiten bleibt „Beleg speichern“ bzw. „Änderungen speichern“. Steuerliche Wirksamkeit: Prüfpunkt P-S31 |
 | FA-2.15 | Belegansicht zeigt alle Seiten als Leiste mit Seitennummer; Antippen öffnet die Seite vergrößert (Zoom) |
 | FA-2.16 | **Kommentare** (L-2.17): beim Erfassen ein Kommentarfeld, das beim Speichern zum ersten Kommentar wird; bei gespeicherten, auch stornierten Belegen „Kommentar anhängen“. Zeitstempel ist die Systemzeit. Kein Bearbeiten, kein Löschen; Korrektur nur als neuer Kommentar. Jeder Kommentar erzeugt einen `audit_log`-Eintrag `comment`. Der Beleg selbst bleibt unverändert |
 | FA-2.17 | **Diktat** (L-2.18) nur über die Diktierfunktion der Systemtastatur; die App enthält keine Spracherkennung und überträgt nichts. Hinweis im Formular: je nach Gerät kann die Tastatur Sprache an Google oder Apple senden |
@@ -512,7 +512,7 @@ Kleinunternehmer:
 | Hauptnavigation | `features/home/home_shell.dart` | Vier Bereiche: Tab-Leiste (compact) oder Navigationsleiste links (medium, expanded), FA-9.2; einmaliges Angebot „App-Symbol auf den Startbildschirm“ (FA-1.19) |
 | Übersicht | `features/dashboard/dashboard_screen.dart` | Kassabuch, Umsatzsteuer, Grenzwertampel, Verlauf |
 | Belegliste | `features/receipts/receipt_list_screen.dart` | Suchen, filtern, öffnen; Filter „Storniert“ |
-| Beleg bearbeiten | `features/receipts/receipt_edit_screen.dart` | Erfassen, Seiten, automatisches Auslesen mit „Erneut auslesen“, Betrag, Fremdwährung mit „Kurs abrufen“ und Bankbetrag (FA-2.24 bis FA-2.26), Kategorie, Rechnungsnummer, Aussteller-UID, Kommentare; stornierte Belege nur lesen |
+| Beleg bearbeiten | `features/receipts/receipt_edit_screen.dart` | Erfassen, Seiten, automatisches Auslesen mit „Erneut auslesen“, Betrag, Fremdwährung mit „Kurs abrufen“ und Bankbetrag (FA-2.24 bis FA-2.26), Kategorie, Rechnungsnummer, Aussteller-UID, Kommentare; stornierte Belege nur lesen. Speicherleiste unten fixiert (`receipt_save_bar.dart`), über der Tastatur, Primärknopf 56 dp hoch: Telefon volle Breite, ab 600 dp rechtsbündig; bei neuen Seiten „Vollständig – Beleg speichern“ (FA-2.14) |
 | Rechnungsliste | `features/invoices/invoice_list_screen.dart` | Status, PDF teilen, Aktionen |
 | Rechnung bearbeiten | `features/invoices/invoice_edit_screen.dart` | Kunde, Positionen, Ausstellen |
 | Kunde bearbeiten | `features/invoices/customer_edit_screen.dart` | Kundenstammdaten |
@@ -752,6 +752,7 @@ Umrechnung: Beträge in Cent. `5500000` Cent = 55.000,00 €.
 
 | Version | Datum | App-Version | Änderung |
 |---|---|---|---|
+| 1.39 | 2026-10-14 | 0.3.4 | Vollständigkeitsbestätigung und Speichern zu einer Aktion zusammengelegt (FA-2.14, Abschnitt 7): Knopf „Vollständig – Beleg speichern (n Seiten)“, kein Häkchen mehr, Protokoll „Vollständigkeit bestätigt“. Neuer Prüfpunkt P-S31. Kein Schemawechsel. |
 | 1.38 | 2026-10-14 | 0.3.4 | Korpus vollständig (6 Belege, OCR des DARS-Belegs aus dem Emulator); Steuertabelle ohne Prozentzeichen, EU-Satz ohne UID als ausländisch, entstellte Jahreszahl (FA-2.30, FA-2.29). |
 | 1.37 | 2026-10-14 | 0.3.4 | Mehrsprachige Belegerkennung (FA-2.30) mit Schlüsselwort-Tabellen in 15 Sprachen, Satz nach „%“, Dezimalsätze, Steuerzeilen vor unsicherem Brutto; Beschreibungs- und Kategorievorschlag (FA-2.31); Beleg ohne Steuerausweis (FA-2.32); ausländische USt mit Länderhinweis aus dem TaxProfile (FA-2.29). Österreich 4,9 % (§ 10 Abs 1a UStG 1994) mit Gültigkeitsbeginn 1.7.2026 (GR-3, `spec.at.vat_permille`, neu `spec.at.vat_49_valid_from`). Neue Prüfpunkte P-S28 bis P-S30. Kein Schemawechsel. |
 | 1.36 | 2026-10-13 | 0.3.3 | Belegerkennung an echten Belegen (FA-2.28, FA-2.29): Korpus mit ML-Kit-Rohdaten aus dem CI-Emulator, Korpustest `test/receipt_corpus_test.dart`, Zeilenzuordnung bei Schräglage, ausländische USt mit 0 % vorbelegt, mehrdeutige Währung nicht als Euro. Neuer Prüfpunkt P-S27. Kein Schemawechsel. |
@@ -935,6 +936,7 @@ Status: *offen* · *bestätigt* (mit Datum und Prüfer) · *widerlegt* (mit Folg
 | P-S28 | Steuerberatung AT: 4,9 % nach § 10 Abs 1a UStG 1994 iVm Anlage 3 (laut RIS BGBl. I Nr. 37/2026), Leistungen ab 1.7.2026, unbefristet. Wortlaut, Anlage 3 und BGBl.-Nr. im RIS abgleichen; Abgrenzung Grundnahrungsmittel (KN-Positionen, Fett-/Zuckergrenze) | Umgesetzt: Satz im TaxProfile Österreich mit `validFrom` 2026-07-01 (GR-3); Befund der Prüfinstanz Steuerberater 2026-10-14 | vor Release | offen |
 | P-S29 | Steuerberatung: Kartenbeleg ohne Steuerausweis – Betriebsausgabe ja, Vorsteuer nein (§ 11 Abs 6, § 12 Abs 1 Z 1 UStG 1994; DE § 33 UStDV, § 15 UStG). Hinweistext bestätigen | Umgesetzt (FA-2.32): 0 % vorbelegt, Hinweis `noVatShownHint` | vor Release | offen |
 | P-S30 | Steuerberatung: Hinweistext ausländische USt je Land (AT FinanzOnline, DE BZSt; Frist 30.09. Folgejahr; Mindestbeträge 50 €/400 €; nicht für Kleinunternehmer) | Umgesetzt (FA-2.29, `foreignVatHint`) | vor Release | offen |
+| P-S31 | Steuerberatung: Genügt Speichern über den Knopf „Vollständig – Beleg speichern (n Seiten)“ mit Erklärzeile als Vollständigkeitsbestätigung (GoBD Rz. 136 ff. zum ersetzenden Scannen, Vollständigkeit § 146 Abs. 1 AO; AT § 131 BAO)? Eigenes Häkchen entfällt | Vorbefund Softwareentwickler: aktive, eindeutig beschriftete Handlung je Buchung mit neuen Seiten, Aussage steht unmittelbar am Knopf, Protokoll im `audit_log` mit Seitenzahl und „Vollständigkeit bestätigt“; ein vorab gesetztes Häkchen wäre schwächer. Gesetzlich ist keine bestimmte Form der Bestätigung vorgeschrieben (Verfahrensdokumentation) | vor Release | offen |
 | P-L12 | Anwältin: Diktat über die Systemtastatur – Anbieterin nicht verantwortlich, Hinweistext genügt | — | Release | offen |
 | P-L13 | Gerätetest, nur bei eigener Spracherkennung: Erkennung im Flugmodus | — | später | offen |
 | P-L14 | Anwältin: Rollen beim Vertragsarchiv mit KI (Anbieterin als Auftragsverarbeiterin), Muster-AVV, Rechtsgrundlage Beschäftigtendaten | — | Stufe C | offen |

@@ -34,6 +34,7 @@ nächsten Versionssprung in den neuen Eintrag.
 
 | Art | Änderung | Bezug | Commit |
 |---|---|---|---|
+| Geändert | Belegformular: Vollständigkeitsbestätigung und Speichern zu einem Knopf zusammengelegt („Vollständig – Beleg speichern (n Seiten)“, unten fixiert, über der Tastatur, Telefon volle Breite, Tablet rechts); Häkchen entfällt; bei einer Seite Knopf „Rückseite?“; Protokoll „Vollständigkeit bestätigt“. Test `receipt_save_bar_test.dart` | FA-2.14, P-S31 | dieser |
 
 ---
 
