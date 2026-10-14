@@ -104,10 +104,15 @@ class _DashboardScreenState extends State<DashboardScreen> {
     return bars;
   }
 
-  Future<void> _addReceipt(BookingDirection direction) async {
+  /// Ein zentraler Knopf für beide Hände; Einnahme oder Ausgabe wählt man im
+  /// Formular (DESIGN_SPEC 5a, Regel 9).
+  Future<void> _addReceipt() async {
     final saved = await Navigator.of(context).push<bool>(
       MaterialPageRoute(
-        builder: (_) => ReceiptEditScreen(direction: direction),
+        builder: (_) => const ReceiptEditScreen(
+          direction: BookingDirection.expense,
+          startWithCamera: true,
+        ),
       ),
     );
     if (saved == true) await _load();
@@ -139,7 +144,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
           // Unten Platz für beide schwebenden Knöpfe (40 + 10 + 56 dp plus
           // 16 dp Rand) und Luft, damit keine Karte verdeckt bleibt
           // (Gerätetest 0.3.4).
-          padding: const EdgeInsets.fromLTRB(16, 8, 16, 160),
+          padding: const EdgeInsets.fromLTRB(16, 8, 16, 112),
           children: [
             if (profile != null && !profile.canIssueInvoices) ...[
               NoticeBanner(
@@ -227,36 +232,42 @@ class _DashboardScreenState extends State<DashboardScreen> {
           ],
         ),
       ),
-      floatingActionButton: _AddReceiptButton(onSelected: _addReceipt),
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
+      floatingActionButton: FloatingActionButton.extended(
+        key: const Key('dashboard-photo'),
+        heroTag: 'photo',
+        onPressed: _addReceipt,
+        icon: const Icon(Icons.add_a_photo_outlined),
+        label: const Text('Beleg fotografieren'),
+      ),
     );
   }
 
   Widget _rangeSelector() {
-    return SizedBox(
-      height: 40,
-      child: ListView(
-        scrollDirection: Axis.horizontal,
-        children: [
-          for (final range in _Range.values)
-            Padding(
-              padding: const EdgeInsets.only(right: 8),
-              child: ChoiceChip(
-                label: Text(
-                  range.labelFor(
-                    AppScope.of(context).profile?.fiscalYear ??
-                        const FiscalYear(1),
-                    DateTime.now(),
-                  ),
+    // Umbrechen statt seitlich scrollen (DESIGN_SPEC 5a, Regel 7).
+    return Wrap(
+      spacing: 8,
+      runSpacing: 8,
+      children: [
+        for (final range in _Range.values)
+          Padding(
+            padding: EdgeInsets.zero,
+            child: ChoiceChip(
+              label: Text(
+                range.labelFor(
+                  AppScope.of(context).profile?.fiscalYear ??
+                      const FiscalYear(1),
+                  DateTime.now(),
                 ),
-                selected: _range == range,
-                onSelected: (_) {
-                  setState(() => _range = range);
-                  _load();
-                },
               ),
+              selected: _range == range,
+              onSelected: (_) {
+                setState(() => _range = range);
+                _load();
+              },
             ),
-        ],
-      ),
+          ),
+      ],
     );
   }
 
@@ -657,39 +668,6 @@ class _TrendChart extends StatelessWidget {
         ),
         const SizedBox(width: 6),
         Text(label, style: Theme.of(context).textTheme.labelSmall),
-      ],
-    );
-  }
-}
-
-/// Zwei Wege zum Beleg – Einnahme oder Ausgabe. Der häufigere Fall (Ausgabe)
-/// liegt näher am Daumen.
-class _AddReceiptButton extends StatelessWidget {
-  const _AddReceiptButton({required this.onSelected});
-
-  final void Function(BookingDirection) onSelected;
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      crossAxisAlignment: CrossAxisAlignment.end,
-      children: [
-        FloatingActionButton.small(
-          heroTag: 'income',
-          tooltip: 'Einnahme erfassen',
-          onPressed: () => onSelected(BookingDirection.income),
-          backgroundColor: AppTheme.amountColor(true, context),
-          foregroundColor: Colors.white,
-          child: const Icon(Icons.south_west),
-        ),
-        const SizedBox(height: 10),
-        FloatingActionButton(
-          heroTag: 'expense',
-          tooltip: 'Ausgabe erfassen',
-          onPressed: () => onSelected(BookingDirection.expense),
-          child: const Icon(Icons.add_a_photo_outlined),
-        ),
       ],
     );
   }

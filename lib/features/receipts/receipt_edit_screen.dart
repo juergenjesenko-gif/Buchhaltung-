@@ -1,6 +1,8 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+
+import '../../widgets/danger_zone.dart';
 import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
 
@@ -35,7 +37,16 @@ import '../../services/help/help_index.dart';
 /// steht. Netto und Umsatzsteuer rechnet die App heraus und zeigt sie live an,
 /// damit der Nutzer den Steuersatz sofort kontrollieren kann.
 class ReceiptEditScreen extends StatefulWidget {
-  const ReceiptEditScreen({super.key, required this.direction, this.existing});
+  const ReceiptEditScreen({
+    super.key,
+    required this.direction,
+    this.existing,
+    this.startWithCamera = false,
+  });
+
+  /// Öffnet beim Start direkt die Kamera (zentraler Knopf „Beleg
+  /// fotografieren“ auf der Übersicht, DESIGN_SPEC 5a).
+  final bool startWithCamera;
 
   final BookingDirection direction;
   final Receipt? existing;
@@ -109,6 +120,11 @@ class _ReceiptEditScreenState extends State<ReceiptEditScreen> {
   void initState() {
     super.initState();
     _direction = widget.direction;
+    if (widget.startWithCamera && widget.existing == null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) _addPage(ImageSource.camera);
+      });
+    }
   }
 
   @override
@@ -445,6 +461,47 @@ class _ReceiptEditScreenState extends State<ReceiptEditScreen> {
     await ReceiptImageStore.delete(path);
   }
 
+  /// Antippen einer neuen Seite: Ansehen oder Löschen im Bottom-Sheet
+  /// (DESIGN_SPEC 5a, Regel 3) statt eines kleinen Papierkorbs in der Leiste.
+  Future<void> _pageActions(int index) async {
+    final error = Theme.of(context).colorScheme.error;
+    final action = await showModalBottomSheet<String>(
+      context: context,
+      showDragHandle: true,
+      builder: (context) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ListTile(
+              leading: const Icon(Icons.zoom_in),
+              title: Text('Seite ${index + 1} ansehen'),
+              onTap: () => Navigator.of(context).pop('show'),
+            ),
+            const Divider(height: 24),
+            ListTile(
+              key: const Key('page-delete'),
+              leading: Icon(Icons.delete_outline, color: error),
+              title: Text('Seite löschen', style: TextStyle(color: error)),
+              onTap: () => Navigator.of(context).pop('delete'),
+            ),
+          ],
+        ),
+      ),
+    );
+    if (!mounted) return;
+    if (action == 'show') _showPage(index);
+    if (action == 'delete') {
+      final ok = await confirmDestructive(
+        context,
+        title: 'Seite ${index + 1} löschen?',
+        message:
+            'Das Foto dieser noch nicht gespeicherten Seite wird entfernt.',
+        verb: 'Löschen',
+      );
+      if (ok) await _removePage(index);
+    }
+  }
+
   void _showPage(int index) {
     final file = _pageFiles[_pages[index]];
     if (file == null) return;
@@ -488,6 +545,12 @@ class _ReceiptEditScreenState extends State<ReceiptEditScreen> {
     _commentController.clear();
     setState(() => _comments = comments);
     showSnack(context, 'Kommentar angehängt');
+  }
+
+  bool _isDaysAgo(int days) {
+    final now = DateTime.now();
+    final d = DateTime(now.year, now.month, now.day - days);
+    return _date.year == d.year && _date.month == d.month && _date.day == d.day;
   }
 
   Future<void> _pickDate() async {
@@ -582,27 +645,15 @@ class _ReceiptEditScreenState extends State<ReceiptEditScreen> {
     final id = widget.existing?.id;
     if (id == null) return;
 
-    final confirmed = await showDialog<bool>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Beleg stornieren?'),
-        content: const Text(
+    final confirmed = await confirmDestructive(
+      context,
+      title: 'Beleg stornieren?',
+      message:
           'Der Beleg zählt danach in keiner Auswertung mehr. Er wird aber nicht '
           'gelöscht, sondern bleibt mit Foto aufbewahrt, weil Belege einer '
           'gesetzlichen Aufbewahrungspflicht unterliegen. Die Stornierung wird '
           'im Änderungsprotokoll vermerkt.',
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(false),
-            child: const Text('Abbrechen'),
-          ),
-          FilledButton(
-            onPressed: () => Navigator.of(context).pop(true),
-            child: const Text('Stornieren'),
-          ),
-        ],
-      ),
+      verb: 'Stornieren',
     );
     if (confirmed != true || !mounted) return;
 
@@ -622,7 +673,7 @@ class _ReceiptEditScreenState extends State<ReceiptEditScreen> {
       children: [
         if (_pages.isNotEmpty)
           SizedBox(
-            height: 190,
+            height: 206,
             child: ListView.separated(
               scrollDirection: Axis.horizontal,
               itemCount: _pages.length,
@@ -636,7 +687,8 @@ class _ReceiptEditScreenState extends State<ReceiptEditScreen> {
                     children: [
                       Expanded(
                         child: InkWell(
-                          onTap: () => _showPage(index),
+                          onTap: () =>
+                              editable ? _pageActions(index) : _showPage(index),
                           child: ClipRRect(
                             borderRadius: BorderRadius.circular(8),
                             child: file == null
@@ -660,21 +712,23 @@ class _ReceiptEditScreenState extends State<ReceiptEditScreen> {
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             IconButton(
-                              visualDensity: VisualDensity.compact,
+                              key: Key('page-left-$index'),
+                              constraints: const BoxConstraints(
+                                minWidth: 48,
+                                minHeight: 48,
+                              ),
                               tooltip: 'Nach vorne',
                               icon: const Icon(Icons.chevron_left),
                               onPressed: index > _savedPageCount
                                   ? () => _movePage(index, -1)
                                   : null,
                             ),
+                            const SizedBox(width: 8),
                             IconButton(
-                              visualDensity: VisualDensity.compact,
-                              tooltip: 'Seite löschen',
-                              icon: const Icon(Icons.delete_outline),
-                              onPressed: () => _removePage(index),
-                            ),
-                            IconButton(
-                              visualDensity: VisualDensity.compact,
+                              constraints: const BoxConstraints(
+                                minWidth: 48,
+                                minHeight: 48,
+                              ),
                               tooltip: 'Nach hinten',
                               icon: const Icon(Icons.chevron_right),
                               onPressed: index < _pages.length - 1
@@ -971,15 +1025,7 @@ class _ReceiptEditScreenState extends State<ReceiptEditScreen> {
               ? 'Einnahme erfassen'
               : 'Ausgabe erfassen',
         ),
-        actions: [
-          const HelpButton(context: HelpTopic.receipts),
-          if (_isEditing && !_isCancelled)
-            IconButton(
-              tooltip: 'Löschen',
-              icon: const Icon(Icons.delete_outline),
-              onPressed: _saving ? null : _delete,
-            ),
-        ],
+        actions: [const HelpButton(context: HelpTopic.receipts)],
       ),
       body: ReadableWidth(
         child: Form(
@@ -1155,6 +1201,31 @@ class _ReceiptEditScreenState extends State<ReceiptEditScreen> {
                         trailing: const Icon(Icons.chevron_right),
                         onTap: _pickDate,
                       ),
+                      Wrap(
+                        spacing: 8,
+                        runSpacing: 8,
+                        children: [
+                          for (final (label, offset) in const [
+                            ('Heute', 0),
+                            ('Gestern', 1),
+                          ])
+                            ChoiceChip(
+                              key: Key('date-$label'),
+                              materialTapTargetSize:
+                                  MaterialTapTargetSize.padded,
+                              label: Text(label),
+                              selected: _isDaysAgo(offset),
+                              onSelected: (_) => setState(() {
+                                final now = DateTime.now();
+                                _date = DateTime(
+                                  now.year,
+                                  now.month,
+                                  now.day - offset,
+                                );
+                              }),
+                            ),
+                        ],
+                      ),
                       const Divider(height: 8),
                       const SizedBox(height: 8),
                       TextFormField(
@@ -1248,6 +1319,16 @@ class _ReceiptEditScreenState extends State<ReceiptEditScreen> {
               ),
               const SizedBox(height: 16),
               SectionCard(title: 'Kommentare', child: _buildComments(context)),
+              if (_isEditing && !_isCancelled)
+                DangerZone(
+                  buttonKey: const Key('receipt-cancel'),
+                  label: 'Beleg stornieren',
+                  icon: Icons.block,
+                  explanation:
+                      'Stornierte Belege zählen nicht mehr, bleiben aber '
+                      'aufbewahrt.',
+                  onPressed: _saving ? null : _delete,
+                ),
             ],
           ),
         ),

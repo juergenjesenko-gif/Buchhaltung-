@@ -85,6 +85,29 @@ class _ReceiptListScreenState extends State<ReceiptListScreen> {
     if (changed == true) await _load();
   }
 
+  Future<void> _pickYear(List<int> years) async {
+    final year = await showModalBottomSheet<int>(
+      context: context,
+      showDragHandle: true,
+      builder: (context) => SafeArea(
+        child: ListView(
+          shrinkWrap: true,
+          children: [
+            for (final y in years)
+              ListTile(
+                title: Text('$y'),
+                selected: y == _year,
+                onTap: () => Navigator.of(context).pop(y),
+              ),
+          ],
+        ),
+      ),
+    );
+    if (year == null || !mounted) return;
+    setState(() => _year = year);
+    await _load();
+  }
+
   @override
   Widget build(BuildContext context) {
     final state = AppScope.of(context);
@@ -93,24 +116,7 @@ class _ReceiptListScreenState extends State<ReceiptListScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Belege'),
-        actions: [
-          const HelpButton(context: HelpTopic.receipts),
-          PopupMenuButton<int>(
-            tooltip: 'Jahr wählen',
-            icon: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [Text('$_year'), const Icon(Icons.arrow_drop_down)],
-            ),
-            itemBuilder: (context) => [
-              for (final year in years)
-                PopupMenuItem(value: year, child: Text(year.toString())),
-            ],
-            onSelected: (year) {
-              setState(() => _year = year);
-              _load();
-            },
-          ),
-        ],
+        actions: [const HelpButton(context: HelpTopic.receipts)],
       ),
       body: Column(
         children: [
@@ -136,18 +142,27 @@ class _ReceiptListScreenState extends State<ReceiptListScreen> {
             ),
           ),
           const SizedBox(height: 10),
-          SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
+          // Umbrechen statt seitlich scrollen; das Jahr steht mit in der
+          // Reihe statt oben in der AppBar (DESIGN_SPEC 5a, Regel 4 und 7).
+          Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: Row(
+            child: Wrap(
+              spacing: 8,
+              runSpacing: 8,
               children: [
+                ActionChip(
+                  key: const Key('receipt-year'),
+                  avatar: const Icon(Icons.calendar_today_outlined, size: 18),
+                  label: Text('$_year'),
+                  onPressed: () => _pickYear(years),
+                ),
                 for (final entry in <(String, BookingDirection?)>[
                   ('Alle', null),
                   ('Einnahmen', BookingDirection.income),
                   ('Ausgaben', BookingDirection.expense),
                 ])
                   Padding(
-                    padding: const EdgeInsets.only(right: 8),
+                    padding: EdgeInsets.zero,
                     child: ChoiceChip(
                       label: Text(entry.$1),
                       selected: _filter == entry.$2,

@@ -1,6 +1,6 @@
 # Spezifikation – Buchhaltung
 
-**Dokumentversion:** 1.44 · **App-Version:** 0.5.0 · **Stand:** 2026-10-14
+**Dokumentversion:** 1.45 · **App-Version:** 0.6.0 · **Stand:** 2026-10-14
 **Status:** Sprint 1 umgesetzt und verifiziert
 
 > Das **Zielbild** des Produkts steht im [`LASTENHEFT.md`](LASTENHEFT.md); dieses
@@ -567,6 +567,20 @@ Umsetzung von DESIGN_SPEC Abschnitt 5. Schwellen nur in
 | FA-9.4 | Formulare und Lesebereiche (Beleg, Rechnung, Kunde, Stammdaten, Bestätigungen, Einstellungen, App-Sperre, Datensicherung, Export) höchstens 640 dp breit, zentriert (`spec.max_content_width_dp`, DESIGN_SPEC D-5). Sperrbildschirm höchstens 360 dp, zentriert und scrollbar; Dialoge nach Material 3 höchstens 560 dp |
 | FA-9.5 | Hoch- und Querformat ohne Sperre: Android ohne `screenOrientation`, iOS iPhone hoch und quer, iPad alle vier Ausrichtungen. **Kein `UIRequiresFullScreen`**: die App unterstützt Split View und Slide Over auf dem iPad; Apple verlangt dafür alle vier iPad-Ausrichtungen. Gerätetest: P-D19, P-D20 |
 
+### 5.7a Einhandbedienung
+
+Maßstab: `docs/DESIGN_SPEC.md` Abschnitt 5a (Prüfregel 1–12, symmetrisch für
+beide Hände, keine Händigkeits-Einstellung).
+
+| ID | Anforderung |
+|---|---|
+| FA-12.1 | Übersicht: ein zentrierter, verlängerter Knopf „Beleg fotografieren“ (`centerFloat`, 56 dp), öffnet das Belegformular mit Kamera; Einnahme/Ausgabe im Formular |
+| FA-12.2 | Zerstörende Aktionen nicht in der AppBar: Beleg stornieren und Kunde löschen als rot umrandeter Bereich am Formularende (`DangerZone`, ≥ 24 dp Abstand zur Speicherleiste); Bestätigung mit Verb-Knopf in Fehlerfarbe (`confirmDestructive`), ebenso „Automatische Sicherung ausschalten“ und „Wiederherstellen“ |
+| FA-12.3 | Belegseiten: Pfeile 48 dp mit 8 dp Abstand; Löschen einer neuen Seite über Antippen → Bottom-Sheet „Seite löschen“ mit Bestätigung |
+| FA-12.4 | Chip-Reihen (Übersicht Zeitraum, Belegliste Filter) umbrechen (`Wrap`); das Jahr der Belegliste ist der erste Chip (Auswahl im Bottom-Sheet) statt AppBar-Menü |
+| FA-12.5 | Belegdatum mit Schnellchips „Heute“ / „Gestern“ |
+| FA-12.6 | Kunden- und Stammdatenformular speichern über `PrimaryActionBar` |
+
 ### 5.8 Hilfe
 
 Lastenheft L-26. Stufe 1: offline, ohne Server, ohne neues Paket. Suche in
@@ -634,8 +648,8 @@ Kleinunternehmer:
 | Bestätigungen | `features/onboarding/consent_screen.dart` | Hinweis „keine Steuerberatung“, Nutzungsbedingungen und Datenschutz bestätigen |
 | Onboarding / Stammdaten | `features/onboarding/company_setup_screen.dart` | Firmenprofil anlegen und bearbeiten, Firmenlogo, Skonto-Vorschlag und AGB-Adresse (FA-5.17, FA-5.19); Abschnitt „Wirtschaftsjahr und Termine“ (FA-10.1, nur Stammdaten) |
 | Hauptnavigation | `features/home/home_shell.dart` | Vier Bereiche: Tab-Leiste (compact) oder Navigationsleiste links (medium, expanded), FA-9.2; einmaliges Angebot „App-Symbol auf den Startbildschirm“ (FA-1.19) |
-| Übersicht | `features/dashboard/dashboard_screen.dart` | Kassabuch, Umsatzsteuer, Grenzwertampel, Termin-Box „Nächste Termine“ (FA-10.3), Verlauf; unten 160 dp Abstand, damit die zwei schwebenden Knöpfe keine Karte verdecken |
-| Belegliste | `features/receipts/receipt_list_screen.dart` | Suchen, filtern, öffnen; Filter „Storniert“ |
+| Übersicht | `features/dashboard/dashboard_screen.dart` | Kassabuch, Umsatzsteuer, Grenzwertampel, Termin-Box „Nächste Termine“ (FA-10.3), Verlauf; zentrierter Knopf „Beleg fotografieren“ (FA-12.1), Zeitraum-Chips umbrechend; unten 112 dp Abstand, damit der Knopf keine Karte verdeckt |
+| Belegliste | `features/receipts/receipt_list_screen.dart` | Suchen, filtern, öffnen; Chip-Reihe mit Jahr, Alle/Einnahmen/Ausgaben, „Storniert“, umbrechend (FA-12.4) |
 | Beleg bearbeiten | `features/receipts/receipt_edit_screen.dart` | Erfassen, Seiten, automatisches Auslesen mit „Erneut auslesen“, Betrag, Fremdwährung mit „Kurs abrufen“ und Bankbetrag (FA-2.24 bis FA-2.26), Kategorie, Rechnungsnummer, Aussteller-UID, Kommentare; stornierte Belege nur lesen. Speicherleiste unten fixiert (`receipt_save_bar.dart`), über der Tastatur, Primärknopf 56 dp hoch: Telefon volle Breite, ab 600 dp rechtsbündig; bei neuen Seiten „Vollständig – Beleg speichern“ (FA-2.14) |
 | Rechnungsliste | `features/invoices/invoice_list_screen.dart` | Status, PDF teilen, Aktionen; Knopf „Bezahlt“ mit Bottom-Sheet Zahlungseingang und Skonto (FA-5.12, FA-5.18); Stornieren/Löschen mit Bestätigung (FA-5.20) |
 | Rechnung bearbeiten | `features/invoices/invoice_edit_screen.dart` | Kunde, Positionen mit Rabatt, Karte „Rabatt, Versand, Skonto“, Summe je Satz; Leiste `PrimaryActionBar` (`widgets/primary_action_bar.dart`) mit Ausstellen bzw. „PDF senden“ (FA-5.15 bis FA-5.20) |
@@ -927,6 +941,7 @@ Dauerfristverlängerung, `02-15,…` = feste Tage, `+1j07-31` = Folgejahr,
 
 | Version | Datum | App-Version | Änderung |
 |---|---|---|---|
+| 1.45 | 2026-10-14 | 0.6.0 | App-Version 0.6.0 (Testbuild) „Einhandbedienung“ nach DESIGN_SPEC 5a (Abschnitt 5.7a, FA-12.1 bis FA-12.6): zentrierter Knopf „Beleg fotografieren“, Stornieren/Löschen am Formularende in Fehlerfarbe, Seitenleiste 48 dp, umbrechende Chips, Jahr als Chip, Datum „Heute/Gestern“, `PrimaryActionBar` in Kunden- und Stammdatenformular. Kein Schemawechsel. Neue Prüfpunkte P-X1 bis P-X6. |
 | 1.44 | 2026-10-14 | 0.5.0 | App-Version 0.5.0 (Testbuild): Mahnwesen (GR-13, FA-5.21 bis FA-5.25, Abschnitt 8.0, Lastenheft L-3.10, L-3.27 bis L-3.30): Zahlungserinnerung und Mahnungen beliebig oft, unveränderlich mit Storno, Mahnkosten 10 € ab 1. Mahnung mit Verbraucherhinweis, optionale Verzugszinsen act/365 je Halbjahr, Pauschale B2B, Kundenmerkmal „Unternehmen“, DE-Hinweis § 286 Abs 3 BGB, Mahnkosten bei Zahlung als nicht steuerbare Einnahme. Schema 13. Neue Kennwerte `spec.dunning_*`, `spec.*.dunning_*`. Neue Prüfpunkte P-S44, P-S45, P-R32 bis P-R34. |
 | 1.43 | 2026-10-14 | 0.4.0 | App-Version 0.4.0 (Testbuild): Rabatt je Position und Gesamtrabatt anteilig je Satz, Versandkosten wie Hauptleistung, Skonto mit festem Datum und Betrag, Zahlung mit Skonto mindert Einnahme je Satz, AGB-Verweis (GR-12, FA-5.15 bis FA-5.19, Lastenheft L-3.21 bis L-3.26). UX-Vorgaben: `PrimaryActionBar`, „PDF senden“ nach dem Ausstellen, Tonal-Knopf „Bezahlt“, Bestätigung bei Storno/Löschen (FA-5.20). Schema 12. Neue Kennwerte `spec.primary_action_height_dp`, `spec.min_touch_target_dp`. Neue Prüfpunkte P-S40 bis P-S43, P-R30, P-R31. |
 | 1.42 | 2026-10-14 | 0.3.5 | App-Version 0.3.5 (Testbuild): Wirtschaftsjahr, Termin-Box, bezahlte Rechnung als Einnahme, Hilfe offline. Schema 11. |
@@ -1055,6 +1070,17 @@ Status: *offen* · *bestätigt* (mit Datum und Prüfer) · *widerlegt* (mit Folg
 | P-K6 | Preise, Websuche-Gebühren, Nutzungsstufen, Rate Limits und SLA-Lage auf docs.claude.com / anthropic.com verifizieren; Kostenannahmen mit Messdaten aus dem Probebetrieb ersetzen | Annahmen: Agent 30–60 USD/Monat, Marketing 250–350 USD je 1.000 Pro-Nutzerinnen | Umschaltung | offen |
 | P-K7 | Funktioniert Workload Identity Federation mit dem gewählten Hosting (GitHub Actions, Backend)? | — | Umschaltung | offen |
 | P-K8 | Ausfalltest: Backend bei gesperrter KI-Anbindung (Warteschlange, Ausweichmodell, Meldung in der App); Buchhaltung im Flugmodus voll nutzbar | — | Launch Marketing-Modul | offen |
+
+### UX / Einhandbedienung (DESIGN_SPEC 5a)
+
+| ID | Prüfpunkt | Vorbefund der Prüfinstanz | Benötigt vor | Status |
+|---|---|---|---|---|
+| P-X1 | Einhandtest rechts und links auf einem 6,3"-Gerät: Beleg erfassen (≤ 4 Tipps), Rechnung bezahlt (≤ 2), mahnen (≤ 3), ohne Umgreifen | Widget-Tests prüfen Lage und Größe (Regel 12); Daumenreichweite nur real prüfbar | Release | offen |
+| P-X2 | Fehltipp-Test mit 5 Personen: Stornieren/Löschen nie versehentlich, Bestätigung verstanden | Gefahrenknöpfe am Formularende mit Bestätigung | Release | offen |
+| P-X3 | Tastaturen (Gboard, Samsung, iOS, mit Vorschlagsleiste): Primäraktion bleibt sichtbar, aktives Feld unverdeckt | `PrimaryActionBar` über viewInsets, Test mit 300 dp Tastatur | Release | offen |
+| P-X4 | Systemschrift 200 %: keine abgeschnittenen Knöpfe und Chips, Formulare scrollbar | nicht automatisiert geprüft | Release | offen |
+| P-X5 | Nutzung im Auto (Beifahrerin), mit Handschuhen, in direktem Sonnenlicht: Kontrast und Trefferflächen | — | Release | offen |
+| P-X6 | System-Einhandmodus (Android) und Reachability (iOS) mit der App | — | Release | offen |
 
 ### Softwareentwicklung (echte Geräte und Stores)
 

@@ -29,11 +29,34 @@ gebaut, und was war darin geprüft?*
 
 ## Unveröffentlicht
 
-Änderungen seit 0.5.0+10, die noch in keinem Build stecken. Wandern beim
+Änderungen seit 0.6.0+11, die noch in keinem Build stecken. Wandern beim
 nächsten Versionssprung in den neuen Eintrag.
 
 | Art | Änderung | Bezug | Commit |
 |---|---|---|---|
+
+---
+
+## 0.6.0+11 — 2026-10-14
+
+| Feld | Wert |
+|---|---|
+| Art | Testbuild (ungezippte arm64-APK, fester Testschlüssel); Einhandbedienung |
+| Commit | siehe Git-Tag `v0.6.0` |
+| Branch | `claude/agile-accounting-app-mobile-wa5j3h` |
+| Dokumentstände | Lastenheft 1.47, Spezifikation 1.45, Benutzerhandbuch für 0.6.0, DESIGN_SPEC 1.2 |
+| Datenbankschema | 13 |
+| Prüfung | `flutter analyze` ohne Befund, alle Tests grün (neu `one_hand_test.dart`), Emulator-Job `android-ocr-emulator`, CI siehe Lauf zum Tag |
+| Steuerliche Kennwerte | keine Änderung |
+| Offene reale Prüfpunkte | wie 0.5.0+10, dazu P-X1 bis P-X6 |
+
+**Änderungen seit 0.5.0+10**
+
+| Art | Änderung | Bezug | Commit |
+|---|---|---|---|
+| Geändert | Übersicht: ein zentrierter Knopf „Beleg fotografieren“ statt zweier Knöpfe rechts; öffnet direkt die Kamera, Einnahme/Ausgabe im Formular | FA-12.1, DESIGN_SPEC 5a | siehe Tag |
+| Geändert | Beleg stornieren und Kunde löschen aus der AppBar an das Formularende (rot umrandet, Bestätigung in Fehlerfarbe); ebenso Fehlerfarbe bei „Sicherung ausschalten“ und „Wiederherstellen“ | FA-12.2, P-X2 | siehe Tag |
+| Geändert | Belegseiten: Pfeile 48 dp, Löschen über Antippen der Seite; Chip-Reihen umbrechend, Jahr als Chip; Datum „Heute/Gestern“; `PrimaryActionBar` in Kunden- und Stammdatenformular. Test `one_hand_test.dart` | FA-12.3 bis FA-12.6, P-X1, P-X3 bis P-X6 | siehe Tag |
 
 ---
 

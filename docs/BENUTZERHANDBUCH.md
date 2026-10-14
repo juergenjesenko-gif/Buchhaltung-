@@ -1,6 +1,6 @@
 # Benutzerhandbuch – Buchhaltung
 
-**Für App-Version 0.5.0** · Stand 2026-10-14
+**Für App-Version 0.6.0** · Stand 2026-10-14
 
 Dieses Handbuch beschreibt die App aus Nutzersicht. Es wird bei jeder Änderung,
 die du in der App siehst, mitgeführt – siehe [`CLAUDE.md`](../CLAUDE.md).
@@ -175,21 +175,24 @@ Das ist die Funktion, die du täglich nutzt. Sie ist auf Geschwindigkeit gebaut.
 
 ### Einen Beleg erfassen
 
-1. In der **Übersicht** unten rechts auf das Kamerasymbol tippen (für eine
-   **Ausgabe**) oder auf das kleinere grüne Symbol darüber (für eine **Einnahme**).
-   Alternativ im Bereich **Belege** auf das Plus.
+1. In der **Übersicht** unten in der Mitte auf **Beleg fotografieren** tippen –
+   die Kamera öffnet sich sofort. Der Knopf liegt mittig, damit du ihn mit dem
+   rechten wie dem linken Daumen erreichst. Ob **Einnahme** oder **Ausgabe**,
+   wählst du oben im Formular (vorbelegt: Ausgabe). Alternativ im Bereich
+   **Belege** auf das Plus.
 2. **Bruttobetrag** eintippen – also die Zahl, die auf dem Beleg steht, inklusive
    Umsatzsteuer. Netto und Steuer rechnet die App sofort darunter aus.
 3. **Umsatzsteuersatz** prüfen. Die App wählt deinen Standardsatz vor.
 4. **Fotografieren** oder ein vorhandenes Foto **auswählen**. Hat der Beleg
    mehrere Seiten, tippe danach auf **Seite fotografieren** bzw. **Seite
    wählen** – so oft du brauchst. Vor dem Speichern kannst du Seiten mit den
-   Pfeilen umsortieren oder mit dem Papierkorb löschen. Ist die Rückseite
+   Pfeilen umsortieren; zum Löschen tippst du die Seite an und wählst
+   **Seite löschen**. Ist die Rückseite
    beschrieben, fotografiere sie mit – bei nur einer Seite erinnert dich der
    Knopf **Rückseite?** unten links daran.
 5. **Beschreibung** eintragen – Pflichtfeld. „Bürostuhl" ist gut, „Rechnung"
    nützt dir in zwei Jahren nichts.
-6. Optional: Datum, Lieferant bzw. Kunde, Kategorie, Zahlungsart, Notiz und
+6. Optional: Datum (mit **Heute** / **Gestern** ein Tipp), Lieferant bzw. Kunde, Kategorie, Zahlungsart, Notiz und
    ein **Kommentar** (siehe unten)
 7. Unten auf den großen Knopf **„Vollständig – Beleg speichern (2 Seiten)"**
    tippen. Damit bestätigst du zugleich, dass alle Seiten samt beschriebener
@@ -333,7 +336,8 @@ den du eingetippt hast.
 Im Bereich **Belege**:
 - **Suchfeld** durchsucht Beschreibung, Geschäftspartner und Notiz
 - **Alle / Einnahmen / Ausgaben** filtert
-- **Jahr** wählst du rechts oben
+- **Jahr** wählst du mit dem ersten Chip in der Filterzeile; die Chips brechen
+  auf schmalen Telefonen in eine zweite Zeile um
 - Die Liste ist nach Monaten gruppiert, unter der Filterzeile steht der Saldo
   deiner aktuellen Auswahl
 
@@ -345,8 +349,10 @@ und lesen und ihnen Kommentare anhängen, aber nicht mehr ändern.
 
 ### Beleg ändern oder stornieren
 
-Beleg antippen, ändern, speichern. Einen falschen Beleg stornierst du über das
-Papierkorbsymbol oben rechts; die App fragt nach. Der Beleg verschwindet aus
+Beleg antippen, ändern, speichern. Einen falschen Beleg stornierst du ganz
+unten im Formular im rot umrandeten Bereich **Beleg stornieren** – weit weg vom
+Speichern-Knopf; die App fragt nach. Genauso löschst du einen Kunden unten im
+Kundenformular. Der Beleg verschwindet aus
 allen Listen und Auswertungen, wird aber **nicht gelöscht**: Belege musst du
 sieben (Österreich) bzw. acht Jahre (Deutschland) aufbewahren, deshalb bleibt er
 samt Foto gespeichert. Jede Änderung und jede Stornierung wird intern

@@ -2,6 +2,8 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 
+import '../../widgets/primary_action_bar.dart';
+
 import '../../services/invoice_texts.dart';
 import '../invoices/invoice_edit_screen.dart' show parsePermille, percentText;
 import 'package:image_picker/image_picker.dart';
@@ -1030,22 +1032,13 @@ class _CompanySetupScreenState extends State<CompanySetupScreen> {
           ),
         ),
       ),
-      bottomNavigationBar: Padding(
-        padding: EdgeInsets.fromLTRB(
-          16,
-          8,
-          16,
-          8 + MediaQuery.of(context).padding.bottom,
-        ),
-        child: FilledButton(
-          onPressed: _saving ? null : _save,
-          child: _saving
-              ? const SizedBox(
-                  height: 20,
-                  width: 20,
-                  child: CircularProgressIndicator(strokeWidth: 2),
-                )
-              : Text(widget.isOnboarding ? 'Los geht\'s' : 'Speichern'),
+      bottomNavigationBar: PrimaryActionBar(
+        primary: PrimaryActionBar.filled(
+          key: const Key('profile-save'),
+          label: widget.isOnboarding ? 'Los geht\'s' : 'Speichern',
+          icon: Icons.check,
+          busy: _saving,
+          onPressed: _save,
         ),
       ),
     );

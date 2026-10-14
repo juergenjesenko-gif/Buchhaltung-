@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 
+import '../../widgets/danger_zone.dart';
+import '../../widgets/primary_action_bar.dart';
+
 import '../../services/vat_id/vat_id_format.dart';
 import '../../widgets/vat_check_status.dart';
 import '../../app_state.dart';
@@ -99,6 +102,13 @@ class _CustomerEditScreenState extends State<CustomerEditScreen> {
     final id = widget.existing?.id;
     if (id == null) return;
 
+    final ok = await confirmDestructive(
+      context,
+      title: 'Kunde löschen?',
+      message: '${_name.text.trim()} wird aus deinem Kundenstamm entfernt.',
+      verb: 'Löschen',
+    );
+    if (!ok || !mounted) return;
     final state = AppScope.read(context);
     final deleted = await state.repositories.customers.delete(id);
     if (!mounted) return;
@@ -122,14 +132,6 @@ class _CustomerEditScreenState extends State<CustomerEditScreen> {
         title: Text(
           widget.existing == null ? 'Neuer Kunde' : 'Kunde bearbeiten',
         ),
-        actions: [
-          if (widget.existing != null)
-            IconButton(
-              tooltip: 'Löschen',
-              icon: const Icon(Icons.delete_outline),
-              onPressed: _saving ? null : _delete,
-            ),
-        ],
       ),
       body: ReadableWidth(
         child: Form(
@@ -258,20 +260,27 @@ class _CustomerEditScreenState extends State<CustomerEditScreen> {
                   ],
                 ),
               ),
+              if (widget.existing != null)
+                DangerZone(
+                  buttonKey: const Key('customer-delete'),
+                  label: 'Kunde löschen',
+                  icon: Icons.delete_outline,
+                  explanation:
+                      'Nur möglich, solange es keine Rechnungen an diesen '
+                      'Kunden gibt.',
+                  onPressed: _saving ? null : _delete,
+                ),
             ],
           ),
         ),
       ),
-      bottomNavigationBar: Padding(
-        padding: EdgeInsets.fromLTRB(
-          16,
-          8,
-          16,
-          8 + MediaQuery.of(context).padding.bottom,
-        ),
-        child: FilledButton(
-          onPressed: _saving ? null : _save,
-          child: const Text('Speichern'),
+      bottomNavigationBar: PrimaryActionBar(
+        primary: PrimaryActionBar.filled(
+          key: const Key('customer-save'),
+          label: 'Speichern',
+          icon: Icons.check,
+          busy: _saving,
+          onPressed: _save,
         ),
       ),
     );

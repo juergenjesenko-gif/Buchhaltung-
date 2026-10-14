@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+
+import '../../widgets/danger_zone.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
 
@@ -326,6 +328,10 @@ class _RestorePreview extends StatelessWidget {
           child: const Text('Abbrechen'),
         ),
         FilledButton(
+          style: FilledButton.styleFrom(
+            backgroundColor: Theme.of(context).colorScheme.error,
+            foregroundColor: Theme.of(context).colorScheme.onError,
+          ),
           onPressed: () => Navigator.of(context).pop(true),
           child: const Text('Wiederherstellen'),
         ),
@@ -462,26 +468,14 @@ class _AutoBackupSectionState extends State<_AutoBackupSection> {
   }
 
   Future<void> _disable() async {
-    final sure = await showDialog<bool>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Automatische Sicherung ausschalten?'),
-        content: const Text(
+    final sure = await confirmDestructive(
+      context,
+      title: 'Automatische Sicherung ausschalten?',
+      message:
           'Vorhandene Sicherungen im Ordner bleiben erhalten. Der Schlüssel '
           'wird von diesem Gerät gelöscht – öffnen kannst du sie danach nur '
           'noch mit dem Wiederherstellungscode.',
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(false),
-            child: const Text('Abbrechen'),
-          ),
-          FilledButton(
-            onPressed: () => Navigator.of(context).pop(true),
-            child: const Text('Ausschalten'),
-          ),
-        ],
-      ),
+      verb: 'Ausschalten',
     );
     if (sure != true) return;
     await const SecureBackupKeyStore().delete();
