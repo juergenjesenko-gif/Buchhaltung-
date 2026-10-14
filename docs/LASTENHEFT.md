@@ -965,8 +965,8 @@ P-U6.
 | L-27.1 | QR- und 2D-Codes werden auf **demselben Foto** wie der Text erkannt, offline, ohne zweiten Schritt | MUSS | A1 |
 | L-27.2 | **Kassen-QR** (AT RKSV, DE TSE nach DSFinV-K) hat Vorrang bei Betrag, Datum und Steuersätzen (Aufteilung je Satz); Händler aus dem Text bzw. aus einem Lernspeicher Kasse → Händler; dezenter Vermerk „vom Kassen-QR“; das Foto bleibt der Beleg. Ein Satz, der aus dem Code nicht eindeutig hervorgeht (AT „Betrag-Satz-Besonders“: 19 % oder 4,9 %), wird nicht geraten | MUSS | A1 |
 | L-27.3 | **Zahlungs-QR** (EPC069-12, „GiroCode“): Empfänger, IBAN, Betrag und Referenz vorbelegen | MUSS | A1 |
-| L-27.4 | **Teilen-Ziel**: Bilder, PDF und XML aus anderen Apps an die App teilen ergibt direkt einen Buchungsvorschlag (Android; iOS über Share Extension) | MUSS | A1/A2 |
-| L-27.5 | **PDF-Rechnungen**: Textebene auslesen; ohne Textebene Rückfall auf Texterkennung eines Seitenbilds | MUSS | A2 |
+| L-27.4 | **Teilen-Ziel**: Bilder, PDF und XML aus anderen Apps an die App teilen ergibt direkt einen Buchungsvorschlag (Android; iOS über „Öffnen in …“ statt Share Extension, bestätigt von der Auftraggeberin 2026-10-14) | MUSS | A1/A2 |
+| L-27.5 | **PDF-Rechnungen**: Textebene auslesen; ohne Textebene Rückfall auf Texterkennung eines Seitenbilds. iOS-Zugang über „Öffnen in …“ statt Share Extension (Entscheidung der Auftraggeberin 2026-10-14) | MUSS | A2 |
 | L-27.6 | **E-Rechnungen** strukturiert übernehmen: ZUGFeRD/Factur-X (eingebettetes XML), XRechnung (UBL und CII), ebInterface (AT) – Lieferant, UID, Datum, Sätze, Beträge, IBAN | MUSS | A2 |
 | L-27.7 | **Link-QR**: Hinweisstreifen unten „Rechnung von ‹Domain› laden?“, nur nach Tipp, nur https, Domain groß, Weiterleitung auf fremde Domain nur nach erneuter Anzeige, nur PDF/XML, Größenlimit, kein Login im Web-Fenster; sonst „Im Browser öffnen“ | MUSS | A3 |
 | L-27.8 | Die **Originaldatei** (PDF, XML) wird unverändert mit SHA-256 aufbewahrt und ist Teil von Sicherung und Export (§ 132 BAO, § 147 AO, GoBD Rz 131 ff.) | MUSS | A2 |
@@ -1272,7 +1272,7 @@ Zu entscheiden, bevor die betroffene Anforderung umgesetzt wird:
 
 | Version | Datum | Änderung |
 |---|---|---|
-| 1.53 | 2026-10-14 | Neu 5.28 (L-28.1 bis L-28.7, Stufe B1: Plattformexporte Amazon, PayPal, Shopify, Stripe), umgesetzt in 0.11.0 (Spezifikation FA-2.43 bis FA-2.49). Keine neue Datenübertragung (5.19 unverändert: Datei kommt aufs Gerät). Prüfpunkte P-S51 bis P-S55, P-R36, P-U7. |
+| 1.53 | 2026-10-14 | L-27.4/L-27.5: iOS „Öffnen in …“ statt Share Extension von der Auftraggeberin bestätigt. Neu 5.28 (L-28.1 bis L-28.7, Stufe B1: Plattformexporte Amazon, PayPal, Shopify, Stripe), umgesetzt in 0.11.0 (Spezifikation FA-2.43 bis FA-2.49). Keine neue Datenübertragung (5.19 unverändert: Datei kommt aufs Gerät). Prüfpunkte P-S51 bis P-S55, P-R36, P-U7. |
 | 1.52 | 2026-10-14 | A3 umgesetzt in 0.10.0 (L-27.7, Spezifikation FA-2.42). Neuer Datenfluss „Rechnung über Link-QR“ in 5.19, PRIVACY und STORE_LISTING (L-19.5); Prüfung P-R35. |
 | 1.51 | 2026-10-14 | A2 umgesetzt in 0.9.0 (L-27.4 bis L-27.6, L-27.8; Spezifikation FA-2.38 bis FA-2.41). iOS-Teilen über „Öffnen in“ statt Share Extension. Keine neue Datenübertragung (5.19 unverändert). |
 | 1.50 | 2026-10-14 | Neu 5.27 (L-27.1 bis L-27.8: Codes, Teilen-Ziel, PDF/E-Rechnung, Link-QR) und O-32 (Plattform-Connectoren zurückgestellt). 5.19: Barcode-Erkennung von ML Kit in der bestehenden Diagnosezeile. A1 umgesetzt in 0.8.0. |

@@ -15,7 +15,7 @@ gebaut, und was war darin geprüft?*
 | Version | `version` aus `pubspec.yaml`, inklusive Buildnummer |
 | Datum | Tag des Builds |
 | Art | Testbuild (CI-APK) · interner Test (TestFlight / interner Track) · Store-Release |
-| Commit | Kurz-Hash des gebauten Commits; nach dem Build als Git-Tag `v<Version>` gesetzt |
+| Commit | Kurz-Hash des Commits, der die Version setzt (Testbuilds ohne Git-Tag) |
 | Branch | aus dem gebaut wurde |
 | Dokumentstände | Version von Lastenheft, Spezifikation und Benutzerhandbuch zum Build |
 | Datenbankschema | `AppDatabase.schemaVersion` |
@@ -42,11 +42,11 @@ nächsten Versionssprung in den neuen Eintrag.
 | Feld | Wert |
 |---|---|
 | Art | Testbuild (ungezippte arm64-APK, fester Testschlüssel); Stufe B1 Plattformexporte |
-| Commit | siehe Git-Tag `v0.11.0` |
+| Commit | `b131704` |
 | Branch | `claude/agile-accounting-app-mobile-wa5j3h` |
 | Dokumentstände | Lastenheft 1.53, Spezifikation 1.50, Benutzerhandbuch für 0.11.0, DESIGN_SPEC 1.2 |
 | Datenbankschema | 17 |
-| Prüfung | `flutter analyze` ohne Befund, alle Tests grün (neu `platform_import_test.dart`: zehn synthetische Exporte in fünf Sprachen, Datensparsamkeit über alle Tabellen, Knopf ≥ 56 dp), Emulator-Job `android-ocr-emulator`, CI siehe Lauf zum Tag |
+| Prüfung | `flutter analyze` ohne Befund, alle Tests grün (neu `platform_import_test.dart`: zehn synthetische Exporte in fünf Sprachen, Datensparsamkeit über alle Tabellen, Knopf ≥ 56 dp), Emulator-Job `android-ocr-emulator`, CI-Lauf zum Commit |
 | Steuerliche Kennwerte | neu `spec.oss_threshold_cents = 1000000`, `spec.at.reverse_charge_kz = -,057,066`, `spec.de.reverse_charge_kz = 46,47,67` |
 | Offene reale Prüfpunkte | wie 0.10.0+15, dazu P-S51 bis P-S55, P-R36, P-U7 |
 
@@ -54,13 +54,13 @@ nächsten Versionssprung in den neuen Eintrag.
 
 | Art | Änderung | Bezug | Commit |
 |---|---|---|---|
-| Neu | Plattformexporte über Teilen/„Öffnen mit“: Amazon Transaktionsbericht (DE/EN/FR/IT/ES) und Abrechnung V2, PayPal, Shopify, Stripe; Format automatisch erkannt | L-28.1, FA-2.43 | siehe Tag |
-| Neu | Eine Zusammenfassung je Monat, ein Knopf „Übernehmen“ unten (56 dp) | L-28.2, FA-2.44, P-U7 | siehe Tag |
-| Neu | Bruttoprinzip: Umsatz, Gebühren, Werbung getrennt, Auszahlung nicht gebucht; Reverse Charge für Amazon/Stripe/Shopify, PayPal steuerfrei | L-28.3, L-28.4, FA-2.46, P-S51, P-S52, P-S54 | siehe Tag |
-| Neu | Reverse Charge in Übersicht und UVA-Export mit Kennzahlen je Land (AT Kz 057/066, DE Kz 46/47/67), auch für Kleinunternehmer | L-28.4, FA-3.3, FA-3.4 | siehe Tag |
-| Neu | Dubletten still übersprungen (Schema 17 `platform_import_rows`), OSS- und FBA-Warnung | L-28.5, FA-2.45, FA-2.47, P-S53 | siehe Tag |
-| Neu | Käuferdaten werden nie übernommen (Test über alle Tabellen) | L-28.6, FA-2.49, P-R36 | siehe Tag |
-| Neu | Hinweis „Gebührenrechnung als Beleg ablegen“ mit direktem Link, Anleitung je Plattform im Handbuch | L-28.7, FA-2.48 | siehe Tag |
+| Neu | Plattformexporte über Teilen/„Öffnen mit“: Amazon Transaktionsbericht (DE/EN/FR/IT/ES) und Abrechnung V2, PayPal, Shopify, Stripe; Format automatisch erkannt | L-28.1, FA-2.43 | `b131704` |
+| Neu | Eine Zusammenfassung je Monat, ein Knopf „Übernehmen“ unten (56 dp) | L-28.2, FA-2.44, P-U7 | `b131704` |
+| Neu | Bruttoprinzip: Umsatz, Gebühren, Werbung getrennt, Auszahlung nicht gebucht; Reverse Charge für Amazon/Stripe/Shopify, PayPal steuerfrei | L-28.3, L-28.4, FA-2.46, P-S51, P-S52, P-S54 | `b131704` |
+| Neu | Reverse Charge in Übersicht und UVA-Export mit Kennzahlen je Land (AT Kz 057/066, DE Kz 46/47/67), auch für Kleinunternehmer | L-28.4, FA-3.3, FA-3.4 | `b131704` |
+| Neu | Dubletten still übersprungen (Schema 17 `platform_import_rows`), OSS- und FBA-Warnung | L-28.5, FA-2.45, FA-2.47, P-S53 | `b131704` |
+| Neu | Käuferdaten werden nie übernommen (Test über alle Tabellen) | L-28.6, FA-2.49, P-R36 | `b131704` |
+| Neu | Hinweis „Gebührenrechnung als Beleg ablegen“ mit direktem Link, Anleitung je Plattform im Handbuch | L-28.7, FA-2.48 | `b131704` |
 
 ---
 
@@ -69,11 +69,11 @@ nächsten Versionssprung in den neuen Eintrag.
 | Feld | Wert |
 |---|---|
 | Art | Testbuild (ungezippte arm64-APK, fester Testschlüssel); Stufe A3 Link-QR |
-| Commit | siehe Git-Tag `v0.10.0` |
+| Commit | `d96481e` |
 | Branch | `claude/agile-accounting-app-mobile-wa5j3h` |
 | Dokumentstände | Lastenheft 1.52, Spezifikation 1.49, Benutzerhandbuch für 0.10.0, DESIGN_SPEC 1.2 |
 | Datenbankschema | 16 |
-| Prüfung | `flutter analyze` ohne Befund, alle Tests grün (neu `link_invoice_test.dart` inkl. Touchflächen ≥ 48 dp), Emulator-Job `android-ocr-emulator`, CI siehe Lauf zum Tag |
+| Prüfung | `flutter analyze` ohne Befund, alle Tests grün (neu `link_invoice_test.dart` inkl. Touchflächen ≥ 48 dp), Emulator-Job `android-ocr-emulator`, CI-Lauf zum Commit |
 | Steuerliche Kennwerte | keine Änderung |
 | Offene reale Prüfpunkte | wie 0.9.0+14, dazu P-R35, P-U6 |
 
@@ -81,8 +81,8 @@ nächsten Versionssprung in den neuen Eintrag.
 
 | Art | Änderung | Bezug | Commit |
 |---|---|---|---|
-| Neu | Link-QR: Hinweisstreifen mit Domain groß, Laden nur nach Tipp, nur https/PDF/XML ≤ 20 MB, andere Domain nur nach erneuter Anzeige, sonst „Im Browser öffnen“ | L-27.7, FA-2.42, P-U6 | siehe Tag |
-| Neu | Datenfluss „Rechnung über Link-QR“ dreifach dokumentiert (Lastenheft 5.19, PRIVACY, STORE_LISTING) | L-19.5, P-R35 | siehe Tag |
+| Neu | Link-QR: Hinweisstreifen mit Domain groß, Laden nur nach Tipp, nur https/PDF/XML ≤ 20 MB, andere Domain nur nach erneuter Anzeige, sonst „Im Browser öffnen“ | L-27.7, FA-2.42, P-U6 | `d96481e` |
+| Neu | Datenfluss „Rechnung über Link-QR“ dreifach dokumentiert (Lastenheft 5.19, PRIVACY, STORE_LISTING) | L-19.5, P-R35 | `d96481e` |
 
 ---
 
@@ -91,11 +91,11 @@ nächsten Versionssprung in den neuen Eintrag.
 | Feld | Wert |
 |---|---|
 | Art | Testbuild (ungezippte arm64-APK, fester Testschlüssel); Stufe A2 PDF- und E-Rechnungen |
-| Commit | siehe Git-Tag `v0.9.0` |
+| Commit | `fabed21` |
 | Branch | `claude/agile-accounting-app-mobile-wa5j3h` |
 | Dokumentstände | Lastenheft 1.51, Spezifikation 1.48, Benutzerhandbuch für 0.9.0, DESIGN_SPEC 1.2 |
 | Datenbankschema | 16 |
-| Prüfung | `flutter analyze` ohne Befund, alle Tests grün (neu `e_invoice_test.dart` mit KoSIT-Testsuite 01.01a UBL/CII, ebInterface 6.1, ZUGFeRD-PDF), Emulator-Job `android-ocr-emulator` mit PDF-Seitenbild, CI siehe Lauf zum Tag |
+| Prüfung | `flutter analyze` ohne Befund, alle Tests grün (neu `e_invoice_test.dart` mit KoSIT-Testsuite 01.01a UBL/CII, ebInterface 6.1, ZUGFeRD-PDF), Emulator-Job `android-ocr-emulator` mit PDF-Seitenbild, CI-Lauf zum Commit |
 | Steuerliche Kennwerte | `spec.schema_version` 15 → 16 |
 | Offene reale Prüfpunkte | wie 0.8.0+13 |
 
@@ -103,11 +103,11 @@ nächsten Versionssprung in den neuen Eintrag.
 
 | Art | Änderung | Bezug | Commit |
 |---|---|---|---|
-| Neu | PDF-Rechnungen: eingebettetes XML, Seitenbilder (PdfRenderer/PDFKit), Texterkennung als Rückfall, iOS-Textebene | L-27.5, FA-2.39 | siehe Tag |
-| Neu | E-Rechnung CII (ZUGFeRD/Factur-X/XRechnung), UBL (XRechnung), ebInterface strukturiert | L-27.6, FA-2.40 | siehe Tag |
-| Neu | Originaldatei unverändert mit SHA-256, in Sicherung und Belegliste; Schema 16 `receipt_documents` | L-27.8, FA-2.41 | siehe Tag |
-| Neu | Teilen-Ziel für PDF/XML, iOS „Öffnen in“ | L-27.4, FA-2.38 | siehe Tag |
-| Neu | Abhängigkeit `xml` 7.1 (MIT) | FA-2.40 | siehe Tag |
+| Neu | PDF-Rechnungen: eingebettetes XML, Seitenbilder (PdfRenderer/PDFKit), Texterkennung als Rückfall, iOS-Textebene | L-27.5, FA-2.39 | `fabed21` |
+| Neu | E-Rechnung CII (ZUGFeRD/Factur-X/XRechnung), UBL (XRechnung), ebInterface strukturiert | L-27.6, FA-2.40 | `fabed21` |
+| Neu | Originaldatei unverändert mit SHA-256, in Sicherung und Belegliste; Schema 16 `receipt_documents` | L-27.8, FA-2.41 | `fabed21` |
+| Neu | Teilen-Ziel für PDF/XML, iOS „Öffnen in“ | L-27.4, FA-2.38 | `fabed21` |
+| Neu | Abhängigkeit `xml` 7.1 (MIT) | FA-2.40 | `fabed21` |
 
 ---
 
@@ -116,11 +116,11 @@ nächsten Versionssprung in den neuen Eintrag.
 | Feld | Wert |
 |---|---|
 | Art | Testbuild (ungezippte arm64-APK, fester Testschlüssel); Stufe A1 Kassen-QR, Zahlungs-QR, Teilen-Ziel |
-| Commit | siehe Git-Tag `v0.8.0` |
+| Commit | `6dfda7d` |
 | Branch | `claude/agile-accounting-app-mobile-wa5j3h` |
 | Dokumentstände | Lastenheft 1.50, Spezifikation 1.47, Benutzerhandbuch für 0.8.0, DESIGN_SPEC 1.2 |
 | Datenbankschema | 15 |
-| Prüfung | `flutter analyze` ohne Befund, alle Tests grün (neu `receipt_codes_test.dart`), Emulator-Job `android-ocr-emulator` mit synthetischem RKSV- und EPC-QR, CI siehe Lauf zum Tag |
+| Prüfung | `flutter analyze` ohne Befund, alle Tests grün (neu `receipt_codes_test.dart`), Emulator-Job `android-ocr-emulator` mit synthetischem RKSV- und EPC-QR, CI-Lauf zum Commit |
 | Steuerliche Kennwerte | `spec.schema_version` 14 → 15 |
 | Offene reale Prüfpunkte | wie 0.7.0+12, dazu P-S49, P-S50, P-U5 |
 
@@ -128,10 +128,10 @@ nächsten Versionssprung in den neuen Eintrag.
 
 | Art | Änderung | Bezug | Commit |
 |---|---|---|---|
-| Neu | QR-/Barcodes auf demselben Foto (ML Kit Barcode Scanning gebündelt, iOS Vision) | L-27.1, FA-2.35 | siehe Tag |
-| Neu | Kassen-QR RKSV/TSE mit Vorrang bei Betrag, Datum, Sätzen; „Besonders“ nicht geraten; Lernspeicher Kasse → Händler (Schema 15); Vermerk „vom Kassen-QR“ | L-27.2, FA-2.36, P-S49, P-S50 | siehe Tag |
-| Neu | Zahlungs-QR EPC069-12: Empfänger, Betrag, IBAN, Referenz | L-27.3, FA-2.37 | siehe Tag |
-| Neu | Teilen-Ziel Android für Bilder | L-27.4, FA-2.38, P-U5 | siehe Tag |
+| Neu | QR-/Barcodes auf demselben Foto (ML Kit Barcode Scanning gebündelt, iOS Vision) | L-27.1, FA-2.35 | `6dfda7d` |
+| Neu | Kassen-QR RKSV/TSE mit Vorrang bei Betrag, Datum, Sätzen; „Besonders“ nicht geraten; Lernspeicher Kasse → Händler (Schema 15); Vermerk „vom Kassen-QR“ | L-27.2, FA-2.36, P-S49, P-S50 | `6dfda7d` |
+| Neu | Zahlungs-QR EPC069-12: Empfänger, Betrag, IBAN, Referenz | L-27.3, FA-2.37 | `6dfda7d` |
+| Neu | Teilen-Ziel Android für Bilder | L-27.4, FA-2.38, P-U5 | `6dfda7d` |
 
 ---
 
@@ -140,11 +140,11 @@ nächsten Versionssprung in den neuen Eintrag.
 | Feld | Wert |
 |---|---|
 | Art | Testbuild (ungezippte arm64-APK, fester Testschlüssel); Steuersätze aufteilen, Mahnfrist, Einhandbedienung links/rechts |
-| Commit | siehe Git-Tag `v0.7.0` |
+| Commit | `acc37c4` |
 | Branch | `claude/agile-accounting-app-mobile-wa5j3h` |
 | Dokumentstände | Lastenheft 1.48, Spezifikation 1.46, Benutzerhandbuch für 0.7.0, DESIGN_SPEC 1.2 |
 | Datenbankschema | 14 |
-| Prüfung | `flutter analyze` ohne Befund, alle Tests grün (neu `receipt_vat_split_test.dart`, `manual_expense_dashboard_test.dart`, `dunning_followup_test.dart`, `pdf_fonts_test.dart`), Emulator-Job `android-ocr-emulator`, CI siehe Lauf zum Tag |
+| Prüfung | `flutter analyze` ohne Befund, alle Tests grün (neu `receipt_vat_split_test.dart`, `manual_expense_dashboard_test.dart`, `dunning_followup_test.dart`, `pdf_fonts_test.dart`), Emulator-Job `android-ocr-emulator`, CI-Lauf zum Commit |
 | Steuerliche Kennwerte | `spec.schema_version` 13 → 14 |
 | Offene reale Prüfpunkte | wie 0.6.0+11, dazu P-S46 bis P-S48, P-L19, P-X7 |
 
@@ -152,14 +152,14 @@ nächsten Versionssprung in den neuen Eintrag.
 
 | Art | Änderung | Bezug | Commit |
 |---|---|---|---|
-| Behoben | Gerätetest 0.6.0: Ausgabe in der Übersicht – Kleinunternehmer zählen Ausgaben brutto (keine Vorsteuer), Balken-Mindesthöhe 6 dp, nur der jüngste Ladevorgang zeigt Summen | FA-3.2, FA-3.5, FA-3.7, P-S47 | siehe Tag |
-| Behoben | € und Gedankenstrich in allen PDFs: eingebettete Schrift Work Sans (OFL) statt Helvetica | FA-5.30, P-L19 | siehe Tag |
-| Geändert | Termin-Box ans Ende der Übersicht | FA-3.7 | siehe Tag |
-| Neu | Beleg mit mehreren Steuersätzen aufteilen, Rest automatisch, Auswertungen/UVA/Exporte je Satz (DATEV eine Buchung je Satz), Belegerkennung belegt Aufteilung vor; Schema 14 `receipt_vat_lines` | L-2.27, FA-2.33, FA-2.34, P-S46, P-S48 | siehe Tag |
-| Neu | Mahnwesen: neue Frist je Schreiben, „überfällig“ erst nach deren Ablauf; Mahnsymbol mit Stufe und Frist, Tipp zeigt Verlauf | L-3.31, FA-5.26, FA-5.27 | siehe Tag |
-| Geändert | Kundendokumente (Rechnung, Mahnung, Begleittext) in Sie-Form | FA-5.28 | siehe Tag |
-| Neu | Hinweis „Leistungsdatum liegt nach dem Rechnungsdatum – stimmt das?“ | FA-5.29 | siehe Tag |
-| Geändert | Einhandbedienung links und rechts: zentrierte Knöpfe „Beleg erfassen“, „Neue Rechnung“, „Neuer Kunde“; Rechnungskarte mit Aktionsleiste inkl. „PDF senden“ | FA-12.7, P-X7 | siehe Tag |
+| Behoben | Gerätetest 0.6.0: Ausgabe in der Übersicht – Kleinunternehmer zählen Ausgaben brutto (keine Vorsteuer), Balken-Mindesthöhe 6 dp, nur der jüngste Ladevorgang zeigt Summen | FA-3.2, FA-3.5, FA-3.7, P-S47 | `acc37c4` |
+| Behoben | € und Gedankenstrich in allen PDFs: eingebettete Schrift Work Sans (OFL) statt Helvetica | FA-5.30, P-L19 | `acc37c4` |
+| Geändert | Termin-Box ans Ende der Übersicht | FA-3.7 | `acc37c4` |
+| Neu | Beleg mit mehreren Steuersätzen aufteilen, Rest automatisch, Auswertungen/UVA/Exporte je Satz (DATEV eine Buchung je Satz), Belegerkennung belegt Aufteilung vor; Schema 14 `receipt_vat_lines` | L-2.27, FA-2.33, FA-2.34, P-S46, P-S48 | `acc37c4` |
+| Neu | Mahnwesen: neue Frist je Schreiben, „überfällig“ erst nach deren Ablauf; Mahnsymbol mit Stufe und Frist, Tipp zeigt Verlauf | L-3.31, FA-5.26, FA-5.27 | `acc37c4` |
+| Geändert | Kundendokumente (Rechnung, Mahnung, Begleittext) in Sie-Form | FA-5.28 | `acc37c4` |
+| Neu | Hinweis „Leistungsdatum liegt nach dem Rechnungsdatum – stimmt das?“ | FA-5.29 | `acc37c4` |
+| Geändert | Einhandbedienung links und rechts: zentrierte Knöpfe „Beleg erfassen“, „Neue Rechnung“, „Neuer Kunde“; Rechnungskarte mit Aktionsleiste inkl. „PDF senden“ | FA-12.7, P-X7 | `acc37c4` |
 
 ---
 
@@ -168,11 +168,11 @@ nächsten Versionssprung in den neuen Eintrag.
 | Feld | Wert |
 |---|---|
 | Art | Testbuild (ungezippte arm64-APK, fester Testschlüssel); Einhandbedienung |
-| Commit | siehe Git-Tag `v0.6.0` |
+| Commit | `04fb0f3` |
 | Branch | `claude/agile-accounting-app-mobile-wa5j3h` |
 | Dokumentstände | Lastenheft 1.47, Spezifikation 1.45, Benutzerhandbuch für 0.6.0, DESIGN_SPEC 1.2 |
 | Datenbankschema | 13 |
-| Prüfung | `flutter analyze` ohne Befund, alle Tests grün (neu `one_hand_test.dart`), Emulator-Job `android-ocr-emulator`, CI siehe Lauf zum Tag |
+| Prüfung | `flutter analyze` ohne Befund, alle Tests grün (neu `one_hand_test.dart`), Emulator-Job `android-ocr-emulator`, CI-Lauf zum Commit |
 | Steuerliche Kennwerte | keine Änderung |
 | Offene reale Prüfpunkte | wie 0.5.0+10, dazu P-X1 bis P-X6 |
 
@@ -180,9 +180,9 @@ nächsten Versionssprung in den neuen Eintrag.
 
 | Art | Änderung | Bezug | Commit |
 |---|---|---|---|
-| Geändert | Übersicht: ein zentrierter Knopf „Beleg fotografieren“ statt zweier Knöpfe rechts; öffnet direkt die Kamera, Einnahme/Ausgabe im Formular | FA-12.1, DESIGN_SPEC 5a | siehe Tag |
-| Geändert | Beleg stornieren und Kunde löschen aus der AppBar an das Formularende (rot umrandet, Bestätigung in Fehlerfarbe); ebenso Fehlerfarbe bei „Sicherung ausschalten“ und „Wiederherstellen“ | FA-12.2, P-X2 | siehe Tag |
-| Geändert | Belegseiten: Pfeile 48 dp, Löschen über Antippen der Seite; Chip-Reihen umbrechend, Jahr als Chip; Datum „Heute/Gestern“; `PrimaryActionBar` in Kunden- und Stammdatenformular. Test `one_hand_test.dart` | FA-12.3 bis FA-12.6, P-X1, P-X3 bis P-X6 | siehe Tag |
+| Geändert | Übersicht: ein zentrierter Knopf „Beleg fotografieren“ statt zweier Knöpfe rechts; öffnet direkt die Kamera, Einnahme/Ausgabe im Formular | FA-12.1, DESIGN_SPEC 5a | `04fb0f3` |
+| Geändert | Beleg stornieren und Kunde löschen aus der AppBar an das Formularende (rot umrandet, Bestätigung in Fehlerfarbe); ebenso Fehlerfarbe bei „Sicherung ausschalten“ und „Wiederherstellen“ | FA-12.2, P-X2 | `04fb0f3` |
+| Geändert | Belegseiten: Pfeile 48 dp, Löschen über Antippen der Seite; Chip-Reihen umbrechend, Jahr als Chip; Datum „Heute/Gestern“; `PrimaryActionBar` in Kunden- und Stammdatenformular. Test `one_hand_test.dart` | FA-12.3 bis FA-12.6, P-X1, P-X3 bis P-X6 | `04fb0f3` |
 
 ---
 
@@ -191,11 +191,11 @@ nächsten Versionssprung in den neuen Eintrag.
 | Feld | Wert |
 |---|---|
 | Art | Testbuild (ungezippte arm64-APK, fester Testschlüssel); Mahnwesen |
-| Commit | siehe Git-Tag `v0.5.0` |
+| Commit | `f67355c` |
 | Branch | `claude/agile-accounting-app-mobile-wa5j3h` |
 | Dokumentstände | Lastenheft 1.47, Spezifikation 1.44, Benutzerhandbuch für 0.5.0 |
 | Datenbankschema | 13 |
-| Prüfung | `flutter analyze` ohne Befund, alle Tests grün (neu `dunning_test.dart`, `invoice_list_ux_test.dart`), Emulator-Job `android-ocr-emulator`, CI siehe Lauf zum Tag |
+| Prüfung | `flutter analyze` ohne Befund, alle Tests grün (neu `dunning_test.dart`, `invoice_list_ux_test.dart`), Emulator-Job `android-ocr-emulator`, CI-Lauf zum Commit |
 | Steuerliche Kennwerte | `spec.schema_version` = 13; neu `spec.dunning_default_fee_cents` = 1000, `spec.dunning_period_days` = 14, `spec.*.dunning_consumer_rate_bp` (AT 400), `spec.*.dunning_consumer_surcharge_bp` (DE 500), `spec.*.dunning_business_surcharge_bp` (AT 920, DE 900), `spec.*.dunning_flat_fee_cents` = 4000, `spec.*.dunning_base_rates`, `spec.*.dunning_consumer_notice`, `spec.*.dunning_interest_legal_ref` |
 | Offene reale Prüfpunkte | P-D21, P-D22, P-D25, P-D26, P-S27 bis P-S35, P-S40 bis P-S45, P-R24 bis P-R26, P-R30 bis P-R34 |
 
@@ -203,11 +203,11 @@ nächsten Versionssprung in den neuen Eintrag.
 
 | Art | Änderung | Bezug | Commit |
 |---|---|---|---|
-| Neu | Zahlungserinnerung und Mahnungen beliebig oft (Stufe 1 Erinnerung, dann 1., 2. … Mahnung) als Bottom-Sheet mit Vorschau, PDF mit Tabelle und neuer Frist, Teilen; unveränderlich mit SHA-256, Storno mit Begründung. Schema 13 (`dunning_notices`). Test `dunning_test.dart`, `invoice_list_ux_test.dart` | L-3.10, L-3.29, FA-5.21, P-R33 | siehe Tag |
-| Neu | Mahnkosten 10 € ab 1. Mahnung (änderbar) mit Hinweis bei Privatkunden; optionale Verzugszinsen act/365 je Halbjahr aus Basiszinssatz; Pauschale 40 € nur B2B | L-3.27, GR-13, FA-5.22, FA-5.23, P-R32, P-R34, P-S44 | siehe Tag |
-| Neu | Kundenmerkmal „Unternehmen“ (folgt der UID); DE-Rechnungen an Privatkunden mit Hinweis § 286 Abs 3 BGB | L-3.28, FA-5.24 | siehe Tag |
-| Neu | „Bezahlt“ fragt „Mahnkosten und Zinsen mitbezahlt?“ und bucht sie als nicht umsatzsteuerbare Einnahme | L-3.30, FA-5.25, P-S45 | siehe Tag |
-| Geändert | Rechnungsliste: Hinweis „überfällig – mahnen?“, Tonal-Knöpfe „Erinnern/Mahnen“ und „Bezahlt“ in eigener Zeile (≥ 48 dp) | FA-5.13, FA-5.20 | siehe Tag |
+| Neu | Zahlungserinnerung und Mahnungen beliebig oft (Stufe 1 Erinnerung, dann 1., 2. … Mahnung) als Bottom-Sheet mit Vorschau, PDF mit Tabelle und neuer Frist, Teilen; unveränderlich mit SHA-256, Storno mit Begründung. Schema 13 (`dunning_notices`). Test `dunning_test.dart`, `invoice_list_ux_test.dart` | L-3.10, L-3.29, FA-5.21, P-R33 | `f67355c` |
+| Neu | Mahnkosten 10 € ab 1. Mahnung (änderbar) mit Hinweis bei Privatkunden; optionale Verzugszinsen act/365 je Halbjahr aus Basiszinssatz; Pauschale 40 € nur B2B | L-3.27, GR-13, FA-5.22, FA-5.23, P-R32, P-R34, P-S44 | `f67355c` |
+| Neu | Kundenmerkmal „Unternehmen“ (folgt der UID); DE-Rechnungen an Privatkunden mit Hinweis § 286 Abs 3 BGB | L-3.28, FA-5.24 | `f67355c` |
+| Neu | „Bezahlt“ fragt „Mahnkosten und Zinsen mitbezahlt?“ und bucht sie als nicht umsatzsteuerbare Einnahme | L-3.30, FA-5.25, P-S45 | `f67355c` |
+| Geändert | Rechnungsliste: Hinweis „überfällig – mahnen?“, Tonal-Knöpfe „Erinnern/Mahnen“ und „Bezahlt“ in eigener Zeile (≥ 48 dp) | FA-5.13, FA-5.20 | `f67355c` |
 
 ---
 
@@ -216,11 +216,11 @@ nächsten Versionssprung in den neuen Eintrag.
 | Feld | Wert |
 |---|---|
 | Art | Testbuild (ungezippte arm64-APK, fester Testschlüssel); Rabatt, Versand, Skonto, AGB-Verweis |
-| Commit | siehe Git-Tag `v0.4.0` |
+| Commit | `8fe9f07` |
 | Branch | `claude/agile-accounting-app-mobile-wa5j3h` |
 | Dokumentstände | Lastenheft 1.46, Spezifikation 1.43, Benutzerhandbuch für 0.4.0 |
 | Datenbankschema | 12 |
-| Prüfung | `flutter analyze` ohne Befund, alle Tests grün (neu `invoice_totals_test.dart`, `invoice_form_ux_test.dart`), Emulator-Job `android-ocr-emulator`, CI siehe Lauf zum Tag |
+| Prüfung | `flutter analyze` ohne Befund, alle Tests grün (neu `invoice_totals_test.dart`, `invoice_form_ux_test.dart`), Emulator-Job `android-ocr-emulator`, CI-Lauf zum Commit |
 | Steuerliche Kennwerte | `spec.schema_version` = 12; neu `spec.primary_action_height_dp` = 56, `spec.min_touch_target_dp` = 48 |
 | Offene reale Prüfpunkte | P-D21, P-D22, P-D25, P-D26, P-S27 bis P-S35, P-S40 bis P-S43, P-R24 bis P-R26, P-R30, P-R31 |
 
@@ -228,10 +228,10 @@ nächsten Versionssprung in den neuen Eintrag.
 
 | Art | Änderung | Bezug | Commit |
 |---|---|---|---|
-| Neu | Rabatt je Position und auf die Rechnung (Prozent oder Betrag), Gesamtrabatt anteilig je Steuersatz mit Restcent nach größtem Rest; Versandkosten wie Hauptleistung (anteilig bei Mischsätzen) oder fester Satz; Rechnen in `InvoiceTotals`. Schema 12. Test `invoice_totals_test.dart` | L-3.21, L-3.22, GR-12, FA-5.15, FA-5.16, P-S40, P-S41 | siehe Tag |
-| Neu | Skonto (Tage + Prozent, Vorschlag aus dem Profil), auf dem PDF mit festem Datum und Betrag; „Bezahlt“ fragt „Mit Skonto bezahlt?“ und mindert die Einnahme je Satz; Rechnung bleibt unverändert | L-3.23, L-3.24, FA-5.17, FA-5.18, P-S42, P-S43 | siehe Tag |
-| Neu | AGB-Adresse im Profil, Verweis „soweit sie vereinbart wurden“ auf dem PDF, eingefroren mit der Rechnung; einmaliger Hinweis zur Einbeziehung | L-3.25, L-3.26, FA-5.19, P-R30 | siehe Tag |
-| Geändert | Bedienung nach UX-Prüfinstanz: `PrimaryActionBar` (56 dp, über der Tastatur) im Rechnungsformular, nach dem Ausstellen „PDF senden“; „Position hinzufügen“ volle Breite, Entfernen 48 dp; Rabatt/Versand/Skonto eingeklappt; Tonal-Knopf „Bezahlt“ mit Bottom-Sheet; Stornieren/Löschen in Fehlerfarbe mit Bestätigung. Test `invoice_form_ux_test.dart` | FA-5.20 | siehe Tag |
+| Neu | Rabatt je Position und auf die Rechnung (Prozent oder Betrag), Gesamtrabatt anteilig je Steuersatz mit Restcent nach größtem Rest; Versandkosten wie Hauptleistung (anteilig bei Mischsätzen) oder fester Satz; Rechnen in `InvoiceTotals`. Schema 12. Test `invoice_totals_test.dart` | L-3.21, L-3.22, GR-12, FA-5.15, FA-5.16, P-S40, P-S41 | `8fe9f07` |
+| Neu | Skonto (Tage + Prozent, Vorschlag aus dem Profil), auf dem PDF mit festem Datum und Betrag; „Bezahlt“ fragt „Mit Skonto bezahlt?“ und mindert die Einnahme je Satz; Rechnung bleibt unverändert | L-3.23, L-3.24, FA-5.17, FA-5.18, P-S42, P-S43 | `8fe9f07` |
+| Neu | AGB-Adresse im Profil, Verweis „soweit sie vereinbart wurden“ auf dem PDF, eingefroren mit der Rechnung; einmaliger Hinweis zur Einbeziehung | L-3.25, L-3.26, FA-5.19, P-R30 | `8fe9f07` |
+| Geändert | Bedienung nach UX-Prüfinstanz: `PrimaryActionBar` (56 dp, über der Tastatur) im Rechnungsformular, nach dem Ausstellen „PDF senden“; „Position hinzufügen“ volle Breite, Entfernen 48 dp; Rabatt/Versand/Skonto eingeklappt; Tonal-Knopf „Bezahlt“ mit Bottom-Sheet; Stornieren/Löschen in Fehlerfarbe mit Bestätigung. Test `invoice_form_ux_test.dart` | FA-5.20 | `8fe9f07` |
 
 ---
 
@@ -240,11 +240,11 @@ nächsten Versionssprung in den neuen Eintrag.
 | Feld | Wert |
 |---|---|
 | Art | Testbuild (ungezippte arm64-APK, fester Testschlüssel); Wirtschaftsjahr, Termin-Box, bezahlte Rechnung als Einnahme, Hilfe offline |
-| Commit | siehe Git-Tag `v0.3.5` |
+| Commit | `dd4adfa` |
 | Branch | `claude/agile-accounting-app-mobile-wa5j3h` |
 | Dokumentstände | Lastenheft 1.45, Spezifikation 1.42, Benutzerhandbuch für 0.3.5 |
 | Datenbankschema | 11 |
-| Prüfung | `flutter analyze` ohne Befund, alle Tests grün, Emulator-Job `android-ocr-emulator`, CI siehe Lauf zum Tag |
+| Prüfung | `flutter analyze` ohne Befund, alle Tests grün, Emulator-Job `android-ocr-emulator`, CI-Lauf zum Commit |
 | Steuerliche Kennwerte | neu `spec.*.deadline_rules`, `spec.*.monthly_vat_return_threshold_cents` (AT 10000000, DE 900000), `spec.*.vat_interval_basis`, `spec.*.fiscal_year_legal_ref`, `spec.*.deadline_shift_legal_ref`, `spec.*.asks_federal_state`, `spec.deadline_box_count` = 4 |
 | Offene reale Prüfpunkte | P-D21, P-D22, P-D25, P-D26, P-S27 bis P-S35, P-R24 bis P-R26 |
 
@@ -266,11 +266,11 @@ nächsten Versionssprung in den neuen Eintrag.
 | Feld | Wert |
 |---|---|
 | Art | Testbuild (ungezippte arm64-APK, fester Testschlüssel); mehrsprachige Belegerkennung |
-| Commit | siehe Git-Tag `v0.3.4` |
+| Commit | `fd5bf27` |
 | Branch | `claude/agile-accounting-app-mobile-wa5j3h` |
 | Dokumentstände | Lastenheft 1.42, Spezifikation 1.38, Benutzerhandbuch für 0.3.4 |
 | Datenbankschema | 10 |
-| Prüfung | `flutter analyze` ohne Befund, alle Tests grün (Korpus 6 Belege), Emulator-Job `android-ocr-emulator`, CI siehe Lauf zum Tag |
+| Prüfung | `flutter analyze` ohne Befund, alle Tests grün (Korpus 6 Belege), Emulator-Job `android-ocr-emulator`, CI-Lauf zum Commit |
 | Steuerliche Kennwerte | `spec.at.vat_permille` = 200,130,100,49,0; neu `spec.at.vat_49_valid_from` = 2026-07-01 |
 | Offene reale Prüfpunkte | P-D21, P-D22, P-S27 bis P-S30 |
 
@@ -293,11 +293,11 @@ nächsten Versionssprung in den neuen Eintrag.
 | Feld | Wert |
 |---|---|
 | Art | Testbuild (ungezippte arm64-APK, fester Testschlüssel); Belegerkennung an echten Belegen |
-| Commit | siehe Git-Tag `v0.3.3` |
+| Commit | `22b7f8b` |
 | Branch | `claude/agile-accounting-app-mobile-wa5j3h` |
 | Dokumentstände | Lastenheft 1.42, Spezifikation 1.36, Benutzerhandbuch für 0.3.3 |
 | Datenbankschema | 10 |
-| Prüfung | `flutter analyze` ohne Befund, 268 Tests grün, Emulator-Job `android-ocr-emulator` grün, CI siehe Lauf zum Tag |
+| Prüfung | `flutter analyze` ohne Befund, 268 Tests grün, Emulator-Job `android-ocr-emulator` grün, CI-Lauf zum Commit |
 | Offene reale Prüfpunkte | P-D21, P-D22 (Belegerkennung auf dem Pixel), P-S27 |
 
 **Änderungen seit 0.3.2+5**
@@ -319,11 +319,11 @@ nächsten Versionssprung in den neuen Eintrag.
 | Feld | Wert |
 |---|---|
 | Art | Testbuild (ungezippte arm64-APK, fester Testschlüssel); Fehlerbehebung zu 0.3.1 |
-| Commit | siehe Git-Tag `v0.3.2` |
+| Commit | `034a877` |
 | Branch | `claude/agile-accounting-app-mobile-wa5j3h` |
 | Dokumentstände | Lastenheft 1.42, Spezifikation 1.33, Benutzerhandbuch für 0.3.2 |
 | Datenbankschema | 10 |
-| Prüfung | `flutter analyze` ohne Befund, 250 Tests grün, CI siehe Lauf zum Tag |
+| Prüfung | `flutter analyze` ohne Befund, 250 Tests grün, CI-Lauf zum Commit |
 | Offene reale Prüfpunkte | P-D21, P-D22 (Belegerkennung auf dem Pixel) |
 
 **Änderungen seit 0.3.1+4**
@@ -340,11 +340,11 @@ nächsten Versionssprung in den neuen Eintrag.
 | Feld | Wert |
 |---|---|
 | Art | Testbuild (CI-APK, Artefakt `test-apk-build-<Nummer>`, fester Testschlüssel); Fehlerbehebung zu 0.3.0 |
-| Commit | siehe Git-Tag `v0.3.1` |
+| Commit | `9f2c95a` |
 | Branch | `claude/agile-accounting-app-mobile-wa5j3h` |
 | Dokumentstände | Lastenheft 1.42, Spezifikation 1.32, Benutzerhandbuch für 0.3.1 |
 | Datenbankschema | 10 |
-| Prüfung | `flutter analyze` ohne Befund, 250 Tests grün, CI siehe Lauf zum Tag |
+| Prüfung | `flutter analyze` ohne Befund, 250 Tests grün, CI-Lauf zum Commit |
 | Offene reale Prüfpunkte | wie 0.3.0, insbesondere P-D21, P-D22 (Belegerkennung auf dem Pixel erneut prüfen) |
 
 **Änderungen seit 0.3.0+3**
@@ -360,11 +360,11 @@ nächsten Versionssprung in den neuen Eintrag.
 | Feld | Wert |
 |---|---|
 | Art | Testbuild (CI-APK, Artefakt `test-apk-build-<Nummer>`, signiert mit festem Testschlüssel); kein Store-Release. Die Buildnummer der APK ist die CI-Laufnummer |
-| Commit | siehe Git-Tag `v0.3.0` |
+| Commit | `d8f527e` |
 | Branch | `claude/agile-accounting-app-mobile-wa5j3h` |
 | Dokumentstände | Lastenheft 1.42, Spezifikation 1.30, Benutzerhandbuch für 0.3.0 |
 | Datenbankschema | 10 |
-| Prüfung | `flutter analyze` ohne Befund, 250 Tests grün, CI siehe Lauf zum Tag |
+| Prüfung | `flutter analyze` ohne Befund, 250 Tests grün, CI-Lauf zum Commit |
 | Offene reale Prüfpunkte | alle mit Status „offen“ in Spezifikation Abschnitt 14, für diesen Build vor allem P-D21 bis P-D24 (ML-Kit-Netzverkehr, Belegerkennung an echten Belegen, Fremdwährung im DATEV-Import, App-Symbol auf dem Startbildschirm) sowie P-R19, P-S23 bis P-S26 |
 | Bekannte Grenzen | Spezifikation Abschnitt 11 |
 
@@ -383,11 +383,11 @@ nächsten Versionssprung in den neuen Eintrag.
 | Feld | Wert |
 |---|---|
 | Art | Testbuild (CI-APK, Artefakt `test-apk-build-<Nummer>`, signiert mit festem Testschlüssel); kein Store-Release. Die Buildnummer der APK ist die CI-Laufnummer |
-| Commit | siehe Git-Tag `v0.2.0` |
+| Commit | `db32452` |
 | Branch | `claude/agile-accounting-app-mobile-wa5j3h` |
 | Dokumentstände | Lastenheft 1.39, Spezifikation 1.25, Benutzerhandbuch für 0.2.0 |
 | Datenbankschema | 8 |
-| Prüfung | `flutter analyze` ohne Befund, 220 Tests grün, CI siehe Lauf zum Tag |
+| Prüfung | `flutter analyze` ohne Befund, 220 Tests grün, CI-Lauf zum Commit |
 | Offene reale Prüfpunkte | alle mit Status „offen“ in Spezifikation Abschnitt 14, für diesen Build vor allem P-D11 bis P-D13, P-D17 bis P-D20, P-B12 |
 | Bekannte Grenzen | Spezifikation Abschnitt 11 |
 
