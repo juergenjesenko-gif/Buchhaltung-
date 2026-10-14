@@ -109,8 +109,9 @@ Jede ausgelieferte Version – auch ein Testbuild – hat einen Eintrag in
 `docs/RELEASE_NOTES.md`, geschrieben **im selben Commit**, der `version` in
 `pubspec.yaml` erhöht. Pflichtfelder: Art, Commit, Branch, Dokumentstände,
 Datenbankschema, Prüfung; Änderungen jeweils mit Anforderungs-ID und Commit.
-`test/release_notes_test.dart` erzwingt das. Nach dem Build wird der Commit als
-`v<Version>` getaggt.
+`test/release_notes_test.dart` erzwingt das. Das Feld **Commit** trägt den
+Kurz-Hash des gebauten Commits direkt (Entscheidung Auftraggeber 2026-10-14);
+Git-Tags sind optional, weil die Entwicklungsumgebung keine Tags pushen kann.
 
 Änderungen zwischen zwei Versionen sammeln sich im Abschnitt *Unveröffentlicht*:
 jeder Commit mit Verhaltensänderung trägt dort eine Zeile ein.
