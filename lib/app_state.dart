@@ -193,6 +193,11 @@ class AppState extends ChangeNotifier {
     }
   }
 
+  int _bookingsRevision = 0;
+
+  /// Steigt bei jeder Änderung an Belegen; siehe [onBookingsChanged].
+  int get bookingsRevision => _bookingsRevision;
+
   CompanyProfile? _profile;
   List<ExpenseCategory> _categories = const [];
   SmallBusinessAssessment? _smallBusiness;
@@ -229,6 +234,8 @@ class AppState extends ChangeNotifier {
   }
 
   Future<void> reload() async {
+    // Nach Wiederherstellung einer Sicherung sind alle Belege neu.
+    _bookingsRevision++;
     _missingConsents = await repositories.consents.missing();
     _profile = await repositories.company.load();
     _categories = await repositories.categories.all();
@@ -250,7 +257,11 @@ class AppState extends ChangeNotifier {
 
   /// Nach jeder Buchung neu bewerten – der Grenzwertmonitor ist nur dann
   /// nützlich, wenn er aktuell ist.
+  ///
+  /// [bookingsRevision] zählt mit, damit Bildschirme, die im `IndexedStack`
+  /// weiterleben (Übersicht), erkennen, dass sie neu laden müssen.
   Future<void> onBookingsChanged() async {
+    _bookingsRevision++;
     await _refreshSmallBusiness();
     notifyListeners();
   }

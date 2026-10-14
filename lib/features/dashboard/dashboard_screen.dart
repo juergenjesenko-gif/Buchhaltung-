@@ -31,10 +31,18 @@ class _DashboardScreenState extends State<DashboardScreen> {
   List<Receipt> _recent = const [];
   List<_MonthBar> _trend = const [];
   bool _loading = true;
+  int? _loadedRevision;
 
+  /// Die Übersicht lebt im `IndexedStack` der Startseite weiter und wird
+  /// nicht neu aufgebaut, wenn in einem anderen Reiter gebucht wird. Deshalb
+  /// lädt sie neu, sobald sich [AppState.bookingsRevision] ändert
+  /// (Gerätetest 0.3.3). Der erste Aufruf ersetzt das Laden in `initState`.
   @override
-  void initState() {
-    super.initState();
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final revision = AppScope.of(context).bookingsRevision;
+    if (revision == _loadedRevision) return;
+    _loadedRevision = revision;
     WidgetsBinding.instance.addPostFrameCallback((_) => _load());
   }
 

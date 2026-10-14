@@ -34,6 +34,7 @@ nächsten Versionssprung in den neuen Eintrag.
 
 | Art | Änderung | Bezug | Commit |
 |---|---|---|---|
+| Behoben | Übersicht lädt nach Speichern oder Stornieren eines Belegs in einem anderen Reiter und nach Wiederherstellung neu (`AppState.bookingsRevision`); vorher blieben „Dieser Monat“ und „Letzte Belege“ auf dem Stand des App-Starts. Test `dashboard_refresh_test.dart` | Gerätetest 0.3.3 | dieser Commit |
 
 ---
 
