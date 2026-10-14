@@ -1,5 +1,5 @@
 {
-  "_hinweis": "Sollwerte des Testkorpus (Stufe 1 Belegerkennung). Beträge in kleinster Einheit (Cent/Øre), Steuer je Satz in Promille. Belegfotos von der Auftraggeberin, bewusst schwierige Aufnahmen.",
+  "_hinweis": "Sollwerte des Testkorpus (Stufe 1 Belegerkennung). Beträge in kleinster Einheit (Cent/Øre), Steuer je Satz in Promille. Belegfotos von der Auftraggeberin, bewusst schwierige Aufnahmen. beschreibung_enthaelt und kategorie sind weiche Sollwerte (nur Quote, kein Pflichtfeld).",
   "belege": [
     {
       "datei": "PXL_20261010_104457699.MP.jpg",
@@ -16,7 +16,9 @@
           "netto": 833,
           "steuer": 167
         }
-      ]
+      ],
+      "beschreibung_enthaelt": "Maut",
+      "kategorie": "Kfz-Kosten"
     },
     {
       "datei": "PXL_20261013_043853962.jpg",
@@ -27,7 +29,9 @@
       "brutto": 141500,
       "uid": null,
       "steuer": [],
-      "anmerkung": "„$“ ist mehrdeutig; Währung muss die Nutzerin bestätigen. Keine ausgewiesene Umsatzsteuer."
+      "anmerkung": "„$“ ist mehrdeutig; Währung muss die Nutzerin bestätigen. Keine ausgewiesene Umsatzsteuer.",
+      "beschreibung_enthaelt": "Taxi",
+      "kategorie": "Reisekosten"
     },
     {
       "datei": "PXL_20261013_043914106.jpg",
@@ -44,7 +48,9 @@
           "steuer": 13718
         }
       ],
-      "anmerkung": "„HERAF MOMS“ = darin enthaltene Mehrwertsteuer 25 %; ausländische Vorsteuer ist im AT/DE-Inland nicht abziehbar."
+      "anmerkung": "„HERAF MOMS“ = darin enthaltene Mehrwertsteuer 25 %; ausländische Vorsteuer ist im AT/DE-Inland nicht abziehbar.",
+      "beschreibung_enthaelt": "Treibstoff",
+      "kategorie": "Kfz-Kosten"
     },
     {
       "datei": "PXL_20261013_050737221.jpg",
@@ -55,7 +61,9 @@
       "brutto": 700,
       "uid": "ATU25368606",
       "steuer": [],
-      "anmerkung": "Kein Steuersatz auf dem Beleg; die App darf keinen erfinden. Ob ein Kartenbeleg ohne Steuerausweis zum Vorsteuerabzug reicht, klärt P-S28."
+      "anmerkung": "Kein Steuersatz auf dem Beleg; die App darf keinen erfinden. Ob ein Kartenbeleg ohne Steuerausweis zum Vorsteuerabzug reicht, klärt P-S29.",
+      "beschreibung_enthaelt": "Maut",
+      "kategorie": "Kfz-Kosten"
     },
     {
       "datei": "PXL_20261013_050750093.MP.jpg",
@@ -77,7 +85,9 @@
           "steuer": 32
         }
       ],
-      "anmerkung": "Ermäßigter Satz 4,9 % auf Grundnahrungsmittel (AT ab 2026) – muss im TaxProfile Österreich vorhanden sein (P-S29). Summe der Zeilen 5,08 + 3,49 = 8,57."
+      "anmerkung": "Ermäßigter Satz 4,9 % auf Grundnahrungsmittel (AT ab 2026) – muss im TaxProfile Österreich vorhanden sein (P-S28; Satz seit 0.3.4 im Profil, gültig ab 01.07.2026). Summe der Zeilen 5,08 + 3,49 = 8,57.",
+      "beschreibung_enthaelt": "Lebensmittel",
+      "kategorie": "Sonstige Ausgaben"
     },
     {
       "datei": "PXL_20261014_045325288.MP.jpg",
@@ -95,7 +105,9 @@
           "steuer": 162
         }
       ],
-      "anmerkung": "Slowenische DDV 22 % erkennen, aber als ausländische Umsatzsteuer nicht als Vorsteuer abziehbar → 0 % vorbelegen (P-S27). Schlüsselwörter: Skupaj EUR, DDV %, Osnova za DDV, Znesek DDV, Datum in čas izdaje."
+      "anmerkung": "Slowenische DDV 22 % erkennen, aber als ausländische Umsatzsteuer nicht als Vorsteuer abziehbar → 0 % vorbelegen (P-S27, P-S30). Schlüsselwörter: Skupaj EUR, DDV %, Osnova za DDV, Znesek DDV, Datum in čas izdaje.",
+      "beschreibung_enthaelt": "Maut",
+      "kategorie": "Kfz-Kosten"
     }
   ]
 }

@@ -18,6 +18,7 @@ import '../../services/fx/fx_rate_service.dart';
 import '../../services/receipt_image_store.dart';
 import '../../services/receipt_scan/ocr_text.dart';
 import '../../services/receipt_scan/platform_text_recognizer.dart';
+import '../../services/receipt_scan/receipt_classifier.dart';
 import '../../services/receipt_scan/receipt_scan_prefill.dart';
 import '../../services/receipt_scan/receipt_text_parser.dart';
 import '../../services/vat_calculator.dart';
@@ -145,8 +146,7 @@ class _ReceiptEditScreenState extends State<ReceiptEditScreen> {
       _loadPagesAndComments(existing);
     } else {
       _vatPermille = state.defaultVatPermille;
-      final categories = state.categoriesFor(_direction);
-      if (categories.isNotEmpty) _categoryId = categories.first.id;
+      _categoryId = _defaultCategoryId(state);
     }
     _loadScanSetting();
     AppDatabase.instance.database.then(FxSettings.dailyRateApproved).then((
@@ -207,6 +207,30 @@ class _ReceiptEditScreenState extends State<ReceiptEditScreen> {
     } finally {
       if (mounted) setState(() => _fetchingRate = false);
     }
+  }
+
+  /// Kategorie mit diesem Namen in der aktuellen Richtung, sonst `null`.
+  int? _categoryNamed(AppState state, String? name) {
+    if (name == null) return null;
+    for (final c in state.categoriesFor(_direction)) {
+      if (c.name == name) return c.id;
+    }
+    return null;
+  }
+
+  /// Vorauswahl für neue Belege: „Sonstige Ausgaben“ bzw. „Sonstige
+  /// Einnahmen“, sonst die erste Kategorie. Früher die alphabetisch erste,
+  /// das war „Bankspesen“ (Gerätetest 0.3.3).
+  int? _defaultCategoryId(AppState state) {
+    final named = _categoryNamed(
+      state,
+      _direction == BookingDirection.expense
+          ? 'Sonstige Ausgaben'
+          : 'Sonstige Einnahmen',
+    );
+    if (named != null) return named;
+    final all = state.categoriesFor(_direction);
+    return all.isEmpty ? null : all.first.id;
   }
 
   @override
@@ -295,6 +319,7 @@ class _ReceiptEditScreenState extends State<ReceiptEditScreen> {
         result,
         direction: _direction,
         profile: tax,
+        classification: ReceiptClassifier.classify(document.rows, result),
       );
       if (!mounted) return;
       setState(() {
@@ -324,6 +349,16 @@ class _ReceiptEditScreenState extends State<ReceiptEditScreen> {
         if (prefill.issuerVatId != null) {
           _issuerVatIdController.text = prefill.issuerVatId!;
           _recognized.add('issuerVatId');
+        }
+        if (prefill.description != null &&
+            _descriptionController.text.trim().isEmpty) {
+          _descriptionController.text = prefill.description!;
+          _recognized.add('description');
+        }
+        final category = _categoryNamed(state, prefill.categoryName);
+        if (category != null) {
+          _categoryId = category;
+          _recognized.add('category');
         }
         _applyForeign(prefill.currency, prefill.originalGross);
         _scanHints = prefill.hints;
@@ -1008,8 +1043,7 @@ class _ReceiptEditScreenState extends State<ReceiptEditScreen> {
                             }
                             // Kategorien sind richtungsabhängig – die alte Auswahl
                             // wäre nach dem Wechsel unsinnig.
-                            final next = state.categoriesFor(_direction);
-                            _categoryId = next.isEmpty ? null : next.first.id;
+                            _categoryId = _defaultCategoryId(state);
                           });
                         },
                       ),
@@ -1045,7 +1079,10 @@ class _ReceiptEditScreenState extends State<ReceiptEditScreen> {
                           labelText: 'Umsatzsteuersatz',
                         ),
                         items: [
-                          for (final rate in tax.vatRates)
+                          for (final rate in tax.vatRatesOn(
+                            _date,
+                            keep: _vatPermille,
+                          ))
                             DropdownMenuItem(
                               value: rate.permille,
                               child: Text('${rate.display} – ${rate.label}'),
@@ -1137,9 +1174,10 @@ class _ReceiptEditScreenState extends State<ReceiptEditScreen> {
                       const SizedBox(height: 8),
                       TextFormField(
                         controller: _descriptionController,
-                        decoration: const InputDecoration(
+                        decoration: InputDecoration(
                           labelText: 'Beschreibung',
                           hintText: 'z. B. Bürostuhl, Tankrechnung',
+                          helperText: _checkHint('description'),
                         ),
                         textCapitalization: TextCapitalization.sentences,
                         validator: (value) => (value ?? '').trim().isEmpty
@@ -1175,9 +1213,11 @@ class _ReceiptEditScreenState extends State<ReceiptEditScreen> {
                       ),
                       const SizedBox(height: 12),
                       DropdownButtonFormField<int?>(
+                        key: ValueKey('category$_categoryId'),
                         initialValue: _categoryId,
-                        decoration: const InputDecoration(
+                        decoration: InputDecoration(
                           labelText: 'Kategorie',
+                          helperText: _checkHint('category'),
                         ),
                         items: [
                           const DropdownMenuItem<int?>(

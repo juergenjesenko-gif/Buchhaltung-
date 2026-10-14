@@ -2,6 +2,8 @@ import '../../domain/country.dart';
 import '../../domain/money.dart';
 import '../vat_id/vat_id_format.dart';
 import 'ocr_text.dart';
+import 'receipt_classifier.dart';
+import 'receipt_keywords.dart';
 
 /// Ein erkannter Wert mit Konfidenz 0 bis 100. Die Konfidenz ist eine
 /// Heuristik des Parsers, keine Wahrscheinlichkeit der Engine.
@@ -104,6 +106,9 @@ class ReceiptTextParser {
         }
       }
     }
+    for (final p in _euRates) {
+      if (!rates.contains(p)) rates.add(p);
+    }
     return rates;
   }
 
@@ -114,12 +119,21 @@ class ReceiptTextParser {
     var gross = _gross(rows);
     final vatSum = vatLines.map((l) => l.gross).sum;
 
+    final vatProven =
+        vatLines.isNotEmpty && vatLines.every((l) => l.confidence >= 85);
+    final vatSumPrinted =
+        vatProven && rows.any((r) => amounts(r).contains(vatSum));
     if (gross == null && vatLines.isNotEmpty) {
-      gross = Detected(vatSum, 50);
+      gross = Detected(vatSum, vatSumPrinted ? 90 : 50);
     } else if (gross != null && vatLines.isNotEmpty) {
       // Gegenprobe: Summe der Steuerzeilen gleich Gesamtbetrag.
       if ((vatSum - gross.value).cents.abs() <= vatLines.length) {
         gross = Detected(gross.value, 97);
+      } else if (vatProven && (vatSumPrinted || gross.confidence < 60)) {
+        // Rechnerisch geprüfte Steuerzeilen (Netto + Steuer = Brutto) gehen
+        // einem unsicheren Gesamtbetrag vor, z. B. wenn der Daumen „Summe“
+        // verdeckt und nur „Bar 9,00“ lesbar ist (SPAR-Bon im Korpus).
+        gross = Detected(vatSum, vatSumPrinted ? 90 : 70);
       }
     }
 
@@ -174,51 +188,30 @@ class ReceiptTextParser {
         },
       );
 
-  static final _taxWord = RegExp(
-    r'\b(mwst|ust|vat|tax|steuer|umsatzsteuer|mehrwertsteuer|vorsteuer)\b|mwst|ust\.',
-  );
+  static bool _taxWord(String lower) =>
+      ReceiptKeywords.any(ReceiptKeywords.tax, lower);
 
+  /// Zeilen, die zwar „Summe/Total“ enthalten können, aber nicht den
+  /// Gesamtbetrag tragen (Zwischensumme, Netto, Steuer, Rückgeld …).
   static final _excludeForGross = RegExp(
-    r'zwischensumme|subtotal|sub-total|sub total|\bnet(to)?\b|nettobetrag|'
+    r'zwischensumme|subtotal|sub-total|sub total|'
     r'gegeben|rückgeld|rueckgeld|\bchange\b|rabatt|\btip\b|trinkgeld|'
-    r'mwst|\bust\b|\bvat\b|\btax\b|steuer|bonus|punkte|ersparnis|gespart',
+    r'bonus|punkte|ersparnis|gespart|vračilo|vracilo|resto|visszajáró',
   );
 
-  static const _strongGross = [
-    'zu zahlen',
-    'zahlbetrag',
-    'gesamtbetrag',
-    'endbetrag',
-    'rechnungsbetrag',
-    'amount due',
-    'grand total',
-    'total due',
-    'balance due',
-    'total amount',
-  ];
-
-  static const _plainGross = [
-    'summe',
-    'gesamt',
-    'total',
-    'betrag',
-    // Dänisch/Norwegisch „Beløb“, „I alt“; ML Kit liest ø oft als o
-    'beløb',
-    'belob',
-    'bel ob',
-    'i alt',
-  ];
+  static bool _notGrossRow(String lower) =>
+      _excludeForGross.hasMatch(lower) ||
+      ReceiptKeywords.any(ReceiptKeywords.net, lower) ||
+      ReceiptKeywords.any(ReceiptKeywords.tax, lower) ||
+      _percent.hasMatch(lower) ||
+      _percentAfter.hasMatch(lower);
 
   Detected<Money>? _gross(List<String> rows) {
     Detected<Money>? best;
     for (var i = 0; i < rows.length; i++) {
       final lower = rows[i].toLowerCase();
-      if (_excludeForGross.hasMatch(lower)) continue;
-      final score = _strongGross.any(lower.contains)
-          ? 92
-          : _plainGross.any(lower.contains)
-          ? 80
-          : 0;
+      if (_notGrossRow(lower)) continue;
+      final score = ReceiptKeywords.weightIn(ReceiptKeywords.gross, lower);
       if (score == 0) continue;
       var found = amounts(rows[i]);
       if (found.isEmpty && i + 1 < rows.length) found = amounts(rows[i + 1]);
@@ -265,6 +258,31 @@ class ReceiptTextParser {
 
   static final _percent = RegExp(r'(?<![\d.,])(\d{1,2})(?:[.,](\d{1,2}))?\s?%');
 
+  /// Satz nach dem Prozentzeichen („DDV % 22,0“, slowenische Belege).
+  static final _percentAfter = RegExp(
+    r'%\s*[:]?\s*(\d{1,2})(?:[.,](\d{1,2}))?(?![\d.,]?\d)',
+  );
+
+  /// Ein plausibler Steuersatz in Promille: ein bekannter aus den Profilen
+  /// oder den EU-Sätzen, oder ein beliebiger zwischen 1 und 30 %, der dann
+  /// nur mit Rechenprobe (Netto + Steuer = Brutto) gilt. Liefert den Satz und
+  /// die Zeile ohne Satzangabe, damit „22,00“ nicht als Betrag zählt.
+  (int, String)? _rateIn(String row, List<int> rates) {
+    (int, String)? fallback;
+    for (final pattern in [_percent, _percentAfter]) {
+      for (final m in pattern.allMatches(row)) {
+        final whole = int.parse(m.group(1)!);
+        final frac = m.group(2) == null ? 0 : int.parse(m.group(2)![0]);
+        final p = whole * 10 + frac;
+        if (p < 10 || p > 300) continue;
+        final rest = row.replaceRange(m.start, m.end, ' ');
+        if (rates.contains(p)) return (p, rest);
+        fallback ??= (p, rest);
+      }
+    }
+    return fallback;
+  }
+
   int _tolerance(Money vat) => 3 + vat.cents ~/ 100;
 
   static int _vatOfNet(int net, int p) => (net * p + 500) ~/ 1000;
@@ -282,19 +300,11 @@ class ReceiptTextParser {
 
     for (final row in rows) {
       final lower = row.toLowerCase();
-      int? permille;
-      for (final m in _percent.allMatches(row)) {
-        final whole = int.parse(m.group(1)!);
-        final frac = m.group(2) == null ? 0 : int.parse(m.group(2)![0]);
-        final p = whole * 10 + frac;
-        if (rates.contains(p)) {
-          permille = p;
-          break;
-        }
-      }
-      if (permille == null) continue;
-      final p = permille;
-      final a = amounts(row).map((m) => m.cents).toList();
+      final rate = _rateIn(row, rates);
+      if (rate == null) continue;
+      final (p, rest) = rate;
+      final known = rates.contains(p);
+      final a = amounts(rest).map((m) => m.cents).toList();
       if (a.isEmpty) continue;
 
       DetectedVat? triple;
@@ -348,7 +358,8 @@ class ReceiptTextParser {
         continue;
       }
 
-      if (_taxWord.hasMatch(lower)) {
+      if (!known) continue;
+      if (_taxWord(lower)) {
         final vat = a.last;
         keyword[p] = DetectedVat(
           permille: p,
@@ -447,7 +458,7 @@ class ReceiptTextParser {
   // Datum
 
   static final _anyDate = RegExp(
-    r'\b\d{1,2}[./-]\d{1,2}[./-](\d{4}|\d{2})\b|\b\d{4}-\d{2}-\d{2}\b',
+    r'\b\d{1,2}[./-]\d{1,2}[./-](\d{4}|\d{2})\b|\b\d{1,2}\.\d{1,2},\d{4}\b|\b\d{4}[-.]\d{2}[-.]\d{2}\b',
   );
 
   static const _months = {
@@ -456,10 +467,14 @@ class ReceiptTextParser {
     'nov': 11, 'dez': 12, 'dec': 12,
   };
 
+  /// Gleiches Trennzeichen, oder Punkt und Komma gemischt: ML Kit liest den
+  /// zweiten Punkt auf Thermopapier oft als Komma („05.09,2026“, Korpus).
   static final _numericDate = RegExp(
-    r'(?<!\d)(\d{1,2})([./-])(\d{1,2})\2(\d{4}|\d{2})(?!\d)',
+    r'(?<![\d.,])(\d{1,2})([./-])(\d{1,2})(?:\2|(?<=\.\d{1,2}),)(\d{4}|\d{2})(?![\d.,]?\d)',
   );
-  static final _isoDate = RegExp(r'(?<!\d)(\d{4})-(\d{2})-(\d{2})(?!\d)');
+
+  /// ISO und ungarisch „2026.09.03.“.
+  static final _isoDate = RegExp(r'(?<!\d)(\d{4})([-.])(\d{2})\2(\d{2})(?!\d)');
   static final _textDate = RegExp(
     r'(?<!\d)(\d{1,2})\.?\s*(jan|feb|mär|maer|mar|apr|mai|may|jun|jul|aug|sep|okt|oct|nov|dez|dec)[a-zä]*\.?,?\s*(\d{4})',
     caseSensitive: false,
@@ -483,10 +498,8 @@ class ReceiptTextParser {
     Detected<DateTime>? best;
     for (final row in rows) {
       final lower = row.toLowerCase();
-      var score = RegExp(r'datum|date|ausgestellt').hasMatch(lower) ? 92 : 75;
-      if (RegExp(
-        r'fällig|faellig|due|gültig|mhd|lieferzeitraum|zahlbar bis|leistungszeitraum',
-      ).hasMatch(lower)) {
+      var score = ReceiptKeywords.any(ReceiptKeywords.date, lower) ? 92 : 75;
+      if (ReceiptKeywords.any(ReceiptKeywords.notIssueDate, lower)) {
         score = 40;
       }
       final found = <DateTime>[];
@@ -502,8 +515,8 @@ class ReceiptTextParser {
       for (final m in _isoDate.allMatches(row)) {
         final date = _valid(
           int.parse(m.group(1)!),
-          int.parse(m.group(2)!),
           int.parse(m.group(3)!),
+          int.parse(m.group(4)!),
         );
         if (date != null) found.add(date);
       }
@@ -540,22 +553,35 @@ class ReceiptTextParser {
 
   static final _notMerchant = RegExp(
     r'rechnung|invoice|receipt|quittung|beleg|kassa|kasse|\bbon\b|datum|date|'
-    r'\btel\b|\bfax\b|www|http|@|\buid\b|\bust\b|steuer|str\.|straße|strasse|gasse|platz|weg\b|'
+    r'\btel\b|\bfax\b|www|http|@|\buid\b|\bust\b|steuer|str\.|straße\b|strasse\b|gasse\b|platz\b|weg\b|'
     r'filiale|willkommen|welcome|danke|kopie|duplikat|zweitschrift|storno|original|seite|page',
   );
 
   Detected<String>? _merchant(List<String> rows) {
     for (var i = 0; i < rows.length && i < 6; i++) {
+      final chain = ReceiptClassifier.chainIn(rows[i], exactOnly: true);
+      if (chain != null) return Detected(chain.$1, 85);
+    }
+    for (var i = 0; i < rows.length && i < 6; i++) {
       final row = rows[i].trim();
       final letters = RegExp(r'[A-Za-zÄÖÜäöüß]').allMatches(row).length;
       if (letters < 3 || letters * 2 < row.length) continue;
-      if (RegExp(r'^\d').hasMatch(row)) continue;
+      if (RegExp(r'^\d').hasMatch(row) || row.contains('):')) continue;
       if (_notMerchant.hasMatch(row.toLowerCase())) continue;
       final legalForm = RegExp(
-        r'\b(gmbh|ag|kg|og|e\.u\.|e\.k\.|ltd|inc|llc|se|co)\b',
+        r'\b(gmbh|ag|kg|og|e\.u\.|e\.k\.|ltd|inc|llc|se|co|d\.d|d\.o\.o)\b',
         caseSensitive: false,
       ).hasMatch(row);
-      final name = row.replaceAll(RegExp(r'\s{2,}'), ' ');
+      // Rechtsform beendet den Namen; danach folgt oft Rauschen aus einem
+      // daneben liegenden Block („… GMBH  72% sos“).
+      final end = RegExp(
+        r'\b(gmbh|ag|kg|og|e\.u\.|e\.k\.|ltd|inc|llc|se|d\.d\.|d\.o\.o\.)(?=\s|$)',
+        caseSensitive: false,
+      ).firstMatch(row);
+      final name = (end == null ? row : row.substring(0, end.end)).replaceAll(
+        RegExp(r'\s{2,}'),
+        ' ',
+      );
       return Detected(name, legalForm ? 75 : (i == 0 ? 60 : 45));
     }
     return null;
@@ -596,10 +622,8 @@ class ReceiptTextParser {
         } else {
           final digits = RegExp(r'\d').allMatches(candidate).length;
           if (digits < 7 ||
-              !RegExp(
-                r'uid|ust|vat|tva|iva|mwst|btw|moms|steuer',
-                caseSensitive: false,
-              ).hasMatch(row)) {
+              !(RegExp(r'uid', caseSensitive: false).hasMatch(row) ||
+                  _taxWord(row.toLowerCase()))) {
             continue;
           }
         }
@@ -612,34 +636,38 @@ class ReceiptTextParser {
     return null;
   }
 
-  static final _invoiceLabel = RegExp(
-    r'(rechnungs?\s*-?\s*(?:nr|nummer|no)|re\.?\s*-?\s*nr|invoice\s*(?:no|number|nr|#)|'
-    r'beleg\s*-?\s*(?:nr|nummer)|bon\s*-?\s*(?:nr|nummer)|quittung\s*-?\s*nr)\.?\s*[:#]?\s*',
-    caseSensitive: false,
-  );
-
   Detected<String>? _invoiceNumber(List<String> rows) {
     final token = RegExp(r'^[A-Za-z0-9][A-Za-z0-9\-/_.]*');
+    final label = ReceiptKeywords.pattern(ReceiptKeywords.invoiceNumber);
     for (var i = 0; i < rows.length; i++) {
       final bare = RegExp(
-        r'^\s*(rechnung|invoice|faktura)\s+(\d{3,})\b',
+        r'^\s*(rechnung|invoice|faktura|račun|racun|fattura|számla|facture|factura)\s+(\d{3,})\b',
         caseSensitive: false,
       ).firstMatch(rows[i]);
       if (bare != null) return Detected(bare.group(2)!, 75);
-      final m = _invoiceLabel.firstMatch(rows[i]);
+      final lower = rows[i].toLowerCase();
+      final m = label.firstMatch(lower);
       if (m == null) continue;
-      var rest = rows[i].substring(m.end).trim();
+      var rest = rows[i]
+          .substring(m.end)
+          .replaceFirst(
+            RegExp(
+              r'^[\s.:#°ºr]*(?:no\.?|nr\.?|št\.?|br\.?)?[\s.:#°]*',
+              caseSensitive: false,
+            ),
+            '',
+          )
+          .trim();
       if (rest.isEmpty && i + 1 < rows.length) rest = rows[i + 1].trim();
       final t = token
           .firstMatch(rest)
           ?.group(0)
           ?.replaceAll(RegExp(r'[.]$'), '');
       if (t == null || !RegExp(r'\d').hasMatch(t)) continue;
-      final strong = RegExp(
-        'rechnung|invoice|re',
-        caseSensitive: false,
-      ).hasMatch(m.group(1)!);
-      return Detected(t, strong ? 85 : 70);
+      return Detected(
+        t,
+        ReceiptKeywords.weightIn(ReceiptKeywords.invoiceNumber, lower),
+      );
     }
     return null;
   }

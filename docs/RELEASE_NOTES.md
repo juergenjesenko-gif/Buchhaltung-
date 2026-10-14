@@ -29,12 +29,37 @@ gebaut, und was war darin geprüft?*
 
 ## Unveröffentlicht
 
-Änderungen seit 0.3.3+6, die noch in keinem Build stecken. Wandern beim
+Änderungen seit 0.3.4+7, die noch in keinem Build stecken. Wandern beim
 nächsten Versionssprung in den neuen Eintrag.
 
 | Art | Änderung | Bezug | Commit |
 |---|---|---|---|
-| Behoben | Übersicht lädt nach Speichern oder Stornieren eines Belegs in einem anderen Reiter und nach Wiederherstellung neu (`AppState.bookingsRevision`); vorher blieben „Dieser Monat“ und „Letzte Belege“ auf dem Stand des App-Starts. Test `dashboard_refresh_test.dart` | Gerätetest 0.3.3 | dieser Commit |
+
+---
+
+## 0.3.4+7 — 2026-10-14
+
+| Feld | Wert |
+|---|---|
+| Art | Testbuild (ungezippte arm64-APK, fester Testschlüssel); mehrsprachige Belegerkennung |
+| Commit | siehe Git-Tag `v0.3.4` |
+| Branch | `claude/agile-accounting-app-mobile-wa5j3h` |
+| Dokumentstände | Lastenheft 1.42, Spezifikation 1.37, Benutzerhandbuch für 0.3.4 |
+| Datenbankschema | 10 |
+| Prüfung | `flutter analyze` ohne Befund, alle Tests grün (Korpus 6 Belege), Emulator-Job `android-ocr-emulator`, CI siehe Lauf zum Tag |
+| Steuerliche Kennwerte | `spec.at.vat_permille` = 200,130,100,49,0; neu `spec.at.vat_49_valid_from` = 2026-07-01 |
+| Offene reale Prüfpunkte | P-D21, P-D22, P-S27 bis P-S30 |
+
+**Änderungen seit 0.3.3+6**
+
+| Art | Änderung | Bezug | Commit |
+|---|---|---|---|
+| Behoben | Übersicht lädt nach Speichern oder Stornieren eines Belegs in einem anderen Reiter und nach Wiederherstellung neu (`AppState.bookingsRevision`); vorher blieben „Dieser Monat“ und „Letzte Belege“ auf dem Stand des App-Starts. Test `dashboard_refresh_test.dart` | Gerätetest 0.3.3 | 7971df3 |
+| Neu | Belegerkennung mehrsprachig: Schlüsselwort-Tabellen in 15 Sprachen (`receipt_keywords.dart`), Satz nach „%“ („DDV % 22,0“), Dezimalsätze (4,90 %), Steuerzeilen mit Rechenprobe vor unsicherem Brutto, Datum „05.09,2026“ und JJJJ.MM.TT. | FA-2.30 | dieser |
+| Neu | Beschreibung und Kategorie werden aus Händler/Branche vorgeschlagen; Logo-Rauschen „SPARO“ → SPAR; neue Belege starten mit „Sonstige Ausgaben“ statt „Bankspesen“ (Gerätetest 0.3.3) | FA-2.31 | dieser |
+| Neu | Österreich 4,9 % (Grundnahrungsmittel, § 10 Abs 1a UStG 1994) ab 1.7.2026; Steuersätze mit Gültigkeitsbeginn, Auswahllisten datumsabhängig | GR-3, P-S28 | dieser |
+| Geändert | Beleg ohne Steuerausweis: 0 % mit Hinweis statt Standardsatz; unbekannter Satz: Hinweis „noch nicht hinterlegt“; ausländische USt: Länderhinweis aus dem TaxProfile | FA-2.32, FA-2.29, P-S29, P-S30 | dieser |
+| Behoben | Belegdatum wurde bei „05.09,2026“/„10.09,2026“ (Komma statt Punkt) nicht erkannt (Gerätetest SPAR, Villach) | FA-2.30 | dieser |
 
 ---
 

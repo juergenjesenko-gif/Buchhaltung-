@@ -12,6 +12,7 @@ import 'dart:io';
 import 'package:buchhaltung/domain/country.dart';
 import 'package:buchhaltung/domain/receipt.dart';
 import 'package:buchhaltung/services/receipt_scan/ocr_text.dart';
+import 'package:buchhaltung/services/receipt_scan/receipt_classifier.dart';
 import 'package:buchhaltung/services/receipt_scan/receipt_scan_prefill.dart';
 import 'package:buchhaltung/services/receipt_scan/receipt_text_parser.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -30,6 +31,9 @@ const _felder = [
   'haendler',
   'uid',
   'rechnungsnummer',
+  // Weich (nur Quote): Vorschläge für Beschreibung und Kategorie.
+  'beschreibung',
+  'kategorie',
 ];
 
 OcrDocument _ocr(Map<String, Object?> json) => OcrDocument(
@@ -51,8 +55,21 @@ String _norm(String? s) =>
     (s ?? '').toLowerCase().replaceAll(RegExp(r'[^a-z0-9äöüø]'), '');
 
 /// Vergleicht ein Feld; `null` = kein Sollwert für dieses Feld.
-bool? _treffer(String feld, Map<String, Object?> soll, ReceiptScanResult r) {
+bool? _treffer(
+  String feld,
+  Map<String, Object?> soll,
+  ReceiptScanResult r, [
+  ReceiptClassification? c,
+]) {
   switch (feld) {
+    case 'beschreibung':
+      if (soll['beschreibung_enthaelt'] == null || c == null) return null;
+      return (c.description ?? '').contains(
+        soll['beschreibung_enthaelt'] as String,
+      );
+    case 'kategorie':
+      if (soll['kategorie'] == null || c == null) return null;
+      return c.categoryName == soll['kategorie'];
     case 'brutto':
       return r.gross?.value.cents == soll['brutto'];
     case 'datum':
@@ -94,13 +111,16 @@ void main() {
   );
 
   final ergebnisse = <String, ReceiptScanResult>{};
+  final klassen = <String, ReceiptClassification>{};
   for (final beleg in soll.cast<Map<String, Object?>>()) {
     final datei = beleg['datei'] as String;
     final ocrFile = File('${dir.path}/ocr/$datei.json');
     if (!ocrFile.existsSync()) continue;
-    ergebnisse[datei] = parser.parse(
-      _ocr(jsonDecode(ocrFile.readAsStringSync()) as Map<String, Object?>),
+    final doc = _ocr(
+      jsonDecode(ocrFile.readAsStringSync()) as Map<String, Object?>,
     );
+    ergebnisse[datei] = parser.parse(doc);
+    klassen[datei] = ReceiptClassifier.classify(doc.rows, ergebnisse[datei]!);
   }
 
   test('Trefferquote je Feld (Ausgabe)', () {
@@ -111,11 +131,14 @@ void main() {
       if (r == null) continue;
       final zeile = <String>[];
       for (final f in _felder) {
-        final t = _treffer(f, beleg, r);
+        final t = _treffer(f, beleg, r, klassen[beleg['datei']]);
         if (t == null) continue;
         gesamt[f] = gesamt[f]! + 1;
         if (t) treffer[f] = treffer[f]! + 1;
         zeile.add('$f=${t ? 'ok' : 'FEHLT'}');
+        if (f == 'beschreibung') {
+          zeile.add('(„${klassen[beleg['datei']]?.description}“)');
+        }
       }
       // ignore: avoid_print
       print('${beleg['datei']}: ${zeile.join(' ')}');
@@ -198,6 +221,33 @@ void main() {
       expect(p.gross, isNull);
       expect(p.vatPermille, 0);
       expect(p.hints.join(), contains('nicht als Vorsteuer abziehbar'));
+    });
+
+    test('Kartenbeleg Villach ohne Steuerausweis: 0 % mit Hinweis', () {
+      final p = ReceiptScanPrefill.from(
+        ergebnisse['PXL_20261013_050737221.jpg']!,
+        direction: BookingDirection.expense,
+        profile: TaxProfile.austria,
+      );
+      expect(p.gross?.cents, 700);
+      expect(p.vatPermille, 0);
+      expect(p.hints.join(), contains('Beleg ohne Steuerausweis'));
+    });
+
+    test('SPAR: 4,9 % ab 1.7.2026 vorbelegt, Händler SPAR', () {
+      final r = ergebnisse['PXL_20261013_050750093.MP.jpg']!;
+      final p = ReceiptScanPrefill.from(
+        r,
+        direction: BookingDirection.expense,
+        profile: TaxProfile.austria,
+        classification: klassen['PXL_20261013_050750093.MP.jpg'],
+      );
+      expect(r.merchant?.value, 'SPAR');
+      expect(p.gross?.cents, 857);
+      expect(p.vatPermille, 49);
+      expect(p.date, DateTime(2026, 9, 10));
+      expect(p.categoryName, 'Sonstige Ausgaben');
+      expect(p.description, startsWith('SPAR – Lebensmittel'));
     });
 
     test(r'Taxi Taiwan: „$“ mehrdeutig → kein Euro-Betrag, Hinweis', () {

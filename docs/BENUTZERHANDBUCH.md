@@ -1,6 +1,6 @@
 # Benutzerhandbuch – Buchhaltung
 
-**Für App-Version 0.3.3** · Stand 2026-10-13
+**Für App-Version 0.3.4** · Stand 2026-10-14
 
 Dieses Handbuch beschreibt die App aus Nutzersicht. Es wird bei jeder Änderung,
 die du in der App siehst, mitgeführt – siehe [`CLAUDE.md`](../CLAUDE.md).
@@ -189,8 +189,24 @@ Lieferant, Rechnungsnummer und UID des Ausstellers**. Solche Felder sind mit
 
 - **Prüf die markierten Felder** mit dem Beleg. Gebucht wird erst, wenn du auf
   **Beleg speichern** tippst – vorher ist nichts verbucht.
-- Was die App nicht sicher erkennt, lässt sie leer. Die Beschreibung trägst
-  du immer selbst ein.
+- Was die App nicht sicher erkennt, lässt sie leer.
+- **Beschreibung und Kategorie** schlägt die App vor, z. B. „SPAR –
+  Lebensmittel (Baguette, Biomilch)“ mit Kategorie *Sonstige Ausgaben* oder
+  „Marktgemeinde Treffen – Maut“ mit *Kfz-Kosten*. Eine Beschreibung, die du
+  schon getippt hast, überschreibt sie nicht. Ohne Vorschlag steht ein neuer
+  Beleg auf *Sonstige Ausgaben*.
+- **Fremdsprachige Belege** (z. B. Slowenien „Skupaj“, „DDV“, Kroatien
+  „Ukupno“, „PDV“, Italien „Totale“, „IVA“, Ungarn „Összesen“, „ÁFA“,
+  Tschechien „Celkem“, „DPH“, Polen „Razem“, Frankreich „TVA“, Niederlande
+  „BTW“, Skandinavien „I alt“, „Summa“, „MOMS“, „MVA“) werden ebenfalls
+  ausgelesen.
+- **Beleg ohne Steuersatz** (z. B. nur der Kartenbeleg): die App erfindet
+  keinen Satz, stellt **0 %** ein und weist darauf hin, dass du ohne
+  Steuerausweis keine Vorsteuer abziehen kannst. Für den Abzug fordere beim
+  Aussteller eine Rechnung mit Steuersatz an.
+- **4,9 % für Grundnahrungsmittel** (Österreich, ab 1. Juli 2026): die App
+  kennt den Satz und bietet ihn für Belege ab diesem Tag an. Bei einem
+  früheren Datum erscheint er nicht in der Auswahl.
 - **Erneut auslesen** unter den Fotos startet die Erkennung noch einmal, z. B.
   nachdem du eine weitere Seite ergänzt hast. Achtung: bereits eingetragene
   Werte werden dabei durch die erkannten ersetzt.
@@ -202,8 +218,11 @@ Lieferant, Rechnungsnummer und UID des Ausstellers**. Solche Felder sind mit
   Den Kurs holst du mit **Kurs abrufen** (siehe *Belege in fremder Währung*).
 - **Ausländische Umsatzsteuer** (z. B. Tankbeleg aus Dänemark mit 25 % MOMS,
   Hotel in Deutschland mit 19 %): die App erkennt sie, stellt aber **0 %**
-  ein und zeigt den Hinweis „nicht als Vorsteuer abziehbar“. Ausländische
-  Umsatzsteuer bekommst du nur über das Vorsteuer-Vergütungsverfahren zurück.
+  ein und zeigt den Hinweis „nicht als Vorsteuer abziehbar“. Der Beleg wird
+  brutto als Ausgabe erfasst. Zurück bekommst du ausländische Umsatzsteuer
+  nur über das EU-Erstattungsverfahren (Österreich: FinanzOnline,
+  Deutschland: BZSt; bis 30.09. des Folgejahres) – als Kleinunternehmer gar
+  nicht.
 - **Währung unklar**: steht auf dem Beleg nur „$“ oder „kr“, trägt die App den
   Betrag nicht ein, sondern nennt ihn im Hinweis. Wähle „Beleg in fremder
   Währung“ und trag Währung und Betrag selbst ein.
@@ -846,6 +865,9 @@ Damit du nicht darauf wartest:
   (XRechnung, ZUGFeRD, ebInterface). Für Geschäftskunden in Deutschland wird das
   mittelfristig wichtig.
 - **Keine Storno-/Gutschriftsrechnung** – geplant
+- **Die Belegerkennung merkt sich noch keine Korrekturen.** Änderst du
+  Beschreibung oder Kategorie eines Händlers, schlägt sie beim nächsten Beleg
+  wieder dasselbe vor. Geplant.
 - **Belegerkennung mit einem Steuersatz je Beleg.** Die App liest Belege auf dem Gerät aus; bei mehreren Steuersätzen auf einem Beleg füllt sie den größten Anteil vor, aufteilen musst du von Hand.
 - **Keine Lohnverrechnung, keine Bilanz, keine doppelte Buchführung**
 - **Keine automatische Übermittlung** an FinanzOnline oder ELSTER. Die App

@@ -263,6 +263,13 @@ void main() {
         profile.vatRates.map((r) => r.permille).toList(),
         reason: 'Steuersätze für $prefix weichen ab',
       );
+      for (final rate in profile.vatRates.where((r) => r.validFrom != null)) {
+        expect(
+          value('spec.$prefix.vat_${rate.permille}_valid_from'),
+          rate.validFrom!.toIso8601String().substring(0, 10),
+          reason: 'Gültigkeitsbeginn ${rate.display} für $prefix weicht ab',
+        );
+      }
       expect(
         intValue('spec.$prefix.default_vat_permille'),
         profile.defaultVatRate.permille,

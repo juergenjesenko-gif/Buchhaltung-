@@ -405,7 +405,10 @@ class _InvoiceEditScreenState extends State<InvoiceEditScreen> {
                     _ItemEditor(
                       draft: _items[i],
                       index: i + 1,
-                      vatRates: tax.vatRates,
+                      vatRates: tax.vatRatesOn(
+                        _deliveryDate ?? _issueDate,
+                        keep: _items[i].vatPermille,
+                      ),
                       showVat: !_isSmallBusiness,
                       readOnly: _isLocked,
                       onChanged: () => setState(() {}),

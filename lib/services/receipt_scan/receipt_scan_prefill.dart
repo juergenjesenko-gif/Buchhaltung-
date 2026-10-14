@@ -3,6 +3,7 @@ import '../../domain/country.dart';
 import '../../domain/money.dart';
 import '../../domain/receipt.dart';
 import 'ocr_text.dart';
+import 'receipt_classifier.dart';
 import 'receipt_text_parser.dart';
 
 /// Unter dieser Konfidenz wird ein Feld nicht vorbelegt.
@@ -22,12 +23,16 @@ class ReceiptScanPrefill {
     this.currency = 'EUR',
     this.originalGross,
     this.hints = const [],
+    this.description,
+    this.categoryName,
   });
 
   factory ReceiptScanPrefill.from(
     ReceiptScanResult r, {
     required BookingDirection direction,
     required TaxProfile profile,
+    ReceiptClassification? classification,
+    DateTime? today,
   }) {
     bool ok(Detected<Object?>? d) =>
         d != null && d.confidence >= receiptScanMinConfidence;
@@ -50,26 +55,32 @@ class ReceiptScanPrefill {
       );
     }
 
-    // Ausländische Umsatzsteuer (Satz gibt es im eigenen Land nicht, oder
-    // Aussteller-UID aus einem anderen Staat): erkennen, aber 0 % vorbelegen,
-    // denn sie ist im Inland nicht als Vorsteuer abziehbar (§ 12 Abs. 1 Z 1
-    // UStG 1994 bzw. § 15 Abs. 1 Nr. 1 UStG: nur Steuer nach dem eigenen
-    // UStG). Erstattung nur über das Vorsteuer-Vergütungsverfahren
-    // (Richtlinie 2008/9/EG). Steuerberater-Befund offen: P-S27.
+    // Ausländische Umsatzsteuer: Aussteller-UID aus einem anderen Staat,
+    // oder ein Satz, den es nur in einem anderen Länderprofil gibt. Erkennen,
+    // aber 0 % vorbelegen: im Inland nicht als Vorsteuer abziehbar (§ 12
+    // Abs. 1 Z 1 UStG 1994 bzw. § 15 Abs. 1 Nr. 1 UStG). Hinweistext je Land
+    // aus dem TaxProfile (Spezifikation 14, P-S27, P-S30).
     int? permille;
     final dominant = r.dominantPermille;
     final issuerCountry = ok(r.vatId) ? r.vatId!.value.substring(0, 2) : null;
     final ownPrefix = profile.country == Country.at ? 'AT' : 'DE';
     final foreignIssuer = issuerCountry != null && issuerCountry != ownPrefix;
-    if (dominant != null &&
-        (profile.rateByPermille(dominant) == null || foreignIssuer)) {
-      if (direction == BookingDirection.expense &&
-          profile.rateByPermille(0) != null) {
+    final ownRate = dominant == null ? null : profile.rateByPermille(dominant);
+    final otherCountryRate =
+        dominant != null &&
+        ownRate == null &&
+        Country.values.any(
+          (c) => c.taxProfile.rateByPermille(dominant) != null,
+        );
+    final onDate = ok(r.date) ? r.date!.value : (today ?? DateTime.now());
+    final expense = direction == BookingDirection.expense;
+    if (dominant != null && (foreignIssuer || otherCountryRate)) {
+      if (expense && profile.rateByPermille(0) != null) {
         permille = 0;
         hints.add(
           'Ausländische Umsatzsteuer ${Fmt.vatRate(dominant)} erkannt – '
-          'nicht als Vorsteuer abziehbar, deshalb 0 % vorbelegt. Erstattung '
-          'nur über das Vorsteuer-Vergütungsverfahren.',
+          'nicht als Vorsteuer abziehbar, deshalb 0 % vorbelegt. '
+          '${profile.foreignVatHint}',
         );
       } else {
         hints.add(
@@ -77,8 +88,25 @@ class ReceiptScanPrefill {
           '${profile.country.label} nicht, bitte Satz wählen.',
         );
       }
+    } else if (dominant != null && ownRate == null) {
+      // Satz rechnerisch belegt, aber in der App nicht hinterlegt: nichts
+      // Falsches vorbelegen.
+      hints.add(
+        'Steuersatz ${Fmt.vatRate(dominant)} erkannt, in der App noch nicht '
+        'hinterlegt. Bitte Satz prüfen.',
+      );
+    } else if (ownRate != null && !ownRate.isValidOn(onDate)) {
+      hints.add(
+        'Steuersatz ${Fmt.vatRate(dominant!)} erkannt, gilt aber erst ab '
+        '${_ddmmyyyy(ownRate.validFrom!)}. Bitte Satz und Datum prüfen.',
+      );
     } else if (dominant != null) {
       permille = dominant;
+    } else if (expense && ok(r.gross) && profile.rateByPermille(0) != null) {
+      // Kein Steuersatz auf dem Beleg (z. B. nur Kartenbeleg): keinen Satz
+      // erfinden; „ohne Vorsteuer“ (0 %) statt des Standardsatzes vorbelegen.
+      permille = 0;
+      hints.add(profile.noVatShownHint);
     }
     if (r.vatLines.length > 1) {
       hints.add(
@@ -105,6 +133,8 @@ class ReceiptScanPrefill {
       currency: foreign ? r.currency.value : 'EUR',
       originalGross: foreign && ok(r.gross) ? r.gross!.value : null,
       hints: hints,
+      description: classification?.description,
+      categoryName: classification?.categoryName,
     );
   }
 
@@ -117,6 +147,13 @@ class ReceiptScanPrefill {
   final String currency;
   final Money? originalGross;
   final List<String> hints;
+
+  /// Beschreibungsvorschlag („SPAR – Lebensmittel (Baguette, Biomilch)“).
+  final String? description;
+
+  /// Name einer Startkategorie als Vorschlag; das Formular wählt sie nur,
+  /// wenn es eine Kategorie dieses Namens gibt.
+  final String? categoryName;
 }
 
 /// Protokolltext „erkannt gegenüber bestätigt“ für das audit_log (L-2.22,
@@ -173,3 +210,6 @@ class ReceiptScanAudit {
     return parts.join('; ');
   }
 }
+
+String _ddmmyyyy(DateTime d) =>
+    '${d.day.toString().padLeft(2, '0')}.${d.month.toString().padLeft(2, '0')}.${d.year}';

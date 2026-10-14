@@ -36,11 +36,21 @@ class VatRate {
     required this.permille,
     required this.label,
     this.isDefault = false,
+    this.validFrom,
   });
 
   final int permille;
   final String label;
   final bool isDefault;
+
+  /// Erster Tag (Leistungs- bzw. Belegdatum), ab dem der Satz gilt. `null`:
+  /// ohne Beginn. Vorher wird der Satz weder angeboten noch vorbelegt.
+  final DateTime? validFrom;
+
+  /// Gilt der Satz für eine Leistung bzw. einen Beleg vom [date]?
+  bool isValidOn(DateTime date) =>
+      validFrom == null ||
+      !DateTime(date.year, date.month, date.day).isBefore(validFrom!);
 
   double get percent => permille / 10;
 
@@ -80,6 +90,8 @@ class TaxProfile {
     required this.turnoverIncludesVat,
     required this.foundingYearTurnoverLimit,
     required this.retentionYears,
+    required this.foreignVatHint,
+    required this.noVatShownHint,
   });
 
   final Country country;
@@ -151,8 +163,25 @@ class TaxProfile {
   /// Aufbewahrungsfrist für Buchungsbelege in Jahren.
   final int retentionYears;
 
+  /// Hinweis bei erkannter ausländischer Umsatzsteuer auf einem
+  /// Eingangsbeleg (Belegerkennung). Steuerberater-Befund 2026-10-14,
+  /// real zu prüfen: Spezifikation 14, P-S30.
+  final String foreignVatHint;
+
+  /// Hinweis bei einem Beleg ohne Steuerausweis (z. B. nur Kartenbeleg).
+  /// Real zu prüfen: Spezifikation 14, P-S29.
+  final String noVatShownHint;
+
   VatRate get defaultVatRate =>
       vatRates.firstWhere((r) => r.isDefault, orElse: () => vatRates.first);
+
+  /// Sätze, die am [date] gelten (Auswahllisten, Vorbelegung). Ein bereits
+  /// gewählter Satz [keep] bleibt enthalten, damit gespeicherte Werte
+  /// anzeigbar bleiben.
+  List<VatRate> vatRatesOn(DateTime date, {int? keep}) => [
+    for (final r in vatRates)
+      if (r.isValidOn(date) || r.permille == keep) r,
+  ];
 
   VatRate? rateByPermille(int permille) {
     for (final rate in vatRates) {
@@ -162,7 +191,7 @@ class TaxProfile {
   }
 
   /// Österreich – § 6 Abs 1 Z 27 UStG in der ab 1.1.2025 geltenden Fassung.
-  static const austria = TaxProfile(
+  static final austria = TaxProfile(
     country: Country.at,
     vatRates: [
       VatRate(permille: 200, label: 'Normalsteuersatz', isDefault: true),
@@ -170,6 +199,14 @@ class TaxProfile {
       VatRate(
         permille: 100,
         label: 'Ermäßigt (z. B. Lebensmittel, Bücher, Miete)',
+      ),
+      // § 10 Abs 1a UStG 1994 iVm Anlage 3 (BGBl. I Nr. 37/2026): 4,9 % für
+      // Grundnahrungsmittel, Leistungen ab 1.7.2026, unbefristet.
+      // Wortlaut und BGBl.-Nr. im RIS abgleichen: Spezifikation 14, P-S28.
+      VatRate(
+        permille: 49,
+        label: '4,9 % (ermäßigt, Grundnahrungsmittel)',
+        validFrom: DateTime(2026, 7, 1),
       ),
       VatRate(permille: 0, label: 'Steuerfrei / 0 %'),
     ],
@@ -200,10 +237,26 @@ class TaxProfile {
     turnoverIncludesVat: true,
     foundingYearTurnoverLimit: null,
     retentionYears: 7, // § 132 BAO
+    // § 12 Abs 1 Z 1 UStG 1994: nur österreichische USt ist Vorsteuer;
+    // Erstattung nach § 21 Abs 9 UStG iVm VO BGBl. II Nr. 222/2009
+    // (Richtlinie 2008/9/EG), Antrag über FinanzOnline bis 30.09. des
+    // Folgejahres; Mindestbeträge Art. 17 RL 2008/9/EG.
+    foreignVatHint:
+        'Ausländische Umsatzsteuer (z. B. SI 22 %, DK 25 %) ist in der UVA '
+        'nicht als Vorsteuer abziehbar. Sie wird brutto als Ausgabe erfasst. '
+        'Eine Erstattung ist nur über das EU-Vorsteuer-Erstattungsverfahren '
+        '(FinanzOnline, Frist 30.09. des Folgejahres, Mindestbetrag '
+        '50 €/400 €) möglich – nicht für Kleinunternehmer.',
+    // § 11 Abs 6 und § 12 Abs 1 Z 1 UStG 1994: Vorsteuer nur aus einer
+    // Rechnung mit Steuersatz.
+    noVatShownHint:
+        'Beleg ohne Steuerausweis – kein Vorsteuerabzug. Für den Abzug '
+        'Rechnung mit Steuersatz beim Aussteller anfordern '
+        '(Kleinbetragsrechnung § 11 Abs. 6 UStG).',
   );
 
   /// Deutschland – § 19 UStG in der ab 1.1.2025 geltenden Fassung.
-  static const germany = TaxProfile(
+  static final germany = TaxProfile(
     country: Country.de,
     vatRates: [
       VatRate(permille: 190, label: 'Regelsteuersatz', isDefault: true),
@@ -238,5 +291,21 @@ class TaxProfile {
     // 25.000 EUR nicht überschreiten (statt 100.000 EUR).
     foundingYearTurnoverLimit: Money(2500000), // 25.000,00 EUR
     retentionYears: 8, // § 147 AO, Buchungsbelege ab 2025 verkürzt
+    // § 15 Abs 1 Nr 1 UStG: nur deutsche USt ist Vorsteuer; Vergütung nach
+    // § 18 Abs 9 UStG iVm §§ 59–61 UStDV über das BZSt-Online-Portal,
+    // Frist 30.09. des Folgejahres (§ 61 Abs 1 UStDV).
+    foreignVatHint:
+        'Ausländische Umsatzsteuer (z. B. SI 22 %, DK 25 %) ist in der '
+        'Umsatzsteuer-Voranmeldung nicht als Vorsteuer abziehbar. Sie wird '
+        'brutto als Ausgabe erfasst. Eine Erstattung ist nur über das '
+        'Vorsteuer-Vergütungsverfahren beim BZSt (Frist 30.09. des '
+        'Folgejahres, Mindestbetrag 50 €/400 €) möglich – nicht für '
+        'Kleinunternehmer.',
+    // § 15 Abs 1 Nr 1 UStG, § 33 UStDV: Vorsteuer nur aus einer Rechnung
+    // mit Steuersatz.
+    noVatShownHint:
+        'Beleg ohne Steuerausweis – kein Vorsteuerabzug. Für den Abzug '
+        'Rechnung mit Steuersatz beim Aussteller anfordern '
+        '(Kleinbetragsrechnung § 33 UStDV).',
   );
 }

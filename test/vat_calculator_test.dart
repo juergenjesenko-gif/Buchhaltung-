@@ -89,11 +89,12 @@ void main() {
   });
 
   group('Steuersätze der Länderprofile', () {
-    test('Österreich kennt 20, 13, 10 und 0 Prozent', () {
+    test('Österreich kennt 20, 13, 10, 4,9 und 0 Prozent', () {
       expect(TaxProfile.austria.vatRates.map((r) => r.permille).toList(), [
         200,
         130,
         100,
+        49,
         0,
       ]);
       expect(TaxProfile.austria.defaultVatRate.permille, 200);
@@ -106,6 +107,20 @@ void main() {
         0,
       ]);
       expect(TaxProfile.germany.defaultVatRate.permille, 190);
+    });
+
+    test('4,9 % gilt erst für Leistungen ab 1.7.2026', () {
+      final at = TaxProfile.austria;
+      List<int> on(DateTime d) =>
+          at.vatRatesOn(d).map((r) => r.permille).toList();
+      expect(on(DateTime(2026, 6, 30)), [200, 130, 100, 0]);
+      expect(on(DateTime(2026, 7, 1)), [200, 130, 100, 49, 0]);
+      // Ein gespeicherter Satz bleibt anzeigbar.
+      expect(
+        on(DateTime(2026, 6, 30)).length + 1,
+        at.vatRatesOn(DateTime(2026, 6, 30), keep: 49).length,
+      );
+      expect(TaxProfile.germany.vatRatesOn(DateTime(2020)).length, 3);
     });
 
     test('findet einen Satz über seinen Promillewert', () {

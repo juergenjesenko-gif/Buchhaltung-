@@ -1,6 +1,6 @@
 # Spezifikation – Buchhaltung
 
-**Dokumentversion:** 1.36 · **App-Version:** 0.3.3 · **Stand:** 2026-10-13
+**Dokumentversion:** 1.37 · **App-Version:** 0.3.4 · **Stand:** 2026-10-14
 **Status:** Sprint 1 umgesetzt und verifiziert
 
 > Das **Zielbild** des Produkts steht im [`LASTENHEFT.md`](LASTENHEFT.md); dieses
@@ -101,6 +101,13 @@ aus brutto: net   = round(gross × 1000 / (1000 + permille))
 
 Steuersätze werden als Promille-Ganzzahl geführt (20 % = `200`). Das erlaubt
 Sätze mit einer Dezimalstelle ohne Fließkomma.
+
+**Gültigkeitsbeginn eines Satzes:** Ein `VatRate` kann ein `validFrom` tragen.
+Vorher wird er weder in Auswahllisten angeboten noch aus der Belegerkennung
+vorbelegt (`TaxProfile.vatRatesOn`, Stichtag Leistungs- bzw. Belegdatum); ein
+bereits gespeicherter Satz bleibt anzeigbar. Österreich 4,9 % für
+Grundnahrungsmittel nach § 10 Abs 1a UStG 1994 iVm Anlage 3 gilt für
+Leistungen ab 1.7.2026 (`spec.at.vat_49_valid_from`, Prüfpunkt P-S28).
 
 ### GR-4 · Mengen in Tausendsteln
 
@@ -297,7 +304,10 @@ prüft `InvoiceRequirements` (FA-1.4).
 | FA-2.17 | **Diktat** (L-2.18) nur über die Diktierfunktion der Systemtastatur; die App enthält keine Spracherkennung und überträgt nichts. Hinweis im Formular: je nach Gerät kann die Tastatur Sprache an Google oder Apple senden |
 | FA-2.19 | **Belege automatisch auslesen** (Lastenheft L-2.20): nach dem Hinzufügen einer Seite erkennt die App den Text **aller Seiten** auf dem Gerät (Android: Google ML Kit Text Recognition Latin, gebündeltes Modell; iOS: Apple Vision `VNRecognizeTextRequest`) über den Channel `buchhaltung/receipt_text` und die Schnittstelle `ReceiptTextRecognizer`. Der Parser `lib/services/receipt_scan/` ermittelt Belegdatum, Bruttobetrag, Umsatzsteuer je Satz (Sätze aus allen `TaxProfile`s, eigenes Land zuerst), Netto, Händler, Aussteller-UID (Prüfung mit `VatIdFormat`, eigene UID übergangen), Rechnungsnummer und Währung, je mit Konfidenz 0–100. Beträge ganzzahlig in Cent; je Satz gilt `net + vat == gross`. Nur bei neuen Belegen wird automatisch vorbelegt, Felder unter Konfidenz 40 bleiben leer. Vorbelegte Felder tragen „erkannt – bitte prüfen“; gebucht wird erst beim Speichern. Das Originalbild bleibt unverändert. „Erneut auslesen“ startet die Erkennung von Hand |
 | FA-2.28 | **Auslesen echter Belege** (Stufe 1, Korpus `test/fixtures/belege/`): Zeilen werden über die Lage zu Bildzeilen zusammengeführt, auch bei schräg gehaltenem Beleg (Abweichung bis ¾ Zeilenhöhe, nicht bei untereinander stehenden Zeilen gleicher Einrückung). Schlüsselwörter für den Bruttobetrag zusätzlich „Beløb“, „I alt“; ein Betrag ohne Nachkommastellen allein in der Zeile nach dem Schlüsselwort zählt (Konfidenz 60). „685, 88“ wird als 685,88 gelesen. Datum auch TT-MM-JJJJ. Rechnungsnummer auch „Rechnung 37549“. Dänische CVR-Nummer wird als UID `DK…` gelesen. Enthaltene Steuer ohne Prozentangabe („HERAF MOMS 137,18“) ergibt den Satz aus Brutto und Steuer, wenn er einem EU-Satz entspricht. Währung „$“ allein bzw. „kr“ allein ist mehrdeutig (Konfidenz 30): kein Betrag im Euro-Feld, Hinweis zur Währung |
-| FA-2.29 | **Ausländische Umsatzsteuer** bei Ausgaben: erkannter Satz, den das eigene Land nicht kennt, oder Aussteller-UID aus einem anderen Staat → Steuersatz 0 % vorbelegt mit Hinweis „nicht als Vorsteuer abziehbar … Vorsteuer-Vergütungsverfahren“ (§ 12 Abs. 1 Z 1 UStG 1994, § 15 Abs. 1 Nr. 1 UStG; Prüfpunkt P-S27). Bei Kleinunternehmern belegt die App den erkannten Satz unverändert vor und zeigt den bestehenden Hinweis, dass die Vorsteuer nicht abziehbar ist; sie setzt nicht selbst 0 % |
+| FA-2.29 | **Ausländische Umsatzsteuer** bei Ausgaben: erkannter Satz, den das eigene Land nicht kennt, oder Aussteller-UID aus einem anderen Staat → Steuersatz 0 % vorbelegt mit Hinweis „nicht als Vorsteuer abziehbar“ und dem länderspezifischen Text `TaxProfile.foreignVatHint` (AT: EU-Vorsteuer-Erstattung über FinanzOnline; DE: Vorsteuer-Vergütung beim BZSt; Frist 30.09. des Folgejahres, Mindestbetrag 50 €/400 €, nicht für Kleinunternehmer) (§ 12 Abs. 1 Z 1 UStG 1994, § 15 Abs. 1 Nr. 1 UStG; Prüfpunkte P-S27, P-S30). Seit 0.3.4 gilt als ausländisch: Aussteller-UID aus einem anderen Staat oder ein Satz, den nur ein anderes Länderprofil kennt. Bei Kleinunternehmern belegt die App den erkannten Satz unverändert vor und zeigt den bestehenden Hinweis, dass die Vorsteuer nicht abziehbar ist; sie setzt nicht selbst 0 % |
+| FA-2.30 | **Mehrsprachige Erkennung** (0.3.4): Schlüsselwörter für Brutto, Netto, Steuer, Datum, „nicht Belegdatum“ und Rechnungsnummer stehen als Tabellen in `receipt_keywords.dart` für DE, EN, SL, HR, IT, HU, CS, SK, PL, FR, ES, NL, DK, SE, NO (z. B. Skupaj, Ukupno, Totale, Összesen, Celkem, Razem, Totaal, I alt, Summa, Totalt; DDV, PDV, IVA, ÁFA, DPH, PTU, VAT, BTW, MOMS, MVA, TVA, MwSt, USt). Kurze Einträge nur als ganzes Wort. Satz auch nach dem Prozentzeichen („DDV % 22,0“) und mit Dezimalstelle („4,90 %“); die Satzangabe zählt nicht als Betrag. Ein Satz außerhalb der Profile und EU-Sätze gilt nur mit Rechenprobe (Netto + Steuer = Brutto bzw. Steuer zum Brutto). Steuerzeilen mit Rechenprobe gehen einem unsicheren Gesamtbetrag vor (Summe der Zeilen = Brutto), z. B. wenn „Summe“ verdeckt ist. Datum auch mit gemischtem Trenner „05.09,2026“ und JJJJ.MM.TT. Logo-Rauschen bei bekannten Ketten („SPARO“ → SPAR), Rechtsform beendet den Händlernamen |
+| FA-2.31 | **Beschreibung und Kategorie vorschlagen** (0.3.4, `ReceiptClassifier`): Branche aus bekannter Kette oder Schlüsselwörtern (Maut/Vignette, Parken, Tankstelle, Taxi, Hotel, Fahrkarte, Supermarkt, Drogerie, Büro, Elektronik, Post, Telefon, Fachliteratur). Beschreibung „Händler – Branche“, bei Handel mit bis zu drei Artikeln, höchstens 60 Zeichen; nur in ein leeres Feld. Kategorie nur aus den Startkategorien und nur, wenn eine Kategorie mit diesem Namen existiert: Maut/Parken/Treibstoff → Kfz-Kosten, Taxi/Hotel/Fahrkarte → Reisekosten, Supermarkt/Drogerie → Sonstige Ausgaben. Beide Felder „erkannt – bitte prüfen“. Neue Belege starten mit „Sonstige Ausgaben“ bzw. „Sonstige Einnahmen“ statt der alphabetisch ersten Kategorie (vorher „Bankspesen“) |
+| FA-2.32 | **Beleg ohne Steuerausweis** (z. B. nur Kartenbeleg): kein Satz erkannt, Betrag erkannt, Ausgabe → 0 % („ohne Vorsteuer“) mit Hinweis aus `TaxProfile.noVatShownHint` (AT § 11 Abs 6 UStG, DE § 33 UStDV); die App erfindet keinen Satz (P-S29). Erkannter Satz, den die App nicht kennt: nicht vorbelegen, Hinweis „in der App noch nicht hinterlegt“. Satz vor seinem Gültigkeitsbeginn: nicht vorbelegen, Hinweis „gilt aber erst ab …“ |
 | FA-2.20 | Formularfelder **Rechnungsnummer** und **UID des Ausstellers** (Schema 9). Mehrere Steuersätze erkannt: Hinweis mit Brutto je Satz, vorbelegt wird der Satz mit dem größten Anteil; ein Satz, den das eigene Land nicht kennt, wird nicht vorbelegt |
 | FA-2.21 | **Fremdwährung** (L-2.21): nur bei Ausgaben. Erkannte Währung ≠ EUR füllt das Euro-Feld nicht, sondern schaltet das Formular auf Fremdwährung (FA-2.24) mit Betrag laut Beleg. Einnahmen bleiben immer Euro |
 | FA-2.24 | **Fremdwährung umrechnen** (L-2.24): Schalter „Beleg in fremder Währung“ bei Ausgaben; Felder Währung (ISO 4217), Betrag laut Beleg, Kurs (Einheiten je 1 €, höchstens 6 Nachkommastellen), Kursquelle, Kursdatum; das Euro-Brutto wird nach GR-9 berechnet und angezeigt, Netto/Steuer nach GR-2 |
@@ -653,8 +663,8 @@ Offen benannt, weil eine Spezifikation, die ihre Lücken verschweigt, wertlos is
 | **Keine Registrierkasse** | Wer die RKSV-Grenzen (15.000 € Umsatz und 7.500 € Barumsätze) überschreitet, braucht zusätzlich eine registrierkassenpflichtige Lösung | Nicht geplant |
 | **Keine E-Rechnung** | Ein PDF ist keine E-Rechnung nach EN 16931. In Deutschland gilt die Empfangspflicht seit 1.1.2025, die Versandpflicht kommt gestaffelt bis 2028 | Backlog G1 |
 | **Keine Storno-/Gutschriftsrechnung** | Eine gestellte Rechnung ist gesperrt; es gibt derzeit keinen Korrekturweg innerhalb der App | Backlog F4, Sprint 2 |
-| **Steuerwerte fest im Code** | Kennwerte haben kein Gültig-ab-Datum und ändern sich nur per App-Update; eine kurzfristige Gesetzesänderung erreicht die Nutzerin erst nach Store-Freigabe | Rechtsstand-Überwachung, Lastenheft L-20 und L-13.5, Stufe B |
-| **Belegerkennung nicht auf Gerät erprobt** | Android-Teil im CI-Emulator mit R8 an einem synthetischen Kassenbon geprüft, Swift-Teil nur kompiliert; Erkennungsquote an echten Belegen unbekannt (P-D22). Ein Beleg mit mehreren Steuersätzen wird mit einem Satz gebucht | vor Release |
+| **Steuerwerte fest im Code** | Kennwerte außer Steuersätzen (seit 0.3.4 `validFrom`, GR-3) haben kein Gültig-ab-Datum und ändern sich nur per App-Update; eine kurzfristige Gesetzesänderung erreicht die Nutzerin erst nach Store-Freigabe | Rechtsstand-Überwachung, Lastenheft L-20 und L-13.5, Stufe B |
+| **Belegerkennung nicht auf Gerät erprobt** | Android-Teil im CI-Emulator mit R8 an einem synthetischen Kassenbon geprüft, Swift-Teil nur kompiliert; Korpus mit sechs echten Belegen (`test/fixtures/belege/`); Quote auf dem Gerät noch zu bestätigen (P-D22). Mehrsprachige Schlüsselwörter sind teils nur an synthetischen Texten geprüft. Lernen je Händler (Korrekturen merken) fehlt noch. Ein Beleg mit mehreren Steuersätzen wird mit einem Satz gebucht | vor Release |
 | **Fremdwährung nur bei Ausgaben** | Eingangsbelege werden umgerechnet (FA-2.24 bis FA-2.27); Ausgangsrechnungen nur in Euro. Den BMF-Monatskurs lädt die App nicht, er wird von Hand übernommen; das EZB-Monatsmittel ist nur eine Näherung (P-S23, P-S24). DATEV/BMD exportieren nur Euro (P-D23). Ein Land mit anderer Währung setzt Mehrwährungsfähigkeit voraus | Backlog G7 |
 | **Mengen mit zwei Dezimalstellen** | Die Mengeneingabe verarbeitet zwei Nachkommastellen, obwohl das Datenmodell drei erlaubt | – |
 | **Offene Detailseite beim Wechsel der Breitenklasse** | Wird ein Tablet von quer (expanded) auf hoch (medium) gedreht oder das Fenster verkleinert, während rechts ein Beleg, eine Rechnung oder ein Kunde in Bearbeitung ist, schließt sich der Detailbereich; ungespeicherte Eingaben gehen verloren. Gespeichertes bleibt unberührt | später |
@@ -699,7 +709,8 @@ spec.window_expanded_min_dp = 840
 spec.max_content_width_dp = 640
 
 # Österreich – § 6 Abs 1 Z 27 UStG, § 11 Abs 6 UStG, § 132 BAO
-spec.at.vat_permille = 200,130,100,0
+spec.at.vat_permille = 200,130,100,49,0
+spec.at.vat_49_valid_from = 2026-07-01
 spec.at.default_vat_permille = 200
 spec.at.turnover_limit_cents = 5500000
 spec.at.tolerance_limit_cents = 6050000
@@ -741,6 +752,7 @@ Umrechnung: Beträge in Cent. `5500000` Cent = 55.000,00 €.
 
 | Version | Datum | App-Version | Änderung |
 |---|---|---|---|
+| 1.37 | 2026-10-14 | 0.3.4 | Mehrsprachige Belegerkennung (FA-2.30) mit Schlüsselwort-Tabellen in 15 Sprachen, Satz nach „%“, Dezimalsätze, Steuerzeilen vor unsicherem Brutto; Beschreibungs- und Kategorievorschlag (FA-2.31); Beleg ohne Steuerausweis (FA-2.32); ausländische USt mit Länderhinweis aus dem TaxProfile (FA-2.29). Österreich 4,9 % (§ 10 Abs 1a UStG 1994) mit Gültigkeitsbeginn 1.7.2026 (GR-3, `spec.at.vat_permille`, neu `spec.at.vat_49_valid_from`). Neue Prüfpunkte P-S28 bis P-S30. Kein Schemawechsel. |
 | 1.36 | 2026-10-13 | 0.3.3 | Belegerkennung an echten Belegen (FA-2.28, FA-2.29): Korpus mit ML-Kit-Rohdaten aus dem CI-Emulator, Korpustest `test/receipt_corpus_test.dart`, Zeilenzuordnung bei Schräglage, ausländische USt mit 0 % vorbelegt, mehrdeutige Währung nicht als Euro. Neuer Prüfpunkt P-S27. Kein Schemawechsel. |
 | 1.35 | 2026-10-13 | 0.3.2 | Prüfpunkte P-R22, P-R23 (Kontotyp bei Google und Apple für ein e.U.); Formularvorlage `docs/STORE_ANMELDUNG.md`. Keine Codeänderung. |
 | 1.34 | 2026-10-13 | 0.3.2 | Belegerkennung Android abgesichert: ML Kit wird ausdrücklich initialisiert (`MlKitContext.initializeIfNeeded`, falls der MlKitInitProvider fehlt), Datei-/Formatprüfung mit eigener Meldung, Fehlercode enthält Exception-Klasse und erste Stackzeilen. Neuer CI-Job `android-ocr-emulator` prüft die Erkennung eines synthetischen Kassenbons im Emulator im Release-Build mit R8 (`integration_test/receipt_ocr_release.dart`, `tool/ci/ocr_emulator_test.sh`). Kein Schemawechsel. |
@@ -919,6 +931,9 @@ Status: *offen* · *bestätigt* (mit Datum und Prüfer) · *widerlegt* (mit Folg
 | P-S25 | Steuerberatung: Kurs für die Kleinunternehmergrenze bei Fremdwährungsumsätzen | Betrifft nur Einnahmen; diese bleiben Euro (L-13.3), daher derzeit ohne Wirkung | vor Fremdwährung | offen |
 | P-S26 | Steuerberatung: Unterschied Umsatzsteuer-Kurs zu Bankbetrag in E1a bzw. Anlage EÜR | Umgesetzt: Bankbetrag überschreibt nur das EÜR-Ergebnis als Kursdifferenz (FA-2.26), Vorsteuer bleibt beim USt-Kurs | vor Fremdwährung | offen |
 | P-S27 | Steuerberatung: Ausländische Umsatzsteuer auf Belegen (z. B. dänische MOMS 25 %, deutsche USt 19 % bei Nutzerin in AT) ist im Inland nicht als Vorsteuer abziehbar; App belegt 0 % vor und verweist auf das Vorsteuer-Vergütungsverfahren. Bestätigen: Buchung brutto ohne Vorsteuer korrekt, Hinweistext ausreichend | Umgesetzt (FA-2.29), Befund der Prüfinstanz Steuerberater noch zu bestätigen | vor Release | offen |
+| P-S28 | Steuerberatung AT: 4,9 % nach § 10 Abs 1a UStG 1994 iVm Anlage 3 (laut RIS BGBl. I Nr. 37/2026), Leistungen ab 1.7.2026, unbefristet. Wortlaut, Anlage 3 und BGBl.-Nr. im RIS abgleichen; Abgrenzung Grundnahrungsmittel (KN-Positionen, Fett-/Zuckergrenze) | Umgesetzt: Satz im TaxProfile Österreich mit `validFrom` 2026-07-01 (GR-3); Befund der Prüfinstanz Steuerberater 2026-10-14 | vor Release | offen |
+| P-S29 | Steuerberatung: Kartenbeleg ohne Steuerausweis – Betriebsausgabe ja, Vorsteuer nein (§ 11 Abs 6, § 12 Abs 1 Z 1 UStG 1994; DE § 33 UStDV, § 15 UStG). Hinweistext bestätigen | Umgesetzt (FA-2.32): 0 % vorbelegt, Hinweis `noVatShownHint` | vor Release | offen |
+| P-S30 | Steuerberatung: Hinweistext ausländische USt je Land (AT FinanzOnline, DE BZSt; Frist 30.09. Folgejahr; Mindestbeträge 50 €/400 €; nicht für Kleinunternehmer) | Umgesetzt (FA-2.29, `foreignVatHint`) | vor Release | offen |
 | P-L12 | Anwältin: Diktat über die Systemtastatur – Anbieterin nicht verantwortlich, Hinweistext genügt | — | Release | offen |
 | P-L13 | Gerätetest, nur bei eigener Spracherkennung: Erkennung im Flugmodus | — | später | offen |
 | P-L14 | Anwältin: Rollen beim Vertragsarchiv mit KI (Anbieterin als Auftragsverarbeiterin), Muster-AVV, Rechtsgrundlage Beschäftigtendaten | — | Stufe C | offen |
