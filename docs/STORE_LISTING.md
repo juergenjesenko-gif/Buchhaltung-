@@ -69,9 +69,10 @@ einen QR-Link lädst. App-Sperre mit PIN oder Fingerabdruck.
 
 14 TAGE KOSTENLOS TESTEN
 Alle Funktionen 14 Tage kostenlos ausprobieren. Danach Abo Basis 14,90 € oder
-Pro 24,90 € im Monat, Jahresabo mit 20 % Rabatt; Endpreise inkl. USt. Ohne
-Abschluss eines Abos endet der Test von selbst; deine Daten bleiben auf dem
-Gerät und exportierbar.
+Pro 24,90 € im Monat, Jahresabo mit 20 % Rabatt; Endpreise inkl. USt. Der
+Test startet im Store und geht nach 14 Tagen in das Abo über, wenn du nicht
+vorher in den Store-Einstellungen kündigst. Ohne Abo bleiben deine Daten auf
+dem Gerät lesbar und exportierbar.
 
 Hinweis: Diese App unterstützt bei der Buchhaltung, ist aber keine
 Steuerberatung und keine Registrierkasse nach RKSV.
@@ -133,6 +134,13 @@ dem QR-Code beim Server des Rechnungsausstellers; gesendet werden nur Adresse,
 IP-Adresse und Verbindungsdaten, keine Nutzerdaten aus der App. Wie beim
 EZB-Abruf voraussichtlich keine „Erhebung“ im Sinne von Google Data Safety
 bzw. Apple Privacy Label; Einordnung zu prüfen (P-R35).
+**Abo (Google Play Billing, StoreKit):** beim Start und bei „Kauf
+wiederherstellen“ fragt die App den Store des Geräts nach aktiven Abos und
+übergibt nur Produktkennungen; Kauf, Zahlung und Kaufbelege verarbeiten
+Google bzw. Apple selbst. Google Data Safety vorsorglich: „Finanzinformationen
+– Kaufverlauf“, erhoben, nicht geteilt, nicht löschbar über die App (der Store
+führt ihn), Zweck App-Funktion. Apple: „Käufe – Kaufverlauf“, nicht mit der
+Identität verknüpft, App-Funktionalität. Einordnung zu prüfen (P-R37).
 Alles andere bleibt auf dem Gerät, und Androids Auto-Backup ist
 per `data_extraction_rules.xml` deaktiviert. Die Datensicherung ist eine von
 der Nutzerin ausgelöste, mit ihrem Kennwort verschlüsselte Datei, die sie selbst
@@ -143,7 +151,8 @@ Partner und gilt daher nicht als Datenerhebung.
 ## Altersfreigabe
 
 Ohne Einschränkung. Keine nutzergenerierten Inhalte, keine Interaktion zwischen
-Nutzern. Heute keine Käufe; mit dem Abo (Lastenheft 5.22) In-App-Käufe angeben.
+Nutzern. **In-App-Käufe: ja** (Abos Basis und Pro, Lastenheft 5.22) – in beiden
+Stores angeben.
 
 ## Werbe-Negativliste
 
@@ -162,7 +171,8 @@ Vor jeder Änderung von Store-Text, Screenshots oder Produktseite prüfen
 
 Abo-Ankündigung (Entscheidung Auftraggeberin 2026-10-15): „14 Tage kostenlos
 testen“ in Kurz- und Langbeschreibung, in der Langbeschreibung immer mit dem
-Folgepreis; keine Streichpreise, keine Rabattpreise „statt“. Preise vor dem
+Folgepreis und dem Hinweis, dass der Test ohne Kündigung in das Abo übergeht
+(Store-Test, Spezifikation FA-13.4, P-R37); keine Streichpreise, keine Rabattpreise „statt“. Preise vor dem
 Store-Start mit Lastenheft 5.10 und den im Store hinterlegten Preisen abgleichen
 (P-R13). Google Play untersagt Preis- und Werbeangaben im App-Namen und Symbol;
 deshalb steht die Ankündigung nur in den Beschreibungen.

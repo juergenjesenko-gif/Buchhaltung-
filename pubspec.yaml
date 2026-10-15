@@ -4,7 +4,7 @@ publish_to: "none"
 
 # version: <Store-Versionsname>+<Buildnummer>
 # Die Buildnummer wird in CI aus der Run-Nummer gesetzt, siehe docs/RELEASE_PLAYBOOK.md
-version: 0.13.2+20
+version: 0.14.0+21
 
 environment:
   sdk: ^3.10.0
@@ -40,6 +40,10 @@ dependencies:
   local_auth: ^3.0.2
   # E-Rechnungen (XRechnung, ZUGFeRD, ebInterface), reines Dart, MIT.
   xml: ^7.1.0
+  # Abo über Google Play Billing und StoreKit (L-22.2). Kein Server, kein
+  # Drittanbieter-SDK (L-22.10); der Android-Teil nur für den Abowechsel.
+  in_app_purchase: ^3.3.1
+  in_app_purchase_android: ^0.5.4
 
 dev_dependencies:
   flutter_test:

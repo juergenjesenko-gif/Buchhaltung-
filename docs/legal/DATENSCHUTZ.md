@@ -2,9 +2,9 @@
 
 > **ENTWURF – nicht anwaltlich geprüft.** Stand 2026-10-12, Fassung
 > 2026-10-12-entwurf. Grundlage: `docs/PRIVACY.md` und Lastenheft 5.19.
-> Beschreibt nur Funktionen, die im Code tatsächlich vorhanden sind; mit dem
-> Abo (L-22, Paket `in_app_purchase`) und einer KI-Funktion (L-21) ist sie
-> **vor** deren Auslieferung zu ergänzen.
+> Beschreibt nur Funktionen, die im Code tatsächlich vorhanden sind; das Abo
+> (L-22, Paket `in_app_purchase`) ist seit 0.14.0 beschrieben (Abschnitt 6),
+> eine KI-Funktion (L-21) ist **vor** ihrer Auslieferung zu ergänzen.
 
 ## 1. Das Wichtigste in Kürze
 
@@ -72,10 +72,12 @@ außerhalb der EU; das wählst du mit dem Dienst.
 
 ## 6. Abonnement über Google Play und App Store
 
-*(Gilt ab Einführung des Abos, L-22; derzeit noch nicht in der App.)*
 Kauf, Bezahlung, Rechnung und Erstattung wickeln Apple bzw. Google als eigene
-Verantwortliche ab; es gelten deren Datenschutzerklärungen. Die App prüft auf
-deinem Gerät den vom Store signierten Kaufbeleg (Produkt, Ablaufdatum). Wir
+Verantwortliche ab; es gelten deren Datenschutzerklärungen. Beim Start der App
+und bei „Kauf wiederherstellen“ fragt die App über die Store-Schnittstelle
+deines Geräts nach aktiven Abos und übergibt dabei nur die Produktkennungen.
+Auf dem Gerät speichert sie nur Abostufe, Zeitpunkt der letzten Bestätigung
+und Testbeginn (Schlüsselbund bzw. Keystore, nicht in der Sicherung). Wir
 erhalten vom Store nur zusammengefasste Verkaufs- und Auszahlungsberichte und
 anonyme Absturzstatistiken der Stores, keine Buchhaltungsdaten. Name oder
 E-Mail von Käuferinnen erhalten wir grundsätzlich nicht.

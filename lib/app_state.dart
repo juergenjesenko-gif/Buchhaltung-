@@ -19,19 +19,52 @@ import 'services/backup/platform_backup_target.dart';
 import 'services/turnover_basis.dart';
 import 'services/app_lock/app_lock_service.dart';
 import 'services/app_lock/platform_app_lock.dart';
+import 'services/licensing/in_app_purchase_billing.dart';
+import 'services/licensing/license_cache.dart';
+import 'services/licensing/license_manager.dart';
+import 'services/licensing/license_policy.dart';
 
 /// Anwendungszustand. Bewusst ein einziger [ChangeNotifier] statt eines
 /// State-Management-Pakets: der Zustand dieser App ist klein und
 /// überschaubar, und jede Abhängigkeit weniger ist eine Abhängigkeit weniger,
 /// die vor einem Store-Release aktualisiert werden muss.
 class AppState extends ChangeNotifier {
-  AppState(this.repositories);
+  AppState(this.repositories, {LicenseManager? license})
+    : license =
+          license ??
+          LicenseManager(
+            cache: LicensePolicy.enabled
+                ? secureLicenseCache()
+                : MemoryLicenseCache(),
+            billing: InAppPurchaseBilling.new,
+          ) {
+    this.license.onChanged = notifyListeners;
+  }
+
+  // ---------------------------------------------------------------------
+  // Lizenz (L-22.1): Bildschirme fragen nur [allows] bzw. [entitlement].
+
+  final LicenseManager license;
+
+  Entitlement get entitlement => license.entitlement;
+
+  bool allows(Feature feature) => license.allows(feature);
+
+  /// Gespeicherten Stand laden, dann beim Store prüfen (L-22.5).
+  Future<void> initLicense() async {
+    try {
+      await license.init();
+    } on Object {
+      // Kein Schlüsselbund: Stand bleibt leer, der Store entscheidet.
+    }
+  }
 
   static Future<AppState> open() async {
     final db = await AppDatabase.instance.database;
     final state = AppState(Repositories(db));
     await state.reload();
     await state.initAppLock();
+    await state.initLicense();
     return state;
   }
 

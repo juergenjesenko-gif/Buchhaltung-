@@ -16,6 +16,7 @@ import '../onboarding/company_setup_screen.dart';
 import '../receipts/receipt_edit_screen.dart';
 import '../settings/settings_screen.dart';
 import '../help/help_screen.dart';
+import '../licensing/license_notice.dart';
 
 /// Kassabuch-Übersicht: das Erste, was der Nutzer sieht.
 ///
@@ -156,6 +157,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
           // (Gerätetest 0.3.4).
           padding: const EdgeInsets.fromLTRB(16, 8, 16, 112),
           children: [
+            const LicenseNotice(),
             if (profile != null && !profile.canIssueInvoices) ...[
               NoticeBanner(
                 icon: Icons.warning_amber_rounded,

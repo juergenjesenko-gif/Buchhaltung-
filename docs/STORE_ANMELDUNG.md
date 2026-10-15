@@ -146,6 +146,62 @@ E-Mail wie oben (erscheinen öffentlich im EU-App-Store).
 Danach im Zahlungsprofil: Bankverbindung, Steuerangaben (UID ATU81604346), und
 unter „Trader-Status“ (EU, DSA) „Händler“ mit denselben öffentlichen Angaben.
 
+## Formular 4: Abos anlegen (ab App-Version 0.14.0)
+
+Die App erwartet genau diese **Produkt-IDs** (Spezifikation FA-13.3, Prüfpunkt
+P-D30). Tippfehler = Abo wird nicht gefunden.
+
+| Produkt-ID | Tarif | Zeitraum | Preis inkl. USt (Lastenheft 5.10) | Test |
+|---|---|---|---|---|
+| `basis_monat` | Basis | 1 Monat | 14,90 € | – |
+| `basis_jahr` | Basis | 1 Jahr | 142,90 € | – |
+| `pro_monat` | Pro | 1 Monat | 24,90 € | 14 Tage gratis |
+| `pro_jahr` | Pro | 1 Jahr | 238,90 € | 14 Tage gratis |
+
+Rabattpreise (12,90 € / 19,90 €) **nicht** als Standardpreis eintragen, nur
+später als befristetes Angebot (P-R2).
+
+### Google Play
+
+1. Zahlungsprofil fertig? Bank und Steuer prüfen:
+   [payments.google.com](https://payments.google.com/gp/w/home/settings).
+2. Einen Build **mit Abo** (0.14.0 oder neuer, Store-Build mit
+   `LICENSING=true`) in den internen Test hochladen – Google erlaubt Abos erst,
+   wenn ein Build mit Abrechnung hochgeladen ist:
+   [Play Console](https://play.google.com/console/developers) → App → Testen →
+   Interner Test.
+3. App → **Monetarisieren → Abos** → „Abo erstellen“: Produkt-ID wie oben,
+   Name „JeNi bucht Basis“ bzw. „JeNi bucht Pro“.
+4. Je Abo einen **Basis-Tarif** anlegen: „Automatische Verlängerung“, Zeitraum
+   Monat bzw. Jahr (bei Google: ein Produkt je Zeile der Tabelle, je ein
+   Basis-Tarif), Preis für Österreich und Deutschland eintragen, aktivieren.
+5. Bei `pro_monat` und `pro_jahr`: **Angebot hinzufügen** → Berechtigung
+   „Neukunden“ → Phase „Kostenloser Testzeitraum“ 14 Tage → aktivieren.
+6. Je Basis-Tarif **Kulanzzeitraum** (Grace Period) auf 7 Tage oder mehr
+   stellen.
+7. Testkonten eintragen: Play Console → **Einstellungen → Lizenztests** →
+   deine Google-Adresse hinzufügen (Testkäufe kosten dann nichts).
+
+### Apple App Store
+
+1. **Vertrag für kostenpflichtige Apps** annehmen, Bank- und Steuerdaten
+   eintragen: [App Store Connect → Business](https://appstoreconnect.apple.com/business).
+2. [App Store Connect → Apps](https://appstoreconnect.apple.com/apps) → App →
+   **Monetarisierung → Abonnements** → Abogruppe „JeNi bucht“ anlegen.
+3. In dieser **einen** Gruppe die vier Abos mit den Produkt-IDs oben anlegen;
+   Rangfolge: Pro (Stufe 1) über Basis (Stufe 2) – dann wechselt Apple ohne
+   Doppelabo.
+4. Je Abo Preis für Österreich und Deutschland wählen (Preisstufe nächst
+   14,90 € usw.), Anzeigename und Beschreibung auf Deutsch, Prüfungs-Screenshot
+   der Abo-Seite der App.
+5. Bei beiden Pro-Abos **Einführungsangebot** → „Kostenlos“ → 2 Wochen.
+6. In der Abogruppe **Kulanzzeitraum für Abrechnung** (Billing Grace Period)
+   einschalten.
+7. Sandbox-Testkonto anlegen:
+   [Benutzer und Zugriff → Sandbox](https://appstoreconnect.apple.com/access/users/sandbox).
+
+Danach die Testkäufe nach Prüfpunkt **P-D4** durchgehen.
+
 ## Was du vorher entscheiden solltest
 
 Entschieden am 2026-10-13:

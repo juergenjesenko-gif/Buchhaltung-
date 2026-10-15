@@ -63,7 +63,8 @@ jobs:
       # zurückgehen. github.run_number ist monoton und übersteht Reruns.
       - name: App Bundle bauen
         run: |
-          ARGS="--release --build-number=${{ github.run_number }}"
+          # Store-Build: Lizenzprüfung ein (Spezifikation FA-13.10).
+          ARGS="--release --build-number=${{ github.run_number }} --dart-define=LICENSING=true"
           if [ -n "${{ inputs.version }}" ]; then
             ARGS="$ARGS --build-name=${{ inputs.version }}"
           fi
@@ -130,7 +131,8 @@ jobs:
 
       - name: IPA bauen
         run: |
-          ARGS="--release --build-number=${{ github.run_number }}"
+          # Store-Build: Lizenzprüfung ein (Spezifikation FA-13.10).
+          ARGS="--release --build-number=${{ github.run_number }} --dart-define=LICENSING=true"
           if [ -n "${{ inputs.version }}" ]; then
             ARGS="$ARGS --build-name=${{ inputs.version }}"
           fi

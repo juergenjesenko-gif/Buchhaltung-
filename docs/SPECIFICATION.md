@@ -1,7 +1,7 @@
 # Spezifikation – Buchhaltung
 
-**Dokumentversion:** 1.55 · **App-Version:** 0.13.2 · **Stand:** 2026-10-15
-**Status:** Testbuild 0.13.2 (Schema 18); Store-Start offen, siehe Abschnitt 11 und 14
+**Dokumentversion:** 1.56 · **App-Version:** 0.14.0 · **Stand:** 2026-10-15
+**Status:** Testbuild 0.14.0 (Schema 18); Store-Start offen, siehe Abschnitt 11 und 14
 
 > Das **Zielbild** des Produkts steht im [`LASTENHEFT.md`](LASTENHEFT.md); dieses
 > Dokument beschreibt, was die App **heute tatsächlich tut**.
@@ -668,6 +668,26 @@ Server-Entscheidung; Prüfpunkte P-R25, P-R26.
 | FA-11.5 | Die Rechtstexte sind **eine Quelle**: `docs/legal/IMPRESSUM.md`, `DATENSCHUTZ.md`, `NUTZUNGSBEDINGUNGEN.md` sind selbst Assets (`LegalDocument`), offline mit dem Markdown-Darsteller der Hilfe lesbar. Der Entwurfsblock der Datei wird ausgeblendet; solange `LegalDocument.reviewed` `false` ist (P-L1 offen), steht darüber der Vermerk „Entwurf – noch nicht anwaltlich geprüft“. Im Store-Build entfällt er (P-L20). `test/legal_documents_test.dart` prüft Asset-Einbindung, Vollständigkeit und dass `reviewed` zum Entwurfsvermerk der Dateien passt |
 | FA-11.3 | **Ohne Treffer:** Hinweis und Knopf „E-Mail an den Support“; mit Treffern zusätzlich „Nicht dabei? Support fragen“. Öffnet die Mail-App (`mailto:office@jenibarb.com`, Android `ACTION_SENDTO`, iOS `UIApplication.open`, Kanal `buchhaltung/launcher` Methoden `openMail`, `appVersion`) mit Betreff „Frage zu JeNi bucht (Version x.y.z): <Suchtext>“. Kein Text, kein Anhang, keine Daten automatisch; gesendet wird nur, was die Nutzerin selbst abschickt. Ohne Mail-App: Dialog mit Adresse und „Adresse kopieren“ |
 
+### 5.9 Lizenz und Abo
+
+Lastenheft 5.10 und 5.22. Bezahlung **nur** über die Stores (Google Play
+Billing, StoreKit 2) mit dem Paket `in_app_purchase`; kein Server, kein
+Nutzerkonto, kein Drittanbieter-SDK. Code in `lib/services/licensing/`
+(reines Dart bis auf den Adapter), Oberfläche in `lib/features/licensing/`.
+
+| ID | Anforderung |
+|---|---|
+| FA-13.1 | **Ein Anspruch** (L-22.1): `Entitlement` = `none` (nie ein Abo), `readOnly` (Abo beendet), `basis`, `pro`. Einzige Entscheidung über Funktionen ist `Entitlement.allows(Feature)` in `license_policy.dart`; Bildschirme fragen nur `AppState.allows` bzw. `ensureFeature` (`features/licensing/feature_gate.dart`), nie den Store und nie den Tarif |
+| FA-13.2 | **Tarifschnitt heute** (Lastenheft 5.10, O-4): `Feature.newBookings` (neuen Beleg speichern, neue Rechnung speichern, Rechnung ausstellen) ab Basis; `Feature.receiptRecognition` (Belegerkennung FA-2.19 ff.) nur Pro. **Immer frei, auch ohne Abo:** ansehen, Belege und Entwürfe ändern, drucken, PDF teilen, Export, Sicherung, Wiederherstellung, Rechtliches, Hilfe (L-10.4, L-7.15, L-22.6). Weitere Pro-Funktionen des Lastenhefts sind noch nicht gebaut |
+| FA-13.3 | **Produkte** (L-22.2): eine Abogruppe mit `basis_monat`, `basis_jahr`, `pro_monat`, `pro_jahr` (Kenndaten `spec.license_product_ids`). Wechsel innerhalb der Gruppe ersetzt das Abo: Android über `ChangeSubscriptionParam` (anteilige Zeitgutschrift), iOS über die Abogruppe (Upgrade sofort, Downgrade zum Periodenende) |
+| FA-13.4 | **Test** (L-10.3, L-22.3): 14 Tage Pro als Einführungsangebot der Stores (Kenndaten `spec.license_trial_days`); der Store entscheidet über die Berechtigung. Android: bietet Play ein Angebot mit kostenloser erster Preisphase, wird dieses gekauft. Der Test geht nach Ablauf in das Abo über, wenn die Nutzerin nicht kündigt. Erster Pro-Kauf ohne früheres Abo merkt sich den Beginn; **3 Tage vor Ende** zeigt die Übersicht „Dein kostenloser Test endet am …“ (`spec.license_trial_reminder_days`) |
+| FA-13.5 | **Abo-Seite** (`features/licensing/subscription_screen.dart`, L-22.7, L-22.8; Einstellungen → Abo, Übersicht-Hinweis, gesperrte Funktion): Stand, Umschalter Monatlich/Jährlich (56 dp), Karten Pro und Basis mit **Preis aus dem Store** inkl. USt je Zeitraum (nie im Code), bei Pro ohne früheres Abo „Erst 14 Tage kostenlos, danach ‹Preis› pro ‹Zeitraum›“, Knopf 56 dp volle Breite. Darunter Pflichttext: automatische Verlängerung um denselben Zeitraum, Kündigung spätestens 24 Stunden vor Ablauf in den Store-Einstellungen, Übergang des Tests, Widerruf und Erstattung über den Store, Daten bleiben immer lesbar. Zeilen „Kauf wiederherstellen“, „Abo verwalten oder kündigen“ (Sprung `https://play.google.com/store/account/subscriptions` bzw. `https://apps.apple.com/account/subscriptions`, ohne Browser Anleitung als Meldung), Nutzungsbedingungen, Datenschutzerklärung (offline, FA-11.5) |
+| FA-13.6 | **Store-Abfrage** (L-22.5): beim Start im Hintergrund und bei „Kauf wiederherstellen“. Gilt als verlässlich nur, wenn der Store verfügbar ist **und** die Produktliste geladen wurde; dann `restorePurchases` und Sammeln der gemeldeten Käufe (bis 6 s plus 1 s). Unverlässlich (offline, Fehler) → Stand bleibt, Meldung „Store nicht erreichbar. Dein Abo gilt weiter.“ Offene Käufe werden abgeschlossen (`completePurchase`) |
+| FA-13.7 | **Offline und Kulanz** (L-10.5, L-22.5): der zuletzt bestätigte Stand (Stufe, Zeitpunkt, je ein Abo, Testbeginn) liegt im Schlüsselbund bzw. Keystore (`flutter_secure_storage`, nur dieses Gerät, nie in der Sicherung) und gilt **45 Tage** ab der letzten Bestätigung (`spec.license_offline_grace_days`: längster Monat 31 + 14 Tage Kulanz). Ab Tag 31 (`spec.license_offline_warn_days`) bittet die Übersicht, die App einmal mit Internet zu öffnen |
+| FA-13.8 | **Herabstufen statt sperren** (L-22.6): Pro endet → Basis, wenn Basis aktiv; sonst Nur lesen. Die Übersicht zeigt nach einer Herabstufung einmal „Dein Abo ‹Stufe› ist beendet …“ (bis zum Tippen); höchstens ein Abo-Hinweis zur Zeit (`features/licensing/license_notice.dart`), Reihenfolge Herabstufung, Testende, Bestätigung fehlt, Nur lesen, kein Abo |
+| FA-13.9 | **Gesperrte Funktion:** `ensureFeature` öffnet die Abo-Seite mit Begründung und prüft danach erneut; das Formular bleibt mit allen Eingaben offen. Beim Beleg ersetzt bei fehlendem Pro der Knopf „Automatisch auslesen (Pro)“ das stille Auslesen |
+| FA-13.10 | **Testbuild-Schalter:** Lizenzprüfung nur mit `--dart-define=LICENSING=true` (`LicensePolicy.enabled`); ohne ihn voller Umfang, kein Store-Zugriff, Abo-Seite zeigt „Testversion“. Store-Builds setzen den Schalter (`.github/workflows/release.yml`, P-D30) |
+
 ---
 
 ## 6. Zustandsmodelle
@@ -723,7 +743,7 @@ Kleinunternehmer:
 | Bestätigungen | `features/onboarding/consent_screen.dart` | Hinweis „keine Steuerberatung“, Nutzungsbedingungen und Datenschutz bestätigen |
 | Onboarding / Stammdaten | `features/onboarding/company_setup_screen.dart` | Firmenprofil anlegen und bearbeiten, Firmenlogo, Skonto-Vorschlag und AGB-Adresse (FA-5.17, FA-5.19); Abschnitt „Wirtschaftsjahr und Termine“ (FA-10.1, nur Stammdaten) |
 | Hauptnavigation | `features/home/home_shell.dart` | Vier Bereiche: Tab-Leiste (compact) oder Navigationsleiste links (medium, expanded), FA-9.2; einmaliges Angebot „App-Symbol auf den Startbildschirm“ (FA-1.19) |
-| Übersicht | `features/dashboard/dashboard_screen.dart` | Kassabuch, Umsatzsteuer, Grenzwertampel, Termin-Box „Nächste Termine“ (FA-10.3), Verlauf; zentrierter Knopf „Beleg fotografieren“ (FA-12.1), Zeitraum-Chips umbrechend; unten 112 dp Abstand, damit der Knopf keine Karte verdeckt |
+| Übersicht | `features/dashboard/dashboard_screen.dart` | Abo-Hinweis (FA-13.8), Kassabuch, Umsatzsteuer, Grenzwertampel, Termin-Box „Nächste Termine“ (FA-10.3), Verlauf; zentrierter Knopf „Beleg fotografieren“ (FA-12.1), Zeitraum-Chips umbrechend; unten 112 dp Abstand, damit der Knopf keine Karte verdeckt |
 | Belegliste | `features/receipts/receipt_list_screen.dart` | Suchen, filtern, öffnen; Chip-Reihe mit Jahr, Alle/Einnahmen/Ausgaben, „Storniert“, umbrechend (FA-12.4) |
 | Beleg bearbeiten | `features/receipts/receipt_edit_screen.dart` | Erfassen, Seiten, Aufteilung nach Steuersätzen (`vat_split_editor.dart`, FA-2.33), Hinweisstreifen Link-QR (`link_invoice_strip.dart`, FA-2.42), Vermerk „vom Kassen-QR“ (FA-2.36), Originaldatei bei PDF/E-Rechnung (FA-2.41), automatisches Auslesen mit „Erneut auslesen“, Betrag, Fremdwährung mit „Kurs abrufen“ und Bankbetrag (FA-2.24 bis FA-2.26), Kategorie, Rechnungsnummer, Aussteller-UID, Kommentare; stornierte Belege nur lesen. Speicherleiste unten fixiert (`receipt_save_bar.dart`), über der Tastatur, Primärknopf 56 dp hoch: Telefon volle Breite, ab 600 dp rechtsbündig; bei neuen Seiten „Vollständig – Beleg speichern“ (FA-2.14) |
 | Rechnungsliste | `features/invoices/invoice_list_screen.dart` | Status, PDF teilen, Aktionen; Knopf „Bezahlt“ mit Bottom-Sheet Zahlungseingang und Skonto (FA-5.12, FA-5.18); Korrigieren und Stornieren mit Bottom-Sheet (FA-5.31, FA-5.32), Löschen mit Bestätigung (FA-5.20) |
@@ -735,9 +755,10 @@ Kleinunternehmer:
 | Wiederherstellungscode | `features/backup/recovery_code_setup_screen.dart` | Druckblatt teilen/drucken, zwei Blöcke abtippen (FA-7.10) |
 | Rechtliches | `features/settings/legal_screen.dart` | Impressum, Datenschutz, Nutzungsbedingungen, keine Steuerberatung, Support, Lizenzen (FA-11.4, FA-11.5) |
 | Export | `features/export/export_screen.dart` | Zeitraum, Vorschau, Format |
-| Einstellungen | `features/settings/settings_screen.dart` | Stammdaten, App-Sperre, Symbol auf Startbildschirm (FA-1.19, nur Android), Belege auslesen, Fremdwährung (Tageskurs-Genehmigung), Kategorien, Rechtsrahmen, Hinweise |
+| Einstellungen | `features/settings/settings_screen.dart` | Stammdaten, App-Sperre, Abo (FA-13.5), Symbol auf Startbildschirm (FA-1.19, nur Android), Belege auslesen, Fremdwährung (Tageskurs-Genehmigung), Kategorien, Rechtsrahmen, Hinweise |
 | App-Sperre einrichten | `features/app_lock/app_lock_settings_screen.dart` | PIN, Biometrie, Sperrzeit, Hinweis „PIN vergessen“, Warnung ohne Sicherung |
 | Sperrbildschirm | `features/app_lock/lock_screen.dart` | PIN oder Biometrie, Wartezeit nach Fehlversuchen; Abdeckung im App-Umschalter |
+| Abo | `features/licensing/subscription_screen.dart` | Stand, Monatlich/Jährlich, Basis und Pro mit Store-Preis, Test, Pflichttext, Kauf wiederherstellen, Abo verwalten, Nutzungsbedingungen, Datenschutz (FA-13.5) |
 | Hilfe | `features/help/help_screen.dart` | Suche im Handbuch (FA-11.2), Abschnitt lesen, Support-Mail ohne Treffer (FA-11.3); erreichbar über das Fragezeichen oben rechts (FA-11.1) |
 
 **Navigation:** Vier Ziele – Übersicht, Belege, Rechnungen, Export – in der
@@ -888,6 +909,15 @@ feste Datei der Europäischen Zentralbank ab (`eurofxref-hist-90d.xml` bzw.
 Verbindungsdaten, keine Belegdaten, keine Währung, kein Betrag. Offengelegt in
 `PRIVACY.md`, Lastenheft 5.19 und `STORE_LISTING.md`; Prüfung P-R18.
 
+**Abo (FA-13.6):** beim Start und bei „Kauf wiederherstellen“ fragt die App
+über Google Play Billing bzw. StoreKit beim Store des Geräts nach aktiven Abos;
+beim Kauf öffnet das Kaufblatt des Stores. Die App sendet dabei nur die
+Produkt-IDs; Store-Konto, Zahlungsdaten und Kaufbelege bleiben bei Apple bzw.
+Google, der Anbieter erhält nur zusammengefasste Verkaufsberichte. Am Gerät
+bleibt nur Stufe, Zeitpunkt der Bestätigung und Testbeginn (Schlüsselbund).
+Offengelegt in `PRIVACY.md`, Lastenheft 5.19 und `STORE_LISTING.md`; Prüfung
+P-R37.
+
 ### 10.2 Berechtigungen
 
 | Berechtigung | Plattformschlüssel | Zweck |
@@ -897,6 +927,8 @@ Verbindungsdaten, keine Belegdaten, keine Währung, kein Betrag. Offengelegt in
 | Fotobibliothek schreiben | `NSPhotoLibraryAddUsageDescription` | Rechnung in der Fotobibliothek ablegen |
 | Face ID | `NSFaceIDUsageDescription` | App-Sperre entsperren (FA-1.16); Auswertung durch das System |
 | Biometrie (Android) | `USE_BIOMETRIC` (über `local_auth`) | App-Sperre entsperren (FA-1.16); Auswertung durch das System |
+
+Android `com.android.vending.BILLING` fügt das Paket `in_app_purchase_android` beim Bauen ins Manifest ein (keine Laufzeitabfrage).
 
 Android benötigt für `image_picker` keine Manifest-Berechtigung, weil die
 Aufnahme über die System-Kamera-App per Intent läuft.
@@ -926,6 +958,7 @@ Offen benannt, weil eine Spezifikation, die ihre Lücken verschweigt, wertlos is
 | **Plattformimport ohne Dateiauswahl in der App** | Die Exportdatei kommt über Teilen bzw. „Öffnen mit“ (Dateien-App, Downloads); eine eigene Dateiauswahl fehlt. Nur EUR; Bestimmungsland für OSS nur näherungsweise (Marktplatz, Lieferland), bei PayPal/Stripe keins. Umsatzsteuer der Verkäufe ohne Steuerspalte zum Normalsatz (P-S51); Spaltennamen nur an synthetischen Dateien geprüft (P-S55) | später |
 | **Mengen mit zwei Dezimalstellen** | Die Mengeneingabe verarbeitet zwei Nachkommastellen, obwohl das Datenmodell drei erlaubt | – |
 | **Offene Detailseite beim Wechsel der Breitenklasse** | Wird ein Tablet von quer (expanded) auf hoch (medium) gedreht oder das Fenster verkleinert, während rechts ein Beleg, eine Rechnung oder ein Kunde in Bearbeitung ist, schließt sich der Detailbereich; ungespeicherte Eingaben gehen verloren. Gespeichertes bleibt unberührt | später |
+| **Abo nicht mit echten Stores erprobt** | Die Lizenzlogik ist mit einem Store-Ersatz getestet (`test/licensing_test.dart`); Produkte in Play Console und App Store Connect fehlen noch (P-D30), Testkäufe ebenso (P-D4). Kaufbelege werden **nicht selbst** kryptografisch geprüft (L-22.4 offen): die App verlässt sich auf die Prüfung durch Play Billing bzw. StoreKit 2 im Paket. Ob StoreKit ohne Abo ein leeres Ergebnis meldet, ist unbekannt; die App wartet bis 7 s (P-D31). Die Testerinnerung kennt nur Käufe auf diesem Gerät; nach Neuinstallation fehlt sie | vor Store-Start |
 | **Android-APK-Build nicht lokal verifiziert** | Im Entwicklungscontainer ist `dl.google.com` per Netzwerk-Policy gesperrt, das Android SDK ließ sich nicht installieren. Analyse, Format und Tests laufen lokal; die Plattform-Builds verifiziert die CI | – |
 
 ---
@@ -971,6 +1004,11 @@ spec.app_lock_backoff_max_seconds = 3600
 spec.window_medium_min_dp = 600
 spec.window_expanded_min_dp = 840
 spec.max_content_width_dp = 640
+spec.license_trial_days = 14
+spec.license_trial_reminder_days = 3
+spec.license_offline_grace_days = 45
+spec.license_offline_warn_days = 31
+spec.license_product_ids = basis_monat,basis_jahr,pro_monat,pro_jahr
 
 # Österreich – § 6 Abs 1 Z 27 UStG, § 11 Abs 6 UStG, § 132 BAO
 spec.at.vat_permille = 200,130,100,49,0
@@ -1049,6 +1087,7 @@ Dauerfristverlängerung, `02-15,…` = feste Tage, `+1j07-31` = Folgejahr,
 
 | Version | Datum | App-Version | Änderung |
 |---|---|---|---|
+| 1.56 | 2026-10-15 | 0.14.0 | App-Version 0.14.0 (Testbuild): Lizenz und Abo (neuer Abschnitt 5.9, FA-13.1 bis FA-13.10; Lastenheft 5.10, 5.22): Anspruch keiner/nur lesen/Basis/Pro an einer Stelle, Belegerkennung nur Pro, neue Buchungen ab Basis, Lesen/Export/Sicherung immer; Paket `in_app_purchase`, eine Abogruppe mit vier Produkten, Test über die Stores, Abo-Seite mit Store-Preisen und Pflichttext, Kauf wiederherstellen, Abo verwalten; Stand im Schlüsselbund, offline 45 Tage gültig, Hinweis ab Tag 31; Herabstufen statt sperren. Lizenzprüfung nur mit `LICENSING=true`. Neuer Datenfluss in 10.1, Berechtigung BILLING in 10.2, neue Grenze in 11. Kenndaten `spec.license_*`. Neue Prüfpunkte P-R37, P-R38, P-X10, P-D30, P-D31; P-D4 präzisiert. Kein Schemawechsel. |
 | 1.55 | 2026-10-15 | 0.13.2 | App-Version 0.13.2 (Testbuild), Gerätetest Google-Beleg: „$“ mit US-Merkmalen als USD-Vorschlag vorbelegt, bekannte Anbieter als Lieferant, Satz aus Steuerbetrag ohne Prozent (Apple-Beleg 16,50/99,00 → 20 %), Hinweis ohne Steuerausweis nicht für Kleinunternehmer (FA-2.28). Kein Schemawechsel. |
 | 1.54 | 2026-10-15 | 0.13.1 | App-Version 0.13.1 (Testbuild), Fehlerbehebung Gerätetest 0.13.0: Beträge mit geschütztem Leerzeichen als Tausendertrenner werden gelesen (bearbeitete Rechnung und Korrekturentwurf zeigten 0 €); Leiste „Beenden“ / „PDF senden“, Zurück speichert den Entwurf (FA-5.34, FA-5.20); Teilen auf Android über eigenen FileProvider (FA-5.35). Neue Prüfpunkte P-X9, P-D29. |
 | 1.53 | 2026-10-15 | 0.13.0 | App-Version 0.13.0 (Testbuild): Stornorechnung mit eigener Nummer aus dem gemeinsamen Nummernkreis, Bezug, Grund, negativen Beträgen je Satz, Rückzahlung als negative Einnahme bei bezahltem Original, Mahnungen mitstorniert; „Korrigieren“ = Storno + Entwurfskopie (GR-14, FA-5.11, FA-5.31 bis FA-5.33, 6.1; Schema 18). Menü „Rechtliches“ mit Rechtstexten als Assets und Entwurfsvermerk (FA-11.4, FA-11.5). Wiederherstellungscode als Druckblatt mit QR-Code und Bestätigung durch zwei Blöcke (FA-7.10). Grenze „Keine Storno- oder Korrekturrechnung“ ersetzt durch „Storno nur vollständig“. Neue Prüfpunkte P-S56, P-L20, P-X8, P-D28. |
@@ -1202,6 +1241,7 @@ Status: *offen* · *bestätigt* (mit Datum und Prüfer) · *widerlegt* (mit Folg
 | P-X7 | Links- und Rechtshand auf dem Pixel 10: „Beleg erfassen“, „Neue Rechnung“, Rechnungskarte (Erinnern, Bezahlt, PDF senden), Mahnsymbol, „Weiteren Steuersatz hinzufügen“ ohne Umgreifen | Widget-Tests für Lage und Größe der zentrierten Knöpfe (Regel 12) | Release | offen |
 | P-X8 | Einhandtest auf dem Pixel 10: Rechnung „Korrigieren“ und „Stornieren“ (Menü ⋮, Grund-Vorschlag mit einem Tipp, Knopf unten, nicht neben Abbrechen), Wiederherstellungscode (Druckblatt teilen, zwei Blöcke abtippen mit Tastatur offen, Knopf über der Tastatur), Einstellungen → Rechtliches lesen | Widget-Tests: Knöpfe ≥ 48 dp, Bestätigung erst nach richtigen Blöcken; Gefahrenknopf 56 dp volle Breite in Fehlerfarbe | Release | offen |
 | P-X9 | Einhandtest auf dem Pixel 10: Rechnung bearbeiten, „Beenden“ und „PDF senden“ mit dem Daumen ohne Fehlgriff, nach dem Teilen-Blatt zurück im Formular, System-Zurück-Geste speichert den Entwurf bzw. fragt einmal | Widget-Test: beide Knöpfe ≥ 48 dp, Zurück ohne Kunde zeigt den Dialog (`invoice_form_ux_test.dart`) | Release | offen |
+| P-X10 | Abo-Seite auf Pixel 10 und iPhone einhändig: Monatlich/Jährlich, Kaufknopf, Kauf wiederherstellen, Abo verwalten mit dem Daumen ohne Fehlgriff; Store-Kaufblatt erscheint, Rückkehr in die Abo-Seite; Hinweis auf der Übersicht verständlich; Beleg im Nur-Lese-Modus: Abo-Seite statt Verlust der Eingaben | Widget-Test: alle Bedienelemente ≥ 48 dp, Kaufknöpfe 56 dp volle Breite (`licensing_test.dart`) | Store-Start | offen |
 
 ### Softwareentwicklung (echte Geräte und Stores)
 
@@ -1210,7 +1250,7 @@ Status: *offen* · *bestätigt* (mit Datum und Prüfer) · *widerlegt* (mit Folg
 | P-D1 | Update einer echten v1-Installation auf Schema 2 und folgende | Upgrade-Test mit ffi vorhanden; echtes Gerät fehlt | Release | offen |
 | P-D2 | PDF mit Umlauten, CSV in Excel/Numbers | nicht verifiziert | Release | offen |
 | P-D3 | Datensicherung und Wiederherstellung über iCloud Drive / Google Drive | noch nicht gebaut | Release | offen |
-| P-D4 | Abo-Testkäufe in Sandbox beider Stores (Test, Basis/Pro, Angebote, Jahresabo, Offline-Lizenz) | noch nicht gebaut | Stufe B | offen |
+| P-D4 | Abo-Testkäufe in Sandbox beider Stores (Lizenztester Google, Sandbox-Konto Apple; Build mit `LICENSING=true`): Test 14 Tage Pro mit Übergang, Basis, Wechsel Basis↔Pro ohne Doppelabo, Jahresabo, Kündigung → Nur lesen mit Hinweis, Kauf wiederherstellen nach Neuinstallation, ausstehende Zahlung, Flugmodus (Stand bleibt), Grace Period | Logik mit Store-Ersatz getestet (`licensing_test.dart`, FA-13.1 bis FA-13.10); Adapter nur kompiliert | Store-Start | offen |
 | P-D5 | iOS Privacy Manifest, Data-Safety- und Privacy-Label-Angaben inkl. aller SDKs | Manifest fehlt | erster Upload | offen |
 | P-D6 | Android targetSdk-Vorgabe 2026, Signing, Bundle-ID `at.jesenko.buchhaltung` endgültig | Bundle-ID personenbezogen, nach Release unveränderlich | erster Upload | offen |
 | P-D7 | Kamera, Fotoablage, Spracheingabe auf echten Geräten | — | Release | offen |
@@ -1320,6 +1360,8 @@ Status: *offen* · *bestätigt* (mit Datum und Prüfer) · *widerlegt* (mit Folg
 | P-R34 | Pauschale 40 € (§ 458 UGB, § 288 Abs 5 BGB) nur B2B, Anrechnung auf Rechtsverfolgungskosten; Verzugszinsen ohne Vereinbarung erst ab Verzug (DE: Mahnung oder 30 Tage mit Hinweis) | umgesetzt als Vorschlag, Entscheidung bei der Nutzerin | Release | offen |
 | P-R35 | Link-QR (FA-2.42): Abruf beim Server des Rechnungsausstellers auf Tippen – Rolle der Nutzerin bzw. des Anbieters (DSGVO), Offenlegung in Datenschutzerklärung und Google Data Safety/Apple Label (Datenerhebung durch die App ja/nein), Warnhinweis gegen Phishing ausreichend? | keine Daten aus der App, nur Adresse/IP an die gezeigte Domain; Domain groß, Wechsel nur nach erneuter Anzeige, kein Login in der App | erster Upload | offen |
 | P-R36 | Plattformimport (FA-2.49): Käuferdaten (Name, Adresse, E-Mail, Telefon) werden verworfen; bleiben Bestellnummern und Bestimmungsland (Aggregat) zulässig (Art 5 Abs 1 lit c DSGVO)? Rolle der Nutzerin gegenüber Käuferdaten in der geteilten Datei (Cache) | Test über alle Tabellen (`platform_import_test.dart`); keine Übertragung | erster Upload | offen |
+| P-R37 | Abo (FA-13.5, FA-13.6): (a) Pflichttext der Abo-Seite vollständig und richtig für AT/DE-Verbraucherinnen (§ 312j Abs 2 BGB wesentliche Merkmale, Laufzeit, Verlängerung; § 4 FAGG; Apple 3.1.2; Google Play Abo-Richtlinie: Testdauer, Folgepreis, Kündigungsweg)? (b) Store-Abfrage und Kaufblatt als Datenfluss: Einordnung in Google Data Safety („Käufe – Kaufverlauf“, erhoben vom Store, nicht von der App?) und Apple Label („Käufe“, nicht mit Identität verknüpft?) | Vorbefund Rechtsanwalt: Verkäufer und Verantwortlicher für Kaufdaten sind Apple bzw. Google; die App erhebt keine Kaufdaten, verarbeitet aber den Abostatus am Gerät. Vorsorglich als „Käufe/Kaufverlauf, App-Funktion, nicht geteilt“ angeben. Der frühere Store-Text „Ohne Abschluss eines Abos endet der Test von selbst“ passte nicht zum Store-Test (läuft in das Abo über) und wurde berichtigt (§ 5 UWG, § 2 UWG AT) | Store-Einreichung | offen |
+| P-R38 | Jahresabo und automatische Verlängerung um ein weiteres Jahr gegenüber deutschen Verbraucherinnen: § 309 Nr. 9 BGB (seit 1.3.2022 stillschweigende Verlängerung nur auf unbestimmte Zeit mit Monatskündigung) – greift das bei Store-Abos, deren Vertragsbedingungen Apple bzw. Google stellen, oder trifft es den Anbieter über die Nutzungsbedingungen 4.3? Ebenso § 312k BGB (P-R12) | Vorbefund Rechtsanwalt: Verkäufer ist der Store, dessen Verlängerungsmechanik gilt; Nutzungsbedingungen 4.3 beschreiben sie nur. Restrisiko, wenn der Anbieter als Vertragspartner der Leistung gilt; Alternative wäre ein Hinweis „Jahresabo jederzeit zum Periodenende kündbar“. Mittlere Sicherheit | Store-Start | offen |
 | P-S11 | USt-Kette der Store-Abos: Leistung an Apple/Google in Irland, Reverse Charge, UID, ZM, UVA; gelten die Store-Abrechnungen als Gutschrift (§ 11 Abs 7 UStG AT)? | Kette sicher, Rechnungsstellung offen | erster Verkauf | offen |
 | P-S12 | Vorsteuerabzug für Unternehmerinnen aus Store-Quittungen | unklar; kein Versprechen in App oder Werbung | erster Verkauf | offen |
 | P-S13 | Verbuchung der Store-Auszahlungen (netto als Erlös empfohlen, Zufluss/Abgrenzung, Fremdwährung), W-8BEN(-E) | — | erster Verkauf | offen |
@@ -1346,3 +1388,5 @@ Status: *offen* · *bestätigt* (mit Datum und Prüfer) · *widerlegt* (mit Folg
 | P-D27 | Geschlossener Test mit mindestens 12 Testerinnen aus der Zielgruppe über 14 Tage (Google-Play-Pflicht für persönliche Konten; als Beta auch beim Organisationskonto sinnvoll): Rückmeldungen zu Belegerkennung, Einhandbedienung, Verständlichkeit | — | Release | offen |
 | P-D28 | Druckblatt Wiederherstellungscode auf echtem Gerät: Teilen an Drucker/„Als PDF speichern“/Passwortmanager, Ausdruck lesbar, QR-Code mit Kamera lesbar und ergibt den Code; Wiederherstellung auf zweitem Gerät mit abgetipptem Code. Stornorechnung-PDF ansehen (negative Beträge, Umlaute) | PDF-Erzeugung getestet, QR nur über die `barcode`-Bibliothek des `pdf`-Pakets | Release | offen |
 | P-D29 | Rechnung und Stornorechnung aus der App über Gmail (Android) senden, danach eine weitere Datei teilen; **beim Empfänger** öffnet der PDF-Anhang (kein „Download fehlgeschlagen“); ebenso Outlook-App und WhatsApp | Ursache im Quelltext share_plus 10.1.4 belegt (`clearShareCacheFolder` bei jedem Teilen); Kotlin nur kompiliert (CI) | Release | offen |
+| P-D30 | Store-Produkte anlegen (STORE_ANMELDUNG.md Abschnitt Abo): eine Abogruppe, IDs `basis_monat`, `basis_jahr`, `pro_monat`, `pro_jahr` exakt wie im Code, Preise nach Lastenheft 5.10, Einführungsangebot 14 Tage gratis auf beiden Pro-Produkten, Grace Period an; Verträge für kostenpflichtige Apps, Bank- und Steuerdaten; Store-Build mit `--dart-define=LICENSING=true` (CI-Release-Workflow) | Code erwartet genau diese IDs (`spec.license_product_ids`); ohne Schalter läuft jeder Build als Testversion | Store-Start | offen |
+| P-D31 | Store-Abfrage auf Geräten (FA-13.6): StoreKit 2 ohne aktives Abo – kommt innerhalb 7 s eine Meldung oder gilt „leer“ zu Recht? Android mit Abo in Grace Period bzw. Kontosperre (on hold) – meldet Play den Kauf weiter? Kein falsches Herabstufen bei schlechtem Netz | Verlässlichkeit nur mit geladener Produktliste; sonst bleibt der Stand | Store-Start | offen |

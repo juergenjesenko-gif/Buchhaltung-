@@ -37,6 +37,8 @@ import 'receipt_save_bar.dart';
 import '../../services/launcher/open_url.dart';
 import '../../services/link_invoice/link_invoice_fetcher.dart';
 import 'vat_split_editor.dart';
+import '../licensing/feature_gate.dart';
+import '../../services/licensing/license_policy.dart';
 import '../../services/receipt_vat_split.dart';
 import '../help/help_screen.dart';
 import '../../services/help/help_index.dart';
@@ -82,6 +84,9 @@ class _ReceiptEditScreenState extends State<ReceiptEditScreen> {
 
   // Belegerkennung (L-2.20 bis L-2.23)
   bool _scanEnabled = false;
+
+  /// Erkennung wäre da, ist aber nicht im Abo (Hinweis statt stiller Lücke).
+  bool _scanLocked = false;
   bool _scanning = false;
   OcrDocument? _scanDocument;
   ReceiptScanResult? _scanResult;
@@ -343,7 +348,13 @@ class _ReceiptEditScreenState extends State<ReceiptEditScreen> {
     final db = await AppDatabase.instance.database;
     final enabled = await ReceiptScanSettings.isEnabled(db);
     final available = enabled && await _recognizer.isAvailable();
-    if (mounted) setState(() => _scanEnabled = available);
+    if (!mounted) return;
+    // Tarifschnitt (L-2.4 nur Pro): einzige Abfrage über den Anspruch.
+    final allowed = AppScope.read(context).allows(Feature.receiptRecognition);
+    setState(() {
+      _scanEnabled = available && allowed;
+      _scanLocked = available && !allowed;
+    });
   }
 
   static const ReceiptTextRecognizer _recognizer =
@@ -829,6 +840,11 @@ class _ReceiptEditScreenState extends State<ReceiptEditScreen> {
   Future<void> _save() async {
     if (_isCancelled) return;
     if (!_formKey.currentState!.validate()) return;
+    // Nur-Lese-Modus (L-22.6): neue Belege brauchen ein Abo; Ändern bleibt.
+    if (!_isEditing && !await ensureFeature(context, Feature.newBookings)) {
+      return;
+    }
+    if (!mounted) return;
     final split = _split;
     if (split == null) {
       if (_foreign) {
@@ -1062,6 +1078,24 @@ class _ReceiptEditScreenState extends State<ReceiptEditScreen> {
               ),
             ],
           ),
+          if (_scanLocked && _pages.isNotEmpty)
+            Align(
+              alignment: Alignment.centerLeft,
+              child: TextButton.icon(
+                key: const Key('receipt-scan-pro'),
+                onPressed: () async {
+                  if (await ensureFeature(
+                    context,
+                    Feature.receiptRecognition,
+                  )) {
+                    await _loadScanSetting();
+                    await _scan();
+                  }
+                },
+                icon: const Icon(Icons.workspace_premium_outlined),
+                label: const Text('Automatisch auslesen (Pro)'),
+              ),
+            ),
           if (_scanEnabled && _pages.isNotEmpty)
             Align(
               alignment: Alignment.centerLeft,

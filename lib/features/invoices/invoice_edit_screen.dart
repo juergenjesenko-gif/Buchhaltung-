@@ -11,6 +11,8 @@ import '../../domain/money.dart';
 import '../../services/invoice_numbering.dart';
 import '../../services/invoice_requirements.dart';
 import '../../services/invoice_texts.dart';
+import '../../services/licensing/license_policy.dart';
+import '../licensing/feature_gate.dart';
 import '../../services/invoice_totals.dart';
 import '../../services/vat_id/vies_client.dart';
 import '../../widgets/vat_check_status.dart';
@@ -295,6 +297,13 @@ class _InvoiceEditScreenState extends State<InvoiceEditScreen> {
       showSnack(context, 'Es fehlt noch: ${errors.join(', ')}');
       return;
     }
+    // Nur-Lese-Modus (L-22.6): neue und ausgestellte Rechnungen brauchen ein
+    // Abo; vorhandene Entwürfe bleiben änderbar.
+    if ((issue || widget.existing == null) &&
+        !await ensureFeature(context, Feature.newBookings)) {
+      return;
+    }
+    if (!mounted) return;
 
     setState(() => _saving = true);
     final state = AppScope.read(context);

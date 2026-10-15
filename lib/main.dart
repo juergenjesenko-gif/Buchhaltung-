@@ -24,6 +24,8 @@ Future<void> main() async {
   // Ebenso die automatische Sicherung (L-7.2), wenn eingeschaltet.
   unawaited(state.runVatChecksIfDue());
   unawaited(state.runAutoBackupIfDue());
+  // Abo beim Store bestätigen (L-22.5); offline bleibt der gespeicherte Stand.
+  unawaited(state.license.refresh());
   _lifecycle = AppLifecycleListener(
     // App-Sperre: Zeitpunkt merken und Inhalt abdecken, sobald die App den
     // Vordergrund verlässt; beim Zurückkehren je nach Sperrzeit sperren.

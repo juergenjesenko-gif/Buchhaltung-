@@ -1,6 +1,6 @@
 # Lastenheft – JeNi bucht, Buchhaltungsapp für Österreich und Deutschland
 
-**Dokumentversion:** 1.57 · **Stand:** 2026-10-15 · **Status:** Entwurf zur Abstimmung
+**Dokumentversion:** 1.58 · **Stand:** 2026-10-15 · **Status:** Entwurf zur Abstimmung
 **Auftraggeber:** Jürgen Jesenko (privates Vorhaben) · **Umsetzung:** Claude Code
 
 > Ein Lastenheft beschreibt, **was** das Produkt leisten soll und **warum** — nicht,
@@ -660,7 +660,7 @@ Jede Übertragung vom Gerät weg, auch die unscheinbaren:
 | UID-Prüfung auf Tippen (L-1.3) | EU-Kommission (VIES), direkt vom Gerät | UID, eigene UID als Anfragende, IP-Adresse | Tippen auf „Jetzt prüfen“ | je Vorgang | vorhanden |
 | UID-Prüfung automatisch (L-1.3, L-1.4) | EU-Kommission (VIES), direkt vom Gerät | wie oben, für eigene UID und Kunden mit Rechnung in den letzten 12 Monaten; vor jeder Rechnung an Kunden mit UID | wöchentlich beim Öffnen der App | **ja**, Schalter, standardmäßig aus | vorhanden |
 | Rechnungsversand (L-15.1) | Mail-App des Nutzers | PDF | Tippen auf Senden | je Vorgang | A |
-| Abo-Kauf (L-10.1) | Apple bzw. Google | Kaufvorgang | Kauf | je Vorgang | B |
+| Abo-Kauf und Abo-Abfrage (L-10.1, L-22.5) | Apple bzw. Google über die Store-Schnittstelle des Geräts (Google Play Billing, StoreKit) | Produktkennungen; Store-Konto, Zahlung und Kaufbeleg verarbeitet der Store selbst. Am Gerät nur Stufe, Bestätigungszeitpunkt, Testbeginn (Schlüsselbund) | Kauf bzw. „Kauf wiederherstellen“; Abfrage beim Start der App | Kauf je Vorgang; Abfrage nein, technisch notwendig für den Anspruch, offengelegt. Prüfung P-R37 | vorhanden (nur Store-Build mit `LICENSING=true`) |
 | UVA-Übermittlung (L-6.5) | FinanzOnline bzw. ELSTER | Kennzahlen der Voranmeldung | Freigabe der Meldung | je Vorgang | B |
 | Regelpaket-Abruf (L-20.22) | Hosting des Anbieters (EU) | nur Abruf: IP-Adresse, Zeitpunkt, App-Version; keine Nutzdaten | automatisch, täglich | nein, technisch notwendig; in der Datenschutzerklärung offengelegt | B |
 | Synchronisierung (L-19.15 ff.) | gemeinsamer Ordner in der Cloud der Unternehmerin; freigegebene Personen und Geräte | alle Buchhaltungsdaten, Ende-zu-Ende verschlüsselt, signiert, mit Kennung der erfassenden Person | Einrichten bzw. Einladung per QR-Code | **ja** | C |
@@ -1218,6 +1218,7 @@ Anforderungen sind offen.
 | 0.9.0 | PDF- und E-Rechnungen übernehmen, Originaldatei mit SHA-256, iOS „Öffnen in“ (L-27.4 bis L-27.6, L-27.8) | FA-2.38 bis FA-2.41 |
 | 0.10.0 | Rechnung über Link-QR (L-27.7) | FA-2.42 |
 | 0.11.0 | Plattformexporte Amazon, PayPal, Shopify, Stripe (L-28.1 bis L-28.7) | FA-2.43 bis FA-2.49 |
+| 0.14.0 | Lizenz und Abo: Tarife Basis/Pro über die Stores (L-10.1, L-10.2, L-22.2), Test über das Einführungsangebot der Stores mit Erinnerung 3 Tage vorher (L-10.3, L-22.3), Daten ohne Abo lesbar und exportierbar (L-10.4, L-7.15, L-22.6), Offline-Gültigkeit 45 Tage (L-10.5, L-22.5), Lizenzmanager (L-22.1), Abo-Seite, Kauf wiederherstellen, Abo verwalten (L-22.7, L-22.8). **Offen:** eigene Signaturprüfung der Kaufbelege (L-22.4, heute durch die Store-Bibliotheken), Verschleierung (L-22.11), Promocodes (L-22.26) | 5.9, FA-13.1 bis FA-13.10 |
 | 0.13.0 | Stornorechnung mit eigener Nummer und „Korrigieren“ (L-3.7; L-3.18 für die vollständige Erstattung, Teilerstattung offen), Menü „Rechtliches“ (L-22.18), Wiederherstellungscode als Druckblatt mit QR-Code und Bestätigung durch zwei Blöcke (L-22.21, L-22.22) | GR-14, FA-5.31 bis FA-5.33, FA-11.4, FA-11.5, FA-7.10 |
 
 Außerdem umgesetzt ohne eigene L-ID: Tablet- und Querformat-Layout
@@ -1316,6 +1317,8 @@ Zu entscheiden, bevor die betroffene Anforderung umgesetzt wird:
 | ~~O-30~~ | **Entschieden am 2026-10-15:** E-Mail und Telefon werden **nur auf Form geprüft**, nicht verifiziert (kein Server, kein SMS-Dienst, passt zu O-29); die Nutzerin kann die Angaben jederzeit ändern. Umgesetzt in 0.12.0 (Spezifikation FA-1.4f) | erledigt |
 | ~~O-31~~ | **Anbieterexklusive Verschlüsselung zur Kundenbindung?** Frage des Auftraggebers vom 2026-10-12, von den drei Prüfinstanzen verneint: Aufbewahrungs- und Prüfpflichten (§ 147 AO, § 131/132 BAO) nach Kündigung oder Wegfall des Anbieters nicht erfüllbar, AGB- und UWG-Risiko, technisch ohne Server wirkungslos. Bindung über Funktionen, Komfort und Importe; Produktschutz über Marke, Lizenzprüfung, Obfuskierung (L-7.12 bis L-7.16) | Empfehlung abgegeben |
 | O-32 | **Anbieter-Server für Plattform-Connectoren** (Stufe B2: echte Schnittstellen zu Amazon, Booking & Co. statt Teilen/PDF/Link): zurückgestellt am 2026-10-14, mit der KI-Server-Frage (L-26.6, L-21) gemeinsam zu entscheiden | Stufe B2 |
+| O-34 | **Plattformimport (L-28) Basis oder Pro?** Der Tarifschnitt nennt „Shop-Anbindung (L-12)“ als Pro; der Import von Plattformexporten (L-28, Ersatz für L-12 ohne Server) steht dort nicht. Bis zur Entscheidung **Basis** (keine Sperre einer Funktion, die schon Testerinnen nutzen). Als Pro wäre es eine Zeile in `Entitlement.allows` | vor Store-Start |
+| O-35 | **Test auch auf Basis?** Heute nur Pro mit 14 Tagen Test (L-22.3). Wer nach dem Test nur Basis will, wechselt im Store; ein eigener Basis-Test würde einen zweiten Test ermöglichen. Empfehlung Prüfinstanzen: nur Pro, wie entschieden | vor Store-Start |
 | O-33 | **Bundle-ID für den Store festlegen** (Vorschlag `at.jenibarb.jenibucht`). Heute `at.jesenko.buchhaltung`; ein Wechsel erzwingt auf Testgeräten eine Neuinstallation (Daten vorher sichern) und ist nach der ersten Store-Einreichung nicht mehr möglich. **Entschieden 2026-10-15:** Wechsel auf `at.jenibarb.jenibucht` unmittelbar vor der ersten Store-Einreichung (bis dahin alte Kennung, damit Testgeräte ohne Neuinstallation aktualisieren) | vor der ersten Store-Einreichung |
 | O-20 | Welche Vorsoftware-Formate sind beim Import vorrangig zu unterstützen? Richtet sich nach dem, womit die ersten Nutzer tatsächlich kommen | Stufe B |
 | ~~O-21~~ | **Vorläufig beantwortet am 2026-10-10 (Prüfinstanz Rechtsanwalt):** BFSG/BaFG voraussichtlich nicht anwendbar (B2B, Kleinstunternehmen). Grundbarrierefreiheit trotzdem als NF-Anforderung; Bestätigung siehe Spezifikation Abschnitt 14, P-R3 | erledigt |
@@ -1356,6 +1359,7 @@ Historie stehen. Die Einzelheiten stehen an der genannten Stelle.
 
 | Version | Datum | Änderung |
 |---|---|---|
+| 1.58 | 2026-10-15 | Umsetzungsstand 0.14.0 (10a): Lizenz und Abo (L-10.1 bis L-10.5, L-22.1 bis L-22.3, L-22.5 bis L-22.8; L-22.4 teilweise). Datenflusstabelle 5.19: Abo-Kauf und Abo-Abfrage als vorhanden, mit Inhalt. Neue offene Punkte O-34 (Plattformimport Basis oder Pro), O-35 (Test auch auf Basis). |
 | 1.57 | 2026-10-15 | Umsetzungsstand 0.13.0 (10a): L-3.7, L-3.18 (vollständige Erstattung), L-22.18, L-22.21, L-22.22. Keine neue Datenübertragung: Druckblatt und Stornorechnung verlassen das Gerät nur über das Teilen der Nutzerin, wie Rechnungs-PDF und Sicherung (5.19 unverändert). |
 | 1.56 | 2026-10-15 | O-33 entschieden: Bundle-ID `at.jenibarb.jenibucht` vor der ersten Store-Einreichung. |
 | 1.55 | 2026-10-15 | Entscheidungen der Auftraggeberin (14a): Name „JeNi bucht“ (O-2, O-25 erledigt), neu O-33 Bundle-ID für den Store; O-26 Haftpflicht verschoben bis Launch; O-30 nur Formatprüfung (umgesetzt in 0.12.0); Store-Text „14 Tage kostenlos testen“. |

@@ -123,6 +123,16 @@ Nur in diesen Fällen, die du auslöst oder einschaltest:
   Rechnungs- oder Kundennummer enthalten –, deine IP-Adresse und technische
   Verbindungsdaten. Daten aus der App werden nicht gesendet. „Im Browser
   öffnen“ übergibt die Adresse an deinen Browser
+- **Abo über Google Play bzw. den App Store** – beim Start der App und bei
+  „Kauf wiederherstellen“ fragt die App über die Store-Schnittstelle des
+  Geräts (Google Play Billing bzw. StoreKit) nach deinen aktiven Abos; beim
+  Kauf öffnet das Kaufblatt des Stores. Die App übergibt dabei nur die
+  Produktkennungen (z. B. `pro_monat`). Store-Konto, Zahlungsdaten und
+  Kaufbelege verarbeiten Apple bzw. Google als eigene Verantwortliche nach
+  ihren Datenschutzerklärungen; der Anbieter erhält nur zusammengefasste
+  Verkaufs- und Auszahlungsberichte ohne Namen oder E-Mail. Auf dem Gerät
+  speichert die App nur Abostufe, Zeitpunkt der letzten Bestätigung und
+  Testbeginn – im Schlüsselbund bzw. Keystore, nicht in der Sicherung
 
 **Hinweis zur Belegerkennung:** Fotografierte Belege werden auf deinem Gerät
 ausgelesen (Datum, Betrag, Steuersatz, Lieferant, UID, Rechnungsnummer).

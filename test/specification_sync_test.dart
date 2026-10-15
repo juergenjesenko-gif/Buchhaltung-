@@ -16,6 +16,7 @@ import 'package:buchhaltung/services/invoice_numbering.dart';
 import 'package:buchhaltung/services/dunning_calculator.dart';
 import 'package:buchhaltung/services/small_business_monitor.dart';
 import 'package:buchhaltung/services/logo_store.dart';
+import 'package:buchhaltung/services/licensing/license_policy.dart';
 import 'package:buchhaltung/services/platform_import/platform_import_plan.dart';
 import 'package:buchhaltung/widgets/primary_action_bar.dart';
 import 'package:flutter/material.dart' show kMinInteractiveDimension;
@@ -84,6 +85,26 @@ void main() {
       value(key).split(',').map((part) => int.parse(part.trim())).toList();
 
   group('Allgemeine Kenndaten', () {
+    test('Lizenz und Abo stimmen (L-10.3, L-22.2, L-22.5)', () {
+      expect(intValue('spec.license_trial_days'), LicensePolicy.trialDays);
+      expect(
+        intValue('spec.license_trial_reminder_days'),
+        LicensePolicy.trialReminderDays,
+      );
+      expect(
+        intValue('spec.license_offline_grace_days'),
+        LicensePolicy.offlineGraceDays,
+      );
+      expect(
+        intValue('spec.license_offline_warn_days'),
+        LicensePolicy.offlineWarnDays,
+      );
+      expect(
+        value('spec.license_product_ids'),
+        LicensePolicy.products.map((p) => p.id).join(','),
+      );
+    });
+
     test('App-Sperre stimmt', () {
       expect(
         intValue('spec.app_lock_pin_min_digits'),

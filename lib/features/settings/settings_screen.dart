@@ -1,3 +1,4 @@
+import '../licensing/subscription_screen.dart';
 import 'legal_screen.dart';
 import 'package:flutter/material.dart';
 
@@ -169,6 +170,23 @@ class SettingsScreen extends StatelessWidget {
             ),
             const SizedBox(height: 16),
 
+            Card(
+              child: ListTile(
+                key: const Key('settings-subscription'),
+                leading: const Icon(Icons.workspace_premium_outlined),
+                title: const Text('Abo'),
+                subtitle: Text(
+                  state.license.enabled
+                      ? state.entitlement.label
+                      : 'Testversion – alle Funktionen frei',
+                ),
+                trailing: const Icon(Icons.chevron_right),
+                onTap: () => Navigator.of(context).push(
+                  MaterialPageRoute(builder: (_) => const SubscriptionScreen()),
+                ),
+              ),
+            ),
+            const SizedBox(height: 16),
             Card(
               child: ListTile(
                 key: const Key('settings-legal'),

@@ -1,6 +1,6 @@
 # Benutzerhandbuch – JeNi bucht
 
-**Für App-Version 0.13.2** · Stand 2026-10-15
+**Für App-Version 0.14.0** · Stand 2026-10-15
 
 Dieses Handbuch beschreibt die App aus Nutzersicht. Es wird bei jeder Änderung,
 die du in der App siehst, mitgeführt – siehe [`CLAUDE.md`](../CLAUDE.md).
@@ -1016,6 +1016,42 @@ dieser Testversion stehen die Rechtstexte noch als **Entwurf** gekennzeichnet.
 
 **Wichtiger Hinweis** – die rechtliche Abgrenzung. Bitte einmal lesen.
 
+### Abo: Basis und Pro
+
+Die App gibt es im Abo, abgeschlossen über **Google Play** bzw. den **App
+Store**. Ein Konto bei uns brauchst du nicht; das Abo hängt an deinem
+Store-Konto. Du findest alles unter **Einstellungen → Abo**.
+
+- **Basis** – alles, was eine ordentliche Buchhaltung braucht: Belege,
+  Rechnungen, Kassabuch, Kunden, Übersicht, Kleinunternehmer-Ampel, Export,
+  Sicherung.
+- **Pro** – zusätzlich die **Belegerkennung**: Betrag, Datum und Händler
+  kommen aus dem Foto. Ohne Pro tippst du sie selbst ein; beim Beleg steht
+  dann **Automatisch auslesen (Pro)**.
+- **14 Tage kostenlos testen:** Beim ersten Abo kannst du Pro 14 Tage gratis
+  nutzen. Der Test startet im Store und **geht danach in das Abo über**, wenn
+  du nicht vorher kündigst. Drei Tage vor dem Ende erinnert dich die Übersicht.
+- **Preise** zeigt die Abo-Seite so, wie der Store sie meldet, inklusive
+  Umsatzsteuer, monatlich oder jährlich.
+- **Kündigen:** Tippe auf **Abo verwalten oder kündigen** – das öffnet die
+  Abo-Einstellungen von Google Play bzw. Apple. Kündige spätestens 24 Stunden
+  vor Ablauf.
+- **Neues Telefon oder neu installiert?** Tippe auf **Kauf wiederherstellen**.
+  Melde dich dafür im Store mit demselben Konto an wie beim Kauf.
+- **Ohne Internet** gilt dein Abo weiter, bis zu 45 Tage ab der letzten
+  Bestätigung durch den Store. Nach etwa einem Monat bittet dich die
+  Übersicht, die App einmal mit Internet zu öffnen.
+
+**Endet dein Abo, verlierst du nichts.** Endet Pro, arbeitest du mit Basis
+weiter, falls du Basis hast. Endet jedes Abo, wechselt die App in **Nur
+lesen**: Du kannst alles ansehen, Belege und Entwürfe ändern, drucken,
+exportieren, sichern und wiederherstellen – nur neue Belege und Rechnungen
+brauchen wieder ein Abo. Das ist wichtig, weil du deine Unterlagen sieben
+(AT) bzw. acht (DE) Jahre aufbewahren musst.
+
+In dieser Testversion ist die Abo-Prüfung ausgeschaltet; alle Funktionen sind
+frei, die Abo-Seite zeigt „Testversion“.
+
 ---
 
 ## 11. Deine Daten und ihre Sicherung
@@ -1095,6 +1131,14 @@ ersetzt.**
 
 ## 12. Häufige Fragen
 
+**Was passiert mit meinen Daten, wenn ich das Abo kündige?**
+Nichts geht verloren. Die App wechselt in *Nur lesen*: ansehen, exportieren,
+sichern und wiederherstellen gehen weiter, nur neue Buchungen nicht.
+
+**Bekomme ich für das Abo eine Rechnung?**
+Ja, vom Store: Verkäufer sind Google bzw. Apple. Die Quittung findest du in
+deinem Store-Konto.
+
 **Kann ich die App auf zwei Geräten nutzen?**
 Nein. Jede Installation hat ihren eigenen Datenbestand, und es gibt keine
 Synchronisierung.
@@ -1140,6 +1184,20 @@ deiner Steuerberatung.
 ---
 
 ## 13. Wenn etwas nicht geht
+
+**„Store nicht erreichbar. Dein Abo gilt weiter.“** — die App konnte Google
+Play bzw. den App Store nicht fragen, meist ohne Internet. Dein Abo gilt
+trotzdem weiter. Später mit Internet noch einmal **Kauf wiederherstellen**
+tippen.
+
+**„Kein aktives Abo in diesem Store-Konto gefunden.“** — im Store ist ein
+anderes Konto angemeldet als beim Kauf, oder das Abo ist abgelaufen. Im Store
+das richtige Konto wählen und erneut **Kauf wiederherstellen** tippen. Deine
+Daten bleiben in jedem Fall lesbar und exportierbar.
+
+**„Neue Buchungen brauchen ein Abo.“** — die App ist im Modus *Nur lesen*. Die
+Abo-Seite öffnet sich, deine Eingaben bleiben im Formular stehen. Nach dem
+Abschluss tippst du auf Zurück und speicherst wie gewohnt.
 
 **„Stornieren und neu schreiben“ bzw. „Stornorechnung erstellen“ ist grau** —
 das Feld *Grund* ist leer. Tippe einen der Vorschläge an oder schreib einen
