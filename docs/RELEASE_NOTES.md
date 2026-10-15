@@ -42,7 +42,7 @@ nächsten Versionssprung in den neuen Eintrag.
 | Feld | Wert |
 |---|---|
 | Art | Testbuild (ungezippte arm64-APK `JeNi-bucht-0.12.0-build-<Nr>.apk`, fester Testschlüssel); Produktname und Entscheidungen der Auftraggeberin |
-| Commit | `COMMIT` |
+| Commit | `f7788aa` |
 | Branch | `claude/agile-accounting-app-mobile-wa5j3h` |
 | Dokumentstände | Lastenheft 1.55, Spezifikation 1.52, Benutzerhandbuch für 0.12.0, DESIGN_SPEC 1.2 |
 | Datenbankschema | 17 |
@@ -54,10 +54,10 @@ nächsten Versionssprung in den neuen Eintrag.
 
 | Art | Änderung | Bezug | Commit |
 |---|---|---|---|
-| Geändert | App-Name „JeNi bucht“ auf Startbildschirm (Android-Label, iOS CFBundleDisplayName/CFBundleName, damit auch die Verknüpfung), App-Titel, Sperrbildschirm, Support-Betreff „Frage zu JeNi bucht (Version …)“, Exportvermerk, Betreff der Sicherung; Bundle-ID unverändert | O-2, O-25, O-33, FA-11.3 | `COMMIT` |
-| Geändert | CI-Artefakt heißt `JeNi-bucht-<Version>-build-<Nr>.apk` | – | `COMMIT` |
-| Neu | Formatprüfung für E-Mail (Profil, Kunde) und Telefon (Profil), ohne Verifizierung | O-30, FA-1.4f | `COMMIT` |
-| Geändert | Store-Text: „14 Tage kostenlos testen“ mit Folgepreis | O-4, P-R13 | `COMMIT` |
+| Geändert | App-Name „JeNi bucht“ auf Startbildschirm (Android-Label, iOS CFBundleDisplayName/CFBundleName, damit auch die Verknüpfung), App-Titel, Sperrbildschirm, Support-Betreff „Frage zu JeNi bucht (Version …)“, Exportvermerk, Betreff der Sicherung; Bundle-ID unverändert | O-2, O-25, O-33, FA-11.3 | `f7788aa` |
+| Geändert | CI-Artefakt heißt `JeNi-bucht-<Version>-build-<Nr>.apk` | – | `f7788aa` |
+| Neu | Formatprüfung für E-Mail (Profil, Kunde) und Telefon (Profil), ohne Verifizierung | O-30, FA-1.4f | `f7788aa` |
+| Geändert | Store-Text: „14 Tage kostenlos testen“ mit Folgepreis | O-4, P-R13 | `f7788aa` |
 
 ---
 
