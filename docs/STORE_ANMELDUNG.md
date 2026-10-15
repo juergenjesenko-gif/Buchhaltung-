@@ -33,7 +33,7 @@ mit 12 Testerinnen einplanen – die Beta mit der Zielgruppe (P-D27) deckt das o
 ## Reihenfolge
 
 1. Gemeinsame Stammdaten unten prüfen (einmal, gilt für alle Formulare)
-2. D-U-N-S-Nummer beantragen (nur für Google Organisation)
+2. ~~D-U-N-S-Nummer beantragen~~ erledigt: **301138760** (Apple-Mail 2026-10-15)
 3. Apple Developer Program als Einzelperson
 4. Google Play Console (nach Erhalt der D-U-N-S-Nummer)
 
@@ -134,7 +134,7 @@ E-Mail wie oben (erscheinen öffentlich im EU-App-Store).
 | Organization address | Sankt Leonhard bei Siebenbrünn 96, 9587 Arnoldstein, Austria |
 | Organization phone | +43 660 3124252 |
 | Organization website | https://jenibarb.com |
-| D-U-N-S number | (nach Erhalt) |
+| D-U-N-S number | 301138760 (erhalten 2026-10-15) |
 | Developer name (öffentlich) | Spirits by JeNiBarb (entschieden 2026-10-13) |
 | Contact name | Jürgen Jesenko |
 | Contact e-mail (privat, für Google) | office@jenibarb.com |
