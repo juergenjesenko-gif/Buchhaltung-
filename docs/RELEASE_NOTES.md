@@ -42,7 +42,7 @@ nächsten Versionssprung in den neuen Eintrag.
 | Feld | Wert |
 |---|---|
 | Art | Testbuild (ungezippte arm64-APK `JeNi-bucht-0.14.0-build-<Nr>.apk`, fester Testschlüssel); **Lizenzprüfung aus** (ohne `LICENSING=true`), alle Funktionen frei |
-| Commit | siehe Git-Log, Commit „0.14.0+21“ |
+| Commit | `aa747a6` |
 | Branch | `claude/agile-accounting-app-mobile-wa5j3h` |
 | Dokumentstände | Lastenheft 1.58, Spezifikation 1.56, Benutzerhandbuch für 0.14.0, DESIGN_SPEC 1.2 |
 | Datenbankschema | 18 |
@@ -55,13 +55,13 @@ nächsten Versionssprung in den neuen Eintrag.
 
 | Art | Änderung | Bezug | Commit |
 |---|---|---|---|
-| Neu | Lizenzmanager mit einem Anspruch (keiner / nur lesen / Basis / Pro), Store-Schnittstelle austauschbar, Store-Ersatz für Tests | L-22.1, FA-13.1 | dieser Build |
-| Neu | Tarifschnitt: Belegerkennung nur Pro, neue Belege/Rechnungen ab Basis; Ansehen, Ändern, Export, Sicherung immer | L-10.4, L-22.6, FA-13.2, FA-13.9 | dieser Build |
-| Neu | Paket `in_app_purchase`: eine Abogruppe `basis_monat`, `basis_jahr`, `pro_monat`, `pro_jahr`, Wechsel ohne Doppelabo, Test 14 Tage über die Stores | L-22.2, L-22.3, FA-13.3, FA-13.4 | dieser Build |
-| Neu | Abo-Seite (Einstellungen → Abo): Store-Preise, Pflichttext Verlängerung/Kündigung/Test, Kauf wiederherstellen, Abo verwalten, Nutzungsbedingungen, Datenschutz | L-22.7, L-22.8, FA-13.5 | dieser Build |
-| Neu | Stand im Schlüsselbund, offline 45 Tage gültig, Hinweis ab Tag 31, Testende-Erinnerung, Herabstufung mit Hinweis auf der Übersicht | L-10.5, L-22.5, FA-13.6 bis FA-13.8 | dieser Build |
-| Geändert | Store-Text: Test geht ohne Kündigung in das Abo über (statt „endet von selbst“); In-App-Käufe und Datensicherheit „Kaufverlauf“; Datenschutzerklärung Abschnitt 6 | P-R37, L-19.5 | dieser Build |
-| Neu | STORE_ANMELDUNG Formular 4: Abos in Play Console und App Store Connect anlegen | P-D30 | dieser Build |
+| Neu | Lizenzmanager mit einem Anspruch (keiner / nur lesen / Basis / Pro), Store-Schnittstelle austauschbar, Store-Ersatz für Tests | L-22.1, FA-13.1 | `aa747a6` |
+| Neu | Tarifschnitt: Belegerkennung nur Pro, neue Belege/Rechnungen ab Basis; Ansehen, Ändern, Export, Sicherung immer | L-10.4, L-22.6, FA-13.2, FA-13.9 | `aa747a6` |
+| Neu | Paket `in_app_purchase`: eine Abogruppe `basis_monat`, `basis_jahr`, `pro_monat`, `pro_jahr`, Wechsel ohne Doppelabo, Test 14 Tage über die Stores | L-22.2, L-22.3, FA-13.3, FA-13.4 | `aa747a6` |
+| Neu | Abo-Seite (Einstellungen → Abo): Store-Preise, Pflichttext Verlängerung/Kündigung/Test, Kauf wiederherstellen, Abo verwalten, Nutzungsbedingungen, Datenschutz | L-22.7, L-22.8, FA-13.5 | `aa747a6` |
+| Neu | Stand im Schlüsselbund, offline 45 Tage gültig, Hinweis ab Tag 31, Testende-Erinnerung, Herabstufung mit Hinweis auf der Übersicht | L-10.5, L-22.5, FA-13.6 bis FA-13.8 | `aa747a6` |
+| Geändert | Store-Text: Test geht ohne Kündigung in das Abo über (statt „endet von selbst“); In-App-Käufe und Datensicherheit „Kaufverlauf“; Datenschutzerklärung Abschnitt 6 | P-R37, L-19.5 | `aa747a6` |
+| Neu | STORE_ANMELDUNG Formular 4: Abos in Play Console und App Store Connect anlegen | P-D30 | `aa747a6` |
 
 ---
 
