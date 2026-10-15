@@ -1,6 +1,6 @@
 # Lastenheft – JeNi bucht, Buchhaltungsapp für Österreich und Deutschland
 
-**Dokumentversion:** 1.55 · **Stand:** 2026-10-15 · **Status:** Entwurf zur Abstimmung
+**Dokumentversion:** 1.56 · **Stand:** 2026-10-15 · **Status:** Entwurf zur Abstimmung
 **Auftraggeber:** Jürgen Jesenko (privates Vorhaben) · **Umsetzung:** Claude Code
 
 > Ein Lastenheft beschreibt, **was** das Produkt leisten soll und **warum** — nicht,
@@ -1315,7 +1315,7 @@ Zu entscheiden, bevor die betroffene Anforderung umgesetzt wird:
 | ~~O-30~~ | **Entschieden am 2026-10-15:** E-Mail und Telefon werden **nur auf Form geprüft**, nicht verifiziert (kein Server, kein SMS-Dienst, passt zu O-29); die Nutzerin kann die Angaben jederzeit ändern. Umgesetzt in 0.12.0 (Spezifikation FA-1.4f) | erledigt |
 | ~~O-31~~ | **Anbieterexklusive Verschlüsselung zur Kundenbindung?** Frage des Auftraggebers vom 2026-10-12, von den drei Prüfinstanzen verneint: Aufbewahrungs- und Prüfpflichten (§ 147 AO, § 131/132 BAO) nach Kündigung oder Wegfall des Anbieters nicht erfüllbar, AGB- und UWG-Risiko, technisch ohne Server wirkungslos. Bindung über Funktionen, Komfort und Importe; Produktschutz über Marke, Lizenzprüfung, Obfuskierung (L-7.12 bis L-7.16) | Empfehlung abgegeben |
 | O-32 | **Anbieter-Server für Plattform-Connectoren** (Stufe B2: echte Schnittstellen zu Amazon, Booking & Co. statt Teilen/PDF/Link): zurückgestellt am 2026-10-14, mit der KI-Server-Frage (L-26.6, L-21) gemeinsam zu entscheiden | Stufe B2 |
-| O-33 | **Bundle-ID für den Store festlegen** (Vorschlag `at.jenibarb.jenibucht`). Heute `at.jesenko.buchhaltung`; ein Wechsel erzwingt auf Testgeräten eine Neuinstallation (Daten vorher sichern) und ist nach der ersten Store-Einreichung nicht mehr möglich. Entscheidung der Auftraggeberin offen | vor der ersten Store-Einreichung |
+| O-33 | **Bundle-ID für den Store festlegen** (Vorschlag `at.jenibarb.jenibucht`). Heute `at.jesenko.buchhaltung`; ein Wechsel erzwingt auf Testgeräten eine Neuinstallation (Daten vorher sichern) und ist nach der ersten Store-Einreichung nicht mehr möglich. **Entschieden 2026-10-15:** Wechsel auf `at.jenibarb.jenibucht` unmittelbar vor der ersten Store-Einreichung (bis dahin alte Kennung, damit Testgeräte ohne Neuinstallation aktualisieren) | vor der ersten Store-Einreichung |
 | O-20 | Welche Vorsoftware-Formate sind beim Import vorrangig zu unterstützen? Richtet sich nach dem, womit die ersten Nutzer tatsächlich kommen | Stufe B |
 | ~~O-21~~ | **Vorläufig beantwortet am 2026-10-10 (Prüfinstanz Rechtsanwalt):** BFSG/BaFG voraussichtlich nicht anwendbar (B2B, Kleinstunternehmen). Grundbarrierefreiheit trotzdem als NF-Anforderung; Bestätigung siehe Spezifikation Abschnitt 14, P-R3 | erledigt |
 | ~~O-23~~ | **Entschieden am 2026-10-09:** wählbar je Rücksendung über den Schalter „Ware wieder verkaufbar?" (L-3.20) | erledigt |
@@ -1339,7 +1339,8 @@ Historie stehen. Die Einzelheiten stehen an der genannten Stelle.
 | 2026-10-14 | Termin-Box nur als Anzeige, ohne Benachrichtigungen | 5.25 |
 | 2026-10-14 | Hilfe Stufe 1 offline; KI-Hilfe erst nach Server-Entscheidung | 5.26, O-32 |
 | 2026-10-14 | Mahnkosten 10 € je Mahnung ab der 1. Mahnung | L-3.27 |
-| 2026-10-15 | **Produkt- und App-Name „JeNi bucht“**; Bundle-ID bleibt vorerst, Store-Kennung offen | O-2, O-25, O-33 |
+| 2026-10-15 | **Produkt- und App-Name „JeNi bucht“**; Bundle-ID bleibt vorerst | O-2, O-25 |
+| 2026-10-15 | **Bundle-ID `at.jenibarb.jenibucht`**, Wechsel vor der ersten Store-Einreichung | O-33 |
 | 2026-10-15 | Haftpflicht auf den Launch verschoben | O-26 |
 | 2026-10-15 | E-Mail und Telefon nur Formatprüfung, keine Verifizierung | O-30 |
 | 2026-10-15 | Store-Text kündigt das Abo mit „14 Tage kostenlos testen“ an, mit Folgepreis, ohne Streichpreise | O-4, `STORE_LISTING.md` |
@@ -1354,6 +1355,7 @@ Historie stehen. Die Einzelheiten stehen an der genannten Stelle.
 
 | Version | Datum | Änderung |
 |---|---|---|
+| 1.56 | 2026-10-15 | O-33 entschieden: Bundle-ID `at.jenibarb.jenibucht` vor der ersten Store-Einreichung. |
 | 1.55 | 2026-10-15 | Entscheidungen der Auftraggeberin (14a): Name „JeNi bucht“ (O-2, O-25 erledigt), neu O-33 Bundle-ID für den Store; O-26 Haftpflicht verschoben bis Launch; O-30 nur Formatprüfung (umgesetzt in 0.12.0); Store-Text „14 Tage kostenlos testen“. |
 | 1.54 | 2026-10-14 | Dokumentabgleich mit Code 0.11.0 (Prüfinstanz Softwareentwickler): Ausgangslage aktualisiert; neu L-0.6 (Einhandbedienung ohne Händigkeits-Einstellung); Umsetzungsvermerke in 5.24 bis 5.28; 5.23 als Unterabschnitt eingeordnet; neuer Abschnitt 10a Umsetzungsstand und Stand-Hinweis in 10; Abnahmekriterien A-9, A-10; doppelte O-15 aufgelöst (O-15b), O-32 einsortiert, O-26 als teilweise entschieden; neuer Abschnitt 14a Entscheidungen der Auftraggeberin. |
 | 1.53 | 2026-10-14 | L-27.4/L-27.5: iOS „Öffnen in …“ statt Share Extension von der Auftraggeberin bestätigt. Neu 5.28 (L-28.1 bis L-28.7, Stufe B1: Plattformexporte Amazon, PayPal, Shopify, Stripe), umgesetzt in 0.11.0 (Spezifikation FA-2.43 bis FA-2.49). Keine neue Datenübertragung (5.19 unverändert: Datei kommt aufs Gerät). Prüfpunkte P-S51 bis P-S55, P-R36, P-U7. |

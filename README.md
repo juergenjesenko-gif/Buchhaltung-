@@ -25,7 +25,7 @@ Zuordnung zu den Anforderungen: Lastenheft Abschnitt 10a.
 
 **Offen bis zum Store-Start** (Einzelheiten: [`docs/STORE_READINESS.md`](docs/STORE_READINESS.md)):
 
-1. **Entscheidungen der Auftraggeberin:** Produktname nach Markenrecherche (O-2, O-25), Verifizierung von E-Mail/Telefon (O-30), Haftpflicht (O-26)
+1. **Vor der Einreichung:** Haftpflicht abschließen (O-26), Bundle-ID auf `at.jenibarb.jenibucht` umstellen (O-33)
 2. **Konten:** D-U-N-S-Nummer, Google-Play-Organisationskonto, Apple Developer Program
 3. **Funktionen aus Stufe A:** Storno- bzw. Korrekturrechnung, Angebote, Artikelverwaltung, Menü „Rechtliches“, Lizenz und Abo
 4. **Technik:** eigenes App-Symbol, Privacy Manifest (iOS), Store-Upload im Release-Workflow, Formulare (Data Safety, Privacy Labels)
