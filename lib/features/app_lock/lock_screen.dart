@@ -154,7 +154,7 @@ class _LockScreenState extends State<LockScreen> {
                   ),
                   const SizedBox(height: 16),
                   Text(
-                    'Buchhaltung ist gesperrt',
+                    'JeNi bucht ist gesperrt',
                     textAlign: TextAlign.center,
                     style: Theme.of(context).textTheme.titleLarge,
                   ),

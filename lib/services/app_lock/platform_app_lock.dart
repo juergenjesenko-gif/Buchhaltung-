@@ -46,7 +46,7 @@ class BiometricUnlock {
   Future<bool> authenticate() async {
     try {
       return await _auth.authenticate(
-        localizedReason: 'Buchhaltung entsperren',
+        localizedReason: 'JeNi bucht entsperren',
         biometricOnly: true,
       );
     } on Object {

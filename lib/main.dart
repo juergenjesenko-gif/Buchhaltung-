@@ -49,7 +49,7 @@ class BuchhaltungApp extends StatelessWidget {
     return AppScope(
       state: state,
       child: MaterialApp(
-        title: 'Buchhaltung',
+        title: 'JeNi bucht',
         debugShowCheckedModeBanner: false,
         theme: AppTheme.light,
         darkTheme: AppTheme.dark,

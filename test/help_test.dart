@@ -113,7 +113,7 @@ void main() {
       expect(uri.query, isNot(contains('body')));
       expect(
         Uri.decodeComponent(uri.query.substring(8)),
-        'Frage zur Buchhaltungs-App (Version 0.3.4): Wo ist X?',
+        'Frage zu JeNi bucht (Version 0.3.4): Wo ist X?',
       );
       expect(uri.toString(), isNot(contains('+')));
     });

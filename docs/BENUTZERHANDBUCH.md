@@ -1,6 +1,6 @@
-# Benutzerhandbuch – Buchhaltung
+# Benutzerhandbuch – JeNi bucht
 
-**Für App-Version 0.11.0** · Stand 2026-10-14
+**Für App-Version 0.12.0** · Stand 2026-10-15
 
 Dieses Handbuch beschreibt die App aus Nutzersicht. Es wird bei jeder Änderung,
 die du in der App siehst, mitgeführt – siehe [`CLAUDE.md`](../CLAUDE.md).
@@ -1080,6 +1080,16 @@ deiner Steuerberatung.
 ---
 
 ## 13. Wenn etwas nicht geht
+
+**„Bitte eine E-Mail-Adresse wie name@beispiel.at eingeben"** — im Profil oder
+beim Kunden steht eine E-Mail-Adresse ohne @ oder ohne Domain (z. B. `.at`).
+Tippfehler korrigieren oder das Feld leer lassen. Die App prüft nur die Form,
+sie schickt keine Bestätigungsmail; du kannst die Adresse jederzeit ändern.
+
+**„Bitte eine Telefonnummer mit 6 bis 20 Ziffern eingeben, z. B. +43 660
+1234567"** — erlaubt sind Ziffern, ein `+` am Anfang, Leerzeichen sowie `/`,
+`(`, `)` und `-`. Buchstaben oder zu kurze Nummern werden abgelehnt. Auch hier
+gibt es keine SMS-Bestätigung.
 
 **„Format nicht erkannt. Unterstützt: Amazon, PayPal, Shopify, Stripe …"** —
 die geteilte CSV- oder Textdatei ist kein bekannter Plattformbericht. Prüf,

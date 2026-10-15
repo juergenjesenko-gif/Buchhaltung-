@@ -37,7 +37,7 @@ flutter create --org com.deine-domain --project-name buchhaltung \
   zurückgehen. Beide Stores lehnen einen Upload mit bereits verwendeter
   Buildnummer ab.
 
-Auch jeder Testbuild der CI trägt seit 2026-10-12 `--build-number=github.run_number`; das Artefakt ist ungezippt die arm64-APK `Buchhaltung-<Version>-build-<Nummer>.apk`. Testbuilds bekommen seit 2026-10-14 **keinen Git-Tag** mehr; die Release Notes nennen den Commit-Hash direkt (Entscheidung Auftraggeber). Für Store-Releases ab 1.0.0 kann ein Tag über GitHub Releases gesetzt werden. Die CI kann Tags nicht setzen: GitHub verweigert dem CI-Token Tags auf Commits mit Workflow-Änderungen (fehlende `workflows`-Berechtigung, Versuch vom 2026-10-12), und die Entwicklungsumgebung darf nur auf den Entwicklungsbranch pushen. Der Release-Workflow setzt die Buildnummer aus `github.run_number` – monoton
+Auch jeder Testbuild der CI trägt seit 2026-10-12 `--build-number=github.run_number`; das Artefakt ist ungezippt die arm64-APK `JeNi-bucht-<Version>-build-<Nummer>.apk`. Testbuilds bekommen seit 2026-10-14 **keinen Git-Tag** mehr; die Release Notes nennen den Commit-Hash direkt (Entscheidung Auftraggeber). Für Store-Releases ab 1.0.0 kann ein Tag über GitHub Releases gesetzt werden. Die CI kann Tags nicht setzen: GitHub verweigert dem CI-Token Tags auf Commits mit Workflow-Änderungen (fehlende `workflows`-Berechtigung, Versuch vom 2026-10-12), und die Entwicklungsumgebung darf nur auf den Entwicklungsbranch pushen. Der Release-Workflow setzt die Buildnummer aus `github.run_number` – monoton
 steigend und übersteht Reruns. Lokal:
 
 ```bash

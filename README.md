@@ -1,4 +1,4 @@
-# Buchhaltung
+# JeNi bucht
 
 Mobile Buchhaltung für Einzelunternehmen und Kleinunternehmer in **Österreich** und
 **Deutschland**. Belege fotografieren, Einnahmen und Ausgaben führen, Rechnungen
@@ -8,7 +8,7 @@ Flutter-App für Android und iOS. Offline-first: alle Daten liegen auf dem Gerä
 
 ## Stand der App
 
-**Aktuelle Version: 0.11.0 (Testbuild vom 2026-10-14).** Noch nicht im Store.
+**Aktuelle Version: 0.12.0 (Testbuild vom 2026-10-15).** Noch nicht im Store.
 Was in welcher Version kam: [`docs/RELEASE_NOTES.md`](docs/RELEASE_NOTES.md);
 Zuordnung zu den Anforderungen: Lastenheft Abschnitt 10a.
 
@@ -89,7 +89,7 @@ flutter run              # auf angeschlossenem Gerät oder Emulator
 ## Testen
 
 Die CI baut bei jedem Push ein installierbares Release-APK. Herunterladen unter
-**Actions → letzter Lauf → Artifacts → `Buchhaltung-<Version>-build-<Nummer>.apk`**
+**Actions → letzter Lauf → Artifacts → `JeNi-bucht-<Version>-build-<Nummer>.apk`**
 (direkt die APK, nicht gezippt) – dafür braucht es auf dem eigenen Rechner nichts.
 Aus der Claude-App: im Fenster ⋮ → „In Chrome öffnen“, sonst wird die Datei
 nicht gespeichert.

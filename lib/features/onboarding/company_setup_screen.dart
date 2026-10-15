@@ -10,6 +10,7 @@ import 'package:image_picker/image_picker.dart';
 
 import '../../services/logo_store.dart';
 
+import '../../services/contact_format.dart';
 import '../../services/vat_id/vat_id_format.dart';
 import '../../widgets/vat_check_status.dart';
 import '../backup/backup_screen.dart';
@@ -626,12 +627,16 @@ class _CompanySetupScreenState extends State<CompanySetupScreen> {
                       controller: _fields['email'],
                       decoration: const InputDecoration(labelText: 'E-Mail'),
                       keyboardType: TextInputType.emailAddress,
+                      validator: (value) =>
+                          ContactFormat.checkEmail(value ?? ''),
                     ),
                     const SizedBox(height: 12),
                     TextFormField(
                       controller: _fields['phone'],
                       decoration: const InputDecoration(labelText: 'Telefon'),
                       keyboardType: TextInputType.phone,
+                      validator: (value) =>
+                          ContactFormat.checkPhone(value ?? ''),
                     ),
                     const SizedBox(height: 12),
                     TextFormField(

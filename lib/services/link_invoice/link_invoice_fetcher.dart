@@ -148,7 +148,7 @@ class _HttpTransport implements LinkTransport {
   Future<LinkResponse> get(Uri uri, int maxBytes) async {
     final client = HttpClient()
       ..connectionTimeout = const Duration(seconds: 15)
-      ..userAgent = 'Buchhaltung-App';
+      ..userAgent = 'JeNi-bucht-App';
     try {
       final request = await client.getUrl(uri);
       request.followRedirects = false;

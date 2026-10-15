@@ -15,7 +15,7 @@ Android-Telefon und einen Browser.
 1. Öffne **[Actions](https://github.com/juergenjesenko-gif/Buchhaltung-/actions)**
    im Repository
 2. Klick auf den obersten Lauf mit grünem Häkchen
-3. Ganz unten unter **Artifacts** liegt **`Buchhaltung-<Version>-build-<Nummer>.apk`** (fortlaufende Buildnummer = Nummer des CI-Laufs, auch in Android unter App-Info → Version „<Version> (<Nummer>)“ sichtbar). Antippen – die APK wird direkt heruntergeladen, ohne ZIP (seit 2026-10-12 nur noch 64 Bit, `arm64`).
+3. Ganz unten unter **Artifacts** liegt **`JeNi-bucht-<Version>-build-<Nummer>.apk`** (fortlaufende Buildnummer = Nummer des CI-Laufs, auch in Android unter App-Info → Version „<Version> (<Nummer>)“ sichtbar). Antippen – die APK wird direkt heruntergeladen, ohne ZIP (seit 2026-10-12 nur noch 64 Bit, `arm64`).
 4. Die heruntergeladene APK antippen und installieren.
 
 > Am bequemsten direkt am Telefon: Actions-Seite im Handy-Browser öffnen,

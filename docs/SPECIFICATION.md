@@ -1,7 +1,7 @@
 # Spezifikation – Buchhaltung
 
-**Dokumentversion:** 1.51 · **App-Version:** 0.11.0 · **Stand:** 2026-10-14
-**Status:** Testbuild 0.11.0 (Schema 17); Store-Start offen, siehe Abschnitt 11 und 14
+**Dokumentversion:** 1.52 · **App-Version:** 0.12.0 · **Stand:** 2026-10-15
+**Status:** Testbuild 0.12.0 (Schema 17); Store-Start offen, siehe Abschnitt 11 und 14
 
 > Das **Zielbild** des Produkts steht im [`LASTENHEFT.md`](LASTENHEFT.md); dieses
 > Dokument beschreibt, was die App **heute tatsächlich tut**.
@@ -353,6 +353,7 @@ Eigene Kategorien sind ergänzbar und löschbar; die vorgegebenen nicht.
 | FA-1.4c | **Wöchentliche Prüfung nur nach Opt-in** (`vat_check_enabled`, Schalter in den Stammdaten): eigene UID und UIDs von Kunden mit Rechnung in den letzten 12 Monaten, seriell mit 1 s Pause; ausgelöst beim Start und bei Rückkehr in die App, wenn die letzte Runde ≥ 7 Tage zurückliegt (`spec.vat_check_interval_days`). Eine echte Hintergrundausführung gibt es nicht |
 | FA-1.4d | Jede VIES-Abfrage wird in `vat_id_checks` protokolliert (nur Einfügen). Bei eingeschalteter Prüfung wird die Kunden-UID vor dem Ausstellen geprüft und das Ergebnis im `customer_snapshot` der Rechnung eingefroren; ein negatives Ergebnis warnt, blockiert aber nie |
 | FA-1.4e | Firmenbuch-/Handelsregisternummer optional; ist sie gesetzt, ist das Gericht Pflicht. Beide erscheinen in der Fußzeile jeder Rechnung (§ 14 UGB, § 37a HGB) |
+| FA-1.4f | **E-Mail und Telefon** (Profil; E-Mail auch beim Kunden) werden nur auf Form geprüft (`ContactFormat`, 0.12.0, Lastenheft O-30), ohne Verifizierung; leer ist erlaubt. E-Mail: Lokalteil, `@`, Domain mit Punkt und Endung ≥ 2 Zeichen, ohne Leerzeichen. Telefon: Ziffern, führendes `+`, Leerzeichen, `/ ( ) -`; 6 bis 20 Ziffern |
 | FA-1.5 | Das Rechnungsnummernmuster muss eine laufende Nummer enthalten, sonst wird das Formular abgelehnt |
 | FA-1.6 | Ein Bearbeiten der Stammdaten setzt `next_invoice_sequence` nie zurück |
 | FA-1.7 | Die App benennt fehlende Pflichtangaben für Rechnungen und verlinkt in die Stammdaten |
@@ -621,7 +622,7 @@ Server-Entscheidung; Prüfpunkte P-R25, P-R26.
 |---|---|
 | FA-11.1 | **Hilfe-Symbol** (Fragezeichen, Tooltip „Hilfe“) in der AppBar rechts auf Übersicht, Belege, Rechnungen, Export, Einstellungen, Beleg- und Rechnungsformular. Nicht als FAB: unten rechts liegen bereits die Erfassungsknöpfe (Übersicht zwei, Listen ein Plus) in der Daumenzone, die der Hauptaktion vorbehalten ist (DESIGN_SPEC „Hauptaktion in Daumenreichweite“); Hilfe ist eine seltene Nebenaktion und darf oben liegen, wo auch das Zahnrad sitzt |
 | FA-11.2 | **Suche** im Benutzerhandbuch: `docs/BENUTZERHANDBUCH.md` ist selbst als Asset eingebunden (pubspec.yaml) – keine Kopie, kein zweiter Text. Zerlegung in `##`/`###`-Abschnitte; in „Häufige Fragen“ und „Wenn etwas nicht geht“ ist jede fett gesetzte Frage bzw. Meldung ein eigener Treffer; „Inhalt“ entfällt. Rangfolge BM25 (k1 1,2, b 0,75), Überschrift dreifach gewichtet, Normalisierung Kleinschreibung, ä/ö/ü/ß, Füllwörter, einfache Endungs-Stammbildung, Präfixtreffer für zusammengesetzte Wörter, Synonyme mit Gewicht 0,6 (z. B. „löschen“ → „stornieren“, „Backup“ → „Sicherung“, „MwSt“ → „Umsatzsteuer“). Treffer zeigen Überschrift, Kapitel und Auszug; Tipp öffnet den Abschnitt mit eigenem Markdown-Darsteller (Absätze, Listen, fett, kursiv, Code, Tabellenzeilen), Text auswählbar. **Kontext:** vom Beleg-Bildschirm geöffnet zeigt die leere Suche die Beleg-Kapitel, Treffer aus Beleg-Kapiteln wiegen 1,3-fach; analog Rechnungen. Test `test/help_test.dart` prüft, dass jede Handbuchüberschrift und jede FAQ-Frage im Index steht |
-| FA-11.3 | **Ohne Treffer:** Hinweis und Knopf „E-Mail an den Support“; mit Treffern zusätzlich „Nicht dabei? Support fragen“. Öffnet die Mail-App (`mailto:office@jenibarb.com`, Android `ACTION_SENDTO`, iOS `UIApplication.open`, Kanal `buchhaltung/launcher` Methoden `openMail`, `appVersion`) mit Betreff „Frage zur Buchhaltungs-App (Version x.y.z): <Suchtext>“. Kein Text, kein Anhang, keine Daten automatisch; gesendet wird nur, was die Nutzerin selbst abschickt. Ohne Mail-App: Dialog mit Adresse und „Adresse kopieren“ |
+| FA-11.3 | **Ohne Treffer:** Hinweis und Knopf „E-Mail an den Support“; mit Treffern zusätzlich „Nicht dabei? Support fragen“. Öffnet die Mail-App (`mailto:office@jenibarb.com`, Android `ACTION_SENDTO`, iOS `UIApplication.open`, Kanal `buchhaltung/launcher` Methoden `openMail`, `appVersion`) mit Betreff „Frage zu JeNi bucht (Version x.y.z): <Suchtext>“. Kein Text, kein Anhang, keine Daten automatisch; gesendet wird nur, was die Nutzerin selbst abschickt. Ohne Mail-App: Dialog mit Adresse und „Adresse kopieren“ |
 
 ---
 
@@ -1000,6 +1001,7 @@ Dauerfristverlängerung, `02-15,…` = feste Tage, `+1j07-31` = Folgejahr,
 
 | Version | Datum | App-Version | Änderung |
 |---|---|---|---|
+| 1.52 | 2026-10-15 | 0.12.0 | App-Version 0.12.0 (Testbuild): Produkt- und App-Name „JeNi bucht“ (Android-Label, iOS CFBundleDisplayName/CFBundleName, App-Titel, Sperrbildschirm, Support-Betreff FA-11.3, Exportvermerk, Sicherungs-Betreff, CI-Artefakt `JeNi-bucht-<Version>-build-<Nr>.apk`); Bundle-ID unverändert `at.jesenko.buchhaltung` (Lastenheft O-33). Neu FA-1.4f: Formatprüfung E-Mail und Telefon in Profil und Kunde (O-30). P-R7 erledigt. |
 | 1.51 | 2026-10-14 | 0.11.0 | Dokumentabgleich (Prüfinstanz Softwareentwickler), kein Codewechsel: Status im Kopf, Schemaversion in Abschnitt 4 auf 17 korrigiert, Bildschirm „Beleg bearbeiten“ um Aufteilung, Link-QR, Kassen-QR, Originaldatei ergänzt; Abschnitt 11: E-Rechnung-Empfang und Belegstorno-Status präzisiert, Lernspeicher erwähnt; Abschnitt 14: Zeilen je Gruppe nach Nummer sortiert (P-S45, P-L18, P-R26, P-D8, P-D20 bis P-D23), neuer Prüfpunkt P-D27 (Beta mit Zielgruppe, bisher verwaister Verweis P-Z1 in STORE_ANMELDUNG). |
 | 1.50 | 2026-10-14 | 0.11.0 | App-Version 0.11.0 (Testbuild), Stufe B1: Plattformexporte Amazon (Transaktionsbericht DE/EN/FR/IT/ES, Abrechnung V2), PayPal, Shopify, Stripe über Teilen/„Öffnen mit“ (FA-2.43 bis FA-2.49), Bruttoprinzip, Reverse Charge mit Kennzahlen in Übersicht und UVA-Export (FA-3.3, FA-3.4, 8.5), OSS-/FBA-Warnung, Dubletten über Schema 17. Kenndaten `oss_threshold_cents`, `reverse_charge_kz`. Neue Prüfpunkte P-S51 bis P-S55, P-R36, P-U7. |
 | 1.49 | 2026-10-14 | 0.10.0 | App-Version 0.10.0 (Testbuild), Stufe A3: Link-QR mit Hinweisstreifen, Laden nur nach Tipp, Domainwechsel nur nach erneuter Anzeige, nur PDF/XML ≤ 20 MB, sonst Browser (FA-2.42); neuer Datenfluss in 10.1. Neue Prüfpunkte P-R35, P-U6. |
@@ -1090,7 +1092,7 @@ Status: *offen* · *bestätigt* (mit Datum und Prüfer) · *widerlegt* (mit Folg
 | P-R4 | Tragweite der Bestätigung „keine Steuerberatung" und Haftungsbegrenzung in den AGB | begrenzt wirksam; Vorsatz, grobe Fahrlässigkeit, Personenschäden nicht ausschließbar | Release | offen |
 | P-R5 | Abgrenzung zur Hilfeleistung in Steuersachen (StBerG, WTBG) bei UVA-Übermittlung und ESt-Vorbereitung | zulässig als Werkzeug, Übermittlung nur im Namen und mit Zugang der Nutzerin; keine Einzelfallempfehlung | Stufe B | offen |
 | P-R6 | DSGVO: Datenschutzerklärung, Verzeichnis, TOM, Datenpannenprozess; ab Stufe C AVV und Unterauftragsverarbeiter | Rollen laut Lastenheft L-19 im Kern richtig, um Anbieter- und Store-Daten ergänzt | Release / Stufe C | offen |
-| P-R7 | Markenrecherche „Jenny Bar" / „Jenni bucht" (TMview, Klassen 9, 35, 36, 42) | eine Websuche ohne Kollision — **keine** Recherche; „Jenni bucht" teilweise beschreibend | Store-Eintrag | offen |
+| P-R7 | Markenrecherche „JeNi bucht" (TMview, Klassen 9, 35, 36, 42) | Recherche der Auftraggeberin ohne Befund (2026-10-15); Name festgelegt | Store-Eintrag | erledigt 2026-10-15 |
 | P-R8 | Rechtsform, Haftung, Versicherung des Anbieters | Einzelunternehmen haftet persönlich | Release | offen |
 | P-R9 | AI Act Art. 50 (Kennzeichnung KI-Inhalte) und Urheberrecht im Marketing-Modul; Produkthaftungsrichtlinie (EU) 2024/2853 | Pflichten wahrscheinlich | Stufe C | offen |
 

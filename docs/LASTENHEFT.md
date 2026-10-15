@@ -1,6 +1,6 @@
-# Lastenheft – Buchhaltungsapp für Österreich und Deutschland
+# Lastenheft – JeNi bucht, Buchhaltungsapp für Österreich und Deutschland
 
-**Dokumentversion:** 1.54 · **Stand:** 2026-10-14 · **Status:** Entwurf zur Abstimmung
+**Dokumentversion:** 1.55 · **Stand:** 2026-10-15 · **Status:** Entwurf zur Abstimmung
 **Auftraggeber:** Jürgen Jesenko (privates Vorhaben) · **Umsetzung:** Claude Code
 
 > Ein Lastenheft beschreibt, **was** das Produkt leisten soll und **warum** — nicht,
@@ -1288,7 +1288,7 @@ Zu entscheiden, bevor die betroffene Anforderung umgesetzt wird:
 | ID | Offener Punkt | Benötigt für |
 |---|---|---|
 | ~~O-1~~ | **Erledigt am 2026-10-10:** auch in Österreich darf der Vorjahresumsatz 55.000 € nicht überschritten haben, ohne Toleranz; vom Auftraggeber bestätigt, im Code umgesetzt (Spezifikation 1.4). Schriftliche Bestätigung der Steuerberatung zu Brutto/Netto und ausgenommenen Umsätzen bleibt empfohlen | erledigt |
-| O-2 | Produktname und Bundle-ID. **Arbeitstitel seit 2026-10-09: „Jenny Bar"** (Wortspiel aus Jenny Barb und „bar bezahlen"). **Zweite Variante: „Jenni bucht"**. Endgültig erst nach Markenrecherche. **Richtung festgelegt am 2026-10-09:** weiblicher Vorname, gern mit Anklang an „Jenny Barb" (Wiedererkennung mit jenibarb.com), allein oder verbunden mit dem Thema (z. B. „Jenny bucht"). Markenrecherche AT/DE/EUIPO, Store-Suche und Domainprüfung vor Festlegung | vor dem ersten Store-Upload |
+| ~~O-2~~ | **Entschieden am 2026-10-15:** Produkt- und App-Name **„JeNi bucht“** (genau diese Schreibweise), nach Markenrecherche ohne Befund (O-25). Frühere Arbeitstitel „Jenny Bar“ und „Jenni bucht“ entfallen. Die technische Kennung (Bundle-ID/applicationId) bleibt vorerst `at.jesenko.buchhaltung`, siehe O-33 | erledigt |
 | ~~O-3~~ | **Entschieden am 2026-10-10:** Basis 14,90 € (Rabatt 12,90 €), Pro 24,90 € (Rabatt 19,90 €), Jahresabo mit 20 % Rabatt; Details in Abschnitt 5.10 | erledigt |
 | ~~O-22~~ | **Entschieden am 2026-10-09:** (a) UVA-Übermittlung in den Buchhaltungstarif, Stufe B (L-6.5); (b) Start mit Datei-Import der Kontoauszüge, Live-Anbindung später als Opt-in (L-18); (c) Angebote aufgenommen, Stufe A (L-3.13 ff.) | erledigt |
 | ~~O-4~~ | **Entschieden am 2026-10-10:** 14 Tage gratis alles, danach Basis, optional Pro; Funktionsschnitt in Abschnitt 5.10 | erledigt |
@@ -1307,14 +1307,15 @@ Zu entscheiden, bevor die betroffene Anforderung umgesetzt wird:
 | ~~O-16~~ | Mit O-4 erledigt: es gibt keine einzeln buchbaren Module; das Marketing-Modul ist Teil von Pro | erledigt |
 | O-17 | Sollen erzeugte Werbemittel versioniert und wiederverwendbar abgelegt werden, oder sind sie Wegwerfware? | Stufe C |
 | ~~O-19~~ | **Behoben am 2026-10-09** (Umsatzanteile von L-16.1, L-16.2, L-16.11). Ursprünglich: **Bekannter Fehler:** Die Grenzwertüberwachung ermittelt den Vorjahresumsatz ausschließlich aus erfassten Belegen. Für einen neuen Nutzer ist er damit null, und die Ampel steht fälschlich auf Grün — in Deutschland entscheidet er über das ganze laufende Jahr. Behebung über L-16.1/L-16.2 | sofort; betrifft bestehenden Code |
-| O-25 | **Markenrecherche** zu „Jenny Bar" und „Jenni bucht" durch Markenanwältin (TMview, Klassen 9, 35, 36, 42), danach Unionsmarke anmelden — vor Domain und Store-Eintrag. Siehe Spezifikation Abschnitt 14, P-R7 | vor dem ersten Store-Upload |
-| O-26 | **Teilweise entschieden. Rechtsform und Absicherung des Anbieters:** Einzelunternehmen haftet persönlich — GmbH, Vermögensschaden- und Produkthaftpflicht prüfen (P-R8). **Entschieden 2026-10-12:** Start als Spirits by JeNiBarb e.U. (FN 643550 y, ATU81604346); Umwandlung in eine GmbH, sobald die Umsätze die Einzelunternehmerregelung übersteigen; Haftpflicht weiter prüfen | vor Release |
+| ~~O-25~~ | **Erledigt am 2026-10-15:** Markenrecherche zu „JeNi bucht“ abgeschlossen, ohne Befund. Markenanmeldung, Domain und Store-Eintrag folgen (Spezifikation 14, P-R7) | erledigt |
+| O-26 | **Rechtsform und Absicherung des Anbieters.** **Entschieden 2026-10-12:** Start als Spirits by JeNiBarb e.U. (FN 643550 y, ATU81604346); Umwandlung in eine GmbH, sobald die Umsätze die Einzelunternehmerregelung übersteigen. **Haftpflicht (Vermögensschaden- und Produkthaftpflicht, P-R8): verschoben bis Launch** (Entscheidung 2026-10-15); Schritt 13a in `STORE_READINESS.md` vor der Einreichung | Launch |
 | O-27 | **Laufende Kosten der Rechtsstand-Überwachung:** API-Kosten des Agenten (Annahme 30–90 €/Monat) und Bereitschaft plus Freigaben der Steuerberaterin (0,5–2 h je Änderung). Angebot einholen | vor Stufe B |
 | ~~O-28~~ | **Entschieden am 2026-10-10:** direkt Anthropic API, ein eigenes neues Konto. EU-Verarbeitung von den Prüfinstanzen geprüft: nicht vorgeschrieben; Buchhaltungsdaten und Belege dürfen trotzdem nicht über die US-Route laufen (L-21.8 bis L-21.12) | erledigt |
 | ~~O-29~~ | **Entschieden am 2026-10-10:** Sicherung und Synchronisierung bleiben in der Cloud der Nutzerin; kein Server und kein Konto beim Anbieter. Mehrere Geräte und mehrere Personen über gemeinsamen Ordner (L-19.12 ff.) | erledigt |
-| O-30 | **Verifizierung von E-Mail und Telefon** (Wunsch aus dem Gerätetest): bräuchte einen Server bzw. SMS-Dienst und widerspricht O-29; die Angaben dienen nur als Kontaktdaten auf Rechnungen. Empfehlung: nur Formatprüfung. **Entscheidung der Auftraggeberin offen** (Stand 2026-10-14) | vor Release |
+| ~~O-30~~ | **Entschieden am 2026-10-15:** E-Mail und Telefon werden **nur auf Form geprüft**, nicht verifiziert (kein Server, kein SMS-Dienst, passt zu O-29); die Nutzerin kann die Angaben jederzeit ändern. Umgesetzt in 0.12.0 (Spezifikation FA-1.4f) | erledigt |
 | ~~O-31~~ | **Anbieterexklusive Verschlüsselung zur Kundenbindung?** Frage des Auftraggebers vom 2026-10-12, von den drei Prüfinstanzen verneint: Aufbewahrungs- und Prüfpflichten (§ 147 AO, § 131/132 BAO) nach Kündigung oder Wegfall des Anbieters nicht erfüllbar, AGB- und UWG-Risiko, technisch ohne Server wirkungslos. Bindung über Funktionen, Komfort und Importe; Produktschutz über Marke, Lizenzprüfung, Obfuskierung (L-7.12 bis L-7.16) | Empfehlung abgegeben |
 | O-32 | **Anbieter-Server für Plattform-Connectoren** (Stufe B2: echte Schnittstellen zu Amazon, Booking & Co. statt Teilen/PDF/Link): zurückgestellt am 2026-10-14, mit der KI-Server-Frage (L-26.6, L-21) gemeinsam zu entscheiden | Stufe B2 |
+| O-33 | **Bundle-ID für den Store festlegen** (Vorschlag `at.jenibarb.jenibucht`). Heute `at.jesenko.buchhaltung`; ein Wechsel erzwingt auf Testgeräten eine Neuinstallation (Daten vorher sichern) und ist nach der ersten Store-Einreichung nicht mehr möglich. Entscheidung der Auftraggeberin offen | vor der ersten Store-Einreichung |
 | O-20 | Welche Vorsoftware-Formate sind beim Import vorrangig zu unterstützen? Richtet sich nach dem, womit die ersten Nutzer tatsächlich kommen | Stufe B |
 | ~~O-21~~ | **Vorläufig beantwortet am 2026-10-10 (Prüfinstanz Rechtsanwalt):** BFSG/BaFG voraussichtlich nicht anwendbar (B2B, Kleinstunternehmen). Grundbarrierefreiheit trotzdem als NF-Anforderung; Bestätigung siehe Spezifikation Abschnitt 14, P-R3 | erledigt |
 | ~~O-23~~ | **Entschieden am 2026-10-09:** wählbar je Rücksendung über den Schalter „Ware wieder verkaufbar?" (L-3.20) | erledigt |
@@ -1338,6 +1339,10 @@ Historie stehen. Die Einzelheiten stehen an der genannten Stelle.
 | 2026-10-14 | Termin-Box nur als Anzeige, ohne Benachrichtigungen | 5.25 |
 | 2026-10-14 | Hilfe Stufe 1 offline; KI-Hilfe erst nach Server-Entscheidung | 5.26, O-32 |
 | 2026-10-14 | Mahnkosten 10 € je Mahnung ab der 1. Mahnung | L-3.27 |
+| 2026-10-15 | **Produkt- und App-Name „JeNi bucht“**; Bundle-ID bleibt vorerst, Store-Kennung offen | O-2, O-25, O-33 |
+| 2026-10-15 | Haftpflicht auf den Launch verschoben | O-26 |
+| 2026-10-15 | E-Mail und Telefon nur Formatprüfung, keine Verifizierung | O-30 |
+| 2026-10-15 | Store-Text kündigt das Abo mit „14 Tage kostenlos testen“ an, mit Folgepreis, ohne Streichpreise | O-4, `STORE_LISTING.md` |
 | 2026-10-14 | Kundendokumente immer in Sie-Form (App-Oberfläche duzt) | L-3.31 |
 | 2026-10-14 | Codes, PDF, E-Rechnungen, Link-QR und Plattformexporte umsetzen; iOS über „Öffnen in …“ statt Share Extension | 5.27, 5.28 |
 | 2026-10-14 | Echte Plattform-Schnittstellen (Anbieter-Server) zurückgestellt | O-32 |
@@ -1349,6 +1354,7 @@ Historie stehen. Die Einzelheiten stehen an der genannten Stelle.
 
 | Version | Datum | Änderung |
 |---|---|---|
+| 1.55 | 2026-10-15 | Entscheidungen der Auftraggeberin (14a): Name „JeNi bucht“ (O-2, O-25 erledigt), neu O-33 Bundle-ID für den Store; O-26 Haftpflicht verschoben bis Launch; O-30 nur Formatprüfung (umgesetzt in 0.12.0); Store-Text „14 Tage kostenlos testen“. |
 | 1.54 | 2026-10-14 | Dokumentabgleich mit Code 0.11.0 (Prüfinstanz Softwareentwickler): Ausgangslage aktualisiert; neu L-0.6 (Einhandbedienung ohne Händigkeits-Einstellung); Umsetzungsvermerke in 5.24 bis 5.28; 5.23 als Unterabschnitt eingeordnet; neuer Abschnitt 10a Umsetzungsstand und Stand-Hinweis in 10; Abnahmekriterien A-9, A-10; doppelte O-15 aufgelöst (O-15b), O-32 einsortiert, O-26 als teilweise entschieden; neuer Abschnitt 14a Entscheidungen der Auftraggeberin. |
 | 1.53 | 2026-10-14 | L-27.4/L-27.5: iOS „Öffnen in …“ statt Share Extension von der Auftraggeberin bestätigt. Neu 5.28 (L-28.1 bis L-28.7, Stufe B1: Plattformexporte Amazon, PayPal, Shopify, Stripe), umgesetzt in 0.11.0 (Spezifikation FA-2.43 bis FA-2.49). Keine neue Datenübertragung (5.19 unverändert: Datei kommt aufs Gerät). Prüfpunkte P-S51 bis P-S55, P-R36, P-U7. |
 | 1.52 | 2026-10-14 | A3 umgesetzt in 0.10.0 (L-27.7, Spezifikation FA-2.42). Neuer Datenfluss „Rechnung über Link-QR“ in 5.19, PRIVACY und STORE_LISTING (L-19.5); Prüfung P-R35. |

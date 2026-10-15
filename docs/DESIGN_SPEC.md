@@ -1,6 +1,6 @@
 # Designspezifikation
 
-**Version 1.2 · Stand 2026-10-14 · Arbeitstitel „Jenny Bar“ / „Jenni bucht“**
+**Version 1.2 · Stand 2026-10-14 · Produktname „JeNi bucht“**
 
 Zweck: Grundlage, gegen die eine KI (oder ein Mensch) **mehrere unterschiedliche
 Designvarianten** entwickeln kann, die alle fachlich und rechtlich korrekt
@@ -496,7 +496,7 @@ Vergleichskriterien (je 1–5 Punkte):
 
 | Punkt | Stand | Verweis |
 |---|---|---|
-| Produktname und Marke | offen, Markenrecherche „Jenny Bar“ / „Jenni bucht“ | Lastenheft O-25, Spezifikation 14 **P-R7** |
+| Produktname und Marke | entschieden 2026-10-15: „JeNi bucht“, Markenrecherche ohne Befund | Lastenheft O-25, Spezifikation 14 **P-R7** |
 | Logo | erst nach Namensentscheidung; bis dahin nur Platzhalter | folgt aus O-25 / P-R7 |
 | Ansprache du / Sie | „du“ – entschieden 2026-10-12 | erledigt |
 | Store-Screenshots je Variante | vor jeder Einreichung prüfen | Spezifikation 14 **P-R13** |

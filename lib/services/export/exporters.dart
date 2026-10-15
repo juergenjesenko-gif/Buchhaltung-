@@ -607,7 +607,7 @@ class Exporter {
     csv.writeRow([]);
     csv.writeRow([
       'Hinweis',
-      'Erstellt mit der App Buchhaltung. Die Zahlen ersetzen keine steuerliche '
+      'Erstellt mit der App JeNi bucht. Die Zahlen ersetzen keine steuerliche '
           'Beratung und keine geprüfte Umsatzsteuervoranmeldung.',
     ]);
 

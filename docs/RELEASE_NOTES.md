@@ -29,11 +29,35 @@ gebaut, und was war darin geprüft?*
 
 ## Unveröffentlicht
 
-Änderungen seit 0.11.0+16, die noch in keinem Build stecken. Wandern beim
+Änderungen seit 0.12.0+17, die noch in keinem Build stecken. Wandern beim
 nächsten Versionssprung in den neuen Eintrag.
 
 | Art | Änderung | Bezug | Commit |
 |---|---|---|---|
+
+---
+
+## 0.12.0+17 — 2026-10-15
+
+| Feld | Wert |
+|---|---|
+| Art | Testbuild (ungezippte arm64-APK `JeNi-bucht-0.12.0-build-<Nr>.apk`, fester Testschlüssel); Produktname und Entscheidungen der Auftraggeberin |
+| Commit | `COMMIT` |
+| Branch | `claude/agile-accounting-app-mobile-wa5j3h` |
+| Dokumentstände | Lastenheft 1.55, Spezifikation 1.52, Benutzerhandbuch für 0.12.0, DESIGN_SPEC 1.2 |
+| Datenbankschema | 17 |
+| Prüfung | `flutter analyze` ohne Befund, alle Tests grün (neu `contact_format_test.dart`), Emulator-Job `android-ocr-emulator`, CI-Lauf zum Commit |
+| Steuerliche Kennwerte | unverändert |
+| Offene reale Prüfpunkte | wie 0.11.0+16 ohne P-R7 (erledigt) |
+
+**Änderungen seit 0.11.0+16**
+
+| Art | Änderung | Bezug | Commit |
+|---|---|---|---|
+| Geändert | App-Name „JeNi bucht“ auf Startbildschirm (Android-Label, iOS CFBundleDisplayName/CFBundleName, damit auch die Verknüpfung), App-Titel, Sperrbildschirm, Support-Betreff „Frage zu JeNi bucht (Version …)“, Exportvermerk, Betreff der Sicherung; Bundle-ID unverändert | O-2, O-25, O-33, FA-11.3 | `COMMIT` |
+| Geändert | CI-Artefakt heißt `JeNi-bucht-<Version>-build-<Nr>.apk` | – | `COMMIT` |
+| Neu | Formatprüfung für E-Mail (Profil, Kunde) und Telefon (Profil), ohne Verifizierung | O-30, FA-1.4f | `COMMIT` |
+| Geändert | Store-Text: „14 Tage kostenlos testen“ mit Folgepreis | O-4, P-R13 | `COMMIT` |
 
 ---
 

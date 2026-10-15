@@ -5,14 +5,16 @@ Textvorlagen für Google Play und den App Store. Deutsch, weil die Zielgruppe
 
 ## Name
 
-Platzhalter **Buchhaltung** (30 Zeichen Limit bei Google Play). Arbeitstitel
-„Jenny Bar“ bzw. „Jenni bucht“; der endgültige Name folgt erst nach der
-Markenrecherche (Lastenheft O-2, O-25; Spezifikation 14, P-R7).
+**JeNi bucht** (10 von 30 Zeichen bei Google Play). Festgelegt von der
+Auftraggeberin am 2026-10-15 nach Markenrecherche ohne Befund (Lastenheft O-2,
+O-25; Spezifikation 14, P-R7). Die technische Kennung bleibt vorerst
+`at.jesenko.buchhaltung`; die Store-Kennung wird vor der ersten Einreichung
+festgelegt (Lastenheft O-33).
 
 ## Kurzbeschreibung (Google Play, max. 80 Zeichen)
 
 ```
-Belege fotografieren, Rechnungen schreiben, Export für den Steuerberater.
+Belege fotografieren, Rechnungen schreiben. 14 Tage kostenlos testen.
 ```
 
 ## Untertitel (App Store, max. 30 Zeichen)
@@ -24,7 +26,7 @@ Belege, Rechnungen, Export
 ## Vollständige Beschreibung
 
 ```
-Buchhaltung für Einzelunternehmer und Kleinunternehmer in Österreich und
+JeNi bucht: Buchhaltung für Einzelunternehmer und Kleinunternehmer in Österreich und
 Deutschland. Ohne Konto beim Anbieter, deine Daten bleiben auf dem Gerät.
 
 BELEGE STATT SCHUHKARTON
@@ -64,6 +66,12 @@ Alles liegt auf deinem Gerät. Kein Server, kein Nutzerkonto, keine Werbung, kei
 Analyse. Daten verlassen das Telefon nur, wenn du selbst teilst, sicherst, eine
 UID-Nummer prüfen lässt, einen Wechselkurs abrufst oder eine Rechnung über
 einen QR-Link lädst. App-Sperre mit PIN oder Fingerabdruck.
+
+14 TAGE KOSTENLOS TESTEN
+Alle Funktionen 14 Tage kostenlos ausprobieren. Danach Abo Basis 14,90 € oder
+Pro 24,90 € im Monat, Jahresabo mit 20 % Rabatt; Endpreise inkl. USt. Ohne
+Abschluss eines Abos endet der Test von selbst; deine Daten bleiben auf dem
+Gerät und exportierbar.
 
 Hinweis: Diese App unterstützt bei der Buchhaltung, ist aber keine
 Steuerberatung und keine Registrierkasse nach RKSV.
@@ -151,6 +159,13 @@ Vor jeder Änderung von Store-Text, Screenshots oder Produktseite prüfen
 - Streichpreise ohne den niedrigsten Preis der letzten 30 Tage (PAngV)
 - Vergleiche mit namentlich genannten Mitbewerbern ohne Prüfung nach § 6 UWG
 - „Finanzamt", „ELSTER", „FinanzOnline" als Teil des App-Namens
+
+Abo-Ankündigung (Entscheidung Auftraggeberin 2026-10-15): „14 Tage kostenlos
+testen“ in Kurz- und Langbeschreibung, in der Langbeschreibung immer mit dem
+Folgepreis; keine Streichpreise, keine Rabattpreise „statt“. Preise vor dem
+Store-Start mit Lastenheft 5.10 und den im Store hinterlegten Preisen abgleichen
+(P-R13). Google Play untersagt Preis- und Werbeangaben im App-Namen und Symbol;
+deshalb steht die Ankündigung nur in den Beschreibungen.
 
 Pflicht im Store-Text: der Hinweis „Keine Steuerberatung – ersetzt keine
 steuerliche Beratung".

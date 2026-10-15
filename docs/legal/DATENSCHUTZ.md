@@ -1,4 +1,4 @@
-# Datenschutzerklärung für die App „{{APP_NAME}}“ und die Produktseite
+# Datenschutzerklärung für die App „JeNi bucht“ und die Produktseite
 
 > **ENTWURF – nicht anwaltlich geprüft.** Stand 2026-10-12, Fassung
 > 2026-10-12-entwurf. Grundlage: `docs/PRIVACY.md` und Lastenheft 5.19.

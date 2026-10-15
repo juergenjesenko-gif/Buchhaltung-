@@ -48,7 +48,7 @@ class _BackupScreenState extends State<BackupScreen> {
       // Ablageort wählt die Nutzerin: iCloud Drive, Google Drive, Dateien …
       await Share.shareXFiles([
         XFile(file.path),
-      ], subject: 'Datensicherung Buchhaltung');
+      ], subject: 'Datensicherung JeNi bucht');
       if (mounted) {
         showSnack(
           context,

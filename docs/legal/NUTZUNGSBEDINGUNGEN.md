@@ -1,4 +1,4 @@
-# Nutzungsbedingungen (Endnutzer-Lizenzvertrag) für die App „{{APP_NAME}}“
+# Nutzungsbedingungen (Endnutzer-Lizenzvertrag) für die App „JeNi bucht“
 
 > **ENTWURF – nicht anwaltlich geprüft.** Stand 2026-10-12, Fassung
 > 2026-10-12-entwurf (entspricht `LegalText.terms.version`). Gilt für Google

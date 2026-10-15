@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../widgets/danger_zone.dart';
 import '../../widgets/primary_action_bar.dart';
 
+import '../../services/contact_format.dart';
 import '../../services/vat_id/vat_id_format.dart';
 import '../../widgets/vat_check_status.dart';
 import '../../app_state.dart';
@@ -167,6 +168,8 @@ class _CustomerEditScreenState extends State<CustomerEditScreen> {
                       controller: _email,
                       decoration: const InputDecoration(labelText: 'E-Mail'),
                       keyboardType: TextInputType.emailAddress,
+                      validator: (value) =>
+                          ContactFormat.checkEmail(value ?? ''),
                     ),
                   ],
                 ),

@@ -6,7 +6,7 @@
 
 ## Angaben nach § 5 ECG, § 14 UGB und § 25 MedienG
 
-**Anbieterin der App „{{APP_NAME}}“ (Arbeitstitel „Jenny Bar“)**
+**Anbieterin der App „JeNi bucht“**
 
 Spirits by JeNiBarb e.U. (Inhaber: Jürgen Jesenko)
 Sankt Leonhard bei Siebenbrünn 96, 9587 Arnoldstein, Österreich
@@ -23,7 +23,7 @@ Sankt Leonhard bei Siebenbrünn 96, 9587 Arnoldstein, Österreich
 ## Offenlegung nach § 25 MedienG
 
 Medieninhaberin: Spirits by JeNiBarb e.U. (Inhaber: Jürgen Jesenko), Sankt Leonhard bei Siebenbrünn 96, 9587 Arnoldstein, Österreich.
-Grundlegende Richtung: Information über die App „{{APP_NAME}}“, ihre Funktionen,
+Grundlegende Richtung: Information über die App „JeNi bucht“, ihre Funktionen,
 Preise und Rechtstexte. (Kleine Website ohne darüber hinausgehenden
 Informationsgehalt: Angabe von Name/Firma, Unternehmensgegenstand und Sitz
 genügt nach § 25 Abs 5 MedienG.)

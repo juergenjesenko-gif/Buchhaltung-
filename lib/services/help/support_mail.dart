@@ -10,7 +10,7 @@ const supportAddress = 'office@jenibarb.com';
 String supportSubject(String? appVersion, String question) {
   final v = (appVersion == null || appVersion.isEmpty) ? '?' : appVersion;
   final q = question.trim();
-  return 'Frage zur Buchhaltungs-App (Version $v)${q.isEmpty ? '' : ': $q'}';
+  return 'Frage zu JeNi bucht (Version $v)${q.isEmpty ? '' : ': $q'}';
 }
 
 /// `mailto:`-Adresse; Leerzeichen als %20, nicht als „+“ (RFC 6068).

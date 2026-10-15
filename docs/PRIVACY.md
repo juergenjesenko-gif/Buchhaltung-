@@ -20,7 +20,7 @@ E-Mail: office@jenibarb.com
 
 ## Kurzfassung
 
-Die App **Buchhaltung** verarbeitet deine Daten auf deinem Gerät. Der Anbieter
+Die App **JeNi bucht** verarbeitet deine Daten auf deinem Gerät. Der Anbieter
 betreibt keinen Server und erhält keine deiner Daten. Es gibt keine
 Nutzerkonten, keine Analyse-Werkzeuge und keine Werbung. Daten verlassen das
 Gerät nur in den unten genannten Fällen, die du selbst auslöst oder einschaltest.

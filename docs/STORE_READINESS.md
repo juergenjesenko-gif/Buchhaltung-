@@ -1,6 +1,6 @@
 # Store-Reife – Checkliste bis zur Einreichung
 
-**Stand:** 2026-10-14 (App 0.11.0) · Grundlage: Prüfinstanzen Softwareentwickler, Rechtsanwalt,
+**Stand:** 2026-10-15 (App 0.12.0) · Grundlage: Prüfinstanzen Softwareentwickler, Rechtsanwalt,
 Steuerberater vom 2026-10-12. Store-Regeln aus Fachwissen, nicht live in den
 Konsolen geprüft; reale Prüfpunkte stehen in `SPECIFICATION.md` Abschnitt 14.
 
@@ -17,13 +17,15 @@ Anforderungen dazu: Lastenheft 5.10 (Abonnement), 5.22 (Lizenz und Bezahlung),
 | 4 | **Google Play Organisationskonto** (25 USD einmalig) – erspart den Pflichttest mit 12 Testern über 14 Tage, den private Konten brauchen | Auftraggeber | Tage bis Wochen | offen |
 | 5 | **Apple Developer Program als Einzelperson** (99 USD/Jahr; ein e.U. gilt bei Apple nicht als Organisation, P-R23, Formular in `STORE_ANMELDUNG.md`); Small Business Program anmelden (15 % Provision) | Auftraggeber | Tage bis Wochen | offen |
 | 6 | **UID-Nummer** des Anbieters, Steuerformulare (W-8BEN bzw. W-8BEN-E, DBA AT-USA 0 %), Bankdaten in beiden Konsolen | Auftraggeber mit Steuerberatung | – | offen (P-S11, P-S13) |
-| 7 | **Markenrecherche und -anmeldung** (O-25), dann Domain und Produktseite (L-17.12) | Markenanwältin | Wochen | offen (P-R7) |
+| 7 | **Markenrecherche und -anmeldung** (O-25), dann Domain und Produktseite (L-17.12) | Markenanwältin | Wochen | Recherche ohne Befund, Name „JeNi bucht“ festgelegt 2026-10-15 (P-R7 erledigt); Markenanmeldung, Domain offen |
 | 8 | **Rechtstexte**: Impressum, Datenschutzerklärung, Nutzungsbedingungen als eigene EULA (auch bei Apple hinterlegt), Support-Kontakt | Anwältin | – | Entwürfe in `docs/legal/`, Prüfung offen (P-L1, P-L4–L11, P-R11) |
 | 9 | Technik Store-Reife (unten) | Entwicklung | 7–12 PT | offen |
 | 10 | Lizenzmanager und Abo-Seite (Lastenheft 5.22) | Entwicklung | 10–13 PT | offen |
 | 11 | Formulare: Data Safety, App Privacy Labels, Altersfreigabe (IARC/Apple, Ergebnis voraussichtlich ab 0/4+), Zielgruppe 18+, Finanz-App-Deklaration („Buchhaltungswerkzeug, keine Finanzdienstleistung“), Export Compliance | Entwicklung, Anwältin | 1–2 PT | offen (P-R14, P-D9) |
 | 12 | Store-Texte und Screenshots gegen die Negativliste prüfen (`STORE_LISTING.md`) | Anwältin | – | offen (P-R13) |
 | 13 | Interner Test (Play), TestFlight, Sandbox-Käufe auf echten Geräten | Auftraggeber, Entwicklung | 2–3 PT | offen |
+| 13a | **Haftpflicht abschließen** (O-26, P-R8): Vermögensschaden- und Produkthaftpflicht; verschoben bis Launch (Entscheidung 2026-10-15) | Auftraggeberin mit Versicherungsmaklerin | – | verschoben bis Launch |
+| 13b | **Bundle-ID für den Store festlegen** (O-33, Vorschlag `at.jenibarb.jenibucht`); ein Wechsel nach der ersten Einreichung ist nicht mehr möglich | Auftraggeberin, Entwicklung | 0,5 PT | offen |
 | 14 | Einreichung | – | Prüfung 1–7 Tage | – |
 
 Gesamtaufwand Entwicklung etwa **26–34 Personentage**, plus 2–6 Wochen Wartezeit
