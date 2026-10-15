@@ -34,6 +34,7 @@ nächsten Versionssprung in den neuen Eintrag.
 
 | Art | Änderung | Bezug | Commit |
 |---|---|---|---|
+| Behoben | Einstellungen „Daten und Sicherung“: veralteter Satz „keine automatische Sicherung“ ersetzt | L-7.2 | dieser |
 
 ---
 

@@ -153,9 +153,9 @@ class SettingsScreen extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Alle Daten liegen ausschließlich auf diesem Gerät. Es gibt keinen '
-                    'Server, auf den etwas hochgeladen wird – und damit auch keine '
-                    'automatische Sicherung.',
+                    'Alle Daten liegen auf diesem Gerät. Es gibt keinen Server des '
+                    'Anbieters. Sichern kannst du verschlüsselt in deinen eigenen '
+                    'Cloud-Ordner – von Hand oder automatisch.',
                   ),
                   SizedBox(height: 10),
                   NoticeBanner(
