@@ -15,7 +15,13 @@ class Money implements Comparable<Money> {
   /// Parst eine Benutzereingabe im deutschen Format ("1.234,56" oder "1234,56").
   /// Gibt `null` zurück, wenn die Eingabe kein gültiger Betrag ist.
   static Money? tryParse(String input) {
-    final cleaned = input.trim().replaceAll('€', '').replaceAll(' ', '');
+    // Alle Leerraumzeichen entfernen, nicht nur ' ': Fmt.amount setzt im
+    // deutschen Gebietsschema je nach ICU-Stand ein geschütztes (U+00A0) oder
+    // schmales geschütztes Leerzeichen (U+202F) als Tausendertrenner. Ohne das
+    // ergab ein vorbelegtes „1 900,00“ null und die Position 0 €.
+    final cleaned = input
+        .replaceAll('€', '')
+        .replaceAll(RegExp(r'[\s\u00A0\u2007\u202F]'), '');
     if (cleaned.isEmpty) return null;
 
     // Deutsche Schreibweise: Punkt ist Tausendertrenner, Komma ist Dezimaltrenner.

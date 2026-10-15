@@ -97,4 +97,21 @@ void main() {
     await scrollTo(tester, addShipping);
     expect(tester.getSize(addShipping).height, greaterThanOrEqualTo(48));
   });
+
+  testWidgets('Zurück verwirft geänderten Entwurf nicht still (FA-5.34)', (
+    tester,
+  ) async {
+    await pump(tester);
+    expect(find.text('Beenden'), findsOneWidget);
+    await tester.enterText(find.byType(TextField).first, 'Beratung');
+    await tester.pump();
+    final navigator = tester.state<NavigatorState>(find.byType(Navigator));
+    await navigator.maybePop();
+    await tester.pumpAndSettle();
+    // Ohne Kunde nicht speicherbar: einmal nachfragen statt verwerfen.
+    expect(find.text('Entwurf noch nicht speicherbar'), findsOneWidget);
+    await tester.tap(find.text('Weiter bearbeiten'));
+    await tester.pumpAndSettle();
+    expect(find.byKey(const Key('invoice-issue')), findsOneWidget);
+  });
 }

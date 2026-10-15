@@ -67,6 +67,40 @@ class _InvoiceEditScreenState extends State<InvoiceEditScreen> {
   bool _showShipping = false;
   bool _skontoOn = false;
 
+  /// Formularstand beim Öffnen; weicht der aktuelle davon ab, speichert
+  /// „Beenden“ bzw. Zurück den Entwurf (FA-5.34).
+  String? _initialSignature;
+
+  /// Ein neuer oder noch nie gespeicherter Entwurf (z. B. Korrekturentwurf
+  /// nach Storno) gilt immer als geändert.
+  bool get _isDirty =>
+      !_isLocked &&
+      (widget.existing?.id == null || _signature() != _initialSignature);
+
+  String _signature() => [
+    _customer?.id ?? widget.existing?.customerId,
+    _issueDate,
+    _deliveryDate,
+    _dueDate,
+    _notesController.text,
+    _discountIsPercent,
+    _discountController.text,
+    _shippingController.text,
+    _shippingVatPermille,
+    _skontoOn,
+    _skontoDaysController.text,
+    _skontoPercentController.text,
+    for (final item in _items) ...[
+      item.description.text,
+      item.quantity.text,
+      item.unitPrice.text,
+      item.unit.text,
+      item.vatPermille,
+      item.discountIsPercent,
+      item.discount.text,
+    ],
+  ].join('\u0001');
+
   @override
   void initState() {
     super.initState();
@@ -124,6 +158,7 @@ class _InvoiceEditScreenState extends State<InvoiceEditScreen> {
         _skontoOn = true;
       }
     }
+    _initialSignature = _signature();
   }
 
   @override
@@ -376,12 +411,62 @@ class _InvoiceEditScreenState extends State<InvoiceEditScreen> {
     Navigator.of(context).pop(true);
   }
 
+  /// „Beenden“, Zurück-Pfeil und System-Zurück (FA-5.34): Änderungen werden
+  /// als Entwurf gespeichert statt still verworfen. Fehlt für einen Entwurf
+  /// noch etwas, fragt die App einmal, ob verworfen werden soll.
+  Future<void> _leave() async {
+    if (_saving) return;
+    if (!_isDirty) {
+      Navigator.of(context).pop(_issued != null);
+      return;
+    }
+    final errors = _validationErrors();
+    if (errors.isEmpty) {
+      await _save(issue: false);
+      return;
+    }
+    final discard = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Entwurf noch nicht speicherbar'),
+        content: Text(
+          'Es fehlt noch: ${errors.join(', ')}. '
+          'Ohne diese Angaben kann die Rechnung nicht gespeichert werden.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            child: const Text('Verwerfen'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: const Text('Weiter bearbeiten'),
+          ),
+        ],
+      ),
+    );
+    if (discard == true && mounted) Navigator.of(context).pop(false);
+  }
+
   @override
   Widget build(BuildContext context) {
     final state = AppScope.of(context);
     final tax = state.profile?.taxProfile ?? TaxProfile.austria;
     final errors = _initialized ? _validationErrors() : const <String>[];
 
+    return PopScope(
+      // Im bearbeitbaren Zustand immer abfangen: Texteingaben lösen nicht
+      // jedes Mal einen Neuaufbau aus, ein canPop aus _isDirty wäre veraltet.
+      canPop: _isLocked,
+      onPopInvokedWithResult: (didPop, _) {
+        if (!didPop) _leave();
+      },
+      child: _scaffold(context, tax, errors),
+    );
+  }
+
+  Widget _scaffold(BuildContext context, TaxProfile tax, List<String> errors) {
+    final state = AppScope.of(context);
     return Scaffold(
       appBar: AppBar(
         title: Text(
@@ -588,6 +673,14 @@ class _InvoiceEditScreenState extends State<InvoiceEditScreen> {
       ),
       bottomNavigationBar: _isLocked
           ? PrimaryActionBar(
+              // „Beenden“ führt zur Liste zurück; nach dem Teilen-Blatt bleibt
+              // die Rechnung offen (Gerätetest 0.13.0, FA-5.34).
+              secondary: PrimaryActionBar.outlined(
+                key: const Key('invoice-done'),
+                label: 'Beenden',
+                icon: Icons.done_all,
+                onPressed: () => Navigator.of(context).pop(true),
+              ),
               primary: PrimaryActionBar.filled(
                 key: const Key('invoice-share'),
                 label: 'PDF senden',
@@ -599,9 +692,9 @@ class _InvoiceEditScreenState extends State<InvoiceEditScreen> {
           : PrimaryActionBar(
               secondary: PrimaryActionBar.outlined(
                 key: const Key('invoice-draft'),
-                label: 'Entwurf',
+                label: 'Beenden',
                 icon: Icons.save_outlined,
-                onPressed: _saving ? null : () => _save(issue: false),
+                onPressed: _saving ? null : _leave,
               ),
               primary: PrimaryActionBar.filled(
                 key: const Key('invoice-issue'),

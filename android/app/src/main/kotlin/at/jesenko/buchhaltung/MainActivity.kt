@@ -13,6 +13,7 @@ class MainActivity : FlutterFragmentActivity() {
     private var launcher: LauncherChannel? = null
     private var shareIn: ShareInChannel? = null
     private var pdf: PdfChannel? = null
+    private var shareOut: ShareOutChannel? = null
 
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
@@ -20,6 +21,7 @@ class MainActivity : FlutterFragmentActivity() {
         receiptText = ReceiptTextChannel(applicationContext, flutterEngine.dartExecutor.binaryMessenger)
         launcher = LauncherChannel(this, flutterEngine.dartExecutor.binaryMessenger)
         pdf = PdfChannel(applicationContext, flutterEngine.dartExecutor.binaryMessenger)
+        shareOut = ShareOutChannel(this, flutterEngine.dartExecutor.binaryMessenger)
         shareIn = ShareInChannel(applicationContext, flutterEngine.dartExecutor.binaryMessenger)
         // Start über „Teilen“ (L-27.4): Intent des Starts auswerten.
         shareIn?.handle(intent)

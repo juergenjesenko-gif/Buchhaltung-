@@ -29,11 +29,35 @@ gebaut, und was war darin geprüft?*
 
 ## Unveröffentlicht
 
-Änderungen seit 0.13.0+18, die noch in keinem Build stecken. Wandern beim
+Änderungen seit 0.13.1+19, die noch in keinem Build stecken. Wandern beim
 nächsten Versionssprung in den neuen Eintrag.
 
 | Art | Änderung | Bezug | Commit |
 |---|---|---|---|
+
+---
+
+## 0.13.1+19 — 2026-10-15
+
+| Feld | Wert |
+|---|---|
+| Art | Testbuild (ungezippte arm64-APK `JeNi-bucht-0.13.1-build-<Nr>.apk`, fester Testschlüssel); Fehlerbehebung Gerätetest 0.13.0 |
+| Commit | siehe Git-Log, Commit „Version 0.13.1“ |
+| Branch | `claude/agile-accounting-app-mobile-wa5j3h` |
+| Dokumentstände | Lastenheft 1.57, Spezifikation 1.54, Benutzerhandbuch für 0.13.1, DESIGN_SPEC 1.2 |
+| Datenbankschema | 18 |
+| Prüfung | `flutter analyze` ohne Befund, alle Tests grün (neu `amount_round_trip_test.dart`, Zurück-Test in `invoice_form_ux_test.dart`), CI-Lauf zum Commit |
+| Steuerliche Kennwerte | unverändert |
+| Offene reale Prüfpunkte | wie 0.13.0+18, neu P-X9, P-D29 |
+| Bekannte Grenzen | Spezifikation Abschnitt 11, unverändert |
+
+**Änderungen seit 0.13.0+18**
+
+| Art | Änderung | Bezug | Commit |
+|---|---|---|---|
+| Behoben | Bearbeitete Rechnung und Korrekturentwurf zeigten Positionen mit 0 €: `Money.tryParse` entfernt jetzt jedes Leerraumzeichen (geschütztes Leerzeichen U+00A0/U+202F als Tausendertrenner aus `Fmt.amount`); gilt für alle vorbelegten Betrags-, Mengen- und Rabattfelder | GR-1, FA-5.32 | dieser |
+| Geändert | Leiste „Beenden“ / „PDF senden“; Zurück speichert den Entwurf oder fragt einmal | FA-5.20, FA-5.34, P-X9 | dieser |
+| Behoben | Gmail: PDF-Anhang „Download fehlgeschlagen“ – Android teilt über eigenen FileProvider aus `files/geteilt`, Aufräumen nach 30 Tagen | FA-5.35, P-D29 | dieser |
 | Behoben | Einstellungen „Daten und Sicherung“: veralteter Satz „keine automatische Sicherung“ ersetzt | L-7.2 | dieser |
 
 ---

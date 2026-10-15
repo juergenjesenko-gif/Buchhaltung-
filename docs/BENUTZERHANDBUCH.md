@@ -1,6 +1,6 @@
 # Benutzerhandbuch – JeNi bucht
 
-**Für App-Version 0.13.0** · Stand 2026-10-15
+**Für App-Version 0.13.1** · Stand 2026-10-15
 
 Dieses Handbuch beschreibt die App aus Nutzersicht. Es wird bei jeder Änderung,
 die du in der App siehst, mitgeführt – siehe [`CLAUDE.md`](../CLAUDE.md).
@@ -488,6 +488,7 @@ Alle diese Schreibweisen versteht die App:
 | `12,50` | 12,50 € |
 | `1.234,56` | 1.234,56 € |
 | `1234.56` | 1.234,56 € |
+| `1 234,56` | 1.234,56 € |
 | `50` | 50,00 € |
 | `42,00 €` | 42,00 € |
 
@@ -690,6 +691,12 @@ Rechnung. Danach lässt sich inhaltlich nichts mehr ändern – das ist gesetzli
 gewollt. Korrekturen laufen über eine **Stornorechnung** – siehe „Rechnung
 korrigieren oder stornieren“.
 
+**Beenden** unten links speichert deine Änderungen als Entwurf und bringt dich
+zur Liste zurück. Dasselbe passiert, wenn du mit dem Pfeil oder der
+Zurück-Geste gehst – nichts geht verloren. Fehlt noch etwas, das ein Entwurf
+braucht (zum Beispiel der Kunde), fragt die App einmal nach: **Weiter
+bearbeiten** oder **Verwerfen**.
+
 ### Die Checkliste am Ende
 
 Fehlt etwas, ist der Knopf *Rechnung ausstellen* gesperrt, und die App sagt dir
@@ -729,7 +736,9 @@ Stammdaten bearbeitest.
 
 ### Rechnung versenden
 
-Direkt nach dem Ausstellen mit **PDF senden** unten im Formular, oder später in
+Direkt nach dem Ausstellen mit **PDF senden** unten im Formular. Nach dem
+Senden bleibt die Rechnung offen; mit **Beenden** daneben geht es zurück zur
+Liste. Oder später in
 der Rechnungsliste auf der Karte mit **PDF senden**. Eine neue Rechnung beginnst
 du unten in der Mitte mit **Neue Rechnung**. Rechnung und Mahnung sprechen
 deine Kunden mit **Sie** an; € und Gedankenstrich erscheinen im PDF richtig.

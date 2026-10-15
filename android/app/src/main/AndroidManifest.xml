@@ -55,6 +55,16 @@
                 <data android:mimeType="text/tab-separated-values"/>
             </intent-filter>
         </activity>
+        <!-- Geteilte Exporte (FA-5.35): dauerhafter Ordner statt share_plus-Cache -->
+        <provider
+            android:name=".GeteiltFileProvider"
+            android:authorities="${applicationId}.geteilt"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/geteilt_paths" />
+        </provider>
         <!-- Don't delete the meta-data below.
              This is used by the Flutter tool to generate GeneratedPluginRegistrant.java -->
         <meta-data
