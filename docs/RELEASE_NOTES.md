@@ -29,11 +29,37 @@ gebaut, und was war darin geprüft?*
 
 ## Unveröffentlicht
 
-Änderungen seit 0.12.0+17, die noch in keinem Build stecken. Wandern beim
+Änderungen seit 0.13.0+18, die noch in keinem Build stecken. Wandern beim
 nächsten Versionssprung in den neuen Eintrag.
 
 | Art | Änderung | Bezug | Commit |
 |---|---|---|---|
+
+---
+
+## 0.13.0+18 — 2026-10-15
+
+| Feld | Wert |
+|---|---|
+| Art | Testbuild (ungezippte arm64-APK `JeNi-bucht-0.13.0-build-<Nr>.apk`, fester Testschlüssel); Stornorechnung, Rechtliches, Wiederherstellungscode |
+| Commit | `COMMIT` |
+| Branch | `claude/agile-accounting-app-mobile-wa5j3h` |
+| Dokumentstände | Lastenheft 1.57, Spezifikation 1.53, Benutzerhandbuch für 0.13.0, DESIGN_SPEC 1.2 |
+| Datenbankschema | 18 |
+| Prüfung | `flutter analyze` ohne Befund, alle Tests grün (neu `invoice_cancellation_test.dart`, `legal_documents_test.dart`, `recovery_code_test.dart`), Emulator-Job `android-ocr-emulator`, CI-Lauf zum Commit |
+| Steuerliche Kennwerte | `spec.schema_version` 17 → 18; sonst unverändert |
+| Offene reale Prüfpunkte | wie 0.12.0+17, neu P-S56, P-L20, P-X8, P-D28 |
+| Bekannte Grenzen | Spezifikation Abschnitt 11, neu „Storno nur vollständig“ |
+
+**Änderungen seit 0.12.0+17**
+
+| Art | Änderung | Bezug | Commit |
+|---|---|---|---|
+| Neu | Stornorechnung mit eigener Nummer aus dem gemeinsamen Nummernkreis, Bezug auf Nummer und Datum, Grund, negative Beträge je Satz identisch zum Original, PDF in Sie-Form; Original unverändert, „storniert durch …“; Rückzahlung als negative Einnahme bei bezahltem Original, sonst keine Buchung; Mahnungen mitstorniert. Ersetzt die reine Statusänderung | L-3.7, L-3.18, GR-14, FA-5.11, FA-5.31, FA-5.33, P-S56 | `COMMIT` |
+| Neu | „Korrigieren“: Storno und Entwurfskopie in einem Tipp | L-3.7, FA-5.32 | `COMMIT` |
+| Neu | Einstellungen → Rechtliches: Impressum, Datenschutz, Nutzungsbedingungen aus `docs/legal/` als Assets, offline; keine Steuerberatung, Support, Open-Source-Lizenzen mit Work Sans OFL; Entwurfsvermerk bis P-L1 | L-22.18, FA-11.4, FA-11.5, P-L20 | `COMMIT` |
+| Geändert | Wiederherstellungscode nur als Druckblatt (PDF mit QR-Code) über Teilen/Drucken, Bestätigung durch zwei zufällige Blöcke | L-22.21, L-22.22, FA-7.10, P-D28 | `COMMIT` |
+| Geändert | Datenbankschema 18 (Stornobezug an `invoices`) | GR-14 | `COMMIT` |
 
 ---
 

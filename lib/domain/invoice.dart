@@ -5,7 +5,11 @@ enum InvoiceStatus {
   draft('Entwurf'),
   issued('Gestellt'),
   paid('Bezahlt'),
-  cancelled('Storniert');
+  cancelled('Storniert'),
+
+  /// Die Stornorechnung selbst (L-3.7): eigener Beleg mit eigener Nummer,
+  /// negativen Beträgen und Verweis auf die Originalrechnung.
+  cancellation('Stornorechnung');
 
   const InvoiceStatus(this.label);
   final String label;
@@ -14,8 +18,13 @@ enum InvoiceStatus {
       .firstWhere((s) => s.name == name, orElse: () => InvoiceStatus.draft);
 
   /// Ab dem Zeitpunkt der Ausstellung darf eine Rechnung inhaltlich nicht mehr
-  /// verändert werden – Korrekturen laufen über eine Storno-/Gutschriftsrechnung.
+  /// verändert werden – Korrekturen laufen über eine Stornorechnung (L-3.7).
   bool get isLocked => this != InvoiceStatus.draft;
+
+  /// Darf storniert werden: gestellt oder bezahlt, nicht schon storniert und
+  /// nicht selbst eine Stornorechnung.
+  bool get canBeCancelled =>
+      this == InvoiceStatus.issued || this == InvoiceStatus.paid;
 }
 
 /// Eine Rechnungsposition. Menge wird als Tausendstel gespeichert, damit
@@ -161,9 +170,29 @@ class Invoice {
     this.skontoDays = 0,
     this.skontoPermille = 0,
     this.skontoTaken = const Money.zero(),
+    this.cancelsInvoiceId,
+    this.cancelsNumber = '',
+    this.cancelsIssueDate,
+    this.cancelReason = '',
+    this.cancelledByInvoiceId,
   });
 
   final int? id;
+
+  /// Nur bei einer Stornorechnung (L-3.7, Schema 18): die stornierte
+  /// Originalrechnung samt eingefrorener Nummer und Datum für den Bezug
+  /// auf dem Beleg (§ 11 UStG AT, § 14 Abs 4, § 31 Abs 5 UStDV DE).
+  final int? cancelsInvoiceId;
+  final String cancelsNumber;
+  final DateTime? cancelsIssueDate;
+
+  /// Grund des Stornos, steht auf der Stornorechnung.
+  final String cancelReason;
+
+  /// Nur bei der Originalrechnung: die Stornorechnung, die sie aufhebt.
+  final int? cancelledByInvoiceId;
+
+  bool get isCancellation => cancelsInvoiceId != null;
 
   /// Fortlaufende Rechnungsnummer. Bei Entwürfen vorläufig, endgültig vergeben
   /// wird sie erst beim Ausstellen.
@@ -262,6 +291,11 @@ class Invoice {
     int? skontoDays,
     int? skontoPermille,
     Money? skontoTaken,
+    int? cancelsInvoiceId,
+    String? cancelsNumber,
+    DateTime? cancelsIssueDate,
+    String? cancelReason,
+    int? cancelledByInvoiceId,
   }) {
     return Invoice(
       id: id ?? this.id,
@@ -285,6 +319,11 @@ class Invoice {
       skontoDays: skontoDays ?? this.skontoDays,
       skontoPermille: skontoPermille ?? this.skontoPermille,
       skontoTaken: skontoTaken ?? this.skontoTaken,
+      cancelsInvoiceId: cancelsInvoiceId ?? this.cancelsInvoiceId,
+      cancelsNumber: cancelsNumber ?? this.cancelsNumber,
+      cancelsIssueDate: cancelsIssueDate ?? this.cancelsIssueDate,
+      cancelReason: cancelReason ?? this.cancelReason,
+      cancelledByInvoiceId: cancelledByInvoiceId ?? this.cancelledByInvoiceId,
     );
   }
 
@@ -309,6 +348,11 @@ class Invoice {
     'skonto_days': skontoDays,
     'skonto_permille': skontoPermille,
     'skonto_taken_cents': skontoTaken.cents,
+    'cancels_invoice_id': cancelsInvoiceId,
+    'cancels_number': cancelsNumber,
+    'cancels_issue_date': cancelsIssueDate?.toIso8601String().substring(0, 10),
+    'cancel_reason': cancelReason,
+    'cancelled_by_invoice_id': cancelledByInvoiceId,
   };
 
   static Invoice fromMap(Map<String, Object?> map, List<InvoiceItem> items) =>
@@ -334,6 +378,11 @@ class Invoice {
         skontoDays: map['skonto_days'] as int? ?? 0,
         skontoPermille: map['skonto_permille'] as int? ?? 0,
         skontoTaken: Money(map['skonto_taken_cents'] as int? ?? 0),
+        cancelsInvoiceId: map['cancels_invoice_id'] as int?,
+        cancelsNumber: map['cancels_number'] as String? ?? '',
+        cancelsIssueDate: _parseOrNull(map['cancels_issue_date']),
+        cancelReason: map['cancel_reason'] as String? ?? '',
+        cancelledByInvoiceId: map['cancelled_by_invoice_id'] as int?,
       );
 
   static DateTime? _parseOrNull(Object? value) =>

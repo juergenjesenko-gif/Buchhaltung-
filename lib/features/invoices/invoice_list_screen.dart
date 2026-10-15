@@ -16,6 +16,8 @@ import '../../services/dunning_service.dart';
 import '../../domain/dunning.dart';
 import '../help/help_screen.dart';
 import '../../services/help/help_index.dart';
+import '../../services/invoice_cancellation.dart';
+import '../../services/invoice_numbering.dart';
 
 /// Rechnungsübersicht mit PDF-Versand und Zahlungsstatus.
 class InvoiceListScreen extends StatefulWidget {
@@ -112,6 +114,15 @@ class _InvoiceListScreenState extends State<InvoiceListScreen> {
     DateTime.now(),
   );
 
+  /// Nummer der Gegenrechnung: bei der Stornorechnung das Original, beim
+  /// stornierten Original die Stornorechnung.
+  String? _relatedNumber(Invoice invoice) {
+    if (invoice.isCancellation) return invoice.cancelsNumber;
+    final by = invoice.cancelledByInvoiceId;
+    if (by == null) return null;
+    return _invoices.where((i) => i.id == by).firstOrNull?.number;
+  }
+
   List<Invoice> get _overdue => _invoices.where(_needsReminder).toList();
 
   /// Mahnverlauf einer Rechnung als Bottom-Sheet.
@@ -198,14 +209,189 @@ class _InvoiceListScreenState extends State<InvoiceListScreen> {
         withDunningCosts: answer.withCosts,
       );
     } else {
-      if (status == InvoiceStatus.cancelled &&
-          !await _confirmDestructive(invoice, 'Stornieren')) {
-        return;
-      }
       await state.repositories.invoices.setStatus(id, status);
     }
     await state.onBookingsChanged();
     await _load();
+  }
+
+  /// Storno mit eigener Stornorechnung (L-3.7). Mit [correct] entsteht
+  /// danach in einem Zug ein neuer Entwurf als Kopie, der sich gleich
+  /// öffnet („Korrigieren“). Ersetzt die frühere reine Statusänderung.
+  Future<void> _cancelInvoice(Invoice invoice, {bool correct = false}) async {
+    final id = invoice.id;
+    final state = AppScope.read(context);
+    final profile = state.profile;
+    if (id == null || profile == null) return;
+    final answer = await _askCancellation(invoice, correct: correct);
+    if (answer == null || !mounted) return;
+    final stornoId = await state.repositories.invoices.cancelWithInvoice(
+      id,
+      reason: answer.reason,
+      date: answer.date,
+      refundDate: answer.date,
+      assignNumber: (sequence) => InvoiceNumbering.format(
+        pattern: profile.invoiceNumberPattern,
+        sequence: sequence,
+        date: answer.date,
+      ),
+    );
+    await state.reload();
+    await state.onBookingsChanged();
+    final storno = await state.repositories.invoices.byId(stornoId);
+    if (correct) {
+      final draft = InvoiceCancellation.correctionDraft(
+        invoice,
+        DateTime.now(),
+      );
+      final draftId = await state.repositories.invoices.save(draft);
+      final saved = await state.repositories.invoices.byId(draftId);
+      await _load();
+      if (!mounted || saved == null) return;
+      await _openEditor(saved);
+    } else {
+      await _load();
+    }
+    if (!mounted || storno == null) return;
+    ScaffoldMessenger.of(context)
+      ..hideCurrentSnackBar()
+      ..showSnackBar(
+        SnackBar(
+          content: Text('Stornorechnung ${storno.number} erstellt.'),
+          action: SnackBarAction(
+            label: 'PDF senden',
+            onPressed: () => _sharePdf(storno),
+          ),
+        ),
+      );
+  }
+
+  /// Grund und Datum des Stornos: Vorschläge mit einem Tipp, Datum
+  /// vorbelegt mit heute. Bei bezahlter Rechnung ist das Datum zugleich der
+  /// Tag der Rückzahlung (Ist-Prinzip). Der Gefahrenknopf steht unten über
+  /// die volle Breite, getrennt vom Abbrechen (DESIGN_SPEC 5a).
+  Future<({String reason, DateTime date})?> _askCancellation(
+    Invoice invoice, {
+    required bool correct,
+  }) {
+    final today = DateTime.now();
+    var date = DateTime(today.year, today.month, today.day);
+    final reason = TextEditingController(
+      text: InvoiceCancellation.reasonSuggestions.first,
+    );
+    final paid = invoice.status == InvoiceStatus.paid;
+    final error = Theme.of(context).colorScheme.error;
+    return showModalBottomSheet<({String reason, DateTime date})>(
+      context: context,
+      showDragHandle: true,
+      isScrollControlled: true,
+      builder: (context) => StatefulBuilder(
+        builder: (context, setSheetState) => SafeArea(
+          child: Padding(
+            padding: EdgeInsets.fromLTRB(
+              16,
+              0,
+              16,
+              16 + MediaQuery.viewInsetsOf(context).bottom,
+            ),
+            child: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Text(
+                    correct
+                        ? '${invoice.number} korrigieren'
+                        : '${invoice.number} stornieren',
+                    style: Theme.of(context).textTheme.titleMedium,
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    'Die App erstellt eine Stornorechnung mit eigener Nummer '
+                    'über ${Fmt.money(-invoice.grossTotal)}. Die Rechnung '
+                    '${invoice.number} bleibt unverändert erhalten und wird '
+                    'als storniert markiert.'
+                    '${correct ? ' Danach öffnet sich eine Kopie als neuer Entwurf.' : ''}',
+                  ),
+                  const SizedBox(height: 12),
+                  Wrap(
+                    spacing: 8,
+                    runSpacing: 4,
+                    children: [
+                      for (final suggestion
+                          in InvoiceCancellation.reasonSuggestions)
+                        ChoiceChip(
+                          label: Text(suggestion),
+                          materialTapTargetSize: MaterialTapTargetSize.padded,
+                          selected: reason.text == suggestion,
+                          onSelected: (_) =>
+                              setSheetState(() => reason.text = suggestion),
+                        ),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                  TextField(
+                    key: const Key('cancelReason'),
+                    controller: reason,
+                    textInputAction: TextInputAction.done,
+                    decoration: const InputDecoration(
+                      labelText: 'Grund (steht auf der Stornorechnung)',
+                    ),
+                    onChanged: (_) => setSheetState(() {}),
+                  ),
+                  ListTile(
+                    contentPadding: EdgeInsets.zero,
+                    leading: const Icon(Icons.event_outlined),
+                    title: Text(
+                      paid ? 'Storno und Rückzahlung am' : 'Storno am',
+                    ),
+                    subtitle: Text(Fmt.date(date)),
+                    trailing: const Icon(Icons.chevron_right),
+                    onTap: () async {
+                      final picked = await showDatePicker(
+                        context: context,
+                        initialDate: date,
+                        firstDate: invoice.issueDate,
+                        lastDate: DateTime(today.year + 1, 12, 31),
+                      );
+                      if (picked != null) setSheetState(() => date = picked);
+                    },
+                  ),
+                  Text(
+                    paid
+                        ? 'Die Rechnung ist bezahlt: ${Fmt.money(invoice.grossTotal - invoice.skontoTaken)} '
+                              'werden an diesem Tag als Rückzahlung gebucht '
+                              '(Einnahme und Umsatzsteuer sinken). Überweise '
+                              'den Betrag an den Kunden zurück.'
+                        : 'Die Rechnung ist offen: es wird nichts gebucht. '
+                              'Laufende Mahnungen werden mit storniert.',
+                    style: Theme.of(context).textTheme.bodySmall,
+                  ),
+                  const SizedBox(height: 16),
+                  FilledButton(
+                    key: const Key('confirmCancellation'),
+                    style: FilledButton.styleFrom(
+                      backgroundColor: error,
+                      minimumSize: const Size.fromHeight(56),
+                    ),
+                    onPressed: reason.text.trim().isEmpty
+                        ? null
+                        : () => Navigator.of(
+                            context,
+                          ).pop((reason: reason.text.trim(), date: date)),
+                    child: Text(
+                      correct
+                          ? 'Stornieren und neu schreiben'
+                          : 'Stornorechnung erstellen',
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
   }
 
   /// Zahlungseingang erfragen: vorbelegt mit heute, ein Tipp bestätigt
@@ -420,9 +606,13 @@ class _InvoiceListScreenState extends State<InvoiceListScreen> {
                         onRemind: _needsReminder(invoice)
                             ? () => _remind(invoice)
                             : null,
-                        onCancel: invoice.status == InvoiceStatus.issued
-                            ? () => _setStatus(invoice, InvoiceStatus.cancelled)
+                        onCancel: invoice.status.canBeCancelled
+                            ? () => _cancelInvoice(invoice)
                             : null,
+                        onCorrect: invoice.status.canBeCancelled
+                            ? () => _cancelInvoice(invoice, correct: true)
+                            : null,
+                        relatedNumber: _relatedNumber(invoice),
                         onDelete: invoice.status == InvoiceStatus.draft
                             ? () => _deleteDraft(invoice)
                             : null,
@@ -457,6 +647,8 @@ class _InvoiceTile extends StatelessWidget {
     this.overdue = false,
     this.onDunningHistory,
     this.onCancel,
+    this.onCorrect,
+    this.relatedNumber,
     this.onDelete,
   });
 
@@ -472,6 +664,10 @@ class _InvoiceTile extends StatelessWidget {
   final bool overdue;
   final VoidCallback? onDunningHistory;
   final VoidCallback? onCancel;
+  final VoidCallback? onCorrect;
+
+  /// „Storno zu …“ bzw. „storniert durch …“.
+  final String? relatedNumber;
   final VoidCallback? onDelete;
 
   @override
@@ -485,6 +681,7 @@ class _InvoiceTile extends StatelessWidget {
             : (AppTheme.warning, 'Offen'),
       InvoiceStatus.paid => (AppTheme.income, 'Bezahlt'),
       InvoiceStatus.cancelled => (scheme.outline, 'Storniert'),
+      InvoiceStatus.cancellation => (scheme.outline, 'Storno'),
     };
 
     return Card(
@@ -544,6 +741,18 @@ class _InvoiceTile extends StatelessWidget {
                   context,
                 ).textTheme.bodySmall?.copyWith(color: scheme.onSurfaceVariant),
               ),
+              if (relatedNumber != null) ...[
+                const SizedBox(height: 2),
+                Text(
+                  invoice.isCancellation
+                      ? 'Storno zu $relatedNumber'
+                      : 'storniert durch $relatedNumber',
+                  key: Key('related-${invoice.id}'),
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    color: scheme.onSurfaceVariant,
+                  ),
+                ),
+              ],
               if (dunning != null) ...[
                 const SizedBox(height: 4),
                 _DunningBadge(
@@ -573,6 +782,11 @@ class _InvoiceTile extends StatelessWidget {
                             value: 'paid',
                             child: Text('Als bezahlt markieren'),
                           ),
+                        if (onCorrect != null)
+                          const PopupMenuItem(
+                            value: 'correct',
+                            child: Text('Korrigieren'),
+                          ),
                         if (onCancel != null || onDelete != null)
                           const PopupMenuDivider(),
                         if (onCancel != null)
@@ -589,6 +803,7 @@ class _InvoiceTile extends StatelessWidget {
                     },
                     onSelected: (value) => switch (value) {
                       'paid' => onMarkPaid?.call(),
+                      'correct' => onCorrect?.call(),
                       'cancel' => onCancel?.call(),
                       'delete' => onDelete?.call(),
                       _ => null,

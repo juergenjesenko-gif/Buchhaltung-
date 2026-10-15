@@ -1038,6 +1038,186 @@ class InvoiceRepository {
     });
   }
 
+  /// Storniert die gestellte Rechnung [id] durch eine eigene Stornorechnung
+  /// (L-3.7, L-3.18, Spezifikation GR-14). Alles in **einer** Transaktion:
+  ///
+  /// 1. Nächste Nummer aus dem gemeinsamen Nummernkreis ziehen – lückenlos,
+  ///    ein Abbruch verbraucht keine Nummer (§ 11 Abs 1 Z 5 UStG AT,
+  ///    § 14 Abs 4 Nr. 4 UStG DE).
+  /// 2. Stornorechnung anlegen: dieselben Positionen, Rabatte und Versand
+  ///    wie das Original, Beträge negativ (siehe `InvoiceTotals.negated`),
+  ///    Bezug auf Nummer und Datum des Originals, Grund, Datum [date].
+  ///    Aussteller- und Empfängerdaten werden vom Original übernommen.
+  /// 3. Original bleibt inhaltlich unverändert (CLAUDE.md Regel 7); nur der
+  ///    Status wird „storniert" und der Verweis auf die Stornorechnung
+  ///    gesetzt.
+  /// 4. War das Original bezahlt, wird die Rückzahlung als negative
+  ///    Einnahme je Steuersatz am [refundDate] gebucht – so viel, wie damals
+  ///    eingenommen wurde (nach Skonto). Ist-Prinzip: Umsatzsteuer und
+  ///    Einnahme mindern sich im Zeitraum der Rückzahlung (§ 16 UStG AT,
+  ///    § 17 UStG DE, § 19 EStG AT, § 11 EStG DE). War es offen, wird
+  ///    nichts gebucht.
+  /// 5. Laufende Mahnungen zur Rechnung werden storniert.
+  ///
+  /// Liefert die ID der Stornorechnung.
+  Future<int> cancelWithInvoice(
+    int id, {
+    required String reason,
+    required DateTime date,
+    required String Function(int sequence) assignNumber,
+    DateTime? refundDate,
+  }) async {
+    if (reason.trim().isEmpty) {
+      throw ArgumentError('Ein Storno braucht einen Grund.');
+    }
+    final original = await byId(id);
+    if (original == null || !original.status.canBeCancelled) {
+      throw StateError('Diese Rechnung kann nicht storniert werden.');
+    }
+    final day = DateTime(date.year, date.month, date.day);
+    final wasPaid = original.status == InvoiceStatus.paid;
+    final refund = refundDate ?? day;
+    final refundDay = DateTime(refund.year, refund.month, refund.day);
+    return _db.transaction<int>((txn) async {
+      final rows = await txn.query(
+        'company_profile',
+        columns: ['next_invoice_sequence'],
+        where: 'id = 1',
+        limit: 1,
+      );
+      final sequence = rows.isEmpty
+          ? 1
+          : (rows.first['next_invoice_sequence'] as int? ?? 1);
+      await txn.update('company_profile', {
+        'next_invoice_sequence': sequence + 1,
+      }, where: 'id = 1');
+      final storno = Invoice(
+        number: assignNumber(sequence),
+        issueDate: day,
+        deliveryDate: original.deliveryDate,
+        customerId: original.customerId,
+        items: original.items,
+        status: InvoiceStatus.cancellation,
+        isSmallBusiness: original.isSmallBusiness,
+        sellerSnapshot: original.sellerSnapshot,
+        customerSnapshot: original.customerSnapshot,
+        discountPermille: original.discountPermille,
+        discountAmount: original.discountAmount,
+        shipping: original.shipping,
+        shippingVatPermille: original.shippingVatPermille,
+        paidAt: wasPaid ? refundDay : null,
+        cancelsInvoiceId: original.id,
+        cancelsNumber: original.number,
+        cancelsIssueDate: original.issueDate,
+        cancelReason: reason.trim(),
+      );
+      final stornoId = await txn.insert('invoices', storno.toMap());
+      for (var i = 0; i < storno.items.length; i++) {
+        final item = storno.items[i].copyWith(
+          invoiceId: stornoId,
+          position: i + 1,
+        );
+        await txn.insert('invoice_items', item.toMap()..remove('id'));
+      }
+      await txn.update(
+        'invoices',
+        {
+          'status': InvoiceStatus.cancelled.name,
+          'cancelled_by_invoice_id': stornoId,
+        },
+        where: 'id = ?',
+        whereArgs: [id],
+      );
+      if (wasPaid) {
+        await _bookRefund(
+          txn,
+          original,
+          storno.copyWith(id: stornoId),
+          refundDay,
+        );
+      }
+      await txn.update(
+        'dunning_notices',
+        {
+          'cancelled_at': DateTime.now().toIso8601String(),
+          'cancel_reason': 'Rechnung storniert durch ${storno.number}',
+        },
+        where: 'invoice_id = ? AND cancelled_at IS NULL',
+        whereArgs: [id],
+      );
+      await AuditLog(_db).record(
+        entity: 'invoice',
+        entityId: stornoId,
+        action: 'cancellation',
+        detail:
+            '${storno.number} storniert ${original.number} '
+            '${storno.grossTotal}${wasPaid ? ' Rückzahlung' : ''}',
+        txn: txn,
+      );
+      await AuditLog(_db).record(
+        entity: 'invoice',
+        entityId: id,
+        action: 'status',
+        detail: 'cancelled by ${storno.number}',
+        txn: txn,
+      );
+      return stornoId;
+    });
+  }
+
+  /// Negative Einnahme je Steuersatz für die Rückzahlung einer bezahlten,
+  /// stornierten Rechnung: genau der damals gebuchte Betrag (nach Skonto)
+  /// mit umgekehrtem Vorzeichen, Bezug über `invoice_id` der Stornorechnung.
+  Future<void> _bookRefund(
+    DatabaseExecutor txn,
+    Invoice original,
+    Invoice storno,
+    DateTime day,
+  ) async {
+    final category = await txn.query(
+      'categories',
+      columns: ['id'],
+      where: "direction = 'income' AND name = ?",
+      whereArgs: ['Umsatzerlöse'],
+      limit: 1,
+    );
+    final customer = await txn.query(
+      'customers',
+      columns: ['name'],
+      where: 'id = ?',
+      whereArgs: [original.customerId],
+      limit: 1,
+    );
+    final counterparty = customer.isEmpty
+        ? ''
+        : customer.first['name'] as String? ?? '';
+    final paid = original.totals.breakdownAfterSkonto(original.skontoTaken);
+    for (final entry in paid.entries) {
+      final net = -entry.value.net;
+      final vat = -entry.value.vat;
+      if (net.isZero && vat.isZero) continue;
+      final receipt = Receipt(
+        date: day,
+        direction: BookingDirection.income,
+        description:
+            'Rückzahlung Stornorechnung ${storno.number} '
+            'zu Rechnung ${original.number}',
+        counterparty: counterparty,
+        net: net,
+        vat: vat,
+        gross: net + vat,
+        vatPermille: entry.key,
+        categoryId: category.isEmpty ? null : category.first['id'] as int?,
+        documentNumber: storno.number,
+      );
+      final receiptId = await txn.insert('receipts', {
+        ...receipt.toMap(),
+        'invoice_id': storno.id,
+      });
+      await ReceiptRepository.writeVatLines(txn, receiptId, receipt);
+    }
+  }
+
   /// Bucht die Einnahme für bezahlte Rechnungen nach, die noch keine haben
   /// (Rechnungen, die vor Schema 11 als bezahlt markiert wurden). Liefert
   /// die Zahl der nachgebuchten Rechnungen.

@@ -16,6 +16,7 @@ import '../../services/backup/backup_service.dart';
 import '../../services/backup/platform_backup_target.dart';
 import '../../widgets/common.dart';
 import '../../widgets/adaptive.dart';
+import 'recovery_code_setup_screen.dart';
 
 /// Datensicherung erstellen und wiederherstellen (Lastenheft L-7).
 class BackupScreen extends StatefulWidget {
@@ -401,10 +402,15 @@ class _AutoBackupSectionState extends State<_AutoBackupSection> {
     if (picked == null || !mounted) return;
 
     final key = RecoveryCode.newKey();
-    final confirmed = await showDialog<bool>(
-      context: context,
-      barrierDismissible: false,
-      builder: (_) => _RecoveryCodeDialog(code: RecoveryCode.encode(key)),
+    final owner = AppScope.read(context).profile?.companyName ?? '';
+    final confirmed = await Navigator.of(context).push<bool>(
+      MaterialPageRoute(
+        fullscreenDialog: true,
+        builder: (_) => RecoveryCodeSetupScreen(
+          code: RecoveryCode.encode(key),
+          owner: owner,
+        ),
+      ),
     );
     if (confirmed != true || !mounted) return;
 
@@ -580,7 +586,7 @@ class _AutoBackupExplanation extends StatelessWidget {
           '• Die Datei ist verschlüsselt (AES-256). Der Dienst sieht nur Name, '
           'Größe und Zeitpunkt; wir sehen nichts.\n\n'
           '• Der Schlüssel bleibt auf diesem Gerät. Du bekommst gleich einen '
-          'Wiederherstellungscode. Ohne ihn kann niemand die Sicherung auf '
+          'Wiederherstellungscode als Druckblatt. Ohne ihn kann niemand die Sicherung auf '
           'einem anderen Gerät öffnen – auch du nicht.\n\n'
           '• Die Sicherung ersetzt nicht deine gesetzliche Aufbewahrungspflicht '
           '(7 Jahre in Österreich, 8 bzw. 10 Jahre in Deutschland). Geht dein '
@@ -596,58 +602,6 @@ class _AutoBackupExplanation extends StatelessWidget {
         FilledButton(
           onPressed: () => Navigator.of(context).pop(true),
           child: const Text('Ordner wählen'),
-        ),
-      ],
-    );
-  }
-}
-
-class _RecoveryCodeDialog extends StatefulWidget {
-  const _RecoveryCodeDialog({required this.code});
-
-  final String code;
-
-  @override
-  State<_RecoveryCodeDialog> createState() => _RecoveryCodeDialogState();
-}
-
-class _RecoveryCodeDialogState extends State<_RecoveryCodeDialog> {
-  bool _noted = false;
-
-  @override
-  Widget build(BuildContext context) {
-    return AlertDialog(
-      title: const Text('Dein Wiederherstellungscode'),
-      content: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Text(
-            'Schreib ihn ab oder speichere ihn in deinem Passwortmanager – '
-            'getrennt von diesem Gerät. Er wird nur jetzt angezeigt.',
-          ),
-          const SizedBox(height: 12),
-          SelectableText(
-            widget.code,
-            style: const TextStyle(fontFamily: 'monospace', fontSize: 16),
-          ),
-          const SizedBox(height: 12),
-          CheckboxListTile(
-            contentPadding: EdgeInsets.zero,
-            value: _noted,
-            onChanged: (value) => setState(() => _noted = value ?? false),
-            title: const Text('Ich habe den Code sicher aufbewahrt'),
-          ),
-        ],
-      ),
-      actions: [
-        TextButton(
-          onPressed: () => Navigator.of(context).pop(false),
-          child: const Text('Abbrechen'),
-        ),
-        FilledButton(
-          onPressed: _noted ? () => Navigator.of(context).pop(true) : null,
-          child: const Text('Weiter'),
         ),
       ],
     );

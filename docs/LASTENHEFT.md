@@ -1,6 +1,6 @@
 # Lastenheft – JeNi bucht, Buchhaltungsapp für Österreich und Deutschland
 
-**Dokumentversion:** 1.56 · **Stand:** 2026-10-15 · **Status:** Entwurf zur Abstimmung
+**Dokumentversion:** 1.57 · **Stand:** 2026-10-15 · **Status:** Entwurf zur Abstimmung
 **Auftraggeber:** Jürgen Jesenko (privates Vorhaben) · **Umsetzung:** Claude Code
 
 > Ein Lastenheft beschreibt, **was** das Produkt leisten soll und **warum** — nicht,
@@ -41,13 +41,13 @@ Dieses Lastenheft hebt das Vorhaben von einem Werkzeug für den Eigenbedarf auf 
 **kommerzielles Produkt**. Damit ändern sich Anspruch, Umfang und Rechtsrahmen
 grundlegend — der bestehende Code bleibt Grundlage, ist aber nicht das Ziel.
 
-**Stand 2026-10-14 (App-Version 0.11.0, Testbuild):** Seit Sprint 1 sind unter
+**Stand 2026-10-15 (App-Version 0.13.0, Testbuild):** Seit Sprint 1 sind unter
 anderem Datensicherung (manuell und automatisch), App-Sperre, Belegerkennung mit
 Kassen- und Zahlungs-QR, PDF- und E-Rechnungs-Übernahme, Fremdwährung, Belege mit
 mehreren Steuersätzen, Rabatt/Skonto/Versand, Mahnwesen, Wirtschaftsjahr,
 Termin-Box, Hilfe, Tablet-Layout, Einhandbedienung und der Import von
-Plattformexporten umgesetzt. Welche Anforderung in welcher Version umgesetzt
-wurde, zeigt Abschnitt 10a; Datenbankschema 17, über 400 automatisierte Tests.
+Plattformexporten, Stornorechnung, das Menü „Rechtliches“ und der Wiederherstellungscode als Druckblatt umgesetzt. Welche Anforderung in welcher Version umgesetzt
+wurde, zeigt Abschnitt 10a; Datenbankschema 18, über 400 automatisierte Tests.
 
 ---
 
@@ -1218,6 +1218,7 @@ Anforderungen sind offen.
 | 0.9.0 | PDF- und E-Rechnungen übernehmen, Originaldatei mit SHA-256, iOS „Öffnen in“ (L-27.4 bis L-27.6, L-27.8) | FA-2.38 bis FA-2.41 |
 | 0.10.0 | Rechnung über Link-QR (L-27.7) | FA-2.42 |
 | 0.11.0 | Plattformexporte Amazon, PayPal, Shopify, Stripe (L-28.1 bis L-28.7) | FA-2.43 bis FA-2.49 |
+| 0.13.0 | Stornorechnung mit eigener Nummer und „Korrigieren“ (L-3.7; L-3.18 für die vollständige Erstattung, Teilerstattung offen), Menü „Rechtliches“ (L-22.18), Wiederherstellungscode als Druckblatt mit QR-Code und Bestätigung durch zwei Blöcke (L-22.21, L-22.22) | GR-14, FA-5.31 bis FA-5.33, FA-11.4, FA-11.5, FA-7.10 |
 
 Außerdem umgesetzt ohne eigene L-ID: Tablet- und Querformat-Layout
 (Spezifikation 5.7), App-Symbol auf dem Startbildschirm (FA-1.19).
@@ -1355,6 +1356,7 @@ Historie stehen. Die Einzelheiten stehen an der genannten Stelle.
 
 | Version | Datum | Änderung |
 |---|---|---|
+| 1.57 | 2026-10-15 | Umsetzungsstand 0.13.0 (10a): L-3.7, L-3.18 (vollständige Erstattung), L-22.18, L-22.21, L-22.22. Keine neue Datenübertragung: Druckblatt und Stornorechnung verlassen das Gerät nur über das Teilen der Nutzerin, wie Rechnungs-PDF und Sicherung (5.19 unverändert). |
 | 1.56 | 2026-10-15 | O-33 entschieden: Bundle-ID `at.jenibarb.jenibucht` vor der ersten Store-Einreichung. |
 | 1.55 | 2026-10-15 | Entscheidungen der Auftraggeberin (14a): Name „JeNi bucht“ (O-2, O-25 erledigt), neu O-33 Bundle-ID für den Store; O-26 Haftpflicht verschoben bis Launch; O-30 nur Formatprüfung (umgesetzt in 0.12.0); Store-Text „14 Tage kostenlos testen“. |
 | 1.54 | 2026-10-14 | Dokumentabgleich mit Code 0.11.0 (Prüfinstanz Softwareentwickler): Ausgangslage aktualisiert; neu L-0.6 (Einhandbedienung ohne Händigkeits-Einstellung); Umsetzungsvermerke in 5.24 bis 5.28; 5.23 als Unterabschnitt eingeordnet; neuer Abschnitt 10a Umsetzungsstand und Stand-Hinweis in 10; Abnahmekriterien A-9, A-10; doppelte O-15 aufgelöst (O-15b), O-32 einsortiert, O-26 als teilweise entschieden; neuer Abschnitt 14a Entscheidungen der Auftraggeberin. |

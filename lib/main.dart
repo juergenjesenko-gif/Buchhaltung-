@@ -1,6 +1,8 @@
 import 'dart:async';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:intl/date_symbol_data_local.dart';
 
@@ -15,6 +17,7 @@ Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   // Ohne die Locale-Daten wirft DateFormat('dd.MM.yyyy', 'de_AT') zur Laufzeit.
   await initializeDateFormatting('de');
+  registerFontLicense();
   final state = await AppState.open();
   // Wöchentliche UID-Prüfung (Opt-in): beim Start und bei jeder Rückkehr in
   // die App, sobald sie fällig ist.
@@ -86,4 +89,13 @@ class _Root extends StatelessWidget {
     }
     return const HomeShell();
   }
+}
+
+/// PDF-Schrift Work Sans (SIL OFL 1.1, P-R18) in „Open-Source-Lizenzen“
+/// aufnehmen; Flutter kennt nur die Lizenzen der Pakete.
+void registerFontLicense() {
+  LicenseRegistry.addLicense(() async* {
+    final text = await rootBundle.loadString('assets/fonts/OFL.txt');
+    yield LicenseEntryWithLineBreaks(const ['Work Sans (PDF-Schrift)'], text);
+  });
 }

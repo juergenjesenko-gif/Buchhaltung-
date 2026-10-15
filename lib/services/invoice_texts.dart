@@ -32,6 +32,30 @@ class InvoiceTexts {
   static String shareInvoice(String number) =>
       'Im Anhang finden Sie die Rechnung $number.';
 
+  /// Überschrift einer Stornorechnung (L-3.7). Bewusst nicht „Gutschrift“:
+  /// das Wort bezeichnet die Abrechnung durch den Leistungsempfänger
+  /// (§ 14 Abs 2 UStG DE, § 11 Abs 7 UStG AT).
+  static String cancellationTitle(String number) => 'Stornorechnung $number';
+
+  /// Bezugssatz auf der Stornorechnung: Nummer und Datum des Originals.
+  static String cancellationReference(String number, DateTime date) =>
+      'Diese Stornorechnung hebt die Rechnung $number vom '
+      '${Fmt.date(date)} vollständig auf. Die Beträge werden mit umgekehrtem '
+      'Vorzeichen ausgewiesen.';
+
+  /// Hinweis zur Erstattung, wenn die Originalrechnung bezahlt war.
+  static String cancellationRefund(String amount) =>
+      'Den bereits bezahlten Betrag von $amount erstatten wir Ihnen.';
+
+  /// Hinweis, wenn die Originalrechnung noch offen war.
+  static const cancellationNothingToPay =
+      'Bitte überweisen Sie den Betrag der Rechnung nicht mehr. '
+      'Sollten Sie bereits bezahlt haben, erstatten wir Ihnen den Betrag.';
+
+  /// Begleittext beim Senden einer Stornorechnung.
+  static String shareCancellation(String number, String original) =>
+      'Im Anhang finden Sie die Stornorechnung $number zu Rechnung $original.';
+
   /// Begleittext beim Senden einer Erinnerung oder Mahnung.
   static String shareDunning(String title, String number) =>
       'Im Anhang finden Sie die $title zu Rechnung $number.';

@@ -47,13 +47,41 @@ class InvoiceTotals {
     required this.breakdown,
   });
 
-  factory InvoiceTotals.of(Invoice invoice) => InvoiceTotals.compute(
-    items: invoice.items,
-    isSmallBusiness: invoice.isSmallBusiness,
-    discountPermille: invoice.discountPermille,
-    discountAmount: invoice.discountAmount,
-    shipping: invoice.shipping,
-    shippingVatPermille: invoice.shippingVatPermille,
+  /// Summen einer Rechnung. Eine Stornorechnung (L-3.7) trägt dieselben
+  /// Positionen wie die Originalrechnung; ihre Summen sind exakt die
+  /// negierten Summen des Originals – je Steuersatz, ohne neue Rundung.
+  factory InvoiceTotals.of(Invoice invoice) {
+    final totals = InvoiceTotals.compute(
+      items: invoice.items,
+      isSmallBusiness: invoice.isSmallBusiness,
+      discountPermille: invoice.discountPermille,
+      discountAmount: invoice.discountAmount,
+      shipping: invoice.shipping,
+      shippingVatPermille: invoice.shippingVatPermille,
+    );
+    return invoice.isCancellation ? totals.negated() : totals;
+  }
+
+  /// Alle Beträge mit umgekehrtem Vorzeichen (Stornorechnung, L-3.7).
+  /// Weil nur das Vorzeichen wechselt, gilt `net + vat == gross` je Satz
+  /// weiter, und Original plus Storno ergeben je Satz genau null.
+  InvoiceTotals negated() => InvoiceTotals._(
+    isSmallBusiness: isSmallBusiness,
+    itemsNet: -itemsNet,
+    itemNetByRate: {for (final e in itemNetByRate.entries) e.key: -e.value},
+    discount: -discount,
+    discountLines: [
+      for (final l in discountLines)
+        RateLine(vatPermille: l.vatPermille, net: -l.net),
+    ],
+    shippingLines: [
+      for (final l in shippingLines)
+        RateLine(vatPermille: l.vatPermille, net: -l.net),
+    ],
+    breakdown: {
+      for (final e in breakdown.entries)
+        e.key: (net: -e.value.net, vat: -e.value.vat),
+    },
   );
 
   factory InvoiceTotals.compute({

@@ -48,7 +48,9 @@ class InvoicePdf {
 
   Future<Uint8List> build() async {
     final doc = pw.Document(
-      title: 'Rechnung ${invoice.number}',
+      title: invoice.isCancellation
+          ? InvoiceTexts.cancellationTitle(invoice.number)
+          : 'Rechnung ${invoice.number}',
       author: profile.companyName,
     );
 
@@ -87,7 +89,10 @@ class InvoicePdf {
             pw.Text(invoice.notes, style: const pw.TextStyle(fontSize: 9.5)),
           ],
           pw.SizedBox(height: 20),
-          _buildPaymentBlock(),
+          if (invoice.isCancellation)
+            _buildCancellationBlock()
+          else
+            _buildPaymentBlock(),
         ],
       ),
     );
@@ -201,6 +206,11 @@ class InvoicePdf {
             children: [
               _metaRow('Rechnungsnummer', invoice.number, emphasize: true),
               _metaRow('Rechnungsdatum', Fmt.date(invoice.issueDate)),
+              if (invoice.isCancellation) ...[
+                _metaRow('Storno zu', invoice.cancelsNumber),
+                if (invoice.cancelsIssueDate != null)
+                  _metaRow('vom', Fmt.date(invoice.cancelsIssueDate!)),
+              ],
               if (invoice.deliveryDate != null)
                 _metaRow('Leistungsdatum', Fmt.date(invoice.deliveryDate!)),
               if (invoice.dueDate != null)
@@ -247,7 +257,9 @@ class InvoicePdf {
 
   pw.Widget _buildTitle() {
     return pw.Text(
-      'Rechnung ${invoice.number}',
+      invoice.isCancellation
+          ? InvoiceTexts.cancellationTitle(invoice.number)
+          : 'Rechnung ${invoice.number}',
       style: pw.TextStyle(
         fontSize: 15,
         fontWeight: pw.FontWeight.bold,
@@ -297,13 +309,16 @@ class InvoicePdf {
                     : item.description,
               ),
               _cell(
-                '${Fmt.quantity(item.quantityMilli)} ${item.unit}',
+                '${Fmt.quantity(invoice.isCancellation ? -item.quantityMilli : item.quantityMilli)} ${item.unit}',
                 align: pw.TextAlign.right,
               ),
               _cell(Fmt.amount(item.unitPrice), align: pw.TextAlign.right),
               if (showVatColumn)
                 _cell(Fmt.vatRate(item.vatPermille), align: pw.TextAlign.right),
-              _cell(Fmt.amount(item.net), align: pw.TextAlign.right),
+              _cell(
+                Fmt.amount(invoice.isCancellation ? -item.net : item.net),
+                align: pw.TextAlign.right,
+              ),
             ],
           ),
       ],
@@ -433,6 +448,37 @@ class InvoicePdf {
         profile.taxProfile.smallBusinessInvoiceNote,
         style: const pw.TextStyle(fontSize: 9.5),
       ),
+    );
+  }
+
+  /// Bezug, Grund und Erstattungshinweis der Stornorechnung (L-3.7).
+  pw.Widget _buildCancellationBlock() {
+    final paid = invoice.paidAt != null;
+    return pw.Column(
+      crossAxisAlignment: pw.CrossAxisAlignment.start,
+      children: [
+        pw.Text(
+          InvoiceTexts.cancellationReference(
+            invoice.cancelsNumber,
+            invoice.cancelsIssueDate ?? invoice.issueDate,
+          ),
+          style: const pw.TextStyle(fontSize: 9.5),
+        ),
+        if (invoice.cancelReason.isNotEmpty) ...[
+          pw.SizedBox(height: 6),
+          pw.Text(
+            'Grund: ${invoice.cancelReason}',
+            style: const pw.TextStyle(fontSize: 9.5),
+          ),
+        ],
+        pw.SizedBox(height: 6),
+        pw.Text(
+          paid
+              ? InvoiceTexts.cancellationRefund(Fmt.money(-invoice.grossTotal))
+              : InvoiceTexts.cancellationNothingToPay,
+          style: const pw.TextStyle(fontSize: 9.5),
+        ),
+      ],
     );
   }
 

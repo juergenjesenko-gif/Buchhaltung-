@@ -1,6 +1,6 @@
 # Benutzerhandbuch – JeNi bucht
 
-**Für App-Version 0.12.0** · Stand 2026-10-15
+**Für App-Version 0.13.0** · Stand 2026-10-15
 
 Dieses Handbuch beschreibt die App aus Nutzersicht. Es wird bei jeder Änderung,
 die du in der App siehst, mitgeführt – siehe [`CLAUDE.md`](../CLAUDE.md).
@@ -687,12 +687,8 @@ Rechnungsnummer.
 
 **Ausstellen** vergibt die endgültige, fortlaufende Nummer und **sperrt** die
 Rechnung. Danach lässt sich inhaltlich nichts mehr ändern – das ist gesetzlich so
-gewollt. Korrekturen laufen über eine Storno- oder Gutschriftsrechnung.
-
-> **Hinweis:** Storno- und Gutschriftsrechnungen kann diese Version noch nicht.
-> Wenn du eine gestellte Rechnung korrigieren musst, kannst du sie derzeit nur
-> stornieren und eine neue schreiben; das Storno-Dokument musst du außerhalb der
-> App erstellen. Die Funktion ist geplant.
+gewollt. Korrekturen laufen über eine **Stornorechnung** – siehe „Rechnung
+korrigieren oder stornieren“.
 
 ### Die Checkliste am Ende
 
@@ -743,9 +739,9 @@ Teilen-Dialog deines Telefons: E-Mail, Messenger, Cloud-Ordner – du entscheide
 
 ### Status pflegen
 
-Offene Rechnungen haben auf der Karte den Knopf **Bezahlt**. Stornieren und
-Entwürfe löschen stehen im Dreipunkt-Menü unten, rot, und fragen noch einmal
-mit Nummer und Betrag nach.
+Offene Rechnungen haben auf der Karte den Knopf **Bezahlt**. **Korrigieren**,
+**Stornieren** (rot) und **Entwurf löschen** (rot) stehen im Dreipunkt-Menü
+unten auf der Karte.
 
 | Status | Bedeutung |
 |---|---|
@@ -753,7 +749,8 @@ mit Nummer und Betrag nach.
 | **Offen** | Gestellt, Zahlung ausstehend |
 | **Überfällig** | Gestellt, Fälligkeit (bzw. nach einer Mahnung deren neue Frist) verstrichen – wird rot |
 | **Bezahlt** | Erledigt – die App bucht den Betrag als Einnahme |
-| **Storniert** | Zurückgenommen, bleibt aber erhalten |
+| **Storniert** | Durch eine Stornorechnung aufgehoben, bleibt aber unverändert erhalten; auf der Karte steht „storniert durch …“ |
+| **Storno** | Die Stornorechnung selbst: eigene Nummer, Betrag mit Minus, „Storno zu …“ |
 
 Oben in der Liste steht die Summe aller gestellten, noch nicht bezahlten
 Rechnungen.
@@ -771,6 +768,39 @@ vorbelegt mit *Ja*, solange die Skontofrist läuft. Bei *Ja* bucht sie den um da
 Skonto geminderten Betrag als Einnahme, je Steuersatz anteilig; damit sinkt auch
 deine Umsatzsteuer im Monat der Zahlung automatisch. Die Rechnung selbst bleibt
 unverändert. Als Kleinunternehmer sinkt nur die Einnahme.
+
+### Rechnung korrigieren oder stornieren
+
+Eine gestellte Rechnung darfst du nicht ändern. Stattdessen erstellt die App
+eine **Stornorechnung**: ein eigenes Dokument mit der nächsten Rechnungsnummer,
+das die alte Rechnung mit Minusbeträgen aufhebt. Die alte Rechnung bleibt
+unverändert und ist danach als storniert markiert.
+
+**Korrigieren** – wenn sich etwas an der Rechnung ändern soll (Betrag,
+Adresse, Position):
+
+1. Auf der Rechnungskarte **⋮ → Korrigieren** tippen.
+2. Grund antippen (vorgeschlagen: „Fehler in der Rechnung“) oder selbst
+   schreiben.
+3. **Stornieren und neu schreiben** tippen.
+4. Die App öffnet sofort eine Kopie als neuen Entwurf. Korrigieren und
+   **Rechnung ausstellen**.
+5. Beide PDFs an den Kunden senden: unten erscheint dafür **PDF senden** für
+   die Stornorechnung, die neue Rechnung sendest du wie gewohnt.
+
+**Stornieren** – wenn die Rechnung ganz wegfällt: **⋮ → Stornieren**, Grund
+wählen, **Stornorechnung erstellen**, dann **PDF senden**.
+
+**War die Rechnung schon bezahlt?** Dann fragt die App nach dem Tag der
+Rückzahlung (vorbelegt heute) und bucht an diesem Tag den damals eingenommenen
+Betrag als Minus-Einnahme – deine Einnahmen und deine Umsatzsteuer sinken in
+diesem Monat. Überweise den Betrag an deinen Kunden zurück. War die Rechnung
+noch offen, bucht die App nichts, denn es ist ja kein Geld geflossen.
+Laufende Mahnungen zur Rechnung storniert die App mit.
+
+Die Stornorechnung nennt Nummer und Datum der ursprünglichen Rechnung, den
+Grund und dieselben Steuersätze wie das Original. Sie heißt bewusst nicht
+„Gutschrift“ – das wäre steuerlich etwas anderes.
 
 ### Erinnern und mahnen
 
@@ -960,6 +990,11 @@ löschen und neu installieren, dann bei der Ersteinrichtung „Aus Sicherung
 wiederherstellen" mit Kennwort bzw. Wiederherstellungscode. Was nach der
 letzten Sicherung erfasst wurde, ist dabei verloren.
 
+**Rechtliches** – Impressum, Datenschutzerklärung und Nutzungsbedingungen zum
+Nachlesen, auch ohne Internet; dazu der Hinweis „Keine Steuerberatung“, die
+Support-Adresse (öffnet deine Mail-App) und die Open-Source-Lizenzen. In
+dieser Testversion stehen die Rechtstexte noch als **Entwurf** gekennzeichnet.
+
 **Wichtiger Hinweis** – die rechtliche Abgrenzung. Bitte einmal lesen.
 
 ---
@@ -1003,10 +1038,15 @@ in iCloud Drive oder Google Drive. Das ist **standardmäßig aus**.
 
 1. **Einstellungen → Datensicherung → Automatische Sicherung → Einrichten**
 2. Die Erklärung lesen und **Ordner wählen**.
-3. Die App zeigt dir einen **Wiederherstellungscode** (52 Zeichen). Schreib ihn
-   ab oder speichere ihn im Passwortmanager – **getrennt von deinem Handy**. Er
-   wird nur dieses eine Mal angezeigt. Ohne ihn kann niemand eine automatische
-   Sicherung auf einem anderen Gerät öffnen, auch du nicht.
+3. Tippe auf **Druckblatt teilen**. Die App erstellt ein PDF mit deinem
+   **Wiederherstellungscode** (13 Blöcke zu 4 Zeichen) und einem QR-Code.
+   Drucke es aus oder speichere es in deinem Passwortmanager – **getrennt von
+   deinem Handy**. Die App zeigt den Code sonst nirgends an und behält keine
+   Kopie. Ohne ihn kann niemand eine automatische Sicherung auf einem anderen
+   Gerät öffnen, auch du nicht.
+4. Zur Kontrolle fragt die App nach zwei Blöcken vom Druckblatt, zum Beispiel
+   „Block 3“ und „Block 9“. Tippe sie ab (groß oder klein ist egal) und dann
+   **Code ist aufbewahrt**.
 
 Danach sichert die App nach jeder Änderung höchstens einmal am Tag, wenn du sie
 öffnest. Jede Sicherung wird nach dem Speichern zur Probe wieder geöffnet; erst
@@ -1055,9 +1095,10 @@ behalten die Steuerbehandlung des Zeitpunkts, an dem du sie ausgestellt hast.
 Falsche gestellte Rechnungen musst du deiner Kanzlei melden.
 
 **Ich habe eine Rechnung ausgestellt und einen Fehler entdeckt.**
-Eine gestellte Rechnung darf nicht geändert werden. Markiere sie als
-*Storniert* und schreibe eine neue. Das Storno-Dokument für deinen Kunden musst
-du in dieser Version noch außerhalb der App erstellen.
+Eine gestellte Rechnung darf nicht geändert werden. Tippe auf der Karte
+auf **⋮ → Korrigieren**: die App erstellt die Stornorechnung und öffnet gleich
+eine Kopie zum Ausbessern (Kapitel 7, „Rechnung korrigieren oder
+stornieren“).
 
 **Warum kann ich meinen Kunden nicht löschen?**
 Weil Rechnungen an ihn existieren. Eine Rechnung ohne Empfänger wäre ungültig.
@@ -1080,6 +1121,15 @@ deiner Steuerberatung.
 ---
 
 ## 13. Wenn etwas nicht geht
+
+**„Stornieren und neu schreiben“ bzw. „Stornorechnung erstellen“ ist grau** —
+das Feld *Grund* ist leer. Tippe einen der Vorschläge an oder schreib einen
+kurzen Grund; er steht auf der Stornorechnung.
+
+**„Beide Blöcke müssen stimmen.“** — beim Einrichten der automatischen
+Sicherung passt ein abgetippter Block nicht zum Druckblatt. Achte auf die
+Blocknummer; 0 und O, 1 und I, 8 und B darfst du verwechseln. Hast du das
+Druckblatt nicht mehr, tippe auf **Druckblatt noch einmal teilen**.
 
 **„Bitte eine E-Mail-Adresse wie name@beispiel.at eingeben"** — im Profil oder
 beim Kunden steht eine E-Mail-Adresse ohne @ oder ohne Domain (z. B. `.at`).
@@ -1209,7 +1259,8 @@ Damit du nicht darauf wartest:
   ZUGFeRD, ebInterface) übernimmt die App. Deine eigenen Rechnungen sind ein
   PDF, keine strukturierte E-Rechnung. Für Geschäftskunden in Deutschland wird
   das mittelfristig wichtig.
-- **Keine Storno-/Gutschriftsrechnung** – geplant
+- **Storno nur für die ganze Rechnung.** Einzelne Positionen oder einen
+  Teilbetrag zurücknehmen geht noch nicht; nimm dafür **Korrigieren**.
 - **Die Belegerkennung merkt sich noch keine Korrekturen.** Änderst du
   Beschreibung oder Kategorie eines Händlers, schlägt sie beim nächsten Beleg
   wieder dasselbe vor. Gemerkt wird nur, welcher Händler zu einer Kasse mit

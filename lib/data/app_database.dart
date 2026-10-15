@@ -16,7 +16,7 @@ class AppDatabase {
 
   /// Aktuelle Schemaversion. Öffentlich, weil docs/SPECIFICATION.md sie
   /// dokumentiert und test/specification_sync_test.dart beide vergleicht.
-  static const schemaVersion = 17;
+  static const schemaVersion = 18;
 
   Database? _db;
 
@@ -533,6 +533,17 @@ class AppDatabase {
       )
       ''',
       'CREATE INDEX idx_platform_import_month ON platform_import_rows(platform, month)',
+    ],
+    // Stornorechnung (L-3.7, L-3.18): eigener Beleg mit Bezug auf das
+    // Original. Je Originalrechnung höchstens eine Stornorechnung.
+    18: [
+      'ALTER TABLE invoices ADD COLUMN cancels_invoice_id INTEGER REFERENCES invoices(id)',
+      "ALTER TABLE invoices ADD COLUMN cancels_number TEXT NOT NULL DEFAULT ''",
+      'ALTER TABLE invoices ADD COLUMN cancels_issue_date TEXT',
+      "ALTER TABLE invoices ADD COLUMN cancel_reason TEXT NOT NULL DEFAULT ''",
+      'ALTER TABLE invoices ADD COLUMN cancelled_by_invoice_id INTEGER REFERENCES invoices(id)',
+      'CREATE UNIQUE INDEX idx_invoices_cancels ON invoices(cancels_invoice_id) '
+          'WHERE cancels_invoice_id IS NOT NULL',
     ],
   };
 

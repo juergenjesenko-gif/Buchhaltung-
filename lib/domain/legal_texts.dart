@@ -54,3 +54,44 @@ class LegalText {
 
   static const all = [disclaimer, terms];
 }
+
+/// Volltexte im Menü „Rechtliches“ (L-22.18, Store-Pflicht). Eine Quelle:
+/// `docs/legal/*.md` werden unverändert als Asset eingebunden;
+/// `test/legal_documents_test.dart` prüft, dass jede Datei im `pubspec.yaml`
+/// steht.
+enum LegalDocument {
+  imprint('Impressum', 'docs/legal/IMPRESSUM.md'),
+  privacy('Datenschutzerklärung', 'docs/legal/DATENSCHUTZ.md'),
+  terms('Nutzungsbedingungen', 'docs/legal/NUTZUNGSBEDINGUNGEN.md');
+
+  const LegalDocument(this.title, this.asset);
+  final String title;
+  final String asset;
+
+  /// `false`, solange P-L1 (anwaltliche Prüfung) offen ist. Dann zeigt die
+  /// App über jedem Text den Vermerk „Entwurf“ (Testbuild). Vor dem
+  /// Store-Build wird P-L1 erledigt, der Vermerk in den Dateien entfernt und
+  /// dieser Wert auf `true` gesetzt; `test/legal_documents_test.dart` hält
+  /// Wert und Dateien gleich (Spezifikation FA-11.5, P-L20).
+  static const reviewed = false;
+
+  /// Text ohne den einleitenden Entwurfs-Blockzitatblock der Datei; den
+  /// Vermerk setzt die App selbst einheitlich darüber.
+  static String body(String markdown) {
+    final lines = markdown.split('\n');
+    final out = <String>[];
+    var skipping = false;
+    var headingSeen = false;
+    for (final line in lines) {
+      if (!headingSeen && line.startsWith('# ')) {
+        headingSeen = true;
+        skipping = true;
+        continue;
+      }
+      if (skipping && (line.startsWith('>') || line.trim().isEmpty)) continue;
+      skipping = false;
+      out.add(line);
+    }
+    return out.join('\n').trim();
+  }
+}

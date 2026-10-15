@@ -1,3 +1,4 @@
+import 'legal_screen.dart';
 import 'package:flutter/material.dart';
 
 import '../../services/launcher/platform_home_shortcut.dart';
@@ -164,6 +165,22 @@ class SettingsScreen extends StatelessWidget {
                         'Geht das Gerät verloren, sind die Belege sonst weg.',
                   ),
                 ],
+              ),
+            ),
+            const SizedBox(height: 16),
+
+            Card(
+              child: ListTile(
+                key: const Key('settings-legal'),
+                leading: const Icon(Icons.gavel_outlined),
+                title: const Text('Rechtliches'),
+                subtitle: const Text(
+                  'Impressum, Datenschutz, Nutzungsbedingungen, Lizenzen',
+                ),
+                trailing: const Icon(Icons.chevron_right),
+                onTap: () => Navigator.of(
+                  context,
+                ).push(MaterialPageRoute(builder: (_) => const LegalScreen())),
               ),
             ),
             const SizedBox(height: 16),

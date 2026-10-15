@@ -45,7 +45,7 @@ für Konten und Prüfungen. Schritte 1–8 laufen parallel zur Entwicklung.
 | Crash-Berichte | keine | **kein Crash-SDK**; Absturzstatistik der Stores plus freiwilliger Fehlerbericht per E-Mail |
 | Lokalisierung | Texte im Code | Sprachdateien (L-13.8), Store-Einträge nur DE/AT |
 | Unfertiges | – | nicht ausliefern statt verstecken (Apple 2.1); Stufen über Build-Schalter |
-| Rechtliches in der App | Bestätigungen (FA-1.10), Hilfe mit Support-Mail (FA-11.3) | Menü „Rechtliches“: Impressum, Datenschutz, Nutzungsbedingungen, Support, „keine Steuerberatung“ – auch offline |
+| Rechtliches in der App | seit 0.13.0 Menü „Rechtliches“ (FA-11.4, FA-11.5): Impressum, Datenschutz, Nutzungsbedingungen, Support, „keine Steuerberatung“, Lizenzen, offline; Texte noch Entwurf | Texte final (P-L1), Entwurfsvermerk aus (P-L20), Datenschutzerklärung unter öffentlicher URL |
 | App-Symbol | Flutter-Standardsymbol (RELEASE_PLAYBOOK „Was noch fehlt“) | eigenes Symbol nach Markenentscheidung (O-25) |
 | Prüferzugang | – | kein Login nötig; Hinweis in den Review Notes, Lizenztester eintragen |
 

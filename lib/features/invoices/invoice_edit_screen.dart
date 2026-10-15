@@ -399,11 +399,14 @@ class _InvoiceEditScreenState extends State<InvoiceEditScreen> {
           padding: const EdgeInsets.fromLTRB(16, 12, 16, 96),
           children: [
             if (_isLocked) ...[
-              const NoticeBanner(
+              NoticeBanner(
                 icon: Icons.lock_outline,
-                message:
-                    'Diese Rechnung ist gestellt und kann nicht mehr geändert werden. '
-                    'Für Korrekturen erstelle eine Storno- oder Gutschriftsrechnung.',
+                message: (widget.existing?.isCancellation ?? false)
+                    ? 'Stornorechnung zu ${widget.existing!.cancelsNumber}: '
+                          'Beträge mit umgekehrtem Vorzeichen, unveränderlich.'
+                    : 'Diese Rechnung ist gestellt und kann nicht mehr '
+                          'geändert werden. Zum Ändern in der Rechnungsliste '
+                          '⋮ → Korrigieren tippen.',
               ),
               const SizedBox(height: 16),
             ],

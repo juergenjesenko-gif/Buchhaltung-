@@ -4,7 +4,7 @@ publish_to: "none"
 
 # version: <Store-Versionsname>+<Buildnummer>
 # Die Buildnummer wird in CI aus der Run-Nummer gesetzt, siehe docs/RELEASE_PLAYBOOK.md
-version: 0.12.0+17
+version: 0.13.0+18
 
 environment:
   sdk: ^3.10.0
@@ -54,6 +54,10 @@ flutter:
   # keine Kopie. test/help_test.dart prüft die Einbindung.
   assets:
     - docs/BENUTZERHANDBUCH.md
+    # Rechtliches (L-17.3): eine Quelle, test/legal_documents_test.dart
+    - docs/legal/IMPRESSUM.md
+    - docs/legal/DATENSCHUTZ.md
+    - docs/legal/NUTZUNGSBEDINGUNGEN.md
     # PDF-Schrift Work Sans, SIL OFL 1.1 (P-R18), Lizenz in OFL.txt
     - assets/fonts/WorkSans-Regular.ttf
     - assets/fonts/WorkSans-Bold.ttf

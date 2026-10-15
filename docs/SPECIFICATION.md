@@ -1,7 +1,7 @@
 # Spezifikation – Buchhaltung
 
-**Dokumentversion:** 1.52 · **App-Version:** 0.12.0 · **Stand:** 2026-10-15
-**Status:** Testbuild 0.12.0 (Schema 17); Store-Start offen, siehe Abschnitt 11 und 14
+**Dokumentversion:** 1.53 · **App-Version:** 0.13.0 · **Stand:** 2026-10-15
+**Status:** Testbuild 0.13.0 (Schema 18); Store-Start offen, siehe Abschnitt 11 und 14
 
 > Das **Zielbild** des Produkts steht im [`LASTENHEFT.md`](LASTENHEFT.md); dieses
 > Dokument beschreibt, was die App **heute tatsächlich tut**.
@@ -143,6 +143,43 @@ einer älteren Schemaversion), gilt für dieses Feld der aktuelle Wert – auße
 beim Logo, das dann fehlt. Die Steuerbehandlung steht in
 `invoices.is_small_business`.
 
+Korrigiert wird nie durch Ändern, sondern durch eine Stornorechnung (GR-14).
+Am Original ändern sich dabei nur `status` und `cancelled_by_invoice_id`.
+
+### GR-14 · Stornorechnung und Rechnungskorrektur
+
+Lastenheft L-3.7, L-3.18; `InvoiceRepository.cancelWithInvoice`.
+
+1. **Eigener Beleg, eigene Nummer:** Die Stornorechnung zieht die nächste
+   Nummer aus **demselben** Nummernkreis wie Rechnungen, in derselben
+   Transaktion (FA-5.5) – lückenlos, einmalig (§ 11 Abs 1 Z 3 lit c UStG AT,
+   § 14 Abs 4 Nr. 4 UStG DE; getrennte Kreise wären zulässig, ein Kreis ist
+   der einfachere und prüfsichere Weg, P-S56).
+2. **Bezug:** Nummer und Datum der Originalrechnung werden eingefroren
+   (`cancels_number`, `cancels_issue_date`) und stehen im Kopf und im Text
+   (§ 31 Abs 5 UStDV, Abschn. 14.11 UStAE; UStR Rz 1535 ff. zur
+   Rechnungsberichtigung AT). Dazu Grund und Datum des Stornos. Aussteller-
+   und Empfängerdaten übernimmt sie aus den Snapshots des Originals.
+3. **Beträge:** dieselben Positionen, Rabatte und Versandkosten wie das
+   Original; alle Summen sind die **negierten** Summen des Originals
+   (`InvoiceTotals.negated`), je Steuersatz ohne neue Rundung. Original plus
+   Storno ergeben je Satz exakt 0; GR-2 und GR-5 gelten unverändert.
+4. **Nicht „Gutschrift“:** Titel „Stornorechnung“, weil „Gutschrift“ die
+   Abrechnung durch den Leistungsempfänger bezeichnet (§ 14 Abs 2 UStG DE,
+   § 11 Abs 7 UStG AT).
+5. **Buchung (Ist-Prinzip, GR-11):** War das Original *bezahlt*, wird am Tag
+   des Stornos (= Rückzahlung, änderbar) je Satz eine negative Einnahme in
+   Höhe des damals gebuchten Betrags (nach Skonto) gebucht, Bezug
+   `receipts.invoice_id` = Stornorechnung. War es *offen*, wird nichts
+   gebucht – es wurde nichts eingenommen. Eine falsch ausgewiesene Steuer
+   (§ 14c UStG DE, § 11 Abs 12 UStG AT) gilt mit der Stornorechnung als
+   berichtigt, sobald sie dem Empfänger zugeht (P-S56).
+6. **Mahnungen:** nicht stornierte Mahnschreiben zur Rechnung werden mit dem
+   Grund „Rechnung storniert durch <Nummer>“ storniert. Bereits gebuchte
+   Mahnkosten bleiben.
+7. Je Originalrechnung höchstens eine Stornorechnung (eindeutiger Index);
+   eine Stornorechnung selbst ist nicht stornierbar.
+
 ### GR-9 · Fremdwährung: Kurs als Ganzzahl, Umsatzsteuer und Bank getrennt
 
 Nur Eingangsbelege (Ausgaben) dürfen in fremder Währung sein; Ausgangsrechnungen
@@ -232,7 +269,7 @@ ein änderbarer Vorschlag.
 ## 4. Datenmodell
 
 **Speicher:** SQLite auf dem Gerät, Datei `buchhaltung.db` im
-Anwendungsdokumentenverzeichnis. Aktuelle Schemaversion: **17**
+Anwendungsdokumentenverzeichnis. Aktuelle Schemaversion: **18**
 (`spec.schema_version`). Bilder liegen als Dateien daneben: Belegseiten in
 `belege/`, Firmenlogos in `logo/`.
 
@@ -251,7 +288,7 @@ Anwendungsdokumentenverzeichnis. Aktuelle Schemaversion: **17**
 | `platform_import_rows` | Übernommene Zeilen aus Plattformexporten (FA-2.45): `platform`, `external_id`, `format`, `month` (`YYYY-MM`), `receipt_id` (Sammelbeleg oder leer bei Auszahlung/Sonstigem), `imported_at` | Schema 17. Primärschlüssel (`platform`, `external_id`): Dubletten werden mit `INSERT OR IGNORE` still übersprungen. Keine Käuferdaten |
 | `receipt_pages` | Seiten (Fotos) eines Belegs: `receipt_id`, `position` ab 1, `image_path`, `created_at` | Schema 8. Nach dem Speichern nur Anhängen; bestehende Einzelfotos wurden bei der Migration zur Seite 1 |
 | `receipt_comments` | Kommentare zu Belegen: `receipt_id`, `text`, `created_at` (Systemzeit) | Schema 8. Nur Einfügen; ein Trigger verhindert `UPDATE`. Löschen bietet die App nicht an (die Wiederherstellung leert alle Tabellen) |
-| `invoices` | Ausgangsrechnungen | `UNIQUE INDEX` auf `number`. Seit Schema 12 Gesamtrabatt, Versand, Skonto (GR-12) |
+| `invoices` | Ausgangsrechnungen | `UNIQUE INDEX` auf `number`. Seit Schema 12 Gesamtrabatt, Versand, Skonto (GR-12). Seit Schema 18 Stornorechnung (GR-14): `cancels_invoice_id` (eindeutig, wenn gesetzt), `cancels_number`, `cancels_issue_date`, `cancel_reason`; am Original `cancelled_by_invoice_id`; Status `cancellation` |
 | `invoice_items` | Rechnungspositionen | `ON DELETE CASCADE`. Seit Schema 12 Positionsrabatt |
 | `audit_log` | Änderungsprotokoll | Nur Einfügen, kein Löschen durch die App |
 | `consents` | Bestätigte Texte: Art, Fassung, Zeitpunkt | Nur Einfügen (Schema 7) |
@@ -478,7 +515,10 @@ Grenzwerte siehe Abschnitt 12.
 | FA-5.8 | Bei Kleinunternehmern entfällt die Steuerspalte vollständig und der gesetzliche Hinweistext erscheint |
 | FA-5.9 | PDF im A4-Format mit allen Pflichtangaben, mehrseitig lauffähig |
 | FA-5.10 | Teilen über den Systemdialog |
-| FA-5.11 | Nur Entwürfe sind löschbar; gestellte Rechnungen werden storniert |
+| FA-5.11 | Nur Entwürfe sind löschbar; gestellte und bezahlte Rechnungen werden durch eine **Stornorechnung** storniert (GR-14, FA-5.31). Die frühere reine Statusänderung entfällt; vor 0.13.0 so stornierte Rechnungen bleiben ohne Stornobeleg „Storniert“ |
+| FA-5.31 | **Stornieren** (Menü ⋮ der Rechnungskarte, Fehlerfarbe nach Trennlinie): Bottom-Sheet mit Betrag, Grund als Vorschlag mit einem Tipp („Fehler in der Rechnung“, „Auftrag storniert“, „Rechnung doppelt gestellt“, vorbelegt der erste, frei änderbar, Pflicht), Datum (vorbelegt heute; bei bezahlter Rechnung „Storno und Rückzahlung am“) und Hinweis, was gebucht wird; Knopf „Stornorechnung erstellen“ 56 dp volle Breite unten. Danach Hinweis mit „PDF senden“. Karte des Originals: „storniert durch <Nummer>“, der Stornorechnung: Status „Storno“, „Storno zu <Nummer>“, Betrag negativ |
+| FA-5.32 | **Korrigieren** (Menü ⋮): wie FA-5.31, Knopf „Stornieren und neu schreiben“; danach öffnet sich ein neuer Entwurf als Kopie (Kunde, Positionen, Rabatt, Versand, Skonto, Hinweise; Rechnungsdatum heute, Zahlungsziel mit gleichem Abstand; `InvoiceCancellation.correctionDraft`). Nummer und Snapshots entstehen beim Ausstellen neu |
+| FA-5.33 | **PDF der Stornorechnung** (Sie-Form, `InvoiceTexts`): Titel „Stornorechnung <Nummer>“, Kopf „Storno zu“ und „vom“, Mengen und Beträge negativ, Steuer je Satz negativ, Bezugssatz „Diese Stornorechnung hebt die Rechnung … vom … vollständig auf …“, Grund, bei bezahltem Original „Den bereits bezahlten Betrag von … erstatten wir Ihnen.“, sonst „Bitte überweisen Sie den Betrag der Rechnung nicht mehr …“. Dateiname `Stornorechnung_<Nummer>.pdf` |
 | FA-5.12 | *Bezahlt* fragt den Zahlungseingang (vorbelegt heute, änderbar), setzt `paid_at` und bucht die Einnahme je Steuersatz an diesem Tag (GR-11). Vor Schema 11 bezahlte Rechnungen bucht die App beim Start einmal nach (`paid_at`, sonst Rechnungsdatum). Hinweis im Dialog: nicht zusätzlich als Einnahmebeleg erfassen |
 | FA-5.13 | Eine gestellte Rechnung mit überschrittener Fälligkeit wird als überfällig gekennzeichnet; die Rechnungsliste zeigt oben „n Rechnungen überfällig – mahnen?“ und auf der Karte den Tonal-Knopf „Erinnern“ bzw. „Mahnen“ (L-3.10) |
 | FA-5.14 | Die Übersicht zeigt die Summe der gestellten, nicht bezahlten Rechnungen |
@@ -518,7 +558,7 @@ Liefer-/Leistungsdatum, Entgelt je Steuersatz, Steuersatz und Steuerbetrag oder
 | FA-7.7 | Erinnerung auf der Übersicht, wenn noch nie oder seit **30 Tagen** nicht gesichert wurde (`spec.backup_reminder_days`) |
 | FA-7.8 | Wiederherstellung auch direkt aus der Ersteinrichtung auf einem neuen Gerät; sie wird im `audit_log` vermerkt |
 | FA-7.9 | **Automatische Sicherung** (Opt-in nach Erklärseite): Ordner einmal wählen (iOS `UIDocumentPicker` + Security-Scoped Bookmark, `ios/Runner/BackupFolderChannel.swift`; Android Storage Access Framework mit dauerhafter Berechtigung, `BackupFolderChannel.kt`); Kanal `buchhaltung/backup_folder`; derselbe Kanal liefert mit `pickFile` die Datei für die Wiederherstellung (kein `file_picker`) |
-| FA-7.10 | Schlüssel: 256 Bit zufällig, gespeichert über `flutter_secure_storage` (iOS `first_unlock_this_device`, nicht synchronisiert); Anzeige einmal als **Wiederherstellungscode** (Base32, 52 Zeichen in Vierergruppen), Bestätigung „aufbewahrt" Pflicht. Ausschalten löscht den Schlüssel |
+| FA-7.10 | Schlüssel: 256 Bit zufällig, gespeichert über `flutter_secure_storage` (iOS `first_unlock_this_device`, nicht synchronisiert); **Wiederherstellungscode** (Base32, 52 Zeichen in 13 Vierergruppen) nur als lokal erzeugtes **Druckblatt** (PDF mit Blöcken, QR-Code und Aufbewahrungshinweis, `RecoveryCodeSheet`) über Teilen/Drucken; die App zeigt den Code nicht an und behält keine Kopie (L-22.21). Danach Bestätigung durch Abtippen von **zwei zufälligen, verschiedenen Blöcken** vom Druckblatt (`RecoveryCodeChallenge`, Verwechsler 0/1/8 egal); erst dann „Code ist aufbewahrt“ (L-22.22). Bildschirm `recovery_code_setup_screen.dart`, Knopf unten in der `PrimaryActionBar`. Ausschalten löscht den Schlüssel |
 | FA-7.11 | Sicherungsformat 2 (`JBBK`, Version 2, Modus 1, Nonce, Chiffrat, Tag) für Schlüssel-Sicherungen; Format 1 (Kennwort) bleibt lesbar. Wiederherstellen akzeptiert Kennwort **oder** Wiederherstellungscode |
 | FA-7.12 | Fällig, wenn eingeschaltet, Ordner gewählt und seit der letzten automatischen Sicherung eine Änderung im `audit_log` steht, frühestens nach **24 Stunden** (`spec.auto_backup_min_interval_hours`); ausgelöst beim Start und bei Rückkehr in die App |
 | FA-7.13 | Nach dem Schreiben: zurücklesen, SHA-256 vergleichen, entschlüsseln, entpacken. Erst dann `auto_backup_last_at` und Protokoll `auto_backup` mit Prüfsumme; sonst `auto_backup_last_error` und Banner auf der Übersicht |
@@ -622,6 +662,8 @@ Server-Entscheidung; Prüfpunkte P-R25, P-R26.
 |---|---|
 | FA-11.1 | **Hilfe-Symbol** (Fragezeichen, Tooltip „Hilfe“) in der AppBar rechts auf Übersicht, Belege, Rechnungen, Export, Einstellungen, Beleg- und Rechnungsformular. Nicht als FAB: unten rechts liegen bereits die Erfassungsknöpfe (Übersicht zwei, Listen ein Plus) in der Daumenzone, die der Hauptaktion vorbehalten ist (DESIGN_SPEC „Hauptaktion in Daumenreichweite“); Hilfe ist eine seltene Nebenaktion und darf oben liegen, wo auch das Zahnrad sitzt |
 | FA-11.2 | **Suche** im Benutzerhandbuch: `docs/BENUTZERHANDBUCH.md` ist selbst als Asset eingebunden (pubspec.yaml) – keine Kopie, kein zweiter Text. Zerlegung in `##`/`###`-Abschnitte; in „Häufige Fragen“ und „Wenn etwas nicht geht“ ist jede fett gesetzte Frage bzw. Meldung ein eigener Treffer; „Inhalt“ entfällt. Rangfolge BM25 (k1 1,2, b 0,75), Überschrift dreifach gewichtet, Normalisierung Kleinschreibung, ä/ö/ü/ß, Füllwörter, einfache Endungs-Stammbildung, Präfixtreffer für zusammengesetzte Wörter, Synonyme mit Gewicht 0,6 (z. B. „löschen“ → „stornieren“, „Backup“ → „Sicherung“, „MwSt“ → „Umsatzsteuer“). Treffer zeigen Überschrift, Kapitel und Auszug; Tipp öffnet den Abschnitt mit eigenem Markdown-Darsteller (Absätze, Listen, fett, kursiv, Code, Tabellenzeilen), Text auswählbar. **Kontext:** vom Beleg-Bildschirm geöffnet zeigt die leere Suche die Beleg-Kapitel, Treffer aus Beleg-Kapiteln wiegen 1,3-fach; analog Rechnungen. Test `test/help_test.dart` prüft, dass jede Handbuchüberschrift und jede FAQ-Frage im Index steht |
+| FA-11.4 | **Rechtliches** (Einstellungen → Rechtliches, `features/settings/legal_screen.dart`, Lastenheft L-22.18, Store-Pflicht): Impressum, Datenschutzerklärung, Nutzungsbedingungen, Hinweis „Keine Steuerberatung“ (`LegalText.disclaimer`), Support (Mail-App wie FA-11.3), Open-Source-Lizenzen (`showLicensePage`, ergänzt um Work Sans OFL über `LicenseRegistry`). Je Zeile eine `ListTile` ≥ 56 dp |
+| FA-11.5 | Die Rechtstexte sind **eine Quelle**: `docs/legal/IMPRESSUM.md`, `DATENSCHUTZ.md`, `NUTZUNGSBEDINGUNGEN.md` sind selbst Assets (`LegalDocument`), offline mit dem Markdown-Darsteller der Hilfe lesbar. Der Entwurfsblock der Datei wird ausgeblendet; solange `LegalDocument.reviewed` `false` ist (P-L1 offen), steht darüber der Vermerk „Entwurf – noch nicht anwaltlich geprüft“. Im Store-Build entfällt er (P-L20). `test/legal_documents_test.dart` prüft Asset-Einbindung, Vollständigkeit und dass `reviewed` zum Entwurfsvermerk der Dateien passt |
 | FA-11.3 | **Ohne Treffer:** Hinweis und Knopf „E-Mail an den Support“; mit Treffern zusätzlich „Nicht dabei? Support fragen“. Öffnet die Mail-App (`mailto:office@jenibarb.com`, Android `ACTION_SENDTO`, iOS `UIApplication.open`, Kanal `buchhaltung/launcher` Methoden `openMail`, `appVersion`) mit Betreff „Frage zu JeNi bucht (Version x.y.z): <Suchtext>“. Kein Text, kein Anhang, keine Daten automatisch; gesendet wird nur, was die Nutzerin selbst abschickt. Ohne Mail-App: Dialog mit Adresse und „Adresse kopieren“ |
 
 ---
@@ -643,15 +685,17 @@ Server-Entscheidung; Prüfpunkte P-R25, P-R26.
           │           (issued)               │  überfällig, wenn Fälligkeit vorbei
           └────────┬────────────────┬────────┘
                    │                │
-        bezahlt    │                │  stornieren
+        bezahlt    │                │  stornieren (GR-14)
                    ▼                ▼
-          ┌────────────────┐  ┌──────────────┐
-          │  Bezahlt       │  │  Storniert   │
-          │  (paid)        │  │  (cancelled) │
-          └────────────────┘  └──────────────┘
+          ┌────────────────┐  ┌──────────────┐      ┌────────────────────┐
+          │  Bezahlt       │─►│  Storniert   │─────►│  Stornorechnung    │
+          │  (paid)        │  │  (cancelled) │ legt │  (cancellation)    │
+          └────────────────┘  └──────────────┘  an  │  eigene Nummer     │
+            stornieren (Rückzahlung)                └────────────────────┘
 ```
 
 Alle Zustände außer *Entwurf* sind schreibgeschützt (`InvoiceStatus.isLocked`).
+Stornierbar sind *Gestellt* und *Bezahlt* (`InvoiceStatus.canBeCancelled`).
 
 ### 6.2 Kleinunternehmerstatus
 
@@ -680,12 +724,14 @@ Kleinunternehmer:
 | Übersicht | `features/dashboard/dashboard_screen.dart` | Kassabuch, Umsatzsteuer, Grenzwertampel, Termin-Box „Nächste Termine“ (FA-10.3), Verlauf; zentrierter Knopf „Beleg fotografieren“ (FA-12.1), Zeitraum-Chips umbrechend; unten 112 dp Abstand, damit der Knopf keine Karte verdeckt |
 | Belegliste | `features/receipts/receipt_list_screen.dart` | Suchen, filtern, öffnen; Chip-Reihe mit Jahr, Alle/Einnahmen/Ausgaben, „Storniert“, umbrechend (FA-12.4) |
 | Beleg bearbeiten | `features/receipts/receipt_edit_screen.dart` | Erfassen, Seiten, Aufteilung nach Steuersätzen (`vat_split_editor.dart`, FA-2.33), Hinweisstreifen Link-QR (`link_invoice_strip.dart`, FA-2.42), Vermerk „vom Kassen-QR“ (FA-2.36), Originaldatei bei PDF/E-Rechnung (FA-2.41), automatisches Auslesen mit „Erneut auslesen“, Betrag, Fremdwährung mit „Kurs abrufen“ und Bankbetrag (FA-2.24 bis FA-2.26), Kategorie, Rechnungsnummer, Aussteller-UID, Kommentare; stornierte Belege nur lesen. Speicherleiste unten fixiert (`receipt_save_bar.dart`), über der Tastatur, Primärknopf 56 dp hoch: Telefon volle Breite, ab 600 dp rechtsbündig; bei neuen Seiten „Vollständig – Beleg speichern“ (FA-2.14) |
-| Rechnungsliste | `features/invoices/invoice_list_screen.dart` | Status, PDF teilen, Aktionen; Knopf „Bezahlt“ mit Bottom-Sheet Zahlungseingang und Skonto (FA-5.12, FA-5.18); Stornieren/Löschen mit Bestätigung (FA-5.20) |
+| Rechnungsliste | `features/invoices/invoice_list_screen.dart` | Status, PDF teilen, Aktionen; Knopf „Bezahlt“ mit Bottom-Sheet Zahlungseingang und Skonto (FA-5.12, FA-5.18); Korrigieren und Stornieren mit Bottom-Sheet (FA-5.31, FA-5.32), Löschen mit Bestätigung (FA-5.20) |
 | Rechnung bearbeiten | `features/invoices/invoice_edit_screen.dart` | Kunde, Positionen mit Rabatt, Karte „Rabatt, Versand, Skonto“, Summe je Satz; Leiste `PrimaryActionBar` (`widgets/primary_action_bar.dart`) mit Ausstellen bzw. „PDF senden“ (FA-5.15 bis FA-5.20) |
 | Kunde bearbeiten | `features/invoices/customer_edit_screen.dart` | Kundenstammdaten, Schalter „Unternehmen“ (FA-5.24) |
 | Mahnung (Bottom-Sheet) | `features/invoices/dunning_sheet.dart` | Stufe, bisherige Schreiben mit Storno, Frist, Mahnkosten mit Verbraucherhinweis, Zinsen, Pauschale, Vorschau, „erstellen und senden“ (FA-5.21 bis FA-5.23) |
 | Plattformimport | `features/import/platform_import_screen.dart` | Eine Karte je Monat, Hinweise, Amazon-Gebührenrechnung, unten „Übernehmen“ (FA-2.43 bis FA-2.49); geöffnet aus der Hauptnavigation, wenn eine CSV/TSV/TXT geteilt wird |
 | Datensicherung | `features/backup/backup_screen.dart` | Sicherung erstellen und teilen, wiederherstellen mit Vorschau |
+| Wiederherstellungscode | `features/backup/recovery_code_setup_screen.dart` | Druckblatt teilen/drucken, zwei Blöcke abtippen (FA-7.10) |
+| Rechtliches | `features/settings/legal_screen.dart` | Impressum, Datenschutz, Nutzungsbedingungen, keine Steuerberatung, Support, Lizenzen (FA-11.4, FA-11.5) |
 | Export | `features/export/export_screen.dart` | Zeitraum, Vorschau, Format |
 | Einstellungen | `features/settings/settings_screen.dart` | Stammdaten, App-Sperre, Symbol auf Startbildschirm (FA-1.19, nur Android), Belege auslesen, Fremdwährung (Tageskurs-Genehmigung), Kategorien, Rechtsrahmen, Hinweise |
 | App-Sperre einrichten | `features/app_lock/app_lock_settings_screen.dart` | PIN, Biometrie, Sperrzeit, Hinweis „PIN vergessen“, Warnung ohne Sicherung |
@@ -867,7 +913,7 @@ Offen benannt, weil eine Spezifikation, die ihre Lücken verschweigt, wertlos is
 | **Keine revisionssichere Archivierung** | Das `audit_log` schafft Nachvollziehbarkeit im Alltag, ist aber keine manipulationssichere Protokollierung im Sinne einer Verfahrensdokumentation. Die App ist die Vorerfassung; die revisionssichere Aufbewahrung findet in der Kanzlei statt | – |
 | **Keine Registrierkasse** | Wer die RKSV-Grenzen (15.000 € Umsatz und 7.500 € Barumsätze) überschreitet, braucht zusätzlich eine registrierkassenpflichtige Lösung | Nicht geplant |
 | **E-Rechnung nur im Empfang** | Eingehende E-Rechnungen (ZUGFeRD/Factur-X, XRechnung UBL/CII, ebInterface) werden übernommen (FA-2.40). Ausgangsrechnungen sind nur PDF, keine E-Rechnung nach EN 16931; in Deutschland kommt die Versandpflicht gestaffelt bis 2028 | Backlog G1 |
-| **Keine Storno- oder Korrekturrechnung** | Eine gestellte Rechnung ist gesperrt; „Stornieren“ setzt nur den Status (FA-5.11), ein Stornobeleg mit eigener Nummer wird nicht erzeugt | Backlog F4, Lastenheft Stufe A |
+| **Storno nur vollständig** | Die Stornorechnung hebt die ganze Rechnung auf (GR-14); Teilstorno einzelner Positionen oder Teilbeträge (L-3.18) gibt es noch nicht – dafür „Korrigieren“ (Storno + neue Rechnung). Die Rückzahlung wird am Stornotag gebucht, ein späterer Rückzahlungstag ist im Sheet zu wählen | später |
 | **Steuerwerte fest im Code** | Kennwerte außer Steuersätzen (seit 0.3.4 `validFrom`, GR-3) haben kein Gültig-ab-Datum und ändern sich nur per App-Update; eine kurzfristige Gesetzesänderung erreicht die Nutzerin erst nach Store-Freigabe | Rechtsstand-Überwachung, Lastenheft L-20 und L-13.5, Stufe B |
 | **Belegerkennung nicht auf Gerät erprobt** | Android-Teil im CI-Emulator mit R8 an einem synthetischen Kassenbon geprüft, Swift-Teil nur kompiliert; Korpus mit sechs echten Belegen (`test/fixtures/belege/`); Quote auf dem Gerät noch zu bestätigen (P-D22). Mehrsprachige Schlüsselwörter sind teils nur an synthetischen Texten geprüft. Gelernt wird nur Kasse → Händler beim Kassen-QR (FA-2.36); allgemeines Lernen aus Korrekturen je Händler fehlt noch | vor Release |
 | **Fremdwährung nur bei Ausgaben** | Eingangsbelege werden umgerechnet (FA-2.24 bis FA-2.27); Ausgangsrechnungen nur in Euro. Den BMF-Monatskurs lädt die App nicht, er wird von Hand übernommen; das EZB-Monatsmittel ist nur eine Näherung (P-S23, P-S24). DATEV/BMD exportieren nur Euro (P-D23). Ein Land mit anderer Währung setzt Mehrwährungsfähigkeit voraus | Backlog G7 |
@@ -889,7 +935,7 @@ Offen benannt, weil eine Spezifikation, die ihre Lücken verschweigt, wertlos is
 > Das ist der Mechanismus, der dieses Dokument aktuell hält.
 
 ```properties
-spec.schema_version = 17
+spec.schema_version = 18
 spec.oss_threshold_cents = 1000000
 spec.primary_action_height_dp = 56
 spec.min_touch_target_dp = 48
@@ -1001,6 +1047,7 @@ Dauerfristverlängerung, `02-15,…` = feste Tage, `+1j07-31` = Folgejahr,
 
 | Version | Datum | App-Version | Änderung |
 |---|---|---|---|
+| 1.53 | 2026-10-15 | 0.13.0 | App-Version 0.13.0 (Testbuild): Stornorechnung mit eigener Nummer aus dem gemeinsamen Nummernkreis, Bezug, Grund, negativen Beträgen je Satz, Rückzahlung als negative Einnahme bei bezahltem Original, Mahnungen mitstorniert; „Korrigieren“ = Storno + Entwurfskopie (GR-14, FA-5.11, FA-5.31 bis FA-5.33, 6.1; Schema 18). Menü „Rechtliches“ mit Rechtstexten als Assets und Entwurfsvermerk (FA-11.4, FA-11.5). Wiederherstellungscode als Druckblatt mit QR-Code und Bestätigung durch zwei Blöcke (FA-7.10). Grenze „Keine Storno- oder Korrekturrechnung“ ersetzt durch „Storno nur vollständig“. Neue Prüfpunkte P-S56, P-L20, P-X8, P-D28. |
 | 1.52 | 2026-10-15 | 0.12.0 | App-Version 0.12.0 (Testbuild): Produkt- und App-Name „JeNi bucht“ (Android-Label, iOS CFBundleDisplayName/CFBundleName, App-Titel, Sperrbildschirm, Support-Betreff FA-11.3, Exportvermerk, Sicherungs-Betreff, CI-Artefakt `JeNi-bucht-<Version>-build-<Nr>.apk`); Bundle-ID unverändert `at.jesenko.buchhaltung` (Lastenheft O-33). Neu FA-1.4f: Formatprüfung E-Mail und Telefon in Profil und Kunde (O-30). P-R7 erledigt. |
 | 1.51 | 2026-10-14 | 0.11.0 | Dokumentabgleich (Prüfinstanz Softwareentwickler), kein Codewechsel: Status im Kopf, Schemaversion in Abschnitt 4 auf 17 korrigiert, Bildschirm „Beleg bearbeiten“ um Aufteilung, Link-QR, Kassen-QR, Originaldatei ergänzt; Abschnitt 11: E-Rechnung-Empfang und Belegstorno-Status präzisiert, Lernspeicher erwähnt; Abschnitt 14: Zeilen je Gruppe nach Nummer sortiert (P-S45, P-L18, P-R26, P-D8, P-D20 bis P-D23), neuer Prüfpunkt P-D27 (Beta mit Zielgruppe, bisher verwaister Verweis P-Z1 in STORE_ANMELDUNG). |
 | 1.50 | 2026-10-14 | 0.11.0 | App-Version 0.11.0 (Testbuild), Stufe B1: Plattformexporte Amazon (Transaktionsbericht DE/EN/FR/IT/ES, Abrechnung V2), PayPal, Shopify, Stripe über Teilen/„Öffnen mit“ (FA-2.43 bis FA-2.49), Bruttoprinzip, Reverse Charge mit Kennzahlen in Übersicht und UVA-Export (FA-3.3, FA-3.4, 8.5), OSS-/FBA-Warnung, Dubletten über Schema 17. Kenndaten `oss_threshold_cents`, `reverse_charge_kz`. Neue Prüfpunkte P-S51 bis P-S55, P-R36, P-U7. |
@@ -1149,6 +1196,7 @@ Status: *offen* · *bestätigt* (mit Datum und Prüfer) · *widerlegt* (mit Folg
 | P-X5 | Nutzung im Auto (Beifahrerin), mit Handschuhen, in direktem Sonnenlicht: Kontrast und Trefferflächen | — | Release | offen |
 | P-X6 | System-Einhandmodus (Android) und Reachability (iOS) mit der App | — | Release | offen |
 | P-X7 | Links- und Rechtshand auf dem Pixel 10: „Beleg erfassen“, „Neue Rechnung“, Rechnungskarte (Erinnern, Bezahlt, PDF senden), Mahnsymbol, „Weiteren Steuersatz hinzufügen“ ohne Umgreifen | Widget-Tests für Lage und Größe der zentrierten Knöpfe (Regel 12) | Release | offen |
+| P-X8 | Einhandtest auf dem Pixel 10: Rechnung „Korrigieren“ und „Stornieren“ (Menü ⋮, Grund-Vorschlag mit einem Tipp, Knopf unten, nicht neben Abbrechen), Wiederherstellungscode (Druckblatt teilen, zwei Blöcke abtippen mit Tastatur offen, Knopf über der Tastatur), Einstellungen → Rechtliches lesen | Widget-Tests: Knöpfe ≥ 48 dp, Bestätigung erst nach richtigen Blöcken; Gefahrenknopf 56 dp volle Breite in Fehlerfarbe | Release | offen |
 
 ### Softwareentwicklung (echte Geräte und Stores)
 
@@ -1234,6 +1282,7 @@ Status: *offen* · *bestätigt* (mit Datum und Prüfer) · *widerlegt* (mit Folg
 | P-S53 | Steuerberatung: OSS-Schwelle 10.000 € (Art 59c MwStSystRL; AT Art 3 Abs 5 UStG 1994; DE § 3c Abs 4 UStG) – Näherung Bestimmungsland über Amazon-Marktplatz bzw. Shopify-Lieferland ausreichend für eine Warnung? Lager in anderen Ländern (FBA Pan-EU/CEE) nur als Hinweis | umgesetzt als Warnung (FA-2.47) | vor Release | offen |
 | P-S54 | Steuerberatung: Gebühren von PayPal (Europe) S.à r.l. et Cie, S.C.A. (LU) als steuerfreier Finanzumsatz (Art 135 Abs 1 lit d MwStSystRL; AT § 6 Abs 1 Z 8 UStG 1994; DE § 4 Nr 8 Buchst d UStG) ohne Reverse Charge; Stripe (Stripe Technology Europe Ltd./Stripe Payments Europe Ltd., IE) und Shopify Payments (Shopify International Ltd., IE) als steuerpflichtige Leistung mit Reverse Charge – Leistender und Behandlung je Vertrag/Rechnung bestätigen | nicht gesichert recherchiert (Quellen der Anbieter nicht abrufbar); so umgesetzt (FA-2.46) | vor Release | offen |
 | P-S55 | Spaltennamen und Typwerte mit echten Exporten je Sprache abgleichen: Amazon Transaktionsbericht DE/EN/FR/IT/ES, Abrechnung V2 (amount-type/-description), PayPal Aktivitäten DE/EN, Shopify, Stripe | nur synthetische Dateien (`test/fixtures/plattform/`), Spaltennamen nach Hilfeseiten und Fachwissen | vor Release | offen |
+| P-S56 | Stornorechnung (GR-14): (a) gemeinsamer Nummernkreis für Rechnungen und Stornorechnungen zulässig und ausreichend (AT § 11 Abs 1 Z 3 lit c UStG, UStR Rz 1535 ff.; DE § 14 Abs 4 Nr. 4 UStG, Abschn. 14.5 Abs 10 UStAE)? (b) Pflichtinhalt: Bezug Nummer und Datum, negative Beträge je Satz, Grund – genügt das als Berichtigung (§ 31 Abs 5 UStDV, Abschn. 14.11 UStAE) bzw. Rechnungsberichtigung AT? (c) § 14c UStG DE / § 11 Abs 12 UStG AT: Berichtigung des Steuerausweises erst mit Zugang beim Empfänger – reicht der Hinweis „PDF senden“? (d) Buchung: bezahlt → negative Einnahme je Satz am Rückzahlungstag (Ist-Versteuerung, § 17 UStG DE, § 16 UStG AT); offen → keine Buchung; bei Soll-Versteuerung wäre der Stornomonat maßgeblich (nicht abgebildet) | Vorbefund Steuerberater: Stornorechnung mit eigener Nummer und Bezug ist Praxis in AT und DE; ein Nummernkreis zulässig; Ist-Prinzip passt zur EAR. Rz-Fundstellen AT nicht am Volltext verifiziert | Release | offen |
 | P-L12 | Anwältin: Diktat über die Systemtastatur – Anbieterin nicht verantwortlich, Hinweistext genügt | — | Release | offen |
 | P-L13 | Gerätetest, nur bei eigener Spracherkennung: Erkennung im Flugmodus | — | später | offen |
 | P-L14 | Anwältin: Rollen beim Vertragsarchiv mit KI (Anbieterin als Auftragsverarbeiterin), Muster-AVV, Rechtsgrundlage Beschäftigtendaten | — | Stufe C | offen |
@@ -1242,6 +1291,7 @@ Status: *offen* · *bestätigt* (mit Datum und Prüfer) · *widerlegt* (mit Folg
 | P-L17 | Anwältin: Art. 50 AI Act (Kennzeichnung) und aktuelle Fristen | — | Stufe C | offen |
 | P-L18 | Anwältin: Lizenzpflichten ML Kit (Google APIs / ML Kit Terms), Lizenznennung in der App | — | Release | offen |
 | P-L19 | Anwältin: Schriftlizenz Work Sans (SIL OFL 1.1) für in PDFs eingebettete Teilmengen und Auslieferung in der App; Lizenznennung | `assets/fonts/OFL.txt` liegt bei; OFL erlaubt Einbetten und Bündeln | Release | offen |
+| P-L20 | Menü „Rechtliches“ (FA-11.4, FA-11.5): genügt die Darstellung (Impressum, Datenschutz, Nutzungsbedingungen offline in der App, Support-Mail) den Pflichten aus § 5 ECG, Art. 13 DSGVO und den Store-Vorgaben (Google Play Datenschutzerklärung in der App, Apple 5.1.1)? Entwurfsvermerk: im Testbuild sichtbar, im Store-Build nicht – Voraussetzung ist P-L1 (Texte final, `LegalDocument.reviewed = true`) | Vorbefund Rechtsanwalt: ein „Entwurf“-Vermerk in der veröffentlichten App wäre widersprüchlich und angreifbar (UWG, Transparenz); deshalb nur bis P-L1. Zusätzlich muss die Datenschutzerklärung unter einer öffentlichen URL stehen (Store-Pflicht) | Store-Einreichung | offen |
 | P-R10 | Öffentliche Händleradresse und Telefon (DSA-„Trader"-Angaben) festlegen, identisch mit dem Impressum | Postfach reicht nicht; Geschäftsadresse ratsam | erster Upload | festgelegt 2026-10-12 (Arnoldstein, +43 660 3124252); anwaltliche Bestätigung offen |
 | P-R11 | Nutzungsbedingungen als eigene EULA (Apple) bzw. verlinkt (Google): Gewährleistung und Regress, Rolle der Stores, Herabstufung/Nur-Lese-Modus, Volljährigkeit | — | Release | offen |
 | P-R12 | Wortlaut der Abo- und Testseite (§§ 312j, 312k BGB, PAngV, Apple 3.1.2); greift § 312k bei Store-Abos? | h. M.: nein, Sprung in die Store-Verwaltung genügt | Release | offen |
@@ -1289,3 +1339,4 @@ Status: *offen* · *bestätigt* (mit Datum und Prüfer) · *widerlegt* (mit Folg
 | P-D25 | Auf echtem Gerät: Update auf Schema 11 mit bereits bezahlter Rechnung (Nachbuchung, Übersicht und Grenze), Termin-Box, Dialog „bezahlt“, Abstand unter den schwebenden Knöpfen | Tests mit ffi und Widget-Logik; Gerät fehlt | Release | offen |
 | P-D26 | Hilfe auf echtem Gerät (Android und iPhone): Fragezeichen erreichbar und nicht verdeckt, Suche „Beleg löschen“, „Rückseite“, „Kleinunternehmergrenze“ liefert passende Abschnitte, Abschnitt lesbar, „E-Mail an den Support“ öffnet die Mail-App mit Betreff und Version, ohne Mail-App Dialog mit Adresse | Suche und Bildschirm getestet; Kotlin/Swift nur kompiliert (CI) | Release | offen |
 | P-D27 | Geschlossener Test mit mindestens 12 Testerinnen aus der Zielgruppe über 14 Tage (Google-Play-Pflicht für persönliche Konten; als Beta auch beim Organisationskonto sinnvoll): Rückmeldungen zu Belegerkennung, Einhandbedienung, Verständlichkeit | — | Release | offen |
+| P-D28 | Druckblatt Wiederherstellungscode auf echtem Gerät: Teilen an Drucker/„Als PDF speichern“/Passwortmanager, Ausdruck lesbar, QR-Code mit Kamera lesbar und ergibt den Code; Wiederherstellung auf zweitem Gerät mit abgetipptem Code. Stornorechnung-PDF ansehen (negative Beträge, Umlaute) | PDF-Erzeugung getestet, QR nur über die `barcode`-Bibliothek des `pdf`-Pakets | Release | offen |

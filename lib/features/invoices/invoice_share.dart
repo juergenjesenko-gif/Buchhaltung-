@@ -39,10 +39,19 @@ Future<void> shareInvoicePdf(BuildContext context, Invoice invoice) async {
       '-',
     );
     await ShareService.sharePdf(
-      fileName: 'Rechnung_$safeNumber.pdf',
+      fileName: invoice.isCancellation
+          ? 'Stornorechnung_$safeNumber.pdf'
+          : 'Rechnung_$safeNumber.pdf',
       bytes: bytes,
-      subject: 'Rechnung ${invoice.number}',
-      text: InvoiceTexts.shareInvoice(invoice.number),
+      subject: invoice.isCancellation
+          ? InvoiceTexts.cancellationTitle(invoice.number)
+          : 'Rechnung ${invoice.number}',
+      text: invoice.isCancellation
+          ? InvoiceTexts.shareCancellation(
+              invoice.number,
+              invoice.cancelsNumber,
+            )
+          : InvoiceTexts.shareInvoice(invoice.number),
     );
   } on Exception catch (error) {
     if (context.mounted) {
