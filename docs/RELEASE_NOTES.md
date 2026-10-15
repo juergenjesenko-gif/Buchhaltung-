@@ -42,7 +42,7 @@ nächsten Versionssprung in den neuen Eintrag.
 | Feld | Wert |
 |---|---|
 | Art | Testbuild (ungezippte arm64-APK `JeNi-bucht-0.13.2-build-<Nr>.apk`, fester Testschlüssel); Fehlerbehebung Gerätetest 0.13.1 (Google-Beleg) |
-| Commit | siehe Git-Log, Commit „0.13.2+20“ |
+| Commit | `01903ba` |
 | Branch | `claude/agile-accounting-app-mobile-wa5j3h` |
 | Dokumentstände | Lastenheft 1.57, Spezifikation 1.55, Benutzerhandbuch für 0.13.2, DESIGN_SPEC 1.2 |
 | Datenbankschema | 18 |
@@ -55,10 +55,10 @@ nächsten Versionssprung in den neuen Eintrag.
 
 | Art | Änderung | Bezug | Commit |
 |---|---|---|---|
-| Behoben | „$“-Beleg mit US-Merkmalen (Google-Gebühr $25.00): USD als Vorschlag, Fremdwährung mit Betrag vorbelegt statt Hinweis „Währung unklar“ | FA-2.28, FA-2.21 | dieser Build |
-| Neu | Bekannte Anbieter (Google, Apple, Amazon, Microsoft, Meta, Adobe …) als Lieferant | FA-2.28 | dieser Build |
-| Behoben | Steuersatz aus Steuerbetrag ohne Prozent („inkl. MwSt. € 16,50“, „USt“, „VAT“, „Tax“): Apple-Beleg 99,00 → 20 % statt 0 % | FA-2.28 | dieser Build |
-| Behoben | Hinweis „kein Vorsteuerabzug“ bei Beleg ohne Steuerausweis nicht mehr für Kleinunternehmer | FA-2.28 | dieser Build |
+| Behoben | „$“-Beleg mit US-Merkmalen (Google-Gebühr $25.00): USD als Vorschlag, Fremdwährung mit Betrag vorbelegt statt Hinweis „Währung unklar“ | FA-2.28, FA-2.21 | `01903ba` |
+| Neu | Bekannte Anbieter (Google, Apple, Amazon, Microsoft, Meta, Adobe …) als Lieferant | FA-2.28 | `01903ba` |
+| Behoben | Steuersatz aus Steuerbetrag ohne Prozent („inkl. MwSt. € 16,50“, „USt“, „VAT“, „Tax“): Apple-Beleg 99,00 → 20 % statt 0 % | FA-2.28 | `01903ba` |
+| Behoben | Hinweis „kein Vorsteuerabzug“ bei Beleg ohne Steuerausweis nicht mehr für Kleinunternehmer | FA-2.28 | `01903ba` |
 
 ---
 
