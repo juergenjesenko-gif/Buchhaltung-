@@ -452,7 +452,10 @@ class ReceiptTextParser {
     for (final row in rows) {
       final lower = row.toLowerCase();
       if (!RegExp(
-        r'heraf moms|moms|inkl\.? (mwst|ust)|enthaltene|darin enthalten|incl\.? vat|included vat',
+        // Auch blanke Steuerzeilen mit Betrag („MwSt. € 16,50“, „VAT“,
+        // „Tax“): Satz aus Brutto und Steuer (Gerätetest 2026-10-15, Apple).
+        r'heraf moms|moms|inkl\.? (mwst|ust)|enthaltene|darin enthalten|incl\.? vat|included vat|'
+        r'^\s*(mwst|ust|vat|tax|steuer)\b',
       ).hasMatch(lower)) {
         continue;
       }
@@ -616,11 +619,37 @@ class ReceiptTextParser {
     r'filiale|willkommen|welcome|danke|kopie|duplikat|zweitschrift|storno|original|seite|page',
   );
 
+  /// Bekannte Anbieter digitaler Dienste (Gebühren, Abos, App-Stores),
+  /// deren Belege oft nur den Markennamen tragen (Gerätetest 2026-10-15).
+  static const knownVendors = [
+    'Google', 'Apple', 'Amazon', 'Microsoft', 'Meta', 'Adobe', //
+    'PayPal', 'Stripe', 'Dropbox', 'Zoom', 'Spotify', 'Netflix',
+  ];
+
   Detected<String>? _merchant(List<String> rows) {
     for (var i = 0; i < rows.length && i < 6; i++) {
       final chain = ReceiptClassifier.chainIn(rows[i], exactOnly: true);
       if (chain != null) return Detected(chain.$1, 85);
     }
+    final heuristic = _merchantHeuristic(rows);
+    if (heuristic != null && heuristic.confidence >= 75) return heuristic;
+    // Bekannter Anbieter als eigenes Wort irgendwo auf dem Beleg; in einer
+    // Kopfzeile allein stehend sicherer als im Fließtext.
+    for (var i = 0; i < rows.length; i++) {
+      for (final v in knownVendors) {
+        final word = RegExp(
+          '(?<![A-Za-z])$v(?![A-Za-z])',
+          caseSensitive: false,
+        );
+        if (!word.hasMatch(rows[i])) continue;
+        final alone = rows[i].trim().toLowerCase() == v.toLowerCase();
+        return Detected(v, alone && i < 6 ? 80 : 65);
+      }
+    }
+    return heuristic;
+  }
+
+  Detected<String>? _merchantHeuristic(List<String> rows) {
     for (var i = 0; i < rows.length && i < 6; i++) {
       final row = rows[i].trim();
       final letters = RegExp(r'[A-Za-zÄÖÜäöüß]').allMatches(row).length;
@@ -737,6 +766,23 @@ class ReceiptTextParser {
     'HKD', 'SGD',
   };
 
+  /// US-Merkmale für „$“ ohne Ländercode: Betrag mit „$“ davor und zwei
+  /// Nachkommastellen, dazu ein englisches Monatsdatum („October 15, 2026“),
+  /// eine US-Zeitzone oder englisches „Tax“/„Total“.
+  static bool usSignals(List<String> rows) {
+    final text = rows.join('\n');
+    if (!RegExp(r'(?<![A-Z])\$\s?\d[\d,]*\.\d{2}\b').hasMatch(text)) {
+      return false;
+    }
+    return RegExp(
+      r'\b(january|february|march|april|may|june|july|august|september|'
+      r'october|november|december|jan|feb|mar|apr|jun|jul|aug|sep|sept|oct|'
+      r'nov|dec)\.? \d{1,2}, \d{4}\b|\b[PMCE][SD]T\b|^\s*(tax|total|subtotal)\b',
+      caseSensitive: false,
+      multiLine: true,
+    ).hasMatch(text);
+  }
+
   Detected<String> _currency(List<String> rows) {
     final counts = <String, int>{};
     var dollar = false;
@@ -771,6 +817,11 @@ class ReceiptTextParser {
       // „$“ allein ist mehrdeutig (USD, TWD, HKD, CAD, AUD …), „kr“ ebenso
       // (DKK, SEK, NOK): nur schwach vermuten, damit der Betrag weder als
       // Euro noch ungeprüft als Fremdwährung vorbelegt wird.
+      // Ausnahme (Gerätetest 2026-10-15, Google-Beleg): „$25.00“ direkt vor
+      // dem Betrag zusammen mit US-Merkmalen (englisches Monatsdatum, US-
+      // Zeitzone, „Tax“/„Total“) ist ein starker Hinweis auf USD. Vorbelegt
+      // als Vorschlag (Konfidenz 60), die Nutzerin bestätigt.
+      if (dollar && usSignals(rows)) return const Detected('USD', 60);
       if (dollar) return const Detected('USD', 30);
       if (kronor) return const Detected('DKK', 30);
       return const Detected('EUR', 40);

@@ -1,6 +1,6 @@
 # Benutzerhandbuch – JeNi bucht
 
-**Für App-Version 0.13.1** · Stand 2026-10-15
+**Für App-Version 0.13.2** · Stand 2026-10-15
 
 Dieses Handbuch beschreibt die App aus Nutzersicht. Es wird bei jeder Änderung,
 die du in der App siehst, mitgeführt – siehe [`CLAUDE.md`](../CLAUDE.md).
@@ -269,7 +269,17 @@ Lieferant, Rechnungsnummer und UID des Ausstellers**. Solche Felder sind mit
   nicht.
 - **Währung unklar**: steht auf dem Beleg nur „$“ oder „kr“, trägt die App den
   Betrag nicht ein, sondern nennt ihn im Hinweis. Wähle „Beleg in fremder
-  Währung“ und trag Währung und Betrag selbst ein.
+  Währung“ und trag Währung und Betrag selbst ein. Sieht der Beleg klar
+  amerikanisch aus (z. B. „$25.00“, „Total“, „October 15, 2026“), schlägt die
+  App **USD** vor und füllt „Beleg in fremder Währung“ schon aus – prüfen,
+  **Kurs abrufen**, fertig.
+- **Lieferant**: neben der ersten Zeile erkennt die App bekannte Anbieter wie
+  Google, Apple, Amazon, Microsoft oder Adobe überall auf dem Beleg.
+- **Ohne Steuerausweis** (z. B. Kartenbeleg) stellt die App 0 % ein. Den
+  Hinweis „kein Vorsteuerabzug“ siehst du nur, wenn du Vorsteuer abziehen
+  darfst – als Kleinunternehmer nicht.
+- Steht nur der **Steuerbetrag** auf dem Beleg (z. B. „inkl. MwSt. € 16,50“
+  bei € 99,00), rechnet die App den Satz daraus (hier 20 %).
 - Bist du **Kleinunternehmer**, übernimmt die App den erkannten Steuersatz und
   erinnert dich, dass die Vorsteuer für dich nicht abziehbar ist.
 - Das Foto selbst wird nie verändert. Im Änderungsprotokoll steht, was erkannt

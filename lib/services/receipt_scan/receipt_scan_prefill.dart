@@ -37,6 +37,9 @@ class ReceiptScanPrefill {
     required BookingDirection direction,
     required TaxProfile profile,
     ReceiptClassification? classification,
+    // false für Kleinunternehmer: kein Vorsteuerabzug, also auch kein
+    // Hinweis „kein Vorsteuerabzug“ (Gerätetest 2026-10-15, Rauschen).
+    bool inputVatDeductible = true,
     DateTime? today,
   }) {
     bool ok(Detected<Object?>? d) =>
@@ -110,9 +113,14 @@ class ReceiptScanPrefill {
       );
     } else if (dominant != null) {
       permille = dominant;
-    } else if (expense && ok(r.gross) && profile.rateByPermille(0) != null) {
+    } else if (expense &&
+        inputVatDeductible &&
+        ok(r.gross) &&
+        profile.rateByPermille(0) != null) {
       // Kein Steuersatz auf dem Beleg (z. B. nur Kartenbeleg): keinen Satz
       // erfinden; „ohne Vorsteuer“ (0 %) statt des Standardsatzes vorbelegen.
+      // Für Kleinunternehmer (kein Vorsteuerabzug) zählt nur das Brutto:
+      // kein 0 % erzwingen, das Formular bleibt beim Standardsatz.
       permille = 0;
       hints.add(profile.noVatShownHint);
     }
@@ -158,6 +166,9 @@ class ReceiptScanPrefill {
           '„Weiteren Steuersatz hinzufügen“.',
         );
       }
+    }
+    if (foreign && r.currency.confidence < 90) {
+      hints.add('Vorschlag: Währung ${r.currency.value} – bitte prüfen.');
     }
     if (foreign && ok(r.gross)) {
       hints.add(

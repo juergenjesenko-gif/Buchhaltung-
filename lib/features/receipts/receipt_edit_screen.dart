@@ -370,6 +370,7 @@ class _ReceiptEditScreenState extends State<ReceiptEditScreen> {
         result,
         direction: _direction,
         profile: tax,
+        inputVatDeductible: state.inputVatDeductible,
         classification: ReceiptClassifier.classify(document.rows, result),
       );
       // Codes auf demselben Foto (L-27.1 bis L-27.3): Kassen-QR hat Vorrang

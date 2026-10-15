@@ -29,11 +29,36 @@ gebaut, und was war darin geprüft?*
 
 ## Unveröffentlicht
 
-Änderungen seit 0.13.1+19, die noch in keinem Build stecken. Wandern beim
+Änderungen seit 0.13.2+20, die noch in keinem Build stecken. Wandern beim
 nächsten Versionssprung in den neuen Eintrag.
 
 | Art | Änderung | Bezug | Commit |
 |---|---|---|---|
+
+---
+
+## 0.13.2+20 — 2026-10-15
+
+| Feld | Wert |
+|---|---|
+| Art | Testbuild (ungezippte arm64-APK `JeNi-bucht-0.13.2-build-<Nr>.apk`, fester Testschlüssel); Fehlerbehebung Gerätetest 0.13.1 (Google-Beleg) |
+| Commit | siehe Git-Log, Commit „0.13.2+20“ |
+| Branch | `claude/agile-accounting-app-mobile-wa5j3h` |
+| Dokumentstände | Lastenheft 1.57, Spezifikation 1.55, Benutzerhandbuch für 0.13.2, DESIGN_SPEC 1.2 |
+| Datenbankschema | 18 |
+| Prüfung | `flutter analyze` ohne Befund, alle Tests grün (neu `receipt_google_test.dart`, `receipt_apple_test.dart`), CI-Lauf zum Commit |
+| Steuerliche Kennwerte | unverändert |
+| Offene reale Prüfpunkte | wie 0.13.1+19 |
+| Bekannte Grenzen | Spezifikation Abschnitt 11, unverändert |
+
+**Änderungen seit 0.13.1+19**
+
+| Art | Änderung | Bezug | Commit |
+|---|---|---|---|
+| Behoben | „$“-Beleg mit US-Merkmalen (Google-Gebühr $25.00): USD als Vorschlag, Fremdwährung mit Betrag vorbelegt statt Hinweis „Währung unklar“ | FA-2.28, FA-2.21 | dieser Build |
+| Neu | Bekannte Anbieter (Google, Apple, Amazon, Microsoft, Meta, Adobe …) als Lieferant | FA-2.28 | dieser Build |
+| Behoben | Steuersatz aus Steuerbetrag ohne Prozent („inkl. MwSt. € 16,50“, „USt“, „VAT“, „Tax“): Apple-Beleg 99,00 → 20 % statt 0 % | FA-2.28 | dieser Build |
+| Behoben | Hinweis „kein Vorsteuerabzug“ bei Beleg ohne Steuerausweis nicht mehr für Kleinunternehmer | FA-2.28 | dieser Build |
 
 ---
 
