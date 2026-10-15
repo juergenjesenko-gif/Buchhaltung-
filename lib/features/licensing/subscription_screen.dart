@@ -239,8 +239,8 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
           ),
           if (pro && offer != null && !license.record.everSubscribed)
             Text(
-              'Erst ${LicensePolicy.trialDays} Tage kostenlos, danach '
-              '${offer.price} pro $_per.',
+              '${LicensePolicy.trialDays} Tage kostenlos, danach '
+              '${offer.price} pro $_per, jederzeit vorher kündbar.',
             ),
           const SizedBox(height: 8),
           for (final f in features)

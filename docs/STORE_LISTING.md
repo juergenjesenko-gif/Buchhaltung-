@@ -75,7 +75,8 @@ Stripe und E-Rechnungen, PDF und Mahnungen mit einem Tipp senden, Logo auf
 Rechnungen, Wechselkurs abrufen.
 
 14 TAGE KOSTENLOS TESTEN
-Alle Funktionen 14 Tage kostenlos ausprobieren. Danach Abo Basis 14,90 € oder
+Pro 14 Tage kostenlos, danach 24,90 € pro Monat, jederzeit vorher kündbar
+oder auf Basis wechselbar. Abo Basis 14,90 € oder
 Pro 24,90 € im Monat, Jahresabo mit 20 % Rabatt; Endpreise inkl. USt. Der
 Test startet im Store und geht nach 14 Tagen in das Abo über, wenn du nicht
 vorher in den Store-Einstellungen kündigst. Ohne Abo bleiben deine Daten auf

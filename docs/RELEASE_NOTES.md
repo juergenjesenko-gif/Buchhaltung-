@@ -34,7 +34,8 @@ nächsten Versionssprung in den neuen Eintrag.
 
 | Art | Änderung | Bezug | Commit |
 |---|---|---|---|
-| Geändert | Pro-Umfang: Import (Plattformen, E-Rechnung auslesen), PDF senden (Rechnung, Storno), Mahnung senden, Logo, Kurs abrufen nur Pro, Finanzamt-Übermittlung vorab Pro; ohne Pro PDF speichern/drucken über den Systemdialog | O-34, FA-13.2, FA-13.11 | folgt |
+| Geändert | Pro-Umfang: Import (Plattformen, E-Rechnung auslesen), PDF senden (Rechnung, Storno), Mahnung senden, Logo, Kurs abrufen nur Pro, Finanzamt-Übermittlung vorab Pro; ohne Pro PDF speichern/drucken über den Systemdialog | O-34, FA-13.2, FA-13.11 | `f3ae91c` |
+| Geändert | Abo-Seite: „14 Tage kostenlos, danach ‹Preis› pro ‹Zeitraum›, jederzeit vorher kündbar“ | O-35, FA-13.5 | folgt |
 
 ---
 
