@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 
 import '../../app_state.dart';
+import '../../services/licensing/license_policy.dart';
+import '../licensing/feature_gate.dart';
 import '../../core/formatting.dart';
 import '../../domain/customer.dart';
 import '../../domain/invoice.dart';
@@ -259,7 +261,7 @@ class _InvoiceListScreenState extends State<InvoiceListScreen> {
         SnackBar(
           content: Text('Stornorechnung ${storno.number} erstellt.'),
           action: SnackBarAction(
-            label: 'PDF senden',
+            label: proLabel(context, Feature.pdfSending, 'PDF senden'),
             onPressed: () => _sharePdf(storno),
           ),
         ),
@@ -844,7 +846,9 @@ class _InvoiceTile extends StatelessWidget {
                     ),
                     onPressed: onShare,
                     icon: const Icon(Icons.picture_as_pdf_outlined),
-                    label: const Text('PDF senden'),
+                    label: Text(
+                      proLabel(context, Feature.pdfSending, 'PDF senden'),
+                    ),
                   ),
                 ],
               ),

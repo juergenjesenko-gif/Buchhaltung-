@@ -692,7 +692,7 @@ class _InvoiceEditScreenState extends State<InvoiceEditScreen> {
               ),
               primary: PrimaryActionBar.filled(
                 key: const Key('invoice-share'),
-                label: 'PDF senden',
+                label: proLabel(context, Feature.pdfSending, 'PDF senden'),
                 icon: Icons.send_outlined,
                 onPressed: () =>
                     shareInvoicePdf(context, _issued ?? widget.existing!),

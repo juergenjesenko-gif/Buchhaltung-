@@ -11,7 +11,8 @@ import '../../services/dunning_pdf.dart';
 import '../../services/dunning_service.dart';
 import '../../services/invoice_seller.dart';
 import '../../services/invoice_texts.dart';
-import '../../services/share_service.dart';
+import '../../services/licensing/license_policy.dart';
+import '../licensing/feature_gate.dart';
 import '../../theme.dart';
 import '../../widgets/common.dart';
 import '../../widgets/primary_action_bar.dart';
@@ -133,7 +134,10 @@ class _DunningSheetState extends State<_DunningSheet> {
         RegExp(r'[^A-Za-z0-9\-_]'),
         '-',
       );
-      await ShareService.sharePdf(
+      if (!mounted) return;
+      await sendPdfGated(
+        context,
+        Feature.dunningSending,
         fileName: '${notice.title.replaceAll(' ', '_')}_$safe.pdf',
         bytes: bytes,
         subject: '${notice.title} zu Rechnung ${widget.invoice.number}',
@@ -342,7 +346,11 @@ class _DunningSheetState extends State<_DunningSheet> {
             PrimaryActionBar(
               primary: PrimaryActionBar.filled(
                 key: const Key('dunningCreate'),
-                label: '${notice.title} erstellen und senden',
+                label: proLabel(
+                  context,
+                  Feature.dunningSending,
+                  '${notice.title} erstellen und senden',
+                ),
                 icon: Icons.send_outlined,
                 busy: _busy,
                 onPressed: _create,

@@ -25,6 +25,37 @@ void main() {
       expect(Entitlement.none.allows(Feature.newBookings), isFalse);
     });
 
+    test('Pro-Funktionen (Entscheidung 2026-10-15): nur Pro', () {
+      const proOnly = [
+        Feature.receiptRecognition,
+        Feature.dataImport,
+        Feature.taxOfficeSubmission,
+        Feature.pdfSending,
+        Feature.dunningSending,
+        Feature.invoiceLogo,
+        Feature.exchangeRateFetch,
+      ];
+      for (final feature in proOnly) {
+        expect(Entitlement.pro.allows(feature), isTrue, reason: '$feature');
+        for (final e in [
+          Entitlement.basis,
+          Entitlement.readOnly,
+          Entitlement.none,
+        ]) {
+          expect(e.allows(feature), isFalse, reason: '$e $feature');
+        }
+      }
+      // Jede Funktion ist entweder Pro oder ab Basis – keine vergessen.
+      expect(Feature.values.toSet(), {...proOnly, Feature.newBookings});
+      expect(Entitlement.pro.allows(Feature.newBookings), isTrue);
+    });
+
+    test('Jede gesperrte Funktion hat eine Begründung', () {
+      for (final feature in Feature.values) {
+        expect(featureReason(feature), isNotEmpty);
+      }
+    });
+
     test('Offline gilt der bestätigte Stand 45 Tage, danach nur lesen', () {
       final record = LicenseRecord(
         tier: Tier.basis,

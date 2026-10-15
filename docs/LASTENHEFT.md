@@ -1,6 +1,6 @@
 # Lastenheft – JeNi bucht, Buchhaltungsapp für Österreich und Deutschland
 
-**Dokumentversion:** 1.58 · **Stand:** 2026-10-15 · **Status:** Entwurf zur Abstimmung
+**Dokumentversion:** 1.59 · **Stand:** 2026-10-15 · **Status:** Entwurf zur Abstimmung
 **Auftraggeber:** Jürgen Jesenko (privates Vorhaben) · **Umsetzung:** Claude Code
 
 > Ein Lastenheft beschreibt, **was** das Produkt leisten soll und **warum** — nicht,
@@ -346,9 +346,9 @@ ordentliche Buchhaltung braucht; Pro ist Komfort und Wachstum.
 
 | Basis | Pro (zusätzlich) |
 |---|---|
-| Rechnungen, Angebote, Zahlungserinnerungen, Gutschriften, Rücksendescheine | Belegerkennung per Kamera (L-2) |
+| Rechnungen, Angebote, Zahlungserinnerungen erstellen, Gutschriften, Rücksendescheine; PDF speichern oder drucken | Belegerkennung per Kamera (L-2); PDF und Mahnungen mit einem Tipp senden; Logo |
 | Kunden und Artikel | E-Rechnung **ausstellen** (L-4) |
-| **E-Rechnung empfangen und lesen** (L-4.3) | Kontoauszug-Import mit Zuordnung (L-18) |
+| **E-Rechnung empfangen** (Datei am Beleg, L-4.3) | E-Rechnung auslesen; Kontoauszug-Import (L-18); Plattformimport (L-28); „Kurs abrufen“ |
 | Belege fotografieren, Kassabuch | UVA-Übermittlung FinanzOnline/ELSTER (L-6.5) |
 | Management-Übersicht, Kleinunternehmer-Ampel, OSS-Warnung | Einkommensteuer-Vorbereitung, Saldenliste, rollender Jahresabschluss |
 | Export an die Steuerberatung | Shop-Anbindung (L-12), Marketing-Modul (L-14) |
@@ -1317,7 +1317,7 @@ Zu entscheiden, bevor die betroffene Anforderung umgesetzt wird:
 | ~~O-30~~ | **Entschieden am 2026-10-15:** E-Mail und Telefon werden **nur auf Form geprüft**, nicht verifiziert (kein Server, kein SMS-Dienst, passt zu O-29); die Nutzerin kann die Angaben jederzeit ändern. Umgesetzt in 0.12.0 (Spezifikation FA-1.4f) | erledigt |
 | ~~O-31~~ | **Anbieterexklusive Verschlüsselung zur Kundenbindung?** Frage des Auftraggebers vom 2026-10-12, von den drei Prüfinstanzen verneint: Aufbewahrungs- und Prüfpflichten (§ 147 AO, § 131/132 BAO) nach Kündigung oder Wegfall des Anbieters nicht erfüllbar, AGB- und UWG-Risiko, technisch ohne Server wirkungslos. Bindung über Funktionen, Komfort und Importe; Produktschutz über Marke, Lizenzprüfung, Obfuskierung (L-7.12 bis L-7.16) | Empfehlung abgegeben |
 | O-32 | **Anbieter-Server für Plattform-Connectoren** (Stufe B2: echte Schnittstellen zu Amazon, Booking & Co. statt Teilen/PDF/Link): zurückgestellt am 2026-10-14, mit der KI-Server-Frage (L-26.6, L-21) gemeinsam zu entscheiden | Stufe B2 |
-| O-34 | **Plattformimport (L-28) Basis oder Pro?** Der Tarifschnitt nennt „Shop-Anbindung (L-12)“ als Pro; der Import von Plattformexporten (L-28, Ersatz für L-12 ohne Server) steht dort nicht. Bis zur Entscheidung **Basis** (keine Sperre einer Funktion, die schon Testerinnen nutzen). Als Pro wäre es eine Zeile in `Entitlement.allows` | vor Store-Start |
+| ~~O-34~~ | **Entschieden am 2026-10-15:** Pro umfasst mindestens Belegerkennung, Import aus Fremdplattformen (Amazon, PayPal, Shopify, Stripe) und das Auslesen von E-Rechnungen (ZUGFeRD, XRechnung, ebInterface), direkte Übermittlung an das Finanzamt, PDF senden von Rechnungen und Stornorechnungen, Logo auf Angeboten und Rechnungen, Senden von Zahlungserinnerungen und Mahnungen, „Kurs abrufen“. Ansehen, PDF speichern/drucken, Export, Sicherung bleiben in jeder Stufe frei (L-10.4). Umgesetzt: Spezifikation FA-13.2, FA-13.11 | erledigt |
 | O-35 | **Test auch auf Basis?** Heute nur Pro mit 14 Tagen Test (L-22.3). Wer nach dem Test nur Basis will, wechselt im Store; ein eigener Basis-Test würde einen zweiten Test ermöglichen. Empfehlung Prüfinstanzen: nur Pro, wie entschieden | vor Store-Start |
 | O-33 | **Bundle-ID für den Store festlegen** (Vorschlag `at.jenibarb.jenibucht`). Heute `at.jesenko.buchhaltung`; ein Wechsel erzwingt auf Testgeräten eine Neuinstallation (Daten vorher sichern) und ist nach der ersten Store-Einreichung nicht mehr möglich. **Entschieden 2026-10-15:** Wechsel auf `at.jenibarb.jenibucht` unmittelbar vor der ersten Store-Einreichung (bis dahin alte Kennung, damit Testgeräte ohne Neuinstallation aktualisieren) | vor der ersten Store-Einreichung |
 | O-20 | Welche Vorsoftware-Formate sind beim Import vorrangig zu unterstützen? Richtet sich nach dem, womit die ersten Nutzer tatsächlich kommen | Stufe B |
@@ -1343,6 +1343,7 @@ Historie stehen. Die Einzelheiten stehen an der genannten Stelle.
 | 2026-10-14 | Termin-Box nur als Anzeige, ohne Benachrichtigungen | 5.25 |
 | 2026-10-14 | Hilfe Stufe 1 offline; KI-Hilfe erst nach Server-Entscheidung | 5.26, O-32 |
 | 2026-10-14 | Mahnkosten 10 € je Mahnung ab der 1. Mahnung | L-3.27 |
+| 2026-10-15 | **Pro-Umfang:** Belegerkennung, Import (Plattformen, E-Rechnung auslesen), Finanzamt-Übermittlung, PDF senden (Rechnung, Storno), Logo, Mahnungen senden, Kurs abrufen; Ansehen, Speichern/Drucken, Export, Sicherung immer frei | O-34, 5.10 |
 | 2026-10-15 | **Produkt- und App-Name „JeNi bucht“**; Bundle-ID bleibt vorerst | O-2, O-25 |
 | 2026-10-15 | **Bundle-ID `at.jenibarb.jenibucht`**, Wechsel vor der ersten Store-Einreichung | O-33 |
 | 2026-10-15 | Haftpflicht auf den Launch verschoben | O-26 |
@@ -1359,6 +1360,7 @@ Historie stehen. Die Einzelheiten stehen an der genannten Stelle.
 
 | Version | Datum | Änderung |
 |---|---|---|
+| 1.59 | 2026-10-15 | Entscheidung der Auftraggeberin zum Pro-Umfang (O-34 erledigt, 14a); Tarifschnitt 5.10 angepasst: E-Rechnung auslesen, Plattformimport, PDF/Mahnung senden, Logo, Kurs abrufen in Pro. |
 | 1.58 | 2026-10-15 | Umsetzungsstand 0.14.0 (10a): Lizenz und Abo (L-10.1 bis L-10.5, L-22.1 bis L-22.3, L-22.5 bis L-22.8; L-22.4 teilweise). Datenflusstabelle 5.19: Abo-Kauf und Abo-Abfrage als vorhanden, mit Inhalt. Neue offene Punkte O-34 (Plattformimport Basis oder Pro), O-35 (Test auch auf Basis). |
 | 1.57 | 2026-10-15 | Umsetzungsstand 0.13.0 (10a): L-3.7, L-3.18 (vollständige Erstattung), L-22.18, L-22.21, L-22.22. Keine neue Datenübertragung: Druckblatt und Stornorechnung verlassen das Gerät nur über das Teilen der Nutzerin, wie Rechnungs-PDF und Sicherung (5.19 unverändert). |
 | 1.56 | 2026-10-15 | O-33 entschieden: Bundle-ID `at.jenibarb.jenibucht` vor der ersten Store-Einreichung. |

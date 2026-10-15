@@ -232,6 +232,8 @@ class _ReceiptEditScreenState extends State<ReceiptEditScreen> {
       showSnack(context, 'Bitte zuerst den Währungscode eingeben, z. B. USD.');
       return;
     }
+    if (!await ensureFeature(context, Feature.exchangeRateFetch)) return;
+    if (!mounted) return;
     setState(() => _fetchingRate = true);
     try {
       final db = await AppDatabase.instance.database;
@@ -603,6 +605,7 @@ class _ReceiptEditScreenState extends State<ReceiptEditScreen> {
     final state = AppScope.read(context);
     final tax = state.profile?.taxProfile ?? TaxProfile.austria;
     ReceiptScanPrefill? invoicePrefill;
+    var eInvoiceLocked = false;
     final failed = <String>[];
     for (final file in files) {
       if (sharedKindOf(file.path) == SharedKind.image) {
@@ -629,7 +632,10 @@ class _ReceiptEditScreenState extends State<ReceiptEditScreen> {
           _pages.add(relative);
         }
         _textLayer ??= doc.textLayer;
-        if (doc.eInvoice != null) {
+        // E-Rechnung auslesen nur Pro (FA-13.2); die Datei bleibt angehängt.
+        if (doc.eInvoice != null && !state.allows(Feature.dataImport)) {
+          eInvoiceLocked = true;
+        } else if (doc.eInvoice != null) {
           invoicePrefill ??= ReceiptCodePrefill.fromEInvoice(
             doc.eInvoice!,
             profile: tax,
@@ -644,6 +650,9 @@ class _ReceiptEditScreenState extends State<ReceiptEditScreen> {
     setState(() {});
     await _resolveFiles();
     if (!mounted) return;
+    if (eInvoiceLocked) {
+      showSnack(context, featureReason(Feature.dataImport));
+    }
     if (failed.isNotEmpty) {
       showSnack(
         context,
@@ -1232,7 +1241,9 @@ class _ReceiptEditScreenState extends State<ReceiptEditScreen> {
                         child: CircularProgressIndicator(strokeWidth: 2),
                       )
                     : const Icon(Icons.currency_exchange),
-                label: const Text('Kurs abrufen'),
+                label: Text(
+                  proLabel(context, Feature.exchangeRateFetch, 'Kurs abrufen'),
+                ),
               ),
             ],
           ),

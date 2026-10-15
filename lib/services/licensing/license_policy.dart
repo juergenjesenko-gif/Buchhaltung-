@@ -25,7 +25,13 @@ enum Entitlement {
   /// Die einzige Stelle, die entscheidet, was ein Anspruch erlaubt.
   bool allows(Feature feature) => switch (feature) {
     Feature.newBookings => this == basis || this == pro,
-    Feature.receiptRecognition => this == pro,
+    Feature.receiptRecognition ||
+    Feature.dataImport ||
+    Feature.taxOfficeSubmission ||
+    Feature.pdfSending ||
+    Feature.dunningSending ||
+    Feature.invoiceLogo ||
+    Feature.exchangeRateFetch => this == pro,
   };
 
   String get label => switch (this) {
@@ -45,6 +51,32 @@ enum Feature {
 
   /// Belegerkennung per Kamera (L-2.4, nur Pro).
   receiptRecognition,
+
+  /// Import aus Fremdplattformen (Amazon, PayPal, Shopify, Stripe, L-28) und
+  /// Auslesen von E-Rechnungen (ZUGFeRD, XRechnung, ebInterface) in einen
+  /// Beleg (nur Pro, Entscheidung 2026-10-15, O-34). Die Datei selbst wird
+  /// in jedem Abo als Beleganhang gespeichert.
+  dataImport,
+
+  /// Direkte Übermittlung an das Finanzamt (FinanzOnline, ELSTER, UVA;
+  /// L-6.5, nur Pro). Noch nicht gebaut; der Wert legt den Tarif fest.
+  taxOfficeSubmission,
+
+  /// Rechnung und Stornorechnung mit einem Tipp als PDF senden (nur Pro).
+  /// Ohne Pro bleibt „PDF speichern oder drucken“ über den Systemdialog
+  /// (L-10.4: eine Rechnung muss die Kundin immer erreichen können).
+  pdfSending,
+
+  /// Zahlungserinnerung und Mahnung als PDF mit Text senden (nur Pro).
+  /// Erstellen und speichern geht ab Basis.
+  dunningSending,
+
+  /// Firmenlogo auf Angeboten und Rechnungen hochladen (L-1.7, nur Pro).
+  invoiceLogo,
+
+  /// „Kurs abrufen“ bei der EZB (L-19.29, nur Pro); Kurs eintippen geht
+  /// in jedem Abo.
+  exchangeRateFetch,
 }
 
 /// Ein Store-Produkt. Die IDs sind in Google Play Console und App Store

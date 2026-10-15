@@ -67,6 +67,13 @@ Analyse. Daten verlassen das Telefon nur, wenn du selbst teilst, sicherst, eine
 UID-Nummer prüfen lässt, einen Wechselkurs abrufst oder eine Rechnung über
 einen QR-Link lädst. App-Sperre mit PIN oder Fingerabdruck.
 
+BASIS UND PRO
+Basis: Belege, Rechnungen, Storno, Mahnungen erstellen, Kassabuch, Kunden,
+Übersicht, Kleinunternehmer-Ampel, Export, Sicherung, PDF speichern und drucken.
+Pro zusätzlich: Belegerkennung per Kamera, Import aus Amazon, PayPal, Shopify,
+Stripe und E-Rechnungen, PDF und Mahnungen mit einem Tipp senden, Logo auf
+Rechnungen, Wechselkurs abrufen.
+
 14 TAGE KOSTENLOS TESTEN
 Alle Funktionen 14 Tage kostenlos ausprobieren. Danach Abo Basis 14,90 € oder
 Pro 24,90 € im Monat, Jahresabo mit 20 % Rabatt; Endpreise inkl. USt. Der

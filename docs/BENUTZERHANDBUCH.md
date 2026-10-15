@@ -1025,9 +1025,21 @@ Store-Konto. Du findest alles unter **Einstellungen → Abo**.
 - **Basis** – alles, was eine ordentliche Buchhaltung braucht: Belege,
   Rechnungen, Kassabuch, Kunden, Übersicht, Kleinunternehmer-Ampel, Export,
   Sicherung.
-- **Pro** – zusätzlich die **Belegerkennung**: Betrag, Datum und Händler
-  kommen aus dem Foto. Ohne Pro tippst du sie selbst ein; beim Beleg steht
-  dann **Automatisch auslesen (Pro)**.
+- **Pro** – zusätzlich:
+  - **Belegerkennung**: Betrag, Datum und Händler kommen aus dem Foto. Ohne
+    Pro tippst du sie selbst ein; beim Beleg steht **Automatisch auslesen (Pro)**.
+  - **Import** aus Amazon, PayPal, Shopify, Stripe und das Auslesen von
+    E-Rechnungen (ZUGFeRD, XRechnung, ebInterface). Ohne Pro bleibt die
+    E-Rechnung als Datei am Beleg.
+  - **PDF senden** mit einem Tipp: Rechnung, Stornorechnung,
+    Zahlungserinnerung und Mahnung mit Betreff und Text.
+  - **Logo** auf Rechnungen und Angeboten.
+  - **Kurs abrufen** bei Fremdwährung (eintippen geht immer).
+  - Später: direkte Übermittlung ans Finanzamt (UVA).
+- Knöpfe mit **(Pro)** öffnen ohne Pro die Abo-Seite. Bei **PDF senden**
+  kommt danach trotzdem das Teilen-Blatt: Dort kannst du das PDF
+  **speichern oder drucken** und selbst an die Kundin schicken. So erreicht
+  jede Rechnung und Stornorechnung auch mit Basis ihre Empfängerin.
 - **14 Tage kostenlos testen:** Beim ersten Abo kannst du Pro 14 Tage gratis
   nutzen. Der Test startet im Store und **geht danach in das Abo über**, wenn
   du nicht vorher kündigst. Drei Tage vor dem Ende erinnert dich die Übersicht.

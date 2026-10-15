@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../../services/licensing/license_policy.dart';
+import '../licensing/feature_gate.dart';
 import 'dart:async';
 
 import '../../domain/receipt.dart';
@@ -102,6 +104,9 @@ class _HomeShellState extends State<HomeShell> {
         );
         continue;
       }
+      // Plattformimport nur Pro (FA-13.2, O-34).
+      if (!await ensureFeature(context, Feature.dataImport)) continue;
+      if (!mounted) return;
       await Navigator.of(context).push(
         MaterialPageRoute<bool>(
           builder: (_) => PlatformImportScreen(file: parsed),

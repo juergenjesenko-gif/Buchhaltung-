@@ -8,7 +8,8 @@ import '../../services/invoice_logo.dart';
 import '../../services/invoice_pdf.dart';
 import '../../services/invoice_seller.dart';
 import '../../services/logo_store.dart';
-import '../../services/share_service.dart';
+import '../../services/licensing/license_policy.dart';
+import '../licensing/feature_gate.dart';
 import '../../widgets/common.dart';
 
 /// Erzeugt das Rechnungs-PDF und öffnet den Teilen-Dialog (FA-5.10).
@@ -38,7 +39,10 @@ Future<void> shareInvoicePdf(BuildContext context, Invoice invoice) async {
       RegExp(r'[^A-Za-z0-9\-_]'),
       '-',
     );
-    await ShareService.sharePdf(
+    if (!context.mounted) return;
+    await sendPdfGated(
+      context,
+      Feature.pdfSending,
       fileName: invoice.isCancellation
           ? 'Stornorechnung_$safeNumber.pdf'
           : 'Rechnung_$safeNumber.pdf',

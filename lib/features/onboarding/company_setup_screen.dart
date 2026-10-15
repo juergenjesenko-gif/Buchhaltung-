@@ -8,7 +8,9 @@ import '../../services/invoice_texts.dart';
 import '../invoices/invoice_edit_screen.dart' show parsePermille, percentText;
 import 'package:image_picker/image_picker.dart';
 
+import '../../services/licensing/license_policy.dart';
 import '../../services/logo_store.dart';
+import '../licensing/feature_gate.dart';
 
 import '../../services/contact_format.dart';
 import '../../services/vat_id/vat_id_format.dart';
@@ -361,6 +363,8 @@ class _CompanySetupScreenState extends State<CompanySetupScreen> {
   /// Wählt ein Logo aus der Fotobibliothek. Verkleinert wird über dieselbe
   /// Bildauswahl wie bei Belegen; die Datei ist neu und überschreibt nichts.
   Future<void> _pickLogo() async {
+    // Logo nur Pro (FA-13.2); Entfernen geht immer.
+    if (!await ensureFeature(context, Feature.invoiceLogo)) return;
     try {
       final picked = await ImagePicker().pickImage(
         source: ImageSource.gallery,
@@ -874,9 +878,13 @@ class _CompanySetupScreenState extends State<CompanySetupScreen> {
                                 onPressed: _pickLogo,
                                 icon: const Icon(Icons.image_outlined),
                                 label: Text(
-                                  _logoPath == null
-                                      ? 'Logo wählen'
-                                      : 'Logo ändern',
+                                  proLabel(
+                                    context,
+                                    Feature.invoiceLogo,
+                                    _logoPath == null
+                                        ? 'Logo wählen'
+                                        : 'Logo ändern',
+                                  ),
                                 ),
                               ),
                               if (_logoPath != null)
