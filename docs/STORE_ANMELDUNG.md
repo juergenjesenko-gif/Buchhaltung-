@@ -35,7 +35,7 @@ mit 12 Testerinnen einplanen – die Beta mit der Zielgruppe (P-D27) deckt das o
 1. Gemeinsame Stammdaten unten prüfen (einmal, gilt für alle Formulare)
 2. ~~D-U-N-S-Nummer beantragen~~ erledigt: **301138760** (Apple-Mail 2026-10-15)
 3. Apple Developer Program als Einzelperson – erledigt 2026-10-15 (Bestellung W1795202513, 99 €)
-4. Google Play Console (nach Erhalt der D-U-N-S-Nummer)
+4. Google Play Console – Gebühr bezahlt 2026-10-15 (25 USD), Verifizierung läuft
 
 ## Gemeinsame Stammdaten
 
