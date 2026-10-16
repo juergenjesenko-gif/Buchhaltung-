@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import '../domain/money.dart';
+import 'dictation_button.dart';
 
 /// Karte mit Titel – das Grundelement aller Übersichtsseiten.
 class SectionCard extends StatelessWidget {
@@ -102,7 +103,7 @@ class LabeledValue extends StatelessWidget {
 
 /// Eingabefeld für Geldbeträge. Akzeptiert deutsche und englische Schreibweise
 /// und gibt `null` zurück, solange die Eingabe kein gültiger Betrag ist.
-class MoneyField extends StatelessWidget {
+class MoneyField extends StatefulWidget {
   const MoneyField({
     super.key,
     required this.controller,
@@ -110,6 +111,7 @@ class MoneyField extends StatelessWidget {
     this.onChanged,
     this.autofocus = false,
     this.validator,
+    this.dictation = true,
   });
 
   final TextEditingController controller;
@@ -118,21 +120,49 @@ class MoneyField extends StatelessWidget {
   final bool autofocus;
   final String? Function(String?)? validator;
 
+  /// Mikrofonknopf für gesprochene Beträge (FA-2.61), nur wenn die
+  /// Erkennung auf dem Gerät verfügbar ist.
+  final bool dictation;
+
+  @override
+  State<MoneyField> createState() => _MoneyFieldState();
+}
+
+class _MoneyFieldState extends State<MoneyField> {
+  String? _heard;
+
   @override
   Widget build(BuildContext context) {
     return TextFormField(
-      controller: controller,
-      autofocus: autofocus,
+      controller: widget.controller,
+      autofocus: widget.autofocus,
       keyboardType: const TextInputType.numberWithOptions(decimal: true),
       inputFormatters: [
         FilteringTextInputFormatter.allow(RegExp(r'[0-9.,\- ]')),
       ],
       textAlign: TextAlign.right,
-      decoration: InputDecoration(labelText: label, suffixText: '€'),
-      validator: validator,
-      onChanged: onChanged == null
+      decoration: InputDecoration(
+        labelText: widget.label,
+        suffixText: '€',
+        helperText: _heard,
+        // Ohne Mindestmaß: ist kein Diktat verfügbar, bleibt kein Leerraum.
+        suffixIconConstraints: const BoxConstraints(),
+        suffixIcon: widget.dictation
+            ? DictationButton(
+                controller: widget.controller,
+                amount: true,
+                onHeard: (text) => setState(() => _heard = text),
+                onAmount: (money) {
+                  setState(() => _heard = 'Gesprochen – bitte prüfen');
+                  widget.onChanged?.call(money);
+                },
+              )
+            : null,
+      ),
+      validator: widget.validator,
+      onChanged: widget.onChanged == null
           ? null
-          : (text) => onChanged!(Money.tryParse(text)),
+          : (text) => widget.onChanged!(Money.tryParse(text)),
     );
   }
 }

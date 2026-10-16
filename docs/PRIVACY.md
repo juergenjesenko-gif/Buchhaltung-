@@ -191,6 +191,7 @@ Datenschutzerklärung des jeweiligen Dienstes.
 | Kamera | Belege abfotografieren |
 | Fotobibliothek (lesen) | Bereits vorhandene Belegfotos hinzufügen |
 | Fotobibliothek (schreiben) | Eine erstellte Rechnung in der Fotobibliothek ablegen |
+| Mikrofon (Android, iOS) und Spracherkennung (iOS) | Nur wenn du auf das Mikrofon in einem Feld tippst: Diktat von Text und Beträgen. Die Sprache erkennt der Dienst deines Telefons **auf dem Gerät**; die App überträgt kein Audio und keinen Text. Gibt es auf deinem Telefon keine Erkennung auf dem Gerät, bietet die App das Diktat nicht an (das Diktat der Tastatur bleibt, dafür gelten die Bedingungen des Tastaturanbieters) |
 | Face ID / Biometrie | Nur bei eingeschalteter App-Sperre: Entsperren; die Auswertung erfolgt durch das System |
 
 Die App fragt jede Berechtigung erst dann ab, wenn du die zugehörige Funktion

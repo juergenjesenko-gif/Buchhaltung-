@@ -39,6 +39,10 @@
 	     erklären, wozu der Zugriff dient – "wird benötigt" reicht nicht. -->
 	<key>NSFaceIDUsageDescription</key>
 	<string>Face ID entsperrt die App-Sperre. Die Auswertung erfolgt durch das Gerät; die App erhält keine biometrischen Daten.</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>Damit du Beträge und Notizen diktieren kannst. Die Sprache wird nur auf deinem iPhone erkannt und nicht übertragen.</string>
+	<key>NSSpeechRecognitionUsageDescription</key>
+	<string>Damit aus deinem Diktat Text wird – ausschließlich auf deinem iPhone, ohne Übertragung an Apple oder andere.</string>
 	<key>NSCameraUsageDescription</key>
 	<string>Damit du Belege direkt abfotografieren kannst, statt sie abzutippen.</string>
 	<key>NSPhotoLibraryUsageDescription</key>

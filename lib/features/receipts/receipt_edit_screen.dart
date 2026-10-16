@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 
+import '../../widgets/dictation_button.dart';
 import '../../widgets/danger_zone.dart';
 import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
@@ -1400,6 +1401,9 @@ class _ReceiptEditScreenState extends State<ReceiptEditScreen> {
           maxLines: 5,
           textCapitalization: TextCapitalization.sentences,
           decoration: InputDecoration(
+            suffixIcon: DictationButton(controller: _commentController),
+            suffixIconConstraints: const BoxConstraints(),
+
             labelText: _isEditing ? 'Kommentar anhängen' : 'Kommentar',
             hintText: 'Tippen oder über das Mikrofon der Tastatur diktieren',
           ),
@@ -1696,6 +1700,11 @@ class _ReceiptEditScreenState extends State<ReceiptEditScreen> {
                       TextFormField(
                         controller: _descriptionController,
                         decoration: InputDecoration(
+                          suffixIcon: DictationButton(
+                            controller: _descriptionController,
+                          ),
+                          suffixIconConstraints: const BoxConstraints(),
+
                           labelText: 'Beschreibung',
                           hintText: 'z. B. Bürostuhl, Tankrechnung',
                           helperText: _checkHint('description'),
@@ -1771,7 +1780,12 @@ class _ReceiptEditScreenState extends State<ReceiptEditScreen> {
                           TextFormField(
                             key: const Key('entertainment-occasion'),
                             controller: _occasionController,
-                            decoration: const InputDecoration(
+                            decoration: InputDecoration(
+                              suffixIcon: DictationButton(
+                                controller: _occasionController,
+                              ),
+                              suffixIconConstraints: const BoxConstraints(),
+
                               labelText: 'Anlass (für das Finanzamt)',
                               hintText: 'z. B. Projektbesprechung',
                             ),
@@ -1782,7 +1796,12 @@ class _ReceiptEditScreenState extends State<ReceiptEditScreen> {
                           TextFormField(
                             key: const Key('entertainment-participants'),
                             controller: _participantsController,
-                            decoration: const InputDecoration(
+                            decoration: InputDecoration(
+                              suffixIcon: DictationButton(
+                                controller: _participantsController,
+                              ),
+                              suffixIconConstraints: const BoxConstraints(),
+
                               labelText: 'Teilnehmer',
                               hintText: 'z. B. Anna Huber (Firma X), ich',
                             ),
@@ -1812,7 +1831,13 @@ class _ReceiptEditScreenState extends State<ReceiptEditScreen> {
                       const SizedBox(height: 12),
                       TextFormField(
                         controller: _noteController,
-                        decoration: const InputDecoration(labelText: 'Notiz'),
+                        decoration: InputDecoration(
+                          suffixIcon: DictationButton(
+                            controller: _noteController,
+                          ),
+                          suffixIconConstraints: const BoxConstraints(),
+                          labelText: 'Notiz',
+                        ),
                         maxLines: 2,
                         textCapitalization: TextCapitalization.sentences,
                       ),

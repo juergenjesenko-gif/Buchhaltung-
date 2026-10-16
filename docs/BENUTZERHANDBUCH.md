@@ -1,6 +1,6 @@
 # Benutzerhandbuch – JeNi bucht
 
-**Für App-Version 0.21.1** · Stand 2026-10-16
+**Für App-Version 0.22.0** · Stand 2026-10-16
 
 Dieses Handbuch beschreibt die App aus Nutzersicht. Es wird bei jeder Änderung,
 die du in der App siehst, mitgeführt – siehe [`CLAUDE.md`](../CLAUDE.md).
@@ -209,6 +209,20 @@ Das ist die Funktion, die du täglich nutzt. Sie ist auf Geschwindigkeit gebaut.
    Rückseiten erfasst sind – ein eigenes Häkchen gibt es nicht. Der Knopf
    bleibt sichtbar, auch wenn die Tastatur offen ist. Ohne neue Fotos heißt er
    einfach **Beleg speichern** bzw. **Änderungen speichern**.
+
+### Diktieren statt tippen
+
+Neben **Beschreibung**, **Notiz**, **Kommentar**, **Anlass**, **Teilnehmer**
+und jedem **Betrag** sitzt ein Mikrofon. Antippen, sprechen, fertig – nach
+einer kurzen Pause oder mit einem zweiten Tipp hört die App auf. Der Text
+erscheint schon beim Sprechen. Beträge sagst du so, wie du sie sprichst:
+„zwölf Euro fünfzig“, „zwölf komma fünf null“, „eintausendzweihundert“ oder
+„fünfzig Cent“. Der Betrag steht danach als Vorschlag im Feld („Gesprochen –
+bitte prüfen“); passt er nicht, tipp ihn einfach über.
+
+Die Sprache erkennt dein Telefon **selbst** – nichts geht ins Internet, auch
+im Flugmodus. Kann dein Telefon das nicht (Android vor Version 12, manche
+ältere iPhones), fehlt das Mikrofon; das Mikrofon der Tastatur geht trotzdem.
 
 ### Beleg mit mehreren Steuersätzen
 
@@ -505,8 +519,10 @@ ein und dann auf **Anhängen** – auch bei einem stornierten Beleg.
 - Ein Kommentar lässt sich **nicht ändern und nicht löschen**. Hast du dich
   vertan, schreib einen neuen Kommentar mit der Korrektur. Das schützt dich:
   der gebuchte Beleg bleibt unverändert, und jede Ergänzung ist nachvollziehbar.
-- **Diktieren:** Tippe in das Kommentarfeld und dann auf das Mikrofon deiner
-  Tastatur. Die App selbst nimmt keine Sprache auf und sendet nichts. Je nach
+- **Diktieren:** Am einfachsten mit dem Mikrofon rechts im Kommentarfeld
+  (siehe *Diktieren statt tippen*): das erkennt dein Telefon selbst, ohne
+  Internet. Fehlt es, tippe in das Kommentarfeld und dann auf das Mikrofon
+  deiner Tastatur. Die App selbst sendet dabei nichts. Je nach
   Gerät und Einstellung schickt aber die Tastatur (z. B. Gboard oder die
   Apple-Tastatur) deine Sprache zur Erkennung an Google bzw. Apple. Wenn du das
   nicht möchtest, schalte in den Tastatureinstellungen die Offline-Erkennung
@@ -1371,6 +1387,15 @@ deiner Steuerberatung.
 ---
 
 ## 13. Wenn etwas nicht geht
+
+**„„…“ nicht als Betrag verstanden“** (unter einem Betragsfeld nach dem
+Diktat) — die App konnte aus dem Gesprochenen keinen Betrag lesen; das Feld
+bleibt unverändert. Noch einmal deutlich sprechen, z. B. „zwölf Euro
+fünfzig“, oder den Betrag eintippen.
+
+**„Ohne Mikrofon-Erlaubnis kein Diktat …“** — du hast den Zugriff aufs
+Mikrofon (iPhone: auch auf die Spracherkennung) abgelehnt. In den
+Einstellungen des Telefons bei *JeNi bucht* erlauben oder einfach tippen.
 
 **„Store nicht erreichbar. Dein Abo gilt weiter.“** — die App konnte Google
 Play bzw. den App Store nicht fragen, meist ohne Internet. Dein Abo gilt

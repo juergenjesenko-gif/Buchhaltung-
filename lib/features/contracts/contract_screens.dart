@@ -16,6 +16,7 @@ import '../../services/receipt_scan/document_import.dart';
 import '../../services/receipt_scan/document_scanner.dart';
 import '../../services/receipt_scan/platform_text_recognizer.dart';
 import '../../services/share_in/share_in_service.dart';
+import '../../widgets/dictation_button.dart';
 import '../../widgets/adaptive.dart';
 import '../../widgets/common.dart';
 import '../../widgets/danger_zone.dart';
@@ -767,6 +768,11 @@ class _ContractEditScreenState extends State<ContractEditScreen> {
                   controller: _comment,
                   minLines: 1,
                   maxLines: 4,
+                  decoration: InputDecoration(
+                    hintText: 'Tippen oder diktieren',
+                    suffixIcon: DictationButton(controller: _comment),
+                    suffixIconConstraints: const BoxConstraints(),
+                  ),
                 ),
               ),
               if (_c.id != null) ...[

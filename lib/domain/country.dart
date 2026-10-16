@@ -120,6 +120,14 @@ class TaxProfile {
 
   final Country country;
 
+  /// Sprache der Spracheingabe auf dem Gerät (FA-2.61): Österreich und
+  /// Deutschland unterscheiden sich bei Zahlwörtern kaum, aber bei
+  /// Ortsnamen und Wörtern wie „Jänner“.
+  String get speechLocale => switch (country) {
+    Country.at => 'de-AT',
+    Country.de => 'de-DE',
+  };
+
   /// Abzugsbeschränkung für Bewirtung (FA-2.60, Lastenheft 14a). P-S46.
   final EntertainmentRules entertainment;
 

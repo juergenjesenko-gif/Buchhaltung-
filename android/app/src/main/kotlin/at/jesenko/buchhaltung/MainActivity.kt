@@ -15,6 +15,7 @@ class MainActivity : FlutterFragmentActivity() {
     private var pdf: PdfChannel? = null
     private var shareOut: ShareOutChannel? = null
     private var scanner: DocumentScannerChannel? = null
+    private var dictation: DictationChannel? = null
 
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
@@ -24,6 +25,7 @@ class MainActivity : FlutterFragmentActivity() {
         pdf = PdfChannel(applicationContext, flutterEngine.dartExecutor.binaryMessenger)
         shareOut = ShareOutChannel(this, flutterEngine.dartExecutor.binaryMessenger)
         scanner = DocumentScannerChannel(this, flutterEngine.dartExecutor.binaryMessenger)
+        dictation = DictationChannel(this, flutterEngine.dartExecutor.binaryMessenger)
         shareIn = ShareInChannel(applicationContext, flutterEngine.dartExecutor.binaryMessenger)
         // Start über „Teilen“ (L-27.4): Intent des Starts auswerten.
         shareIn?.handle(intent)
@@ -47,6 +49,17 @@ class MainActivity : FlutterFragmentActivity() {
         super.onResume()
         // Dokumentenscanner: offene Antwort nie liegen lassen (Gerätetest 0.21.0).
         scanner?.onResume()
+    }
+
+    @Deprecated("Activity Result API wäre moderner; hier genügt der klassische Weg")
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray,
+    ) {
+        if (dictation?.onPermissionResult(requestCode, grantResults) == true) return
+        @Suppress("DEPRECATION")
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
     }
 
     override fun onNewIntent(intent: android.content.Intent) {

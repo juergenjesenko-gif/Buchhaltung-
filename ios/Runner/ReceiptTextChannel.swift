@@ -1,5 +1,7 @@
+import AVFoundation
 import Flutter
 import PDFKit
+import Speech
 import UIKit
 import Vision
 import VisionKit
@@ -299,5 +301,129 @@ class DocumentScannerChannel: NSObject, VNDocumentCameraViewControllerDelegate {
   ) {
     controller.dismiss(animated: true)
     finish(FlutterError(code: "unavailable", message: error.localizedDescription, details: nil))
+  }
+}
+
+/// Diktat **nur auf dem Gerät** (FA-2.61, Lastenheft 5.19): `SFSpeechRecognizer`
+/// mit `requiresOnDeviceRecognition = true`. Ohne Erkennung auf dem Gerät
+/// meldet `isAvailable` false, Dart zeigt keinen Mikrofonknopf; kein
+/// Rückfall auf Apples Server. Gegenstück zu DictationChannel.kt.
+class DictationChannel {
+  private let channel: FlutterMethodChannel
+  private let audio = AVAudioEngine()
+  private var request: SFSpeechAudioBufferRecognitionRequest?
+  private var task: SFSpeechRecognitionTask?
+  private var silence: Timer?
+
+  init(messenger: FlutterBinaryMessenger) {
+    channel = FlutterMethodChannel(name: "buchhaltung/dictation", binaryMessenger: messenger)
+    channel.setMethodCallHandler { [weak self] call, result in
+      guard let self = self else { return }
+      let args = call.arguments as? [String: Any]
+      let locale = args?["locale"] as? String ?? "de-AT"
+      switch call.method {
+      case "isAvailable":
+        result(self.recognizer(locale)?.supportsOnDeviceRecognition ?? false)
+      case "start":
+        self.authorize(locale, result)
+      case "stop":
+        self.request?.endAudio()
+        result(nil)
+      default:
+        result(FlutterMethodNotImplemented)
+      }
+    }
+  }
+
+  private func recognizer(_ locale: String) -> SFSpeechRecognizer? {
+    SFSpeechRecognizer(locale: Locale(identifier: locale))
+  }
+
+  private func authorize(_ locale: String, _ result: @escaping FlutterResult) {
+    SFSpeechRecognizer.requestAuthorization { status in
+      DispatchQueue.main.async {
+        guard status == .authorized else {
+          result(FlutterError(code: "permission", message: "Spracherkennung nicht erlaubt", details: nil))
+          return
+        }
+        AVAudioSession.sharedInstance().requestRecordPermission { granted in
+          DispatchQueue.main.async {
+            guard granted else {
+              result(FlutterError(code: "permission", message: "Mikrofon nicht erlaubt", details: nil))
+              return
+            }
+            self.begin(locale, result)
+          }
+        }
+      }
+    }
+  }
+
+  private func begin(_ locale: String, _ result: @escaping FlutterResult) {
+    finish()
+    guard let recognizer = recognizer(locale), recognizer.supportsOnDeviceRecognition,
+      recognizer.isAvailable
+    else {
+      result(FlutterError(code: "unavailable", message: "Keine Erkennung auf dem Gerät", details: nil))
+      return
+    }
+    let request = SFSpeechAudioBufferRecognitionRequest()
+    request.requiresOnDeviceRecognition = true
+    request.shouldReportPartialResults = true
+    self.request = request
+    do {
+      let session = AVAudioSession.sharedInstance()
+      try session.setCategory(.record, mode: .measurement, options: .duckOthers)
+      try session.setActive(true, options: .notifyOthersOnDeactivation)
+      let input = audio.inputNode
+      input.removeTap(onBus: 0)
+      input.installTap(onBus: 0, bufferSize: 1024, format: input.outputFormat(forBus: 0)) {
+        buffer, _ in request.append(buffer)
+      }
+      audio.prepare()
+      try audio.start()
+    } catch {
+      finish()
+      result(FlutterError(code: "unavailable", message: error.localizedDescription, details: nil))
+      return
+    }
+    var sent = false
+    task = recognizer.recognitionTask(with: request) { [weak self] res, error in
+      guard let self = self, !sent else { return }
+      if let res = res {
+        let text = res.bestTranscription.formattedString
+        if res.isFinal {
+          sent = true
+          self.channel.invokeMethod("onFinal", arguments: ["text": text])
+          self.finish()
+          return
+        }
+        self.channel.invokeMethod("onPartial", arguments: ["text": text])
+        // Sprechpause von 2 s beendet die Aufnahme.
+        self.silence?.invalidate()
+        self.silence = Timer.scheduledTimer(withTimeInterval: 2, repeats: false) { _ in
+          self.request?.endAudio()
+        }
+      } else if error != nil {
+        sent = true
+        self.channel.invokeMethod("onError", arguments: ["code": "no_match"])
+        self.finish()
+      }
+    }
+    result(nil)
+  }
+
+  private func finish() {
+    silence?.invalidate()
+    silence = nil
+    if audio.isRunning {
+      audio.stop()
+      audio.inputNode.removeTap(onBus: 0)
+    }
+    request?.endAudio()
+    request = nil
+    task?.cancel()
+    task = nil
+    try? AVAudioSession.sharedInstance().setActive(false, options: .notifyOthersOnDeactivation)
   }
 }

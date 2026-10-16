@@ -29,12 +29,34 @@ gebaut, und was war darin geprüft?*
 
 ## Unveröffentlicht
 
-Änderungen seit 0.21.1+29, die noch in keinem Build stecken. Wandern beim
+Änderungen seit 0.22.0+30, die noch in keinem Build stecken. Wandern beim
 nächsten Versionssprung in den neuen Eintrag.
 
 | Art | Änderung | Bezug | Commit |
 |---|---|---|---|
-| Geändert | Runder Aufnahmeknopf „Beleg“ (76 dp, Kamera) unten in der Mitte auf Übersicht, Belegliste (öffnet jetzt direkt den Scanner) und im Belegformular über „Beleg speichern“; Galerie als kleinere Nebenaktion | FA-12.1, DESIGN_SPEC 5a Regel 13, P-X17 | `COMMIT2` |
+
+---
+
+## 0.22.0+30 — 2026-10-16
+
+| Feld | Wert |
+|---|---|
+| Art | Testbuild (ungezippte arm64-APK `JeNi-bucht-0.22.0-build-<Nr>.apk`, fester Testschlüssel); **Lizenzprüfung aus** (ohne `LICENSING=true`), alle Funktionen frei |
+| Commit | `COMMIT3` |
+| Branch | `claude/agile-accounting-app-mobile-wa5j3h` |
+| Dokumentstände | Lastenheft 1.71, Spezifikation 1.74, Benutzerhandbuch für 0.22.0, DESIGN_SPEC 1.3 |
+| Datenbankschema | 23 |
+| Prüfung | `flutter analyze` ohne Befund, alle Tests grün (neu `spoken_amount_test.dart`, `dictation_test.dart`; erweitert `one_hand_test.dart`, `receipt_save_bar_test.dart`); Android/iOS-Build nur in der CI |
+| Steuerliche Kennwerte | unverändert |
+| Offene reale Prüfpunkte | wie 0.21.1+29, neu P-X17, P-X18, P-D39, P-D40, P-R44 |
+| Bekannte Grenzen | Spezifikation Abschnitt 11, unverändert; Diktat nur mit Erkennung auf dem Gerät (Android ab 12) |
+
+**Änderungen seit 0.21.1+29**
+
+| Art | Änderung | Bezug | Commit |
+|---|---|---|---|
+| Geändert | Runder Aufnahmeknopf „Beleg“ (76 dp, Kamera) unten in der Mitte auf Übersicht, Belegliste (öffnet jetzt direkt den Scanner) und im Belegformular über „Beleg speichern“; Galerie als kleinere Nebenaktion | FA-12.1, DESIGN_SPEC 5a Regel 13, P-X17 | `4422d81` |
+| Neu | Diktat auf dem Gerät: Mikrofon in Beschreibung, Anlass, Teilnehmer, Notiz, Kommentar (Beleg, Vertrag) und Betragsfeldern; Beträge wie „zwölf Euro fünfzig“ als Vorschlag in Cent; ohne On-Device-Erkennung kein Knopf, kein Netz; Berechtigung Mikrofon (Android), Mikrofon und Spracherkennung (iOS) | FA-2.61, LH 5.19, 14a, P-D40, P-X18, P-R44 | `COMMIT3` |
 
 ---
 
