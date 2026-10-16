@@ -42,7 +42,7 @@ nächsten Versionssprung in den neuen Eintrag.
 | Feld | Wert |
 |---|---|
 | Art | Testbuild (ungezippte arm64-APK `JeNi-bucht-0.22.2-build-<Nr>.apk`, fester Testschlüssel); **Lizenzprüfung aus** (ohne `LICENSING=true`), alle Funktionen frei |
-| Commit | `wird nachgetragen` |
+| Commit | `7c2ea6f` |
 | Branch | `claude/agile-accounting-app-mobile-wa5j3h` |
 | Dokumentstände | Lastenheft 1.73, Spezifikation 1.76, Benutzerhandbuch für 0.22.2, DESIGN_SPEC 1.4 |
 | Datenbankschema | 23 |
@@ -55,7 +55,7 @@ nächsten Versionssprung in den neuen Eintrag.
 
 | Art | Änderung | Bezug | Commit |
 |---|---|---|---|
-| Neu | Einstellungen → „Wunsch oder Idee senden“: Art als Chips, Titel optional, Beschreibung mit Diktat, technische Angaben abschaltbar; „Per E-Mail senden“ öffnet die Mail-App an office@jenibarb.com, ohne Mail-App Text in die Zwischenablage. Die App überträgt nichts selbst | FA-11.6, L-26.7, P-R45 | dieser Commit |
+| Neu | Einstellungen → „Wunsch oder Idee senden“: Art als Chips, Titel optional, Beschreibung mit Diktat, technische Angaben abschaltbar; „Per E-Mail senden“ öffnet die Mail-App an office@jenibarb.com, ohne Mail-App Text in die Zwischenablage. Die App überträgt nichts selbst | FA-11.6, L-26.7, P-R45 | `7c2ea6f` |
 
 ---
 
