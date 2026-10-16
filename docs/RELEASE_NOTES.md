@@ -42,7 +42,7 @@ nächsten Versionssprung in den neuen Eintrag.
 | Feld | Wert |
 |---|---|
 | Art | Testbuild (ungezippte arm64-APK `JeNi-bucht-0.22.1-build-<Nr>.apk`, fester Testschlüssel); **Lizenzprüfung aus** (ohne `LICENSING=true`), alle Funktionen frei |
-| Commit | `wird nachgetragen` |
+| Commit | `34d333f` |
 | Branch | `claude/agile-accounting-app-mobile-wa5j3h` |
 | Dokumentstände | Lastenheft 1.71, Spezifikation 1.75, Benutzerhandbuch für 0.22.1, DESIGN_SPEC 1.4 |
 | Datenbankschema | 23 |
@@ -55,9 +55,9 @@ nächsten Versionssprung in den neuen Eintrag.
 
 | Art | Änderung | Bezug | Commit |
 |---|---|---|---|
-| Behoben | Nach dem Scan blieb das Belegformular leer (keine Seite, keine Vorbelegung): Android-Request-Code 4711 war doppelt vergeben (Scanner und Sicherungsordner), der Sicherungsordner verschluckte das Scan-Ergebnis; jetzt eindeutige Codes in `RequestCodes.kt` mit Test | FA-2.51, P-D41 | dieser Commit |
-| Geändert | Kein stiller Weg beim Scannen: verlorenes Ergebnis, nicht lesbare oder nicht speicherbare Seiten und Auslesefehler erscheinen als Meldung; scheitert die Nachbearbeitung, wird das Original übernommen; nicht darstellbare Seite zeigt Platzhalter | FA-2.51 | dieser Commit |
-| Neu | „Foto“ (Galerie) und „Datei“ (PDF, E-Rechnung, Bild) als kleinere runde Knöpfe neben „Beleg“ auf Übersicht und Belegliste; öffnen direkt einen neuen Beleg und lesen aus | FA-12.1, DESIGN_SPEC 5a Regel 13, P-X19 | dieser Commit |
+| Behoben | Nach dem Scan blieb das Belegformular leer (keine Seite, keine Vorbelegung): Android-Request-Code 4711 war doppelt vergeben (Scanner und Sicherungsordner), der Sicherungsordner verschluckte das Scan-Ergebnis; jetzt eindeutige Codes in `RequestCodes.kt` mit Test | FA-2.51, P-D41 | `34d333f` |
+| Geändert | Kein stiller Weg beim Scannen: verlorenes Ergebnis, nicht lesbare oder nicht speicherbare Seiten und Auslesefehler erscheinen als Meldung; scheitert die Nachbearbeitung, wird das Original übernommen; nicht darstellbare Seite zeigt Platzhalter | FA-2.51 | `34d333f` |
+| Neu | „Foto“ (Galerie) und „Datei“ (PDF, E-Rechnung, Bild) als kleinere runde Knöpfe neben „Beleg“ auf Übersicht und Belegliste; öffnen direkt einen neuen Beleg und lesen aus | FA-12.1, DESIGN_SPEC 5a Regel 13, P-X19 | `34d333f` |
 
 ---
 
