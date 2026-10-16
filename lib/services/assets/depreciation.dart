@@ -228,6 +228,11 @@ class Depreciation {
     return DepreciationMethod.linear;
   }
 
+  /// Liegt die Ausgabe über der GWG-Grenze, muss sie aktiviert und ins
+  /// Anlagenverzeichnis (FA-13.2: Hinweis ohne Pro auf Ausgabebelegen).
+  static bool exceedsGwg(Money cost, Money netCost, DepreciationRules rules) =>
+      (rules.gwgLimitIsNet ? netCost : cost) > rules.gwgLimit;
+
   /// Fehlermeldung, wenn die Wahl unzulässig ist, sonst `null`.
   static String? validate(
     FixedAsset asset,

@@ -1,6 +1,9 @@
 import 'package:buchhaltung/app_state.dart';
 import 'package:buchhaltung/data/app_database.dart';
 import 'package:buchhaltung/data/repositories.dart';
+import 'package:buchhaltung/domain/country.dart';
+import 'package:buchhaltung/domain/money.dart';
+import 'package:buchhaltung/services/assets/depreciation.dart';
 import 'package:buchhaltung/features/licensing/feature_gate.dart';
 import 'package:buchhaltung/features/licensing/subscription_screen.dart';
 import 'package:buchhaltung/services/licensing/fake_store_billing.dart';
@@ -36,6 +39,7 @@ void main() {
         Feature.exchangeRateFetch,
         Feature.annualReports,
         Feature.contractSummary,
+        Feature.assetManagement,
       ];
       for (final feature in proOnly) {
         expect(Entitlement.pro.allows(feature), isTrue, reason: '$feature');
@@ -51,6 +55,30 @@ void main() {
       expect(Feature.values.toSet(), {...proOnly, Feature.newBookings});
       expect(Entitlement.pro.allows(Feature.newBookings), isTrue);
     });
+
+    test(
+      'GWG-Hinweis ohne Pro nur über der Grenze (Entscheidung 2026-10-16)',
+      () {
+        final at = TaxProfile.austria.depreciation;
+        final de = TaxProfile.germany.depreciation;
+        expect(
+          Depreciation.exceedsGwg(const Money(100000), const Money(83333), at),
+          isFalse,
+        );
+        expect(
+          Depreciation.exceedsGwg(const Money(100001), const Money(83334), at),
+          isTrue,
+        );
+        expect(
+          Depreciation.exceedsGwg(const Money(95200), const Money(80000), de),
+          isFalse,
+        );
+        expect(
+          Depreciation.exceedsGwg(const Money(95201), const Money(80001), de),
+          isTrue,
+        );
+      },
+    );
 
     test('Jede gesperrte Funktion hat eine Begründung', () {
       for (final feature in Feature.values) {

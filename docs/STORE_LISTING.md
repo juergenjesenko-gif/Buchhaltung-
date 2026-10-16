@@ -70,10 +70,13 @@ einen QR-Link lädst. App-Sperre mit PIN oder Fingerabdruck.
 
 BASIS UND PRO
 Basis: Belege, Rechnungen, Storno, Mahnungen erstellen, Kassabuch, Kunden,
-Übersicht, Kleinunternehmer-Ampel, Export, Sicherung, PDF speichern und drucken.
+Übersicht, Kleinunternehmer-Ampel, Vertragsarchiv, Export, Sicherung, PDF
+speichern und drucken.
 Pro zusätzlich: Belegerkennung per Kamera, Import aus Amazon, PayPal, Shopify,
 Stripe und E-Rechnungen, PDF und Mahnungen mit einem Tipp senden, Logo auf
-Rechnungen, Wechselkurs abrufen.
+Rechnungen, Wechselkurs abrufen, Anlagen mit Abschreibung und
+Anlagenverzeichnis, Saldenliste und vorläufiger Jahresabschluss, Verträge
+auslesen.
 
 14 TAGE KOSTENLOS TESTEN
 Pro 14 Tage kostenlos, danach 24,90 € pro Monat, jederzeit vorher kündbar

@@ -43,7 +43,8 @@ class _AssetListScreenState extends State<AssetListScreen> {
   }
 
   Future<void> _open([FixedAsset? asset]) async {
-    if (asset == null && !await ensureFeature(context, Feature.newBookings)) {
+    if (asset == null &&
+        !await ensureFeature(context, Feature.assetManagement)) {
       return;
     }
     if (!mounted) return;
@@ -208,7 +209,7 @@ class _AssetEditScreenState extends State<AssetEditScreen> {
 
   Future<void> _save() async {
     if (!_formKey.currentState!.validate()) return;
-    if (!await ensureFeature(context, Feature.newBookings)) return;
+    if (!await ensureFeature(context, Feature.assetManagement)) return;
     if (!mounted) return;
     final state = AppScope.read(context);
     final asset = _current();
@@ -470,7 +471,7 @@ class _DisposalSheetState extends State<_DisposalSheet> {
       !_date.isBefore(widget.asset.acquiredOn);
 
   Future<void> _confirm() async {
-    if (!await ensureFeature(context, Feature.newBookings)) return;
+    if (!await ensureFeature(context, Feature.assetManagement)) return;
     if (!mounted) return;
     setState(() => _saving = true);
     final state = AppScope.read(context);

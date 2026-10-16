@@ -45,6 +45,7 @@ import '../licensing/feature_gate.dart';
 import '../../services/licensing/license_policy.dart';
 import '../../services/receipt_vat_split.dart';
 import '../assets/asset_screens.dart';
+import '../../services/assets/depreciation.dart';
 import '../contracts/contract_screens.dart';
 import '../help/help_screen.dart';
 import '../../services/help/help_index.dart';
@@ -1877,21 +1878,43 @@ class _InvestmentTileState extends State<_InvestmentTile> {
   @override
   Widget build(BuildContext context) {
     if (!_loaded) return const SizedBox.shrink();
+    final state = AppScope.of(context);
+    final rules = state.depreciationRules;
+    final r = widget.receipt;
+    final allowed = state.allows(Feature.assetManagement);
+    final aboveGwg =
+        rules != null && Depreciation.exceedsGwg(r.gross, r.net, rules);
+    if (_asset == null && !allowed && !aboveGwg) {
+      return const SizedBox.shrink();
+    }
     return Card(
       child: ListTile(
         key: const Key('receipt-investment'),
         minVerticalPadding: 12,
         leading: const Icon(Icons.inventory_2_outlined),
         title: Text(
-          _asset == null ? 'Als Investition erfassen' : 'Anlage öffnen',
+          _asset != null
+              ? 'Anlage öffnen'
+              : allowed
+              ? 'Als Investition erfassen'
+              : 'Als Investition erfassen (Pro)',
         ),
         subtitle: Text(
-          _asset == null
+          _asset != null
+              ? _asset!.name
+              : allowed
               ? 'Für Anschaffungen, die länger als ein Jahr genutzt werden'
-              : _asset!.name,
+              : 'Über der GWG-Grenze: Diese Anschaffung muss aktiviert und '
+                    'ins Anlagenverzeichnis. Ohne Pro zählt sie voll als '
+                    'Ausgabe.',
         ),
         trailing: const Icon(Icons.chevron_right),
         onTap: () async {
+          if (_asset == null &&
+              !await ensureFeature(context, Feature.assetManagement)) {
+            return;
+          }
+          if (!context.mounted) return;
           await Navigator.of(context).push(
             MaterialPageRoute<void>(
               builder: (_) =>

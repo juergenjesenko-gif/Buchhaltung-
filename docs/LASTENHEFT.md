@@ -1,6 +1,6 @@
 # Lastenheft – JeNi bucht, Buchhaltungsapp für Österreich und Deutschland
 
-**Dokumentversion:** 1.68 · **Stand:** 2026-10-16 · **Status:** Entwurf zur Abstimmung
+**Dokumentversion:** 1.69 · **Stand:** 2026-10-16 · **Status:** Entwurf zur Abstimmung
 **Auftraggeber:** Jürgen Jesenko (privates Vorhaben) · **Umsetzung:** Claude Code
 
 > Ein Lastenheft beschreibt, **was** das Produkt leisten soll und **warum** — nicht,
@@ -371,7 +371,10 @@ wurde**; sonst heißt er „Einführungspreis bis [Datum]" mit echter Befristung
 Spezifikation Abschnitt 14, P-R2.
 
 Eine gesetzliche Pflicht darf nie nur in Pro erfüllbar sein. Wird eine Funktion
-zur Pflicht für die Zielgruppe, wandert sie nach Basis.
+zur Pflicht für die Zielgruppe, wandert sie nach Basis. **Ausnahme nach
+Entscheidung der Auftraggeberin 2026-10-16 (14a):** Anlagen und
+Anlagenverzeichnis neu anlegen nur in Pro; bestehende bleiben in jedem Abo
+zugänglich und ihre AfA läuft weiter (P-S64, P-R43).
 
 ### 5.11 Artikelverwaltung
 
@@ -1371,11 +1374,10 @@ Historie stehen. Die Einzelheiten stehen an der genannten Stelle.
 | 2026-10-16 | **Promo-Code „JENIBUCHT2M“**: 2 Monate Pro gratis für Neukundinnen, beworben auf Instagram; wie der Test über die Stores (Apple-Angebotscode, Google-Play-Promo-Code), danach kostenpflichtig, vorher kostenlos kündbar oder Wechsel auf Basis; kein eigener Server | L-22.3, Spez. FA-13.13, `STORE_LISTING.md` |
 | 2026-10-16 | **Logo im Onboarding ohne Abo-Seite wählbar**; gedruckt nur mit Pro oder im 14-Tage-Test. Danach mit Basis oder ohne Abo nicht auf neuen Rechnungen und Angeboten; gestellte behalten ihr eingefrorenes Logo; die Datei bleibt und kommt mit Pro zurück; Stammdaten zeigen „Logo (Pro) – wird mit Basis nicht gedruckt“ | L-1.7, 5.10, Spez. FA-13.12 |
 
+| 2026-10-16 | **Anlagen nur Pro:** Investitionen aktivieren, AfA-Plan und Anlagenverzeichnis neu anlegen, ändern, ausscheiden nur mit Pro (wie Saldenliste und vorläufiger Jahresabschluss). Bereits erfasste Anlagen bleiben in jedem Abo ansehbar, ihr Anlagenverzeichnis exportierbar, ihre jährliche AfA wird nach einer Herabstufung weiter gebucht. Ohne Pro zählt eine Ausgabe voll als Betriebsausgabe; über der GWG-Grenze zeigt der Beleg einen Hinweis „muss aktiviert werden“ mit „(Pro)“. **Bewusste Abweichung** von der Regel in 5.10 („gesetzliche Pflicht nie nur in Pro“), gemildert durch Datenzugang und Hinweis; Prüfung P-S64, P-R43 | 5.10, Spez. FA-13.2, FA-15.1 |
+| 2026-10-16 | **Vertragsarchiv in Basis und Pro**; Auslesen (Texterkennung, Kurzübersicht) nur Pro | 5.23, Spez. FA-13.2, FA-16.3 |
+
 ---
-
-**Vorschlag zur Entscheidung (2026-10-16, Anlagen):** Anlagen, AfA und das Anlagenverzeichnis in **jedem Abo** (Pflichtverzeichnis § 7 Abs 3 EStG AT, § 4 Abs 3 Satz 5 EStG DE darf nie Pro brauchen); Saldenliste und vorläufiger Jahresabschluss als PDF/ZIP **nur Pro** (`Feature.annualReports`). Bis zur Entscheidung so umgesetzt (Spezifikation FA-13.2, FA-15.8 bis FA-15.10).
-
-**Vorschlag zur Entscheidung (2026-10-16, Vertragsarchiv):** Verträge ablegen, Fristen, Abgleich, Buchungsvorschlag und Aufbewahrung in **jedem Abo**; Texterkennung und Kurzübersicht **nur Pro** (`Feature.contractSummary`). Bis zur Entscheidung so umgesetzt (Spezifikation FA-13.2, FA-16.3).
 
 **Entscheidung 2026-10-16 (Dokumentenscanner):** Belege und Verträge werden mit dem Scanner des Systems erfasst (Android ML Kit Document Scanner, iOS VisionKit); gespeichert wird **nur das verarbeitete Bild**; ohne Scanner automatisch die Kamera. Umgesetzt in 0.20.0 (Spezifikation FA-2.51, Prüfpunkt P-S63).
 
@@ -1383,6 +1385,7 @@ Historie stehen. Die Einzelheiten stehen an der genannten Stelle.
 
 | Version | Datum | Änderung |
 |---|---|---|
+| 1.69 | 2026-10-16 | Entscheidungen 14a: Anlagen nur Pro (Ausnahme zur Regel in 5.10, mit Datenzugang und Hinweis), Vertragsarchiv Basis/Pro mit Auslesen nur Pro; Vorschläge geschlossen. |
 | 1.68 | 2026-10-16 | Dokumentenscanner des Systems (Entscheidung 14a), Datenfluss Play-Dienste in 5.19. |
 | 1.67 | 2026-10-16 | 5.23 Vertragsarchiv lokal umgesetzt (L-23.1 bis L-23.4, L-23.6, L-23.11), L-23.1 um Pacht und Dienstbarkeit ergänzt; Tarifvorschlag in 14a; Datenfluss „Berichte teilen“ um Vertragsliste ergänzt. |
 | 1.66 | 2026-10-16 | Anlagenverwaltung mit AfA, Anlagenverzeichnis, Saldenliste und vorläufiger Jahresabschluss umgesetzt (Spezifikation 5.11); Tarifvorschlag in 14a; Datenfluss „Berichte teilen“ in 5.19. |

@@ -1012,8 +1012,16 @@ Zweifel frag deine Steuerberatung.
 Was du länger als ein Jahr nutzt und mehr kostet als die GWG-Grenze (Österreich
 1.000 €, Deutschland 800 € netto), schreibst du über mehrere Jahre ab.
 
+Anlagen anlegen, ändern und ausscheiden gibt es mit **Pro**. Ohne Pro zählt die
+Ausgabe voll als Ausgabe; liegt sie über der Grenze, steht am Beleg
+**Als Investition erfassen (Pro)** mit dem Hinweis, dass du sie aktivieren und
+ins Anlagenverzeichnis aufnehmen musst – frag dann deine Steuerberatung.
+Anlagen, die du schon hast, bleiben in jedem Abo sichtbar, ihr
+Anlagenverzeichnis kannst du immer exportieren, und ihre Abschreibung läuft
+weiter.
+
 1. Die Ausgabe wie immer fotografieren und speichern.
-2. Beleg öffnen → **Als Investition erfassen**.
+2. Beleg öffnen → **Als Investition erfassen** (Pro).
 3. **Art** wählen – die App schlägt die Nutzungsdauer vor (z. B. Computer in
    Österreich 3 Jahre, in Deutschland 1 Jahr; PKW in Österreich mindestens
    8 Jahre). Unter der Grenze ist **Geringwertig – sofort abschreiben**
@@ -1035,7 +1043,7 @@ Bei **Verkauft** trägst du den Erlös ein; die App bucht ihn als Einnahme.
 **Berichte:** Export → **Anlagen und Jahresabschluss**. Jahr wählen, optional
 einen Kommentar an deine Steuerberatung schreiben, dann:
 
-- **Anlagenverzeichnis** – Pflicht, in jedem Abo
+- **Anlagenverzeichnis** – Pflicht, in jedem Abo für alle erfassten Anlagen
 - **Saldenliste** (Pro) – Summen je Kategorie
 - **Vorläufiger Jahresabschluss** (Pro) – ein ZIP mit PDF, Belegliste und
   Buchungsexport zum Weiterschicken. Alles ist als **VORLÄUFIG** markiert;

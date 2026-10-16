@@ -33,6 +33,7 @@ enum Entitlement {
     Feature.invoiceLogo ||
     Feature.exchangeRateFetch ||
     Feature.annualReports ||
+    Feature.assetManagement ||
     Feature.contractSummary => this == pro,
   };
 
@@ -81,13 +82,19 @@ enum Feature {
   exchangeRateFetch,
 
   /// Saldenliste und vorläufiger Jahresabschluss als PDF samt Paket für die
-  /// Steuerberatung (FA-15.9, FA-15.10; Vorschlag an die Auftraggeberin,
-  /// Lastenheft 14a). Anlagen, AfA und Anlagenverzeichnis sind nie Pro,
-  /// weil das Verzeichnis Pflicht ist (§ 7 Abs 3 EStG, § 4 Abs 3 S 5 EStG).
+  /// Steuerberatung (FA-15.9, FA-15.10; Entscheidung Auftraggeberin
+  /// 2026-10-16, Lastenheft 14a).
   annualReports,
 
-  /// Texterkennung und Kurzübersicht im Vertragsarchiv (FA-16.3; Vorschlag
-  /// an die Auftraggeberin, Lastenheft 14a). Verträge ablegen, Fristen,
+  /// Anlagen anlegen, ändern und ausscheiden (FA-15.1 bis FA-15.7, nur Pro;
+  /// Entscheidung Auftraggeberin 2026-10-16, Lastenheft 14a). Erfasste
+  /// Anlagen ansehen, das Anlagenverzeichnis exportieren und die jährliche
+  /// AfA bestehender Anlagen laufen in jedem Anspruch weiter (L-22.6), sonst
+  /// stimmt der Gewinn nicht (§ 7 Abs 3 EStG AT, § 4 Abs 3 S 5 EStG DE).
+  assetManagement,
+
+  /// Texterkennung und Kurzübersicht im Vertragsarchiv (FA-16.3, nur Pro;
+  /// Entscheidung Auftraggeberin 2026-10-16, Lastenheft 14a). Verträge ablegen, Fristen,
   /// Abgleich und Aufbewahrung gehen ab Basis.
   contractSummary,
 }

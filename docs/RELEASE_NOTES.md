@@ -34,6 +34,7 @@ nächsten Versionssprung in den neuen Eintrag.
 
 | Art | Änderung | Bezug | Commit |
 |---|---|---|---|
+| Geändert | Anlagen anlegen, ändern, ausscheiden nur Pro; bestehende Anlagen, Verzeichnis und AfA in jedem Abo; GWG-Hinweis am Beleg ohne Pro; Vertragsarchiv Basis, Auslesen Pro (Entscheidungen Auftraggeberin) | FA-13.2, FA-15.1, LH 14a | folgt |
 | Behoben | Verzugszinsen DE: Basiszinssatz 1,52 % ab 1.7.2026 ergänzt (Bundesbank); interne Prüfung der Steuer- und Rechtspunkte, neuer Status „intern geprüft“, Prüfmappen nur mit offenen Punkten | P-S44, SPEC 14 | 596413c |
 
 ---
