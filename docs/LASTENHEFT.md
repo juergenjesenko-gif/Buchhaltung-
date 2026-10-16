@@ -1379,7 +1379,7 @@ Historie stehen. Die Einzelheiten stehen an der genannten Stelle.
 | 2026-10-16 | **Vertragsarchiv in Basis und Pro**; Auslesen (Texterkennung, Kurzübersicht) nur Pro | 5.23, Spez. FA-13.2, FA-16.3 |
 | 2026-10-16 | **Bewirtung automatisch gekürzt:** Kategorie „Bewirtung“ zählt ertragsteuerlich nur anteilig – AT 50 % (§ 20 Abs 1 Z 3 EStG, Regelfall Werbezweck), DE 70 % (§ 4 Abs 5 Satz 1 Nr. 2 EStG); Vorsteuer je Land nach Prüfinstanz (AT und DE voll); Kleinunternehmer: brutto × Anteil; nicht abziehbarer Teil in allen Auswertungen und Exporten; DE Anlass und Teilnehmer als freiwillige Felder; Belegerkennung schlägt Bewirtung für Restaurants vor. Schließt die Grenze zu P-S46 | L-2.27, Spez. FA-2.60, P-S46 |
 | 2026-10-16 | **ELSTER-Softwarehersteller beantragt** (Antwort ausstehend) | O-36 |
-| 2026-10-16 | **Diktat auf dem Gerät** in Freitext- und Betragsfeldern (Auftrag); **Vorschlag offen:** in Basis (Barrierefreiheit), bis zur Entscheidung ohne Sperre umgesetzt | Spez. FA-2.61 |
+| 2026-10-16 | **Diktat auf dem Gerät** in Freitext- und Betragsfeldern (Auftrag); **entschieden 2026-10-16: in Basis und Pro** (Barrierefreiheit), keine Sperre | Spez. FA-2.61 |
 
 ---
 
