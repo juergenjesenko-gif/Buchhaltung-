@@ -1,6 +1,6 @@
 # Spezifikation – Buchhaltung
 
-**Dokumentversion:** 1.63 · **App-Version:** 0.16.0 · **Stand:** 2026-10-16
+**Dokumentversion:** 1.64 · **App-Version:** 0.16.0 · **Stand:** 2026-10-16
 **Status:** Testbuild 0.16.0 (Schema 20); Store-Start offen, siehe Abschnitt 11 und 14
 
 > Das **Zielbild** des Produkts steht im [`LASTENHEFT.md`](LASTENHEFT.md); dieses
@@ -1138,6 +1138,7 @@ Dauerfristverlängerung, `02-15,…` = feste Tage, `+1j07-31` = Folgejahr,
 
 | Version | Datum | App-Version | Änderung |
 |---|---|---|---|
+| 1.64 | 2026-10-16 | 0.16.0 | Prüfmappen für Steuerberatung und Rechtsberatung in `docs/pruefmappen/` (Verweis in 14), erzeugt aus Abschnitt 14; Beispielrechnungen mit `InvoicePdf`. Keine Verhaltensänderung der App. |
 | 1.63 | 2026-10-16 | 0.16.0 | Release-Vorbereitung ohne Verhaltensänderung der App: iOS-Datenschutz-Manifest und `CFBundleLocalizations` de (10.2); Release-Workflow signiert Android-AAB und iOS-IPA über Secrets, optionaler Play-/TestFlight-Upload; Skript `tool/release/bundle_id_wechsel.sh` für O-33 (nicht ausgeführt). Neue Prüfpunkte P-B15, P-B16, P-D34. Prüfinstanzen: Rechtsanwalt (Datenschutzangaben deckungsgleich mit STORE_LISTING/PRIVACY), Softwareentwickler (Manifest nur mit tatsächlich genutzter API, keine Schlüssel im Repository), Steuerberater und UX ohne Befund (keine Oberflächen- oder Steueränderung). |
 | 1.62 | 2026-10-16 | 0.16.0 | FA-2.50 Lernen je Lieferant (Schema 20 `supplier_memory`, 4.1, 10.1, 11); FA-7.16 iCloud-Sicherung unter iOS und Liste zum Wiederherstellen (5.5a, 7, 10.1, 11); `spec.schema_version` 20 (12); P-B13, P-B14, P-X11, P-D33 neu, P-D3 präzisiert (14). Geprüft mit den Prüfinstanzen Rechtsanwalt (Apple als Auftragsverarbeiter, Opt-in), Steuerberater (Gelerntes nur als Vorschlag, gebucht wird Bestätigtes), Softwareentwickler (Entitlements ohne Wirkung im unsignierten CI-Build), UX (Knöpfe ≥ 48 dp, Listeneinträge 56 dp, ein Tipp weniger beim Einrichten mit iCloud). |
 | 1.61 | 2026-10-16 | 0.15.0 | FA-13.13 Promo-Code `JENIBUCHT2M` (2 Monate Pro gratis) über Apple-Angebotscodes und Google-Play-Promo-Codes, Abo-Seite „Promo-Code einlösen“; Kenndaten `spec.license_promo_code`, `spec.license_promo_free_months`; P-R40, P-D32. Kein Schemawechsel. |
@@ -1229,6 +1230,12 @@ Diese konnten amtliche Quellen nicht abrufen; die Befunde stützen sich auf
 Fachwissen und Sekundärquellen. **Ein Vorbefund ist keine Bestätigung.**
 
 Status: *offen* · *bestätigt* (mit Datum und Prüfer) · *widerlegt* (mit Folge)
+
+**Prüfmappen in `docs/pruefmappen/`:** `Pruefmappe_Steuerberater.pdf` und
+`Pruefmappe_Rechtsanwalt.pdf` bündeln die offenen Punkte dieses Abschnitts nach
+Themen mit Antwortfeld und Bitte um Fixpreisangebot. Die Generatoren
+(`pruefmappe_*.py`) lesen die Tabellen hier bei jedem Lauf neu; Beispielrechnungen
+erzeugt `beispiele_erzeugen_test.dart` mit dem PDF-Generator der App.
 
 ### Rechtsanwältin / Rechtsanwalt
 
