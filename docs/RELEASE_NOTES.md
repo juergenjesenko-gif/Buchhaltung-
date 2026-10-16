@@ -34,6 +34,10 @@ nächsten Versionssprung in den neuen Eintrag.
 
 | Art | Änderung | Bezug | Commit |
 |---|---|---|---|
+| Neu | iOS-Datenschutz-Manifest `PrivacyInfo.xcprivacy` (kein Tracking, Dateizeitstempel C617.1, Kaufverlauf und Finanzinfos wie App Privacy Label); `CFBundleLocalizations` de | L-19.5, P-B15 | `HASH` |
+| Neu | Release-Workflow: signierte AAB und IPA als ungezippte Artefakte, Play-Upload (Entwurf) und TestFlight nur mit vorhandenen Secrets, sonst unsigniertes iOS-Archiv | FA-13.10, P-B16 | `HASH` |
+| Neu | Skript `tool/release/bundle_id_wechsel.sh` für die Store-Kennung `at.jenibarb.jenibucht` (vorbereitet, nicht ausgeführt) | O-33 | `HASH` |
+| Geändert | STORE_LISTING: Kategorien, Screenshot-Größen, Demodaten, Altersfreigabe-Fragebogen, Formularantworten Datensicherheit/App-Datenschutz | P-D34 | `HASH` |
 
 ---
 

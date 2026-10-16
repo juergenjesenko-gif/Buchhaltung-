@@ -24,6 +24,8 @@ jobs:
   android:
     name: Android App Bundle
     runs-on: ubuntu-latest
+    env:
+      PLAY_JSON: ${{ secrets.PLAY_SERVICE_ACCOUNT_JSON }}
     steps:
       - uses: actions/checkout@v4
 
@@ -69,29 +71,40 @@ jobs:
             ARGS="$ARGS --build-name=${{ inputs.version }}"
           fi
           flutter build appbundle $ARGS
+          VERSION=$(grep '^version:' pubspec.yaml | sed 's/version: *//; s/+.*//')
+          [ -n "${{ inputs.version }}" ] && VERSION="${{ inputs.version }}"
+          AAB="JeNi-bucht-$VERSION-build-${{ github.run_number }}.aab"
+          cp build/app/outputs/bundle/release/app-release.aab "$AAB"
+          echo "AAB=$AAB" >> "$GITHUB_ENV"
 
-      - uses: actions/upload-artifact@v4
+      # Ungezippt (archive: false): ein Klick lädt direkt die .aab.
+      - uses: actions/upload-artifact@v7
         with:
-          name: app-release-aab
-          path: build/app/outputs/bundle/release/app-release.aab
+          path: ${{ env.AAB }}
+          archive: false
           retention-days: 30
 
-      # Der eigentliche Store-Upload ist bewusst noch nicht aktiv. Er braucht
-      # einen Play-Service-Account und eine bereits manuell veröffentlichte
-      # erste Version – Google Play akzeptiert den ersten Upload nicht über die API.
-      # Nach dem ersten manuellen Release hier einkommentieren:
-      #
-      # - uses: r0adkll/upload-google-play@v1
-      #   with:
-      #     serviceAccountJsonPlainText: ${{ secrets.PLAY_SERVICE_ACCOUNT_JSON }}
-      #     packageName: at.jesenko.buchhaltung
-      #     releaseFiles: build/app/outputs/bundle/release/app-release.aab
-      #     track: ${{ inputs.track }}
-      #     status: completed
+      # Upload in Google Play nur, wenn das Secret PLAY_SERVICE_ACCOUNT_JSON
+      # existiert. Die allererste Version muss von Hand in der Play Console
+      # hochgeladen werden; Google akzeptiert sie nicht über die API.
+      - name: In Google Play hochladen
+        if: env.PLAY_JSON != ''
+        uses: r0adkll/upload-google-play@v1
+        with:
+          serviceAccountJsonPlainText: ${{ secrets.PLAY_SERVICE_ACCOUNT_JSON }}
+          packageName: at.jesenko.buchhaltung
+          releaseFiles: ${{ env.AAB }}
+          track: ${{ inputs.track }}
+          status: draft
 
   ios:
-    name: iOS IPA
+    name: iOS Archiv und IPA
     runs-on: macos-latest
+    env:
+      ASC_KEY_ID: ${{ secrets.APP_STORE_CONNECT_KEY_ID }}
+      ASC_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
+      ASC_KEY_BASE64: ${{ secrets.APP_STORE_CONNECT_KEY_BASE64 }}
+      APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
     steps:
       - uses: actions/checkout@v4
 
@@ -103,59 +116,70 @@ jobs:
 
       - run: flutter pub get
 
-      # Signierung über einen temporären Keychain. Die Zertifikate stammen aus
-      # Secrets; alternativ fastlane match, wenn mehrere Entwickler dazukommen.
-      - name: Signierung einrichten
-        env:
-          CERTIFICATE_BASE64: ${{ secrets.IOS_CERTIFICATE_BASE64 }}
-          CERTIFICATE_PASSWORD: ${{ secrets.IOS_CERTIFICATE_PASSWORD }}
-          PROVISIONING_PROFILE_BASE64: ${{ secrets.IOS_PROVISIONING_PROFILE_BASE64 }}
-          KEYCHAIN_PASSWORD: ${{ secrets.IOS_KEYCHAIN_PASSWORD }}
-        run: |
-          CERT_PATH=$RUNNER_TEMP/cert.p12
-          PROFILE_PATH=$RUNNER_TEMP/profile.mobileprovision
-          KEYCHAIN_PATH=$RUNNER_TEMP/build.keychain
-
-          echo "$CERTIFICATE_BASE64" | base64 -d > "$CERT_PATH"
-          echo "$PROVISIONING_PROFILE_BASE64" | base64 -d > "$PROFILE_PATH"
-
-          security create-keychain -p "$KEYCHAIN_PASSWORD" "$KEYCHAIN_PATH"
-          security set-keychain-settings -lut 21600 "$KEYCHAIN_PATH"
-          security unlock-keychain -p "$KEYCHAIN_PASSWORD" "$KEYCHAIN_PATH"
-          security import "$CERT_PATH" -P "$CERTIFICATE_PASSWORD" \
-            -A -t cert -f pkcs12 -k "$KEYCHAIN_PATH"
-          security list-keychain -d user -s "$KEYCHAIN_PATH"
-
-          mkdir -p ~/Library/MobileDevice/Provisioning\ Profiles
-          cp "$PROFILE_PATH" ~/Library/MobileDevice/Provisioning\ Profiles/
-
-      - name: IPA bauen
+      - name: Build-Argumente
         run: |
           # Store-Build: Lizenzprüfung ein (Spezifikation FA-13.10).
           ARGS="--release --build-number=${{ github.run_number }} --dart-define=LICENSING=true"
           if [ -n "${{ inputs.version }}" ]; then
             ARGS="$ARGS --build-name=${{ inputs.version }}"
           fi
-          flutter build ipa $ARGS --export-options-plist=ios/ExportOptions.plist
+          echo "BUILD_ARGS=$ARGS" >> "$GITHUB_ENV"
+          if [ -n "$ASC_KEY_ID" ] && [ -n "$ASC_ISSUER_ID" ] && [ -n "$ASC_KEY_BASE64" ] && [ -n "$APPLE_TEAM_ID" ]; then
+            echo "SIGNIEREN=1" >> "$GITHUB_ENV"
+          else
+            echo "::warning::App-Store-Connect-Secrets fehlen: unsigniertes Archiv, keine IPA (docs/RELEASE_PLAYBOOK.md)."
+            echo "SIGNIEREN=0" >> "$GITHUB_ENV"
+          fi
 
-      - uses: actions/upload-artifact@v4
+      # Signierung ohne Zertifikat im Repository: Xcode-Cloud-Signierung über
+      # einen App-Store-Connect-API-Schlüssel (Rolle Admin, damit Xcode
+      # Verteilungszertifikat und Profil selbst anlegen darf).
+      - name: Signiertes Archiv und IPA
+        if: env.SIGNIEREN == '1'
+        run: |
+          KEY_PATH=$RUNNER_TEMP/AuthKey_$ASC_KEY_ID.p8
+          echo "$ASC_KEY_BASE64" | base64 -d > "$KEY_PATH"
+          AUTH="-allowProvisioningUpdates -authenticationKeyPath $KEY_PATH -authenticationKeyID $ASC_KEY_ID -authenticationKeyIssuerID $ASC_ISSUER_ID"
+          flutter build ios $BUILD_ARGS --config-only
+          xcodebuild -workspace ios/Runner.xcworkspace -scheme Runner \
+            -configuration Release -destination 'generic/platform=iOS' \
+            -archivePath build/ios/Runner.xcarchive \
+            DEVELOPMENT_TEAM="$APPLE_TEAM_ID" CODE_SIGN_STYLE=Automatic \
+            $AUTH archive
+          sed "s/DEIN_TEAM_ID/$APPLE_TEAM_ID/" ios/ExportOptions.plist > "$RUNNER_TEMP/ExportOptions.plist"
+          xcodebuild -exportArchive -archivePath build/ios/Runner.xcarchive \
+            -exportOptionsPlist "$RUNNER_TEMP/ExportOptions.plist" \
+            -exportPath build/ios/ipa $AUTH
+          mv build/ios/ipa/*.ipa "JeNi-bucht-build-${{ github.run_number }}.ipa"
+          rm -f "$KEY_PATH"
+
+      - name: Unsigniertes Archiv
+        if: env.SIGNIEREN != '1'
+        run: |
+          flutter build ios $BUILD_ARGS --no-codesign
+          mkdir -p Payload && cp -R build/ios/iphoneos/Runner.app Payload/
+          zip -qr "JeNi-bucht-build-${{ github.run_number }}-unsigniert.zip" Payload
+
+      - uses: actions/upload-artifact@v7
+        if: env.SIGNIEREN == '1'
         with:
-          name: app-release-ipa
-          path: build/ios/ipa/*.ipa
+          path: JeNi-bucht-build-${{ github.run_number }}.ipa
+          archive: false
           retention-days: 30
 
-      # Upload zu TestFlight. Braucht einen App-Store-Connect-API-Key.
-      # Nach Einrichtung einkommentieren:
-      #
-      # - name: Zu TestFlight hochladen
-      #   env:
-      #     APP_STORE_CONNECT_KEY_ID: ${{ secrets.APP_STORE_CONNECT_KEY_ID }}
-      #     APP_STORE_CONNECT_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
-      #     APP_STORE_CONNECT_KEY_BASE64: ${{ secrets.APP_STORE_CONNECT_KEY_BASE64 }}
-      #   run: |
-      #     mkdir -p ~/private_keys
-      #     echo "$APP_STORE_CONNECT_KEY_BASE64" | base64 -d \
-      #       > ~/private_keys/AuthKey_$APP_STORE_CONNECT_KEY_ID.p8
-      #     xcrun altool --upload-app -t ios -f build/ios/ipa/*.ipa \
-      #       --apiKey "$APP_STORE_CONNECT_KEY_ID" \
-      #       --apiIssuer "$APP_STORE_CONNECT_ISSUER_ID"
+      - uses: actions/upload-artifact@v7
+        if: env.SIGNIEREN != '1'
+        with:
+          path: JeNi-bucht-build-${{ github.run_number }}-unsigniert.zip
+          archive: false
+          retention-days: 7
+
+      # Upload zu TestFlight mit demselben API-Schlüssel.
+      - name: Zu TestFlight hochladen
+        if: env.SIGNIEREN == '1'
+        run: |
+          mkdir -p ~/private_keys
+          echo "$ASC_KEY_BASE64" | base64 -d > ~/private_keys/AuthKey_$ASC_KEY_ID.p8
+          xcrun altool --upload-app -t ios -f JeNi-bucht-build-${{ github.run_number }}.ipa \
+            --apiKey "$ASC_KEY_ID" --apiIssuer "$ASC_ISSUER_ID"
+          rm -f ~/private_keys/AuthKey_$ASC_KEY_ID.p8

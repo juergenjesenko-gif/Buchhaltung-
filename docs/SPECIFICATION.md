@@ -1,6 +1,6 @@
 # Spezifikation – Buchhaltung
 
-**Dokumentversion:** 1.62 · **App-Version:** 0.16.0 · **Stand:** 2026-10-16
+**Dokumentversion:** 1.63 · **App-Version:** 0.16.0 · **Stand:** 2026-10-16
 **Status:** Testbuild 0.16.0 (Schema 20); Store-Start offen, siehe Abschnitt 11 und 14
 
 > Das **Zielbild** des Produkts steht im [`LASTENHEFT.md`](LASTENHEFT.md); dieses
@@ -971,6 +971,15 @@ Android `com.android.vending.BILLING` fügt das Paket `in_app_purchase_android` 
 Android benötigt für `image_picker` keine Manifest-Berechtigung, weil die
 Aufnahme über die System-Kamera-App per Intent läuft.
 
+**iOS-Datenschutz-Manifest** `ios/Runner/PrivacyInfo.xcprivacy` (Ressource im
+Runner-Target): `NSPrivacyTracking` false, keine Tracking-Domains; Required-Reason-API
+nur Dateizeitstempel `C617.1` (dart:io, App-Container); erhobene Datenarten
+Kaufverlauf und sonstige Finanzinfos, nicht verknüpft, App-Funktionalität – wie
+das App Privacy Label in `docs/STORE_LISTING.md`. Die Plugins bringen eigene
+Manifeste mit. `CFBundleLocalizations` = `de`, damit iOS die App und die
+Systemdialoge (Berechtigungstexte oben) als deutschsprachig führt. Abgleich im
+ersten Review: P-B15.
+
 Details: [`docs/PRIVACY.md`](PRIVACY.md).
 
 ---
@@ -1129,6 +1138,7 @@ Dauerfristverlängerung, `02-15,…` = feste Tage, `+1j07-31` = Folgejahr,
 
 | Version | Datum | App-Version | Änderung |
 |---|---|---|---|
+| 1.63 | 2026-10-16 | 0.16.0 | Release-Vorbereitung ohne Verhaltensänderung der App: iOS-Datenschutz-Manifest und `CFBundleLocalizations` de (10.2); Release-Workflow signiert Android-AAB und iOS-IPA über Secrets, optionaler Play-/TestFlight-Upload; Skript `tool/release/bundle_id_wechsel.sh` für O-33 (nicht ausgeführt). Neue Prüfpunkte P-B15, P-B16, P-D34. Prüfinstanzen: Rechtsanwalt (Datenschutzangaben deckungsgleich mit STORE_LISTING/PRIVACY), Softwareentwickler (Manifest nur mit tatsächlich genutzter API, keine Schlüssel im Repository), Steuerberater und UX ohne Befund (keine Oberflächen- oder Steueränderung). |
 | 1.62 | 2026-10-16 | 0.16.0 | FA-2.50 Lernen je Lieferant (Schema 20 `supplier_memory`, 4.1, 10.1, 11); FA-7.16 iCloud-Sicherung unter iOS und Liste zum Wiederherstellen (5.5a, 7, 10.1, 11); `spec.schema_version` 20 (12); P-B13, P-B14, P-X11, P-D33 neu, P-D3 präzisiert (14). Geprüft mit den Prüfinstanzen Rechtsanwalt (Apple als Auftragsverarbeiter, Opt-in), Steuerberater (Gelerntes nur als Vorschlag, gebucht wird Bestätigtes), Softwareentwickler (Entitlements ohne Wirkung im unsignierten CI-Build), UX (Knöpfe ≥ 48 dp, Listeneinträge 56 dp, ein Tipp weniger beim Einrichten mit iCloud). |
 | 1.61 | 2026-10-16 | 0.15.0 | FA-13.13 Promo-Code `JENIBUCHT2M` (2 Monate Pro gratis) über Apple-Angebotscodes und Google-Play-Promo-Codes, Abo-Seite „Promo-Code einlösen“; Kenndaten `spec.license_promo_code`, `spec.license_promo_free_months`; P-R40, P-D32. Kein Schemawechsel. |
 | 1.60 | 2026-10-16 | 0.15.0 | Angebote und Artikel (FA-5.40 bis FA-5.47), Schema 19 mit `articles`, `offers`, `offer_items` (4.1); FA-5.2 um Angebote ergänzt; Bildschirme Angebote und Artikel (7); Kenndaten `spec.offer_number_pattern`, `spec.offer_validity_days`, `spec.schema_version` 19 (12); P-U8, P-R39 (14). |
@@ -1325,6 +1335,8 @@ Status: *offen* · *bestätigt* (mit Datum und Prüfer) · *widerlegt* (mit Folg
 | P-B12 | Gerätetest: Wiederherstellung aus einer Sicherung in Google Drive auf einem zweiten oder frisch installierten Gerät | Zurückholen ist der eigentliche Prüfstein | vor Release | offen |
 | P-B13 | Eigentümer: iCloud-Container `iCloud.<Bundle-ID>` im Apple Developer Portal anlegen und der App-ID zuordnen (vor erstem signierten Build bzw. `release.yml`, nach O-33 für die neue Bundle-ID erneut) | ohne Container scheitert die Signatur mit Entitlement; unsignierter CI-Build unberührt | erster signierter iOS-Build | offen |
 | P-B14 | Gerätetest iPhone: „Einrichten“ ohne Ordnerwahl schreibt nach iCloud Drive › JeNi bucht, Ordner in der Dateien-App sichtbar; „Wiederherstellen“ listet die Sicherungen auch auf einem Zweitgerät (ausgelagerte `.icloud`-Dateien werden geladen); iCloud abgemeldet → Ordnerwahl | nur kompiliert | vor Release | offen |
+| P-B15 | Eigentümer, erste Einreichung: App Privacy Label in App Store Connect so ausfüllen wie `STORE_LISTING.md` (Formularantworten) und mit `ios/Runner/PrivacyInfo.xcprivacy` abgleichen; Xcode „Generate Privacy Report“ auf dem Archiv ohne Warnung; Apple-Review akzeptiert die Angaben | Manifest nach Plugin-Manifesten und eigenem Code erstellt, nicht von Apple bestätigt | erste Einreichung | offen |
+| P-B16 | Eigentümer: Secrets für `release.yml` anlegen (RELEASE_PLAYBOOK „Secrets für den Release-Workflow“), Workflow einmal starten: signierte AAB und IPA entstehen, IPA erscheint in TestFlight; erste AAB von Hand in die Play Console | Workflow nur syntaktisch geprüft, ohne Secrets nicht lauffähig | erste Einreichung | offen |
 | P-M1 | Steuerberatung AT bestätigt Nummernkreise je Gerät/Person mit Präfix (UStR Rz 1565); DE nach UStAE 14.5 Abs 10 | Prüfinstanzen: zulässig, wenn Präfix fest und dokumentiert | Stufe C | offen |
 | P-M2 | Steuerberatung: Ordnungsmäßigkeit, wenn Buchhaltungsdaten im (privaten) Cloud-Konto liegen; § 131 Abs 1 BAO bei Ablage außerhalb Österreichs; Umgang mit doppeltem Storno | — | Stufe C | offen |
 | P-M3 | Arbeitsrecht AT: § 96/96a ArbVG bei Erfasser-Kennung mit Zeitstempel; DE § 87 BetrVG | Erfasser-Vermerk ohne Auswertung berührt Menschenwürde in der Regel nicht | Stufe C | offen |
@@ -1445,4 +1457,5 @@ Status: *offen* · *bestätigt* (mit Datum und Prüfer) · *widerlegt* (mit Folg
 | P-D30 | Store-Produkte anlegen (STORE_ANMELDUNG.md Abschnitt Abo): eine Abogruppe, IDs `basis_monat`, `basis_jahr`, `pro_monat`, `pro_jahr` exakt wie im Code, Preise nach Lastenheft 5.10, Einführungsangebot 14 Tage gratis auf beiden Pro-Produkten, Grace Period an; Verträge für kostenpflichtige Apps, Bank- und Steuerdaten; Store-Build mit `--dart-define=LICENSING=true` (CI-Release-Workflow) | Code erwartet genau diese IDs (`spec.license_product_ids`); ohne Schalter läuft jeder Build als Testversion | Store-Start | offen |
 | P-D32 | Promo-Code in beiden Stores anlegen (`STORE_ANMELDUNG.md` Formular 4, Abschnitt Promo-Code) und einlösen: Android über die Abo-Seite und über `https://play.google.com/redeem?code=JENIBUCHT2M`, iOS über das Einlöseblatt und über den App-Store-Link mit echter Apple-ID der App (`id=<APP_ID>` ersetzen); Pro aktiv nach Rückkehr, Erinnerung zum Ende der 2 Monate, Kündigung in der Gratiszeit kostenlos | Logik mit Store-Ersatz getestet (`licensing_test.dart`); Apple-ID der App existiert noch nicht | vor der ersten Kampagne | offen |
 | P-D33 | Lernen je Lieferant an echten Belegen: zweiter Bon desselben Händlers (andere Filiale, schlechteres Foto) wird erkannt und vorbelegt; keine falsche Zuordnung bei ähnlichen Namen (z. B. „Billa“ / „Billa Plus“) | Unit-Tests mit Varianten | vor Release | offen |
+| P-D34 | Store-Screenshots mit den Demodaten aus `STORE_LISTING.md` aufnehmen (Android 1080×1920, iPhone 6,9", iPad 13"), Inhalt gegen Werbe-Negativliste prüfen; optional automatisiert über `integration_test` (Plan dort) | nur Plan und Demodaten | erste Einreichung | offen |
 | P-D31 | Store-Abfrage auf Geräten (FA-13.6): StoreKit 2 ohne aktives Abo – kommt innerhalb 7 s eine Meldung oder gilt „leer“ zu Recht? Android mit Abo in Grace Period bzw. Kontosperre (on hold) – meldet Play den Kauf weiter? Kein falsches Herabstufen bei schlechtem Netz | Verlässlichkeit nur mit geladener Produktliste; sonst bleibt der Stand | Store-Start | offen |

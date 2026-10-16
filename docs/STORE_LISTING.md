@@ -8,8 +8,9 @@ Textvorlagen für Google Play und den App Store. Deutsch, weil die Zielgruppe
 **JeNi bucht** (10 von 30 Zeichen bei Google Play). Festgelegt von der
 Auftraggeberin am 2026-10-15 nach Markenrecherche ohne Befund (Lastenheft O-2,
 O-25; Spezifikation 14, P-R7). Die technische Kennung bleibt vorerst
-`at.jesenko.buchhaltung`; die Store-Kennung wird vor der ersten Einreichung
-festgelegt (Lastenheft O-33).
+`at.jesenko.buchhaltung`; Store-Kennung `at.jenibarb.jenibucht`, gewechselt
+unmittelbar vor der ersten Einreichung mit `tool/release/bundle_id_wechsel.sh`
+(Lastenheft O-33, `docs/RELEASE_PLAYBOOK.md`).
 
 ## Kurzbeschreibung (Google Play, max. 80 Zeichen)
 
@@ -88,7 +89,11 @@ Steuerberatung und keine Registrierkasse nach RKSV.
 
 ## Kategorie
 
-Finanzen / Wirtschaft
+- Google Play: App, Kategorie **Finanzen**; Tags Buchhaltung, Rechnungen.
+- App Store: Hauptkategorie **Finanzen**, Nebenkategorie **Wirtschaft**.
+- Länder: Österreich und Deutschland (weitere erst mit Länderprofil).
+- Sprache des Eintrags: Deutsch (de-AT und de-DE mit gleichem Text; Play
+  „Deutsch – de-DE“ genügt, AT erbt ihn).
 
 ## Suchbegriffe (App Store, max. 100 Zeichen)
 
@@ -102,21 +107,45 @@ buchhaltung,belege,rechnung,kassabuch,kleinunternehmer,umsatzsteuer,eür,datev,b
 |---|---|---|
 | App-Icon | 512×512 PNG | 1024×1024 PNG, ohne Alphakanal |
 | Feature-Grafik | 1024×500 | – |
-| Screenshots Telefon | min. 2, 16:9 oder 9:16 | 6,7" und 6,5" je min. 3 |
-| Screenshots Tablet | optional | nur bei iPad-Unterstützung |
+| Screenshots Telefon | 2–8, **1080×1920** (9:16) | **6,9"** 1320×2868 (Pflicht, 3–10); 6,5" 1284×2778 nur falls 6,9" fehlt |
+| Screenshots Tablet | 7" und 10" empfohlen (1200×1920, 1600×2560) | **iPad 13" 2064×2752 Pflicht**, weil die App das iPad unterstützt (FA-9.5) |
 
 ### Screenshot-Reihenfolge
 
 Die ersten zwei entscheiden über die Installation:
 
-1. **Dashboard** mit gefüllten Zahlen und der Kleinunternehmer-Ampel
-2. **Belegerfassung** mit Belegfoto und der Netto-/USt-Aufschlüsselung
-3. **Rechnungs-PDF**
+1. **Übersicht** mit gefüllten Zahlen und der Kleinunternehmer-Ampel
+2. **Beleg bearbeiten** mit Belegfoto, „erkannt – bitte prüfen“ und Netto/USt
+3. **Rechnungs-PDF** (Vorschau einer gestellten Rechnung)
 4. **Belegliste** mit Monatsgruppierung
-5. **Export** mit Formatauswahl
+5. **Export** mit Formatauswahl (DATEV/BMD/CSV)
+6. **Abo-Seite** Basis/Pro mit Preisen (Pflichttext sichtbar)
 
-Für die Aufnahmen realistische, aber erfundene Daten verwenden – keine echten
-Kundennamen oder Beträge.
+Je Screenshot eine Überschrift in der Grafik, höchstens fünf Wörter, ohne
+Wörter der Werbe-Negativliste.
+
+### Demodaten für die Aufnahmen
+
+Realistische, aber **erfundene** Daten – keine echten Kunden- oder
+Händlernamen, keine echten UID-Nummern:
+
+| Art | Inhalt |
+|---|---|
+| Profil | „Grafikdesign Muster“, Musterstraße 1, 1010 Wien, AT, Kleinunternehmer |
+| Kunden | „Bäckerei Sonnenschein“, „Atelier Blau KG“, „Verein Laufgruppe Nord“ |
+| Rechnungen | 6 Stück Jan–Jun, 380 € bis 2.400 €, zwei offen, eine gemahnt |
+| Belege | 18 Stück: Büromaterial, Software-Abo, Bahnticket, Kamera (Fremdwährung USD), Kassenbon mit 20 %/10 % |
+| Jahresumsatz | ca. 41.000 € (Ampel gelb gegen 55.000 €) |
+
+### Erzeugen
+
+Plan (noch nicht gebaut, Prüfpunkt P-D34): ein `integration_test`
+(`integration_test/screenshots_test.dart`) legt die Demodaten über die
+Repositories in einer frischen Datenbank an, öffnet die sechs Bildschirme und
+ruft `binding.takeScreenshot` auf; Ausführung mit `flutter drive` im
+Android-Emulator (1080×1920, Pixel 5) und im iOS-Simulator (iPhone 16 Pro Max,
+iPad Pro 13") auf `macos-latest`, als optionaler CI-Job. Bis dahin von Hand
+auf dem Gerät mit den Demodaten aufnehmen.
 
 ## Datensicherheit / App-Datenschutz
 
@@ -168,6 +197,32 @@ Review zu bestätigen (P-B9, P-B6). Google Data Safety: nicht betroffen.
 Ohne Einschränkung. Keine nutzergenerierten Inhalte, keine Interaktion zwischen
 Nutzern. **In-App-Käufe: ja** (Abos Basis und Pro, Lastenheft 5.22) – in beiden
 Stores angeben.
+
+**Google Play (IARC-Fragebogen):** Kategorie „Andere App-Typen (Dienstprogramm,
+Produktivität …)“. Gewalt, Sexualität, Sprache, Drogen, Glücksspiel: nein.
+Nutzer können interagieren oder Inhalte austauschen: nein. Teilt den
+Standort: nein. Digitale Käufe: ja. Zielgruppe: ab 18 (Unternehmerinnen), keine
+Kinder; App spricht Kinder nicht an. Erwartetes Ergebnis: PEGI 3 / USK 0.
+
+**App Store (Altersfreigabe):** alle Inhaltsfragen „Keine“, unbeschränkter
+Webzugriff: nein (nur feste Adressen VIES, EZB, Link-QR), Glücksspiel: nein,
+Nutzerinhalte: nein. Erwartetes Ergebnis 4+.
+
+## Formularantworten Datensicherheit (Google) und App-Datenschutz (Apple)
+
+Zusammengefasst aus dem Abschnitt oben; maßgeblich bleibt dieser, und
+`ios/Runner/PrivacyInfo.xcprivacy` muss dazu passen (P-B15).
+
+| Frage | Google Play | Apple |
+|---|---|---|
+| Erhebt oder teilt die App Daten? | ja | ja („Data Used to Track You“: nein) |
+| Finanzinformationen – andere (UID-Prüfung VIES) | geteilt, verschlüsselt, optional, App-Funktion | Sonstige Finanzinfos, nicht verknüpft, App-Funktionalität |
+| Kaufverlauf (Store-Abfrage) | erhoben, nicht geteilt, App-Funktion | Käufe, nicht verknüpft, App-Funktionalität |
+| App-Info und -Leistung (ML Kit, nur Android) | Absturzprotokolle/Diagnose, geteilt mit Google, Analyse | – (Vision sendet nichts) |
+| Fotos, Dateien, Standort, Kontakte | nein (bleiben auf dem Gerät) | nein |
+| Verschlüsselte Übertragung | ja | – |
+| Löschanfrage möglich | Daten liegen nur auf dem Gerät: App löschen | – |
+| Tracking | nein | nein, `NSPrivacyTracking` false |
 
 ## Werbe-Negativliste
 

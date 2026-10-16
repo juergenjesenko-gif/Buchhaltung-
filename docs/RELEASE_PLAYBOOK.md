@@ -2,31 +2,47 @@
 
 Weg von diesem Repository in den App Store und den Google Play Store.
 
-## Vor dem allerersten Upload: Bundle-ID festlegen
+## Vor dem allerersten Upload: Bundle-ID wechseln
 
-Aktuell steht überall `at.jesenko.buchhaltung`. **Diese ID ist nach dem ersten
-Store-Upload unveränderlich** – bei Apple und bei Google. Eine Änderung später
-bedeutet eine neue App ohne Bewertungen und ohne bestehende Nutzer.
+Entschieden (Lastenheft O-33, 2026-10-15): Store-Kennung
+`at.jenibarb.jenibucht`. Bis zur ersten Einreichung bleibt
+`at.jesenko.buchhaltung`, damit Testgeräte ohne Neuinstallation aktualisieren.
+**Die Kennung ist nach dem ersten Store-Upload unveränderlich.**
 
-Entscheide sie also jetzt, idealerweise als umgekehrte Domain, die dir gehört.
-Zu ändern an drei Stellen:
+Auslöser: unmittelbar vor der ersten Einreichung, in einem eigenen Commit.
 
-```bash
-# 1. Android
-android/app/build.gradle.kts          # namespace UND applicationId
-# 2. iOS
-ios/Runner.xcodeproj/project.pbxproj  # PRODUCT_BUNDLE_IDENTIFIER (3 Vorkommen:
-                                      # Debug, Release, Profile)
-# 3. Release-Workflow
-.github/workflows/release.yml         # packageName im Play-Upload-Schritt
-```
+1. Auf den Testgeräten eine Datensicherung anlegen (neue Kennung = neue App).
+2. `tool/release/bundle_id_wechsel.sh` im Repository-Wurzelordner ausführen.
+   Es ändert Android `applicationId`/`namespace`, verschiebt das Kotlin-Paket,
+   setzt iOS `PRODUCT_BUNDLE_IDENTIFIER` und den Play-`packageName` in
+   `release.yml`. Der iCloud-Container `iCloud.<Bundle-ID>` folgt von selbst.
+3. Die ausgegebenen Restfundstellen in der Doku nachführen, `flutter analyze`,
+   `flutter test`.
+4. Im Apple Developer Portal App-ID und iCloud-Container für die neue Kennung
+   anlegen (P-B13), in der Play Console die App mit der neuen Kennung.
 
-Am einfachsten neu generieren lassen und die Änderungen übernehmen:
+## Secrets für den Release-Workflow
 
-```bash
-flutter create --org com.deine-domain --project-name buchhaltung \
-  --platforms=android,ios .
-```
+`.github/workflows/release.yml` wird von Hand gestartet (Actions → Release →
+Run workflow). Secrets anlegen unter
+<https://github.com/juergenjesenko-gif/Buchhaltung-/settings/secrets/actions>:
+
+| Secret | Inhalt | Pflicht |
+|---|---|---|
+| `ANDROID_KEYSTORE_BASE64` | `base64 -w0 upload-keystore.jks` | Android |
+| `ANDROID_STORE_PASSWORD`, `ANDROID_KEY_PASSWORD`, `ANDROID_KEY_ALIAS` | Kennwörter und Alias des Upload-Schlüssels | Android |
+| `PLAY_SERVICE_ACCOUNT_JSON` | JSON des Play-Dienstkontos | optional: ohne Secret kein automatischer Upload |
+| `APP_STORE_CONNECT_KEY_ID`, `APP_STORE_CONNECT_ISSUER_ID` | App Store Connect → Benutzer und Zugriff → Integrationen → API-Schlüssel (Rolle Admin) | iOS signiert |
+| `APP_STORE_CONNECT_KEY_BASE64` | `base64 -i AuthKey_<ID>.p8` | iOS signiert |
+| `APPLE_TEAM_ID` | Membership Details im Developer Portal | iOS signiert |
+
+Ergebnis: Android `JeNi-bucht-<Version>-build-<Nr>.aab` als ungezipptes
+Artefakt, bei vorhandenem Dienstkonto zusätzlich als **Entwurf** im gewählten
+Play-Track (der erste Upload muss von Hand erfolgen). iOS mit allen vier
+Apple-Secrets: signierte IPA (Xcode-Cloud-Signierung über den API-Schlüssel,
+kein Zertifikat im Repository) und Upload zu TestFlight; ohne Secrets ein
+unsigniertes Archiv zur Kontrolle, dass der Store-Build kompiliert.
+Keystore, `.p8` und `key.properties` werden nie committet.
 
 ## Versionierung
 
