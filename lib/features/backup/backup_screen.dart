@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import 'package:flutter/material.dart';
 
 import '../../widgets/danger_zone.dart';
@@ -8,6 +10,7 @@ import '../../app_state.dart';
 import '../../core/formatting.dart';
 import '../../data/app_database.dart';
 import '../../domain/company_profile.dart';
+import '../../services/backup/auto_backup_service.dart';
 import '../../services/backup/backup_archive.dart';
 import '../../services/backup/backup_crypto.dart';
 import '../../data/auto_backup_settings.dart';
@@ -66,13 +69,39 @@ class _BackupScreenState extends State<BackupScreen> {
   Future<void> _restore() async {
     final bytes = await PlatformBackupTarget.pickFile();
     if (bytes == null || !mounted) return;
+    await _restoreBytes(bytes);
+  }
 
-    final passphrase = await showDialog<String>(
-      context: context,
-      builder: (_) => const _PassphraseDialog(),
-    );
-    if (passphrase == null || !mounted) return;
+  /// Gemeinsamer Weg für gewählte Datei und Liste der automatischen
+  /// Sicherungen (FA-7.16): erst mit dem Schlüssel dieses Geräts, sonst mit
+  /// Kennwort oder Wiederherstellungscode.
+  Future<void> _restoreBytes(Uint8List bytes) async {
+    BackupContent? content;
+    final key = await const SecureBackupKeyStore().read();
+    if (key != null) {
+      try {
+        content = await BackupService.openWithKey(bytes, key);
+      } on Object {
+        content = null;
+      }
+    }
+    if (!mounted) return;
+    if (content == null) {
+      final passphrase = await showDialog<String>(
+        context: context,
+        builder: (_) => const _PassphraseDialog(),
+      );
+      if (passphrase == null || !mounted) return;
+      content = await _openWithPassphrase(bytes, passphrase);
+      if (content == null || !mounted) return;
+    }
+    await _confirmAndRestore(content);
+  }
 
+  Future<BackupContent?> _openWithPassphrase(
+    Uint8List bytes,
+    String passphrase,
+  ) async {
     setState(() => _busy = true);
     BackupContent content;
     try {
@@ -82,17 +111,19 @@ class _BackupScreenState extends State<BackupScreen> {
         setState(() => _busy = false);
         showSnack(context, error.toString());
       }
-      return;
+      return null;
     } on BackupFormatException catch (error) {
       if (mounted) {
         setState(() => _busy = false);
         showSnack(context, error.message);
       }
-      return;
+      return null;
     }
-    if (!mounted) return;
-    setState(() => _busy = false);
+    if (mounted) setState(() => _busy = false);
+    return content;
+  }
 
+  Future<void> _confirmAndRestore(BackupContent content) async {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (_) => _RestorePreview(manifest: content.manifest),
@@ -153,7 +184,7 @@ class _BackupScreenState extends State<BackupScreen> {
               ),
             ),
             const SizedBox(height: 16),
-            const _AutoBackupSection(),
+            _AutoBackupSection(onRestore: _restoreBytes),
             const SizedBox(height: 16),
             SectionCard(
               title: 'Wiederherstellen',
@@ -367,7 +398,10 @@ class BackupReminder extends StatelessWidget {
 
 /// Automatische Sicherung in einen einmal gewählten Ordner (L-7.2, L-7.6 ff.).
 class _AutoBackupSection extends StatefulWidget {
-  const _AutoBackupSection();
+  const _AutoBackupSection({required this.onRestore});
+
+  /// Gewählte Sicherung aus der Liste wiederherstellen (FA-7.16).
+  final Future<void> Function(Uint8List bytes) onRestore;
 
   @override
   State<_AutoBackupSection> createState() => _AutoBackupSectionState();
@@ -376,6 +410,9 @@ class _AutoBackupSection extends StatefulWidget {
 class _AutoBackupSectionState extends State<_AutoBackupSection> {
   AutoBackupSettings? _settings;
   bool _busy = false;
+
+  /// iCloud-Container verfügbar (nur iOS, FA-7.16).
+  bool _icloud = false;
 
   @override
   void initState() {
@@ -388,17 +425,31 @@ class _AutoBackupSectionState extends State<_AutoBackupSection> {
       await AppDatabase.instance.database,
     );
     final loaded = await settings;
-    if (mounted) setState(() => _settings = loaded);
+    final icloud = await PlatformBackupTarget.icloudAvailable();
+    if (mounted) {
+      setState(() {
+        _settings = loaded;
+        _icloud = icloud;
+      });
+    }
   }
 
-  Future<void> _enable() async {
+  /// Einrichten: unter iOS mit iCloud ohne Ordnerwahl in den App-Container
+  /// (L-7.17); sonst oder mit [chooseFolder] über die Ordnerauswahl (L-7.18).
+  Future<void> _enable({bool chooseFolder = false}) async {
+    final useIcloud = !chooseFolder && _icloud;
     final agreed = await showDialog<bool>(
       context: context,
-      builder: (_) => const _AutoBackupExplanation(),
+      builder: (_) => _AutoBackupExplanation(icloud: useIcloud),
     );
     if (agreed != true || !mounted) return;
 
-    final picked = await PlatformBackupTarget.pick();
+    final picked = useIcloud
+        ? (
+            folder: PlatformBackupTarget.icloud,
+            label: PlatformBackupTarget.icloudLabel,
+          )
+        : await PlatformBackupTarget.pick();
     if (picked == null || !mounted) return;
 
     final key = RecoveryCode.newKey();
@@ -473,6 +524,61 @@ class _AutoBackupSectionState extends State<_AutoBackupSection> {
     }
   }
 
+  /// Liste der automatischen Sicherungen im Ordner; ein Tipp stellt wieder
+  /// her (nach Vorschau und Bestätigung).
+  Future<void> _pickBackup() async {
+    setState(() => _busy = true);
+    List<String> names;
+    AutoBackupService? service;
+    try {
+      service = await AppScope.read(context).autoBackupService();
+      names = await service?.backups() ?? const [];
+    } catch (error) {
+      if (mounted) showSnack(context, 'Ordner nicht lesbar: $error');
+      return;
+    } finally {
+      if (mounted) setState(() => _busy = false);
+    }
+    if (!mounted) return;
+    if (names.isEmpty) {
+      showSnack(context, 'Im Ordner liegt keine automatische Sicherung.');
+      return;
+    }
+    final chosen = await showModalBottomSheet<String>(
+      context: context,
+      showDragHandle: true,
+      builder: (context) => SafeArea(
+        child: ListView(
+          shrinkWrap: true,
+          children: [
+            for (final name in names)
+              ListTile(
+                minTileHeight: 56,
+                leading: const Icon(Icons.restore),
+                title: Text(
+                  'Sicherung vom ${Fmt.date(BackupRetention.parse(name)!)}',
+                ),
+                subtitle: Text(name),
+                onTap: () => Navigator.of(context).pop(name),
+              ),
+          ],
+        ),
+      ),
+    );
+    if (chosen == null || !mounted) return;
+    setState(() => _busy = true);
+    Uint8List bytes;
+    try {
+      bytes = await service!.target.read(chosen);
+    } catch (error) {
+      if (mounted) showSnack(context, 'Sicherung nicht lesbar: $error');
+      return;
+    } finally {
+      if (mounted) setState(() => _busy = false);
+    }
+    await widget.onRestore(bytes);
+  }
+
   Future<void> _disable() async {
     final sure = await confirmDestructive(
       context,
@@ -503,7 +609,7 @@ class _AutoBackupSectionState extends State<_AutoBackupSection> {
           else if (!settings.enabled) ...[
             const Text(
               'Sichert nach jeder Änderung höchstens einmal täglich in einen '
-              'Ordner deiner Wahl, etwa in iCloud Drive oder Google Drive. '
+              'Ordner deiner Wahl, etwa in Google Drive, unter iOS in dein iCloud Drive. '
               'Standardmäßig aus.',
             ),
             const SizedBox(height: 16),
@@ -545,7 +651,16 @@ class _AutoBackupSectionState extends State<_AutoBackupSection> {
                   child: const Text('Sicherung prüfen'),
                 ),
                 OutlinedButton(
-                  onPressed: _busy ? null : _enable,
+                  onPressed: _busy ? null : _pickBackup,
+                  child: const Text('Wiederherstellen'),
+                ),
+                if (_icloud && settings.folder != PlatformBackupTarget.icloud)
+                  OutlinedButton(
+                    onPressed: _busy ? null : _enable,
+                    child: const Text('In iCloud sichern'),
+                  ),
+                OutlinedButton(
+                  onPressed: _busy ? null : () => _enable(chooseFolder: true),
                   child: const Text('Ordner ändern'),
                 ),
                 TextButton(
@@ -571,18 +686,29 @@ class _AutoBackupSectionState extends State<_AutoBackupSection> {
 
 /// Erklärseite vor dem Einschalten (Prüfinstanzen Rechtsanwalt, Steuerberater).
 class _AutoBackupExplanation extends StatelessWidget {
-  const _AutoBackupExplanation();
+  const _AutoBackupExplanation({this.icloud = false});
+
+  /// Ziel ist der iCloud-Container (FA-7.16) statt eines gewählten Ordners.
+  final bool icloud;
+
+  String get _where => icloud
+      ? '• Die Sicherung enthält alle Daten und Belegfotos – auch Angaben '
+            'deiner Kunden und Lieferanten. Sie landet in deinem iCloud Drive '
+            'im Ordner „JeNi bucht“ (in der Dateien-App sichtbar), bei Apple '
+            'und unter dessen Bedingungen, auch außerhalb der EU. Ausschalten '
+            'kannst du sie hier jederzeit.'
+      : '• Die Sicherung enthält alle Daten und Belegfotos – auch Angaben '
+            'deiner Kunden und Lieferanten. Sie landet in dem Ordner, den du '
+            'gleich wählst, bei einem Dienst deiner Wahl und unter dessen '
+            'Bedingungen. Viele dieser Dienste speichern außerhalb der EU.';
 
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
       title: const Text('Automatische Sicherung'),
-      content: const SingleChildScrollView(
+      content: SingleChildScrollView(
         child: Text(
-          '• Die Sicherung enthält alle Daten und Belegfotos – auch Angaben '
-          'deiner Kunden und Lieferanten. Sie landet in dem Ordner, den du '
-          'gleich wählst, bei einem Dienst deiner Wahl und unter dessen '
-          'Bedingungen. Viele dieser Dienste speichern außerhalb der EU.\n\n'
+          '$_where\n\n'
           '• Die Datei ist verschlüsselt (AES-256). Der Dienst sieht nur Name, '
           'Größe und Zeitpunkt; wir sehen nichts.\n\n'
           '• Der Schlüssel bleibt auf diesem Gerät. Du bekommst gleich einen '
@@ -601,7 +727,7 @@ class _AutoBackupExplanation extends StatelessWidget {
         ),
         FilledButton(
           onPressed: () => Navigator.of(context).pop(true),
-          child: const Text('Ordner wählen'),
+          child: Text(icloud ? 'In iCloud sichern' : 'Ordner wählen'),
         ),
       ],
     );

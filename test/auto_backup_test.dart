@@ -180,6 +180,21 @@ void main() {
       expect(profile['auto_backup_last_at'], isNull);
     });
 
+    test('Liste zum Wiederherstellen: neueste zuerst, mit Geräteschlüssel '
+        'ohne Code lesbar (FA-7.16)', () async {
+      await service.run(now: DateTime(2026, 10, 8, 9));
+      await service.run(now: DateTime(2026, 10, 10, 9));
+      target.files['Rechnung.pdf'] = Uint8List(1);
+      final names = await service.backups();
+      expect(names, hasLength(2));
+      expect(names.first, startsWith('Auto-Sicherung_2026-10-10'));
+      final content = await BackupService.openWithKey(
+        target.files[names.first]!,
+        keys.key!,
+      );
+      expect(content.manifest.companyName, 'Atelier');
+    });
+
     test('ohne Schlüssel kein stilles Weiterlaufen', () async {
       keys.key = null;
       final outcome = await service.run(now: DateTime(2026, 10, 10));

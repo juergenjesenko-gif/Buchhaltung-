@@ -155,6 +155,14 @@ class AutoBackupService {
     return content.manifest;
   }
 
+  /// Automatische Sicherungen im Ordner, neueste zuerst (Liste zum
+  /// Wiederherstellen, FA-7.16).
+  Future<List<String>> backups() async =>
+      (await target.list())
+          .where((n) => BackupRetention.parse(n) != null)
+          .toList()
+        ..sort((a, b) => b.compareTo(a));
+
   Future<AutoBackupOutcome> _fail(DateTime at, String message) async {
     await _db.update('company_profile', {'auto_backup_last_error': message});
     await _log(at, 'auto_backup_failed', message);

@@ -13,6 +13,25 @@ class PlatformBackupTarget implements BackupTarget {
 
   static const _channel = MethodChannel('buchhaltung/backup_folder');
 
+  /// Kennung des App-eigenen iCloud-Drive-Containers (iOS, FA-7.16). Statt
+  /// eines Bookmarks gespeichert; der Plattformcode löst ihn selbst auf.
+  static const icloud = 'icloud';
+
+  /// Anzeigename des iCloud-Ordners, wie ihn die Dateien-App zeigt.
+  static const icloudLabel = 'iCloud Drive › JeNi bucht';
+
+  /// iCloud angemeldet und für die App erlaubt? Unter Android und ohne
+  /// iCloud immer `false` (L-7.18: dann Ordnerwahl).
+  static Future<bool> icloudAvailable() async {
+    try {
+      return await _channel.invokeMethod<bool>('icloudAvailable') ?? false;
+    } on PlatformException {
+      return false;
+    } on MissingPluginException {
+      return false;
+    }
+  }
+
   /// Öffnet die Ordnerauswahl. `null`, wenn abgebrochen; sonst Ordner und
   /// Anzeigename.
   static Future<({String folder, String label})?> pick() async {

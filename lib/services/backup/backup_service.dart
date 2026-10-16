@@ -108,9 +108,21 @@ class BackupService {
 
   /// Entschlüsselt und entpackt eine Sicherung, ohne etwas zu verändern –
   /// Grundlage der Vorschau (L-7.3).
-  static Future<BackupContent> open(Uint8List data, String passphrase) async {
-    final zip = await BackupCrypto.decrypt(data, passphrase);
-    final content = BackupArchive.unpack(zip);
+  static Future<BackupContent> open(Uint8List data, String passphrase) async =>
+      _checked(
+        BackupArchive.unpack(await BackupCrypto.decrypt(data, passphrase)),
+      );
+
+  /// Wie [open], aber mit dem Schlüssel der automatischen Sicherung auf
+  /// diesem Gerät: Wiederherstellen aus der Liste ohne Code (FA-7.16).
+  static Future<BackupContent> openWithKey(
+    Uint8List data,
+    Uint8List key,
+  ) async => _checked(
+    BackupArchive.unpack(await BackupCrypto.decryptWithKey(data, key)),
+  );
+
+  static BackupContent _checked(BackupContent content) {
     if (content.manifest.schemaVersion > AppDatabase.schemaVersion) {
       throw const BackupFormatException(
         'Die Sicherung stammt aus einer neueren App-Version. '

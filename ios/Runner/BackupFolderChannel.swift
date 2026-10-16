@@ -5,8 +5,14 @@ import UniformTypeIdentifiers
 /// Ordner für die automatische Sicherung (Lastenheft L-7.2, L-7.8): die
 /// Nutzerin wählt einmal einen Ordner, etwa in iCloud Drive. Die App merkt
 /// sich ein Security-Scoped Bookmark und schreibt danach ohne erneute
-/// Auswahl dorthin; den Upload übernimmt das System. Kein iCloud-Entitlement,
-/// kein Server.
+/// Auswahl dorthin; den Upload übernimmt das System. Kein Server.
+///
+/// Sonderfall `folder == "icloud"` (FA-7.16, Lastenheft L-7.17 bis L-7.20):
+/// der App-eigene iCloud-Drive-Container (iCloud Documents, kein CloudKit),
+/// Unterordner `Documents`, in der Dateien-App als „JeNi bucht“ sichtbar.
+/// Die Container-ID steht nur in `Runner.entitlements` und `Info.plist`, je
+/// abgeleitet aus der Bundle-ID (`iCloud.$(PRODUCT_BUNDLE_IDENTIFIER)`, O-33);
+/// hier wird der erste Container der Entitlements genommen (`nil`).
 final class BackupFolderChannel: NSObject, UIDocumentPickerDelegate {
   private let channel: FlutterMethodChannel
   private var pending: FlutterResult?
@@ -28,6 +34,14 @@ final class BackupFolderChannel: NSObject, UIDocumentPickerDelegate {
       pickFile(result)
       return
     }
+    if call.method == "icloudAvailable" {
+      // Nicht auf dem Hauptthread: der erste Aufruf kann den Container anlegen.
+      DispatchQueue.global(qos: .utility).async {
+        let ok = (try? Self.icloudFolder()) != nil
+        DispatchQueue.main.async { result(ok) }
+      }
+      return
+    }
     guard let args = call.arguments as? [String: Any],
           let folder = args["folder"] as? String
     else {
@@ -41,7 +55,14 @@ final class BackupFolderChannel: NSObject, UIDocumentPickerDelegate {
           case "isAvailable":
             return FileManager.default.isWritableFile(atPath: url.path)
           case "list":
-            return try FileManager.default.contentsOfDirectory(atPath: url.path)
+            // Nicht geladene iCloud-Dateien heißen „.Name.icloud“.
+            return try FileManager.default.contentsOfDirectory(atPath: url.path).map {
+              name -> String in
+              if name.hasPrefix("."), name.hasSuffix(".icloud") {
+                return String(name.dropFirst().dropLast(".icloud".count))
+              }
+              return name
+            }
           case "write":
             let name = args["name"] as! String
             let data = (args["bytes"] as! FlutterStandardTypedData).data
@@ -131,6 +152,9 @@ final class BackupFolderChannel: NSObject, UIDocumentPickerDelegate {
 
   /// Löst das Bookmark auf und öffnet den Zugriff für die Dauer von [body].
   private func withFolder<T>(_ base64: String, _ body: (URL) throws -> T) throws -> T {
+    if base64 == "icloud" {
+      return try body(try Self.icloudFolder())
+    }
     guard let data = Data(base64Encoded: base64) else {
       throw NSError(domain: "Sicherung", code: 1)
     }
@@ -160,6 +184,20 @@ final class BackupFolderChannel: NSObject, UIDocumentPickerDelegate {
     }
     if let e = error { throw e }
     return try out.get()
+  }
+
+  /// `Documents` im iCloud-Container; wirft, wenn iCloud abgemeldet oder für
+  /// die App ausgeschaltet ist (L-7.18: dann Ordnerwahl).
+  private static func icloudFolder() throws -> URL {
+    guard FileManager.default.ubiquityIdentityToken != nil,
+          let root = FileManager.default.url(forUbiquityContainerIdentifier: nil)
+    else {
+      throw NSError(domain: "Sicherung", code: 4, userInfo: [
+        NSLocalizedDescriptionKey: "iCloud ist nicht verfügbar"])
+    }
+    let docs = root.appendingPathComponent("Documents", isDirectory: true)
+    try FileManager.default.createDirectory(at: docs, withIntermediateDirectories: true)
+    return docs
   }
 
   private static func topViewController() -> UIViewController? {

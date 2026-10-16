@@ -156,6 +156,12 @@ der Nutzerin ausgelöste, mit ihrem Kennwort verschlüsselte Datei, die sie selb
 über den Teilen-Dialog oder – automatisch nach Opt-in – in einem selbst
 gewählten Ordner ablegt; sie erreicht weder den Anbieter noch einen
 Partner und gilt daher nicht als Datenerhebung.
+**iCloud-Sicherung (nur iOS, Opt-in, 0.16.0):** die verschlüsselte Datei liegt
+im App-eigenen iCloud-Drive-Container im Konto der Nutzerin; Apple verarbeitet
+sie als Anbieter ihres iCloud-Kontos, der Anbieter der App erhält nichts.
+Apple Privacy Label daher weiter „Data Not Collected“ – Annahme, im ersten
+Review zu bestätigen (P-B9, P-B6). Google Data Safety: nicht betroffen.
+**Lernen je Lieferant** bleibt auf dem Gerät, keine Angabe nötig.
 
 ## Altersfreigabe
 

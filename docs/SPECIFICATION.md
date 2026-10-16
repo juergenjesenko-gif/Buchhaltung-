@@ -1,7 +1,7 @@
 # Spezifikation – Buchhaltung
 
-**Dokumentversion:** 1.61 · **App-Version:** 0.15.0 · **Stand:** 2026-10-16
-**Status:** Testbuild 0.15.0 (Schema 19); Store-Start offen, siehe Abschnitt 11 und 14
+**Dokumentversion:** 1.62 · **App-Version:** 0.16.0 · **Stand:** 2026-10-16
+**Status:** Testbuild 0.16.0 (Schema 20); Store-Start offen, siehe Abschnitt 11 und 14
 
 > Das **Zielbild** des Produkts steht im [`LASTENHEFT.md`](LASTENHEFT.md); dieses
 > Dokument beschreibt, was die App **heute tatsächlich tut**.
@@ -284,6 +284,7 @@ Anwendungsdokumentenverzeichnis. Aktuelle Schemaversion: **19**
 | `receipts` | Belege | Index auf `date` und `direction`. Werden nie gelöscht, nur storniert (`cancelled_at`). Seit Schema 11 `invoice_id` (Einnahme aus bezahlter Rechnung, eindeutig je Rechnung und Steuersatz); seit Schema 17 `reverse_charge` (0/1, Steuerschuld des Leistungsempfängers, FA-2.46) |
 | `receipt_vat_lines` | Steuersatzzeilen eines Belegs: `receipt_id`, `position` ab 1, `vat_permille`, `net_cents`, `vat_cents`, `gross_cents` | Schema 14. Je Zeile `net + vat == gross`, Summe der Zeilen = `receipts.gross_cents` (erzwungen in `ReceiptRepository.writeVatLines`). Bei der Migration wurde jeder bestehende Beleg zu genau einer Zeile; Einnahmen aus bezahlten Rechnungen und Mahnkosten schreiben ihre Zeile mit. Kopf des Belegs: Summen, `vat_permille` = Satz der größten Zeile. Auswertungen lesen nur Zeilen (ein Beleg ohne Zeile zählt mit seinem Kopf) |
 | `cash_register_merchants` | Lernspeicher Kasse → Händler (FA-2.36): `register_key` (`AT:<Kassen-ID>`, `DE:<Seriennummer>`), `merchant`, `updated_at` | Schema 15. Ersetzt beim Speichern eines Belegs mit Kassen-QR |
+| `supplier_memory` | Lernspeicher je Lieferant (FA-2.50): `supplier_key` (`<Richtung>|UID:<UID>` bzw. `<Richtung>|NAME:<normalisierter Name>`), `counterparty`, `category_id`, `vat_permille`, `currency`, `payment_method`, `updated_at` | Schema 20. Ersetzt bei jedem Speichern eines Belegs; nur auf dem Gerät, in der Sicherung enthalten |
 | `receipt_documents` | Originaldateien (FA-2.41): `receipt_id`, `file_path` (relativ, `belege/…`), `file_name`, `mime`, `sha256`, `size_bytes`, `source`, `created_at` | Schema 16. Nur Einfügen; Trigger verhindern `UPDATE` und `DELETE` |
 | `platform_import_rows` | Übernommene Zeilen aus Plattformexporten (FA-2.45): `platform`, `external_id`, `format`, `month` (`YYYY-MM`), `receipt_id` (Sammelbeleg oder leer bei Auszahlung/Sonstigem), `imported_at` | Schema 17. Primärschlüssel (`platform`, `external_id`): Dubletten werden mit `INSERT OR IGNORE` still übersprungen. Keine Käuferdaten |
 | `receipt_pages` | Seiten (Fotos) eines Belegs: `receipt_id`, `position` ab 1, `image_path`, `created_at` | Schema 8. Nach dem Speichern nur Anhängen; bestehende Einzelfotos wurden bei der Migration zur Seite 1 |
@@ -460,6 +461,7 @@ prüft `InvoiceRequirements` (FA-1.4).
 | FA-2.47 | **Warnungen** (L-28.4, L-28.5): **OSS**, wenn Verkäufe und Erstattungen eines Kalenderjahres in andere EU-Länder als das eigene (Bestimmungsland = Amazon-Marktplatz bzw. Shopify-Lieferland; PayPal und Stripe ohne Land) 10.000 € übersteigen (`ossThreshold`, Art 59c MwStSystRL, AT Art 3 Abs 5 UStG 1994, DE § 3c Abs 4 UStG; P-S53); **Versand durch Amazon** (FBA/AFN) → Hinweis auf Lager in anderen Ländern (Pan-EU), nur Warnung; vom Marktplatz einbehaltene Steuer; Reverse Charge für Kleinunternehmer („schuldest du die Umsatzsteuer darauf, ohne Vorsteuerabzug, UID nötig“) |
 | FA-2.48 | **Gebührenrechnung als eigener Beleg** (L-28.7): bei Amazon zeigt die Zusammenfassung „Gebührenrechnung als Beleg ablegen“ mit Knopf „Gebührenrechnungen öffnen“ (48 dp, Systembrowser, `https://sellercentral.amazon.de/tax/seller-fee-invoices`); die PDF wird über Teilen als Beleg übernommen (FA-2.39) |
 | FA-2.49 | **Datensparsamkeit** (L-28.6, P-R36): gelesen werden nur benannte Spalten (Datum, Typ, Bestell-/Transaktionsnummer, SKU, Beträge, Währung, Marktplatz bzw. Lieferland, Versandart). Name, Adresse, Ort, PLZ, Region, E-Mail, Telefon der Käufer werden nie angesprochen und weder gespeichert noch protokolliert; die geteilte Datei bleibt nur im Cache. Geprüft in `platform_import_test.dart` über alle Tabellen der Datenbank |
+| FA-2.50 | **Lernen je Lieferant** (L-2.28, 0.16.0, `SupplierLearning`, Schema 20 `supplier_memory`): beim Speichern jedes Belegs merkt sich die App bestätigten Partnernamen, Kategorie, Steuersatz (Hauptsatz), Währung und Zahlungsart je Richtung unter der Aussteller-UID, dem normalisierten bestätigten Namen und der normalisierten erkannten Schreibweise (Zuordnung OCR-Variante → gewählter Name). Normalisierung: klein, ä/ö/ü → a/o/u, ß → ss, nur Buchstaben und Ziffern, Rechtsformen (GmbH, KG, e.U., AG …) entfernt, 0 → o. Beim Auslesen (FA-2.19, nach Kassen-QR FA-2.36) wird zuerst über die UID, dann über den Namen nachgeschlagen. Vorrang: Name, Kategorie und Zahlungsart immer gelernt; Steuersatz erkannt vor gelernt (gelernt nur ohne erkannten Satz); Fremdwährung gelernt nur bei Ausgaben, wenn die Erkennung keine sichere Währung fand (Konfidenz < 60). Felder Partner, Kategorie und Zahlungsart tragen dann „wie beim letzten Mal“; Steuersatz und Währung ohne eigenen Vermerk. Gelernte Kategorie nur, wenn sie noch existiert. Teil der Belegerkennung (Pro, 5.10 Lastenheft); nichts verlässt das Gerät |
 | FA-2.18 | **Stornierte Belege lesbar**: Filter „Storniert“ in der Belegliste; die Ansicht ist schreibgeschützt (Hinweisbanner, kein Speichern), Kommentare bleiben anhängbar |
 
 ### 5.3 Kassabuch und Auswertung
@@ -584,6 +586,7 @@ Liefer-/Leistungsdatum, Entgelt je Steuersatz, Steuersatz und Steuerbetrag oder
 | FA-7.13 | Nach dem Schreiben: zurücklesen, SHA-256 vergleichen, entschlüsseln, entpacken. Erst dann `auto_backup_last_at` und Protokoll `auto_backup` mit Prüfsumme; sonst `auto_backup_last_error` und Banner auf der Übersicht |
 | FA-7.14 | Rotation im Ordner nur für eigene Dateien `Auto-Sicherung_JJJJ-MM-TT_HHMMSS.jbbackup`: die letzten **7**, je Monat die jüngste der letzten **12** Monate, **je Kalenderjahr die jüngste dauerhaft** (`spec.auto_backup_keep_daily`, `spec.auto_backup_keep_monthly`) |
 | FA-7.15 | „Sicherung prüfen" entschlüsselt die jüngste automatische Sicherung, ohne etwas zu ersetzen; Protokoll `verify` |
+| FA-7.16 | **iCloud-Sicherung unter iOS** (L-7.17, L-7.18, L-7.20, 0.16.0): ist iCloud angemeldet und für die App erlaubt (`icloudAvailable` im Channel `buchhaltung/backup_folder`), richtet „Einrichten“ die automatische Sicherung ohne Ordnerwahl im App-eigenen iCloud-Drive-Container ein (iCloud Documents, kein CloudKit; Unterordner `Documents`, in der Dateien-App als „JeNi bucht“ sichtbar, `NSUbiquitousContainers`). Gespeichert wird statt eines Bookmarks die Kennung `icloud`; Anzeige „iCloud Drive › JeNi bucht“. Container-ID `iCloud.<Bundle-ID>` nur in `ios/Runner/Runner.entitlements` und `Info.plist`, abgeleitet aus `PRODUCT_BUNDLE_IDENTIFIER` (O-33); der Swift-Code nimmt den ersten Container der Entitlements. Nicht geladene Dateien (`.Name.icloud`) erscheinen unter ihrem Namen; Lesen über `NSFileCoordinator` lädt sie. Ohne iCloud: Ordnerwahl wie FA-7.9 (L-7.18); mit iCloud und anderem Ordner zusätzlich „In iCloud sichern“, „Ordner ändern“ öffnet immer die Ordnerwahl. Verschlüsselung, Probe, Rotation unverändert (FA-7.10 bis FA-7.14). **Wiederherstellen aus der Liste** (beide Plattformen): „Wiederherstellen“ zeigt die automatischen Sicherungen im Ordner, neueste zuerst; ein Tipp öffnet sie mit dem Schlüssel dieses Geräts, sonst mit Kennwort oder Wiederherstellungscode, dann Vorschau und Bestätigung wie FA-7.4 |
 
 ### 5.5b App-Sperre
 
@@ -774,7 +777,7 @@ Kleinunternehmer:
 | Kunde bearbeiten | `features/invoices/customer_edit_screen.dart` | Kundenstammdaten, Schalter „Unternehmen“ (FA-5.24) |
 | Mahnung (Bottom-Sheet) | `features/invoices/dunning_sheet.dart` | Stufe, bisherige Schreiben mit Storno, Frist, Mahnkosten mit Verbraucherhinweis, Zinsen, Pauschale, Vorschau, „erstellen und senden“ (FA-5.21 bis FA-5.23) |
 | Plattformimport | `features/import/platform_import_screen.dart` | Eine Karte je Monat, Hinweise, Amazon-Gebührenrechnung, unten „Übernehmen“ (FA-2.43 bis FA-2.49); geöffnet aus der Hauptnavigation, wenn eine CSV/TSV/TXT geteilt wird |
-| Datensicherung | `features/backup/backup_screen.dart` | Sicherung erstellen und teilen, wiederherstellen mit Vorschau |
+| Datensicherung | `features/backup/backup_screen.dart` | Sicherung erstellen und teilen, wiederherstellen mit Vorschau; automatische Sicherung mit iCloud (iOS, FA-7.16) und Liste zum Wiederherstellen |
 | Wiederherstellungscode | `features/backup/recovery_code_setup_screen.dart` | Druckblatt teilen/drucken, zwei Blöcke abtippen (FA-7.10) |
 | Rechtliches | `features/settings/legal_screen.dart` | Impressum, Datenschutz, Nutzungsbedingungen, keine Steuerberatung, Support, Lizenzen (FA-11.4, FA-11.5) |
 | Export | `features/export/export_screen.dart` | Zeitraum, Vorschau, Format |
@@ -941,6 +944,18 @@ bleibt nur Stufe, Zeitpunkt der Bestätigung und Testbeginn (Schlüsselbund).
 Offengelegt in `PRIVACY.md`, Lastenheft 5.19 und `STORE_LISTING.md`; Prüfung
 P-R37.
 
+**iCloud-Sicherung (FA-7.16, nur iOS, Opt-in):** die verschlüsselte
+Vollsicherung liegt im App-eigenen iCloud-Drive-Container der Nutzerin; den
+Upload übernimmt iOS. Empfänger ist Apple als Anbieter des iCloud-Kontos der
+Nutzerin (aus Sicht der Nutzerin Auftragsverarbeiter, Server auch außerhalb
+der EU). Der Schlüssel bleibt im Schlüsselbund des Geräts
+(`synchronizable: false`, L-19.27); Apple sieht nur Dateiname, Größe und
+Zeitpunkt. Der Anbieter erhält nichts. Offengelegt in `PRIVACY.md`,
+Lastenheft 5.19 und `STORE_LISTING.md`; Prüfung P-B6, P-B9.
+
+**Lernen je Lieferant (FA-2.50):** bleibt in der Datenbank auf dem Gerät;
+nichts wird übertragen.
+
 ### 10.2 Berechtigungen
 
 | Berechtigung | Plattformschlüssel | Zweck |
@@ -966,13 +981,13 @@ Offen benannt, weil eine Spezifikation, die ihre Lücken verschweigt, wertlos is
 
 | Grenze | Auswirkung | Geplant |
 |---|---|---|
-| **Automatische Sicherung nicht auf Gerät erprobt** | Ordnerwahl und Schreiben laufen über eigenen Kotlin- bzw. Swift-Code, der hier nur kompiliert (CI), nicht auf einem Gerät getestet ist. Ob die Google-Drive-App unter Android Ordner zur Auswahl anbietet, ist offen (P-B1) | vor Release |
+| **Automatische Sicherung nicht auf Gerät erprobt** | iCloud-Container (FA-7.16) nur kompiliert, unsigniert; braucht vor dem ersten signierten Build den Container im Apple Developer Portal (STORE_ANMELDUNG, P-B13). Ordnerwahl und Schreiben laufen über eigenen Kotlin- bzw. Swift-Code, der hier nur kompiliert (CI), nicht auf einem Gerät getestet ist. Ob die Google-Drive-App unter Android Ordner zur Auswahl anbietet, ist offen (P-B1) | vor Release |
 | **Keine revisionssichere Archivierung** | Das `audit_log` schafft Nachvollziehbarkeit im Alltag, ist aber keine manipulationssichere Protokollierung im Sinne einer Verfahrensdokumentation. Die App ist die Vorerfassung; die revisionssichere Aufbewahrung findet in der Kanzlei statt | – |
 | **Keine Registrierkasse** | Wer die RKSV-Grenzen (15.000 € Umsatz und 7.500 € Barumsätze) überschreitet, braucht zusätzlich eine registrierkassenpflichtige Lösung | Nicht geplant |
 | **E-Rechnung nur im Empfang** | Eingehende E-Rechnungen (ZUGFeRD/Factur-X, XRechnung UBL/CII, ebInterface) werden übernommen (FA-2.40). Ausgangsrechnungen sind nur PDF, keine E-Rechnung nach EN 16931; in Deutschland kommt die Versandpflicht gestaffelt bis 2028 | Backlog G1 |
 | **Storno nur vollständig** | Die Stornorechnung hebt die ganze Rechnung auf (GR-14); Teilstorno einzelner Positionen oder Teilbeträge (L-3.18) gibt es noch nicht – dafür „Korrigieren“ (Storno + neue Rechnung). Die Rückzahlung wird am Stornotag gebucht, ein späterer Rückzahlungstag ist im Sheet zu wählen | später |
 | **Steuerwerte fest im Code** | Kennwerte außer Steuersätzen (seit 0.3.4 `validFrom`, GR-3) haben kein Gültig-ab-Datum und ändern sich nur per App-Update; eine kurzfristige Gesetzesänderung erreicht die Nutzerin erst nach Store-Freigabe | Rechtsstand-Überwachung, Lastenheft L-20 und L-13.5, Stufe B |
-| **Belegerkennung nicht auf Gerät erprobt** | Android-Teil im CI-Emulator mit R8 an einem synthetischen Kassenbon geprüft, Swift-Teil nur kompiliert; Korpus mit sechs echten Belegen (`test/fixtures/belege/`); Quote auf dem Gerät noch zu bestätigen (P-D22). Mehrsprachige Schlüsselwörter sind teils nur an synthetischen Texten geprüft. Gelernt wird nur Kasse → Händler beim Kassen-QR (FA-2.36); allgemeines Lernen aus Korrekturen je Händler fehlt noch | vor Release |
+| **Belegerkennung nicht auf Gerät erprobt** | Android-Teil im CI-Emulator mit R8 an einem synthetischen Kassenbon geprüft, Swift-Teil nur kompiliert; Korpus mit sechs echten Belegen (`test/fixtures/belege/`); Quote auf dem Gerät noch zu bestätigen (P-D22). Mehrsprachige Schlüsselwörter sind teils nur an synthetischen Texten geprüft. Gelernt wird je Kasse (FA-2.36) und je Lieferant (FA-2.50); Steuersatz-Aufteilungen und Beschreibungen werden nicht gelernt | vor Release |
 | **Fremdwährung nur bei Ausgaben** | Eingangsbelege werden umgerechnet (FA-2.24 bis FA-2.27); Ausgangsrechnungen nur in Euro. Den BMF-Monatskurs lädt die App nicht, er wird von Hand übernommen; das EZB-Monatsmittel ist nur eine Näherung (P-S23, P-S24). DATEV/BMD exportieren nur Euro (P-D23). Ein Land mit anderer Währung setzt Mehrwährungsfähigkeit voraus | Backlog G7 |
 | **Termine nur als Anzeige** | Die Termin-Box (FA-10.3) erinnert nicht aktiv; Bescheid-Termine (z. B. abweichende Vorauszahlungen, Nachzahlungen) kennt sie nicht. Teil- und Anzahlungen auf Rechnungen bildet die App nicht ab (P-S35) | Stufe 2: Benachrichtigungen |
 | **Bewirtung ohne Abzugsbeschränkung** | Ein Bewirtungsbeleg wird nach Sätzen aufgeteilt, aber voll als Ausgabe und Vorsteuer gezählt; die Kürzung (AT 50 %, DE 70 % Betriebsausgabe) macht die Kanzlei (P-S46) | nach P-S46 |
@@ -993,7 +1008,7 @@ Offen benannt, weil eine Spezifikation, die ihre Lücken verschweigt, wertlos is
 > Das ist der Mechanismus, der dieses Dokument aktuell hält.
 
 ```properties
-spec.schema_version = 19
+spec.schema_version = 20
 spec.oss_threshold_cents = 1000000
 spec.primary_action_height_dp = 56
 spec.min_touch_target_dp = 48
@@ -1114,6 +1129,7 @@ Dauerfristverlängerung, `02-15,…` = feste Tage, `+1j07-31` = Folgejahr,
 
 | Version | Datum | App-Version | Änderung |
 |---|---|---|---|
+| 1.62 | 2026-10-16 | 0.16.0 | FA-2.50 Lernen je Lieferant (Schema 20 `supplier_memory`, 4.1, 10.1, 11); FA-7.16 iCloud-Sicherung unter iOS und Liste zum Wiederherstellen (5.5a, 7, 10.1, 11); `spec.schema_version` 20 (12); P-B13, P-B14, P-X11, P-D33 neu, P-D3 präzisiert (14). Geprüft mit den Prüfinstanzen Rechtsanwalt (Apple als Auftragsverarbeiter, Opt-in), Steuerberater (Gelerntes nur als Vorschlag, gebucht wird Bestätigtes), Softwareentwickler (Entitlements ohne Wirkung im unsignierten CI-Build), UX (Knöpfe ≥ 48 dp, Listeneinträge 56 dp, ein Tipp weniger beim Einrichten mit iCloud). |
 | 1.61 | 2026-10-16 | 0.15.0 | FA-13.13 Promo-Code `JENIBUCHT2M` (2 Monate Pro gratis) über Apple-Angebotscodes und Google-Play-Promo-Codes, Abo-Seite „Promo-Code einlösen“; Kenndaten `spec.license_promo_code`, `spec.license_promo_free_months`; P-R40, P-D32. Kein Schemawechsel. |
 | 1.60 | 2026-10-16 | 0.15.0 | Angebote und Artikel (FA-5.40 bis FA-5.47), Schema 19 mit `articles`, `offers`, `offer_items` (4.1); FA-5.2 um Angebote ergänzt; Bildschirme Angebote und Artikel (7); Kenndaten `spec.offer_number_pattern`, `spec.offer_validity_days`, `spec.schema_version` 19 (12); P-U8, P-R39 (14). |
 | 1.59 | 2026-10-16 | 0.14.0 | FA-13.12 neu: Logo im Onboarding ohne Abo-Seite wählbar, gedruckt nur mit Pro oder Test; FA-13.2 angepasst. Kein Schemawechsel, keine neuen Kenndaten. |
@@ -1274,6 +1290,7 @@ Status: *offen* · *bestätigt* (mit Datum und Prüfer) · *widerlegt* (mit Folg
 | P-X8 | Einhandtest auf dem Pixel 10: Rechnung „Korrigieren“ und „Stornieren“ (Menü ⋮, Grund-Vorschlag mit einem Tipp, Knopf unten, nicht neben Abbrechen), Wiederherstellungscode (Druckblatt teilen, zwei Blöcke abtippen mit Tastatur offen, Knopf über der Tastatur), Einstellungen → Rechtliches lesen | Widget-Tests: Knöpfe ≥ 48 dp, Bestätigung erst nach richtigen Blöcken; Gefahrenknopf 56 dp volle Breite in Fehlerfarbe | Release | offen |
 | P-X9 | Einhandtest auf dem Pixel 10: Rechnung bearbeiten, „Beenden“ und „PDF senden“ mit dem Daumen ohne Fehlgriff, nach dem Teilen-Blatt zurück im Formular, System-Zurück-Geste speichert den Entwurf bzw. fragt einmal | Widget-Test: beide Knöpfe ≥ 48 dp, Zurück ohne Kunde zeigt den Dialog (`invoice_form_ux_test.dart`) | Release | offen |
 | P-X10 | Abo-Seite auf Pixel 10 und iPhone einhändig: Monatlich/Jährlich, Kaufknopf, Kauf wiederherstellen, Abo verwalten mit dem Daumen ohne Fehlgriff; Store-Kaufblatt erscheint, Rückkehr in die Abo-Seite; Hinweis auf der Übersicht verständlich; Beleg im Nur-Lese-Modus: Abo-Seite statt Verlust der Eingaben | Widget-Test: alle Bedienelemente ≥ 48 dp, Kaufknöpfe 56 dp volle Breite (`licensing_test.dart`) | Store-Start | offen |
+| P-X11 | Einhandtest: Datensicherung „Wiederherstellen“ → Liste → Sicherung mit dem Daumen wählen; „Ausschalten“ nicht versehentlich neben „Ordner ändern“; Beleg mit „wie beim letzten Mal“ übernehmen ohne Korrektur | Knöpfe im Wrap mit 8 dp Abstand, Listeneinträge 56 dp, Gefahrenknopf mit Bestätigung | Release | offen |
 
 ### Softwareentwicklung (echte Geräte und Stores)
 
@@ -1281,7 +1298,7 @@ Status: *offen* · *bestätigt* (mit Datum und Prüfer) · *widerlegt* (mit Folg
 |---|---|---|---|---|
 | P-D1 | Update einer echten v1-Installation auf Schema 2 und folgende | Upgrade-Test mit ffi vorhanden; echtes Gerät fehlt | Release | offen |
 | P-D2 | PDF mit Umlauten, CSV in Excel/Numbers | nicht verifiziert | Release | offen |
-| P-D3 | Datensicherung und Wiederherstellung über iCloud Drive / Google Drive | noch nicht gebaut | Release | offen |
+| P-D3 | Datensicherung und Wiederherstellung über iCloud Drive / Google Drive | iCloud (FA-7.16) und Ordnerwahl gebaut, auf Gerät offen (P-B12, P-B14) | Release | offen |
 | P-D4 | Abo-Testkäufe in Sandbox beider Stores (Lizenztester Google, Sandbox-Konto Apple; Build mit `LICENSING=true`): Test 14 Tage Pro mit Übergang, Basis, Wechsel Basis↔Pro ohne Doppelabo, Jahresabo, Kündigung → Nur lesen mit Hinweis, Kauf wiederherstellen nach Neuinstallation, ausstehende Zahlung, Flugmodus (Stand bleibt), Grace Period | Logik mit Store-Ersatz getestet (`licensing_test.dart`, FA-13.1 bis FA-13.10); Adapter nur kompiliert | Store-Start | offen |
 | P-D5 | iOS Privacy Manifest, Data-Safety- und Privacy-Label-Angaben inkl. aller SDKs | Manifest fehlt | erster Upload | offen |
 | P-D6 | Android targetSdk-Vorgabe 2026, Signing, Bundle-ID `at.jesenko.buchhaltung` endgültig | Bundle-ID personenbezogen, nach Release unveränderlich | erster Upload | offen |
@@ -1306,6 +1323,8 @@ Status: *offen* · *bestätigt* (mit Datum und Prüfer) · *widerlegt* (mit Folg
 | P-B10 | Gerätetest: Ordnerwahl mit Google Drive auf Samsung und Xiaomi, automatische Sicherung im Hintergrund; danach Entscheidung über Drive-Schnittstelle | — | vor Release | offen |
 | P-B11 | Google: OAuth-Verifizierung für `drive.file`, nur wenn der Ersatzweg gebaut wird | — | bei Bedarf | offen |
 | P-B12 | Gerätetest: Wiederherstellung aus einer Sicherung in Google Drive auf einem zweiten oder frisch installierten Gerät | Zurückholen ist der eigentliche Prüfstein | vor Release | offen |
+| P-B13 | Eigentümer: iCloud-Container `iCloud.<Bundle-ID>` im Apple Developer Portal anlegen und der App-ID zuordnen (vor erstem signierten Build bzw. `release.yml`, nach O-33 für die neue Bundle-ID erneut) | ohne Container scheitert die Signatur mit Entitlement; unsignierter CI-Build unberührt | erster signierter iOS-Build | offen |
+| P-B14 | Gerätetest iPhone: „Einrichten“ ohne Ordnerwahl schreibt nach iCloud Drive › JeNi bucht, Ordner in der Dateien-App sichtbar; „Wiederherstellen“ listet die Sicherungen auch auf einem Zweitgerät (ausgelagerte `.icloud`-Dateien werden geladen); iCloud abgemeldet → Ordnerwahl | nur kompiliert | vor Release | offen |
 | P-M1 | Steuerberatung AT bestätigt Nummernkreise je Gerät/Person mit Präfix (UStR Rz 1565); DE nach UStAE 14.5 Abs 10 | Prüfinstanzen: zulässig, wenn Präfix fest und dokumentiert | Stufe C | offen |
 | P-M2 | Steuerberatung: Ordnungsmäßigkeit, wenn Buchhaltungsdaten im (privaten) Cloud-Konto liegen; § 131 Abs 1 BAO bei Ablage außerhalb Österreichs; Umgang mit doppeltem Storno | — | Stufe C | offen |
 | P-M3 | Arbeitsrecht AT: § 96/96a ArbVG bei Erfasser-Kennung mit Zeitstempel; DE § 87 BetrVG | Erfasser-Vermerk ohne Auswertung berührt Menschenwürde in der Regel nicht | Stufe C | offen |
@@ -1425,4 +1444,5 @@ Status: *offen* · *bestätigt* (mit Datum und Prüfer) · *widerlegt* (mit Folg
 | P-D29 | Rechnung und Stornorechnung aus der App über Gmail (Android) senden, danach eine weitere Datei teilen; **beim Empfänger** öffnet der PDF-Anhang (kein „Download fehlgeschlagen“); ebenso Outlook-App und WhatsApp | Ursache im Quelltext share_plus 10.1.4 belegt (`clearShareCacheFolder` bei jedem Teilen); Kotlin nur kompiliert (CI) | Release | offen |
 | P-D30 | Store-Produkte anlegen (STORE_ANMELDUNG.md Abschnitt Abo): eine Abogruppe, IDs `basis_monat`, `basis_jahr`, `pro_monat`, `pro_jahr` exakt wie im Code, Preise nach Lastenheft 5.10, Einführungsangebot 14 Tage gratis auf beiden Pro-Produkten, Grace Period an; Verträge für kostenpflichtige Apps, Bank- und Steuerdaten; Store-Build mit `--dart-define=LICENSING=true` (CI-Release-Workflow) | Code erwartet genau diese IDs (`spec.license_product_ids`); ohne Schalter läuft jeder Build als Testversion | Store-Start | offen |
 | P-D32 | Promo-Code in beiden Stores anlegen (`STORE_ANMELDUNG.md` Formular 4, Abschnitt Promo-Code) und einlösen: Android über die Abo-Seite und über `https://play.google.com/redeem?code=JENIBUCHT2M`, iOS über das Einlöseblatt und über den App-Store-Link mit echter Apple-ID der App (`id=<APP_ID>` ersetzen); Pro aktiv nach Rückkehr, Erinnerung zum Ende der 2 Monate, Kündigung in der Gratiszeit kostenlos | Logik mit Store-Ersatz getestet (`licensing_test.dart`); Apple-ID der App existiert noch nicht | vor der ersten Kampagne | offen |
+| P-D33 | Lernen je Lieferant an echten Belegen: zweiter Bon desselben Händlers (andere Filiale, schlechteres Foto) wird erkannt und vorbelegt; keine falsche Zuordnung bei ähnlichen Namen (z. B. „Billa“ / „Billa Plus“) | Unit-Tests mit Varianten | vor Release | offen |
 | P-D31 | Store-Abfrage auf Geräten (FA-13.6): StoreKit 2 ohne aktives Abo – kommt innerhalb 7 s eine Meldung oder gilt „leer“ zu Recht? Android mit Abo in Grace Period bzw. Kontosperre (on hold) – meldet Play den Kauf weiter? Kein falsches Herabstufen bei schlechtem Netz | Verlässlichkeit nur mit geladener Produktliste; sonst bleibt der Stand | Store-Start | offen |

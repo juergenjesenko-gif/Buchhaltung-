@@ -1,6 +1,6 @@
 # Lastenheft – JeNi bucht, Buchhaltungsapp für Österreich und Deutschland
 
-**Dokumentversion:** 1.63 · **Stand:** 2026-10-16 · **Status:** Entwurf zur Abstimmung
+**Dokumentversion:** 1.64 · **Stand:** 2026-10-16 · **Status:** Entwurf zur Abstimmung
 **Auftraggeber:** Jürgen Jesenko (privates Vorhaben) · **Umsetzung:** Claude Code
 
 > Ein Lastenheft beschreibt, **was** das Produkt leisten soll und **warum** — nicht,
@@ -214,6 +214,7 @@ Priorität: **MUSS** = ohne das kein Release · **SOLL** = wichtig, verhandelbar
 | L-2.26 | Einnahmen-Ausgaben-Rechnung: tatsächlicher Euro-Betrag laut Bank überschreibt den umgerechneten Wert; der Vorschlag bleibt protokolliert. **Umgesetzt** (FA-2.26, FA-2.27) | MUSS | A |
 | L-2.27 | Ein Beleg mit **mehreren Steuersätzen** (Bewirtung Speisen/Getränke, Supermarkt) wird nach Sätzen aufgeteilt: Brutto je Satz, Netto und Steuer je Teil, Summe = Belegbetrag, Rest automatisch im letzten Teil; alle Auswertungen und Exporte je Satz (DATEV eine Buchung je Satz); Belegerkennung belegt die Aufteilung vor. Abzugsbeschränkung Bewirtung nur nach Steuerberatung (P-S46). **Umgesetzt** in 0.7.0 (FA-2.33, FA-2.34, Schema 14) | MUSS | A |
 | L-2.18 | Kommentare lassen sich über die Diktierfunktion der Systemtastatur sprechen; die App selbst überträgt keine Sprache. Ein Hinweis nennt, dass die Tastatur je nach Gerät Sprache an Google oder Apple senden kann | SOLL | A |
+| L-2.28 | **Lernen je Lieferant** (konkretisiert L-0.2, L-2.20): die App merkt sich je Lieferant (UID bzw. Name) den bestätigten Namen, Kategorie, Steuersatz, Währung und Zahlungsart und schlägt sie beim nächsten Beleg desselben Lieferanten „wie beim letzten Mal“ vor; erkannte Werte gehen vor, wo die Erkennung sicher ist. Nur auf dem Gerät. Teil der Belegerkennung (Pro). **Umgesetzt 0.16.0** (Spezifikation FA-2.50) | SOLL | A |
 
 ### 5.3 Ausgangsrechnungen
 
@@ -306,10 +307,10 @@ Priorität: **MUSS** = ohne das kein Release · **SOLL** = wichtig, verhandelbar
 | L-7.14 | **Archivexport für die Finanzverwaltung:** alle Daten und Belege mit Beschreibungsdatei in maschinell auswertbarer Form (Datenzugriff Z3, § 147 Abs 6 AO; § 131 Abs 3 BAO), dauerhaft verfügbar – auch ohne Abo, nach Kündigung und im Nur-Lese-Modus (ergänzt L-10.4) | MUSS | B |
 | L-7.15 | **Nur-Lese-Modus nach Abo-Ende** ohne zeitliche Begrenzung, mindestens über die längste Aufbewahrungsfrist: ansehen, drucken, exportieren, wiederherstellen; gesperrt sind nur neue Buchungen | MUSS | B |
 | L-7.16 | **Hinterlegung (Escrow):** Quellcode und Formatbeschreibung bei einem Treuhänder bzw. Zusage der Offenlegung bei Einstellung des Produkts; Hinweis im Handbuch, wie die Daten ohne die App lesbar bleiben | SOLL | C |
-| L-7.17 | **iOS: Sicherung standardmäßig in den App-eigenen iCloud-Drive-Container** (iCloud Documents, kein CloudKit); einmaliger Hinweis zu Ort, Verschlüsselung und Abschaltbarkeit; abschaltbar in den Einstellungen (Art. 25 DSGVO) | MUSS | A |
-| L-7.18 | iCloud nicht verfügbar (abgemeldet, deaktiviert): Rückfall auf die Ordnerwahl, Zustand sichtbar | MUSS | A |
+| L-7.17 | **Umgesetzt 0.16.0 (FA-7.16).** **iOS: Sicherung standardmäßig in den App-eigenen iCloud-Drive-Container** (iCloud Documents, kein CloudKit); einmaliger Hinweis zu Ort, Verschlüsselung und Abschaltbarkeit; abschaltbar in den Einstellungen (Art. 25 DSGVO) | MUSS | A |
+| L-7.18 | **Umgesetzt 0.16.0 (FA-7.16).** iCloud nicht verfügbar (abgemeldet, deaktiviert): Rückfall auf die Ordnerwahl, Zustand sichtbar | MUSS | A |
 | L-7.19 | „Gesichert“ erst nach bestätigtem Hochladen; Speicher voll und Upload-Fehler als Warnung | MUSS | A |
-| L-7.20 | iCloud-Ordner in der Dateien-App sichtbar (Portabilität, L-7.13). **Entscheidung der Auftraggeberin vom 2026-10-12: MUSS**; umgesetzt mit L-7.17, noch nicht gebaut | MUSS | A |
+| L-7.20 | iCloud-Ordner in der Dateien-App sichtbar (Portabilität, L-7.13). **Entscheidung der Auftraggeberin vom 2026-10-12: MUSS**; umgesetzt mit L-7.17 in 0.16.0 (Spezifikation FA-7.16) | MUSS | A |
 | L-7.21 | Android: Ordnerwahl (Storage Access Framework) ist der Hauptweg, mit Google Drive auf Pixel 10 erfolgreich getestet. Drive-Schnittstelle nur als Ersatz und nur mit Scope `drive.file`; `drive.appdata` ausgeschlossen | MUSS | A |
 | L-7.22 | **Keine Anmeldung mit Google- oder Apple-Konto** und kein Konto beim Anbieter (Entscheidung der Auftraggeberin 2026-10-12); eine Drive-Autorisierung dient nur dem Dateizugriff | MUSS | A |
 
@@ -627,7 +628,7 @@ Ausgearbeitet mit den drei Prüfinstanzen.
 | L-19.25 | Gemischte Teams aus iOS und Android brauchen einen Cloud-Dienst, den beide Systeme als Ordner anbieten; die App benennt das beim Einrichten | MUSS | C |
 | L-19.26 | **Vorlage der Verfahrensdokumentation** aus den Einstellungen: Berechtigungskonzept, Nummernkreise, Synchronisationsverfahren, Ablageort, Datensicherung, Ablauf beim Ausscheiden (ergänzt L-7.11) | SOLL | C |
 | L-19.27 | Sicherungsschlüssel und Wiederherstellungscode werden nie über den iCloud-Schlüsselbund synchronisiert (`synchronizable: false`, `first_unlock_this_device`); Regressionstest | MUSS | A |
-| L-19.28 | Datenflusstabelle, PRIVACY.md und STORE_LISTING um iCloud (iOS) und gegebenenfalls Drive-Schnittstelle ergänzen, sobald umgesetzt | MUSS | A |
+| L-19.28 | **iCloud eingetragen 0.16.0** (Tabelle unten, PRIVACY.md, STORE_LISTING); Drive-Schnittstelle offen. Datenflusstabelle, PRIVACY.md und STORE_LISTING um iCloud (iOS) und gegebenenfalls Drive-Schnittstelle ergänzen, sobald umgesetzt | MUSS | A |
 | L-19.29 | Kursabruf bei der EZB nur auf Aktion der Nutzerin, mit Eintrag in Datenflusstabelle, PRIVACY.md und STORE_LISTING; manueller Kurs immer möglich; Quellenhinweis „EZB-Referenzkurs, ohne Gewähr“. **Umgesetzt** (FA-2.25) | MUSS | A |
 
 #### Rollen
@@ -653,6 +654,7 @@ Jede Übertragung vom Gerät weg, auch die unscheinbaren:
 | Rechnung/Export teilen | vom Nutzer gewählt | PDF, CSV | Tippen auf Teilen | je Vorgang | vorhanden |
 | Sicherung von Hand (L-7.1) | vom Nutzer gewählt (Teilen-Dialog) | mit Kennwort verschlüsselte Vollsicherung samt Fotos | Tippen auf „Sicherung erstellen“ | je Vorgang | vorhanden |
 | Sicherung automatisch (L-7.2, L-7.6 ff.) | einmal gewählter Ordner, z. B. iCloud Drive oder Google Drive; Upload durch das Betriebssystem bzw. den Dokumentanbieter | mit Schlüssel verschlüsselte Vollsicherung samt Fotos | nach jeder Änderung höchstens täglich, beim Öffnen der App | **ja**, standardmäßig aus | vorhanden |
+| iCloud-Sicherung, nur iOS (L-7.17 bis L-7.20) | Apple (iCloud Drive der Nutzerin, App-eigener Container „JeNi bucht“); Apple ist aus Sicht der Nutzerin Auftragsverarbeiter, Server auch außerhalb der EU | mit Schlüssel verschlüsselte Vollsicherung samt Fotos; Apple sieht nur Dateiname, Größe, Zeitpunkt; Schlüssel nie im iCloud-Schlüsselbund (L-19.27) | nach jeder Änderung höchstens täglich, beim Öffnen der App | **ja**, standardmäßig aus; Ziel bei „Einrichten“, wenn iCloud verfügbar | vorhanden (0.16.0) |
 | Diagnose der Belegerkennung, nur Android (L-2.20, L-27.1) | Google (Google ML Kit Texterkennung und Barcode-Erkennung, beide gebündelt in der App) | Nutzungs- und Diagnosedaten der Bibliotheken (z. B. Gerätetyp, Leistung, Fehler); **keine Bilder, kein erkannter Text** | Nutzung der Belegerkennung | nein, kein offizielles Abschalten; Erkennung insgesamt abschaltbar (L-2.23). Prüfung P-R19, P-D21 | vorhanden |
 | Rechnung über Link-QR (L-27.7) | Server der im QR-Code genannten Domain (Rechnungsaussteller bzw. dessen Dienstleister), direkt vom Gerät | Adresse aus dem QR-Code (kann eine Rechnungs- oder Kundenkennung enthalten), IP-Adresse, technische Verbindungsdaten; **keine Daten aus der App** | Tippen auf „Laden“ im Hinweisstreifen | je Vorgang | vorhanden |
 | EZB-Kursabruf (L-2.25, L-19.29) | Europäische Zentralbank, direkt vom Gerät | nur Abruf einer festen Kursdatei: IP-Adresse, Zeitpunkt, technische Verbindungsdaten; **keine Belegdaten, keine Währung, kein Betrag** | Tippen auf „Kurs abrufen“ | je Vorgang | vorhanden |
@@ -1366,6 +1368,7 @@ Historie stehen. Die Einzelheiten stehen an der genannten Stelle.
 
 | Version | Datum | Änderung |
 |---|---|---|
+| 1.64 | 2026-10-16 | L-2.28 Lernen je Lieferant neu und umgesetzt; L-7.17, L-7.18, L-7.20 umgesetzt (iCloud-Container); Datenflusstabelle 5.19 um iCloud ergänzt (L-19.28). |
 | 1.63 | 2026-10-16 | Entscheidung Promo-Code „JENIBUCHT2M“ (14a); Datenfluss Abo um den Promo-Code ergänzt (5.19). |
 | 1.62 | 2026-10-16 | Umsetzungsstand 0.15.0: Angebote und Artikelverwaltung (10a). |
 | 1.61 | 2026-10-16 | Entscheidungen 2026-10-16 (14a): PDF senden bleibt weiche Sperre; E-Rechnung speichern in Basis genügt; Logo im Onboarding frei wählbar, gedruckt nur mit Pro/Test. Tarifschnitt 5.10 angepasst. |

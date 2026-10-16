@@ -90,6 +90,19 @@ deinem Gerät (Schlüsselbund bzw. Keystore, nicht synchronisiert); du erhältst
 einen Wiederherstellungscode. Der Anbieter erhält weder Datei noch Schlüssel.
 Die Funktion ist standardmäßig aus.
 
+**iCloud (iPhone und iPad):** Ist iCloud angemeldet, legt die automatische
+Sicherung die verschlüsselte Datei im App-eigenen Ordner „JeNi bucht“ in
+deinem iCloud Drive ab (in der Dateien-App sichtbar). Empfänger ist Apple als
+Anbieter deines iCloud-Kontos, unter dessen Bedingungen und mit Servern auch
+außerhalb der EU. Apple sieht nur Dateiname, Größe und Zeitpunkt; der
+Schlüssel wird nie über den iCloud-Schlüsselbund synchronisiert. Abschalten
+jederzeit unter Einstellungen → Datensicherung.
+
+**Lernen je Lieferant:** Die App merkt sich beim Speichern eines Belegs Name,
+Kategorie, Steuersatz, Währung und Zahlungsart je Lieferant, um sie beim
+nächsten Beleg vorzuschlagen. Das bleibt in der Datenbank auf deinem Gerät
+(und in deiner verschlüsselten Sicherung); es wird nichts übertragen.
+
 **App-Sperre:** Schaltest du sie ein, speichert die App nur einen gesalzenen
 Hash deiner PIN (Argon2id) im Schlüsselbund bzw. Keystore des Geräts, nie die
 PIN selbst und nie in einer Sicherung. Fingerabdruck und Face ID wertet das
@@ -112,7 +125,8 @@ Nur in diesen Fällen, die du auslöst oder einschaltest:
 - **Datensicherung von Hand** – verschlüsselte Datei, Ziel wählst du im
   Teilen-Dialog
 - **Automatische Sicherung** (standardmäßig aus) – verschlüsselte Datei in einen
-  Ordner, den du einmal gewählt hast, z. B. iCloud Drive oder Google Drive
+  Ordner, den du einmal gewählt hast, z. B. Google Drive, oder auf dem iPhone
+  in den Ordner „JeNi bucht“ in deinem iCloud Drive (Apple)
 - **UID-Prüfung über VIES** – auf Tippen, oder wöchentlich, wenn du es
   eingeschaltet hast: UID-Nummern gehen an die EU-Kommission
 - **Kurs abrufen** – nur auf Tippen bei einem Beleg in fremder Währung: die App

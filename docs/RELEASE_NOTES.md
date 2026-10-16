@@ -29,12 +29,35 @@ gebaut, und was war darin geprüft?*
 
 ## Unveröffentlicht
 
-Änderungen seit 0.15.0+22, die noch in keinem Build stecken. Wandern beim
+Änderungen seit 0.16.0+23, die noch in keinem Build stecken. Wandern beim
 nächsten Versionssprung in den neuen Eintrag.
 
 | Art | Änderung | Bezug | Commit |
 |---|---|---|---|
+
+---
+
+## 0.16.0+23 — 2026-10-16
+
+| Feld | Wert |
+|---|---|
+| Art | Testbuild (ungezippte arm64-APK `JeNi-bucht-0.16.0-build-<Nr>.apk`, fester Testschlüssel); **Lizenzprüfung aus** (ohne `LICENSING=true`), alle Funktionen frei |
+| Commit | folgt |
+| Branch | `claude/agile-accounting-app-mobile-wa5j3h` |
+| Dokumentstände | Lastenheft 1.64, Spezifikation 1.62, Benutzerhandbuch für 0.16.0, DESIGN_SPEC 1.2 |
+| Datenbankschema | 20 |
+| Prüfung | `flutter analyze` ohne Befund, alle Tests grün (neu `supplier_learning_test.dart`, erweitert `auto_backup_test.dart`), CI-Lauf zum Commit |
+| Steuerliche Kennwerte | `spec.schema_version` 20 |
+| Offene reale Prüfpunkte | wie 0.15.0+22, neu P-B13, P-B14, P-X11, P-D33 |
+| Bekannte Grenzen | Spezifikation Abschnitt 11 |
+
+**Änderungen seit 0.15.0+22**
+
+| Art | Änderung | Bezug | Commit |
+|---|---|---|---|
 | Neu | Abo-Seite: „Promo-Code einlösen“ (iOS Einlöseblatt, Android Google Play); Code JENIBUCHT2M für 2 Monate Pro gratis, Erinnerung zum Ende | FA-13.13 | `067a8f8` |
+| Neu | Lernen je Lieferant: Name, Kategorie, Steuersatz, Währung, Zahlungsart „wie beim letzten Mal“ (Schema 20) | L-2.28, FA-2.50 | folgt |
+| Neu | iOS: automatische Sicherung in den iCloud-Drive-Container „JeNi bucht“; Liste „Wiederherstellen“ auf beiden Plattformen | L-7.17, L-7.18, L-7.20, FA-7.16 | folgt |
 
 ---
 

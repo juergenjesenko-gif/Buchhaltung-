@@ -106,5 +106,20 @@
 	</array>
 	<key>LSSupportsOpeningDocumentsInPlace</key>
 	<false/>
+	<!-- iCloud-Sicherung (FA-7.16, L-7.20): Container in der Dateien-App
+	     sichtbar. Container-ID aus der Bundle-ID abgeleitet (O-33), gleich wie
+	     in Runner.entitlements. -->
+	<key>NSUbiquitousContainers</key>
+	<dict>
+		<key>iCloud.$(PRODUCT_BUNDLE_IDENTIFIER)</key>
+		<dict>
+			<key>NSUbiquitousContainerIsDocumentScopePublic</key>
+			<true/>
+			<key>NSUbiquitousContainerName</key>
+			<string>JeNi bucht</string>
+			<key>NSUbiquitousContainerSupportedFolderLevels</key>
+			<string>One</string>
+		</dict>
+	</dict>
 </dict>
 </plist>

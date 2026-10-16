@@ -1,6 +1,6 @@
 # Benutzerhandbuch – JeNi bucht
 
-**Für App-Version 0.15.0** · Stand 2026-10-16
+**Für App-Version 0.16.0** · Stand 2026-10-16
 
 Dieses Handbuch beschreibt die App aus Nutzersicht. Es wird bei jeder Änderung,
 die du in der App siehst, mitgeführt – siehe [`CLAUDE.md`](../CLAUDE.md).
@@ -239,6 +239,14 @@ Lieferant, Rechnungsnummer und UID des Ausstellers**. Solche Felder sind mit
   „Marktgemeinde Treffen – Maut“ mit *Kfz-Kosten*. Eine Beschreibung, die du
   schon getippt hast, überschreibt sie nicht. Ohne Vorschlag steht ein neuer
   Beleg auf *Sonstige Ausgaben*.
+- **Die App lernt je Lieferant.** Speicherst du einen Beleg, merkt sie sich
+  den Namen, wie du ihn eingetragen hast, dazu Kategorie, Steuersatz, Währung
+  und Zahlungsart. Beim nächsten Beleg desselben Lieferanten (gleiche UID oder
+  gleicher Name, auch wenn das Foto ihn etwas anders liest) stehen sie schon
+  drin – Partner, Kategorie und Zahlungsart mit **„wie beim letzten Mal“**.
+  Einen Steuersatz, der lesbar auf dem Beleg steht, nimmt die App vom Beleg.
+  Korrigierst du etwas, gilt beim nächsten Mal deine Korrektur. Das bleibt auf
+  deinem Telefon.
 - **Fremdsprachige Belege** (z. B. Slowenien „Skupaj“, „DDV“, Kroatien
   „Ukupno“, „PDV“, Italien „Totale“, „IVA“, Ungarn „Összesen“, „ÁFA“,
   Tschechien „Celkem“, „DPH“, Polen „Razem“, Frankreich „TVA“, Niederlande
@@ -1145,10 +1153,15 @@ Hast du noch nie oder seit **30 Tagen** nicht gesichert, erinnert dich die
 ### Automatisch sichern
 
 Statt von Hand kann die App selbst sichern – in einen Ordner deiner Wahl, etwa
-in iCloud Drive oder Google Drive. Das ist **standardmäßig aus**.
+in Google Drive, auf dem iPhone direkt in dein iCloud Drive. Das ist
+**standardmäßig aus**.
 
 1. **Einstellungen → Datensicherung → Automatische Sicherung → Einrichten**
-2. Die Erklärung lesen und **Ordner wählen**.
+2. Die Erklärung lesen und **Ordner wählen**. Auf dem iPhone mit iCloud heißt
+   der Knopf **In iCloud sichern**: die App legt die Sicherung ohne Ordnerwahl
+   in iCloud Drive im Ordner **„JeNi bucht“** ab (in der Dateien-App
+   sichtbar). Ohne iCloud wählst du einen Ordner; mit **Ordner ändern** auch
+   später.
 3. Tippe auf **Druckblatt teilen**. Die App erstellt ein PDF mit deinem
    **Wiederherstellungscode** (13 Blöcke zu 4 Zeichen) und einem QR-Code.
    Drucke es aus oder speichere es in deinem Passwortmanager – **getrennt von
@@ -1170,6 +1183,11 @@ zurückgreifen kannst. Andere Dateien im Ordner fasst die App nicht an.
 
 **Sicherung prüfen** öffnet die jüngste Sicherung zur Probe, ohne etwas zu
 ändern. Mach das ab und zu, mindestens einmal im Jahr.
+
+**Wiederherstellen** zeigt alle automatischen Sicherungen im Ordner, die
+neueste oben. Tipp auf eine: auf demselben Gerät braucht es keinen Code, auf
+einem neuen Gerät den Wiederherstellungscode. Danach siehst du die Vorschau
+und bestätigst.
 
 Die Sicherung ersetzt nicht deine gesetzliche Aufbewahrungspflicht. Geht dein
 Handy verloren, stell die Daten bald auf einem neuen Gerät wieder her.
@@ -1394,10 +1412,9 @@ Damit du nicht darauf wartest:
   das mittelfristig wichtig.
 - **Storno nur für die ganze Rechnung.** Einzelne Positionen oder einen
   Teilbetrag zurücknehmen geht noch nicht; nimm dafür **Korrigieren**.
-- **Die Belegerkennung merkt sich noch keine Korrekturen.** Änderst du
-  Beschreibung oder Kategorie eines Händlers, schlägt sie beim nächsten Beleg
-  wieder dasselbe vor. Gemerkt wird nur, welcher Händler zu einer Kasse mit
-  Kassen-QR gehört. Mehr ist geplant.
+- **Die Belegerkennung merkt sich keine Beschreibungen und keine
+  Aufteilung nach Steuersätzen.** Gelernt werden je Lieferant nur Name,
+  Kategorie, Steuersatz, Währung und Zahlungsart.
 - **Keine Kürzung bei Bewirtung.** Bewirtungsbelege werden nach Steuersätzen
   aufgeteilt, aber voll gezählt; die steuerliche Kürzung macht deine Kanzlei.
 - **Keine Lohnverrechnung, keine Bilanz, keine doppelte Buchführung**

@@ -237,6 +237,27 @@ sind angelegt und aktiv.
 5. Mit dem Sandbox-Konto einlösen: App → Abo → **Promo-Code einlösen**
    (P-D32).
 
+### iCloud-Container für die Sicherung (ab App-Version 0.16.0)
+
+Die automatische Sicherung auf dem iPhone schreibt in einen eigenen
+iCloud-Ordner (Spezifikation FA-7.16). Dafür braucht die App-ID einmalig einen
+iCloud-Container, sonst scheitert der erste **signierte** Build (der
+unsignierte CI-Build läuft ohne). Container-Name immer `iCloud.` plus
+Bundle-ID; nach dem Wechsel der Bundle-ID (O-33) für die neue ID wiederholen.
+
+1. [Identifiers → iCloud Containers → +](https://developer.apple.com/account/resources/identifiers/add/cloudContainer)
+   → Beschreibung „JeNi bucht Sicherung“, Kennung
+   `iCloud.at.jesenko.buchhaltung` (nach O-33: `iCloud.at.jenibarb.jenibucht`)
+   → **Continue → Register**.
+2. [Identifiers → App IDs](https://developer.apple.com/account/resources/identifiers/list)
+   → App-ID der App öffnen → Haken bei **iCloud** → **Include CloudKit
+   support** nicht nötig, **Edit** → den Container aus Schritt 1 anhaken →
+   **Continue → Save**.
+3. Bei automatischer Signatur erzeugt Xcode das Profil neu; sonst
+   [Profiles](https://developer.apple.com/account/resources/profiles/list)
+   → Profil der App → **Edit → Save** und neu laden.
+4. Auf dem iPhone prüfen (Spezifikation P-B13, P-B14).
+
 ## Was du vorher entscheiden solltest
 
 Entschieden am 2026-10-13:

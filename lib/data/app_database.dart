@@ -16,7 +16,7 @@ class AppDatabase {
 
   /// Aktuelle Schemaversion. Öffentlich, weil docs/SPECIFICATION.md sie
   /// dokumentiert und test/specification_sync_test.dart beide vergleicht.
-  static const schemaVersion = 19;
+  static const schemaVersion = 20;
 
   Database? _db;
 
@@ -595,6 +595,21 @@ class AppDatabase {
       )
       ''',
       'CREATE INDEX idx_offer_items_offer ON offer_items(offer_id)',
+    ],
+    // Lernspeicher je Lieferant (FA-2.50): bestätigter Name, Kategorie,
+    // Steuersatz, Währung und Zahlungsart je UID bzw. normalisiertem Namen.
+    20: [
+      '''
+      CREATE TABLE supplier_memory (
+        supplier_key TEXT PRIMARY KEY,
+        counterparty TEXT NOT NULL,
+        category_id INTEGER,
+        vat_permille INTEGER,
+        currency TEXT NOT NULL DEFAULT 'EUR',
+        payment_method TEXT,
+        updated_at TEXT NOT NULL
+      )
+      ''',
     ],
   };
 

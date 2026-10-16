@@ -10,6 +10,7 @@ import '../../app_state.dart';
 import '../../core/formatting.dart';
 import '../../data/app_database.dart';
 import '../../data/cash_register_merchants.dart';
+import '../../data/supplier_memory.dart';
 import '../../data/exchange_rate_repository.dart';
 import '../../data/receipt_scan_settings.dart';
 import '../../domain/country.dart';
@@ -28,6 +29,7 @@ import '../../services/receipt_scan/document_import.dart';
 import '../../services/share_in/share_in_service.dart';
 import '../../services/receipt_scan/receipt_scan_prefill.dart';
 import '../../services/receipt_scan/receipt_text_parser.dart';
+import '../../services/receipt_scan/supplier_learning.dart';
 import '../../services/vat_calculator.dart';
 import '../../theme.dart';
 import '../../widgets/common.dart';
@@ -404,12 +406,29 @@ class _ReceiptEditScreenState extends State<ReceiptEditScreen> {
         ocr: result,
         knownMerchant: known,
       );
+      // Lernen je Lieferant (FA-2.50): „wie beim letzten Mal“.
+      final learned = await SupplierMemory.lookup(
+        await AppDatabase.instance.database,
+        SupplierLearning.keys(
+          _direction,
+          vatId: prefill.issuerVatId,
+          name: prefill.counterparty,
+        ),
+      );
+      final suggestion = SupplierLearning.merge(
+        prefill,
+        learned,
+        currencyConfident: result.currency.confidence >= 60,
+        direction: _direction,
+      );
       if (!mounted) return;
       final link = codes.whereType<LinkCode>().firstOrNull;
       setState(() {
         _scanDocument = document;
         _scanResult = result;
-        _applyPrefill(prefill, state);
+        _applyPrefill(suggestion.prefill, state);
+        _applySupplier(suggestion, state);
+        _ocrCounterparty = prefill.counterparty;
         if (link != null && _documents.isEmpty) {
           _linkUri = link.uri;
           _linkHost = link.domain;
@@ -441,6 +460,7 @@ class _ReceiptEditScreenState extends State<ReceiptEditScreen> {
   /// Nur innerhalb von setState aufrufen.
   void _applyPrefill(ReceiptScanPrefill prefill, AppState state) {
     _recognized.clear();
+    _learned.clear();
     if (prefill.date != null) {
       _date = prefill.date!;
       _recognized.add('date');
@@ -492,7 +512,30 @@ class _ReceiptEditScreenState extends State<ReceiptEditScreen> {
     _scanHints = prefill.hints;
   }
 
+  /// Gelerntes je Lieferant übernehmen (FA-2.50). Nur in setState.
+  void _applySupplier(SupplierSuggestion s, AppState state) {
+    _learned
+      ..clear()
+      ..addAll(s.learnedFields);
+    final category = s.categoryId;
+    if (category != null &&
+        state.categoriesFor(_direction).any((c) => c.id == category)) {
+      _categoryId = category;
+    } else {
+      _learned.remove('category');
+    }
+    if (s.paymentMethod != null) _paymentMethod = s.paymentMethod!;
+  }
+
+  /// Felder, die aus dem Lernspeicher je Lieferant stammen.
+  final Set<String> _learned = {};
+
+  /// Händlername, wie ihn die Erkennung las; wird beim Speichern als
+  /// Schreibweise des bestätigten Namens gemerkt.
+  String? _ocrCounterparty;
+
   String? _checkHint(String field) {
+    if (_learned.contains(field)) return 'wie beim letzten Mal';
     if (!_recognized.contains(field)) return null;
     if (_codeSource == 'E-Rechnung') return 'aus der E-Rechnung';
     if (_codeSource != null && _codeFields.contains(field)) {
@@ -939,6 +982,17 @@ class _ReceiptEditScreenState extends State<ReceiptEditScreen> {
         receipt.counterparty,
       );
     }
+    // Lernen je Lieferant (FA-2.50): bei jedem gespeicherten Beleg, unter
+    // UID, bestätigtem Namen und erkannter Schreibweise.
+    final db = await AppDatabase.instance.database;
+    await SupplierMemory.remember(db, [
+      ...SupplierLearning.keys(
+        receipt.direction,
+        vatId: receipt.issuerVatId,
+        name: receipt.counterparty,
+      ),
+      ...SupplierLearning.keys(receipt.direction, name: _ocrCounterparty),
+    ], receipt);
     await state.onBookingsChanged();
     if (!mounted) return;
     Navigator.of(context).pop(true);
@@ -1655,9 +1709,11 @@ class _ReceiptEditScreenState extends State<ReceiptEditScreen> {
                       ),
                       const SizedBox(height: 12),
                       DropdownButtonFormField<PaymentMethod>(
+                        key: ValueKey('payment$_paymentMethod'),
                         initialValue: _paymentMethod,
-                        decoration: const InputDecoration(
+                        decoration: InputDecoration(
                           labelText: 'Zahlungsart',
+                          helperText: _checkHint('payment'),
                         ),
                         items: [
                           for (final method in PaymentMethod.values)

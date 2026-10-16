@@ -17,10 +17,11 @@ class AutoBackupSettings {
 
   /// Anzeigename; ältere Versionen speicherten unter Android die technische
   /// Dokument-ID statt des Ordnernamens.
-  String get displayLabel =>
-      folderLabel.isEmpty ||
-          folderLabel.contains('doc=') ||
-          folderLabel.contains(';')
+  String get displayLabel => folder == 'icloud'
+      ? 'iCloud Drive › JeNi bucht'
+      : folderLabel.isEmpty ||
+            folderLabel.contains('doc=') ||
+            folderLabel.contains(';')
       ? 'Gewählter Ordner'
       : folderLabel;
   final DateTime? lastAt;
