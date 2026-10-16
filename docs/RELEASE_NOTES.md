@@ -29,11 +29,34 @@ gebaut, und was war darin geprüft?*
 
 ## Unveröffentlicht
 
-Änderungen seit 0.14.0+21, die noch in keinem Build stecken. Wandern beim
+Änderungen seit 0.15.0+22, die noch in keinem Build stecken. Wandern beim
 nächsten Versionssprung in den neuen Eintrag.
 
 | Art | Änderung | Bezug | Commit |
 |---|---|---|---|
+
+---
+
+## 0.15.0+22 — 2026-10-16
+
+| Feld | Wert |
+|---|---|
+| Art | Testbuild (ungezippte arm64-APK `JeNi-bucht-0.15.0-build-<Nr>.apk`, fester Testschlüssel); **Lizenzprüfung aus** (ohne `LICENSING=true`), alle Funktionen frei |
+| Commit | folgt |
+| Branch | `claude/agile-accounting-app-mobile-wa5j3h` |
+| Dokumentstände | Lastenheft 1.62, Spezifikation 1.60, Benutzerhandbuch für 0.15.0, DESIGN_SPEC 1.2 |
+| Datenbankschema | 19 |
+| Prüfung | `flutter analyze` ohne Befund, alle Tests grün (neu `offer_article_test.dart`), CI-Lauf zum Commit |
+| Steuerliche Kennwerte | neu `spec.offer_number_pattern` AN-{YYYY}-{NNNN}, `spec.offer_validity_days` 30; `spec.schema_version` 19 |
+| Offene reale Prüfpunkte | wie 0.14.0+21, neu P-U8, P-R39 |
+| Bekannte Grenzen | Spezifikation Abschnitt 11 |
+
+**Änderungen seit 0.14.0+21**
+
+| Art | Änderung | Bezug | Commit |
+|---|---|---|---|
+| Neu | Angebote: eigener Nummernkreis, Gültigkeit, Status, PDF „Angebot“ in Sie-Form, mit einem Tipp zur Rechnung; bucht nichts | L-3.13 bis L-3.17, FA-5.40 bis FA-5.43, FA-5.46 | folgt |
+| Neu | Artikel ohne Lager; „Aus Artikeln und Vorschlägen“ in Rechnung und Angebot, auch aus früheren Positionen | L-11.1, L-11.2, L-11.5, L-11.9, FA-5.44, FA-5.45 | folgt |
 | Geändert | Pro-Umfang: Import (Plattformen, E-Rechnung auslesen), PDF senden (Rechnung, Storno), Mahnung senden, Logo, Kurs abrufen nur Pro, Finanzamt-Übermittlung vorab Pro; ohne Pro PDF speichern/drucken über den Systemdialog | O-34, FA-13.2, FA-13.11 | `f3ae91c` |
 | Geändert | Abo-Seite: „14 Tage kostenlos, danach ‹Preis› pro ‹Zeitraum›, jederzeit vorher kündbar“ | O-35, FA-13.5 | `eb79a9e` |
 | Geändert | Logo im Onboarding ohne Abo-Seite wählbar; gedruckt nur mit Pro oder Test, mit Basis nicht auf neuen Rechnungen; gestellte behalten ihr Logo | FA-13.12, L-1.7 | `35173cd` |

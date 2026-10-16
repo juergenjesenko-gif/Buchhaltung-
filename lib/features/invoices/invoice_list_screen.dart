@@ -10,6 +10,8 @@ import '../../domain/money.dart';
 import '../../theme.dart';
 import '../../widgets/adaptive.dart';
 import '../../widgets/common.dart';
+import '../articles/article_screens.dart';
+import '../offers/offer_screens.dart';
 import 'customer_edit_screen.dart';
 import 'invoice_edit_screen.dart';
 import 'invoice_share.dart';
@@ -548,81 +550,12 @@ class _InvoiceListScreenState extends State<InvoiceListScreen> {
           ),
         ],
       ),
-      body: _loading
-          ? const Center(child: CircularProgressIndicator())
-          : _invoices.isEmpty
-          ? EmptyState(
-              icon: Icons.description_outlined,
-              title: 'Keine Rechnungen',
-              message:
-                  'Schreibe deine erste Rechnung – die Pflichtangaben '
-                  'prüft die App für dich mit.',
-              action: FilledButton.icon(
-                onPressed: () => _openEditor(),
-                icon: const Icon(Icons.add),
-                label: const Text('Rechnung schreiben'),
-              ),
-            )
-          : RefreshIndicator(
-              onRefresh: _load,
-              child: ListView(
-                padding: const EdgeInsets.fromLTRB(16, 12, 16, 96),
-                children: [
-                  if (!_openAmount.isZero) ...[
-                    SectionCard(
-                      title: 'Offen',
-                      child: LabeledValue(
-                        label: 'Gestellt und noch nicht bezahlt',
-                        value: Fmt.money(_openAmount),
-                        emphasize: true,
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-                  ],
-                  if (_overdue.isNotEmpty) ...[
-                    NoticeBanner(
-                      key: const Key('overdueBanner'),
-                      icon: Icons.notification_important_outlined,
-                      color: AppTheme.expense,
-                      message: _overdue.length == 1
-                          ? '1 Rechnung überfällig – mahnen?'
-                          : '${_overdue.length} Rechnungen überfällig – mahnen?',
-                      onTap: () => _remind(_overdue.first),
-                    ),
-                    const SizedBox(height: 16),
-                  ],
-                  for (final invoice in _invoices)
-                    Padding(
-                      padding: const EdgeInsets.only(bottom: 10),
-                      child: _InvoiceTile(
-                        invoice: invoice,
-                        customer: _customers[invoice.customerId],
-                        onTap: () => _openEditor(invoice),
-                        onShare: () => _sharePdf(invoice),
-                        onMarkPaid: invoice.status == InvoiceStatus.issued
-                            ? () => _setStatus(invoice, InvoiceStatus.paid)
-                            : null,
-                        dunning: _dunning[invoice.id],
-                        overdue: _needsReminder(invoice),
-                        onDunningHistory: () => _showDunningHistory(invoice),
-                        onRemind: _needsReminder(invoice)
-                            ? () => _remind(invoice)
-                            : null,
-                        onCancel: invoice.status.canBeCancelled
-                            ? () => _cancelInvoice(invoice)
-                            : null,
-                        onCorrect: invoice.status.canBeCancelled
-                            ? () => _cancelInvoice(invoice, correct: true)
-                            : null,
-                        relatedNumber: _relatedNumber(invoice),
-                        onDelete: invoice.status == InvoiceStatus.draft
-                            ? () => _deleteDraft(invoice)
-                            : null,
-                      ),
-                    ),
-                ],
-              ),
-            ),
+      body: Column(
+        children: [
+          _CatalogShortcuts(onReturn: _load),
+          Expanded(child: _body()),
+        ],
+      ),
       // Zentriert und beschriftet, mit beiden Daumen erreichbar
       // (DESIGN_SPEC 5a, Regel 1 und 9).
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
@@ -635,6 +568,127 @@ class _InvoiceListScreenState extends State<InvoiceListScreen> {
       ),
     );
   }
+
+  Widget _body() {
+    return _loading
+        ? const Center(child: CircularProgressIndicator())
+        : _invoices.isEmpty
+        ? EmptyState(
+            icon: Icons.description_outlined,
+            title: 'Keine Rechnungen',
+            message:
+                'Schreibe deine erste Rechnung – die Pflichtangaben '
+                'prüft die App für dich mit.',
+            action: FilledButton.icon(
+              onPressed: () => _openEditor(),
+              icon: const Icon(Icons.add),
+              label: const Text('Rechnung schreiben'),
+            ),
+          )
+        : RefreshIndicator(
+            onRefresh: _load,
+            child: ListView(
+              padding: const EdgeInsets.fromLTRB(16, 12, 16, 96),
+              children: [
+                if (!_openAmount.isZero) ...[
+                  SectionCard(
+                    title: 'Offen',
+                    child: LabeledValue(
+                      label: 'Gestellt und noch nicht bezahlt',
+                      value: Fmt.money(_openAmount),
+                      emphasize: true,
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                ],
+                if (_overdue.isNotEmpty) ...[
+                  NoticeBanner(
+                    key: const Key('overdueBanner'),
+                    icon: Icons.notification_important_outlined,
+                    color: AppTheme.expense,
+                    message: _overdue.length == 1
+                        ? '1 Rechnung überfällig – mahnen?'
+                        : '${_overdue.length} Rechnungen überfällig – mahnen?',
+                    onTap: () => _remind(_overdue.first),
+                  ),
+                  const SizedBox(height: 16),
+                ],
+                for (final invoice in _invoices)
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 10),
+                    child: _InvoiceTile(
+                      invoice: invoice,
+                      customer: _customers[invoice.customerId],
+                      onTap: () => _openEditor(invoice),
+                      onShare: () => _sharePdf(invoice),
+                      onMarkPaid: invoice.status == InvoiceStatus.issued
+                          ? () => _setStatus(invoice, InvoiceStatus.paid)
+                          : null,
+                      dunning: _dunning[invoice.id],
+                      overdue: _needsReminder(invoice),
+                      onDunningHistory: () => _showDunningHistory(invoice),
+                      onRemind: _needsReminder(invoice)
+                          ? () => _remind(invoice)
+                          : null,
+                      onCancel: invoice.status.canBeCancelled
+                          ? () => _cancelInvoice(invoice)
+                          : null,
+                      onCorrect: invoice.status.canBeCancelled
+                          ? () => _cancelInvoice(invoice, correct: true)
+                          : null,
+                      relatedNumber: _relatedNumber(invoice),
+                      onDelete: invoice.status == InvoiceStatus.draft
+                          ? () => _deleteDraft(invoice)
+                          : null,
+                    ),
+                  ),
+              ],
+            ),
+          );
+  }
+}
+
+/// Angebote und Artikel, je ein Tipp von der Rechnungsliste (FA-5.40,
+/// FA-5.44). Zwei gleich breite Knöpfe mit 48 dp Höhe.
+class _CatalogShortcuts extends StatelessWidget {
+  const _CatalogShortcuts({required this.onReturn});
+
+  final Future<void> Function() onReturn;
+
+  Future<void> _push(BuildContext context, Widget screen) async {
+    await Navigator.of(
+      context,
+    ).push<void>(MaterialPageRoute(builder: (_) => screen));
+    await onReturn();
+  }
+
+  @override
+  Widget build(BuildContext context) => Padding(
+    padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
+    child: Row(
+      children: [
+        Expanded(
+          child: OutlinedButton.icon(
+            key: const Key('open-offers'),
+            style: OutlinedButton.styleFrom(minimumSize: const Size(0, 48)),
+            onPressed: () => _push(context, const OfferListScreen()),
+            icon: const Icon(Icons.request_quote_outlined),
+            label: const Text('Angebote'),
+          ),
+        ),
+        const SizedBox(width: 12),
+        Expanded(
+          child: OutlinedButton.icon(
+            key: const Key('open-articles'),
+            style: OutlinedButton.styleFrom(minimumSize: const Size(0, 48)),
+            onPressed: () => _push(context, const ArticleListScreen()),
+            icon: const Icon(Icons.inventory_2_outlined),
+            label: const Text('Artikel'),
+          ),
+        ),
+      ],
+    ),
+  );
 }
 
 class _InvoiceTile extends StatelessWidget {

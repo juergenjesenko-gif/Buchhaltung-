@@ -32,6 +32,18 @@ class InvoiceTexts {
   static String shareInvoice(String number) =>
       'Im Anhang finden Sie die Rechnung $number.';
 
+  /// Überschrift eines Angebots (L-3.17): nie „Rechnung“.
+  static String offerTitle(String number) => 'Angebot $number';
+
+  /// Gültigkeitssatz am Ende des Angebots.
+  static String offerValidity(String until) =>
+      'Dieses Angebot ist gültig bis $until. Wir freuen uns auf Ihren '
+      'Auftrag.';
+
+  /// Begleittext beim Senden des Angebots.
+  static String shareOffer(String number) =>
+      'Im Anhang finden Sie unser Angebot $number.';
+
   /// Überschrift einer Stornorechnung (L-3.7). Bewusst nicht „Gutschrift“:
   /// das Wort bezeichnet die Abrechnung durch den Leistungsempfänger
   /// (§ 14 Abs 2 UStG DE, § 11 Abs 7 UStG AT).

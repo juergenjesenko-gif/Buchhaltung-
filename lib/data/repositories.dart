@@ -10,6 +10,7 @@ import '../domain/receipt.dart';
 import '../domain/platform_import.dart';
 import '../services/vat_calculator.dart';
 import 'consent_repository.dart';
+import 'offer_repository.dart';
 import 'vat_check_repository.dart';
 
 /// Schreibt Änderungen an buchungsrelevanten Daten mit. Löschen und Ändern
@@ -148,6 +149,14 @@ class CustomerRepository {
       limit: 1,
     );
     if (invoices.isNotEmpty) return false;
+    final offers = await _db.query(
+      'offers',
+      columns: ['id'],
+      where: 'customer_id = ?',
+      whereArgs: [id],
+      limit: 1,
+    );
+    if (offers.isNotEmpty) return false;
     await _db.delete('customers', where: 'id = ?', whereArgs: [id]);
     return true;
   }
@@ -1438,6 +1447,8 @@ class Repositories {
       vatChecks = VatCheckRepository(db),
       consents = ConsentRepository(db),
       platformImports = PlatformImportRepository(db),
+      articles = ArticleRepository(db),
+      offers = OfferRepository(db),
       audit = AuditLog(db);
 
   final CompanyRepository company;
@@ -1450,6 +1461,8 @@ class Repositories {
   final DunningRepository dunning;
   final VatCheckRepository vatChecks;
   final ConsentRepository consents;
+  final ArticleRepository articles;
+  final OfferRepository offers;
   final AuditLog audit;
 }
 

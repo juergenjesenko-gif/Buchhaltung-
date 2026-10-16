@@ -1,7 +1,7 @@
 # Spezifikation – Buchhaltung
 
-**Dokumentversion:** 1.59 · **App-Version:** 0.14.0 · **Stand:** 2026-10-16
-**Status:** Testbuild 0.14.0 (Schema 18); Store-Start offen, siehe Abschnitt 11 und 14
+**Dokumentversion:** 1.60 · **App-Version:** 0.15.0 · **Stand:** 2026-10-16
+**Status:** Testbuild 0.15.0 (Schema 19); Store-Start offen, siehe Abschnitt 11 und 14
 
 > Das **Zielbild** des Produkts steht im [`LASTENHEFT.md`](LASTENHEFT.md); dieses
 > Dokument beschreibt, was die App **heute tatsächlich tut**.
@@ -269,7 +269,7 @@ ein änderbarer Vorschlag.
 ## 4. Datenmodell
 
 **Speicher:** SQLite auf dem Gerät, Datei `buchhaltung.db` im
-Anwendungsdokumentenverzeichnis. Aktuelle Schemaversion: **18**
+Anwendungsdokumentenverzeichnis. Aktuelle Schemaversion: **19**
 (`spec.schema_version`). Bilder liegen als Dateien daneben: Belegseiten in
 `belege/`, Firmenlogos in `logo/`.
 
@@ -290,6 +290,9 @@ Anwendungsdokumentenverzeichnis. Aktuelle Schemaversion: **18**
 | `receipt_comments` | Kommentare zu Belegen: `receipt_id`, `text`, `created_at` (Systemzeit) | Schema 8. Nur Einfügen; ein Trigger verhindert `UPDATE`. Löschen bietet die App nicht an (die Wiederherstellung leert alle Tabellen) |
 | `invoices` | Ausgangsrechnungen | `UNIQUE INDEX` auf `number`. Seit Schema 12 Gesamtrabatt, Versand, Skonto (GR-12). Seit Schema 18 Stornorechnung (GR-14): `cancels_invoice_id` (eindeutig, wenn gesetzt), `cancels_number`, `cancels_issue_date`, `cancel_reason`; am Original `cancelled_by_invoice_id`; Status `cancellation` |
 | `invoice_items` | Rechnungspositionen | `ON DELETE CASCADE`. Seit Schema 12 Positionsrabatt |
+| `articles` | Artikelstamm (FA-5.44): `number` (Artikelnummer, freiwillig), `name`, `description`, `unit`, `unit_price_cents` (netto), `vat_permille`, `created_at` | Schema 19. `UNIQUE INDEX` auf `number`, wenn gesetzt (L-11.2). Löschen jederzeit: Positionen sind Kopien (L-11.11) |
+| `offers` | Angebote (FA-5.40): `number`, `year`, `sequence`, `issue_date`, `valid_until`, `customer_id`, `status` (`draft`, `sent`, `accepted`, `rejected`), `is_small_business`, `notes`, `invoice_id` (Rechnungsentwurf nach Umwandlung), `created_at` | Schema 19. `UNIQUE` auf `number` und (`year`, `sequence`). „Abgelaufen“ wird nicht gespeichert, sondern aus `valid_until` abgeleitet. Kein Bezug zu `receipts` (L-3.14) |
+| `offer_items` | Angebotspositionen, Spalten wie `invoice_items` | Schema 19. `ON DELETE CASCADE` |
 | `audit_log` | Änderungsprotokoll | Nur Einfügen, kein Löschen durch die App |
 | `consents` | Bestätigte Texte: Art, Fassung, Zeitpunkt | Nur Einfügen (Schema 7) |
 | `vat_id_checks` | Protokoll der UID-Abfragen: UID, Ergebnis, Zeitpunkt, Name/Anschrift laut VIES, Abfragenummer, Fehlercode | Nur Einfügen (Schema 5) |
@@ -505,7 +508,7 @@ Grenzwerte siehe Abschnitt 12.
 | ID | Anforderung |
 |---|---|
 | FA-5.1 | Kundenstamm mit Name, Anschrift, Land, UID, E-Mail |
-| FA-5.2 | Kunde löschen ist blockiert, solange Rechnungen darauf verweisen |
+| FA-5.2 | Kunde löschen ist blockiert, solange Rechnungen oder Angebote darauf verweisen |
 | FA-5.3 | Positionen mit Bezeichnung, Menge, Einheit, Einzelpreis netto, Steuersatz |
 | FA-5.4 | Die Rechnungsnummer wird **erst beim Ausstellen** vergeben, nicht beim Entwurf |
 | FA-5.5 | Die Nummer wird beim Ausstellen **in derselben Transaktion** gezogen, in der die Rechnung gespeichert wird; ein Abbruch hinterlässt keine Lücke, zwei gleichzeitige Ausstellungen erhalten verschiedene Nummern |
@@ -540,6 +543,21 @@ Grenzwerte siehe Abschnitt 12.
 | FA-5.29 | Hinweis im Rechnungsformular, wenn das Leistungsdatum nach dem Rechnungsdatum liegt: „Leistungsdatum liegt nach dem Rechnungsdatum – stimmt das?“ – kein Blocker |
 | FA-5.30 | **PDF-Schrift** (0.7.0): alle PDFs (Rechnung, Mahnung) betten Work Sans (SIL OFL 1.1, `assets/fonts/`, Lizenz `OFL.txt`) ein; €, „–“, „“ und Umlaute sind echte Glyphen (vorher Helvetica ohne €, Gerätetest 0.6.0). Lizenzprüfung P-L19 |
 | FA-5.20 | Bedienung (UX-Prüfinstanz): Primärleiste `PrimaryActionBar` 56 dp unten über der Tastatur mit „Beenden“ / „Rechnung ausstellen“, nach dem Ausstellen „Beenden“ / „PDF senden“ (FA-5.34); „Position hinzufügen“ volle Breite; Zielflächen ≥ 48 dp; Rechnungskarte mit Tonal-Knopf „Bezahlt“; Stornieren/Löschen im Menü nach Trennlinie in Fehlerfarbe mit Bestätigung (Nummer, Betrag) |
+
+**Angebote und Artikel** (0.15.0; Lastenheft L-3.13 bis L-3.17, L-11.1,
+L-11.2, L-11.5, L-11.6, L-11.9, L-11.11; Tarif: beides Basis, PDF senden Pro
+wie bei Rechnungen, Lastenheft 5.10):
+
+| ID | Anforderung |
+|---|---|
+| FA-5.40 | **Angebot** (`domain/offer.dart`, `OfferRepository`): Kunde, Angebotsdatum, „Gültig bis“ (vorbelegt +`spec.offer_validity_days`), Positionen wie Rechnungspositionen samt Positionsrabatt, Anmerkungen. Nummer `spec.offer_number_pattern` aus eigenem Kreis je Kalenderjahr, gezogen beim ersten Speichern in derselben Transaktion; unabhängig von `next_invoice_sequence`. Neues Angebot speichern braucht `Feature.newBookings` (ab Basis) |
+| FA-5.41 | **Status:** Entwurf → Gesendet (automatisch nach „PDF senden“) → Angenommen (nur durch Umwandeln) oder Abgelehnt („Kundin hat abgelehnt“, rückgängig mit „Wieder öffnen“). Offene Angebote (Entwurf, Gesendet) gelten nach „Gültig bis“ als **Abgelaufen** (`Offer.statusOn`, nicht gespeichert). Angenommene Angebote sind schreibgeschützt, auch in der Datenschicht; nur nicht angenommene sind löschbar |
+| FA-5.42 | **Keine steuerliche Wirkung** (L-3.14): Angebote erzeugen keine Belege, zählen nicht im Kassabuch, nicht in der UVA und nicht in der Grenzwertüberwachung; Export und Auswertungen lesen sie nicht |
+| FA-5.43 | **In Rechnung umwandeln** mit einem Tipp („Zur Rechnung machen“, L-3.15): `OfferRepository.convertToInvoice` legt in einer Transaktion einen Rechnungsentwurf an (Kunde, Positionen, Anmerkungen kopiert; Datum und Leistungsdatum heute, Fälligkeit nach Zahlungsziel des Profils; Kleinunternehmerstatus aktuell) und setzt das Angebot auf Angenommen mit Verweis `invoice_id`. Der Entwurf öffnet sich sofort und bleibt bis zum Ausstellen änderbar. Ein zweiter Tipp („Rechnung öffnen“) öffnet denselben Entwurf |
+| FA-5.46 | **Angebots-PDF** (`InvoicePdf.offer`, L-3.17, L-3.31): Titel „Angebot <Nummer>“, nie „Rechnung“; Kopf „Angebot für“, „Angebotsnummer“, „Angebotsdatum“, „Gültig bis“; statt Zahlungsangaben „Dieses Angebot ist gültig bis <Datum>. Wir freuen uns auf Ihren Auftrag.“ (Sie-Form) und AGB-Verweis; Kleinunternehmerhinweis wie bei Rechnungen. Logo nach FA-13.12. „PDF senden“ mit Tarifschnitt `pdfSending` (FA-13.11) |
+| FA-5.44 | **Artikel** (`domain/article.dart`, `ArticleRepository`): Bezeichnung, Einzelpreis netto, Einheit, Steuersatz (bei Kleinunternehmern ausgeblendet), freiwillig Artikelnummer (eindeutig, L-11.2) und kurze Beschreibung. Liste mit Suche nach Bezeichnung oder Nummer ab sechs Artikeln (L-11.9). Kein Lagerstand (L-11.3 ist Stufe B) |
+| FA-5.45 | **Position übernehmen** (L-11.5, L-11.6): Knopf „Aus Artikeln und Vorschlägen“ in Rechnung und Angebot öffnet ein Bottom-Sheet; oben die Artikel, darunter früher verwendete Positionen aus Rechnungen (ohne Stornorechnungen) und Angeboten, je Bezeichnung die zuletzt verwendete, ohne Dubletten zu Artikeln. Ein Tipp übernimmt Bezeichnung (mit Beschreibung), Einheit, Preis, Steuersatz, Menge 1 und ersetzt eine leere letzte Position; alles bleibt änderbar. Freie Positionen bleiben jederzeit möglich. Suchfeld unten im Sheet ab sechs Vorschlägen |
+| FA-5.47 | **Erreichbarkeit** (UX-Prüfinstanz): Rechnungsliste oben zwei gleich breite Knöpfe „Angebote“ und „Artikel“ (48 dp); Angebotsformular unten `PrimaryActionBar` mit „PDF senden“ und „Speichern“ bzw. „Zur Rechnung machen“; Listenzeilen ≥ 56 dp; Zurück speichert ein gespeichertes Angebot still, ein neues mit Eingaben fragt einmal (wie FA-5.34). Geräteprüfung P-U8 |
 
 **Pflichtangaben im PDF** (§ 11 UStG AT, § 14 UStG DE): Name und Anschrift von
 Aussteller und Empfänger, Steuernummer bzw. UID des Ausstellers,
@@ -750,6 +768,8 @@ Kleinunternehmer:
 | Beleg bearbeiten | `features/receipts/receipt_edit_screen.dart` | Erfassen, Seiten, Aufteilung nach Steuersätzen (`vat_split_editor.dart`, FA-2.33), Hinweisstreifen Link-QR (`link_invoice_strip.dart`, FA-2.42), Vermerk „vom Kassen-QR“ (FA-2.36), Originaldatei bei PDF/E-Rechnung (FA-2.41), automatisches Auslesen mit „Erneut auslesen“, Betrag, Fremdwährung mit „Kurs abrufen“ und Bankbetrag (FA-2.24 bis FA-2.26), Kategorie, Rechnungsnummer, Aussteller-UID, Kommentare; stornierte Belege nur lesen. Speicherleiste unten fixiert (`receipt_save_bar.dart`), über der Tastatur, Primärknopf 56 dp hoch: Telefon volle Breite, ab 600 dp rechtsbündig; bei neuen Seiten „Vollständig – Beleg speichern“ (FA-2.14) |
 | Rechnungsliste | `features/invoices/invoice_list_screen.dart` | Status, PDF teilen, Aktionen; Knopf „Bezahlt“ mit Bottom-Sheet Zahlungseingang und Skonto (FA-5.12, FA-5.18); Korrigieren und Stornieren mit Bottom-Sheet (FA-5.31, FA-5.32), Löschen mit Bestätigung (FA-5.20) |
 | Rechnung bearbeiten | `features/invoices/invoice_edit_screen.dart` | Kunde, Positionen mit Rabatt, Karte „Rabatt, Versand, Skonto“, Summe je Satz; Leiste `PrimaryActionBar` (`widgets/primary_action_bar.dart`) „Beenden“ / „Rechnung ausstellen“ bzw. „Beenden“ / „PDF senden“, Zurück speichert den Entwurf (FA-5.15 bis FA-5.20, FA-5.34) |
+| Angebote | `features/offers/offer_screens.dart` | Liste mit Status und „gültig bis“; Formular mit Kunde, Gültigkeit, Positionen, Summe, „PDF senden“, „Zur Rechnung machen“ (FA-5.40 bis FA-5.47) |
+| Artikel | `features/articles/article_screens.dart` | Liste mit Suche, Artikel anlegen/ändern/löschen (FA-5.44); Bottom-Sheet „Position übernehmen“ in `position_picker.dart` (FA-5.45) |
 | Kunde bearbeiten | `features/invoices/customer_edit_screen.dart` | Kundenstammdaten, Schalter „Unternehmen“ (FA-5.24) |
 | Mahnung (Bottom-Sheet) | `features/invoices/dunning_sheet.dart` | Stufe, bisherige Schreiben mit Storno, Frist, Mahnkosten mit Verbraucherhinweis, Zinsen, Pauschale, Vorschau, „erstellen und senden“ (FA-5.21 bis FA-5.23) |
 | Plattformimport | `features/import/platform_import_screen.dart` | Eine Karte je Monat, Hinweise, Amazon-Gebührenrechnung, unten „Übernehmen“ (FA-2.43 bis FA-2.49); geöffnet aus der Hauptnavigation, wenn eine CSV/TSV/TXT geteilt wird |
@@ -972,7 +992,7 @@ Offen benannt, weil eine Spezifikation, die ihre Lücken verschweigt, wertlos is
 > Das ist der Mechanismus, der dieses Dokument aktuell hält.
 
 ```properties
-spec.schema_version = 18
+spec.schema_version = 19
 spec.oss_threshold_cents = 1000000
 spec.primary_action_height_dp = 56
 spec.min_touch_target_dp = 48
@@ -991,6 +1011,8 @@ spec.seed_category_expense_count = 13
 spec.warn_threshold_percent = 80
 spec.default_invoice_pattern = RE-{YYYY}-{NNNN}
 spec.default_payment_term_days = 14
+spec.offer_number_pattern = AN-{YYYY}-{NNNN}
+spec.offer_validity_days = 30
 spec.receipt_image_max_edge_px = 2000
 spec.receipt_image_quality_percent = 85
 spec.logo_max_edge_px = 800
@@ -1089,6 +1111,7 @@ Dauerfristverlängerung, `02-15,…` = feste Tage, `+1j07-31` = Folgejahr,
 
 | Version | Datum | App-Version | Änderung |
 |---|---|---|---|
+| 1.60 | 2026-10-16 | 0.15.0 | Angebote und Artikel (FA-5.40 bis FA-5.47), Schema 19 mit `articles`, `offers`, `offer_items` (4.1); FA-5.2 um Angebote ergänzt; Bildschirme Angebote und Artikel (7); Kenndaten `spec.offer_number_pattern`, `spec.offer_validity_days`, `spec.schema_version` 19 (12); P-U8, P-R39 (14). |
 | 1.59 | 2026-10-16 | 0.14.0 | FA-13.12 neu: Logo im Onboarding ohne Abo-Seite wählbar, gedruckt nur mit Pro oder Test; FA-13.2 angepasst. Kein Schemawechsel, keine neuen Kenndaten. |
 | 1.58 | 2026-10-15 | 0.14.0 | O-35 entschieden: Store-Test 14 Tage nur Pro (FA-13.4), Wortlaut „14 Tage kostenlos, danach ‹Preis› pro ‹Zeitraum›, jederzeit vorher kündbar“ (FA-13.5); Widerruf über den Store unabhängig vom Test (P-L10). |
 | 1.57 | 2026-10-15 | 0.14.0 | Pro-Umfang (Entscheidung Auftraggeber 2026-10-15, Lastenheft O-34): FA-13.2 neu mit `dataImport`, `pdfSending`, `dunningSending`, `invoiceLogo`, `exchangeRateFetch`, `taxOfficeSubmission` nur Pro; neu FA-13.11 PDF senden ohne Pro (Speichern/Drucken über Systemdialog, Stornorechnung erreicht die Kundin auch in Basis). Kein Schemawechsel, keine neuen Kenndaten. |
@@ -1265,6 +1288,7 @@ Status: *offen* · *bestätigt* (mit Datum und Prüfer) · *widerlegt* (mit Folg
 | P-U4 | Datenschutzerklärung und Store-Formulare (Google Data Safety, Apple Label) zur VIES-Abfrage durch Fachperson | Nutzerin Verantwortliche, Kommission Empfängerin, Anbieter unbeteiligt | erster Upload | offen |
 | P-U5 | Kassen- und Zahlungs-QR auf echtem Gerät: SPAR-/Hofer-/Billa-Bon mit RKSV-QR (auch zerknittert, schräg, schwaches Licht), deutscher TSE-Bon, Rechnung mit GiroCode; Vermerk „vom Kassen-QR“ sichtbar; Teilen eines Fotos aus Galerie und Mail öffnet den Buchungsvorschlag mit einer Hand | Emulator prüft nur synthetische QR-Bilder (FA-2.35); Korpus Belege 1–6 wird im CI-Artefakt `ocr-belege` auf Codes ausgewertet | Release | offen |
 | P-U6 | Link-QR auf echtem Gerät: Rechnung eines Anbieters mit QR-Link (z. B. Energie, Telefon), Streifen einhändig erreichbar, Domain lesbar, Laden einer PDF, Weiterleitung auf andere Domain zeigt neue Domain, HTML-Portal führt zu „Im Browser öffnen“ | Logik mit Testserver geprüft (`link_invoice_test.dart`), kein echter Anbieter | Release | offen |
+| P-U8 | Angebote und Artikel auf echtem Gerät mit einer Hand: Rechnungsliste → „Angebote“ → neues Angebot mit Artikel aus „Aus Artikeln und Vorschlägen“, „PDF senden“, „Zur Rechnung machen“; Daumen erreicht alle Knöpfe, Bottom-Sheet mit Tastatur bedienbar | Widget-Test (Knöpfe ≥ 48 dp, Zeilen ≥ 48 dp), kein echtes Gerät | Release | offen |
 | P-U7 | Plattformimport auf echtem Gerät: Transaktionsbericht in der Seller-Central-App bzw. im Browser herunterladen, mit einer Hand teilen bzw. in Dateien „Öffnen mit“ → Buchhaltung, Zusammenfassung lesbar, „Übernehmen“ mit dem Daumen; zweites Teilen derselben Datei bucht nichts doppelt | Widget-Test (Knopf unten, volle Breite, ≥ 56 dp), kein echtes Gerät | Release | offen |
 | P-B1 | Android: bietet die Google-Drive-App bei der Ordnerwahl (Storage Access Framework) Ordner an? Test auf Pixel und Samsung mit aktueller Drive-App. Wenn nein: Entscheidung über Anbindung der Drive-Schnittstelle | Drive bot lange keine Ordner an; unsicher | vor Release | **bestanden 2026-10-12** (Auftraggeberin, Pixel 10: Sicherung und automatische Sicherung nach Google Drive). Wiederherstellung aus Drive siehe P-B12 |
 | P-B2 | iOS: Bookmark auf einen iCloud-Drive-Ordner nach Neustart, Update und offline; Upload durch das System | — | vor Release | offen |
@@ -1366,6 +1390,7 @@ Status: *offen* · *bestätigt* (mit Datum und Prüfer) · *widerlegt* (mit Folg
 | P-R35 | Link-QR (FA-2.42): Abruf beim Server des Rechnungsausstellers auf Tippen – Rolle der Nutzerin bzw. des Anbieters (DSGVO), Offenlegung in Datenschutzerklärung und Google Data Safety/Apple Label (Datenerhebung durch die App ja/nein), Warnhinweis gegen Phishing ausreichend? | keine Daten aus der App, nur Adresse/IP an die gezeigte Domain; Domain groß, Wechsel nur nach erneuter Anzeige, kein Login in der App | erster Upload | offen |
 | P-R36 | Plattformimport (FA-2.49): Käuferdaten (Name, Adresse, E-Mail, Telefon) werden verworfen; bleiben Bestellnummern und Bestimmungsland (Aggregat) zulässig (Art 5 Abs 1 lit c DSGVO)? Rolle der Nutzerin gegenüber Käuferdaten in der geteilten Datei (Cache) | Test über alle Tabellen (`platform_import_test.dart`); keine Übertragung | erster Upload | offen |
 | P-R37 | Abo (FA-13.5, FA-13.6): (a) Pflichttext der Abo-Seite vollständig und richtig für AT/DE-Verbraucherinnen (§ 312j Abs 2 BGB wesentliche Merkmale, Laufzeit, Verlängerung; § 4 FAGG; Apple 3.1.2; Google Play Abo-Richtlinie: Testdauer, Folgepreis, Kündigungsweg)? (b) Store-Abfrage und Kaufblatt als Datenfluss: Einordnung in Google Data Safety („Käufe – Kaufverlauf“, erhoben vom Store, nicht von der App?) und Apple Label („Käufe“, nicht mit Identität verknüpft?) | Vorbefund Rechtsanwalt: Verkäufer und Verantwortlicher für Kaufdaten sind Apple bzw. Google; die App erhebt keine Kaufdaten, verarbeitet aber den Abostatus am Gerät. Vorsorglich als „Käufe/Kaufverlauf, App-Funktion, nicht geteilt“ angeben. Der frühere Store-Text „Ohne Abschluss eines Abos endet der Test von selbst“ passte nicht zum Store-Test (läuft in das Abo über) und wurde berichtigt (§ 5 UWG, § 2 UWG AT) | Store-Einreichung | offen |
+| P-R39 | Angebots-PDF: „Dieses Angebot ist gültig bis <Datum>“ bindet die Unternehmerin bis zu diesem Tag (§ 148 BGB Annahmefrist; AT § 862 ABGB). Reicht das, oder braucht es eine Option „freibleibend“/„unverbindlich“? | Vorbefund Rechtsanwalt: Fristsetzung ist zulässig und schafft Klarheit; „freibleibend“ wäre nur eine Aufforderung zur Angebotsabgabe. Frage, ob Nutzerinnen das wählen können sollen. Mittlere Sicherheit | Release | offen |
 | P-R38 | Jahresabo und automatische Verlängerung um ein weiteres Jahr gegenüber deutschen Verbraucherinnen: § 309 Nr. 9 BGB (seit 1.3.2022 stillschweigende Verlängerung nur auf unbestimmte Zeit mit Monatskündigung) – greift das bei Store-Abos, deren Vertragsbedingungen Apple bzw. Google stellen, oder trifft es den Anbieter über die Nutzungsbedingungen 4.3? Ebenso § 312k BGB (P-R12) | Vorbefund Rechtsanwalt: Verkäufer ist der Store, dessen Verlängerungsmechanik gilt; Nutzungsbedingungen 4.3 beschreiben sie nur. Restrisiko, wenn der Anbieter als Vertragspartner der Leistung gilt; Alternative wäre ein Hinweis „Jahresabo jederzeit zum Periodenende kündbar“. Mittlere Sicherheit | Store-Start | offen |
 | P-S11 | USt-Kette der Store-Abos: Leistung an Apple/Google in Irland, Reverse Charge, UID, ZM, UVA; gelten die Store-Abrechnungen als Gutschrift (§ 11 Abs 7 UStG AT)? | Kette sicher, Rechnungsstellung offen | erster Verkauf | offen |
 | P-S12 | Vorsteuerabzug für Unternehmerinnen aus Store-Quittungen | unklar; kein Versprechen in App oder Werbung | erster Verkauf | offen |

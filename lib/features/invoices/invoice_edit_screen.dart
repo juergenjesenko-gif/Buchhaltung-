@@ -19,6 +19,7 @@ import '../../services/vat_id/vies_client.dart';
 import '../../widgets/vat_check_status.dart';
 import '../../theme.dart';
 import '../../widgets/common.dart';
+import '../articles/position_picker.dart';
 import 'customer_edit_screen.dart';
 import 'invoice_share.dart';
 import '../../widgets/primary_action_bar.dart';
@@ -55,7 +56,7 @@ class _InvoiceEditScreenState extends State<InvoiceEditScreen> {
   DateTime _issueDate = DateTime.now();
   DateTime? _deliveryDate;
   DateTime? _dueDate;
-  List<_ItemDraft> _items = [];
+  List<ItemDraft> _items = [];
   bool _saving = false;
   bool _initialized = false;
 
@@ -124,7 +125,7 @@ class _InvoiceEditScreenState extends State<InvoiceEditScreen> {
       _deliveryDate = existing.deliveryDate;
       _dueDate = existing.dueDate;
       _notesController.text = existing.notes;
-      _items = existing.items.map(_ItemDraft.fromItem).toList();
+      _items = existing.items.map(ItemDraft.fromItem).toList();
       _loadCustomer(existing.customerId);
       _discountIsPercent = existing.discountAmount.isZero;
       _discountController.text = existing.discountPermille > 0
@@ -145,7 +146,7 @@ class _InvoiceEditScreenState extends State<InvoiceEditScreen> {
           ? percentText(existing.skontoPermille)
           : '';
     } else {
-      _items = [_ItemDraft.empty(state.defaultVatPermille)];
+      _items = [ItemDraft.empty(state.defaultVatPermille)];
       _dueDate = DateTime.now().add(
         Duration(days: state.profile?.defaultPaymentTermDays ?? 14),
       );
@@ -226,9 +227,25 @@ class _InvoiceEditScreenState extends State<InvoiceEditScreen> {
       context: context,
       showDragHandle: true,
       isScrollControlled: true,
-      builder: (context) => _CustomerPicker(customers: customers),
+      builder: (context) => CustomerPicker(customers: customers),
     );
     if (selected != null && mounted) setState(() => _customer = selected);
+  }
+
+  /// Übernimmt eine Position aus Artikeln oder früheren Positionen
+  /// (L-11.5): ersetzt eine leere letzte Position, sonst anhängen.
+  Future<void> _takePosition(int defaultVat) async {
+    final item = await pickPosition(context);
+    if (item == null || !mounted) return;
+    final draft = ItemDraft.fromItem(
+      _isSmallBusiness ? item.copyWith(vatPermille: defaultVat) : item,
+    );
+    setState(() {
+      if (_items.isNotEmpty && _items.last.isEmpty) {
+        _items.removeLast().dispose();
+      }
+      _items.add(draft);
+    });
   }
 
   Future<void> _pickDate({
@@ -618,7 +635,7 @@ class _InvoiceEditScreenState extends State<InvoiceEditScreen> {
                 children: [
                   for (var i = 0; i < _items.length; i++) ...[
                     if (i > 0) const Divider(height: 24),
-                    _ItemEditor(
+                    ItemEditor(
                       draft: _items[i],
                       index: i + 1,
                       vatRates: tax.vatRatesOn(
@@ -644,11 +661,21 @@ class _InvoiceEditScreenState extends State<InvoiceEditScreen> {
                       ),
                       onPressed: () => setState(
                         () => _items.add(
-                          _ItemDraft.empty(state.defaultVatPermille),
+                          ItemDraft.empty(state.defaultVatPermille),
                         ),
                       ),
                       icon: const Icon(Icons.add),
                       label: const Text('Position hinzufügen'),
+                    ),
+                    const SizedBox(height: 8),
+                    OutlinedButton.icon(
+                      key: const Key('pickInvoiceItem'),
+                      style: OutlinedButton.styleFrom(
+                        minimumSize: const Size.fromHeight(48),
+                      ),
+                      onPressed: () => _takePosition(state.defaultVatPermille),
+                      icon: const Icon(Icons.inventory_2_outlined),
+                      label: const Text('Aus Artikeln und Vorschlägen'),
                     ),
                   ],
                 ],
@@ -975,8 +1002,8 @@ class _InvoiceEditScreenState extends State<InvoiceEditScreen> {
 
 /// Bearbeitbarer Zustand einer Rechnungsposition. Eigene Klasse, weil jede
 /// Position ihre eigenen [TextEditingController] braucht.
-class _ItemDraft {
-  _ItemDraft({
+class ItemDraft {
+  ItemDraft({
     required this.description,
     required this.quantity,
     required this.unitPrice,
@@ -986,7 +1013,7 @@ class _ItemDraft {
     this.discountIsPercent = true,
   });
 
-  factory _ItemDraft.empty(int vatPermille) => _ItemDraft(
+  factory ItemDraft.empty(int vatPermille) => ItemDraft(
     description: TextEditingController(),
     quantity: TextEditingController(text: '1'),
     unitPrice: TextEditingController(),
@@ -995,7 +1022,7 @@ class _ItemDraft {
     discount: TextEditingController(),
   );
 
-  factory _ItemDraft.fromItem(InvoiceItem item) => _ItemDraft(
+  factory ItemDraft.fromItem(InvoiceItem item) => ItemDraft(
     description: TextEditingController(text: item.description),
     quantity: TextEditingController(text: Fmt.quantity(item.quantityMilli)),
     unitPrice: TextEditingController(text: Fmt.amount(item.unitPrice)),
@@ -1053,8 +1080,9 @@ class _ItemDraft {
   }
 }
 
-class _ItemEditor extends StatelessWidget {
-  const _ItemEditor({
+class ItemEditor extends StatelessWidget {
+  const ItemEditor({
+    super.key,
     required this.draft,
     required this.index,
     required this.vatRates,
@@ -1064,7 +1092,7 @@ class _ItemEditor extends StatelessWidget {
     this.onRemove,
   });
 
-  final _ItemDraft draft;
+  final ItemDraft draft;
   final int index;
   final List<VatRate> vatRates;
   final bool showVat;
@@ -1204,8 +1232,8 @@ class _ItemEditor extends StatelessWidget {
 }
 
 /// Auswahlliste der Kunden mit der Möglichkeit, direkt einen neuen anzulegen.
-class _CustomerPicker extends StatelessWidget {
-  const _CustomerPicker({required this.customers});
+class CustomerPicker extends StatelessWidget {
+  const CustomerPicker({super.key, required this.customers});
 
   final List<Customer> customers;
 

@@ -10,6 +10,7 @@ import '../domain/company_profile.dart';
 import '../domain/customer.dart';
 import '../domain/invoice.dart';
 import '../domain/money.dart';
+import '../domain/offer.dart';
 import 'invoice_texts.dart';
 
 /// Erzeugt das Rechnungs-PDF.
@@ -26,7 +27,28 @@ class InvoicePdf {
     required this.customer,
     required this.profile,
     this.logo,
+    this.offerValidUntil,
   });
+
+  /// PDF eines Angebots (L-3.17): trägt sichtbar „Angebot“, nie „Rechnung“,
+  /// und statt Zahlungsangaben die Gültigkeit. Texte in Sie-Form (L-3.31).
+  factory InvoicePdf.offer({
+    required Offer offer,
+    required Customer customer,
+    required CompanyProfile profile,
+    Uint8List? logo,
+  }) => InvoicePdf(
+    invoice: offer.asInvoice,
+    customer: customer,
+    profile: profile,
+    logo: logo,
+    offerValidUntil: offer.validUntil,
+  );
+
+  /// Gesetzt bei einem Angebot: letzter Tag der Gültigkeit.
+  final DateTime? offerValidUntil;
+
+  bool get isOffer => offerValidUntil != null;
 
   final Invoice invoice;
   final Customer customer;
@@ -47,12 +69,7 @@ class InvoicePdf {
   static const _hairline = PdfColor.fromInt(0xFFD6DEE4);
 
   Future<Uint8List> build() async {
-    final doc = pw.Document(
-      title: invoice.isCancellation
-          ? InvoiceTexts.cancellationTitle(invoice.number)
-          : 'Rechnung ${invoice.number}',
-      author: profile.companyName,
-    );
+    final doc = pw.Document(title: _title, author: profile.companyName);
 
     final fonts = await PdfFonts.load();
     final base = fonts.base;
@@ -89,7 +106,9 @@ class InvoicePdf {
             pw.Text(invoice.notes, style: const pw.TextStyle(fontSize: 9.5)),
           ],
           pw.SizedBox(height: 20),
-          if (invoice.isCancellation)
+          if (isOffer)
+            _buildOfferBlock()
+          else if (invoice.isCancellation)
             _buildCancellationBlock()
           else
             _buildPaymentBlock(),
@@ -182,7 +201,7 @@ class InvoicePdf {
             crossAxisAlignment: pw.CrossAxisAlignment.start,
             children: [
               pw.Text(
-                'Rechnungsempfänger',
+                isOffer ? 'Angebot für' : 'Rechnungsempfänger',
                 style: const pw.TextStyle(fontSize: 8, color: _muted),
               ),
               pw.SizedBox(height: 6),
@@ -204,8 +223,14 @@ class InvoicePdf {
           child: pw.Column(
             crossAxisAlignment: pw.CrossAxisAlignment.start,
             children: [
-              _metaRow('Rechnungsnummer', invoice.number, emphasize: true),
-              _metaRow('Rechnungsdatum', Fmt.date(invoice.issueDate)),
+              if (isOffer) ...[
+                _metaRow('Angebotsnummer', invoice.number, emphasize: true),
+                _metaRow('Angebotsdatum', Fmt.date(invoice.issueDate)),
+                _metaRow('Gültig bis', Fmt.date(offerValidUntil!)),
+              ] else ...[
+                _metaRow('Rechnungsnummer', invoice.number, emphasize: true),
+                _metaRow('Rechnungsdatum', Fmt.date(invoice.issueDate)),
+              ],
               if (invoice.isCancellation) ...[
                 _metaRow('Storno zu', invoice.cancelsNumber),
                 if (invoice.cancelsIssueDate != null)
@@ -255,11 +280,33 @@ class InvoicePdf {
     );
   }
 
+  String get _title => isOffer
+      ? InvoiceTexts.offerTitle(invoice.number)
+      : invoice.isCancellation
+      ? InvoiceTexts.cancellationTitle(invoice.number)
+      : 'Rechnung ${invoice.number}';
+
+  /// Gültigkeit und AGB-Verweis statt Zahlungsangaben (L-3.17, L-3.25).
+  pw.Widget _buildOfferBlock() => pw.Column(
+    crossAxisAlignment: pw.CrossAxisAlignment.start,
+    children: [
+      pw.Text(
+        InvoiceTexts.offerValidity(Fmt.date(offerValidUntil!)),
+        style: const pw.TextStyle(fontSize: 9.5),
+      ),
+      if (profile.termsUrl.trim().isNotEmpty) ...[
+        pw.SizedBox(height: 10),
+        pw.Text(
+          InvoiceTexts.termsReference(profile.termsUrl),
+          style: const pw.TextStyle(fontSize: 8.5, color: _muted),
+        ),
+      ],
+    ],
+  );
+
   pw.Widget _buildTitle() {
     return pw.Text(
-      invoice.isCancellation
-          ? InvoiceTexts.cancellationTitle(invoice.number)
-          : 'Rechnung ${invoice.number}',
+      _title,
       style: pw.TextStyle(
         fontSize: 15,
         fontWeight: pw.FontWeight.bold,

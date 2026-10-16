@@ -16,7 +16,7 @@ class AppDatabase {
 
   /// Aktuelle Schemaversion. Öffentlich, weil docs/SPECIFICATION.md sie
   /// dokumentiert und test/specification_sync_test.dart beide vergleicht.
-  static const schemaVersion = 18;
+  static const schemaVersion = 19;
 
   Database? _db;
 
@@ -544,6 +544,57 @@ class AppDatabase {
       'ALTER TABLE invoices ADD COLUMN cancelled_by_invoice_id INTEGER REFERENCES invoices(id)',
       'CREATE UNIQUE INDEX idx_invoices_cancels ON invoices(cancels_invoice_id) '
           'WHERE cancels_invoice_id IS NOT NULL',
+    ],
+    // Artikelstamm (L-11.1, L-11.2) und Angebote mit eigenem Nummernkreis
+    // (L-3.13 bis L-3.17). Angebote buchen nichts (L-3.14).
+    19: [
+      '''
+      CREATE TABLE articles (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        number TEXT,
+        name TEXT NOT NULL,
+        description TEXT NOT NULL DEFAULT '',
+        unit TEXT NOT NULL DEFAULT 'Stk',
+        unit_price_cents INTEGER NOT NULL DEFAULT 0,
+        vat_permille INTEGER NOT NULL DEFAULT 0,
+        created_at TEXT NOT NULL
+      )
+      ''',
+      'CREATE UNIQUE INDEX idx_articles_number ON articles(number) '
+          'WHERE number IS NOT NULL',
+      '''
+      CREATE TABLE offers (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        number TEXT NOT NULL,
+        year INTEGER NOT NULL,
+        sequence INTEGER NOT NULL,
+        issue_date TEXT NOT NULL,
+        valid_until TEXT NOT NULL,
+        customer_id INTEGER NOT NULL REFERENCES customers(id) ON DELETE RESTRICT,
+        status TEXT NOT NULL DEFAULT 'draft',
+        is_small_business INTEGER NOT NULL DEFAULT 0,
+        notes TEXT NOT NULL DEFAULT '',
+        invoice_id INTEGER REFERENCES invoices(id) ON DELETE SET NULL,
+        created_at TEXT NOT NULL
+      )
+      ''',
+      'CREATE UNIQUE INDEX idx_offers_number ON offers(number)',
+      'CREATE UNIQUE INDEX idx_offers_sequence ON offers(year, sequence)',
+      '''
+      CREATE TABLE offer_items (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        offer_id INTEGER NOT NULL REFERENCES offers(id) ON DELETE CASCADE,
+        position INTEGER NOT NULL,
+        description TEXT NOT NULL DEFAULT '',
+        quantity_milli INTEGER NOT NULL DEFAULT 1000,
+        unit TEXT NOT NULL DEFAULT 'Stk',
+        unit_price_cents INTEGER NOT NULL DEFAULT 0,
+        vat_permille INTEGER NOT NULL DEFAULT 0,
+        discount_permille INTEGER NOT NULL DEFAULT 0,
+        discount_cents INTEGER NOT NULL DEFAULT 0
+      )
+      ''',
+      'CREATE INDEX idx_offer_items_offer ON offer_items(offer_id)',
     ],
   };
 

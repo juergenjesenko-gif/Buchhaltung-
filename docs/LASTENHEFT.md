@@ -1,6 +1,6 @@
 # Lastenheft – JeNi bucht, Buchhaltungsapp für Österreich und Deutschland
 
-**Dokumentversion:** 1.61 · **Stand:** 2026-10-16 · **Status:** Entwurf zur Abstimmung
+**Dokumentversion:** 1.62 · **Stand:** 2026-10-16 · **Status:** Entwurf zur Abstimmung
 **Auftraggeber:** Jürgen Jesenko (privates Vorhaben) · **Umsetzung:** Claude Code
 
 > Ein Lastenheft beschreibt, **was** das Produkt leisten soll und **warum** — nicht,
@@ -1219,6 +1219,7 @@ Anforderungen sind offen.
 | 0.10.0 | Rechnung über Link-QR (L-27.7) | FA-2.42 |
 | 0.11.0 | Plattformexporte Amazon, PayPal, Shopify, Stripe (L-28.1 bis L-28.7) | FA-2.43 bis FA-2.49 |
 | 0.14.0 | Lizenz und Abo: Tarife Basis/Pro über die Stores (L-10.1, L-10.2, L-22.2), Test über das Einführungsangebot der Stores mit Erinnerung 3 Tage vorher (L-10.3, L-22.3), Daten ohne Abo lesbar und exportierbar (L-10.4, L-7.15, L-22.6), Offline-Gültigkeit 45 Tage (L-10.5, L-22.5), Lizenzmanager (L-22.1), Abo-Seite, Kauf wiederherstellen, Abo verwalten (L-22.7, L-22.8). **Offen:** eigene Signaturprüfung der Kaufbelege (L-22.4, heute durch die Store-Bibliotheken), Verschleierung (L-22.11), Promocodes (L-22.26) | 5.9, FA-13.1 bis FA-13.10 |
+| 0.15.0 | Angebote mit eigenem Nummernkreis, Status, PDF und Umwandlung in die Rechnung (L-3.13 bis L-3.17); Artikel ohne Lager, Auswahl und Vorschläge in Rechnung und Angebot (L-11.1, L-11.2, L-11.5, L-11.6, L-11.9, L-11.11) | FA-5.40 bis FA-5.47 |
 | 0.13.0 | Stornorechnung mit eigener Nummer und „Korrigieren“ (L-3.7; L-3.18 für die vollständige Erstattung, Teilerstattung offen), Menü „Rechtliches“ (L-22.18), Wiederherstellungscode als Druckblatt mit QR-Code und Bestätigung durch zwei Blöcke (L-22.21, L-22.22) | GR-14, FA-5.31 bis FA-5.33, FA-11.4, FA-11.5, FA-7.10 |
 
 Außerdem umgesetzt ohne eigene L-ID: Tablet- und Querformat-Layout
@@ -1364,6 +1365,7 @@ Historie stehen. Die Einzelheiten stehen an der genannten Stelle.
 
 | Version | Datum | Änderung |
 |---|---|---|
+| 1.62 | 2026-10-16 | Umsetzungsstand 0.15.0: Angebote und Artikelverwaltung (10a). |
 | 1.61 | 2026-10-16 | Entscheidungen 2026-10-16 (14a): PDF senden bleibt weiche Sperre; E-Rechnung speichern in Basis genügt; Logo im Onboarding frei wählbar, gedruckt nur mit Pro/Test. Tarifschnitt 5.10 angepasst. |
 | 1.60 | 2026-10-15 | O-35 entschieden (Store-Test nur Pro, 14a). |
 | 1.59 | 2026-10-15 | Entscheidung der Auftraggeberin zum Pro-Umfang (O-34 erledigt, 14a); Tarifschnitt 5.10 angepasst: E-Rechnung auslesen, Plattformimport, PDF/Mahnung senden, Logo, Kurs abrufen in Pro. |

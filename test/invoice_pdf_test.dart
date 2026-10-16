@@ -6,6 +6,7 @@ import 'package:buchhaltung/domain/country.dart';
 import 'package:buchhaltung/domain/customer.dart';
 import 'package:buchhaltung/domain/invoice.dart';
 import 'package:buchhaltung/domain/money.dart';
+import 'package:buchhaltung/domain/offer.dart';
 import 'package:buchhaltung/services/invoice_pdf.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:intl/date_symbol_data_local.dart';
@@ -173,5 +174,28 @@ void main() {
     ).build();
 
     expect(bytes.length, greaterThan(500));
+  });
+
+  test('Angebot (L-3.17): PDF erzeugbar, Titel „Angebot“', () async {
+    final invoice = buildInvoice();
+    final offer = Offer(
+      number: 'AN-2026-0001',
+      issueDate: DateTime(2026, 3, 1),
+      validUntil: DateTime(2026, 3, 31),
+      customerId: 1,
+      items: invoice.items,
+    );
+    final pdf = InvoicePdf.offer(
+      offer: offer,
+      customer: customer,
+      profile: profile,
+    );
+    expect(pdf.isOffer, isTrue);
+    final bytes = await pdf.build();
+    expect(bytes.length, greaterThan(500));
+    // Der Dokumenttitel steht unkomprimiert in den PDF-Metadaten.
+    final text = latin1.decode(bytes, allowInvalid: true);
+    expect(text, contains('Angebot AN-2026-0001'));
+    expect(text, isNot(contains('Rechnung AN-2026-0001')));
   });
 }

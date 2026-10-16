@@ -1,6 +1,6 @@
 # Benutzerhandbuch – JeNi bucht
 
-**Für App-Version 0.14.0** · Stand 2026-10-16
+**Für App-Version 0.15.0** · Stand 2026-10-16
 
 Dieses Handbuch beschreibt die App aus Nutzersicht. Es wird bei jeder Änderung,
 die du in der App siehst, mitgeführt – siehe [`CLAUDE.md`](../CLAUDE.md).
@@ -896,6 +896,36 @@ es mit Pro und im 14-Tage-Test.** Mit Basis steht in den Stammdaten
 „Logo (Pro) – wird mit Basis nicht gedruckt“: Neue Rechnungen und Angebote
 kommen dann ohne Logo, das Bild bleibt aber gespeichert und ist mit Pro sofort
 wieder da.
+
+### Angebote
+
+Unter **Rechnungen → Angebote** schreibst du ein Angebot fast wie eine
+Rechnung:
+
+1. **Neues Angebot** tippen.
+2. Kunde wählen, Positionen eintragen oder mit **Aus Artikeln und
+   Vorschlägen** übernehmen. „Gültig bis“ ist 30 Tage vorbelegt.
+3. **PDF senden** – das Angebot gilt danach als *Gesendet*. Ohne Pro kannst
+   du das PDF speichern oder drucken und selbst weitergeben.
+4. Sagt die Kundin zu: **Zur Rechnung machen**. Es öffnet sich ein
+   Rechnungsentwurf mit allen Positionen; prüfen und ausstellen.
+
+Ein Angebot bucht nichts: Es erscheint nicht im Kassabuch, nicht in der
+Umsatzsteuer und nicht bei der Kleinunternehmergrenze. Es hat eine eigene
+Nummer (AN-2026-0001 …), unabhängig von deinen Rechnungsnummern. Lehnt die
+Kundin ab, tippe **Kundin hat abgelehnt**. Nach „Gültig bis“ steht es als
+*Abgelaufen* in der Liste. Ein angenommenes Angebot lässt sich nicht mehr
+ändern; **Rechnung öffnen** bringt dich zum Entwurf.
+
+### Artikel
+
+Unter **Rechnungen → Artikel** legst du Waren und Leistungen an, die du öfter
+verrechnest: Bezeichnung, Preis netto, Einheit, Steuersatz, auf Wunsch
+Artikelnummer und kurze Beschreibung. In Rechnung und Angebot holst du sie mit
+**Aus Artikeln und Vorschlägen** – ein Tipp, fertig. Dort stehen auch
+Positionen, die du früher schon verwendet hast, ganz ohne Artikel anzulegen.
+Alles bleibt in der Position änderbar, und freie Positionen gehen immer.
+Löschst du einen Artikel, bleiben deine Rechnungen unverändert.
 
 ---
 

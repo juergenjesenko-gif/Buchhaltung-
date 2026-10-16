@@ -11,6 +11,7 @@ import 'package:buchhaltung/domain/country.dart';
 import 'package:buchhaltung/domain/deadline_rule.dart';
 import 'package:buchhaltung/services/deadline_calculator.dart';
 import 'package:buchhaltung/domain/money.dart';
+import 'package:buchhaltung/domain/offer.dart';
 import 'package:buchhaltung/domain/receipt.dart';
 import 'package:buchhaltung/services/invoice_numbering.dart';
 import 'package:buchhaltung/services/dunning_calculator.dart';
@@ -242,6 +243,14 @@ void main() {
       expect(
         intValue('spec.warn_threshold_percent'),
         (SmallBusinessMonitor.warnThreshold * 100).round(),
+      );
+    });
+
+    test('Angebote: Nummernmuster und Gültigkeit stimmen (FA-5.40)', () {
+      expect(value('spec.offer_number_pattern'), OfferPolicy.numberPattern);
+      expect(
+        intValue('spec.offer_validity_days'),
+        OfferPolicy.defaultValidityDays,
       );
     });
 
