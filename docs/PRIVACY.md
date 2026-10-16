@@ -159,7 +159,12 @@ Nur in diesen Fällen, die du auslöst oder einschaltest:
 ausgelesen (Datum, Betrag, Steuersatz, Lieferant, UID, Rechnungsnummer).
 Foto und erkannter Text verlassen das Gerät dafür **nicht**; die Erkennung
 funktioniert auch im Flugmodus. Unter **iOS** nutzt die App die
-Texterkennung von Apple (Vision), die nichts überträgt. Unter **Android**
+Texterkennung von Apple (Vision) und den Dokumentenscanner von Apple
+(VisionKit), die nichts übertragen. Unter **Android** öffnet „Beleg
+fotografieren“ den Dokumentenscanner von Google, den die Google Play-Dienste
+bereitstellen: das Scannen läuft auf dem Gerät, die Play-Dienste laden aber
+Modell und Oberfläche und können **Nutzungs- und Diagnosedaten** an Google
+senden – keine Bilder (Prüfpunkt P-R42). Für die Texterkennung
 nutzt sie die in die App eingebundene Bibliothek Google ML Kit (Text- und
 QR-Code-Erkennung, beide fest in der App enthalten). Diese sendet
 nach Angaben von Google **Nutzungs- und Diagnosedaten** (etwa Gerätetyp,

@@ -165,7 +165,10 @@ sendet Nutzungs- und Diagnosedaten an Google (keine Fotos, kein Text). Google
 Data Safety daher zusätzlich: „App-Info und -Leistung – Absturzprotokolle /
 Diagnosedaten“, **geteilt mit Google**, verschlüsselt übertragen, nicht
 löschbar über die App, Zweck Analyse/App-Funktion – genaue Einordnung zu
-prüfen (P-R19, P-D21). Apple: Vision überträgt nichts, keine Angabe nötig.
+prüfen (P-R19, P-D21). **Dokumentenscanner (nur Android):** Google Play-Dienste
+(ML Kit Document Scanner) – gleiche Kategorie „App-Info und -Leistung“,
+geteilt mit Google, keine Bilder (P-R42). Apple: Vision und VisionKit
+übertragen nichts, keine Angabe nötig.
 **Rechnung über Link-QR** (nur auf Tippen „Laden“): Abruf der Adresse aus
 dem QR-Code beim Server des Rechnungsausstellers; gesendet werden nur Adresse,
 IP-Adresse und Verbindungsdaten, keine Nutzerdaten aus der App. Wie beim
@@ -218,7 +221,7 @@ Zusammengefasst aus dem Abschnitt oben; maßgeblich bleibt dieser, und
 | Erhebt oder teilt die App Daten? | ja | ja („Data Used to Track You“: nein) |
 | Finanzinformationen – andere (UID-Prüfung VIES) | geteilt, verschlüsselt, optional, App-Funktion | Sonstige Finanzinfos, nicht verknüpft, App-Funktionalität |
 | Kaufverlauf (Store-Abfrage) | erhoben, nicht geteilt, App-Funktion | Käufe, nicht verknüpft, App-Funktionalität |
-| App-Info und -Leistung (ML Kit, nur Android) | Absturzprotokolle/Diagnose, geteilt mit Google, Analyse | – (Vision sendet nichts) |
+| App-Info und -Leistung (ML Kit und Dokumentenscanner über Play-Dienste, nur Android) | Absturzprotokolle/Diagnose, geteilt mit Google, Analyse | – (Vision sendet nichts) |
 | Fotos, Dateien, Standort, Kontakte | nein (bleiben auf dem Gerät) | nein |
 | U30-Datei, Exporte, Berichte, PDFs über Teilen | nein: Übertragung durch die Nutzerin über das Systemblatt gilt nicht als Erheben/Teilen durch die App (wie Export) | nein |
 | Verschlüsselte Übertragung | ja | – |

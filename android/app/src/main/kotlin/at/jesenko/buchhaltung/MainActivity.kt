@@ -14,6 +14,7 @@ class MainActivity : FlutterFragmentActivity() {
     private var shareIn: ShareInChannel? = null
     private var pdf: PdfChannel? = null
     private var shareOut: ShareOutChannel? = null
+    private var scanner: DocumentScannerChannel? = null
 
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
@@ -22,6 +23,7 @@ class MainActivity : FlutterFragmentActivity() {
         launcher = LauncherChannel(this, flutterEngine.dartExecutor.binaryMessenger)
         pdf = PdfChannel(applicationContext, flutterEngine.dartExecutor.binaryMessenger)
         shareOut = ShareOutChannel(this, flutterEngine.dartExecutor.binaryMessenger)
+        scanner = DocumentScannerChannel(this, flutterEngine.dartExecutor.binaryMessenger)
         shareIn = ShareInChannel(applicationContext, flutterEngine.dartExecutor.binaryMessenger)
         // Start über „Teilen“ (L-27.4): Intent des Starts auswerten.
         shareIn?.handle(intent)
@@ -49,6 +51,7 @@ class MainActivity : FlutterFragmentActivity() {
     @Deprecated("Activity Result API wäre moderner; hier genügt der klassische Weg")
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: android.content.Intent?) {
         if (backupFolder?.onActivityResult(requestCode, resultCode, data) == true) return
+        if (scanner?.onActivityResult(requestCode, resultCode, data) == true) return
         @Suppress("DEPRECATION")
         super.onActivityResult(requestCode, resultCode, data)
     }

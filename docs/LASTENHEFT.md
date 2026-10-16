@@ -1,6 +1,6 @@
 # Lastenheft – JeNi bucht, Buchhaltungsapp für Österreich und Deutschland
 
-**Dokumentversion:** 1.67 · **Stand:** 2026-10-16 · **Status:** Entwurf zur Abstimmung
+**Dokumentversion:** 1.68 · **Stand:** 2026-10-16 · **Status:** Entwurf zur Abstimmung
 **Auftraggeber:** Jürgen Jesenko (privates Vorhaben) · **Umsetzung:** Claude Code
 
 > Ein Lastenheft beschreibt, **was** das Produkt leisten soll und **warum** — nicht,
@@ -656,6 +656,7 @@ Jede Übertragung vom Gerät weg, auch die unscheinbaren:
 | Sicherung automatisch (L-7.2, L-7.6 ff.) | einmal gewählter Ordner, z. B. iCloud Drive oder Google Drive; Upload durch das Betriebssystem bzw. den Dokumentanbieter | mit Schlüssel verschlüsselte Vollsicherung samt Fotos | nach jeder Änderung höchstens täglich, beim Öffnen der App | **ja**, standardmäßig aus | vorhanden |
 | iCloud-Sicherung, nur iOS (L-7.17 bis L-7.20) | Apple (iCloud Drive der Nutzerin, App-eigener Container „JeNi bucht“); Apple ist aus Sicht der Nutzerin Auftragsverarbeiter, Server auch außerhalb der EU | mit Schlüssel verschlüsselte Vollsicherung samt Fotos; Apple sieht nur Dateiname, Größe, Zeitpunkt; Schlüssel nie im iCloud-Schlüsselbund (L-19.27) | nach jeder Änderung höchstens täglich, beim Öffnen der App | **ja**, standardmäßig aus; Ziel bei „Einrichten“, wenn iCloud verfügbar | vorhanden (0.16.0) |
 | Diagnose der Belegerkennung, nur Android (L-2.20, L-27.1) | Google (Google ML Kit Texterkennung und Barcode-Erkennung, beide gebündelt in der App) | Nutzungs- und Diagnosedaten der Bibliotheken (z. B. Gerätetyp, Leistung, Fehler); **keine Bilder, kein erkannter Text** | Nutzung der Belegerkennung | nein, kein offizielles Abschalten; Erkennung insgesamt abschaltbar (L-2.23). Prüfung P-R19, P-D21 | vorhanden |
+| Dokumentenscanner, nur Android (Spezifikation FA-2.51) | Google (Google Play-Dienste: Download von Modell und Oberfläche des ML Kit Document Scanners) | Nutzungs- und Diagnosedaten der Play-Dienste; **keine Bilder** (Verarbeitung auf dem Gerät) | Tippen auf „Beleg fotografieren“ bzw. „Seiten scannen“ | nein; ohne Play-Dienste automatisch Kamera. Prüfung P-R42 | vorhanden (0.20.0) |
 | Rechnung über Link-QR (L-27.7) | Server der im QR-Code genannten Domain (Rechnungsaussteller bzw. dessen Dienstleister), direkt vom Gerät | Adresse aus dem QR-Code (kann eine Rechnungs- oder Kundenkennung enthalten), IP-Adresse, technische Verbindungsdaten; **keine Daten aus der App** | Tippen auf „Laden“ im Hinweisstreifen | je Vorgang | vorhanden |
 | EZB-Kursabruf (L-2.25, L-19.29) | Europäische Zentralbank, direkt vom Gerät | nur Abruf einer festen Kursdatei: IP-Adresse, Zeitpunkt, technische Verbindungsdaten; **keine Belegdaten, keine Währung, kein Betrag** | Tippen auf „Kurs abrufen“ | je Vorgang | vorhanden |
 | Foto-Zweitablage (L-2.11) | Fotobibliothek, ggf. deren Cloud | Belegfotos | Einschalten | ja | A |
@@ -1376,10 +1377,13 @@ Historie stehen. Die Einzelheiten stehen an der genannten Stelle.
 
 **Vorschlag zur Entscheidung (2026-10-16, Vertragsarchiv):** Verträge ablegen, Fristen, Abgleich, Buchungsvorschlag und Aufbewahrung in **jedem Abo**; Texterkennung und Kurzübersicht **nur Pro** (`Feature.contractSummary`). Bis zur Entscheidung so umgesetzt (Spezifikation FA-13.2, FA-16.3).
 
+**Entscheidung 2026-10-16 (Dokumentenscanner):** Belege und Verträge werden mit dem Scanner des Systems erfasst (Android ML Kit Document Scanner, iOS VisionKit); gespeichert wird **nur das verarbeitete Bild**; ohne Scanner automatisch die Kamera. Umgesetzt in 0.20.0 (Spezifikation FA-2.51, Prüfpunkt P-S63).
+
 ## 15. Änderungshistorie
 
 | Version | Datum | Änderung |
 |---|---|---|
+| 1.68 | 2026-10-16 | Dokumentenscanner des Systems (Entscheidung 14a), Datenfluss Play-Dienste in 5.19. |
 | 1.67 | 2026-10-16 | 5.23 Vertragsarchiv lokal umgesetzt (L-23.1 bis L-23.4, L-23.6, L-23.11), L-23.1 um Pacht und Dienstbarkeit ergänzt; Tarifvorschlag in 14a; Datenfluss „Berichte teilen“ um Vertragsliste ergänzt. |
 | 1.66 | 2026-10-16 | Anlagenverwaltung mit AfA, Anlagenverzeichnis, Saldenliste und vorläufiger Jahresabschluss umgesetzt (Spezifikation 5.11); Tarifvorschlag in 14a; Datenfluss „Berichte teilen“ in 5.19. |
 | 1.65 | 2026-10-16 | L-6.1, L-6.3 umgesetzt, L-6.5 teilweise (U30-Datei, Spezifikation FA-14.x); Datenflusstabelle 5.19 um „U30-Datei teilen“ ergänzt; O-36 neu (ELSTER-Hersteller-ID, FinanzOnline-Webservice). |

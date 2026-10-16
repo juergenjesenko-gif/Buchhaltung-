@@ -29,11 +29,33 @@ gebaut, und was war darin geprüft?*
 
 ## Unveröffentlicht
 
-Änderungen seit 0.19.0+26, die noch in keinem Build stecken. Wandern beim
+Änderungen seit 0.20.0+27, die noch in keinem Build stecken. Wandern beim
 nächsten Versionssprung in den neuen Eintrag.
 
 | Art | Änderung | Bezug | Commit |
 |---|---|---|---|
+
+---
+
+## 0.20.0+27 — 2026-10-16
+
+| Feld | Wert |
+|---|---|
+| Art | Testbuild (ungezippte arm64-APK `JeNi-bucht-0.20.0-build-<Nr>.apk`, fester Testschlüssel); **Lizenzprüfung aus** (ohne `LICENSING=true`), alle Funktionen frei |
+| Commit | folgt |
+| Branch | `claude/agile-accounting-app-mobile-wa5j3h` |
+| Dokumentstände | Lastenheft 1.68, Spezifikation 1.68, Benutzerhandbuch für 0.20.0, DESIGN_SPEC 1.2 |
+| Datenbankschema | 22 |
+| Prüfung | `flutter analyze` ohne Befund, alle Tests grün (neu `document_scanner_test.dart`); Android/iOS-Build nur in der CI (Abhängigkeit `play-services-mlkit-document-scanner` 16.0.0, VisionKit) |
+| Steuerliche Kennwerte | neu `spec.scanner_page_limit` 20 |
+| Offene reale Prüfpunkte | wie 0.19.0+26, neu P-S63, P-R42, P-D37, P-D38, P-X15 |
+| Bekannte Grenzen | Spezifikation Abschnitt 11 (neu: Scanner nicht auf Gerät erprobt) |
+
+**Änderungen seit 0.19.0+26**
+
+| Art | Änderung | Bezug | Commit |
+|---|---|---|---|
+| Neu | Dokumentenscanner des Systems für Belege und Verträge (Android ML Kit Document Scanner, iOS VisionKit), mehrere Seiten, nur verarbeitetes Bild gespeichert, ohne Scanner automatisch Kamera | FA-2.51, Lastenheft 14a | folgt |
 
 ---
 

@@ -26,3 +26,9 @@
 -keep class com.google.firebase.components.** { *; }
 -keep class com.google.android.gms.common.** { *; }
 -dontwarn com.google.mlkit.**
+
+# Dokumentenscanner (DocumentScannerChannel, FA-2.51): Play-Dienste-Modul,
+# Ergebnis über Parcelable (GmsDocumentScanningResult). Vorsorglich gleich
+# behandelt wie die übrigen ML-Kit-Klassen; Gerätetest P-D37.
+-keep class com.google.mlkit.vision.documentscanner.** { *; }
+-keep class com.google.android.gms.internal.mlkit_docscan** { *; }

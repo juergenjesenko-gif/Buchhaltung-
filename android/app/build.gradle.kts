@@ -95,4 +95,8 @@ dependencies {
     // QR-/Barcodes auf demselben Foto (L-27.1), ebenfalls GEBÜNDELT
     // (nicht play-services-mlkit-barcode-scanning): offline, kein Download.
     implementation("com.google.mlkit:barcode-scanning:17.3.0")
+    // Dokumentenscanner (FA-2.51): Modell und Oberfläche liefert Google
+    // Play-Dienste (Download durch Play, ca. 300 KB in der App). Ohne
+    // Play-Dienste nimmt die App automatisch die Kamera.
+    implementation("com.google.android.gms:play-services-mlkit-document-scanner:16.0.0")
 }

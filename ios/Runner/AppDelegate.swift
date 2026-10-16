@@ -15,6 +15,7 @@ import UIKit
   private var launcher: FlutterMethodChannel?
   private var pdf: PdfChannel?
   private var shareIn: ShareInChannel?
+  private var scanner: DocumentScannerChannel?
 
   func didInitializeImplicitFlutterEngine(_ engineBridge: FlutterImplicitEngineBridge) {
     GeneratedPluginRegistrant.register(with: engineBridge.pluginRegistry)
@@ -23,6 +24,9 @@ import UIKit
     }
     if let registrar = engineBridge.pluginRegistry.registrar(forPlugin: "ReceiptTextChannel") {
       receiptText = ReceiptTextChannel(messenger: registrar.messenger())
+    }
+    if let registrar = engineBridge.pluginRegistry.registrar(forPlugin: "DocumentScannerChannel") {
+      scanner = DocumentScannerChannel(messenger: registrar.messenger())
     }
     if let registrar = engineBridge.pluginRegistry.registrar(forPlugin: "PdfChannel") {
       pdf = PdfChannel(messenger: registrar.messenger())

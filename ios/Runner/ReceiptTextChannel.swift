@@ -2,6 +2,7 @@ import Flutter
 import PDFKit
 import UIKit
 import Vision
+import VisionKit
 
 /// Texterkennung für Belegfotos (L-2.20) mit Apple Vision
 /// (`VNRecognizeTextRequest`). Läuft vollständig auf dem Gerät; Bild und Text
@@ -207,5 +208,84 @@ class ShareInChannel: NSObject, FlutterSceneLifeCycleDelegate {
     }
     if any { channel.invokeMethod("shared", arguments: nil) }
     return any
+  }
+}
+
+/// Dokumentenscanner des Systems für Belege und Verträge (FA-2.51):
+/// VisionKit `VNDocumentCameraViewController`, auf dem Gerät, mehrere Seiten,
+/// entzerrt. Gespeichert wird nur das verarbeitete Bild (P-S63). Ergebnis
+/// von `scan`: Pfade; leer = abgebrochen; Fehler `unavailable` = Gerät ohne
+/// Scanner → Dart nimmt die Kamera.
+class DocumentScannerChannel: NSObject, VNDocumentCameraViewControllerDelegate {
+  private let channel: FlutterMethodChannel
+  private var pending: FlutterResult?
+
+  init(messenger: FlutterBinaryMessenger) {
+    channel = FlutterMethodChannel(
+      name: "buchhaltung/document_scanner", binaryMessenger: messenger)
+    super.init()
+    channel.setMethodCallHandler { [weak self] call, result in
+      guard call.method == "scan" else {
+        result(FlutterMethodNotImplemented)
+        return
+      }
+      self?.scan(result)
+    }
+  }
+
+  private func topController() -> UIViewController? {
+    let scenes = UIApplication.shared.connectedScenes.compactMap { $0 as? UIWindowScene }
+    var top = scenes.flatMap { $0.windows }.first { $0.isKeyWindow }?.rootViewController
+    while let presented = top?.presentedViewController { top = presented }
+    return top
+  }
+
+  private func scan(_ result: @escaping FlutterResult) {
+    guard pending == nil else {
+      result(FlutterError(code: "busy", message: "Scanner läuft bereits", details: nil))
+      return
+    }
+    guard VNDocumentCameraViewController.isSupported, let top = topController() else {
+      result(FlutterError(code: "unavailable", message: "Kein Dokumentenscanner", details: nil))
+      return
+    }
+    pending = result
+    let controller = VNDocumentCameraViewController()
+    controller.delegate = self
+    top.present(controller, animated: true)
+  }
+
+  func documentCameraViewController(
+    _ controller: VNDocumentCameraViewController, didFinishWith scan: VNDocumentCameraScan
+  ) {
+    let dir = FileManager.default.temporaryDirectory.appendingPathComponent("scanner")
+    try? FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
+    let stamp = Int(Date().timeIntervalSince1970 * 1000)
+    var paths: [String] = []
+    for i in 0..<scan.pageCount {
+      let target = dir.appendingPathComponent("scan_\(stamp)_\(i).jpg")
+      if let data = scan.imageOfPage(at: i).jpegData(compressionQuality: 0.85),
+        (try? data.write(to: target)) != nil
+      {
+        paths.append(target.path)
+      }
+    }
+    controller.dismiss(animated: true)
+    pending?(paths)
+    pending = nil
+  }
+
+  func documentCameraViewControllerDidCancel(_ controller: VNDocumentCameraViewController) {
+    controller.dismiss(animated: true)
+    pending?([String]())
+    pending = nil
+  }
+
+  func documentCameraViewController(
+    _ controller: VNDocumentCameraViewController, didFailWithError error: Error
+  ) {
+    controller.dismiss(animated: true)
+    pending?(FlutterError(code: "unavailable", message: error.localizedDescription, details: nil))
+    pending = nil
   }
 }

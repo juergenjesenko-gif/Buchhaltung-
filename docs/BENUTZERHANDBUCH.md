@@ -1,6 +1,6 @@
 # Benutzerhandbuch – JeNi bucht
 
-**Für App-Version 0.19.0** · Stand 2026-10-16
+**Für App-Version 0.20.0** · Stand 2026-10-16
 
 Dieses Handbuch beschreibt die App aus Nutzersicht. Es wird bei jeder Änderung,
 die du in der App siehst, mitgeführt – siehe [`CLAUDE.md`](../CLAUDE.md).
@@ -176,7 +176,11 @@ Das ist die Funktion, die du täglich nutzt. Sie ist auf Geschwindigkeit gebaut.
 ### Einen Beleg erfassen
 
 1. In der **Übersicht** unten in der Mitte auf **Beleg fotografieren** tippen –
-   die Kamera öffnet sich sofort. Der Knopf liegt mittig, damit du ihn mit dem
+   der **Dokumentenscanner** deines Telefons öffnet sich sofort: er findet
+   den Beleg, schneidet ihn gerade zu und macht ihn gut lesbar; mehrere Seiten
+   nimmst du gleich hintereinander auf, mit **Fertig** bzw. **Speichern**
+   geht es zurück. Ohne Scanner (z. B. Telefon ohne Google-Dienste) öffnet
+   sich einfach die Kamera. Der Knopf liegt mittig, damit du ihn mit dem
    rechten wie dem linken Daumen erreichst. Ob **Einnahme** oder **Ausgabe**,
    wählst du oben im Formular (vorbelegt: Ausgabe). Alternativ im Bereich
    **Belege** unten in der Mitte auf **Beleg erfassen**.
@@ -1044,7 +1048,7 @@ einen Kommentar an deine Steuerberatung schreiben, dann:
 Miete, Pacht, Leasing, Versicherung, Darlehen, Dienstbarkeit: Export →
 **Verträge** → **Vertrag ablegen**.
 
-1. **Seite fotografieren** (oder mehrere **Aus Galerie**). Ein PDF aus einer
+1. **Seiten scannen** (Dokumentenscanner, mehrere Seiten auf einmal) oder **Aus Galerie**. Ein PDF aus einer
    Mail teilst du einfach an JeNi bucht – oben im Belegformular steht dann
    „Ist das ein Vertrag?“; ein Tipp legt ihn ins Vertragsarchiv.
 2. Art, Bezeichnung, Partner, Beginn, Ende, Kündigungsfrist, Rate eintragen.

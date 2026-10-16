@@ -13,6 +13,7 @@ import '../../services/contracts/contract_text_extractor.dart';
 import '../../services/licensing/license_policy.dart';
 import '../../services/receipt_image_store.dart';
 import '../../services/receipt_scan/document_import.dart';
+import '../../services/receipt_scan/document_scanner.dart';
 import '../../services/receipt_scan/platform_text_recognizer.dart';
 import '../../services/share_in/share_in_service.dart';
 import '../../widgets/adaptive.dart';
@@ -213,6 +214,18 @@ class _ContractEditScreenState extends State<ContractEditScreen> {
   );
 
   Future<void> _addPhoto(ImageSource source) async {
+    // Dokumentenscanner zuerst (FA-2.51), sonst automatisch die Kamera.
+    if (source == ImageSource.camera) {
+      final scanned = await const DocumentScanner().scan();
+      if (scanned != null) {
+        for (final f in scanned) {
+          final rel = await ReceiptImageStore.store(f);
+          if (!mounted) return;
+          setState(() => _newPages.add(rel));
+        }
+        return;
+      }
+    }
     try {
       final picker = ImagePicker();
       final files = source == ImageSource.camera
@@ -547,7 +560,7 @@ class _ContractEditScreenState extends State<ContractEditScreen> {
                           ),
                           onPressed: () => _addPhoto(ImageSource.camera),
                           icon: const Icon(Icons.photo_camera_outlined),
-                          label: const Text('Seite fotografieren'),
+                          label: const Text('Seiten scannen'),
                         ),
                         OutlinedButton.icon(
                           style: OutlinedButton.styleFrom(

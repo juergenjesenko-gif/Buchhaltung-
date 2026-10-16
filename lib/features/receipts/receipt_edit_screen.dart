@@ -21,6 +21,7 @@ import '../../domain/receipt.dart';
 import '../../services/fx/currency_converter.dart';
 import '../../services/fx/fx_rate_service.dart';
 import '../../services/receipt_image_store.dart';
+import '../../services/receipt_scan/document_scanner.dart';
 import '../../services/receipt_scan/ocr_text.dart';
 import '../../services/receipt_scan/platform_text_recognizer.dart';
 import '../../services/receipt_scan/receipt_classifier.dart';
@@ -616,6 +617,22 @@ class _ReceiptEditScreenState extends State<ReceiptEditScreen> {
 
   /// Nimmt eine weitere Seite auf und hängt sie hinten an.
   Future<void> _addPage(ImageSource source) async {
+    // Dokumentenscanner des Systems zuerst (FA-2.51): entzerrt, mehrere
+    // Seiten. Ohne Scanner automatisch die Kamera, ohne Rückfrage.
+    if (source == ImageSource.camera) {
+      final scanned = await const DocumentScanner().scan();
+      if (scanned != null) {
+        if (scanned.isEmpty || !mounted) return;
+        for (final file in scanned) {
+          final relative = await ReceiptImageStore.store(file);
+          if (!mounted) return;
+          setState(() => _pages.add(relative));
+        }
+        await _resolveFiles();
+        if (_scanEnabled && !_isEditing) await _scan();
+        return;
+      }
+    }
     try {
       final picked = await ImagePicker().pickImage(
         source: source,
