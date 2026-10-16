@@ -42,7 +42,7 @@ nächsten Versionssprung in den neuen Eintrag.
 | Feld | Wert |
 |---|---|
 | Art | Testbuild (ungezippte arm64-APK `JeNi-bucht-0.18.0-build-<Nr>.apk`, fester Testschlüssel); **Lizenzprüfung aus** (ohne `LICENSING=true`), alle Funktionen frei |
-| Commit | folgt |
+| Commit | `d65aaaf` |
 | Branch | `claude/agile-accounting-app-mobile-wa5j3h` |
 | Dokumentstände | Lastenheft 1.66, Spezifikation 1.66, Benutzerhandbuch für 0.18.0, DESIGN_SPEC 1.2 |
 | Datenbankschema | 21 |
@@ -55,9 +55,9 @@ nächsten Versionssprung in den neuen Eintrag.
 
 | Art | Änderung | Bezug | Commit |
 |---|---|---|---|
-| Neu | Ausgabe als Investition erfassen: Nutzungsdauer-Vorschlag je Land mit Fundstelle, eigene Dauer mit Begründung, GWG, Sammelposten (DE), AfA-Plan; Gewinn mit AfA statt Anschaffung (Schema 21) | GR-15, FA-15.1 bis FA-15.5, FA-15.7 | folgt |
-| Neu | Ausscheiden bzw. vollständig abschreiben mit Pflichtkommentar, Verkaufserlös als Einnahme | FA-15.6 | folgt |
-| Neu | Anlagenverzeichnis (jedes Abo), Saldenliste und vorläufiger Jahresabschluss als PDF/ZIP (Pro, Vorschlag 14a) | FA-15.8 bis FA-15.11, FA-13.2 | folgt |
+| Neu | Ausgabe als Investition erfassen: Nutzungsdauer-Vorschlag je Land mit Fundstelle, eigene Dauer mit Begründung, GWG, Sammelposten (DE), AfA-Plan; Gewinn mit AfA statt Anschaffung (Schema 21) | GR-15, FA-15.1 bis FA-15.5, FA-15.7 | `d65aaaf` |
+| Neu | Ausscheiden bzw. vollständig abschreiben mit Pflichtkommentar, Verkaufserlös als Einnahme | FA-15.6 | `d65aaaf` |
+| Neu | Anlagenverzeichnis (jedes Abo), Saldenliste und vorläufiger Jahresabschluss als PDF/ZIP (Pro, Vorschlag 14a) | FA-15.8 bis FA-15.11, FA-13.2 | `d65aaaf` |
 
 ---
 
