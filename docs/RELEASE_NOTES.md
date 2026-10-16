@@ -42,7 +42,7 @@ nächsten Versionssprung in den neuen Eintrag.
 | Feld | Wert |
 |---|---|
 | Art | Testbuild (ungezippte arm64-APK `JeNi-bucht-0.16.0-build-<Nr>.apk`, fester Testschlüssel); **Lizenzprüfung aus** (ohne `LICENSING=true`), alle Funktionen frei |
-| Commit | folgt |
+| Commit | `d994893` |
 | Branch | `claude/agile-accounting-app-mobile-wa5j3h` |
 | Dokumentstände | Lastenheft 1.64, Spezifikation 1.62, Benutzerhandbuch für 0.16.0, DESIGN_SPEC 1.2 |
 | Datenbankschema | 20 |
@@ -56,8 +56,8 @@ nächsten Versionssprung in den neuen Eintrag.
 | Art | Änderung | Bezug | Commit |
 |---|---|---|---|
 | Neu | Abo-Seite: „Promo-Code einlösen“ (iOS Einlöseblatt, Android Google Play); Code JENIBUCHT2M für 2 Monate Pro gratis, Erinnerung zum Ende | FA-13.13 | `067a8f8` |
-| Neu | Lernen je Lieferant: Name, Kategorie, Steuersatz, Währung, Zahlungsart „wie beim letzten Mal“ (Schema 20) | L-2.28, FA-2.50 | folgt |
-| Neu | iOS: automatische Sicherung in den iCloud-Drive-Container „JeNi bucht“; Liste „Wiederherstellen“ auf beiden Plattformen | L-7.17, L-7.18, L-7.20, FA-7.16 | folgt |
+| Neu | Lernen je Lieferant: Name, Kategorie, Steuersatz, Währung, Zahlungsart „wie beim letzten Mal“ (Schema 20) | L-2.28, FA-2.50 | `d994893` |
+| Neu | iOS: automatische Sicherung in den iCloud-Drive-Container „JeNi bucht“; Liste „Wiederherstellen“ auf beiden Plattformen | L-7.17, L-7.18, L-7.20, FA-7.16 | `d994893` |
 
 ---
 
