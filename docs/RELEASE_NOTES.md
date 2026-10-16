@@ -42,7 +42,7 @@ nächsten Versionssprung in den neuen Eintrag.
 | Feld | Wert |
 |---|---|
 | Art | Testbuild (ungezippte arm64-APK `JeNi-bucht-0.21.1-build-<Nr>.apk`, fester Testschlüssel); **Lizenzprüfung aus** (ohne `LICENSING=true`), alle Funktionen frei |
-| Commit | `COMMIT` |
+| Commit | `b925046` |
 | Branch | `claude/agile-accounting-app-mobile-wa5j3h` |
 | Dokumentstände | Lastenheft 1.70, Spezifikation 1.72, Benutzerhandbuch für 0.21.1, DESIGN_SPEC 1.2 |
 | Datenbankschema | 23 |
@@ -55,9 +55,9 @@ nächsten Versionssprung in den neuen Eintrag.
 
 | Art | Änderung | Bezug | Commit |
 |---|---|---|---|
-| Behoben | Dokumentenscanner nach dem ersten Scan bis zum Neustart gesperrt (offene Kanal-Antwort nie abgeschlossen, Folgeaufrufe still als „abgebrochen“ gelesen): Antwort genau einmal, am Prozess, Abbruch nach Rückkehr ohne Ergebnis, Dart-Sperre im `finally`; iOS gleich | FA-2.51 | `COMMIT` |
-| Behoben | Nach dem Scan keine Vorbelegung: Scan-Seiten laufen über denselben Weg wie Kamerafotos in Erkennung und Vorbelegung, Einstellung frisch geladen; mehrere Seiten in derselben Millisekunde überschrieben einander im Belegspeicher | FA-2.51, FA-2.19 | `COMMIT` |
-| Neu | Nachbearbeitung gescannter Seiten (Tonwertkorrektur, Papier aufhellen, Nachschärfen, farblose Belege grau, max. 2400 px, JPEG 85) im Hintergrund; gespeichert nur das Ergebnis | FA-2.51, P-S63 | `COMMIT` |
+| Behoben | Dokumentenscanner nach dem ersten Scan bis zum Neustart gesperrt (offene Kanal-Antwort nie abgeschlossen, Folgeaufrufe still als „abgebrochen“ gelesen): Antwort genau einmal, am Prozess, Abbruch nach Rückkehr ohne Ergebnis, Dart-Sperre im `finally`; iOS gleich | FA-2.51 | `b925046` |
+| Behoben | Nach dem Scan keine Vorbelegung: Scan-Seiten laufen über denselben Weg wie Kamerafotos in Erkennung und Vorbelegung, Einstellung frisch geladen; mehrere Seiten in derselben Millisekunde überschrieben einander im Belegspeicher | FA-2.51, FA-2.19 | `b925046` |
+| Neu | Nachbearbeitung gescannter Seiten (Tonwertkorrektur, Papier aufhellen, Nachschärfen, farblose Belege grau, max. 2400 px, JPEG 85) im Hintergrund; gespeichert nur das Ergebnis | FA-2.51, P-S63 | `b925046` |
 
 ---
 
