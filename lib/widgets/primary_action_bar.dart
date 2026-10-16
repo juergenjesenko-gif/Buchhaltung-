@@ -12,6 +12,7 @@ class PrimaryActionBar extends StatelessWidget {
     required this.primary,
     this.secondary,
     this.note,
+    this.capture,
   });
 
   /// Mindesthöhe der Knöpfe, über die 48-dp-Zielfläche hinaus.
@@ -19,6 +20,9 @@ class PrimaryActionBar extends StatelessWidget {
 
   final Widget primary;
   final Widget? secondary;
+
+  /// Runder Aufnahmeknopf mittig über der Leiste (DESIGN_SPEC 5a, Regel 13).
+  final Widget? capture;
 
   /// Erklärzeile über den Knöpfen, z. B. was das Tippen bestätigt.
   final String? note;
@@ -101,6 +105,11 @@ class PrimaryActionBar extends StatelessWidget {
               ? CrossAxisAlignment.end
               : CrossAxisAlignment.stretch,
           children: [
+            if (capture != null)
+              Padding(
+                padding: const EdgeInsets.only(bottom: 8),
+                child: Center(child: capture),
+              ),
             if (note != null)
               Padding(
                 padding: const EdgeInsets.only(bottom: 6),

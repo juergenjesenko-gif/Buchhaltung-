@@ -6,6 +6,7 @@ import '../../domain/money.dart';
 import '../../domain/receipt.dart';
 import '../../theme.dart';
 import '../../widgets/adaptive.dart';
+import '../../widgets/capture_button.dart';
 import '../../widgets/common.dart';
 import 'receipt_edit_screen.dart';
 import '../help/help_screen.dart';
@@ -80,6 +81,18 @@ class _ReceiptListScreenState extends State<ReceiptListScreen> {
       (_) => ReceiptEditScreen(
         direction: receipt?.direction ?? BookingDirection.expense,
         existing: receipt,
+      ),
+    );
+    if (changed == true) await _load();
+  }
+
+  /// Neuer Beleg, Scanner bzw. Kamera öffnet sofort (wie auf der Übersicht).
+  Future<void> _capture() async {
+    final changed = await ListDetail.open<bool>(
+      context,
+      (_) => const ReceiptEditScreen(
+        direction: BookingDirection.expense,
+        startWithCamera: true,
       ),
     );
     if (changed == true) await _load();
@@ -269,15 +282,13 @@ class _ReceiptListScreenState extends State<ReceiptListScreen> {
           ),
         ],
       ),
-      // Zentriert und beschriftet, mit beiden Daumen erreichbar
-      // (DESIGN_SPEC 5a, Regel 1 und 9).
+      // Runder Aufnahmeknopf unten in der Mitte, an derselben Stelle wie
+      // auf der Übersicht (DESIGN_SPEC 5a, Regel 1, 9 und 13).
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
-      floatingActionButton: FloatingActionButton.extended(
+      floatingActionButton: CaptureButton(
         key: const Key('receipt-new'),
         heroTag: 'receipt-new',
-        onPressed: () => _open(null),
-        icon: const Icon(Icons.add),
-        label: const Text('Beleg erfassen'),
+        onPressed: _capture,
       ),
     );
   }

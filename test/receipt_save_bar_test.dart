@@ -65,19 +65,33 @@ void main() {
     expect(rect.left, greaterThan(1024 / 2));
   });
 
-  testWidgets('eine Seite: sekundärer Knopf für die Rückseite links', (
-    tester,
-  ) async {
-    await setSize(tester, const Size(390, 844));
-    var added = 0;
-    await tester.pumpWidget(app(pages: 1, onAddPage: () => added++));
-    expect(find.text('Vollständig – Beleg speichern (1 Seite)'), findsOne);
-    final back = find.byKey(const ValueKey('receipt-add-back'));
-    expect(tester.getRect(back).right, lessThan(tester.getRect(save).left));
-    expect(tester.getSize(back).height, greaterThanOrEqualTo(48));
-    await tester.tap(back);
-    expect(added, 1);
-  });
+  for (final size in const [Size(360, 640), Size(412, 915)]) {
+    testWidgets('Seite fotografieren: runder Knopf mittig über Speichern '
+        '(${size.width.toInt()} dp)', (tester) async {
+      await setSize(tester, size);
+      var added = 0;
+      await tester.pumpWidget(app(pages: 1, onAddPage: () => added++));
+      expect(find.text('Vollständig – Beleg speichern (1 Seite)'), findsOne);
+      final capture = find.byKey(const ValueKey('receipt-add-page'));
+      final circle = find.descendant(
+        of: capture,
+        matching: find.byType(FloatingActionButton),
+      );
+      expect(tester.getSize(circle).width, greaterThanOrEqualTo(72));
+      expect(
+        (tester.getRect(circle).center.dx - size.width / 2).abs(),
+        lessThan(2),
+      );
+      expect(
+        tester.getRect(capture).bottom,
+        lessThan(tester.getRect(save).top),
+      );
+      expect(tester.getRect(circle).center.dy, greaterThan(size.height / 2));
+      expect(find.text('Rückseite?'), findsOne);
+      await tester.tap(circle);
+      expect(added, 1);
+    });
+  }
 
   testWidgets('ohne neue Seiten: gewohntes Speichern ohne Bestätigung', (
     tester,
@@ -86,7 +100,7 @@ void main() {
     await tester.pumpWidget(app(newPages: false, editing: true));
     expect(find.text('Änderungen speichern'), findsOne);
     expect(find.textContaining('Mit Speichern bestätigst du'), findsNothing);
-    expect(find.byKey(const ValueKey('receipt-add-back')), findsNothing);
+    expect(find.byKey(const ValueKey('receipt-add-page')), findsNothing);
   });
 
   testWidgets('Tastatur verdeckt den Knopf nicht', (tester) async {

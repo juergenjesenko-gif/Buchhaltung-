@@ -1155,23 +1155,18 @@ class _ReceiptEditScreenState extends State<ReceiptEditScreen> {
           ),
         if (!_isCancelled) ...[
           if (_pages.isNotEmpty) const SizedBox(height: 8),
+          // Fotografieren liegt als runder Knopf unten in der Mitte
+          // (ReceiptSaveBar, DESIGN_SPEC 5a Regel 13); hier nur die
+          // kleinere Nebenaktion.
           Row(
             children: [
               Expanded(
                 child: OutlinedButton.icon(
-                  onPressed: () => _addPage(ImageSource.camera),
-                  icon: const Icon(Icons.photo_camera_outlined),
-                  label: Text(
-                    _pages.isEmpty ? 'Fotografieren' : 'Seite fotografieren',
-                  ),
-                ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: OutlinedButton.icon(
                   onPressed: () => _addPage(ImageSource.gallery),
                   icon: const Icon(Icons.photo_library_outlined),
-                  label: Text(_pages.isEmpty ? 'Auswählen' : 'Seite wählen'),
+                  label: Text(
+                    _pages.isEmpty ? 'Foto auswählen' : 'Seite wählen',
+                  ),
                 ),
               ),
             ],
@@ -1868,7 +1863,9 @@ class _ReceiptEditScreenState extends State<ReceiptEditScreen> {
                   editing: _isEditing,
                   saving: _saving,
                   onSave: _save,
-                  onAddPage: () => _addPage(ImageSource.camera),
+                  onAddPage: _isCancelled
+                      ? null
+                      : () => _addPage(ImageSource.camera),
                 ),
               ],
             ),

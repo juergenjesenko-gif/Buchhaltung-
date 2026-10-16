@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../widgets/capture_button.dart';
 import '../../widgets/primary_action_bar.dart';
 
 /// Unten fixierte Speicherleiste des Belegformulars.
@@ -32,7 +33,10 @@ class ReceiptSaveBar extends StatelessWidget {
   final bool saving;
   final VoidCallback onSave;
 
-  /// Sekundäre Aktion bei nur einer Seite: beschriebene Rückseite ergänzen.
+  /// Weitere Seite fotografieren: runder Aufnahmeknopf mittig über dem
+  /// Speichern-Knopf, an derselben Stelle wie auf Übersicht und Belegliste
+  /// (DESIGN_SPEC 5a, Regel 13). Mit offener Tastatur ausgeblendet, damit
+  /// das aktive Feld sichtbar bleibt (Regel 5).
   final VoidCallback? onAddPage;
 
   /// Mindesthöhe des Primärknopfs, über `touch.min` (48 dp) hinaus.
@@ -50,11 +54,14 @@ class ReceiptSaveBar extends StatelessWidget {
           ? 'Mit Speichern bestätigst du, dass alle Seiten '
                 'inkl. beschriebener Rückseiten erfasst sind.'
           : null,
-      secondary: confirms && totalPages == 1 && onAddPage != null
-          ? PrimaryActionBar.outlined(
-              key: const ValueKey('receipt-add-back'),
-              label: 'Rückseite?',
-              icon: Icons.add_a_photo_outlined,
+      capture:
+          onAddPage != null && MediaQuery.of(context).viewInsets.bottom == 0
+          ? CaptureButton(
+              key: const ValueKey('receipt-add-page'),
+              heroTag: 'receipt-add-page',
+              label: totalPages == 0
+                  ? 'Beleg'
+                  : (totalPages == 1 && confirms ? 'Rückseite?' : 'Seite'),
               onPressed: saving ? null : onAddPage,
             )
           : null,

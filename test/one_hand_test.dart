@@ -58,6 +58,36 @@ void main() {
     expect(rect.height, greaterThanOrEqualTo(48));
   }
 
+  /// Runder Aufnahmeknopf (Regel 13): Kreis ≥ 72 dp, mittig, „Beleg“.
+  void expectCapture(WidgetTester tester, Finder f, Size size) {
+    final circle = find.descendant(
+      of: f,
+      matching: find.byType(FloatingActionButton),
+    );
+    final r = tester.getRect(circle);
+    expect(r.width, greaterThanOrEqualTo(72));
+    expect(r.height, greaterThanOrEqualTo(72));
+    expect((r.center.dx - size.width / 2).abs(), lessThan(2));
+    expect(find.descendant(of: f, matching: find.text('Beleg')), findsOne);
+    expect(
+      find.descendant(of: f, matching: find.byIcon(Icons.photo_camera)),
+      findsOne,
+    );
+  }
+
+  for (final size in const [Size(360, 640), Size(412, 915)]) {
+    testWidgets(
+      'Belegliste: runder Aufnahmeknopf mittig (${size.width.toInt()} dp)',
+      (tester) async {
+        await pump(tester, const ReceiptListScreen(), size);
+        final fab = find.byKey(const Key('receipt-new'));
+        expectBottomThird(tester, fab, size);
+        expectCapture(tester, fab, size);
+        expect(tester.takeException(), isNull);
+      },
+    );
+  }
+
   testWidgets('Übersicht: ein zentrierter Knopf „Beleg fotografieren“', (
     tester,
   ) async {
@@ -67,13 +97,12 @@ void main() {
     expect(fab, findsOneWidget);
     expect(find.byType(FloatingActionButton), findsOneWidget);
     expectBottomThird(tester, fab, size);
-    expect(tester.getSize(fab).height, greaterThanOrEqualTo(56));
+    expectCapture(tester, fab, size);
     expect((tester.getRect(fab).center.dx - size.width / 2).abs(), lessThan(2));
     expect(tester.takeException(), isNull);
   });
 
   for (final (name, screen, key, label) in [
-    ('Belegliste', const ReceiptListScreen(), 'receipt-new', 'Beleg erfassen'),
     (
       'Rechnungsliste',
       const InvoiceListScreen(),

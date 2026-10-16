@@ -29,11 +29,12 @@ gebaut, und was war darin geprüft?*
 
 ## Unveröffentlicht
 
-Änderungen seit 0.21.0+28, die noch in keinem Build stecken. Wandern beim
+Änderungen seit 0.21.1+29, die noch in keinem Build stecken. Wandern beim
 nächsten Versionssprung in den neuen Eintrag.
 
 | Art | Änderung | Bezug | Commit |
 |---|---|---|---|
+| Geändert | Runder Aufnahmeknopf „Beleg“ (76 dp, Kamera) unten in der Mitte auf Übersicht, Belegliste (öffnet jetzt direkt den Scanner) und im Belegformular über „Beleg speichern“; Galerie als kleinere Nebenaktion | FA-12.1, DESIGN_SPEC 5a Regel 13, P-X17 | `COMMIT2` |
 
 ---
 

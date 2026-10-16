@@ -10,6 +10,7 @@ import '../../domain/receipt.dart';
 import '../../services/deadline_calculator.dart';
 import '../../services/small_business_monitor.dart';
 import '../../theme.dart';
+import '../../widgets/capture_button.dart';
 import '../../widgets/common.dart';
 import '../backup/backup_screen.dart';
 import '../onboarding/company_setup_screen.dart';
@@ -257,12 +258,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
         ),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
-      floatingActionButton: FloatingActionButton.extended(
+      // Runder Aufnahmeknopf unten in der Mitte, wie in der Belegliste
+      // (DESIGN_SPEC 5a, Regel 13).
+      floatingActionButton: CaptureButton(
         key: const Key('dashboard-photo'),
         heroTag: 'photo',
         onPressed: _addReceipt,
-        icon: const Icon(Icons.add_a_photo_outlined),
-        label: const Text('Beleg fotografieren'),
       ),
     );
   }

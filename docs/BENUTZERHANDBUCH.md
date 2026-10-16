@@ -175,7 +175,8 @@ Das ist die Funktion, die du täglich nutzt. Sie ist auf Geschwindigkeit gebaut.
 
 ### Einen Beleg erfassen
 
-1. In der **Übersicht** unten in der Mitte auf **Beleg fotografieren** tippen –
+1. In der **Übersicht** unten in der Mitte auf den großen runden Knopf
+   **Beleg** (Kamerasymbol) tippen –
    der **Dokumentenscanner** deines Telefons öffnet sich sofort: er findet
    den Beleg, schneidet ihn gerade zu und macht ihn gut lesbar; mehrere Seiten
    nimmst du gleich hintereinander auf, mit **Fertig** bzw. **Speichern**
@@ -185,20 +186,20 @@ Das ist die Funktion, die du täglich nutzt. Sie ist auf Geschwindigkeit gebaut.
    sich einfach die Kamera. Der Knopf liegt mittig, damit du ihn mit dem
    rechten wie dem linken Daumen erreichst. Ob **Einnahme** oder **Ausgabe**,
    wählst du oben im Formular (vorbelegt: Ausgabe). Alternativ im Bereich
-   **Belege** unten in der Mitte auf **Beleg erfassen**.
+   **Belege**: derselbe runde Knopf an derselben Stelle.
 2. **Bruttobetrag** eintippen – also die Zahl, die auf dem Beleg steht, inklusive
    Umsatzsteuer. Netto und Steuer rechnet die App sofort darunter aus.
 3. **Umsatzsteuersatz** prüfen. Die App wählt deinen Standardsatz vor.
    Stehen auf dem Beleg **mehrere Steuersätze** (z. B. im Restaurant Speisen
    10 % und Getränke 20 %, im Supermarkt 10 % und 20 %), siehe unten
    „Beleg mit mehreren Steuersätzen“.
-4. **Fotografieren** oder ein vorhandenes Foto **auswählen**. Hat der Beleg
-   mehrere Seiten, tippe danach auf **Seite fotografieren** bzw. **Seite
-   wählen** – so oft du brauchst. Vor dem Speichern kannst du Seiten mit den
+4. Im Formular liegt der runde Knopf **Seite** mittig über **Beleg
+   speichern** – damit fotografierst du weitere Seiten; ein vorhandenes Foto
+   holst du mit **Foto auswählen** bzw. **Seite wählen** – so oft du brauchst. Vor dem Speichern kannst du Seiten mit den
    Pfeilen umsortieren; zum Löschen tippst du die Seite an und wählst
    **Seite löschen**. Ist die Rückseite
    beschrieben, fotografiere sie mit – bei nur einer Seite erinnert dich der
-   Knopf **Rückseite?** unten links daran.
+   runde Knopf mit der Beschriftung **Rückseite?** daran.
 5. **Beschreibung** eintragen – Pflichtfeld. „Bürostuhl" ist gut, „Rechnung"
    nützt dir in zwei Jahren nichts.
 6. Optional: Datum (mit **Heute** / **Gestern** ein Tipp), Lieferant bzw. Kunde, Kategorie, Zahlungsart, Notiz und
