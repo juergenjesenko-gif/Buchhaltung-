@@ -29,11 +29,34 @@ gebaut, und was war darin geprüft?*
 
 ## Unveröffentlicht
 
-Änderungen seit 0.18.0+25, die noch in keinem Build stecken. Wandern beim
+Änderungen seit 0.19.0+26, die noch in keinem Build stecken. Wandern beim
 nächsten Versionssprung in den neuen Eintrag.
 
 | Art | Änderung | Bezug | Commit |
 |---|---|---|---|
+
+---
+
+## 0.19.0+26 — 2026-10-16
+
+| Feld | Wert |
+|---|---|
+| Art | Testbuild (ungezippte arm64-APK `JeNi-bucht-0.19.0-build-<Nr>.apk`, fester Testschlüssel); **Lizenzprüfung aus** (ohne `LICENSING=true`), alle Funktionen frei |
+| Commit | folgt |
+| Branch | `claude/agile-accounting-app-mobile-wa5j3h` |
+| Dokumentstände | Lastenheft 1.67, Spezifikation 1.67, Benutzerhandbuch für 0.19.0, DESIGN_SPEC 1.2 |
+| Datenbankschema | 22 |
+| Prüfung | `flutter analyze` ohne Befund, alle Tests grün (neu `contract_test.dart`), CI-Lauf zum Commit |
+| Steuerliche Kennwerte | neu `spec.contract_match_tolerance_days` 20; `spec.schema_version` 22 |
+| Offene reale Prüfpunkte | wie 0.18.0+25, neu P-R41, P-S62, P-X14, P-D36 |
+| Bekannte Grenzen | Spezifikation Abschnitt 11 (neu: Vertragsarchiv ohne KI) |
+
+**Änderungen seit 0.18.0+25**
+
+| Art | Änderung | Bezug | Commit |
+|---|---|---|---|
+| Neu | Vertragsarchiv: Verträge mit Seiten (Foto, Galerie, Teilen inkl. PDF), Fristen in der Termin-Box, Abgleich Rate/Buchung, Buchungsvorschlag, Aufbewahrung mit Löschwarnung, `vertraege.csv` (Schema 22) | L-23.1 bis L-23.4, L-23.11, FA-16.1, FA-16.2, FA-16.4 bis FA-16.8 | folgt |
+| Neu | Kurzübersicht aus lokal erkanntem Vertragstext mit Fundstelle Seite/Zeile (Pro, Vorschlag 14a) | L-23.6, FA-16.3, FA-13.2 | folgt |
 
 ---
 

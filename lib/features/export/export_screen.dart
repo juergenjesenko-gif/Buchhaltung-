@@ -9,6 +9,7 @@ import '../../services/share_service.dart';
 import '../../widgets/common.dart';
 import '../../widgets/adaptive.dart';
 import '../help/help_screen.dart';
+import '../contracts/contract_screens.dart';
 import '../reports/reports_screen.dart';
 import '../tax_office/tax_office_screen.dart';
 
@@ -162,6 +163,23 @@ class _ExportScreenState extends State<ExportScreen> {
                 onTap: () => Navigator.of(context).push(
                   MaterialPageRoute<void>(
                     builder: (_) => const ReportsScreen(),
+                  ),
+                ),
+              ),
+            ),
+            Card(
+              child: ListTile(
+                key: const Key('open-contracts'),
+                minVerticalPadding: 12,
+                leading: const Icon(Icons.description_outlined),
+                title: const Text('Verträge'),
+                subtitle: const Text(
+                  'Miete, Pacht, Leasing, Versicherung – mit Fristen',
+                ),
+                trailing: const Icon(Icons.chevron_right),
+                onTap: () => Navigator.of(context).push(
+                  MaterialPageRoute<void>(
+                    builder: (_) => const ContractListScreen(),
                   ),
                 ),
               ),

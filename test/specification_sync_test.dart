@@ -17,6 +17,7 @@ import 'package:buchhaltung/services/invoice_numbering.dart';
 import 'package:buchhaltung/services/dunning_calculator.dart';
 import 'package:buchhaltung/services/small_business_monitor.dart';
 import 'package:buchhaltung/services/tax_office/u30_xml.dart';
+import 'package:buchhaltung/services/contracts/contract_schedule.dart';
 import 'package:buchhaltung/services/logo_store.dart';
 import 'package:buchhaltung/services/licensing/license_policy.dart';
 import 'package:buchhaltung/services/platform_import/platform_import_plan.dart';
@@ -214,6 +215,13 @@ void main() {
 
     test('Schemaversion der Datenbank stimmt', () {
       expect(intValue('spec.schema_version'), AppDatabase.schemaVersion);
+    });
+
+    test('Toleranz Vertragsabgleich stimmt (FA-16.5)', () {
+      expect(
+        intValue('spec.contract_match_tolerance_days'),
+        ContractSchedule.matchToleranceDays,
+      );
     });
 
     test('U30-Datenstrom-Stand stimmt (FA-14.4)', () {

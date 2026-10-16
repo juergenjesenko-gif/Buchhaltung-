@@ -32,7 +32,8 @@ enum Entitlement {
     Feature.dunningSending ||
     Feature.invoiceLogo ||
     Feature.exchangeRateFetch ||
-    Feature.annualReports => this == pro,
+    Feature.annualReports ||
+    Feature.contractSummary => this == pro,
   };
 
   String get label => switch (this) {
@@ -84,6 +85,11 @@ enum Feature {
   /// Lastenheft 14a). Anlagen, AfA und Anlagenverzeichnis sind nie Pro,
   /// weil das Verzeichnis Pflicht ist (§ 7 Abs 3 EStG, § 4 Abs 3 S 5 EStG).
   annualReports,
+
+  /// Texterkennung und Kurzübersicht im Vertragsarchiv (FA-16.3; Vorschlag
+  /// an die Auftraggeberin, Lastenheft 14a). Verträge ablegen, Fristen,
+  /// Abgleich und Aufbewahrung gehen ab Basis.
+  contractSummary,
 }
 
 /// Ein Store-Produkt. Die IDs sind in Google Play Console und App Store

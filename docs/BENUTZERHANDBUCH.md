@@ -1,6 +1,6 @@
 # Benutzerhandbuch – JeNi bucht
 
-**Für App-Version 0.18.0** · Stand 2026-10-16
+**Für App-Version 0.19.0** · Stand 2026-10-16
 
 Dieses Handbuch beschreibt die App aus Nutzersicht. Es wird bei jeder Änderung,
 die du in der App siehst, mitgeführt – siehe [`CLAUDE.md`](../CLAUDE.md).
@@ -1039,6 +1039,30 @@ einen Kommentar an deine Steuerberatung schreiben, dann:
 
 **Leasing** ist keine Anlage: Raten buchst du einfach als Ausgabe.
 
+### Verträge
+
+Miete, Pacht, Leasing, Versicherung, Darlehen, Dienstbarkeit: Export →
+**Verträge** → **Vertrag ablegen**.
+
+1. **Seite fotografieren** (oder mehrere **Aus Galerie**). Ein PDF aus einer
+   Mail teilst du einfach an JeNi bucht – oben im Belegformular steht dann
+   „Ist das ein Vertrag?“; ein Tipp legt ihn ins Vertragsarchiv.
+2. Art, Bezeichnung, Partner, Beginn, Ende, Kündigungsfrist, Rate eintragen.
+3. **Speichern.**
+
+Mit Pro liest **Text erkennen und Kurzübersicht** den Vertrag auf deinem
+Telefon und zeigt gefundene Daten, Beträge und Fristen mit **Seite und Zeile**.
+Ein Tipp übernimmt den Wert. Das ist nur ein Auszug aus deinem Vertrag, keine
+rechtliche Prüfung – im Zweifel gilt der Vertragstext.
+
+Die Übersicht erinnert in der Termin-Box an **Kündigen bis**, **Vertragsende**
+und **Indexanpassung**. Im Vertrag siehst du je Rate „gebucht ✓“, eine
+Abweichung oder „kein Beleg“; **Rate buchen (Vorschlag)** legt die Ausgabe
+nach deiner Bestätigung an.
+
+Verträge musst du aufbewahren: die App zeigt, bis wann, und warnt vor dem
+Löschen. **Leasing** buchst du als Ausgabe – keine Anlage.
+
 ### Was du mit deiner Kanzlei einmal klären solltest
 
 Die Kontonummern und Steuercodes in den Exporten sind **Vorschläge** nach
@@ -1346,6 +1370,10 @@ Schichtbetrieb genutzt“; er steht im Anlagenverzeichnis.
 **„Sofort abschreiben geht nur bis …“** — der Betrag liegt über der GWG-Grenze.
 Wähle **Linear über die Nutzungsdauer** (in Deutschland bis 1.000 € netto auch
 **Sammelposten**).
+
+**„Aufbewahrungspflicht bis …“ beim Löschen eines Vertrags** — der Vertrag
+muss noch aufbewahrt werden. Tippe **Behalten**, außer du hast ihn sicher
+anderswo archiviert.
 
 **„Ausscheiden buchen“ ist grau** — der Kommentar fehlt. Schreib kurz, was
 passiert ist.

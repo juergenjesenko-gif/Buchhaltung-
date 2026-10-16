@@ -18,7 +18,7 @@ THEMEN = [
     ('Abo, Test, Promo-Code, Preisangaben (§ 312k, § 309 Nr. 9 BGB)', ['P-R12', 'P-R37', 'P-R38', 'P-R17', 'P-R2', 'P-L10']),
     ('Werbung, Instagram, Store-Texte, Store-Konten', ['P-R40', 'P-R13', 'P-R16', 'P-R22', 'P-R23', 'P-R3']),
     ('Rechnungs-, Angebots- und Mahntexte (Sie-Form an Kundinnen)', ['P-R30', 'P-R31', 'P-R32', 'P-R33', 'P-R34', 'P-R39']),
-    ('Abgrenzung Steuerberatung, KI', ['P-R5', 'P-R25', 'P-R26', 'P-R9', 'P-L16', 'P-L17', 'P-V8']),
+    ('Abgrenzung Steuerberatung, KI', ['P-R5', 'P-R41', 'P-R25', 'P-R26', 'P-R9', 'P-L16', 'P-L17', 'P-V8']),
     ('Marke und Lizenzen', ['P-R7', 'P-L18', 'P-L19']),
 ]
 NICHT_ANWALT = {'P-L3', 'P-L13'}  # Steuerberatung bzw. Gerätetest

@@ -16,7 +16,7 @@ class AppDatabase {
 
   /// Aktuelle Schemaversion. Öffentlich, weil docs/SPECIFICATION.md sie
   /// dokumentiert und test/specification_sync_test.dart beide vergleicht.
-  static const schemaVersion = 21;
+  static const schemaVersion = 22;
 
   Database? _db;
 
@@ -637,6 +637,48 @@ class AppDatabase {
       )
       ''',
       'CREATE INDEX idx_fixed_assets_receipt ON fixed_assets(receipt_id)',
+    ],
+    // Vertragsarchiv (Lastenheft 5.23, FA-16.x): Verträge mit Seiten im
+    // Belegspeicher, lokal erkanntem Text und Verknüpfung zu Belegen.
+    22: [
+      '''
+      CREATE TABLE contracts (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        type TEXT NOT NULL,
+        title TEXT NOT NULL,
+        partner TEXT NOT NULL DEFAULT '',
+        start_date TEXT,
+        end_date TEXT,
+        notice_value INTEGER,
+        notice_unit TEXT NOT NULL DEFAULT 'months',
+        rate_cents INTEGER NOT NULL DEFAULT 0,
+        rhythm TEXT NOT NULL DEFAULT 'none',
+        vat_permille INTEGER NOT NULL DEFAULT 0,
+        indexation TEXT NOT NULL DEFAULT '',
+        next_index_date TEXT,
+        comment TEXT NOT NULL DEFAULT '',
+        ocr_text TEXT NOT NULL DEFAULT '',
+        original_path TEXT,
+        created_at TEXT NOT NULL,
+        updated_at TEXT NOT NULL
+      )
+      ''',
+      '''
+      CREATE TABLE contract_pages (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        contract_id INTEGER NOT NULL REFERENCES contracts(id) ON DELETE CASCADE,
+        position INTEGER NOT NULL,
+        image_path TEXT NOT NULL
+      )
+      ''',
+      'CREATE INDEX idx_contract_pages ON contract_pages(contract_id)',
+      '''
+      CREATE TABLE contract_receipts (
+        contract_id INTEGER NOT NULL REFERENCES contracts(id) ON DELETE CASCADE,
+        receipt_id INTEGER NOT NULL REFERENCES receipts(id) ON DELETE CASCADE,
+        PRIMARY KEY (contract_id, receipt_id)
+      )
+      ''',
     ],
   };
 

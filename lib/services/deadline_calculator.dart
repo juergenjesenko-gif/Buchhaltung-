@@ -97,6 +97,7 @@ class DeadlineCalculator {
     required DateTime today,
     required VatReturnInterval interval,
     int count = boxCount,
+    List<Deadline> extra = const [],
   }) {
     final tax = profile.taxProfile;
     final day = DateTime(today.year, today.month, today.day);
@@ -104,6 +105,8 @@ class DeadlineCalculator {
     for (var year = day.year - 1; year <= day.year + 1; year++) {
       all.addAll(forYear(profile: profile, year: year, interval: interval));
     }
+    // Vertragstermine (FA-16.4) laufen in derselben Box.
+    all.addAll(extra);
     final upcoming = all.where((d) => !d.date.isBefore(day)).toList()
       ..sort((a, b) => a.date.compareTo(b.date));
     final annual = tax.deadlineRules.any(

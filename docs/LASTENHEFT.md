@@ -1,6 +1,6 @@
 # Lastenheft – JeNi bucht, Buchhaltungsapp für Österreich und Deutschland
 
-**Dokumentversion:** 1.66 · **Stand:** 2026-10-16 · **Status:** Entwurf zur Abstimmung
+**Dokumentversion:** 1.67 · **Stand:** 2026-10-16 · **Status:** Entwurf zur Abstimmung
 **Auftraggeber:** Jürgen Jesenko (privates Vorhaben) · **Umsetzung:** Claude Code
 
 > Ein Lastenheft beschreibt, **was** das Produkt leisten soll und **warum** — nicht,
@@ -663,7 +663,7 @@ Jede Übertragung vom Gerät weg, auch die unscheinbaren:
 | UID-Prüfung automatisch (L-1.3, L-1.4) | EU-Kommission (VIES), direkt vom Gerät | wie oben, für eigene UID und Kunden mit Rechnung in den letzten 12 Monaten; vor jeder Rechnung an Kunden mit UID | wöchentlich beim Öffnen der App | **ja**, Schalter, standardmäßig aus | vorhanden |
 | Rechnungsversand (L-15.1) | Mail-App des Nutzers | PDF | Tippen auf Senden | je Vorgang | A |
 | Abo-Kauf und Abo-Abfrage (L-10.1, L-22.5) | Apple bzw. Google über die Store-Schnittstelle des Geräts (Google Play Billing, StoreKit) | Produktkennungen; beim Einlösen eines Promo-Codes der Code selbst (iOS im Einlöseblatt von Apple, Android als Adresse `play.google.com/redeem?code=…`); Store-Konto, Zahlung und Kaufbeleg verarbeitet der Store selbst. Am Gerät nur Stufe, Bestätigungszeitpunkt, Testbeginn (Schlüsselbund) | Kauf bzw. „Kauf wiederherstellen“; Abfrage beim Start der App | Kauf je Vorgang; Abfrage nein, technisch notwendig für den Anspruch, offengelegt. Prüfung P-R37 | vorhanden (nur Store-Build mit `LICENSING=true`) |
-| Berichte teilen (Spezifikation FA-15.8 bis FA-15.10) | vom Nutzer gewählt (Teilen-Dialog), z. B. Steuerberatung | Anlagenverzeichnis, Saldenliste, vorläufiger Jahresabschluss mit Belegliste und Buchungsexport (ZIP) | Tippen auf den Bericht | je Vorgang | vorhanden (0.18.0) |
+| Berichte teilen (Spezifikation FA-15.8 bis FA-15.10, FA-16.8) | vom Nutzer gewählt (Teilen-Dialog), z. B. Steuerberatung | Anlagenverzeichnis, Saldenliste, vorläufiger Jahresabschluss mit Belegliste, Buchungsexport und Vertragsliste (ZIP); Vertragsseiten und erkannter Text bleiben auf dem Gerät | Tippen auf den Bericht | je Vorgang | vorhanden (0.18.0) |
 | U30-Datei teilen (L-6.5, Spezifikation FA-14.4) | vom Nutzer gewählt (Teilen-Dialog); Upload in FinanzOnline macht die Nutzerin selbst | Kennzahlen der Voranmeldung, Steuernummer (FASTNR), Zeitraum | Tippen auf „U30-Datei teilen“ | je Vorgang | vorhanden (0.17.0) |
 | UVA-Übermittlung direkt (L-6.5) | FinanzOnline-Webservice bzw. ELSTER (ERiC), direkt vom Gerät | Kennzahlen der Voranmeldung, Zugangsdaten der Nutzerin | Freigabe der Meldung | je Vorgang | B |
 | Regelpaket-Abruf (L-20.22) | Hosting des Anbieters (EU) | nur Abruf: IP-Adresse, Zeitpunkt, App-Version; keine Nutzdaten | automatisch, täglich | nein, technisch notwendig; in der Datenschutzerklärung offengelegt | B |
@@ -903,9 +903,14 @@ Rechtsanwalt (Prüfpunkte P-S16 bis P-S18, P-L14 bis P-L17 in Spezifikation
 Abschnitt 14). Einzelunternehmerinnen bilanzieren nicht: Verträge zählen für
 Einnahmen-Ausgaben-Rechnung, Abschreibung, Privatanteile und Aufbewahrung.
 
+**Umsetzungsstand 0.19.0 (Wunsch der Auftraggeberin 2026-10-16):** der lokale
+Teil ist gebaut – L-23.1 bis L-23.4, L-23.6 als Auszug mit Fundstelle ohne KI,
+L-23.11 über Sicherung und `vertraege.csv` (Spezifikation 5.12). L-23.5 und
+L-23.7 bis L-23.10 (KI-Analyse) bleiben Stufe C.
+
 | ID | Anforderung | Priorität | Stufe |
 |---|---|---|---|
-| L-23.1 | Verträge (Dienst, Werk, Kauf, Leasing, Versicherung, Miete, Darlehen) lokal und verschlüsselt ablegen, mit Typ, Partner, Laufzeit, Kündigungsfrist, Rate; verknüpfbar mit Belegen und Buchungen | MUSS | C |
+| L-23.1 | Verträge (Dienst, Werk, Kauf, Leasing, Versicherung, Miete, Pacht, Dienstbarkeit, Darlehen) lokal und verschlüsselt ablegen, mit Typ, Partner, Laufzeit, Kündigungsfrist, Rate; verknüpfbar mit Belegen und Buchungen | MUSS | C |
 | L-23.2 | Aufbewahrungsfrist je Vertrag ab Vertragsende und letzter darauf beruhender Buchung; Fristen über `TaxProfile`; Löschen vorher nur mit Warnung | MUSS | C |
 | L-23.3 | Lokale Erinnerung an Kündigungs- und Verlängerungsfristen, Indexanpassungen, Fälligkeiten | SOLL | C |
 | L-23.4 | Abgleich Rate laut Vertrag gegen gebuchte Zahlung; wiederkehrende Buchung nur als Vorschlag | SOLL | C |
@@ -1369,10 +1374,13 @@ Historie stehen. Die Einzelheiten stehen an der genannten Stelle.
 
 **Vorschlag zur Entscheidung (2026-10-16, Anlagen):** Anlagen, AfA und das Anlagenverzeichnis in **jedem Abo** (Pflichtverzeichnis § 7 Abs 3 EStG AT, § 4 Abs 3 Satz 5 EStG DE darf nie Pro brauchen); Saldenliste und vorläufiger Jahresabschluss als PDF/ZIP **nur Pro** (`Feature.annualReports`). Bis zur Entscheidung so umgesetzt (Spezifikation FA-13.2, FA-15.8 bis FA-15.10).
 
+**Vorschlag zur Entscheidung (2026-10-16, Vertragsarchiv):** Verträge ablegen, Fristen, Abgleich, Buchungsvorschlag und Aufbewahrung in **jedem Abo**; Texterkennung und Kurzübersicht **nur Pro** (`Feature.contractSummary`). Bis zur Entscheidung so umgesetzt (Spezifikation FA-13.2, FA-16.3).
+
 ## 15. Änderungshistorie
 
 | Version | Datum | Änderung |
 |---|---|---|
+| 1.67 | 2026-10-16 | 5.23 Vertragsarchiv lokal umgesetzt (L-23.1 bis L-23.4, L-23.6, L-23.11), L-23.1 um Pacht und Dienstbarkeit ergänzt; Tarifvorschlag in 14a; Datenfluss „Berichte teilen“ um Vertragsliste ergänzt. |
 | 1.66 | 2026-10-16 | Anlagenverwaltung mit AfA, Anlagenverzeichnis, Saldenliste und vorläufiger Jahresabschluss umgesetzt (Spezifikation 5.11); Tarifvorschlag in 14a; Datenfluss „Berichte teilen“ in 5.19. |
 | 1.65 | 2026-10-16 | L-6.1, L-6.3 umgesetzt, L-6.5 teilweise (U30-Datei, Spezifikation FA-14.x); Datenflusstabelle 5.19 um „U30-Datei teilen“ ergänzt; O-36 neu (ELSTER-Hersteller-ID, FinanzOnline-Webservice). |
 | 1.64 | 2026-10-16 | L-2.28 Lernen je Lieferant neu und umgesetzt; L-7.17, L-7.18, L-7.20 umgesetzt (iCloud-Container); Datenflusstabelle 5.19 um iCloud ergänzt (L-19.28). |

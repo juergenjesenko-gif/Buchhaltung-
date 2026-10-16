@@ -44,6 +44,7 @@ import '../licensing/feature_gate.dart';
 import '../../services/licensing/license_policy.dart';
 import '../../services/receipt_vat_split.dart';
 import '../assets/asset_screens.dart';
+import '../contracts/contract_screens.dart';
 import '../help/help_screen.dart';
 import '../../services/help/help_index.dart';
 
@@ -1431,6 +1432,23 @@ class _ReceiptEditScreenState extends State<ReceiptEditScreen> {
           child: ListView(
             padding: const EdgeInsets.fromLTRB(16, 12, 16, 96),
             children: [
+              // Geteilte Datei ist ein Vertrag (FA-16.2): ohne Rückfrage
+              // als Beleg geöffnet, ein Tipp legt sie stattdessen ab.
+              if (widget.sharedFiles.isNotEmpty && !_isEditing) ...[
+                NoticeBanner(
+                  icon: Icons.description_outlined,
+                  message:
+                      'Ist das ein Vertrag? Hier tippen, um ihn im '
+                      'Vertragsarchiv abzulegen.',
+                  onTap: () => Navigator.of(context).pushReplacement(
+                    MaterialPageRoute<void>(
+                      builder: (_) =>
+                          ContractEditScreen(sharedFiles: widget.sharedFiles),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 12),
+              ],
               if (_isCancelled) ...[
                 NoticeBanner(
                   icon: Icons.block,

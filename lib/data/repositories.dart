@@ -12,6 +12,7 @@ import '../domain/fixed_asset.dart';
 import '../services/assets/depreciation.dart';
 import '../services/vat_calculator.dart';
 import 'asset_repository.dart';
+import 'contract_repository.dart';
 import 'consent_repository.dart';
 import 'offer_repository.dart';
 import 'vat_check_repository.dart';
@@ -1552,6 +1553,7 @@ class Repositories {
       articles = ArticleRepository(db),
       offers = OfferRepository(db),
       assets = AssetRepository(db),
+      contracts = ContractRepository(db),
       audit = AuditLog(db);
 
   final CompanyRepository company;
@@ -1567,6 +1569,7 @@ class Repositories {
   final ArticleRepository articles;
   final OfferRepository offers;
   final AssetRepository assets;
+  final ContractRepository contracts;
   final AuditLog audit;
 }
 

@@ -1,4 +1,5 @@
 import 'domain/fixed_asset.dart';
+import 'services/contracts/contract_schedule.dart';
 import 'package:flutter/widgets.dart';
 import 'package:path_provider/path_provider.dart';
 
@@ -340,6 +341,10 @@ class AppState extends ChangeNotifier {
     _deadlines = DeadlineCalculator.upcoming(
       profile: profile,
       today: now,
+      extra: ContractSchedule.deadlines(
+        await repositories.contracts.all(),
+        now,
+      ),
       interval: profile.vatReturnInterval == VatReturnInterval.auto
           ? _suggestedInterval
           : profile.vatReturnInterval,

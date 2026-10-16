@@ -35,6 +35,7 @@ void main() {
         Feature.invoiceLogo,
         Feature.exchangeRateFetch,
         Feature.annualReports,
+        Feature.contractSummary,
       ];
       for (final feature in proOnly) {
         expect(Entitlement.pro.allows(feature), isTrue, reason: '$feature');

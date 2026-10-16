@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../app_state.dart';
 import '../../core/formatting.dart';
 import '../../domain/invoice.dart';
+import '../../services/contracts/contract_csv.dart';
 import '../../services/export/exporters.dart';
 import '../../services/licensing/license_policy.dart';
 import '../../services/reports/annual_report.dart';
@@ -141,6 +142,10 @@ class _ReportsScreenState extends State<ReportsScreen> {
       for (final f in formats) {
         final r = exporter.build(f);
         csvs[r.fileName] = r.content;
+      }
+      final contracts = await repos.contracts.all();
+      if (contracts.isNotEmpty) {
+        csvs[ContractCsv.fileName] = ContractCsv.build(contracts);
       }
       final zip = ReportPackage.zip(
         pdfs: {
