@@ -42,7 +42,7 @@ nächsten Versionssprung in den neuen Eintrag.
 | Feld | Wert |
 |---|---|
 | Art | Testbuild (ungezippte arm64-APK `JeNi-bucht-0.22.0-build-<Nr>.apk`, fester Testschlüssel); **Lizenzprüfung aus** (ohne `LICENSING=true`), alle Funktionen frei |
-| Commit | `COMMIT3` |
+| Commit | `d647f8e` |
 | Branch | `claude/agile-accounting-app-mobile-wa5j3h` |
 | Dokumentstände | Lastenheft 1.71, Spezifikation 1.74, Benutzerhandbuch für 0.22.0, DESIGN_SPEC 1.3 |
 | Datenbankschema | 23 |
@@ -56,7 +56,7 @@ nächsten Versionssprung in den neuen Eintrag.
 | Art | Änderung | Bezug | Commit |
 |---|---|---|---|
 | Geändert | Runder Aufnahmeknopf „Beleg“ (76 dp, Kamera) unten in der Mitte auf Übersicht, Belegliste (öffnet jetzt direkt den Scanner) und im Belegformular über „Beleg speichern“; Galerie als kleinere Nebenaktion | FA-12.1, DESIGN_SPEC 5a Regel 13, P-X17 | `4422d81` |
-| Neu | Diktat auf dem Gerät: Mikrofon in Beschreibung, Anlass, Teilnehmer, Notiz, Kommentar (Beleg, Vertrag) und Betragsfeldern; Beträge wie „zwölf Euro fünfzig“ als Vorschlag in Cent; ohne On-Device-Erkennung kein Knopf, kein Netz; Berechtigung Mikrofon (Android), Mikrofon und Spracherkennung (iOS) | FA-2.61, LH 5.19, 14a, P-D40, P-X18, P-R44 | `COMMIT3` |
+| Neu | Diktat auf dem Gerät: Mikrofon in Beschreibung, Anlass, Teilnehmer, Notiz, Kommentar (Beleg, Vertrag) und Betragsfeldern; Beträge wie „zwölf Euro fünfzig“ als Vorschlag in Cent; ohne On-Device-Erkennung kein Knopf, kein Netz; Berechtigung Mikrofon (Android), Mikrofon und Spracherkennung (iOS) | FA-2.61, LH 5.19, 14a, P-D40, P-X18, P-R44 | `d647f8e` |
 
 ---
 
