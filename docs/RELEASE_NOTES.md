@@ -42,7 +42,7 @@ nächsten Versionssprung in den neuen Eintrag.
 | Feld | Wert |
 |---|---|
 | Art | Testbuild (ungezippte arm64-APK `JeNi-bucht-0.19.0-build-<Nr>.apk`, fester Testschlüssel); **Lizenzprüfung aus** (ohne `LICENSING=true`), alle Funktionen frei |
-| Commit | folgt |
+| Commit | `9963035` |
 | Branch | `claude/agile-accounting-app-mobile-wa5j3h` |
 | Dokumentstände | Lastenheft 1.67, Spezifikation 1.67, Benutzerhandbuch für 0.19.0, DESIGN_SPEC 1.2 |
 | Datenbankschema | 22 |
@@ -55,8 +55,8 @@ nächsten Versionssprung in den neuen Eintrag.
 
 | Art | Änderung | Bezug | Commit |
 |---|---|---|---|
-| Neu | Vertragsarchiv: Verträge mit Seiten (Foto, Galerie, Teilen inkl. PDF), Fristen in der Termin-Box, Abgleich Rate/Buchung, Buchungsvorschlag, Aufbewahrung mit Löschwarnung, `vertraege.csv` (Schema 22) | L-23.1 bis L-23.4, L-23.11, FA-16.1, FA-16.2, FA-16.4 bis FA-16.8 | folgt |
-| Neu | Kurzübersicht aus lokal erkanntem Vertragstext mit Fundstelle Seite/Zeile (Pro, Vorschlag 14a) | L-23.6, FA-16.3, FA-13.2 | folgt |
+| Neu | Vertragsarchiv: Verträge mit Seiten (Foto, Galerie, Teilen inkl. PDF), Fristen in der Termin-Box, Abgleich Rate/Buchung, Buchungsvorschlag, Aufbewahrung mit Löschwarnung, `vertraege.csv` (Schema 22) | L-23.1 bis L-23.4, L-23.11, FA-16.1, FA-16.2, FA-16.4 bis FA-16.8 | `9963035` |
+| Neu | Kurzübersicht aus lokal erkanntem Vertragstext mit Fundstelle Seite/Zeile (Pro, Vorschlag 14a) | L-23.6, FA-16.3, FA-13.2 | `9963035` |
 
 ---
 
