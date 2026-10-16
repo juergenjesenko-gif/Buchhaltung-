@@ -42,7 +42,7 @@ nächsten Versionssprung in den neuen Eintrag.
 | Feld | Wert |
 |---|---|
 | Art | Testbuild (ungezippte arm64-APK `JeNi-bucht-0.17.0-build-<Nr>.apk`, fester Testschlüssel); **Lizenzprüfung aus** (ohne `LICENSING=true`), alle Funktionen frei |
-| Commit | folgt |
+| Commit | `699d9e1` |
 | Branch | `claude/agile-accounting-app-mobile-wa5j3h` |
 | Dokumentstände | Lastenheft 1.65, Spezifikation 1.65, Benutzerhandbuch für 0.17.0, DESIGN_SPEC 1.2 |
 | Datenbankschema | 20 |
@@ -60,8 +60,8 @@ nächsten Versionssprung in den neuen Eintrag.
 | Neu | Skript `tool/release/bundle_id_wechsel.sh` für die Store-Kennung `at.jenibarb.jenibucht` (vorbereitet, nicht ausgeführt) | O-33 | `1e85096` |
 | Geändert | STORE_LISTING: Kategorien, Screenshot-Größen, Demodaten, Altersfreigabe-Fragebogen, Formularantworten Datensicherheit/App-Datenschutz | P-D34 | `1e85096` |
 | Neu | Prüfmappen Steuerberater und Rechtsanwalt als PDF (`docs/pruefmappen/`), aus SPECIFICATION 14 erzeugt, mit Beispielrechnungen und Rechtstexten im Anhang; keine Verhaltensänderung | P-S…, P-R…, P-L… | `52414ec` |
-| Neu | „Für das Finanzamt“: Kennzahlen UVA (U30) bzw. UStVA und Jahreszahlen E1a/Anlage EÜR, Kopieren mit einem Tipp; Kleinunternehmer ohne UVA-Hinweis außer Reverse Charge | L-6.1, L-6.3, FA-14.1 bis FA-14.3, FA-14.5 bis FA-14.8 | folgt |
-| Neu | U30-Datei nach BMF-Datenstrom 07_2026 teilen und in FinanzOnline hochladen (Pro, nur AT) | L-6.5, FA-14.4, 8.7 | folgt |
+| Neu | „Für das Finanzamt“: Kennzahlen UVA (U30) bzw. UStVA und Jahreszahlen E1a/Anlage EÜR, Kopieren mit einem Tipp; Kleinunternehmer ohne UVA-Hinweis außer Reverse Charge | L-6.1, L-6.3, FA-14.1 bis FA-14.3, FA-14.5 bis FA-14.8 | `699d9e1` |
+| Neu | U30-Datei nach BMF-Datenstrom 07_2026 teilen und in FinanzOnline hochladen (Pro, nur AT) | L-6.5, FA-14.4, 8.7 | `699d9e1` |
 
 ---
 
