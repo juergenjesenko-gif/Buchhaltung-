@@ -144,7 +144,8 @@ EZB-Abruf voraussichtlich keine „Erhebung“ im Sinne von Google Data Safety
 bzw. Apple Privacy Label; Einordnung zu prüfen (P-R35).
 **Abo (Google Play Billing, StoreKit):** beim Start und bei „Kauf
 wiederherstellen“ fragt die App den Store des Geräts nach aktiven Abos und
-übergibt nur Produktkennungen; Kauf, Zahlung und Kaufbelege verarbeiten
+übergibt nur Produktkennungen (beim Einlösen eines Promo-Codes zusätzlich den
+Code an den Store; keine neue Datenart); Kauf, Zahlung und Kaufbelege verarbeiten
 Google bzw. Apple selbst. Google Data Safety vorsorglich: „Finanzinformationen
 – Kaufverlauf“, erhoben, nicht geteilt, nicht löschbar über die App (der Store
 führt ihn), Zweck App-Funktion. Apple: „Käufe – Kaufverlauf“, nicht mit der
@@ -184,6 +185,36 @@ Folgepreis und dem Hinweis, dass der Test ohne Kündigung in das Abo übergeht
 Store-Start mit Lastenheft 5.10 und den im Store hinterlegten Preisen abgleichen
 (P-R13). Google Play untersagt Preis- und Werbeangaben im App-Namen und Symbol;
 deshalb steht die Ankündigung nur in den Beschreibungen.
+
+## Promo-Code für Instagram (Entscheidung Auftraggeberin 2026-10-16)
+
+Code **`JENIBUCHT2M`**: 2 Monate Pro gratis für Neukundinnen, danach
+kostenpflichtig, vorher kostenlos kündbar oder Wechsel auf Basis – wie der
+14-Tage-Test, nur länger. Angelegt in beiden Stores (`STORE_ANMELDUNG.md`
+Formular 4, Promo-Code), eingelöst in der App unter Abo → **Promo-Code
+einlösen** oder direkt über diese Links (Bio, Story-Link):
+
+- Android: https://play.google.com/redeem?code=JENIBUCHT2M
+- iPhone: `https://apps.apple.com/redeem?ctx=offercodes&id=<APP_ID>&code=JENIBUCHT2M`
+  – `<APP_ID>` ist die Apple-ID der App aus App Store Connect (App →
+  App-Informationen → Apple-ID); erst nach dem Anlegen der App bekannt (P-D32).
+
+**Werbetext-Vorschlag** (Pflichtangaben im selben Beitrag, nicht nur im Link;
+Prüfpunkt P-R40):
+
+> 2 Monate JeNi bucht Pro gratis – mit dem Code JENIBUCHT2M. Für neue
+> Abonnentinnen und Abonnenten. Danach verlängert sich das Abo automatisch zu
+> 24,90 € pro Monat bzw. 238,90 € pro Jahr (inkl. USt), bis du kündigst.
+> Kündigen oder auf Basis wechseln geht jederzeit vorher kostenlos in den
+> Abo-Einstellungen von Google Play bzw. App Store. Einlösen: Link in der Bio.
+> Keine Steuerberatung.
+
+- Preise vor jeder Kampagne mit den im Store hinterlegten Preisen abgleichen.
+- Postet jemand anderes gegen Geld oder Gegenleistung (Influencerin):
+  „Werbung“ bzw. „Anzeige“ am Anfang des Beitrags und Instagram-Kennzeichnung
+  „Bezahlte Partnerschaft“.
+- Nicht schreiben: „kostenlos“ ohne Folgepreis, „unverbindlich“, „endet
+  automatisch“, Streichpreise.
 
 Pflicht im Store-Text: der Hinweis „Keine Steuerberatung – ersetzt keine
 steuerliche Beratung".

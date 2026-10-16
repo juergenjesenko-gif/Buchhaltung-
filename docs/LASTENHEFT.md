@@ -1,6 +1,6 @@
 # Lastenheft – JeNi bucht, Buchhaltungsapp für Österreich und Deutschland
 
-**Dokumentversion:** 1.62 · **Stand:** 2026-10-16 · **Status:** Entwurf zur Abstimmung
+**Dokumentversion:** 1.63 · **Stand:** 2026-10-16 · **Status:** Entwurf zur Abstimmung
 **Auftraggeber:** Jürgen Jesenko (privates Vorhaben) · **Umsetzung:** Claude Code
 
 > Ein Lastenheft beschreibt, **was** das Produkt leisten soll und **warum** — nicht,
@@ -660,7 +660,7 @@ Jede Übertragung vom Gerät weg, auch die unscheinbaren:
 | UID-Prüfung auf Tippen (L-1.3) | EU-Kommission (VIES), direkt vom Gerät | UID, eigene UID als Anfragende, IP-Adresse | Tippen auf „Jetzt prüfen“ | je Vorgang | vorhanden |
 | UID-Prüfung automatisch (L-1.3, L-1.4) | EU-Kommission (VIES), direkt vom Gerät | wie oben, für eigene UID und Kunden mit Rechnung in den letzten 12 Monaten; vor jeder Rechnung an Kunden mit UID | wöchentlich beim Öffnen der App | **ja**, Schalter, standardmäßig aus | vorhanden |
 | Rechnungsversand (L-15.1) | Mail-App des Nutzers | PDF | Tippen auf Senden | je Vorgang | A |
-| Abo-Kauf und Abo-Abfrage (L-10.1, L-22.5) | Apple bzw. Google über die Store-Schnittstelle des Geräts (Google Play Billing, StoreKit) | Produktkennungen; Store-Konto, Zahlung und Kaufbeleg verarbeitet der Store selbst. Am Gerät nur Stufe, Bestätigungszeitpunkt, Testbeginn (Schlüsselbund) | Kauf bzw. „Kauf wiederherstellen“; Abfrage beim Start der App | Kauf je Vorgang; Abfrage nein, technisch notwendig für den Anspruch, offengelegt. Prüfung P-R37 | vorhanden (nur Store-Build mit `LICENSING=true`) |
+| Abo-Kauf und Abo-Abfrage (L-10.1, L-22.5) | Apple bzw. Google über die Store-Schnittstelle des Geräts (Google Play Billing, StoreKit) | Produktkennungen; beim Einlösen eines Promo-Codes der Code selbst (iOS im Einlöseblatt von Apple, Android als Adresse `play.google.com/redeem?code=…`); Store-Konto, Zahlung und Kaufbeleg verarbeitet der Store selbst. Am Gerät nur Stufe, Bestätigungszeitpunkt, Testbeginn (Schlüsselbund) | Kauf bzw. „Kauf wiederherstellen“; Abfrage beim Start der App | Kauf je Vorgang; Abfrage nein, technisch notwendig für den Anspruch, offengelegt. Prüfung P-R37 | vorhanden (nur Store-Build mit `LICENSING=true`) |
 | UVA-Übermittlung (L-6.5) | FinanzOnline bzw. ELSTER | Kennzahlen der Voranmeldung | Freigabe der Meldung | je Vorgang | B |
 | Regelpaket-Abruf (L-20.22) | Hosting des Anbieters (EU) | nur Abruf: IP-Adresse, Zeitpunkt, App-Version; keine Nutzdaten | automatisch, täglich | nein, technisch notwendig; in der Datenschutzerklärung offengelegt | B |
 | Synchronisierung (L-19.15 ff.) | gemeinsamer Ordner in der Cloud der Unternehmerin; freigegebene Personen und Geräte | alle Buchhaltungsdaten, Ende-zu-Ende verschlüsselt, signiert, mit Kennung der erfassenden Person | Einrichten bzw. Einladung per QR-Code | **ja** | C |
@@ -1357,6 +1357,7 @@ Historie stehen. Die Einzelheiten stehen an der genannten Stelle.
 | 2026-10-14 | Testbuilds ohne Git-Tag; Release Notes nennen den Commit-Hash | RELEASE_PLAYBOOK |
 | 2026-10-16 | „PDF senden“ in Basis als weiche Sperre (Abo-Seite, danach Speichern/Drucken) bleibt so | 5.10, Spez. FA-13.11 |
 | 2026-10-16 | E-Rechnung **auslesen** Pro, **speichern** am Beleg in Basis genügt: Empfang per E-Mail reicht, Punkt erledigt | 5.10, L-4.3 |
+| 2026-10-16 | **Promo-Code „JENIBUCHT2M“**: 2 Monate Pro gratis für Neukundinnen, beworben auf Instagram; wie der Test über die Stores (Apple-Angebotscode, Google-Play-Promo-Code), danach kostenpflichtig, vorher kostenlos kündbar oder Wechsel auf Basis; kein eigener Server | L-22.3, Spez. FA-13.13, `STORE_LISTING.md` |
 | 2026-10-16 | **Logo im Onboarding ohne Abo-Seite wählbar**; gedruckt nur mit Pro oder im 14-Tage-Test. Danach mit Basis oder ohne Abo nicht auf neuen Rechnungen und Angeboten; gestellte behalten ihr eingefrorenes Logo; die Datei bleibt und kommt mit Pro zurück; Stammdaten zeigen „Logo (Pro) – wird mit Basis nicht gedruckt“ | L-1.7, 5.10, Spez. FA-13.12 |
 
 ---
@@ -1365,6 +1366,7 @@ Historie stehen. Die Einzelheiten stehen an der genannten Stelle.
 
 | Version | Datum | Änderung |
 |---|---|---|
+| 1.63 | 2026-10-16 | Entscheidung Promo-Code „JENIBUCHT2M“ (14a); Datenfluss Abo um den Promo-Code ergänzt (5.19). |
 | 1.62 | 2026-10-16 | Umsetzungsstand 0.15.0: Angebote und Artikelverwaltung (10a). |
 | 1.61 | 2026-10-16 | Entscheidungen 2026-10-16 (14a): PDF senden bleibt weiche Sperre; E-Rechnung speichern in Basis genügt; Logo im Onboarding frei wählbar, gedruckt nur mit Pro/Test. Tarifschnitt 5.10 angepasst. |
 | 1.60 | 2026-10-15 | O-35 entschieden (Store-Test nur Pro, 14a). |

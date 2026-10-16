@@ -140,6 +140,39 @@ void main() {
       now = day0;
     });
 
+    test('Promo-Code (FA-13.13): Pro, Erinnerung nach 2 Monaten', () async {
+      final m = manager();
+      await m.init();
+      await m.refresh();
+      expect(m.entitlement, Entitlement.none);
+      await m.redeemCode('jenibucht2m');
+      await Future<void>.delayed(Duration.zero);
+      expect(store.redeemed, ['jenibucht2m']);
+      expect(m.entitlement, Entitlement.pro);
+      expect(m.record.trialIsPromo, isTrue);
+      // Kein 14-Tage-Hinweis, sondern 3 Tage vor Ende der 2 Monate.
+      now = day0.add(const Duration(days: 12));
+      expect(m.trialReminder, isNull);
+      now = DateTime(2026, 12, 30);
+      expect(m.trialReminder, DateTime(2027, 1, 1));
+      final json = LicenseRecord.fromJson(m.record.toJson());
+      expect(json.trialIsPromo, isTrue);
+    });
+
+    test('Promo-Code: Einlöse-Links der Stores', () {
+      expect(
+        LicensePolicy.playRedeemUri('jenibucht2m').toString(),
+        'https://play.google.com/redeem?code=JENIBUCHT2M',
+      );
+      expect(
+        LicensePolicy.appStoreRedeemUri(
+          '123',
+          LicensePolicy.promoCode,
+        ).toString(),
+        'https://apps.apple.com/redeem?ctx=offercodes&id=123&code=JENIBUCHT2M',
+      );
+    });
+
     test('Testbuild ohne Lizenzprüfung: voller Umfang', () async {
       final m = manager(enabled: false);
       await m.init();
@@ -269,6 +302,7 @@ void main() {
         'subscription-buy-basis',
         'subscription-terms',
         'subscription-restore',
+        'subscription-redeem',
         'subscription-manage',
         'subscription-terms-link',
         'subscription-privacy-link',
@@ -317,6 +351,33 @@ void main() {
       await tester.pageBack();
       await tester.pumpAndSettle();
       expect(result, isTrue);
+    });
+
+    testWidgets('Promo-Code einlösen: Eingabe, ein Tipp, Pro aktiv', (
+      tester,
+    ) async {
+      final (state, store) = await pump(
+        tester,
+        const SubscriptionScreen(),
+        active: {},
+      );
+      final redeem = find.byKey(const Key('subscription-redeem'));
+      await tester.scrollUntilVisible(redeem, 100);
+      await tester.drag(find.byType(ListView), const Offset(0, -200));
+      await tester.pumpAndSettle();
+      await tester.tap(redeem);
+      await tester.pumpAndSettle();
+      await tester.enterText(
+        find.byKey(const Key('promo-code-field')),
+        'jenibucht2m',
+      );
+      final submit = find.byKey(const Key('promo-code-submit'));
+      expect(tester.getSize(submit).height, greaterThanOrEqualTo(48));
+      await tester.tap(submit);
+      await tester.runAsync(() => Future<void>.delayed(Duration.zero));
+      await tester.pumpAndSettle();
+      expect(store.redeemed, ['JENIBUCHT2M']);
+      expect(state.entitlement, Entitlement.pro);
     });
   });
 }

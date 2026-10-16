@@ -88,6 +88,11 @@ void main() {
   group('Allgemeine Kenndaten', () {
     test('Lizenz und Abo stimmen (L-10.3, L-22.2, L-22.5)', () {
       expect(intValue('spec.license_trial_days'), LicensePolicy.trialDays);
+      expect(value('spec.license_promo_code'), LicensePolicy.promoCode);
+      expect(
+        intValue('spec.license_promo_free_months'),
+        LicensePolicy.promoFreeMonths,
+      );
       expect(
         intValue('spec.license_trial_reminder_days'),
         LicensePolicy.trialReminderDays,

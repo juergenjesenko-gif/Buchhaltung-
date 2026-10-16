@@ -20,6 +20,13 @@ abstract class StoreBilling {
   /// ersetzt statt verdoppelt (L-22.2).
   Future<void> buy(StoreOffer offer, {String? replacesProductId});
 
+  /// Promo-Code einlösen (FA-13.13): iOS zeigt das Einlöseblatt von
+  /// StoreKit (der Code wird dort eingegeben), Android öffnet die
+  /// Einlöse-Adresse von Google Play mit [code]. `false`, wenn nichts
+  /// geöffnet werden konnte. Das Ergebnis kommt wie ein Kauf über [events]
+  /// bzw. die nächste Abfrage.
+  Future<bool> redeemCode(String code);
+
   /// Kauf-Ereignisse aus dem Kaufblatt.
   Stream<PurchaseEvent> get events;
 }

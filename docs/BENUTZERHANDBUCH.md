@@ -1079,6 +1079,14 @@ Store-Konto. Du findest alles unter **Einstellungen → Abo**.
 - **14 Tage kostenlos testen:** Beim ersten Abo kannst du Pro 14 Tage gratis
   nutzen. Der Test startet im Store und **geht danach in das Abo über**, wenn
   du nicht vorher kündigst. Drei Tage vor dem Ende erinnert dich die Übersicht.
+- **Promo-Code einlösen** (z. B. aus Instagram): Einstellungen → Abo →
+  **Promo-Code einlösen**.
+  1. iPhone: Apple öffnet ein Fenster; Code eintippen, bestätigen.
+  2. Android: Code eintippen, **Einlösen**; Google Play öffnet sich, dort
+     bestätigen.
+  3. Zurück in der App ist Pro aktiv. Mit **JENIBUCHT2M** nutzt du Pro zwei
+     Monate gratis; danach läuft das Abo zum angezeigten Preis weiter, wenn du
+     nicht vorher kündigst. Die Übersicht erinnert dich drei Tage vorher.
 - **Preise** zeigt die Abo-Seite so, wie der Store sie meldet, inklusive
   Umsatzsteuer, monatlich oder jährlich.
 - **Kündigen:** Tippe auf **Abo verwalten oder kündigen** – das öffnet die

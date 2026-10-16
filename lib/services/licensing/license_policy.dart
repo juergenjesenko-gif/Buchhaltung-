@@ -114,6 +114,32 @@ class LicensePolicy {
   /// mit Internet zu öffnen – Ankündigung vor jeder Herabstufung (L-22.5).
   static const offlineWarnDays = 31;
 
+  /// Promo-Code für Instagram (Entscheidung Auftraggeberin 2026-10-16,
+  /// FA-13.13): 2 Monate Pro gratis für neue Abonnentinnen, danach
+  /// kostenpflichtig, vorher kündbar oder Wechsel auf Basis. Angelegt als
+  /// Apple-Angebotscode (benutzerdefiniert) und Google-Play-Promo-Code; die
+  /// Stores verwalten Gültigkeit und Einlösung, die App kennt den Code nur
+  /// für Links und die Erinnerung.
+  static const promoCode = 'JENIBUCHT2M';
+
+  /// Gratismonate des Promo-Codes; Erinnerung wie beim Test 3 Tage vorher.
+  static const promoFreeMonths = 2;
+
+  /// Einlöse-Adresse von Google Play; öffnet die Play-Store-App.
+  static Uri playRedeemUri(String code) => Uri.https(
+    'play.google.com',
+    '/redeem',
+    {'code': code.trim().toUpperCase()},
+  );
+
+  /// Einlöse-Adresse des App Store für Angebotscodes. [appId] ist die
+  /// numerische Apple-ID der App aus App Store Connect.
+  static Uri appStoreRedeemUri(String appId, String code) => Uri.https(
+    'apps.apple.com',
+    '/redeem',
+    {'ctx': 'offercodes', 'id': appId, 'code': code.trim().toUpperCase()},
+  );
+
   /// Eine Abogruppe, vier Produkte (L-22.2).
   static const products = [
     LicenseProduct('basis_monat', Tier.basis, BillingPeriod.month),
@@ -164,10 +190,13 @@ class LicensePolicy {
   }
 
   /// Ende des Tests, solange die Erinnerung fällig ist (L-10.3), sonst `null`.
+  /// Beim Promo-Code endet die Gratiszeit nach [promoFreeMonths] Monaten.
   static DateTime? trialReminder(LicenseRecord record, DateTime now) {
     final start = record.trialStartedAt;
     if (start == null || record.tier != Tier.pro) return null;
-    final end = start.add(const Duration(days: trialDays));
+    final end = record.trialIsPromo
+        ? DateTime(start.year, start.month + promoFreeMonths, start.day)
+        : start.add(const Duration(days: trialDays));
     final from = end.subtract(const Duration(days: trialReminderDays));
     return !now.isBefore(from) && now.isBefore(end) ? end : null;
   }
@@ -181,7 +210,11 @@ class LicenseRecord {
     this.everSubscribed = false,
     this.trialStartedAt,
     this.downgradedFrom,
+    this.trialIsPromo = false,
   });
+
+  /// Gratiszeit aus dem Promo-Code statt aus dem 14-Tage-Test (FA-13.13).
+  final bool trialIsPromo;
 
   /// Aktive Stufe bei der letzten Bestätigung; `null` = kein Abo.
   final Tier? tier;
@@ -205,7 +238,9 @@ class LicenseRecord {
     bool? everSubscribed,
     DateTime? Function()? trialStartedAt,
     Tier? Function()? downgradedFrom,
+    bool? trialIsPromo,
   }) => LicenseRecord(
+    trialIsPromo: trialIsPromo ?? this.trialIsPromo,
     tier: tier == null ? this.tier : tier(),
     checkedAt: checkedAt ?? this.checkedAt,
     everSubscribed: everSubscribed ?? this.everSubscribed,
@@ -223,6 +258,7 @@ class LicenseRecord {
     'everSubscribed': everSubscribed,
     'trialStartedAt': trialStartedAt?.toIso8601String(),
     'downgradedFrom': downgradedFrom?.name,
+    'trialIsPromo': trialIsPromo,
   };
 
   static LicenseRecord fromJson(Map<String, Object?> json) {
@@ -235,6 +271,7 @@ class LicenseRecord {
       everSubscribed: json['everSubscribed'] == true,
       trialStartedAt: dateOf(json['trialStartedAt']),
       downgradedFrom: tierOf(json['downgradedFrom']),
+      trialIsPromo: json['trialIsPromo'] == true,
     );
   }
 }

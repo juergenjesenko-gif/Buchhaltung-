@@ -55,6 +55,25 @@ class FakeStoreBilling implements StoreBilling {
     );
   }
 
+  /// Eingelöste Codes; ein Code aus [validCodes] schaltet `pro_monat` frei.
+  final redeemed = <String>[];
+  Set<String> validCodes = {LicensePolicy.promoCode};
+
+  @override
+  Future<bool> redeemCode(String code) async {
+    redeemed.add(code);
+    if (validCodes.contains(code.trim().toUpperCase())) {
+      active.add('pro_monat');
+      _events.add(
+        const PurchaseEvent(
+          PurchaseEventKind.purchased,
+          productId: 'pro_monat',
+        ),
+      );
+    }
+    return true;
+  }
+
   @override
   Stream<PurchaseEvent> get events => _events.stream;
 }

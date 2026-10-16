@@ -96,7 +96,16 @@ class LicenseManager {
       }
       final ids = active.where(LicensePolicy.productIds.contains).toSet();
       _activeProductId = _preferred(ids);
-      await _saveTier(LicensePolicy.highestTier(ids));
+      final tier = LicensePolicy.highestTier(ids);
+      if (_promoPending && tier == Tier.pro && _record.tier != Tier.pro) {
+        // Android: Einlösung in Play, Rückkehr in die App (FA-13.13).
+        _promoPending = false;
+        _record = _record.copyWith(
+          trialStartedAt: () => _clock(),
+          trialIsPromo: true,
+        );
+      }
+      await _saveTier(tier);
     } on Object {
       _message = 'Store nicht erreichbar. Dein Abo gilt weiter.';
     } finally {
@@ -133,6 +142,26 @@ class LicenseManager {
     }
   }
 
+  /// Promo-Code eingelöst, Bestätigung des Stores steht noch aus.
+  bool _promoPending = false;
+
+  /// Promo-Code einlösen (FA-13.13). Danach meldet der Store Pro über das
+  /// Kaufereignis oder die nächste Abfrage (Rückkehr in die App).
+  Future<void> redeemCode(String code) async {
+    final store = _store;
+    if (store == null) return;
+    _message = null;
+    _promoPending = true;
+    try {
+      if (!await store.redeemCode(code)) {
+        _message = 'Der Store ließ sich nicht öffnen.';
+      }
+    } on Object {
+      _message = 'Der Store ließ sich nicht öffnen.';
+    }
+    _notify();
+  }
+
   /// Hinweis zur Herabstufung gesehen.
   Future<void> acknowledgeDowngrade() async {
     if (_record.downgradedFrom == null) return;
@@ -148,12 +177,15 @@ class LicenseManager {
         if (product == null) return;
         final now = _clock();
         final firstTrial = !_record.everSubscribed && product.tier == Tier.pro;
+        final promo = _promoPending && product.tier == Tier.pro;
+        _promoPending = false;
         _activeProductId = product.id;
         _record = _record.copyWith(
           tier: () => product.tier,
           checkedAt: now,
           everSubscribed: true,
-          trialStartedAt: firstTrial ? () => now : null,
+          trialStartedAt: firstTrial || promo ? () => now : null,
+          trialIsPromo: firstTrial || promo ? promo : null,
           downgradedFrom: () => null,
         );
         await cache.save(_record);

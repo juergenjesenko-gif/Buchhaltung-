@@ -202,6 +202,41 @@ später als befristetes Angebot (P-R2).
 
 Danach die Testkäufe nach Prüfpunkt **P-D4** durchgehen.
 
+### Promo-Code „JENIBUCHT2M“ (2 Monate Pro gratis)
+
+Entscheidung 2026-10-16 (Spezifikation FA-13.13). Voraussetzung: die Abos oben
+sind angelegt und aktiv.
+
+**Google Play**
+
+1. [Play Console](https://play.google.com/console/developers) → App →
+   **Monetarisieren → Abos** → `pro_monat` öffnen.
+2. Beim Basis-Tarif **Angebot hinzufügen**: Angebots-ID `promo-2m`,
+   Berechtigung **„Vom Entwickler festgelegt“** (nur mit Code), Phase
+   **„Kostenloser Testzeitraum“ 2 Monate** → aktivieren. Für `pro_jahr`
+   genauso, wenn der Code auch das Jahresabo bedienen soll.
+3. **Monetarisieren → Promo-Codes** →
+   „Benutzerdefinierter Code“ → Code `JENIBUCHT2M`, Produkt `pro_monat`,
+   Angebot `promo-2m`, Anzahl Einlösungen (Vorschlag: 1.000), Ablaufdatum
+   der Kampagne → speichern.
+4. Testen: https://play.google.com/redeem?code=JENIBUCHT2M auf einem
+   Lizenztest-Konto öffnen (P-D32).
+
+**Apple App Store**
+
+1. [App Store Connect → Apps](https://appstoreconnect.apple.com/apps) → App →
+   **Monetarisierung → Abonnements** → `pro_monat` öffnen.
+2. **Angebotscodes** → „Angebotscode erstellen“: Name „Instagram 2 Monate“,
+   Berechtigung **Neue Abonnenten**, Angebot **Kostenlos**, Dauer **2 Monate**.
+3. **Benutzerdefinierter Code** → `JENIBUCHT2M`, Anzahl Einlösungen
+   (höchstens 25.000 je Code), Ablaufdatum der Kampagne → erstellen.
+4. Apple-ID der App notieren: App → **App-Informationen → Apple-ID**. Damit
+   lautet der Link
+   `https://apps.apple.com/redeem?ctx=offercodes&id=<Apple-ID>&code=JENIBUCHT2M`
+   – in `STORE_LISTING.md` eintragen.
+5. Mit dem Sandbox-Konto einlösen: App → Abo → **Promo-Code einlösen**
+   (P-D32).
+
 ## Was du vorher entscheiden solltest
 
 Entschieden am 2026-10-13:

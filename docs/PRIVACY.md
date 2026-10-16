@@ -127,7 +127,9 @@ Nur in diesen Fällen, die du auslöst oder einschaltest:
   „Kauf wiederherstellen“ fragt die App über die Store-Schnittstelle des
   Geräts (Google Play Billing bzw. StoreKit) nach deinen aktiven Abos; beim
   Kauf öffnet das Kaufblatt des Stores. Die App übergibt dabei nur die
-  Produktkennungen (z. B. `pro_monat`). Store-Konto, Zahlungsdaten und
+  Produktkennungen (z. B. `pro_monat`). Löst du einen **Promo-Code** ein,
+  geht der Code an Apple (im Einlöseblatt des App Store) bzw. an Google
+  (über die Adresse play.google.com/redeem). Store-Konto, Zahlungsdaten und
   Kaufbelege verarbeiten Apple bzw. Google als eigene Verantwortliche nach
   ihren Datenschutzerklärungen; der Anbieter erhält nur zusammengefasste
   Verkaufs- und Auszahlungsberichte ohne Namen oder E-Mail. Auf dem Gerät

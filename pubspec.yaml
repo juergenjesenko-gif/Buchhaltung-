@@ -44,6 +44,8 @@ dependencies:
   # Drittanbieter-SDK (L-22.10); der Android-Teil nur für den Abowechsel.
   in_app_purchase: ^3.3.1
   in_app_purchase_android: ^0.5.4
+  # Nur für das Einlöseblatt der Angebotscodes auf iOS (Promo-Code, FA-13.13).
+  in_app_purchase_storekit: ^0.4.13
 
 dev_dependencies:
   flutter_test:

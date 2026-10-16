@@ -25,17 +25,54 @@ class SubscriptionScreen extends StatefulWidget {
   State<SubscriptionScreen> createState() => _SubscriptionScreenState();
 }
 
-class _SubscriptionScreenState extends State<SubscriptionScreen> {
+class _SubscriptionScreenState extends State<SubscriptionScreen>
+    with WidgetsBindingObserver {
   BillingPeriod _period = BillingPeriod.month;
 
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
       final license = AppScope.read(context).license;
       if (license.offers == null) license.refresh();
     });
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  /// Zurück aus Play Store oder Einlöseblatt: Abo neu abfragen (FA-13.13).
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed && mounted) {
+      AppScope.read(context).license.refresh();
+    }
+  }
+
+  /// Promo-Code einlösen (FA-13.13). iOS: Apples Einlöseblatt mit eigenem
+  /// Eingabefeld – ein Tipp. Android: Code eintippen, dann Google Play.
+  Future<void> _redeem() async {
+    final license = AppScope.read(context).license;
+    if (Theme.of(context).platform == TargetPlatform.iOS) {
+      await license.redeemCode('');
+    } else {
+      final code = await showModalBottomSheet<String>(
+        context: context,
+        showDragHandle: true,
+        isScrollControlled: true,
+        builder: (_) => const PromoCodeSheet(),
+      );
+      if (code == null || code.trim().isEmpty) return;
+      await license.redeemCode(code);
+    }
+    if (mounted && license.message != null) {
+      showSnack(context, license.message!);
+    }
   }
 
   StoreOffer? _offer(List<StoreOffer>? offers, Tier tier) {
@@ -182,6 +219,13 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
               onTap: license.busy ? null : _restore,
             ),
             ListTile(
+              key: const Key('subscription-redeem'),
+              leading: const Icon(Icons.redeem_outlined),
+              title: const Text('Promo-Code einlösen'),
+              subtitle: const Text('Z. B. aus Instagram, über den Store'),
+              onTap: license.busy ? null : _redeem,
+            ),
+            ListTile(
               key: const Key('subscription-manage'),
               leading: const Icon(Icons.manage_accounts_outlined),
               title: const Text('Abo verwalten oder kündigen'),
@@ -270,4 +314,68 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
       ),
     );
   }
+}
+
+/// Eingabe des Promo-Codes auf Android (FA-13.13): Feld leer, Großbuchstaben,
+/// „Einlösen“ in der Daumenzone direkt darunter.
+class PromoCodeSheet extends StatefulWidget {
+  const PromoCodeSheet({super.key});
+
+  @override
+  State<PromoCodeSheet> createState() => _PromoCodeSheetState();
+}
+
+class _PromoCodeSheetState extends State<PromoCodeSheet> {
+  final _code = TextEditingController();
+
+  @override
+  void dispose() {
+    _code.dispose();
+    super.dispose();
+  }
+
+  void _submit() => Navigator.of(context).pop(_code.text.trim().toUpperCase());
+
+  @override
+  Widget build(BuildContext context) => SafeArea(
+    child: Padding(
+      padding: EdgeInsets.fromLTRB(
+        16,
+        0,
+        16,
+        16 + MediaQuery.viewInsetsOf(context).bottom,
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Text(
+            'Promo-Code einlösen',
+            style: Theme.of(context).textTheme.titleMedium,
+          ),
+          const SizedBox(height: 8),
+          const Text(
+            'Google Play öffnet sich und zeigt das Angebot mit Preis danach. '
+            'Kündigen kannst du jederzeit vorher im Store.',
+          ),
+          const SizedBox(height: 12),
+          TextField(
+            key: const Key('promo-code-field'),
+            controller: _code,
+            autofocus: true,
+            textCapitalization: TextCapitalization.characters,
+            decoration: const InputDecoration(labelText: 'Code'),
+            onSubmitted: (_) => _submit(),
+          ),
+          const SizedBox(height: 12),
+          PrimaryActionBar.filled(
+            key: const Key('promo-code-submit'),
+            label: 'Einlösen',
+            icon: Icons.redeem_outlined,
+            onPressed: _submit,
+          ),
+        ],
+      ),
+    ),
+  );
 }

@@ -1,10 +1,15 @@
 import 'dart:async';
 
+import 'package:flutter/foundation.dart';
+
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:in_app_purchase/in_app_purchase.dart';
 import 'package:in_app_purchase_android/billing_client_wrappers.dart'
     show ReplacementMode;
 import 'package:in_app_purchase_android/in_app_purchase_android.dart';
+import 'package:in_app_purchase_storekit/in_app_purchase_storekit.dart';
+
+import '../launcher/open_url.dart';
 
 import 'license_cache.dart';
 import 'license_policy.dart';
@@ -152,6 +157,18 @@ class InAppPurchaseBilling implements StoreBilling {
         // (Upgrade sofort, Downgrade zum Periodenende).
         : PurchaseParam(productDetails: details);
     await _iap.buyNonConsumable(purchaseParam: param);
+  }
+
+  @override
+  Future<bool> redeemCode(String code) async {
+    _listen();
+    if (defaultTargetPlatform == TargetPlatform.iOS) {
+      await _iap
+          .getPlatformAddition<InAppPurchaseStoreKitPlatformAddition>()
+          .presentCodeRedemptionSheet();
+      return true;
+    }
+    return openInBrowser(LicensePolicy.playRedeemUri(code));
   }
 
   @override
