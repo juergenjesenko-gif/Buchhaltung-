@@ -34,7 +34,7 @@ nächsten Versionssprung in den neuen Eintrag.
 
 | Art | Änderung | Bezug | Commit |
 |---|---|---|---|
-| Neu | Abo-Seite: „Promo-Code einlösen“ (iOS Einlöseblatt, Android Google Play); Code JENIBUCHT2M für 2 Monate Pro gratis, Erinnerung zum Ende | FA-13.13 | folgt |
+| Neu | Abo-Seite: „Promo-Code einlösen“ (iOS Einlöseblatt, Android Google Play); Code JENIBUCHT2M für 2 Monate Pro gratis, Erinnerung zum Ende | FA-13.13 | `067a8f8` |
 
 ---
 
