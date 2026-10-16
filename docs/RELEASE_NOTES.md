@@ -29,11 +29,35 @@ gebaut, und was war darin geprüft?*
 
 ## Unveröffentlicht
 
-Änderungen seit 0.22.0+30, die noch in keinem Build stecken. Wandern beim
+Änderungen seit 0.22.1+31, die noch in keinem Build stecken. Wandern beim
 nächsten Versionssprung in den neuen Eintrag.
 
 | Art | Änderung | Bezug | Commit |
 |---|---|---|---|
+
+---
+
+## 0.22.1+31 — 2026-10-16
+
+| Feld | Wert |
+|---|---|
+| Art | Testbuild (ungezippte arm64-APK `JeNi-bucht-0.22.1-build-<Nr>.apk`, fester Testschlüssel); **Lizenzprüfung aus** (ohne `LICENSING=true`), alle Funktionen frei |
+| Commit | `wird nachgetragen` |
+| Branch | `claude/agile-accounting-app-mobile-wa5j3h` |
+| Dokumentstände | Lastenheft 1.71, Spezifikation 1.75, Benutzerhandbuch für 0.22.1, DESIGN_SPEC 1.4 |
+| Datenbankschema | 23 |
+| Prüfung | `flutter analyze` ohne Befund, alle Tests grün (neu `scan_to_form_test.dart`; erweitert `document_scanner_test.dart`, `one_hand_test.dart`); Android/iOS-Build nur in der CI |
+| Steuerliche Kennwerte | unverändert |
+| Offene reale Prüfpunkte | wie 0.22.0+30, neu P-X19, P-D41 |
+| Bekannte Grenzen | Spezifikation Abschnitt 11, unverändert |
+
+**Änderungen seit 0.22.0+30**
+
+| Art | Änderung | Bezug | Commit |
+|---|---|---|---|
+| Behoben | Nach dem Scan blieb das Belegformular leer (keine Seite, keine Vorbelegung): Android-Request-Code 4711 war doppelt vergeben (Scanner und Sicherungsordner), der Sicherungsordner verschluckte das Scan-Ergebnis; jetzt eindeutige Codes in `RequestCodes.kt` mit Test | FA-2.51, P-D41 | dieser Commit |
+| Geändert | Kein stiller Weg beim Scannen: verlorenes Ergebnis, nicht lesbare oder nicht speicherbare Seiten und Auslesefehler erscheinen als Meldung; scheitert die Nachbearbeitung, wird das Original übernommen; nicht darstellbare Seite zeigt Platzhalter | FA-2.51 | dieser Commit |
+| Neu | „Foto“ (Galerie) und „Datei“ (PDF, E-Rechnung, Bild) als kleinere runde Knöpfe neben „Beleg“ auf Übersicht und Belegliste; öffnen direkt einen neuen Beleg und lesen aus | FA-12.1, DESIGN_SPEC 5a Regel 13, P-X19 | dieser Commit |
 
 ---
 

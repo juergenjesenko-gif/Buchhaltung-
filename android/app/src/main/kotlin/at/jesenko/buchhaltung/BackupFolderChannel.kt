@@ -193,7 +193,7 @@ class BackupFolderChannel(
     }
 
     companion object {
-        private const val REQUEST_CODE = 4711
-        private const val REQUEST_FILE = 4712
+        private const val REQUEST_CODE = RequestCodes.BACKUP_FOLDER
+        private const val REQUEST_FILE = RequestCodes.BACKUP_FILE
     }
 }

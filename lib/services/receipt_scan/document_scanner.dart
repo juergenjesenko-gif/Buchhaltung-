@@ -30,7 +30,9 @@ class DocumentScanner {
   /// Seiten als Dateien; leere Liste = abgebrochen oder schon ein Scan offen
   /// (Doppeltipp); `null` = kein Scanner verfügbar (keine Play-Dienste,
   /// Modul-Download fehlgeschlagen, Huawei, Tests) → der Aufrufer nimmt ohne
-  /// Rückfrage die Kamera.
+  /// Rückfrage die Kamera. Jeder andere Plattformfehler (Seite nicht lesbar,
+  /// Ergebnis verloren) wirft [DocumentScanException], damit die Nutzerin
+  /// eine Meldung sieht statt eines leeren Formulars (Gerätetest 0.22.0).
   Future<List<File>?> scan() async {
     if (_running) return const [];
     _running = true;
@@ -42,13 +44,23 @@ class DocumentScanner {
     } on PlatformException catch (e) {
       // `busy` liefern neue Plattformstände nicht mehr; ältere als Abbruch.
       if (e.code == 'busy') return const [];
-      return null;
+      if (e.code == 'unavailable') return null;
+      throw DocumentScanException(e.message ?? e.code);
     } on MissingPluginException {
       return null;
     } finally {
       _running = false;
     }
   }
+}
+
+/// Scan fehlgeschlagen, obwohl der Scanner lief; [message] wird angezeigt.
+class DocumentScanException implements Exception {
+  const DocumentScanException(this.message);
+  final String message;
+
+  @override
+  String toString() => message;
 }
 
 /// Ergebnis von [ScanIntake.run].
@@ -61,6 +73,9 @@ enum ScanIntakeOutcome {
 
   /// Seiten übernommen und Auslesen angestoßen.
   added,
+
+  /// Fehler; die Meldung ging an `onError`.
+  failed,
 }
 
 /// Gemeinsamer Weg Scan → Verbessern → Ablegen → Auslesen, damit gescannte
@@ -69,21 +84,61 @@ enum ScanIntakeOutcome {
 class ScanIntake {
   const ScanIntake._();
 
+  /// Kein stiller Weg (Gerätetest 0.22.0): jeder Fehler – Scanner, Ablegen,
+  /// Auslesen – geht als Text an [onError]; der Aufrufer zeigt ihn an.
+  /// Schlägt nur die Verbesserung fehl, wird das Original abgelegt.
   static Future<ScanIntakeOutcome> run({
     required Future<String> Function(File page) store,
     required bool Function(String relativePath) onPage,
     required Future<void> Function() afterPages,
+    required void Function(String message) onError,
     DocumentScanner scanner = const DocumentScanner(),
     Future<File> Function(File page) enhance = enhanceScannedPage,
   }) async {
-    final scanned = await scanner.scan();
+    final List<File>? scanned;
+    try {
+      scanned = await scanner.scan();
+    } on DocumentScanException catch (e) {
+      onError('Scan fehlgeschlagen: ${e.message}');
+      return ScanIntakeOutcome.failed;
+    }
     if (scanned == null) return ScanIntakeOutcome.unavailable;
     if (scanned.isEmpty) return ScanIntakeOutcome.cancelled;
-    for (final file in scanned) {
-      final relative = await store(await enhance(file));
+    var added = 0;
+    final failed = <int>[];
+    for (var i = 0; i < scanned.length; i++) {
+      final original = scanned[i];
+      File page;
+      try {
+        page = await enhance(original);
+      } catch (e) {
+        debugPrint('Scan-Nachbearbeitung übersprungen: $e');
+        page = original;
+      }
+      final String relative;
+      try {
+        relative = await store(page);
+      } catch (e) {
+        debugPrint('Scan-Seite ${i + 1} nicht abgelegt: $e');
+        failed.add(i + 1);
+        continue;
+      }
       if (!onPage(relative)) return ScanIntakeOutcome.cancelled;
+      added++;
     }
-    await afterPages();
+    if (failed.isNotEmpty) {
+      onError(
+        failed.length == 1
+            ? 'Seite ${failed.single} konnte nicht gespeichert werden.'
+            : 'Seiten ${failed.join(', ')} konnten nicht gespeichert werden.',
+      );
+    }
+    if (added == 0) return ScanIntakeOutcome.failed;
+    try {
+      await afterPages();
+    } catch (e) {
+      onError('Beleg konnte nicht ausgelesen werden: $e');
+    }
     return ScanIntakeOutcome.added;
   }
 }
@@ -97,7 +152,8 @@ Future<File> enhanceScannedPage(File page) async {
     );
     if (better == null) return page;
     await page.writeAsBytes(better, flush: true);
-  } on Exception catch (e) {
+  } catch (e) {
+    // Auch Errors (z. B. Speicher im Isolate): Original behalten.
     debugPrint('Scan-Nachbearbeitung übersprungen: $e');
   }
   return page;

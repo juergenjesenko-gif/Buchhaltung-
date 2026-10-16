@@ -22,6 +22,7 @@ import '../../domain/receipt.dart';
 import '../../services/fx/currency_converter.dart';
 import '../../services/fx/fx_rate_service.dart';
 import '../../services/receipt_image_store.dart';
+import '../../services/receipt_scan/document_picker.dart';
 import '../../services/receipt_scan/document_scanner.dart';
 import '../../services/receipt_scan/ocr_text.dart';
 import '../../services/receipt_scan/platform_text_recognizer.dart';
@@ -56,12 +57,26 @@ import '../../services/help/help_index.dart';
 /// Der Betrag wird brutto eingegeben – das ist die Zahl, die auf dem Beleg
 /// steht. Netto und Umsatzsteuer rechnet die App heraus und zeigt sie live an,
 /// damit der Nutzer den Steuersatz sofort kontrollieren kann.
+/// Startaktion eines neuen Belegformulars.
+enum ReceiptStart {
+  none,
+
+  /// Dokumentenscanner, sonst Kamera.
+  camera,
+
+  /// Foto aus der Galerie.
+  gallery,
+
+  /// PDF, E-Rechnung oder Bild über die Dateiauswahl.
+  file,
+}
+
 class ReceiptEditScreen extends StatefulWidget {
   const ReceiptEditScreen({
     super.key,
     required this.direction,
     this.existing,
-    this.startWithCamera = false,
+    this.start = ReceiptStart.none,
     this.sharedFiles = const [],
   });
 
@@ -69,9 +84,9 @@ class ReceiptEditScreen extends StatefulWidget {
   /// als Seiten übernommen und sofort ausgelesen.
   final List<File> sharedFiles;
 
-  /// Öffnet beim Start direkt die Kamera (zentraler Knopf „Beleg
-  /// fotografieren“ auf der Übersicht, DESIGN_SPEC 5a).
-  final bool startWithCamera;
+  /// Womit das neue Formular startet (Aufnahmeleiste auf Übersicht und
+  /// Belegliste, DESIGN_SPEC 5a Regel 13): Kamera/Scanner, Galerie, Datei.
+  final ReceiptStart start;
 
   final BookingDirection direction;
   final Receipt? existing;
@@ -157,10 +172,8 @@ class _ReceiptEditScreenState extends State<ReceiptEditScreen> {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (mounted) _addSharedFiles(widget.sharedFiles);
       });
-    } else if (widget.startWithCamera && widget.existing == null) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (mounted) _addPage(ImageSource.camera);
-      });
+    } else if (widget.start != ReceiptStart.none && widget.existing == null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) => _startWith());
     }
   }
 
@@ -644,6 +657,9 @@ class _ReceiptEditScreenState extends State<ReceiptEditScreen> {
           await _loadScanSetting();
           if (mounted && _scanEnabled) await _scan();
         },
+        onError: (message) {
+          if (mounted) showSnack(context, message);
+        },
       );
       if (outcome != ScanIntakeOutcome.unavailable) return;
     }
@@ -669,6 +685,39 @@ class _ReceiptEditScreenState extends State<ReceiptEditScreen> {
       if (mounted) {
         showSnack(context, 'Foto konnte nicht übernommen werden: $error');
       }
+    }
+  }
+
+  /// Startaktion aus der Aufnahmeleiste. Wird Galerie oder Datei ohne
+  /// Auswahl verlassen, schließt sich das leere Formular wieder – die
+  /// Nutzerin ist dort, wo sie getippt hat (ein Schritt weniger).
+  Future<void> _startWith() async {
+    if (!mounted) return;
+    switch (widget.start) {
+      case ReceiptStart.camera:
+        await _addPage(ImageSource.camera);
+        return;
+      case ReceiptStart.gallery:
+        await _addPage(ImageSource.gallery);
+      case ReceiptStart.file:
+        await _pickFiles();
+      case ReceiptStart.none:
+        return;
+    }
+    if (mounted && _pages.isEmpty && _documents.isEmpty) {
+      Navigator.of(context).maybePop();
+    }
+  }
+
+  /// Knopf „Datei“ (Aufnahmeleiste): gewählte Dateien laufen denselben Weg
+  /// wie geteilte Dateien – Seitenbilder, Originaldatei, Auslesen.
+  Future<void> _pickFiles() async {
+    try {
+      final files = await const DocumentPicker().pick();
+      if (!mounted || files.isEmpty) return;
+      await _addSharedFiles(files, source: 'Datei');
+    } on DocumentScanException catch (e) {
+      if (mounted) showSnack(context, e.message);
     }
   }
 
@@ -1113,6 +1162,16 @@ class _ReceiptEditScreenState extends State<ReceiptEditScreen> {
                                     file,
                                     width: 120,
                                     fit: BoxFit.cover,
+                                    // Nicht darstellbar: Platzhalter statt
+                                    // Fehler; die Seite bleibt angehängt.
+                                    errorBuilder: (_, _, _) => const ColoredBox(
+                                      color: Colors.black12,
+                                      child: Center(
+                                        child: Icon(
+                                          Icons.broken_image_outlined,
+                                        ),
+                                      ),
+                                    ),
                                   ),
                           ),
                         ),

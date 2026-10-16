@@ -16,6 +16,7 @@ import UIKit
   private var pdf: PdfChannel?
   private var shareIn: ShareInChannel?
   private var scanner: DocumentScannerChannel?
+  private var documentPicker: DocumentPickerChannel?
   private var dictation: DictationChannel?
 
   func didInitializeImplicitFlutterEngine(_ engineBridge: FlutterImplicitEngineBridge) {
@@ -28,6 +29,9 @@ import UIKit
     }
     if let registrar = engineBridge.pluginRegistry.registrar(forPlugin: "DocumentScannerChannel") {
       scanner = DocumentScannerChannel(messenger: registrar.messenger())
+    }
+    if let registrar = engineBridge.pluginRegistry.registrar(forPlugin: "DocumentPickerChannel") {
+      documentPicker = DocumentPickerChannel(messenger: registrar.messenger())
     }
     if let registrar = engineBridge.pluginRegistry.registrar(forPlugin: "DictationChannel") {
       dictation = DictationChannel(messenger: registrar.messenger())

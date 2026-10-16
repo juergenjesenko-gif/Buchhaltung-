@@ -45,6 +45,7 @@ void main() {
   // das Formular leer. Fake-Scanner über den Channel.
   group('ScanIntake', () {
     Future<File> keep(File f) async => f;
+    void fail(String message) => throw StateError('unerwartet: $message');
 
     test('zweimal hintereinander scannen funktioniert', () async {
       var calls = 0;
@@ -62,6 +63,7 @@ void main() {
             return true;
           },
           afterPages: () async => prefills++,
+          onError: fail,
           enhance: keep,
         );
         expect(outcome, ScanIntakeOutcome.added);
@@ -83,6 +85,7 @@ void main() {
         store: (f) async => f.path,
         onPage: (_) => true,
         afterPages: () async => prefills++,
+        onError: fail,
         enhance: keep,
       );
       expect(await once(), ScanIntakeOutcome.cancelled);
@@ -94,14 +97,18 @@ void main() {
     });
 
     test('Fehler setzt zurück, nächster Scan geht', () async {
-      var fail = true;
+      var broken = true;
       messenger.setMockMethodCallHandler(channel, (call) async {
-        if (fail) throw PlatformException(code: 'io');
+        if (broken) throw PlatformException(code: 'io', message: 'kaputt');
         return ['/tmp/a.jpg'];
       });
-      expect(await const DocumentScanner().scan(), isNull);
+      // Kein Rückfall auf die Kamera, sondern eine sichtbare Meldung.
+      await expectLater(
+        const DocumentScanner().scan(),
+        throwsA(isA<DocumentScanException>()),
+      );
       expect(DocumentScanner.isRunning, isFalse);
-      fail = false;
+      broken = false;
       expect(await const DocumentScanner().scan(), hasLength(1));
     });
 
@@ -133,6 +140,7 @@ void main() {
           return true;
         },
         afterPages: () async => events.add('Vorbelegung'),
+        onError: fail,
         enhance: (f) async {
           events.add('verbessert ${f.uri.pathSegments.last}');
           return f;
@@ -154,10 +162,95 @@ void main() {
         store: (f) async => f.path,
         onPage: (_) => true,
         afterPages: () async => prefills++,
+        onError: fail,
         enhance: keep,
       );
       expect(outcome, ScanIntakeOutcome.unavailable);
       expect(prefills, 0);
     });
+
+    // Gerätetest 0.22.0: keine stillen Wege mehr.
+    test('Ergebnis verloren: Meldung statt leerem Formular', () async {
+      messenger.setMockMethodCallHandler(channel, (call) async {
+        throw PlatformException(code: 'lost', message: 'nicht angekommen');
+      });
+      final errors = <String>[];
+      final outcome = await ScanIntake.run(
+        store: (f) async => f.path,
+        onPage: (_) => true,
+        afterPages: () async {},
+        onError: errors.add,
+        enhance: keep,
+      );
+      expect(outcome, ScanIntakeOutcome.failed);
+      expect(errors.single, contains('nicht angekommen'));
+    });
+
+    test(
+      'Verbesserung scheitert (auch Error): Original wird abgelegt',
+      () async {
+        messenger.setMockMethodCallHandler(
+          channel,
+          (call) async => ['/tmp/a.jpg'],
+        );
+        final stored = <String>[];
+        final outcome = await ScanIntake.run(
+          store: (f) async {
+            stored.add(f.path);
+            return f.path;
+          },
+          onPage: (_) => true,
+          afterPages: () async {},
+          onError: fail,
+          enhance: (f) async => throw StateError('Isolate'),
+        );
+        expect(outcome, ScanIntakeOutcome.added);
+        expect(stored, ['/tmp/a.jpg']);
+      },
+    );
+
+    test('Ablegen scheitert: Meldung, übrige Seiten bleiben', () async {
+      messenger.setMockMethodCallHandler(
+        channel,
+        (call) async => ['/tmp/a.jpg', '/tmp/b.jpg'],
+      );
+      final pages = <String>[];
+      final errors = <String>[];
+      final outcome = await ScanIntake.run(
+        store: (f) async => f.path.endsWith('a.jpg')
+            ? throw const FileSystemException('voll')
+            : f.path,
+        onPage: (r) {
+          pages.add(r);
+          return true;
+        },
+        afterPages: () async {},
+        onError: errors.add,
+        enhance: keep,
+      );
+      expect(outcome, ScanIntakeOutcome.added);
+      expect(pages, ['/tmp/b.jpg']);
+      expect(errors.single, contains('Seite 1'));
+    });
+  });
+
+  // Ursache Gerätetest 0.22.0: Scanner und Sicherungsordner hatten denselben
+  // Request-Code, das Scan-Ergebnis wurde vom Sicherungsordner verschluckt.
+  test('Android: Request-Codes eindeutig, nur in RequestCodes.kt', () {
+    final dir = Directory('android/app/src/main/kotlin/at/jesenko/buchhaltung');
+    final codes = File('${dir.path}/RequestCodes.kt').readAsStringSync();
+    final values = RegExp(
+      r'const val \w+ = (\d+)',
+    ).allMatches(codes).map((m) => m.group(1)).toList();
+    expect(values, isNotEmpty);
+    expect(values.toSet(), hasLength(values.length));
+    for (final file in dir.listSync().whereType<File>()) {
+      if (file.path.endsWith('RequestCodes.kt')) continue;
+      expect(
+        RegExp(r'REQUEST\w* = \d').hasMatch(file.readAsStringSync()),
+        isFalse,
+        reason: '${file.path}: Request-Code nur über RequestCodes',
+      );
+    }
   });
 }

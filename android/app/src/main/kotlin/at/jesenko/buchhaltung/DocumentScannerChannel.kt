@@ -21,7 +21,10 @@ import java.util.concurrent.Executors
  * (Kontrast, Papier aufhellen) und legt nur das verarbeitete Bild ab
  * (Entscheidung Auftraggeberin 2026-10-16, P-S63).
  *
- * Ergebnis von `scan`: Liste von Pfaden; leere Liste = abgebrochen;
+ * Ergebnis von `scan`: Liste absoluter Pfade auf JPEG-Kopien im App-Cache
+ * (die `file://`/`content://`-URIs von ML Kit werden hier kopiert, Dart
+ * bekommt nie eine URI); leere Liste = abgebrochen; Fehler `io`/`lost` =
+ * Dart zeigt eine Meldung;
  * Fehler `unavailable` = kein Scanner (keine Play-Dienste, Modul-Download
  * fehlgeschlagen) → Dart nimmt ohne Rückfrage die Kamera.
  *
@@ -33,7 +36,7 @@ import java.util.concurrent.Executors
  * - die offene Antwort hängt am Prozess, nicht an der Activity: eine neu
  *   erzeugte Activity (Speicherdruck während des Scans) schließt sie ab,
  * - kommt nach der Rückkehr in die App kein Ergebnis an, gilt der Scan als
- *   abgebrochen ([onResume]),
+ *   verloren und Dart meldet es sichtbar ([onResume], Fehler `lost`),
  * - ein neuer Aufruf ersetzt eine liegengebliebene Antwort statt `busy`.
  */
 class DocumentScannerChannel(
@@ -131,21 +134,24 @@ class DocumentScannerChannel(
     /**
      * Aus `MainActivity.onResume`. Android liefert `onActivityResult` vor
      * `onResume`; ist die Antwort danach noch offen, kommt keine mehr
-     * (Ergebnis verloren, Activity neu erzeugt). Dann gilt der Scan als
-     * abgebrochen – der Scanner bleibt bedienbar.
+     * (Ergebnis verloren, Activity neu erzeugt). Dann endet der Scan mit dem
+     * Fehler `lost` – sichtbar für die Nutzerin, der Scanner bleibt bedienbar.
+     * Gerätetest 0.22.0: hier landete jeder Scan, weil der Sicherungsordner
+     * denselben Request-Code hatte ([RequestCodes]).
      */
     fun onResume() {
         if (!launched) return
         main.postDelayed({
             if (launched) {
                 launched = false
-                finish { it.success(emptyList<String>()) }
+                // Nicht still als Abbruch werten: Dart zeigt eine Meldung.
+                finish { it.error("lost", "Das Scan-Ergebnis ist nicht in der App angekommen.", null) }
             }
         }, RESUME_GRACE_MS)
     }
 
     companion object {
-        private const val REQUEST = 4711
+        private const val REQUEST = RequestCodes.DOCUMENT_SCANNER
         private const val RESUME_GRACE_MS = 1500L
 
         // Am Prozess statt an der Activity: übersteht eine neu erzeugte

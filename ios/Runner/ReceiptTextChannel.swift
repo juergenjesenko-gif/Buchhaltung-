@@ -3,6 +3,7 @@ import Flutter
 import PDFKit
 import Speech
 import UIKit
+import UniformTypeIdentifiers
 import Vision
 import VisionKit
 
@@ -425,5 +426,70 @@ class DictationChannel {
     task?.cancel()
     task = nil
     try? AVAudioSession.sharedInstance().setActive(false, options: .notifyOthersOnDeactivation)
+  }
+}
+
+/// Datei für einen neuen Beleg wählen (Knopf „Datei“ auf Übersicht und
+/// Belegliste, FA-12.1): Bilder, PDF, XML-E-Rechnung. Liefert Pfade auf
+/// Kopien im temporären Ordner; Dart behandelt sie wie geteilte Dateien.
+/// Leere Liste = abgebrochen. Hier statt in einer eigenen Datei, damit das
+/// Xcode-Projekt unverändert bleibt.
+final class DocumentPickerChannel: NSObject, UIDocumentPickerDelegate {
+  private let channel: FlutterMethodChannel
+  private var pending: FlutterResult?
+
+  init(messenger: FlutterBinaryMessenger) {
+    channel = FlutterMethodChannel(name: "buchhaltung/document_picker", binaryMessenger: messenger)
+    super.init()
+    channel.setMethodCallHandler { [weak self] call, result in
+      guard call.method == "pick" else { result(FlutterMethodNotImplemented); return }
+      self?.pick(result)
+    }
+  }
+
+  private func pick(_ result: @escaping FlutterResult) {
+    pending?([String]())
+    pending = nil
+    let window = UIApplication.shared.connectedScenes
+      .compactMap { $0 as? UIWindowScene }
+      .flatMap { $0.windows }
+      .first { $0.isKeyWindow }
+    var top = window?.rootViewController
+    while let presented = top?.presentedViewController { top = presented }
+    guard let root = top else {
+      result(FlutterError(code: "io", message: "Dateiauswahl nicht möglich", details: nil))
+      return
+    }
+    pending = result
+    let picker = UIDocumentPickerViewController(
+      forOpeningContentTypes: [.image, .pdf, .xml], asCopy: true)
+    picker.delegate = self
+    picker.allowsMultipleSelection = true
+    root.present(picker, animated: true)
+  }
+
+  func documentPicker(_ controller: UIDocumentPickerViewController, didPickDocumentsAt urls: [URL]) {
+    guard let result = pending else { return }
+    pending = nil
+    let dir = FileManager.default.temporaryDirectory.appendingPathComponent("picked", isDirectory: true)
+    do {
+      try FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
+      let stamp = Int(Date().timeIntervalSince1970 * 1000)
+      var paths: [String] = []
+      for (i, url) in urls.enumerated() {
+        let target = dir.appendingPathComponent("\(stamp)_\(i)_\(url.lastPathComponent)")
+        try? FileManager.default.removeItem(at: target)
+        try FileManager.default.copyItem(at: url, to: target)
+        paths.append(target.path)
+      }
+      result(paths)
+    } catch {
+      result(FlutterError(code: "io", message: error.localizedDescription, details: nil))
+    }
+  }
+
+  func documentPickerWasCancelled(_ controller: UIDocumentPickerViewController) {
+    pending?([String]())
+    pending = nil
   }
 }

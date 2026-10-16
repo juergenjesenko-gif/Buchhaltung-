@@ -225,6 +225,9 @@ class _ContractEditScreenState extends State<ContractEditScreen> {
           return true;
         },
         afterPages: () async {},
+        onError: (message) {
+          if (mounted) showSnack(context, message);
+        },
       );
       if (outcome != ScanIntakeOutcome.unavailable) return;
     }

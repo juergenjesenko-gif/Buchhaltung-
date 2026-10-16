@@ -151,6 +151,6 @@ class DictationChannel(
     }
 
     companion object {
-        private const val REQUEST = 4712
+        private const val REQUEST = RequestCodes.DICTATION_PERMISSION
     }
 }

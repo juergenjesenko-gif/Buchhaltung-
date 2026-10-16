@@ -87,13 +87,11 @@ class _ReceiptListScreenState extends State<ReceiptListScreen> {
   }
 
   /// Neuer Beleg, Scanner bzw. Kamera öffnet sofort (wie auf der Übersicht).
-  Future<void> _capture() async {
+  Future<void> _capture(ReceiptStart start) async {
     final changed = await ListDetail.open<bool>(
       context,
-      (_) => const ReceiptEditScreen(
-        direction: BookingDirection.expense,
-        startWithCamera: true,
-      ),
+      (_) =>
+          ReceiptEditScreen(direction: BookingDirection.expense, start: start),
     );
     if (changed == true) await _load();
   }
@@ -285,10 +283,12 @@ class _ReceiptListScreenState extends State<ReceiptListScreen> {
       // Runder Aufnahmeknopf unten in der Mitte, an derselben Stelle wie
       // auf der Übersicht (DESIGN_SPEC 5a, Regel 1, 9 und 13).
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
-      floatingActionButton: CaptureButton(
-        key: const Key('receipt-new'),
-        heroTag: 'receipt-new',
-        onPressed: _capture,
+      floatingActionButton: CaptureBar(
+        cameraKey: const Key('receipt-new'),
+        keyPrefix: 'receipt-new',
+        onCamera: () => _capture(ReceiptStart.camera),
+        onPhoto: () => _capture(ReceiptStart.gallery),
+        onFile: () => _capture(ReceiptStart.file),
       ),
     );
   }

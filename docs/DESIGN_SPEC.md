@@ -1,6 +1,6 @@
 # Designspezifikation
 
-**Version 1.3 · Stand 2026-10-16 · Produktname „JeNi bucht“**
+**Version 1.4 · Stand 2026-10-16 · Produktname „JeNi bucht“**
 
 Zweck: Grundlage, gegen die eine KI (oder ein Mensch) **mehrere unterschiedliche
 Designvarianten** entwickeln kann, die alle fachlich und rechtlich korrekt
@@ -252,7 +252,7 @@ Knopf „Beleg fotografieren“**; Einnahme/Ausgabe wird im Formular gewählt.
 10. Optionale Felder (Rabatt, Skonto, Versand) eingeklappt, Laientexte ohne Fachkürzel.
 11. Geprüft auf 360 × 640 und 412 × 915 dp, Schrift 200 %, Dunkelmodus.
 12. Widget-Test prüft Mindestgröße (≥ 48 dp) und Lage der Primäraktion (unteres Drittel).
-13. **Aufnahmeknopf** (Entscheidung Auftraggeberin 2026-10-16): Beleg fotografieren ist die wichtigste Funktion und muss blind mit dem Daumen gehen. Runder Knopf `CaptureButton` (`lib/widgets/capture_button.dart`), Kreis 76 dp (≥ 72 dp), Kamerasymbol, Beschriftung „Beleg“ darunter, Semantik „Beleg fotografieren“; immer **unten in der Mitte** an derselben Stelle: Übersicht und Belegliste (`centerFloat` über der Navigationsleiste), im Belegformular mittig über „Beleg speichern“ (Beschriftung „Seite“ bzw. „Rückseite?“, mit offener Tastatur ausgeblendet). Nebenaktionen („Foto auswählen“) kleiner im Formular. Zerstörende Aktionen bleiben am Formularende (Regel 3). Widget-Test prüft Kreis ≥ 72 dp und Mitte ± 2 dp auf 360 und 412 dp.
+13. **Aufnahmeknopf** (Entscheidung Auftraggeberin 2026-10-16): Beleg fotografieren ist die wichtigste Funktion und muss blind mit dem Daumen gehen. Runder Knopf `CaptureButton` (`lib/widgets/capture_button.dart`), Kreis 76 dp (≥ 72 dp), Kamerasymbol, Beschriftung „Beleg“ darunter, Semantik „Beleg fotografieren“; immer **unten in der Mitte** an derselben Stelle: Übersicht und Belegliste (`centerFloat` über der Navigationsleiste), im Belegformular mittig über „Beleg speichern“ (Beschriftung „Seite“ bzw. „Rückseite?“, mit offener Tastatur ausgeblendet). Auf Übersicht und Belegliste liegen links „Foto“ (Galerie) und rechts „Datei“ (PDF, E-Rechnung, Bild) als kleinere runde Knöpfe (Kreis 56 dp, Symbol, Beschriftung darunter) spiegelgleich neben „Beleg“, je 48 dp Abstand zum Hauptknopf, `CaptureBar` (Entscheidung Auftraggeberin 2026-10-16, 1.4); der Hauptknopf bleibt mittig und am größten. Nebenaktionen („Foto auswählen“) im Formular unverändert kleiner. Zerstörende Aktionen bleiben am Formularende (Regel 3). Widget-Test prüft Kreis ≥ 72 dp und Mitte ± 2 dp auf 360 und 412 dp.
 
 ## 6. Komponentenkatalog
 
@@ -293,8 +293,8 @@ darf anordnen und gewichten, aber **nichts weglassen**.
 | Bestätigungen (`consent_screen`) | Hinweis „keine Steuerberatung“, Nutzungsbedingungen, Datenschutz – **je eigenes Häkchen**, Texte vollständig erreichbar, nichts vorausgewählt | Weiter (erst nach allen Häkchen aktiv, mit Erklärung warum) |
 | Onboarding / Stammdaten (`company_setup_screen`) | Land AT/DE, Firmenname, Anschrift, Kleinunternehmer ja/nein, UID/Steuernummer, Firmenlogo (optional), Eröffnungswerte | Speichern; Schritte einzeln, Fortschritt sichtbar |
 | Sperrbildschirm (`lock_screen`) | Entsperren per Gerätesicherung | Entsperren |
-| Übersicht (`dashboard_screen`) | Kassabuch/Saldo, Umsatzsteuer des Zeitraums, **Grenzwertampel mit allen 5 Zuständen**, Verlauf, Stand der letzten geprüften Sicherung (L-7.9), Zahnrad zu Einstellungen | runder Aufnahmeknopf „Beleg“ (5a Regel 13) |
-| Belegliste (`receipt_list_screen`) | Suche, Filter (inkl. „Storniert“), Einnahme/Ausgabe unterscheidbar, Datum, Betrag | runder Aufnahmeknopf „Beleg“ (5a Regel 13) |
+| Übersicht (`dashboard_screen`) | Kassabuch/Saldo, Umsatzsteuer des Zeitraums, **Grenzwertampel mit allen 5 Zuständen**, Verlauf, Stand der letzten geprüften Sicherung (L-7.9), Zahnrad zu Einstellungen | Aufnahmeleiste „Foto“ – „Beleg“ – „Datei“ (5a Regel 13) |
+| Belegliste (`receipt_list_screen`) | Suche, Filter (inkl. „Storniert“), Einnahme/Ausgabe unterscheidbar, Datum, Betrag | Aufnahmeleiste „Foto“ – „Beleg“ – „Datei“ (5a Regel 13) |
 | Beleg bearbeiten (`receipt_edit_screen`) | Foto/Seiten, Betrag, Steuersatz, Kategorie, Zahlungsart, Kommentare (nur anhängbar), Storno-Ansicht nur lesen | Speichern |
 | Rechnungsliste (`invoice_list_screen`) | Nummer, Kunde, Betrag, **Status mit Text+Icon**, PDF teilen | Neue Rechnung |
 | Rechnung bearbeiten (`invoice_edit_screen`) | Kunde, Positionen (Menge, Preis, Steuersatz je Position), Summen netto/USt/brutto, Hinweise zu fehlenden Pflichtangaben | **Ausstellen** mit Bestätigung, dass danach nicht mehr änderbar |
@@ -515,6 +515,7 @@ Auftraggeber sie freigibt, und hier nur per ID verwiesen.
 
 | Version | Datum | Änderung |
 |---|---|---|
+| 1.4 | 2026-10-16 | Abschnitt 5a Regel 13: „Foto“ und „Datei“ (56 dp, 48 dp Abstand, spiegelgleich) neben dem Aufnahmeknopf auf Übersicht und Belegliste. |
 | 1.3 | 2026-10-16 | Abschnitt 5a Regel 13: runder Aufnahmeknopf „Beleg“ (≥ 72 dp) unten in der Mitte auf Übersicht, Belegliste und im Belegformular. |
 | 1.2 | 2026-10-14 | Abschnitt 5a Einhandbedienung: Prüfregel der UX-Instanz, keine Händigkeits-Einstellung, zentrierter Hauptknopf. |
 | 1.1 | 2026-10-12 | Abschnitt 5: Status „umgesetzt“ für Breitenklassen, NavigationRail, Liste-Detail und Formularbreite. |

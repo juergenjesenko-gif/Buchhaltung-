@@ -15,6 +15,7 @@ class MainActivity : FlutterFragmentActivity() {
     private var pdf: PdfChannel? = null
     private var shareOut: ShareOutChannel? = null
     private var scanner: DocumentScannerChannel? = null
+    private var documentPicker: DocumentPickerChannel? = null
     private var dictation: DictationChannel? = null
 
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
@@ -25,6 +26,7 @@ class MainActivity : FlutterFragmentActivity() {
         pdf = PdfChannel(applicationContext, flutterEngine.dartExecutor.binaryMessenger)
         shareOut = ShareOutChannel(this, flutterEngine.dartExecutor.binaryMessenger)
         scanner = DocumentScannerChannel(this, flutterEngine.dartExecutor.binaryMessenger)
+        documentPicker = DocumentPickerChannel(this, flutterEngine.dartExecutor.binaryMessenger)
         dictation = DictationChannel(this, flutterEngine.dartExecutor.binaryMessenger)
         shareIn = ShareInChannel(applicationContext, flutterEngine.dartExecutor.binaryMessenger)
         // Start über „Teilen“ (L-27.4): Intent des Starts auswerten.
@@ -71,6 +73,7 @@ class MainActivity : FlutterFragmentActivity() {
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: android.content.Intent?) {
         if (backupFolder?.onActivityResult(requestCode, resultCode, data) == true) return
         if (scanner?.onActivityResult(requestCode, resultCode, data) == true) return
+        if (documentPicker?.onActivityResult(requestCode, resultCode, data) == true) return
         @Suppress("DEPRECATION")
         super.onActivityResult(requestCode, resultCode, data)
     }

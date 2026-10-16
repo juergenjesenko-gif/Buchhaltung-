@@ -122,12 +122,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
   /// Ein zentraler Knopf für beide Hände; Einnahme oder Ausgabe wählt man im
   /// Formular (DESIGN_SPEC 5a, Regel 9).
-  Future<void> _addReceipt() async {
+  Future<void> _addReceipt(ReceiptStart start) async {
     final saved = await Navigator.of(context).push<bool>(
       MaterialPageRoute(
-        builder: (_) => const ReceiptEditScreen(
+        builder: (_) => ReceiptEditScreen(
           direction: BookingDirection.expense,
-          startWithCamera: true,
+          start: start,
         ),
       ),
     );
@@ -260,10 +260,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
       // Runder Aufnahmeknopf unten in der Mitte, wie in der Belegliste
       // (DESIGN_SPEC 5a, Regel 13).
-      floatingActionButton: CaptureButton(
-        key: const Key('dashboard-photo'),
-        heroTag: 'photo',
-        onPressed: _addReceipt,
+      floatingActionButton: CaptureBar(
+        cameraKey: const Key('dashboard-photo'),
+        keyPrefix: 'dashboard',
+        onCamera: () => _addReceipt(ReceiptStart.camera),
+        onPhoto: () => _addReceipt(ReceiptStart.gallery),
+        onFile: () => _addReceipt(ReceiptStart.file),
       ),
     );
   }

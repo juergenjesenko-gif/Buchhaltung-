@@ -1,6 +1,6 @@
 # Benutzerhandbuch – JeNi bucht
 
-**Für App-Version 0.22.0** · Stand 2026-10-16
+**Für App-Version 0.22.1** · Stand 2026-10-16
 
 Dieses Handbuch beschreibt die App aus Nutzersicht. Es wird bei jeder Änderung,
 die du in der App siehst, mitgeführt – siehe [`CLAUDE.md`](../CLAUDE.md).
@@ -187,6 +187,13 @@ Das ist die Funktion, die du täglich nutzt. Sie ist auf Geschwindigkeit gebaut.
    rechten wie dem linken Daumen erreichst. Ob **Einnahme** oder **Ausgabe**,
    wählst du oben im Formular (vorbelegt: Ausgabe). Alternativ im Bereich
    **Belege**: derselbe runde Knopf an derselben Stelle.
+   Links daneben liegt **Foto** – damit nimmst du ein Bild, das schon in
+   deiner Galerie ist –, rechts **Datei** für eine PDF-Rechnung, eine
+   E-Rechnung (XRechnung, ZUGFeRD, ebInterface) oder ein Bild aus deinen
+   Dateien bzw. Google Drive. Beides öffnet sofort einen neuen Beleg und liest
+   ihn aus. Wählst du nichts, bist du wieder dort, wo du getippt hast.
+   Klappt etwas nicht (Scan nicht angekommen, Datei nicht lesbar), sagt dir
+   die App das unten in einer Meldung – dann einfach noch einmal tippen.
 2. **Bruttobetrag** eintippen – also die Zahl, die auf dem Beleg steht, inklusive
    Umsatzsteuer. Netto und Steuer rechnet die App sofort darunter aus.
 3. **Umsatzsteuersatz** prüfen. Die App wählt deinen Standardsatz vor.

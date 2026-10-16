@@ -95,12 +95,61 @@ void main() {
     await pump(tester, const DashboardScreen(), size);
     final fab = find.byKey(const Key('dashboard-photo'));
     expect(fab, findsOneWidget);
-    expect(find.byType(FloatingActionButton), findsOneWidget);
+    // Hauptknopf plus „Foto“ und „Datei“ (Regel 13).
+    expect(find.byType(FloatingActionButton), findsNWidgets(3));
     expectBottomThird(tester, fab, size);
     expectCapture(tester, fab, size);
     expect((tester.getRect(fab).center.dx - size.width / 2).abs(), lessThan(2));
     expect(tester.takeException(), isNull);
   });
+
+  // Aufnahmeleiste (Regel 13): „Foto“ links, „Datei“ rechts, je ≥ 56 dp,
+  // spiegelgleich um den mittigen Hauptknopf, Abstand ≥ 48 dp, kleiner als
+  // der Hauptknopf.
+  for (final (name, screen, prefix, cameraKey) in [
+    ('Übersicht', const DashboardScreen(), 'dashboard', 'dashboard-photo'),
+    ('Belegliste', const ReceiptListScreen(), 'receipt-new', 'receipt-new'),
+  ]) {
+    for (final size in const [Size(360, 640), Size(412, 915)]) {
+      testWidgets(
+        '$name: Foto und Datei neben „Beleg“ (${size.width.toInt()} dp)',
+        (tester) async {
+          await pump(tester, screen, size);
+          Rect circle(String key) => tester.getRect(
+            find.descendant(
+              of: find.byKey(Key(key)),
+              matching: find.byType(FloatingActionButton),
+            ),
+          );
+          final main = circle(cameraKey);
+          final photo = circle('$prefix-gallery');
+          final file = circle('$prefix-file');
+          for (final r in [photo, file]) {
+            expect(r.width, greaterThanOrEqualTo(56));
+            expect(r.height, greaterThanOrEqualTo(56));
+            expect(r.width, lessThan(main.width));
+            expect(r.center.dy, greaterThan(size.height * 2 / 3));
+          }
+          expect((main.center.dx - size.width / 2).abs(), lessThan(2));
+          expect(photo.center.dx, lessThan(main.center.dx));
+          expect(file.center.dx, greaterThan(main.center.dx));
+          expect(main.left - photo.right, greaterThan(47.99));
+          expect(file.left - main.right, greaterThan(47.99));
+          expect(
+            ((main.center.dx - photo.center.dx) -
+                    (file.center.dx - main.center.dx))
+                .abs(),
+            lessThan(1),
+          );
+          expect(photo.left, greaterThanOrEqualTo(16));
+          expect(file.right, lessThanOrEqualTo(size.width - 16));
+          expect(find.text('Foto'), findsOneWidget);
+          expect(find.text('Datei'), findsOneWidget);
+          expect(tester.takeException(), isNull);
+        },
+      );
+    }
+  }
 
   for (final (name, screen, key, label) in [
     (
