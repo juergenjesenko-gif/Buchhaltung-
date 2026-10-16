@@ -9,11 +9,28 @@ import '../domain/invoice.dart';
 /// bei der Rechnungslegung im `seller_snapshot` eingefroren wurde – auch wenn
 /// das Logo im Profil später gewechselt oder entfernt wurde. Rechnungen aus
 /// der Zeit vor Schema 8 haben keinen Eintrag und bleiben ohne Logo, so wie
-/// sie damals erzeugt wurden. Entwürfe zeigen das aktuelle Logo.
+/// sie damals erzeugt wurden. Entwürfe zeigen das aktuelle Logo – aber nur,
+/// solange Pro oder der Store-Test aktiv ist ([logoAllowed]).
+///
+/// Entscheidung der Auftraggeberin 2026-10-16 (FA-13.12): Das Logo wird im
+/// Onboarding ohne Abo-Seite gewählt und bleibt gespeichert. Mit Basis oder
+/// ohne Abo wird es auf **neuen** Rechnungen und Angeboten nicht gedruckt;
+/// nach einem Wechsel auf Pro erscheint es wieder.
 class InvoiceLogo {
   const InvoiceLogo._();
 
-  static String? pathFor(Invoice invoice, CompanyProfile profile) {
+  /// Profil, wie es in neue Belege eingefroren wird: ohne Logo, wenn der
+  /// Anspruch das Logo nicht erlaubt. Das Profil selbst behält den Pfad.
+  static CompanyProfile forNewDocument(
+    CompanyProfile profile, {
+    required bool logoAllowed,
+  }) => logoAllowed ? profile : profile.copyWith(clearLogo: true);
+
+  static String? pathFor(
+    Invoice invoice,
+    CompanyProfile profile, {
+    required bool logoAllowed,
+  }) {
     final snapshot = invoice.sellerSnapshot;
     if (invoice.status.isLocked && snapshot != null && snapshot.isNotEmpty) {
       try {
@@ -27,6 +44,6 @@ class InvoiceLogo {
       }
       return null;
     }
-    return profile.hasLogo ? profile.logoPath : null;
+    return logoAllowed && profile.hasLogo ? profile.logoPath : null;
   }
 }

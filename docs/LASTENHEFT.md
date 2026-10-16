@@ -1,6 +1,6 @@
 # Lastenheft – JeNi bucht, Buchhaltungsapp für Österreich und Deutschland
 
-**Dokumentversion:** 1.60 · **Stand:** 2026-10-15 · **Status:** Entwurf zur Abstimmung
+**Dokumentversion:** 1.61 · **Stand:** 2026-10-16 · **Status:** Entwurf zur Abstimmung
 **Auftraggeber:** Jürgen Jesenko (privates Vorhaben) · **Umsetzung:** Claude Code
 
 > Ein Lastenheft beschreibt, **was** das Produkt leisten soll und **warum** — nicht,
@@ -346,7 +346,7 @@ ordentliche Buchhaltung braucht; Pro ist Komfort und Wachstum.
 
 | Basis | Pro (zusätzlich) |
 |---|---|
-| Rechnungen, Angebote, Zahlungserinnerungen erstellen, Gutschriften, Rücksendescheine; PDF speichern oder drucken | Belegerkennung per Kamera (L-2); PDF und Mahnungen mit einem Tipp senden; Logo |
+| Rechnungen, Angebote, Zahlungserinnerungen erstellen, Gutschriften, Rücksendescheine; PDF speichern oder drucken; Logo wählen (ohne Druck) | Belegerkennung per Kamera (L-2); PDF und Mahnungen mit einem Tipp senden; Logo auf neuen Rechnungen und Angeboten |
 | Kunden und Artikel | E-Rechnung **ausstellen** (L-4) |
 | **E-Rechnung empfangen** (Datei am Beleg, L-4.3) | E-Rechnung auslesen; Kontoauszug-Import (L-18); Plattformimport (L-28); „Kurs abrufen“ |
 | Belege fotografieren, Kassabuch | UVA-Übermittlung FinanzOnline/ELSTER (L-6.5) |
@@ -1354,6 +1354,9 @@ Historie stehen. Die Einzelheiten stehen an der genannten Stelle.
 | 2026-10-14 | Codes, PDF, E-Rechnungen, Link-QR und Plattformexporte umsetzen; iOS über „Öffnen in …“ statt Share Extension | 5.27, 5.28 |
 | 2026-10-14 | Echte Plattform-Schnittstellen (Anbieter-Server) zurückgestellt | O-32 |
 | 2026-10-14 | Testbuilds ohne Git-Tag; Release Notes nennen den Commit-Hash | RELEASE_PLAYBOOK |
+| 2026-10-16 | „PDF senden“ in Basis als weiche Sperre (Abo-Seite, danach Speichern/Drucken) bleibt so | 5.10, Spez. FA-13.11 |
+| 2026-10-16 | E-Rechnung **auslesen** Pro, **speichern** am Beleg in Basis genügt: Empfang per E-Mail reicht, Punkt erledigt | 5.10, L-4.3 |
+| 2026-10-16 | **Logo im Onboarding ohne Abo-Seite wählbar**; gedruckt nur mit Pro oder im 14-Tage-Test. Danach mit Basis oder ohne Abo nicht auf neuen Rechnungen und Angeboten; gestellte behalten ihr eingefrorenes Logo; die Datei bleibt und kommt mit Pro zurück; Stammdaten zeigen „Logo (Pro) – wird mit Basis nicht gedruckt“ | L-1.7, 5.10, Spez. FA-13.12 |
 
 ---
 
@@ -1361,6 +1364,7 @@ Historie stehen. Die Einzelheiten stehen an der genannten Stelle.
 
 | Version | Datum | Änderung |
 |---|---|---|
+| 1.61 | 2026-10-16 | Entscheidungen 2026-10-16 (14a): PDF senden bleibt weiche Sperre; E-Rechnung speichern in Basis genügt; Logo im Onboarding frei wählbar, gedruckt nur mit Pro/Test. Tarifschnitt 5.10 angepasst. |
 | 1.60 | 2026-10-15 | O-35 entschieden (Store-Test nur Pro, 14a). |
 | 1.59 | 2026-10-15 | Entscheidung der Auftraggeberin zum Pro-Umfang (O-34 erledigt, 14a); Tarifschnitt 5.10 angepasst: E-Rechnung auslesen, Plattformimport, PDF/Mahnung senden, Logo, Kurs abrufen in Pro. |
 | 1.58 | 2026-10-15 | Umsetzungsstand 0.14.0 (10a): Lizenz und Abo (L-10.1 bis L-10.5, L-22.1 bis L-22.3, L-22.5 bis L-22.8; L-22.4 teilweise). Datenflusstabelle 5.19: Abo-Kauf und Abo-Abfrage als vorhanden, mit Inhalt. Neue offene Punkte O-34 (Plattformimport Basis oder Pro), O-35 (Test auch auf Basis). |

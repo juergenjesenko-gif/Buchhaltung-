@@ -8,6 +8,7 @@ import '../../domain/country.dart';
 import '../../domain/customer.dart';
 import '../../domain/invoice.dart';
 import '../../domain/money.dart';
+import '../../services/invoice_logo.dart';
 import '../../services/invoice_numbering.dart';
 import '../../services/invoice_requirements.dart';
 import '../../services/invoice_texts.dart';
@@ -385,7 +386,12 @@ class _InvoiceEditScreenState extends State<InvoiceEditScreen> {
       // übernimmt beim Speichern den aktuellen Stand samt Logo (L-1.7).
       sellerSnapshot: (widget.existing?.status.isLocked ?? false)
           ? widget.existing!.sellerSnapshot
-          : jsonEncode(profile.toMap()),
+          : jsonEncode(
+              InvoiceLogo.forNewDocument(
+                profile,
+                logoAllowed: state.allows(Feature.invoiceLogo),
+              ).toMap(),
+            ),
       customerSnapshot:
           widget.existing?.customerSnapshot ??
           jsonEncode({

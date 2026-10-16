@@ -236,6 +236,7 @@ void main() {
         InvoiceLogo.pathFor(
           invoice(InvoiceStatus.issued, {'logo_path': 'logo/alt.png'}),
           profile,
+          logoAllowed: true,
         ),
         'logo/alt.png',
       );
@@ -244,6 +245,7 @@ void main() {
         InvoiceLogo.pathFor(
           invoice(InvoiceStatus.paid, {'company_name': 'X'}),
           profile,
+          logoAllowed: true,
         ),
         isNull,
       );
@@ -254,7 +256,36 @@ void main() {
         InvoiceLogo.pathFor(
           invoice(InvoiceStatus.draft, {'logo_path': 'logo/alt.png'}),
           profile,
+          logoAllowed: true,
         ),
+        'logo/neu.png',
+      );
+    });
+
+    test('mit Basis kein Logo auf neuen Belegen, gestellte behalten es', () {
+      // Entscheidung 2026-10-16 (FA-13.12): Logo nur mit Pro oder Test.
+      expect(
+        InvoiceLogo.pathFor(
+          invoice(InvoiceStatus.draft, null),
+          profile,
+          logoAllowed: false,
+        ),
+        isNull,
+      );
+      expect(
+        InvoiceLogo.pathFor(
+          invoice(InvoiceStatus.issued, {'logo_path': 'logo/alt.png'}),
+          profile,
+          logoAllowed: false,
+        ),
+        'logo/alt.png',
+      );
+      final frozen = InvoiceLogo.forNewDocument(profile, logoAllowed: false);
+      expect(frozen.toMap()['logo_path'], isNull);
+      // Das Profil behält die Datei: nach dem Wechsel auf Pro wieder da.
+      expect(profile.hasLogo, isTrue);
+      expect(
+        InvoiceLogo.forNewDocument(profile, logoAllowed: true).logoPath,
         'logo/neu.png',
       );
     });

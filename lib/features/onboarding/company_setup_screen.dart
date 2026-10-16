@@ -10,7 +10,6 @@ import 'package:image_picker/image_picker.dart';
 
 import '../../services/licensing/license_policy.dart';
 import '../../services/logo_store.dart';
-import '../licensing/feature_gate.dart';
 
 import '../../services/contact_format.dart';
 import '../../services/vat_id/vat_id_format.dart';
@@ -33,6 +32,12 @@ import '../../widgets/adaptive.dart';
 /// Beim ersten Start läuft der Bildschirm als Onboarding: ohne Firmenname und
 /// Land kann die App weder Steuersätze noch Rechnungsangaben bestimmen.
 /// Danach ist derselbe Bildschirm die Stammdatenverwaltung.
+/// Hinweis, wenn das Logo mit dem aktuellen Anspruch nicht gedruckt wird
+/// (FA-13.12). Das Logo bleibt gespeichert und kommt mit Pro zurück.
+const logoBasisHint =
+    'Logo (Pro) – wird mit Basis nicht gedruckt. Es bleibt gespeichert und '
+    'erscheint wieder, sobald Pro aktiv ist.';
+
 class CompanySetupScreen extends StatefulWidget {
   const CompanySetupScreen({super.key, this.isOnboarding = false});
 
@@ -363,8 +368,8 @@ class _CompanySetupScreenState extends State<CompanySetupScreen> {
   /// Wählt ein Logo aus der Fotobibliothek. Verkleinert wird über dieselbe
   /// Bildauswahl wie bei Belegen; die Datei ist neu und überschreibt nichts.
   Future<void> _pickLogo() async {
-    // Logo nur Pro (FA-13.2); Entfernen geht immer.
-    if (!await ensureFeature(context, Feature.invoiceLogo)) return;
+    // Wählen geht ohne Abo-Seite, auch im Onboarding (FA-13.12,
+    // Entscheidung 2026-10-16); gedruckt wird es nur mit Pro oder Test.
     try {
       final picked = await ImagePicker().pickImage(
         source: ImageSource.gallery,
@@ -878,13 +883,9 @@ class _CompanySetupScreenState extends State<CompanySetupScreen> {
                                 onPressed: _pickLogo,
                                 icon: const Icon(Icons.image_outlined),
                                 label: Text(
-                                  proLabel(
-                                    context,
-                                    Feature.invoiceLogo,
-                                    _logoPath == null
-                                        ? 'Logo wählen'
-                                        : 'Logo ändern',
-                                  ),
+                                  _logoPath == null
+                                      ? 'Logo wählen'
+                                      : 'Logo ändern',
                                 ),
                               ),
                               if (_logoPath != null)
@@ -900,9 +901,12 @@ class _CompanySetupScreenState extends State<CompanySetupScreen> {
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      'Erscheint oben rechts auf neuen Rechnungen, zusätzlich zu '
-                      'Name und Anschrift. Bereits gestellte Rechnungen behalten '
-                      'ihr damaliges Logo.',
+                      AppScope.of(context).allows(Feature.invoiceLogo)
+                          ? 'Erscheint oben rechts auf neuen Rechnungen und '
+                                'Angeboten, zusätzlich zu Name und Anschrift. '
+                                'Bereits gestellte Rechnungen behalten ihr '
+                                'damaliges Logo.'
+                          : logoBasisHint,
                       style: Theme.of(context).textTheme.bodySmall,
                     ),
                     const SizedBox(height: 12),

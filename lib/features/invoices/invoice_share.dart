@@ -26,7 +26,11 @@ Future<void> shareInvoicePdf(BuildContext context, Invoice invoice) async {
   }
   try {
     final logo = await LogoStore.readBytes(
-      InvoiceLogo.pathFor(invoice, profile),
+      InvoiceLogo.pathFor(
+        invoice,
+        profile,
+        logoAllowed: state.allows(Feature.invoiceLogo),
+      ),
     );
     final bytes = await InvoicePdf(
       invoice: invoice,

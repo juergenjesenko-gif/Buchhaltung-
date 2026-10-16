@@ -1,6 +1,6 @@
 # Benutzerhandbuch – JeNi bucht
 
-**Für App-Version 0.14.0** · Stand 2026-10-15
+**Für App-Version 0.14.0** · Stand 2026-10-16
 
 Dieses Handbuch beschreibt die App aus Nutzersicht. Es wird bei jeder Änderung,
 die du in der App siehst, mitgeführt – siehe [`CLAUDE.md`](../CLAUDE.md).
@@ -891,6 +891,12 @@ Anschrift, nie stattdessen. **Entfernen** nimmt es von künftigen Rechnungen.
 Bereits ausgestellte Rechnungen behalten das Logo, das beim Ausstellen galt;
 Entwürfe zeigen immer das aktuelle.
 
+Das Logo kannst du schon bei der Einrichtung wählen, ohne Abo. **Gedruckt wird
+es mit Pro und im 14-Tage-Test.** Mit Basis steht in den Stammdaten
+„Logo (Pro) – wird mit Basis nicht gedruckt“: Neue Rechnungen und Angebote
+kommen dann ohne Logo, das Bild bleibt aber gespeichert und ist mit Pro sofort
+wieder da.
+
 ---
 
 ## 8. Kunden verwalten
@@ -1033,7 +1039,7 @@ Store-Konto. Du findest alles unter **Einstellungen → Abo**.
     E-Rechnung als Datei am Beleg.
   - **PDF senden** mit einem Tipp: Rechnung, Stornorechnung,
     Zahlungserinnerung und Mahnung mit Betreff und Text.
-  - **Logo** auf Rechnungen und Angeboten.
+  - **Logo** auf Rechnungen und Angeboten (wählen geht in jedem Abo).
   - **Kurs abrufen** bei Fremdwährung (eintippen geht immer).
   - Später: direkte Übermittlung ans Finanzamt (UVA).
 - Knöpfe mit **(Pro)** öffnen ohne Pro die Abo-Seite. Bei **PDF senden**
