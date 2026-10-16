@@ -42,7 +42,7 @@ nächsten Versionssprung in den neuen Eintrag.
 | Feld | Wert |
 |---|---|
 | Art | Testbuild (ungezippte arm64-APK `JeNi-bucht-0.21.0-build-<Nr>.apk`, fester Testschlüssel); **Lizenzprüfung aus** (ohne `LICENSING=true`), alle Funktionen frei |
-| Commit | folgt |
+| Commit | `c335808` |
 | Branch | `claude/agile-accounting-app-mobile-wa5j3h` |
 | Dokumentstände | Lastenheft 1.70, Spezifikation 1.71, Benutzerhandbuch für 0.21.0, DESIGN_SPEC 1.2 |
 | Datenbankschema | 23 |
@@ -55,8 +55,8 @@ nächsten Versionssprung in den neuen Eintrag.
 
 | Art | Änderung | Bezug | Commit |
 |---|---|---|---|
-| Neu | Bewirtung mit Abzugsbeschränkung: Kategorie „Bewirtung“, AT 50 %, DE 70 %, Vorsteuer voll, Kleinunternehmer brutto × Anteil; nicht abziehbarer Teil in Übersicht, Kennzahlen, Saldenliste, Jahresabschluss, CSV und DATEV (Umbuchung 4654); DE Anlass/Teilnehmer; Belegerkennung schlägt Bewirtung für Restaurants vor; Schema 23 | FA-2.60, LH 14a, P-S46 | folgt |
-| Geändert | Lastenheft O-36: ELSTER-Softwarehersteller am 2026-10-16 beantragt, Antwort ausstehend | O-36 | folgt |
+| Neu | Bewirtung mit Abzugsbeschränkung: Kategorie „Bewirtung“, AT 50 %, DE 70 %, Vorsteuer voll, Kleinunternehmer brutto × Anteil; nicht abziehbarer Teil in Übersicht, Kennzahlen, Saldenliste, Jahresabschluss, CSV und DATEV (Umbuchung 4654); DE Anlass/Teilnehmer; Belegerkennung schlägt Bewirtung für Restaurants vor; Schema 23 | FA-2.60, LH 14a, P-S46 | `c335808` |
+| Geändert | Lastenheft O-36: ELSTER-Softwarehersteller am 2026-10-16 beantragt, Antwort ausstehend | O-36 | `c335808` |
 | Geändert | Anlagen anlegen, ändern, ausscheiden nur Pro; bestehende Anlagen, Verzeichnis und AfA in jedem Abo; GWG-Hinweis am Beleg ohne Pro; Vertragsarchiv Basis, Auslesen Pro (Entscheidungen Auftraggeberin) | FA-13.2, FA-15.1, LH 14a | `c57a543` |
 | Behoben | Verzugszinsen DE: Basiszinssatz 1,52 % ab 1.7.2026 ergänzt (Bundesbank); interne Prüfung der Steuer- und Rechtspunkte, neuer Status „intern geprüft“, Prüfmappen nur mit offenen Punkten | P-S44, SPEC 14 | `596413c` |
 
