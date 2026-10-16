@@ -1,7 +1,7 @@
 # Spezifikation – Buchhaltung
 
-**Dokumentversion:** 1.70 · **App-Version:** 0.20.0 · **Stand:** 2026-10-16
-**Status:** Testbuild 0.20.0 (Schema 22); Store-Start offen, siehe Abschnitt 11 und 14
+**Dokumentversion:** 1.71 · **App-Version:** 0.21.0 · **Stand:** 2026-10-16
+**Status:** Testbuild 0.21.0 (Schema 23); Store-Start offen, siehe Abschnitt 11 und 14
 
 > Das **Zielbild** des Produkts steht im [`LASTENHEFT.md`](LASTENHEFT.md); dieses
 > Dokument beschreibt, was die App **heute tatsächlich tut**.
@@ -284,7 +284,7 @@ ein änderbarer Vorschlag.
 ## 4. Datenmodell
 
 **Speicher:** SQLite auf dem Gerät, Datei `buchhaltung.db` im
-Anwendungsdokumentenverzeichnis. Aktuelle Schemaversion: **19**
+Anwendungsdokumentenverzeichnis. Aktuelle Schemaversion: **23**
 (`spec.schema_version`). Bilder liegen als Dateien daneben: Belegseiten in
 `belege/`, Firmenlogos in `logo/`.
 
@@ -293,10 +293,10 @@ Anwendungsdokumentenverzeichnis. Aktuelle Schemaversion: **19**
 | Tabelle | Zweck | Besonderheit |
 |---|---|---|
 | `company_profile` | Firmenstammdaten | Genau eine Zeile, erzwungen durch `CHECK (id = 1)` |
-| `categories` | Buchhaltungskategorien | 16 Startkategorien, `is_system = 1` schützt vor Löschen |
+| `categories` | Buchhaltungskategorien | 17 Startkategorien, `is_system = 1` schützt vor Löschen. Seit Schema 23 `kind` (`entertainment` = Bewirtung, FA-2.60; bestehende Datenbanken erhalten „Bewirtung“ bei der Migration) |
 | `customers` | Rechnungsempfänger | Löschen blockiert, solange Rechnungen bestehen. Seit Schema 13 `is_business` (1 = Unternehmen; bei der Migration 1, wo eine UID eingetragen ist) |
 | `dunning_notices` | Zahlungserinnerungen und Mahnungen: `invoice_id`, `level`, `issued_on`, `new_due_date`, `principal_cents`, `fee_cents`, `fees_total_cents`, `interest_cents`, `interest_rate_bp`, `flat_fee_cents`, `total_cents`, `text`, `pdf_sha256`, `cancelled_at`, `cancel_reason`, `created_at` | Schema 13. Unveränderlich (Trigger); einzig erlaubt: einmaliges Storno mit Begründung |
-| `receipts` | Belege | Index auf `date` und `direction`. Werden nie gelöscht, nur storniert (`cancelled_at`). Seit Schema 11 `invoice_id` (Einnahme aus bezahlter Rechnung, eindeutig je Rechnung und Steuersatz); seit Schema 17 `reverse_charge` (0/1, Steuerschuld des Leistungsempfängers, FA-2.46) |
+| `receipts` | Belege | Index auf `date` und `direction`. Werden nie gelöscht, nur storniert (`cancelled_at`). Seit Schema 11 `invoice_id` (Einnahme aus bezahlter Rechnung, eindeutig je Rechnung und Steuersatz); seit Schema 17 `reverse_charge` (0/1, Steuerschuld des Leistungsempfängers, FA-2.46); seit Schema 23 `entertainment_occasion`, `entertainment_participants` (TEXT, Anlass und Teilnehmer der Bewirtung, FA-2.60) |
 | `receipt_vat_lines` | Steuersatzzeilen eines Belegs: `receipt_id`, `position` ab 1, `vat_permille`, `net_cents`, `vat_cents`, `gross_cents` | Schema 14. Je Zeile `net + vat == gross`, Summe der Zeilen = `receipts.gross_cents` (erzwungen in `ReceiptRepository.writeVatLines`). Bei der Migration wurde jeder bestehende Beleg zu genau einer Zeile; Einnahmen aus bezahlten Rechnungen und Mahnkosten schreiben ihre Zeile mit. Kopf des Belegs: Summen, `vat_permille` = Satz der größten Zeile. Auswertungen lesen nur Zeilen (ein Beleg ohne Zeile zählt mit seinem Kopf) |
 | `cash_register_merchants` | Lernspeicher Kasse → Händler (FA-2.36): `register_key` (`AT:<Kassen-ID>`, `DE:<Seriennummer>`), `merchant`, `updated_at` | Schema 15. Ersetzt beim Speichern eines Belegs mit Kassen-QR |
 | `contracts` | Vertragsarchiv (FA-16.1): `type`, `title`, `partner`, `start_date`, `end_date`, `notice_value`, `notice_unit`, `rate_cents`, `rhythm`, `vat_permille`, `indexation`, `next_index_date`, `comment`, `ocr_text` (lokal erkannt, Zeilen mit `[S.n]`), `original_path` | Schema 22; Seiten in `contract_pages` (`contract_id`, `position`, `image_path` im Belegspeicher `belege/`, nur anhängen), Verknüpfung `contract_receipts` (`contract_id`, `receipt_id`) |
@@ -390,7 +390,7 @@ Anwendungsdokumentenverzeichnis. Aktuelle Schemaversion: **19**
 
 ### 4.3 Startkategorien
 
-16 Kategorien, drei für Einnahmen und dreizehn für Ausgaben, mit SKR03-Konten.
+17 Kategorien, drei für Einnahmen und vierzehn für Ausgaben (seit 0.21.0 mit „Bewirtung“, FA-2.60), mit SKR03-Konten.
 Vollständige Liste: `AppDatabase.seedCategories` in `lib/data/app_database.dart`.
 Eigene Kategorien sind ergänzbar und löschbar; die vorgegebenen nicht.
 
@@ -461,7 +461,7 @@ prüft `InvoiceRequirements` (FA-1.4).
 | FA-2.27 | **Protokoll** (L-2.26): jedes Speichern eines Fremdwährungsbelegs schreibt `audit_log`-Eintrag `fx` mit Währung, Originalbetrag, Kurs, Quelle, Kursdatum, umgerechnetem Betrag und ggf. Bankbetrag mit Differenz |
 | FA-2.22 | **Protokoll** (L-2.22): beim Speichern eines ausgelesenen Belegs ein `audit_log`-Eintrag `scan` mit Engine und Version, je Feld erkannter Wert mit Konfidenz, bestätigter Wert und Kennzeichen `GEÄNDERT`, sowie SHA-256 jedes Originalbilds. Keine Bilddaten, kein Volltext |
 | FA-2.23 | **Abschaltbar** (L-2.23): Einstellungen → „Belege auslesen“, Standard an (`company_profile.receipt_scan_enabled`) |
-| FA-2.33 | **Beleg mit mehreren Steuersätzen aufteilen** (L-2.27, 0.7.0), z. B. Bewirtung Speisen 10 %/Getränke 20 %, Supermarkt 4,9/10/20 %: im Formular „Weiteren Steuersatz hinzufügen“ (volle Breite, 48 dp). Je Teil Satz und **Bruttobetrag**; Netto und Steuer je Teil nach GR-2 (Steuer als Restgröße). Der erste Teil startet mit dem ganzen Betrag, der letzte Teil übernimmt automatisch den Rest (Belegbetrag − übrige Teile), bis er von Hand geändert wird. Speichern nur, wenn die Summe der Teile den Belegbetrag exakt ergibt; sonst Meldung mit Differenz. Teile mit gleichem Satz werden zusammengefasst, Teile mit 0 € entfallen; bleibt ein Teil, ist der Beleg wieder einfach. Bei Fremdwährung sind die Teile Euro-Beträge des umgerechneten Betrags. Belegliste zeigt die Sätze („10 % + 20 %“). Ausländische Steuer und 0 %-Regeln gelten je Teil (FA-2.29). Die Abzugsbeschränkung für Bewirtung (Ertragsteuer, Vorsteuer) setzt die App **nicht** um (P-S46) |
+| FA-2.33 | **Beleg mit mehreren Steuersätzen aufteilen** (L-2.27, 0.7.0), z. B. Bewirtung Speisen 10 %/Getränke 20 %, Supermarkt 4,9/10/20 %: im Formular „Weiteren Steuersatz hinzufügen“ (volle Breite, 48 dp). Je Teil Satz und **Bruttobetrag**; Netto und Steuer je Teil nach GR-2 (Steuer als Restgröße). Der erste Teil startet mit dem ganzen Betrag, der letzte Teil übernimmt automatisch den Rest (Belegbetrag − übrige Teile), bis er von Hand geändert wird. Speichern nur, wenn die Summe der Teile den Belegbetrag exakt ergibt; sonst Meldung mit Differenz. Teile mit gleichem Satz werden zusammengefasst, Teile mit 0 € entfallen; bleibt ein Teil, ist der Beleg wieder einfach. Bei Fremdwährung sind die Teile Euro-Beträge des umgerechneten Betrags. Belegliste zeigt die Sätze („10 % + 20 %“). Ausländische Steuer und 0 %-Regeln gelten je Teil (FA-2.29). Die Abzugsbeschränkung für Bewirtung hängt an der Kategorie, nicht an der Aufteilung (FA-2.60) |
 | FA-2.34 | **Belegerkennung mit mehreren Sätzen** (0.7.0): erkennt der Parser mehrere Sätze, belegt die App die Aufteilung (FA-2.33) mit Brutto je Satz vor statt nur eines Hinweises. Je Zeile: eigener, am Belegdatum gültiger Satz → dieser Satz; ausländischer Satz bzw. ausländische Aussteller-UID bei Ausgaben → 0 %; unbekannter Satz oder Fremdwährung → keine Aufteilung, nur Hinweis |
 | FA-2.35 | **Codes auf dem Foto** (Lastenheft L-27.1, 0.8.0): dieselbe Erkennung liest QR, Data Matrix und Aztec auf denselben Bildern (Android `com.google.mlkit:barcode-scanning` 17.3.0 gebündelt, iOS `VNDetectBarcodesRequest`) und liefert die Rohinhalte im Feld `codes` des Channels `buchhaltung/receipt_text`. Ein Fehler beim Code-Lesen bricht die Texterkennung nicht ab. Zerlegung in `lib/services/receipt_scan/receipt_codes.dart` (reines Dart): **RKSV** `_R1-AT<n>_` mit 13 Feldern (Detailspezifikation Abschnitt 7, A-SIT-Mustercode `MachineCodeValue`), Beträge brutto mit Komma und Tausenderpunkt, Felder Normal 20 %, Ermäßigt-1 10 %, Ermäßigt-2 13 %, Null 0 %, Besonders (19 % **oder** 4,9 %, P-S49); **TSE** `V0;…;Kassenbeleg-V1;Beleg^B1_…_B5^…` mit IDs 19 %, 7 %, 10,7 %, 5,5 %, 0 % (DSFinV-K Anhang I, P-S50); **EPC069-12** `BCD` Version 001/002 mit IBAN-Prüfziffer; **Link** nur `https` ohne Benutzerangabe. Ein Code, der nicht exakt dem Format folgt, wird verworfen |
 | FA-2.36 | **Kassen-QR zuerst** (L-27.2, `ReceiptCodePrefill`): Betrag (Summe der Felder), Datum und Sätze aus dem Code ersetzen die Texterkennung; mehrere Sätze als Aufteilung (FA-2.33). „Besonders“: Satz aus dem Text, wenn dort genau 4,9 % oder 19 % steht; vor dem 01.07.2026 19 %; sonst keine Aufteilung und Hinweis „Steuersatz (4,9 % oder 19 %) bitte wählen“. Code eines anderen Landes als das Profil (z. B. RKSV bei DE-Profil): Betrag und Datum, bei Ausgaben 0 % (FA-2.29). Storno/Nullbeleg: nur Datum. Händler: gelernter Name zur Kasse (Schema 15 `cash_register_merchants`, Schlüssel `AT:<Kassen-ID>` bzw. `DE:<Seriennummer>`, gespeichert beim Speichern des Belegs mit dem bestätigten Partner), sonst aus dem Text. Belegnummer des Codes, wenn der Text keine Rechnungsnummer ergab. Felder aus dem Code tragen statt „erkannt – bitte prüfen“ den Vermerk „vom Kassen-QR“; das Foto bleibt der Beleg |
@@ -480,6 +480,7 @@ prüft `InvoiceRequirements` (FA-1.4).
 | FA-2.49 | **Datensparsamkeit** (L-28.6, P-R36): gelesen werden nur benannte Spalten (Datum, Typ, Bestell-/Transaktionsnummer, SKU, Beträge, Währung, Marktplatz bzw. Lieferland, Versandart). Name, Adresse, Ort, PLZ, Region, E-Mail, Telefon der Käufer werden nie angesprochen und weder gespeichert noch protokolliert; die geteilte Datei bleibt nur im Cache. Geprüft in `platform_import_test.dart` über alle Tabellen der Datenbank |
 | FA-2.50 | **Lernen je Lieferant** (L-2.28, 0.16.0, `SupplierLearning`, Schema 20 `supplier_memory`): beim Speichern jedes Belegs merkt sich die App bestätigten Partnernamen, Kategorie, Steuersatz (Hauptsatz), Währung und Zahlungsart je Richtung unter der Aussteller-UID, dem normalisierten bestätigten Namen und der normalisierten erkannten Schreibweise (Zuordnung OCR-Variante → gewählter Name). Normalisierung: klein, ä/ö/ü → a/o/u, ß → ss, nur Buchstaben und Ziffern, Rechtsformen (GmbH, KG, e.U., AG …) entfernt, 0 → o. Beim Auslesen (FA-2.19, nach Kassen-QR FA-2.36) wird zuerst über die UID, dann über den Namen nachgeschlagen. Vorrang: Name, Kategorie und Zahlungsart immer gelernt; Steuersatz erkannt vor gelernt (gelernt nur ohne erkannten Satz); Fremdwährung gelernt nur bei Ausgaben, wenn die Erkennung keine sichere Währung fand (Konfidenz < 60). Felder Partner, Kategorie und Zahlungsart tragen dann „wie beim letzten Mal“; Steuersatz und Währung ohne eigenen Vermerk. Gelernte Kategorie nur, wenn sie noch existiert. Teil der Belegerkennung (Pro, 5.10 Lastenheft); nichts verlässt das Gerät |
 | FA-2.51 | **Dokumentenscanner des Systems** (Entscheidung Auftraggeberin 2026-10-16): „Beleg fotografieren“, „Seite fotografieren“ und im Vertragsarchiv „Seiten scannen“ öffnen zuerst den Scanner – Android Google ML Kit Document Scanner (`play-services-mlkit-document-scanner` 16.0.0, voller Modus mit Filtern und Schattenentfernung, mehrere Seiten bis `spec.scanner_page_limit`, Import aus der Galerie erlaubt), iOS VisionKit `VNDocumentCameraViewController`. Eigener Channel `buchhaltung/document_scanner` (`DocumentScannerChannel.kt`, Klasse in `ReceiptTextChannel.swift`) statt Paket: gleiche Bauart wie Texterkennung, keine weitere Abhängigkeit. Die entzerrten, verbesserten Seiten (JPEG) gehen in den Belegspeicher und danach in die Texterkennung (FA-2.19). **Gespeichert wird nur das verarbeitete Bild** (P-S63). Abbrechen = nichts passiert. Kein Scanner (keine Play-Dienste, Modul-Download fehlgeschlagen, Huawei, iOS-Gerät ohne Unterstützung) → **automatisch** die bisherige Kamera, ohne Rückfrage. Der CI-Korpustest der Erkennung umgeht den Scanner (Bilder direkt) |
+| FA-2.60 | **Bewirtung mit Abzugsbeschränkung** (Entscheidung Auftraggeberin 2026-10-16, Lastenheft 14a; schließt P-S46-Grenze): Startkategorie „Bewirtung“ (SKR03 4650, `categories.kind = 'entertainment'`, Schema 23). Ausgaben dieser Kategorie zählen nur anteilig als Betriebsausgabe: AT 50 % (§ 20 Abs 1 Z 3 EStG, Werbezweck; ohne Werbezweck 0 % – die App setzt den Regelfall 50 %), DE 70 % (§ 4 Abs 5 Satz 1 Nr. 2 EStG). Basis je Beleg: netto, beim Kleinunternehmer brutto. Abziehbarer Teil kaufmännisch auf Cent gerundet, nicht abziehbarer Teil = Rest (`EntertainmentSplit`); Summen = Summe der Belegwerte. **Vorsteuer voll** in beiden Ländern: DE § 15 Abs 1a Satz 2 UStG; AT § 12 Abs 2 Z 2 lit a UStG 1994 schließt nur Leistungen aus, die überwiegend (über 50 %) nicht abzugsfähig sind – die zur Hälfte abzugsfähige Bewirtung bleibt voll abziehbar (UStR 2000 Rz 1934; Sicherheit mittel, P-S46). Der nicht abziehbare Teil (`PeriodTotals.entertainmentNonDeductible`) wird dem Ergebnis hinzugerechnet und erscheint in Übersicht, Kennzahlen Jahreserklärung (Hilfszeile ohne Kennzahl, P-S46), Saldenliste, Jahresabschluss (E/A-Rechnung „Hinzurechnung“), Belegliste-CSV (Spalte und Summenzeile), USt-Zusammenfassung und DATEV (Umbuchung auf 4654, BU 40). Formular: bei Kategorie Bewirtung Hinweistext je Land; nur DE zusätzlich **Anlass** und **Teilnehmer** als freiwillige Vorschlagsfelder (§ 4 Abs 5 Satz 1 Nr. 2 Satz 2 EStG), Speichern nie blockiert. Belegerkennung schlägt für Restaurants (Gasthaus, Pizzeria, Tisch …) die Kategorie vor; der Lieferanten-Lernspeicher (FA-2.50) merkt sie sich. Kennwerte `spec.at.entertainment`, `spec.de.entertainment` |
 | FA-2.18 | **Stornierte Belege lesbar**: Filter „Storniert“ in der Belegliste; die Ansicht ist schreibgeschützt (Hinweisbanner, kein Speichern), Kommentare bleiben anhängbar |
 
 ### 5.3 Kassabuch und Auswertung
@@ -913,10 +914,10 @@ Spalten: Datum, Art, Beschreibung, Geschäftspartner, Kategorie, Konto,
 Zahlungsart, Netto, USt-Satz, USt-Betrag, Brutto, Währung, Originalbetrag, Kurs (je EUR, 6 Nachkommastellen), Kursquelle,
 Kursdatum, Bankbetrag EUR, Beleg vorhanden, Notiz, Seiten, Kommentare (je
 `TT.MM.JJJJ, hh:mm: Text`, getrennt durch ` | `), Teil („1/2“ bei aufgeteilten Belegen, sonst leer), Originaldatei
-(„Name (SHA-256 …)“, mehrere durch ` | `; nur erste Zeile, FA-2.41).
+(„Name (SHA-256 …)“, mehrere durch ` | `; nur erste Zeile, FA-2.41), Nicht abziehbar, Anlass, Teilnehmer (nur Bewirtung, erste Zeile, FA-2.60).
 Je Steuersatzzeile eine Zeile; Originalbetrag und Bankbetrag nur in der ersten Zeile eines Belegs.
 Danach Summenzeilen für Einnahmen, Ausgaben, ggf. „Kursdifferenzen laut Bank“
-(FA-2.26) und Ergebnis.
+(FA-2.26), ggf. „Bewirtung nicht abziehbar“ (FA-2.60) und Ergebnis.
 
 ### 8.3 DATEV-Buchungsstapel (`datev`, nur DE)
 
@@ -929,6 +930,7 @@ Spaltenüberschriften, ab Zeile 3 die Buchungen.
 - Header-Feld „WJ-Beginn“: erster Tag des Wirtschaftsjahres, das den Zeitraum enthält (GR-10)
 - Buchungstext maximal 60 Zeichen, Semikola werden durch Komma ersetzt
 - **Mehrere Steuersätze:** eine Buchung je Satz mit dem Brutto der Zeile; BU-Schlüssel bleibt leer (Automatikkonto), Zuordnung je Satz prüft die Kanzlei (P-S48)
+- **Bewirtung (FA-2.60):** Buchung voll auf 4650 mit Vorsteuer, danach Umbuchung des nicht abziehbaren Teils 4654 an 4650 mit BU 40 (ohne Steuer), damit die Vorsteuer voll bleibt. Zuordnung prüft die Kanzlei (P-S46). BMD (AT) bucht ohne Umbuchung; den Teil zeigen Belegliste und Saldenliste
 - Berater- und Mandantennummer stehen als `0` – die Kanzlei ordnet den Stapel beim Import zu
 - **Fremdwährung:** gebucht wird der umgerechnete Euro-Betrag mit `WKZ Umsatz` = `EUR`; die Felder `Kurs`, `Basis-Umsatz` und `WKZ Basis-Umsatz` bleiben leer, weil Kursrichtung und Pflichtkombination im EXTF-Format nicht gesichert geprüft sind (P-D23). Originalbetrag und Kurs stehen in der Belegliste (8.2). BMD (8.4) ebenso nur Euro
 
@@ -1119,7 +1121,7 @@ Offen benannt, weil eine Spezifikation, die ihre Lücken verschweigt, wertlos is
 | **Belegerkennung nicht auf Gerät erprobt** | Android-Teil im CI-Emulator mit R8 an einem synthetischen Kassenbon geprüft, Swift-Teil nur kompiliert; Korpus mit sechs echten Belegen (`test/fixtures/belege/`); Quote auf dem Gerät noch zu bestätigen (P-D22). Mehrsprachige Schlüsselwörter sind teils nur an synthetischen Texten geprüft. Gelernt wird je Kasse (FA-2.36) und je Lieferant (FA-2.50); Steuersatz-Aufteilungen und Beschreibungen werden nicht gelernt | vor Release |
 | **Fremdwährung nur bei Ausgaben** | Eingangsbelege werden umgerechnet (FA-2.24 bis FA-2.27); Ausgangsrechnungen nur in Euro. Den BMF-Monatskurs lädt die App nicht, er wird von Hand übernommen; das EZB-Monatsmittel ist nur eine Näherung (P-S23, P-S24). DATEV/BMD exportieren nur Euro (P-D23). Ein Land mit anderer Währung setzt Mehrwährungsfähigkeit voraus | Backlog G7 |
 | **Termine nur als Anzeige** | Die Termin-Box (FA-10.3) erinnert nicht aktiv; Bescheid-Termine (z. B. abweichende Vorauszahlungen, Nachzahlungen) kennt sie nicht. Teil- und Anzahlungen auf Rechnungen bildet die App nicht ab (P-S35) | Stufe 2: Benachrichtigungen |
-| **Bewirtung ohne Abzugsbeschränkung** | Ein Bewirtungsbeleg wird nach Sätzen aufgeteilt, aber voll als Ausgabe und Vorsteuer gezählt; die Kürzung (AT 50 %, DE 70 % Betriebsausgabe) macht die Kanzlei (P-S46) | nach P-S46 |
+| **Bewirtung nur mit Regelsatz** | Die Kürzung (AT 50 %, DE 70 %, FA-2.60) gilt für jede Ausgabe der Kategorie „Bewirtung“; AT-Bewirtung ohne Werbezweck (0 %) und unangemessene Aufwendungen erkennt die App nicht. Keine eigene Kennzahl in E1a/Anlage EÜR (P-S46); BMD ohne Umbuchung | später |
 | **Kleinunternehmerstatus nicht je Jahr** | Ob Ausgaben brutto zählen, richtet sich nach der aktuellen Einstellung, auch für Vorjahre | später |
 | **Keine Teilzahlungen** | Mahnkosten und Zinsen werden nur bei voller Zahlung mitgebucht; Teilzahlungen und deren Anrechnung (§ 1416 ABGB, § 367 BGB) bildet die App noch nicht ab; Basiszinssätze ändern sich nur per App-Update (P-S44) | später |
 | **Plattformimport ohne Dateiauswahl in der App** | Die Exportdatei kommt über Teilen bzw. „Öffnen mit“ (Dateien-App, Downloads); eine eigene Dateiauswahl fehlt. Nur EUR; Bestimmungsland für OSS nur näherungsweise (Marktplatz, Lieferland), bei PayPal/Stripe keins. Umsatzsteuer der Verkäufe ohne Steuerspalte zum Normalsatz (P-S51); Spaltennamen nur an synthetischen Dateien geprüft (P-S55) | später |
@@ -1137,7 +1139,7 @@ Offen benannt, weil eine Spezifikation, die ihre Lücken verschweigt, wertlos is
 > Das ist der Mechanismus, der dieses Dokument aktuell hält.
 
 ```properties
-spec.schema_version = 22
+spec.schema_version = 23
 spec.u30_schema_version = 07_2026
 spec.contract_match_tolerance_days = 20
 spec.scanner_page_limit = 20
@@ -1153,9 +1155,9 @@ spec.backup_reminder_days = 30
 spec.auto_backup_min_interval_hours = 24
 spec.auto_backup_keep_daily = 7
 spec.auto_backup_keep_monthly = 12
-spec.seed_category_count = 16
+spec.seed_category_count = 17
 spec.seed_category_income_count = 3
-spec.seed_category_expense_count = 13
+spec.seed_category_expense_count = 14
 spec.warn_threshold_percent = 80
 spec.default_invoice_pattern = RE-{YYYY}-{NNNN}
 spec.default_payment_term_days = 14
@@ -1216,6 +1218,7 @@ spec.at.dunning_interest_legal_ref = § 1000 Abs 1 ABGB | § 456 UGB
 spec.at.reverse_charge_kz = -,057,066
 spec.at.vat_return_kz = U30;000;200=022,130=006,100=029,49=124;016;060;095;cent;u30Xml
 spec.at.annual_return_kz = E1a;9040;9040;-;-
+spec.at.entertainment = 500;voll;nein;§ 20 Abs 1 Z 3 EStG;§ 12 Abs 2 Z 2 lit a UStG 1994
 spec.at.depreciation = halfYear;100000;ak;-;§ 7 Abs 3 EStG;computer=3,software=3,furniture=10,car=8min8,tools=5,other=5
 spec.at.deadline_rules = UVA@15+2m | ZM@0+1m | ESt-Vorauszahlung@02-15,05-15,08-15,11-15 | ESt-/USt-Erklärung (FinanzOnline)@+1j06-30 | SVS-Beitrag@02-00,05-00,08-00,11-00~
 
@@ -1250,6 +1253,7 @@ spec.de.dunning_interest_legal_ref = § 288 Abs 1 BGB | § 288 Abs 2 BGB
 spec.de.reverse_charge_kz = 46,47,67
 spec.de.vat_return_kz = UStVA;-;190=81,70=86;-;66;83;euro;none
 spec.de.annual_return_kz = Anlage EÜR;112;111;140;185
+spec.de.entertainment = 700;voll;ja;§ 4 Abs 5 Satz 1 Nr. 2 EStG;§ 15 Abs 1a Satz 2 UStG
 spec.de.depreciation = monthly;80000;netto;25001-100000;§ 4 Abs 3 Satz 5 EStG;computer=1,software=1,furniture=13,car=6,tools=5,other=5
 spec.de.deadline_rules = UStVA@10+1m+1x | ZM@25+1m | ESt-Vorauszahlung@03-10,06-10,09-10,12-10 | Steuererklärungen@+1j07-31
 ```
@@ -1261,12 +1265,17 @@ Zeitraums (0 = Monatsletzter), `+1x` = zusätzlicher Monat bei
 Dauerfristverlängerung, `02-15,…` = feste Tage, `+1j07-31` = Folgejahr,
 `~` = ungefähr, ohne Verschiebung.
 
+Bewirtung (`entertainment`, FA-2.60): abziehbarer Anteil in Promille;
+Vorsteuer `voll`; Anlass/Teilnehmer abfragen `ja`/`nein`; Fundstelle
+Ertragsteuer; Fundstelle Vorsteuer.
+
 ---
 
 ## 13. Änderungshistorie
 
 | Version | Datum | App-Version | Änderung |
 |---|---|---|---|
+| 1.71 | 2026-10-16 | 0.21.0 | App-Version 0.21.0 (Testbuild). Bewirtung mit Abzugsbeschränkung (FA-2.60, Entscheidung Auftraggeberin Lastenheft 14a): Kategorie „Bewirtung“, AT 50 %/DE 70 %, Vorsteuer voll (AT nach Prüfinstanz Steuerberater: § 12 Abs 2 Z 2 lit a UStG 1994, UStR Rz 1934, mittel), Hinzurechnung in Übersicht, Kennzahlen, Saldenliste, Jahresabschluss, CSV, DATEV; Anlass/Teilnehmer (DE). Schema 23, 17 Startkategorien, neue Kenndaten `spec.*.entertainment`; Grenze in 11 ersetzt; P-S46 neu gefasst, P-X16 neu. UX-Instanz: Felder im bestehenden Formular, volle Breite, kein Pflichtfeld, kein zusätzlicher Schritt. |
 | 1.70 | 2026-10-16 | 0.20.0 | Entscheidungen Auftraggeberin (Lastenheft 14a): Anlagen anlegen, ändern, ausscheiden nur Pro (`Feature.assetManagement`, FA-13.2, FA-15.1, FA-15.8); bestehende Anlagen, Verzeichnis und AfA in jedem Anspruch; GWG-Hinweis am Beleg ohne Pro. Vertragsarchiv ab Basis, Kurzübersicht Pro bestätigt. Neue Prüfpunkte P-S64, P-R43. Prüfinstanzen: Steuerberater (Gewinn ohne Aktivierung zu niedrig, P-S64), Rechtsanwalt (Konflikt mit Regel 5.10, P-R43), Softwareentwickler (Prüfung über `Depreciation.exceedsGwg`, AfA ohne Tarifabfrage), UX (eine Zeile ≥ 48 dp, „(Pro)“ wie überall, kein zusätzlicher Dialog). |
 | 1.69 | 2026-10-16 | 0.20.0 | Interne Prüfung aller offenen Steuer- und Rechtspunkte in 14 durch die Prüfinstanzen Steuerberater und Rechtsanwalt (Auftrag Auftraggeberin): neuer Status *intern geprüft* (Definition in 14), 52 Punkte mit Ergebnis, Quellen und Sicherheit in „Ergebnisse der internen Prüfung“; Prüfmappen enthalten nur noch *offene* Punkte, intern geprüfte im Anhang. Fund P-S44: DE-Basiszinssatz 1,52 % ab 1.7.2026 ergänzt (Kenndaten `spec.de.dunning_base_rates`). Softwareentwickler: Test für das zweite Halbjahr 2026; UX ohne Befund (keine Oberflächenänderung). |
 | 1.68 | 2026-10-16 | 0.20.0 | Dokumentenscanner des Systems für Belege und Verträge (FA-2.51): ML Kit Document Scanner (Android), VisionKit (iOS), eigener Channel, Rückfall auf die Kamera ohne Rückfrage, nur verarbeitetes Bild gespeichert; 10.1, 10.2, Grenze 11; Kenndaten `spec.scanner_page_limit`. Neue Prüfpunkte P-S63, P-R42, P-D37, P-D38, P-X15. Prüfinstanzen: Steuerberater (bildliche Übereinstimmung entzerrter Scans als Prüfpunkt), Rechtsanwalt (Play-Dienste-Telemetrie offenlegen), Softwareentwickler (eigener Channel statt Plugin, R8-Regel, kein neues Swift-File im Projekt), UX (Scanner-UI vom System, ein Tipp weniger: Zuschneiden entfällt). |
@@ -1461,6 +1470,7 @@ erzeugt `beispiele_erzeugen_test.dart` mit dem PDF-Generator der App.
 | P-X13 | Einhandtest Anlagen auf Pixel 10 und iPhone: Ausgabe öffnen → „Als Investition erfassen“ → Art wählen → Speichern; Ausscheiden mit Kommentar über der Tastatur; Berichte teilen | Widget-Test: Speichern 56 dp im unteren Drittel, Auswahlzeilen und Berichtszeilen ≥ 48 dp (`fixed_asset_test.dart`) | Release | offen |
 | P-X14 | Einhandtest Vertragsarchiv: PDF aus Mail teilen → Hinweis „Ist das ein Vertrag?“ antippen; Seiten fotografieren; Kurzübersicht-Zeile antippen; Rate als Vorschlag buchen; Löschen nur über Gefahrenzone mit Warnung | Widget-Test: Speichern 56 dp im unteren Drittel, Knöpfe ≥ 48 dp (`contract_test.dart`) | Release | offen |
 | P-X15 | Einhandtest Scanner: „Beleg fotografieren“ → Systemscanner (Android/iOS) mit dem Daumen auslösen, Seiten hinzufügen, „Fertig/Speichern“ erreichbar; Rückkehr ins Formular mit allen Seiten; Abbrechen ohne Beleg-Anlage. Die Scanner-Oberfläche liefert das System (nicht änderbar) | nicht automatisierbar | Release | offen |
+| P-X16 | Einhandtest Bewirtung (FA-2.60): Kategorie „Bewirtung“ mit dem Daumen wählen, Hinweis lesbar; DE: Anlass und Teilnehmer erreichen, Tastatur verdeckt die Speicherleiste nicht, Speichern ohne die Felder möglich | Widgettests nur für Logik | Release | offen |
 
 ### Softwareentwicklung (echte Geräte und Stores)
 
@@ -1541,7 +1551,7 @@ erzeugt `beispiele_erzeugen_test.dart` mit dem PDF-Generator der App.
 | P-S43 | Skontotext auf der Rechnung: Pflichtangabe „Vereinbarung über Entgeltminderung“ (§ 14 Abs 4 Nr. 7 UStG DE) mit festem Datum und Betrag erfüllt; AT: ausreichend? Kleinunternehmer: nur geringere Einnahme | Vorbefund: Hinweis „Bei Zahlung bis … 2 % Skonto“ genügt (Abschn. 14.5 Abs 19 UStAE) | Release | intern geprüft 2026-10-16 (mittel) |
 | P-S44 | Basiszinssätze 2025–2026 je Halbjahr: AT OeNB (253, 153, 153 Bp), DE § 247 BGB (227, 127, 127 Bp) – amtlich abgleichen; Berechnung act/365 je Halbjahr, half-up je Abschnitt | Werte aus Fachwissen der Prüfinstanz, nicht amtlich abgerufen | Release | intern geprüft 2026-10-16 (mittel) |
 | P-S45 | Mahnkosten, Verzugszinsen und Pauschale als nicht umsatzsteuerbarer Schadenersatz (UStR Rz 9 AT, Abschn. 1.3 Abs 6 UStAE DE), Einnahme bei Zufluss mit 0 %, Kategorie „Sonstige Einnahmen“; Anrechnung nach § 1416 ABGB / § 367 BGB | Vorbefund Steuerberater: nicht steuerbar, Betriebseinnahme bei Zufluss | Release | intern geprüft 2026-10-16 (mittel) |
-| P-S46 | Bewirtung: soll die App die Abzugsbeschränkung abbilden? AT § 20 Abs 1 Z 3 EStG (50 % abzugsfähig, Vorsteuer voll bei Werbezweck), DE § 4 Abs 5 Nr. 2 EStG (70 % Betriebsausgabe, Vorsteuer voll bei Angemessenheit und Nachweis) samt Bewirtungsbeleg-Angaben (Anlass, Teilnehmer) | App teilt nur nach Sätzen auf (FA-2.33), zählt 100 %; keine Kategorie „Bewirtung“ mit Kürzung | Release | intern geprüft 2026-10-16 (mittel) |
+| P-S46 | Bewirtung (FA-2.60): (a) AT Vorsteuer voll aus zur Hälfte abzugsfähiger Bewirtung (§ 12 Abs 2 Z 2 lit a UStG 1994, UStR 2000 Rz 1934)? (b) Regelfall AT 50 % ohne Rückfrage nach Werbezweck vertretbar? (c) Eintrag der nicht abziehbaren Bewirtung in E1a bzw. Anlage EÜR (eigene Kennzahl/Zeile?) (d) DATEV-Umbuchung 4654 an 4650 mit BU 40 und Bewirtungsnachweis DE mit Anlass/Teilnehmer als freiwillige Felder ausreichend? | Umgesetzt in 0.21.0: AT 50 %, DE 70 %, Vorsteuer voll, Hilfszeile ohne Kennzahl | Release | offen |
 | P-S47 | Kleinunternehmer: Ausgaben brutto in der Einnahmen-Ausgaben-Rechnung, keine Vorsteuer (AT § 12 iVm § 6 Abs 1 Z 27 UStG 1994; DE § 19 Abs 1 UStG, § 9b Abs 1 EStG); Behandlung beim Wechsel des Status innerhalb eines Jahres | umgesetzt nach aktueller Einstellung (FA-3.2) | Release | intern geprüft 2026-10-16 (mittel) |
 | P-S48 | DATEV: Buchung je Satz eines aufgeteilten Belegs ohne BU-Schlüssel auf ein Automatikkonto – richtig importiert, oder braucht es Schlüssel bzw. Konto je Satz? | eine Buchung je Satz, BU leer (8.3) | Release | offen |
 | P-S49 | RKSV-Kassen-QR ab 01.07.2026: Feld „Betrag-Satz-Besonders“ trägt 19 % **und** 4,9 % gemeinsam; ist die Zuordnung über den Belegtext (Satzzeile) zulässig, und reicht der Vorrang des QR für Betrag und Datum gegenüber dem Text? Echten Beleg mit 4,9 % prüfen | „Besonders“ nicht aus dem Code bestimmbar (BMF-Hinweis im A-SIT-Mustercode-Repository 13.03.2026, fiskaly); App nimmt den Satz aus dem Text, sonst Rückfrage (FA-2.36); finale Detailspezifikation nicht abrufbar | Release | offen |
@@ -1689,7 +1699,7 @@ Für alles, was hier fehlt, gilt weiter *offen – extern*.
 | P-S43 | Ein Hinweis „Bei Zahlung bis … x % Skonto“ genügt; die Höhe muss sich nicht betragsmäßig je Satz ergeben. | Abschn. 14.5 Abs 19 UStAE; § 11 Abs 1 Z 3 lit e UStG 1994 | mittel |
 | P-S44 | DE amtlich: 1,27 % ab 1.1.2026, **1,52 % ab 1.7.2026** (Bundesbank) – fehlte im Code und wurde ergänzt. AT: Basiszinssatz ändert sich nur bei Änderung des EZB-Hauptrefinanzierungssatzes um mindestens 0,5 Prozentpunkte, daher 1,53 % unverändert (OeNB-Tabelle nicht abrufbar, deshalb mittel). | Bundesbank-Pressemitteilung „Basiszinssatz zum 1. Juli 2026: 1,52 %“; § 247 BGB; Art. I § 1 2. Euro-JuBeG; OeNB „Basis- und Referenzzinssätze“ | mittel |
 | P-S45 | Bestätigt: Verzugszinsen, Mahnkosten und Pauschale sind echter Schadenersatz, nicht steuerbar; Betriebseinnahme bei Zufluss. | Abschn. 1.3 Abs 6 UStAE; UStR Rz 9; § 4 Abs 3 EStG | mittel |
-| P-S46 | Regeln bestätigt: AT 50 % der Bewirtung mit Werbezweck abzugsfähig, DE 70 % mit Bewirtungsnachweis; Vorsteuer jeweils voll bei Angemessenheit. Die App zählt 100 % und überschätzt damit Ausgaben. Folge: Funktion „Bewirtung“ ist eine Produktentscheidung der Auftraggeberin (nicht gebaut); bis dahin Grenze in Abschnitt 11. | § 20 Abs 1 Z 3 EStG 1988; § 4 Abs 5 Satz 1 Nr. 2 EStG DE; § 15 Abs 1a UStG DE | mittel |
+| P-S46 | Regeln: AT 50 % der Bewirtung mit Werbezweck abzugsfähig, DE 70 % mit Bewirtungsnachweis. Vorsteuer DE voll (§ 15 Abs 1a Satz 2 UStG). AT: § 12 Abs 2 Z 2 lit a UStG 1994 versagt den Vorsteuerabzug nur, wenn die Entgelte **überwiegend** nicht abzugsfähig sind; bei 50 % ist das nicht der Fall, Vorsteuer voll (UStR 2000 Rz 1934). Umgesetzt 0.21.0 (FA-2.60, Entscheidung Auftraggeberin). Kennzahlzuordnung in E1a/EÜR nicht gesichert → Hilfszeile | § 20 Abs 1 Z 3 EStG 1988; § 12 Abs 2 Z 2 lit a UStG 1994; UStR 2000 Rz 1934; § 4 Abs 5 Satz 1 Nr. 2 EStG DE; § 15 Abs 1a UStG DE | mittel |
 | P-S47 | Bestätigt: Kleinunternehmer buchen Ausgaben brutto, kein Vorsteuerabzug. Beim Statuswechsel im Jahr gilt die Einstellung ab dem Wechsel; Vorsteuerberichtigung bei Anlagen (§ 12 Abs 10 UStG 1994, § 15a UStG) bildet die App nicht ab – Hinweis an die Steuerberatung genügt. | § 6 Abs 1 Z 27, § 12 Abs 10 UStG 1994; § 19 Abs 1 Satz 4, § 15a UStG; § 9b Abs 1 EStG | mittel |
 | P-S52 | Bestätigt: Reverse Charge gilt auch für Kleinunternehmer, ohne Vorsteuerabzug; Kennzahlen AT Kz 057/066, DE Kz 46/47 und 67. Leistender der Werbung steht auf der jeweiligen Amazon-Rechnung und ist dort abzulesen. | § 19 Abs 1 zweiter Satz, § 3a Abs 6 UStG 1994; § 13b Abs 1, 5 und 8 UStG; Formulare U30 2026, USt 1 A 2026 | mittel |
 | P-S53 | Für eine Warnung genügt die Näherung über Marktplatz bzw. Lieferland. Schwelle 10.000 € EU-weit für Fernverkäufe und TBE-Leistungen bestätigt. | Art. 59c MwStSystRL; Art. 3 Abs 5 UStG 1994 (Binnenmarktregelung); § 3c Abs 4 UStG | mittel |

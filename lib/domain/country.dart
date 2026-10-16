@@ -115,9 +115,13 @@ class TaxProfile {
     required this.vatReturnForm,
     required this.annualReturnForm,
     required this.depreciation,
+    required this.entertainment,
   });
 
   final Country country;
+
+  /// Abzugsbeschränkung für Bewirtung (FA-2.60, Lastenheft 14a). P-S46.
+  final EntertainmentRules entertainment;
 
   /// Verfügbare Steuersätze, absteigend sortiert.
   final List<VatRate> vatRates;
@@ -487,6 +491,23 @@ class TaxProfile {
         ),
       ],
     ),
+    // § 20 Abs 1 Z 3 EStG 1988: Bewirtung mit Werbezweck und überwiegend
+    // beruflicher Veranlassung zur Hälfte abzugsfähig (EStR 2000 Rz 4808 ff.).
+    // Vorsteuer voll: § 12 Abs 2 Z 2 lit a UStG 1994 schließt nur Leistungen
+    // aus, deren Entgelte überwiegend (mehr als 50 %) nicht abzugsfähig sind;
+    // zur Hälfte abzugsfähige Bewirtung berechtigt zum vollen Vorsteuerabzug
+    // (UStR 2000 Rz 1934). Real zu prüfen: P-S46.
+    entertainment: const EntertainmentRules(
+      deductiblePermille: 500,
+      inputVatFull: true,
+      asksOccasion: false,
+      legalRef: '§ 20 Abs 1 Z 3 EStG',
+      inputVatLegalRef: '§ 12 Abs 2 Z 2 lit a UStG 1994',
+      hint:
+          'Bewirtung zählt zur Hälfte als Betriebsausgabe, wenn sie der '
+          'Werbung dient (z. B. Geschäftsessen mit Kunden). Die Vorsteuer '
+          'ist voll abziehbar.',
+    ),
     // Beilage E1a, Einnahmen-Ausgaben-Rechnung: Kz 9040 Erlöse
     // (Betriebseinnahmen), auch für Kleinunternehmer. P-S58.
     annualReturnForm: const AnnualReturnForm(
@@ -741,6 +762,21 @@ class TaxProfile {
         ),
       ],
     ),
+    // § 4 Abs 5 Satz 1 Nr. 2 EStG: angemessene Bewirtung aus geschäftlichem
+    // Anlass zu 70 % abziehbar; Nachweis mit Ort, Tag, Teilnehmern, Anlass
+    // und Höhe (Satz 2). Vorsteuer voll: § 15 Abs 1a Satz 2 UStG nimmt die
+    // Bewirtung von der Kürzung aus. P-S46.
+    entertainment: const EntertainmentRules(
+      deductiblePermille: 700,
+      inputVatFull: true,
+      asksOccasion: true,
+      legalRef: '§ 4 Abs 5 Satz 1 Nr. 2 EStG',
+      inputVatLegalRef: '§ 15 Abs 1a Satz 2 UStG',
+      hint:
+          'Bewirtung zählt zu 70 % als Betriebsausgabe, die Vorsteuer voll. '
+          'Das Finanzamt verlangt Anlass und Teilnehmer auf dem Beleg – '
+          'trag sie hier ein, solange du dich erinnerst.',
+    ),
     // Anlage EÜR: Kz 111 Betriebseinnahmen als umsatzsteuerlicher
     // Kleinunternehmer, Kz 112 umsatzsteuerpflichtige Betriebseinnahmen,
     // Kz 140 vereinnahmte Umsatzsteuer, Kz 185 gezahlte Vorsteuer. P-S58.
@@ -783,6 +819,33 @@ class TaxProfile {
       ),
     ],
   );
+}
+
+/// Abzugsbeschränkung für Bewirtungsaufwand (FA-2.60).
+class EntertainmentRules {
+  const EntertainmentRules({
+    required this.deductiblePermille,
+    required this.inputVatFull,
+    required this.asksOccasion,
+    required this.legalRef,
+    required this.inputVatLegalRef,
+    required this.hint,
+  });
+
+  /// Als Betriebsausgabe abziehbarer Anteil in Promille.
+  final int deductiblePermille;
+
+  /// Vorsteuer voll abziehbar. In AT und DE `true`; eine Kürzung der
+  /// Vorsteuer bildet die App nicht ab (ein Land mit `false` braucht sie).
+  final bool inputVatFull;
+
+  /// Fragt Anlass und Teilnehmer als Vorschlagsfelder ab (Bewirtungsbeleg).
+  final bool asksOccasion;
+  final String legalRef;
+  final String inputVatLegalRef;
+
+  /// Hinweis im Belegformular.
+  final String hint;
 }
 
 /// Kennzahlen der Voranmeldung für die Steuerschuld des Leistungsempfängers.

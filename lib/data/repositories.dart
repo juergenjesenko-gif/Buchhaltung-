@@ -10,6 +10,7 @@ import '../domain/receipt.dart';
 import '../domain/platform_import.dart';
 import '../domain/fixed_asset.dart';
 import '../services/assets/depreciation.dart';
+import '../services/entertainment_deduction.dart';
 import '../services/vat_calculator.dart';
 import 'asset_repository.dart';
 import 'contract_repository.dart';
@@ -649,7 +650,35 @@ class ReceiptRepository {
     bool inputVatDeductible = true,
     int reverseChargePermille = 0,
     DepreciationRules? depreciation,
+    EntertainmentRules? entertainment,
   }) async {
+    // Bewirtung (FA-2.60): nicht abziehbarer Teil je Beleg, abziehbarer Teil
+    // auf Cent gerundet, Rest nicht abziehbar. Basis ist der Aufwand des
+    // Belegs: netto, ohne Vorsteuerabzug brutto. Die Vorsteuer bleibt in
+    // beiden Ländern voll (`EntertainmentRules.inputVatFull`).
+    var entertainmentExpense = const Money.zero();
+    var entertainmentNonDeductible = const Money.zero();
+    if (entertainment != null) {
+      final rows = await _db.rawQuery(
+        '''
+        SELECT r.net_cents AS net, r.gross_cents AS gross
+        FROM receipts r JOIN categories c ON c.id = r.category_id
+        WHERE c.kind = 'entertainment' AND r.direction = 'expense'
+          AND r.date >= ? AND r.date <= ? AND r.cancelled_at IS NULL
+          AND r.id NOT IN (SELECT receipt_id FROM fixed_assets
+                           WHERE receipt_id IS NOT NULL)
+        ''',
+        [_day(from), _day(to)],
+      );
+      for (final row in rows) {
+        final base = Money(
+          (row[inputVatDeductible ? 'net' : 'gross'] as int?) ?? 0,
+        );
+        final split = EntertainmentSplit.of(base, entertainment);
+        entertainmentExpense += base;
+        entertainmentNonDeductible += split.nonDeductible;
+      }
+    }
     // Reverse Charge (L-28.4): Steuer je Beleg zum Normalsatz gerundet;
     // Vorsteuer daraus nur bei Vorsteuerabzug (nicht für Kleinunternehmer).
     final rcRows = await _db.rawQuery(
@@ -775,6 +804,8 @@ class ReceiptRepository {
       reverseChargeBase: rcBase,
       reverseChargeVat: rcVat,
       reverseChargeInputVat: inputVatDeductible ? rcVat : const Money.zero(),
+      entertainmentExpense: entertainmentExpense,
+      entertainmentNonDeductible: entertainmentNonDeductible,
     );
   }
 
@@ -878,7 +909,20 @@ class PeriodTotals {
     this.reverseChargeBase = const Money.zero(),
     this.reverseChargeVat = const Money.zero(),
     this.reverseChargeInputVat = const Money.zero(),
+    this.entertainmentExpense = const Money.zero(),
+    this.entertainmentNonDeductible = const Money.zero(),
   });
+
+  /// Bewirtungsaufwand im Zeitraum (in [expenseNet] enthalten, FA-2.60).
+  final Money entertainmentExpense;
+
+  /// Davon steuerlich nicht abziehbar (Summe der Belegwerte): wird dem
+  /// Ergebnis hinzugerechnet.
+  final Money entertainmentNonDeductible;
+
+  /// Davon abziehbar.
+  Money get entertainmentDeductible =>
+      entertainmentExpense - entertainmentNonDeductible;
 
   /// Bemessungsgrundlage der Leistungen mit Steuerschuld des Empfängers
   /// (Reverse Charge, L-28.4), z. B. Amazon-Gebühren aus Luxemburg.
@@ -932,7 +976,12 @@ class PeriodTotals {
   /// Gewinn nach Einnahmen-Ausgaben-Rechnung (netto, ohne durchlaufende USt).
   /// Kursdifferenzen laut Bank fließen ein (L-2.26), Anlagen über die AfA
   /// (FA-15.5).
-  Money get profit => incomeNet - operatingExpense - expenseFxDifference;
+  /// Nicht abziehbare Bewirtung zählt nicht (FA-2.60).
+  Money get profit =>
+      incomeNet -
+      operatingExpense -
+      expenseFxDifference +
+      entertainmentNonDeductible;
 
   /// Zahllast bzw. Guthaben gegenüber dem Finanzamt.
   Money get vatPayable =>

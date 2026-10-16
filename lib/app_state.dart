@@ -9,6 +9,7 @@ import 'data/repositories.dart';
 import 'domain/company_profile.dart';
 import 'domain/legal_texts.dart';
 import 'domain/money.dart';
+import 'domain/country.dart' show EntertainmentRules;
 import 'domain/receipt.dart';
 import 'services/deadline_calculator.dart';
 import 'services/small_business_monitor.dart';
@@ -398,6 +399,10 @@ class AppState extends ChangeNotifier {
 
   /// Abschreibungsregeln des Landes (FA-15.5), `null` ohne Profil.
   DepreciationRules? get depreciationRules => _profile?.taxProfile.depreciation;
+
+  /// Abzugsbeschränkung Bewirtung des Landes (FA-2.60).
+  EntertainmentRules? get entertainmentRules =>
+      _profile?.taxProfile.entertainment;
 
   bool get inputVatDeductible => !(_profile?.isSmallBusiness ?? false);
 

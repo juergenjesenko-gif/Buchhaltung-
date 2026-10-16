@@ -72,6 +72,7 @@ class _ExportScreenState extends State<ExportScreen> {
       inputVatDeductible: state.inputVatDeductible,
       reverseChargePermille: state.reverseChargePermille,
       depreciation: state.depreciationRules,
+      entertainment: state.entertainmentRules,
     );
     final receipts = await state.repositories.receipts.query(
       from: period.from,

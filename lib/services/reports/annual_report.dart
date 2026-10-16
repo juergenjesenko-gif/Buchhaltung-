@@ -119,6 +119,15 @@ class AnnualReportData {
           c.amount,
           count: c.count,
         ),
+      // Bewirtung (FA-2.60): nicht abziehbarer Teil, in der Kategorie
+      // enthalten und dem Ergebnis hinzugerechnet.
+      if (!totals.entertainmentNonDeductible.isZero)
+        BalanceLine(
+          '',
+          'davon Bewirtung nicht abziehbar '
+              '(${profile.taxProfile.entertainment.legalRef})',
+          totals.entertainmentNonDeductible,
+        ),
       BalanceLine(
         '',
         'AfA, GWG, Sammelposten, Restbuchwerte',
@@ -308,6 +317,12 @@ class AnnualReportPdf {
       ['AfA, GWG, Sammelposten, Restbuchwerte', Fmt.money(t.depreciation)],
       if (!t.expenseFxDifference.isZero)
         ['Kursdifferenzen laut Bank', Fmt.money(t.expenseFxDifference)],
+      if (!t.entertainmentNonDeductible.isZero)
+        [
+          'Hinzurechnung Bewirtung nicht abziehbar '
+              '(${data.profile.taxProfile.entertainment.legalRef})',
+          Fmt.money(t.entertainmentNonDeductible),
+        ],
       ['Ergebnis (Gewinn/Verlust)', Fmt.signedMoney(t.profit)],
     ];
     return [

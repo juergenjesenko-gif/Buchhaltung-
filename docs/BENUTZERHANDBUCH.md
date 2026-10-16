@@ -1,6 +1,6 @@
 # Benutzerhandbuch – JeNi bucht
 
-**Für App-Version 0.20.0** · Stand 2026-10-16
+**Für App-Version 0.21.0** · Stand 2026-10-16
 
 Dieses Handbuch beschreibt die App aus Nutzersicht. Es wird bei jeder Änderung,
 die du in der App siehst, mitgeführt – siehe [`CLAUDE.md`](../CLAUDE.md).
@@ -223,9 +223,17 @@ genau den Belegbetrag ergeben – sonst zeigt die App, wie viel fehlt oder zu
 viel ist. Liest die App einen Beleg mit mehreren Sätzen aus, ist die Aufteilung
 schon vorbelegt – bitte prüfen.
 
-**Bewirtung:** Die App teilt den Beleg nur nach Steuersätzen auf und zählt ihn
-voll. Ob und wie viel du als Betriebsausgabe und Vorsteuer absetzen darfst,
-klärt deine Steuerberatung.
+**Bewirtung:** Wähl die Kategorie **Bewirtung** (bei Restaurantbelegen schlägt
+die App sie meist schon vor). Dann zählt die App automatisch nur den
+abziehbaren Teil als Betriebsausgabe: in Österreich 50 % (Bewirtung mit
+Werbezweck), in Deutschland 70 %. Die Vorsteuer ziehst du voll ab. Bist du
+Kleinunternehmer, gilt der Anteil vom Bruttobetrag. Den nicht abziehbaren Teil
+siehst du in der Übersicht, in den Kennzahlen, der Saldenliste, dem
+Jahresabschluss und im Export.
+
+In Deutschland zeigt das Formular zusätzlich **Anlass** und **Teilnehmer**.
+Das Finanzamt verlangt diese Angaben für den Bewirtungsnachweis; trag sie am
+besten gleich ein. Speichern kannst du auch ohne sie.
 
 ### Belege automatisch auslesen
 
@@ -971,7 +979,7 @@ Bereich **Export**.
 
 | Format | Wann |
 |---|---|
-| **Belegliste (CSV)** | Spalte „Originaldatei“: Name und Prüfsumme einer übernommenen PDF- oder E-Rechnung. Der sichere Standard. Öffnet in Excel, Numbers und jedem Buchhaltungsprogramm. Nimm den, wenn du nicht weißt, womit deine Kanzlei arbeitet. Enthält auch die Seitenzahl, alle Kommentare mit Zeitpunkt und bei Fremdwährung Währung, Originalbetrag, Kurs, Kursquelle, Kursdatum und Bankbetrag. |
+| **Belegliste (CSV)** | Spalte „Originaldatei“: Name und Prüfsumme einer übernommenen PDF- oder E-Rechnung. Der sichere Standard. Öffnet in Excel, Numbers und jedem Buchhaltungsprogramm. Nimm den, wenn du nicht weißt, womit deine Kanzlei arbeitet. Bei Bewirtung mit Spalten „Nicht abziehbar“, „Anlass“ und „Teilnehmer“. Enthält auch die Seitenzahl, alle Kommentare mit Zeitpunkt und bei Fremdwährung Währung, Originalbetrag, Kurs, Kursquelle, Kursdatum und Bankbetrag. |
 | *Hinweis Fremdwährung* | DATEV und BMD erhalten nur den Euro-Betrag; Originalbetrag und Kurs findet deine Kanzlei in der Belegliste. |
 | **DATEV-Buchungsstapel** | Nur bei Land Deutschland. Für DATEV-Kanzleien. Der jüngste Kommentar steht gekürzt im Buchungstext (wie auch bei BMD). |
 | **BMD-Buchungssätze** | Nur bei Land Österreich. Für BMD NTCS. |
@@ -1110,7 +1118,7 @@ aus; dann rechnet die App mit dem Monatskurs. Nur einschalten, wenn dir das
 Finanzamt den Tageskurs genehmigt hat.
 
 **Kategorien** – Kategorien ansehen, eigene anlegen und löschen. Die
-vorgegebenen 16 Kategorien tragen ein Schlosssymbol und bleiben erhalten. Beim
+vorgegebenen 17 Kategorien tragen ein Schlosssymbol und bleiben erhalten. Beim
 Anlegen kannst du eine Kontonummer für den Export mitgeben.
 
 **Rechtlicher Rahmen** – die für dein Land geltenden Steuersätze, Rechtsverweise
@@ -1539,8 +1547,10 @@ Damit du nicht darauf wartest:
 - **Die Belegerkennung merkt sich keine Beschreibungen und keine
   Aufteilung nach Steuersätzen.** Gelernt werden je Lieferant nur Name,
   Kategorie, Steuersatz, Währung und Zahlungsart.
-- **Keine Kürzung bei Bewirtung.** Bewirtungsbelege werden nach Steuersätzen
-  aufgeteilt, aber voll gezählt; die steuerliche Kürzung macht deine Kanzlei.
+- **Bewirtung nur mit dem Regelsatz.** Die App kürzt jede Ausgabe der
+  Kategorie Bewirtung um den gesetzlichen Regelsatz (AT 50 %, DE 70 %).
+  Bewirtung ohne Werbezweck (in Österreich gar nicht abziehbar) oder
+  unangemessen hohe Beträge erkennt sie nicht – das klärt deine Kanzlei.
 - **Keine Lohnverrechnung, keine Bilanz, keine doppelte Buchführung.** Der
   vorläufige Jahresabschluss ist eine Einnahmen-Ausgaben-Rechnung zur Übergabe
   an deine Kanzlei. Gebäude, degressive AfA, Investitionsfreibetrag und

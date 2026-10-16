@@ -1,6 +1,7 @@
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 import 'package:sqflite/sqflite.dart';
+import '../domain/receipt.dart' show ExpenseCategory;
 
 /// Lokale SQLite-Datenbank. Offline-first: es gibt keinen Server, die Daten
 /// liegen ausschließlich auf dem Gerät des Nutzers.
@@ -16,7 +17,7 @@ class AppDatabase {
 
   /// Aktuelle Schemaversion. Öffentlich, weil docs/SPECIFICATION.md sie
   /// dokumentiert und test/specification_sync_test.dart beide vergleicht.
-  static const schemaVersion = 22;
+  static const schemaVersion = 23;
 
   Database? _db;
 
@@ -40,7 +41,7 @@ class AppDatabase {
   /// Auslieferung stimmen.
   static Future<void> createSchema(Database db, int version) async {
     await _runMigrations(db, from: 1, to: version);
-    await _seedCategories(db);
+    await _seedCategories(db, version);
   }
 
   /// Hebt eine bestehende Datenbank von [oldVersion] auf [newVersion].
@@ -680,6 +681,22 @@ class AppDatabase {
       )
       ''',
     ],
+    // Bewirtung mit Abzugsbeschränkung (FA-2.60, Lastenheft 14a): Kennung
+    // der Sonderkategorie, Anlass und Teilnehmer am Beleg, Kategorie
+    // „Bewirtung“ für bestehende Datenbanken. Eine neue Datenbank ist hier
+    // noch leer und erhält die Kategorie über [seedCategories].
+    23: [
+      'ALTER TABLE categories ADD COLUMN kind TEXT',
+      "ALTER TABLE receipts ADD COLUMN entertainment_occasion TEXT NOT NULL DEFAULT ''",
+      "ALTER TABLE receipts ADD COLUMN entertainment_participants TEXT NOT NULL DEFAULT ''",
+      '''
+      INSERT INTO categories (name, direction, datev_account, is_system, kind)
+      SELECT 'Bewirtung', 'expense', '4650', 1, 'entertainment'
+      WHERE EXISTS (SELECT 1 FROM categories)
+        AND NOT EXISTS (SELECT 1 FROM categories WHERE name = 'Bewirtung')
+      ''',
+      "UPDATE categories SET kind = 'entertainment' WHERE name = 'Bewirtung'",
+    ],
   };
 
   /// Startkategorien, damit die App nicht mit einer leeren Auswahlliste startet.
@@ -702,11 +719,13 @@ class AppDatabase {
     ('Beiträge & Gebühren', 'expense', '4380'),
     ('Fortbildung & Fachliteratur', 'expense', '4945'),
     ('Werbung & Marketing', 'expense', '4600'),
+    // SKR03 4650 Bewirtungskosten; Abzugsbeschränkung FA-2.60.
+    ('Bewirtung', 'expense', '4650'),
     ('Bankspesen', 'expense', '4970'),
     ('Sonstige Ausgaben', 'expense', '4900'),
   ];
 
-  static Future<void> _seedCategories(Database db) async {
+  static Future<void> _seedCategories(Database db, int version) async {
     final batch = db.batch();
     for (final (name, direction, account) in seedCategories) {
       batch.insert('categories', {
@@ -714,6 +733,9 @@ class AppDatabase {
         'direction': direction,
         'datev_account': account,
         'is_system': 1,
+        // Spalte `kind` gibt es erst ab Schema 23 (Tests legen ältere an).
+        if (version >= 23 && name == 'Bewirtung')
+          'kind': ExpenseCategory.entertainmentKind,
       });
     }
     await batch.commit(noResult: true);

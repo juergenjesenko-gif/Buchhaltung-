@@ -60,6 +60,7 @@ class _ReportsScreenState extends State<ReportsScreen> {
       inputVatDeductible: state.inputVatDeductible,
       reverseChargePermille: state.reverseChargePermille,
       depreciation: state.depreciationRules,
+      entertainment: state.entertainmentRules,
     );
     return AnnualReportData(
       profile: profile,

@@ -517,6 +517,18 @@ void main() {
               .join(','),
         ].join(';'),
       );
+      // Bewirtung (FA-2.60).
+      final en = profile.entertainment;
+      expect(
+        value('spec.$prefix.entertainment'),
+        [
+          en.deductiblePermille,
+          en.inputVatFull ? 'voll' : 'anteilig',
+          en.asksOccasion ? 'ja' : 'nein',
+          en.legalRef,
+          en.inputVatLegalRef,
+        ].join(';'),
+      );
       final ar = profile.annualReturnForm;
       expect(
         value('spec.$prefix.annual_return_kz'),

@@ -233,6 +233,16 @@ class VatReturnCalculator {
             : 'Betriebsausgaben inkl. AfA (netto, nach Art aufteilen)',
         amount: totals.operatingExpense + totals.expenseFxDifference,
       ),
+      // Bewirtung (FA-2.60): nur der abziehbare Teil ist Betriebsausgabe;
+      // der Rest wird hinzugerechnet. Eigene Kennzahl ungeprüft (P-S46).
+      if (!totals.entertainmentNonDeductible.isZero)
+        KennzahlLine(
+          kz: null,
+          label:
+              'davon Bewirtung nicht abziehbar '
+              '(${tax.entertainment.legalRef}), hinzugerechnet',
+          amount: totals.entertainmentNonDeductible,
+        ),
       KennzahlLine(
         kz: null,
         label: 'Ergebnis (Gewinn/Verlust)',

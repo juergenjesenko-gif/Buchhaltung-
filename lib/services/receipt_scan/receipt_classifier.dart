@@ -17,6 +17,8 @@ enum ReceiptBranch {
   taxi('Taxi', 'Reisekosten'),
   transport('Fahrkarte', 'Reisekosten'),
   hotel('Übernachtung', 'Reisekosten'),
+  // Bewirtung (FA-2.60): Kategorie mit Abzugsbeschränkung, nur Vorschlag.
+  restaurant('Bewirtung', 'Bewirtung'),
   office('Büromaterial', 'Büromaterial'),
   electronics('Elektronik', 'Büromaterial'),
   postal('Porto', 'Büromaterial'),
@@ -113,6 +115,14 @@ const _branchWords = <(ReceiptBranch, List<String>)>[
     ],
   ),
   (ReceiptBranch.hotel, ['hotel', 'übernachtung', 'nächtigung', 'zimmer']),
+  (
+    ReceiptBranch.restaurant,
+    [
+      'restaurant', 'gasthaus', 'gasthof', 'wirtshaus', 'ristorante', //
+      'trattoria', 'pizzeria', 'osteria', 'brasserie', 'bistro',
+      'gastronomie', 'bewirtung', 'kellner', 'tisch nr', 'tisch:',
+    ],
+  ),
   (ReceiptBranch.transport, ['fahrkarte', 'ticket', 'bahn', 'zug']),
 ];
 

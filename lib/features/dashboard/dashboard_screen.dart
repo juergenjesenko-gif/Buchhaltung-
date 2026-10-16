@@ -78,6 +78,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
       inputVatDeductible: state.inputVatDeductible,
       reverseChargePermille: state.reverseChargePermille,
       depreciation: state.depreciationRules,
+      entertainment: state.entertainmentRules,
     );
     final recent = await state.repositories.receipts.query(limit: 5);
     final trend = await _loadTrend(state);
@@ -105,6 +106,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
         inputVatDeductible: state.inputVatDeductible,
         reverseChargePermille: state.reverseChargePermille,
         depreciation: state.depreciationRules,
+        entertainment: state.entertainmentRules,
       );
       bars.add(
         _MonthBar(
@@ -453,6 +455,12 @@ class _TotalsCard extends StatelessWidget {
               label: 'Abschreibung (AfA)',
               value: Fmt.money(totals.depreciation),
               valueColor: AppTheme.amountColor(false, context),
+            ),
+          // Bewirtung (FA-2.60): nur teilweise abziehbar.
+          if (!totals.entertainmentNonDeductible.isZero)
+            LabeledValue(
+              label: 'davon Bewirtung nicht abziehbar',
+              value: Fmt.money(totals.entertainmentNonDeductible),
             ),
           const Divider(height: 20),
           LabeledValue(

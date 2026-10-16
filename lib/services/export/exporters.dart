@@ -4,6 +4,7 @@ import '../../domain/company_profile.dart';
 import '../../domain/country.dart';
 import '../../domain/money.dart';
 import '../../domain/receipt.dart';
+import '../entertainment_deduction.dart';
 import '../fx/currency_converter.dart';
 import 'csv.dart';
 
@@ -132,6 +133,22 @@ class Exporter {
     return '${prefix}_${company}_${from}_$to.$extension';
   }
 
+  /// Nicht abziehbarer Teil eines Bewirtungsbelegs (FA-2.60), sonst `null`.
+  /// Basis wie in der Auswertung: netto, ohne Vorsteuerabzug brutto.
+  Money? _nonDeductible(Receipt receipt) {
+    if (receipt.direction != BookingDirection.expense) return null;
+    final category = categories.where((c) => c.id == receipt.categoryId);
+    if (category.isEmpty || !category.first.isEntertainment) return null;
+    final base = profile.isSmallBusiness ? receipt.gross : receipt.net;
+    return EntertainmentSplit.of(
+      base,
+      profile.taxProfile.entertainment,
+    ).nonDeductible;
+  }
+
+  /// SKR03 4654 Nicht abzugsfähige Bewirtungskosten.
+  static const _nonDeductibleEntertainmentAccount = '4654';
+
   String _categoryName(int? id) =>
       categories.where((c) => c.id == id).map((c) => c.name).firstOrNull ??
       'Nicht zugeordnet';
@@ -205,6 +222,9 @@ class Exporter {
       'Kommentare',
       'Teil',
       'Originaldatei',
+      'Nicht abziehbar',
+      'Anlass',
+      'Teilnehmer',
     ]);
 
     // Je Steuersatz eine Zeile (L-2.27). Belegweite Angaben (Originalbetrag,
@@ -245,6 +265,11 @@ class Exporter {
           _commentCell(receipt),
           lines.length > 1 ? '${i + 1}/${lines.length}' : '',
           first ? (originals[receipt.id] ?? '') : '',
+          first && _nonDeductible(receipt) != null
+              ? csvAmount(_nonDeductible(receipt)!.cents)
+              : '',
+          first ? receipt.entertainmentOccasion : '',
+          first ? receipt.entertainmentParticipants : '',
         ]);
       }
     }
@@ -290,6 +315,20 @@ class Exporter {
         '',
         '',
         csvAmount(totals.expenseFxDifference.cents),
+      ]);
+    }
+    if (!totals.entertainmentNonDeductible.isZero) {
+      // Bewirtung (FA-2.60): steuerlich nicht abziehbarer Teil, wird dem
+      // Ergebnis hinzugerechnet.
+      csv.writeRow([
+        'Bewirtung nicht abziehbar (${profile.taxProfile.entertainment.legalRef})',
+        '',
+        '',
+        '',
+        '',
+        '',
+        '',
+        csvAmount(totals.entertainmentNonDeductible.cents),
       ]);
     }
     csv.writeRow([
@@ -410,6 +449,28 @@ class Exporter {
           '',
           '',
           _bookingText(receipt),
+        ]);
+      }
+      // Bewirtung (FA-2.60): Umbuchung des nicht abziehbaren Teils ohne
+      // Steuer (BU 40 = Steuerautomatik aus), damit die Vorsteuer aus der
+      // Buchung oben voll bleibt.
+      final nonDeductible = _nonDeductible(receipt);
+      if (nonDeductible != null && !nonDeductible.isZero) {
+        csv.writeRow([
+          csvAmount(nonDeductible.cents.abs()),
+          nonDeductible.isNegative ? 'H' : 'S',
+          'EUR',
+          '',
+          '',
+          '',
+          _nonDeductibleEntertainmentAccount,
+          _account(receipt.categoryId),
+          '40',
+          _datevDayMonth(receipt.date),
+          receipt.id?.toString() ?? '',
+          '',
+          '',
+          _datevText('Bewirtung nicht abziehbar ${_bookingText(receipt)}'),
         ]);
       }
     }
@@ -603,6 +664,12 @@ class Exporter {
     csv.writeRow([]);
     csv.writeRow(['Einnahmen netto', csvAmount(totals.incomeNet.cents)]);
     csv.writeRow(['Ausgaben netto', csvAmount(totals.expenseNet.cents)]);
+    if (!totals.entertainmentNonDeductible.isZero) {
+      csv.writeRow([
+        'Bewirtung nicht abziehbar',
+        csvAmount(totals.entertainmentNonDeductible.cents),
+      ]);
+    }
     csv.writeRow(['Ergebnis netto', csvAmount(totals.profit.cents)]);
     csv.writeRow([]);
     csv.writeRow([

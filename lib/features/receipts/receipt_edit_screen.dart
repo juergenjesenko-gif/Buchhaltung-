@@ -88,6 +88,8 @@ class _ReceiptEditScreenState extends State<ReceiptEditScreen> {
   final _commentController = TextEditingController();
   final _documentNumberController = TextEditingController();
   final _issuerVatIdController = TextEditingController();
+  final _occasionController = TextEditingController();
+  final _participantsController = TextEditingController();
 
   // Belegerkennung (L-2.20 bis L-2.23)
   bool _scanEnabled = false;
@@ -189,6 +191,8 @@ class _ReceiptEditScreenState extends State<ReceiptEditScreen> {
       _noteController.text = existing.note;
       _documentNumberController.text = existing.documentNumber;
       _issuerVatIdController.text = existing.issuerVatId;
+      _occasionController.text = existing.entertainmentOccasion;
+      _participantsController.text = existing.entertainmentParticipants;
       _applyForeign(existing.currency, existing.originalGross);
       if (existing.fxRateMicros != null) {
         _rateController.text = CurrencyConverter.formatRate(
@@ -306,6 +310,8 @@ class _ReceiptEditScreenState extends State<ReceiptEditScreen> {
     _commentController.dispose();
     _documentNumberController.dispose();
     _issuerVatIdController.dispose();
+    _occasionController.dispose();
+    _participantsController.dispose();
     // Abgebrochene Erfassung: neu aufgenommene, nie gespeicherte Seiten
     // hinterlassen sonst verwaiste Dateien. Gespeicherte Seiten bleiben.
     if (!_saved) {
@@ -958,6 +964,8 @@ class _ReceiptEditScreenState extends State<ReceiptEditScreen> {
       note: _noteController.text.trim(),
       documentNumber: _documentNumberController.text.trim(),
       issuerVatId: _issuerVatIdController.text.trim(),
+      entertainmentOccasion: _occasionController.text.trim(),
+      entertainmentParticipants: _participantsController.text.trim(),
       currency: foreign ? _currencyController.text.trim().toUpperCase() : 'EUR',
       originalGross: foreign ? _originalAmount : null,
       fxRateMicros: foreign ? _rateMicros : null,
@@ -1745,6 +1753,42 @@ class _ReceiptEditScreenState extends State<ReceiptEditScreen> {
                         onChanged: (value) =>
                             setState(() => _categoryId = value),
                       ),
+                      // Bewirtung (FA-2.60): Hinweis zur Abzugsbeschränkung;
+                      // in DE Anlass und Teilnehmer als Vorschlagsfelder,
+                      // nie Pflicht (Leitprinzip).
+                      if (!isIncome &&
+                          (state.categoryById(_categoryId)?.isEntertainment ??
+                              false)) ...[
+                        const SizedBox(height: 8),
+                        Text(
+                          tax.entertainment.hint,
+                          key: const Key('entertainment-hint'),
+                          style: Theme.of(context).textTheme.bodySmall,
+                        ),
+                        if (tax.entertainment.asksOccasion) ...[
+                          const SizedBox(height: 12),
+                          TextFormField(
+                            key: const Key('entertainment-occasion'),
+                            controller: _occasionController,
+                            decoration: const InputDecoration(
+                              labelText: 'Anlass (für das Finanzamt)',
+                              hintText: 'z. B. Projektbesprechung',
+                            ),
+                            textCapitalization: TextCapitalization.sentences,
+                            textInputAction: TextInputAction.next,
+                          ),
+                          const SizedBox(height: 12),
+                          TextFormField(
+                            key: const Key('entertainment-participants'),
+                            controller: _participantsController,
+                            decoration: const InputDecoration(
+                              labelText: 'Teilnehmer',
+                              hintText: 'z. B. Anna Huber (Firma X), ich',
+                            ),
+                            textCapitalization: TextCapitalization.words,
+                          ),
+                        ],
+                      ],
                       const SizedBox(height: 12),
                       DropdownButtonFormField<PaymentMethod>(
                         key: ValueKey('payment$_paymentMethod'),

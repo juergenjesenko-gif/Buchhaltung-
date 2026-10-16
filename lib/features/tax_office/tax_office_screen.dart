@@ -77,6 +77,7 @@ class _TaxOfficeScreenState extends State<TaxOfficeScreen> {
       inputVatDeductible: state.inputVatDeductible,
       reverseChargePermille: state.reverseChargePermille,
       depreciation: state.depreciationRules,
+      entertainment: state.entertainmentRules,
     );
     final yearTotals = await state.repositories.receipts.totals(
       from: yearPeriod.from,
@@ -84,6 +85,7 @@ class _TaxOfficeScreenState extends State<TaxOfficeScreen> {
       inputVatDeductible: state.inputVatDeductible,
       reverseChargePermille: state.reverseChargePermille,
       depreciation: state.depreciationRules,
+      entertainment: state.entertainmentRules,
     );
     if (!mounted) return;
     setState(() {

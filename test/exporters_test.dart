@@ -345,7 +345,10 @@ void main() {
       final lines = csv.split('\r\n');
       expect(
         lines.first,
-        endsWith('Notiz;Seiten;Kommentare;Teil;Originaldatei'),
+        endsWith(
+          'Notiz;Seiten;Kommentare;Teil;Originaldatei;'
+          'Nicht abziehbar;Anlass;Teilnehmer',
+        ),
       );
       expect(csv, contains('3;13.03.2026, 08:05: Rückseite leer'));
     });

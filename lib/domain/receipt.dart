@@ -55,7 +55,17 @@ class Receipt {
     this.cancelledAt,
     this.vatLines = const [],
     this.reverseCharge = false,
+    this.entertainmentOccasion = '',
+    this.entertainmentParticipants = '',
   });
+
+  /// Anlass der Bewirtung (Schema 23, FA-2.60). Vorschlagsfeld, nie Pflicht;
+  /// in Deutschland Teil des Bewirtungsnachweises (§ 4 Abs 5 Satz 1 Nr. 2
+  /// Satz 2 EStG).
+  final String entertainmentOccasion;
+
+  /// Bewirtete Personen (Schema 23, FA-2.60), freier Text.
+  final String entertainmentParticipants;
 
   /// Steuerschuld des Leistungsempfängers (Reverse Charge, Schema 17,
   /// L-28.4): Beleg ohne ausgewiesene Steuer; die Steuer berechnet die
@@ -188,6 +198,8 @@ class Receipt {
     DateTime? updatedAt,
     List<ReceiptVatLine>? vatLines,
     bool? reverseCharge,
+    String? entertainmentOccasion,
+    String? entertainmentParticipants,
   }) {
     return Receipt(
       id: id ?? this.id,
@@ -217,6 +229,10 @@ class Receipt {
       updatedAt: updatedAt ?? this.updatedAt,
       vatLines: vatLines ?? this.vatLines,
       reverseCharge: reverseCharge ?? this.reverseCharge,
+      entertainmentOccasion:
+          entertainmentOccasion ?? this.entertainmentOccasion,
+      entertainmentParticipants:
+          entertainmentParticipants ?? this.entertainmentParticipants,
     );
   }
 
@@ -243,6 +259,8 @@ class Receipt {
     'fx_rate_source': fxRateSource?.code,
     'bank_gross_cents': bankGross?.cents,
     'reverse_charge': reverseCharge ? 1 : 0,
+    'entertainment_occasion': entertainmentOccasion,
+    'entertainment_participants': entertainmentParticipants,
     'created_at': (createdAt ?? DateTime.now()).toIso8601String(),
     'updated_at': DateTime.now().toIso8601String(),
   };
@@ -253,6 +271,9 @@ class Receipt {
   ]) => Receipt(
     vatLines: vatLines.length > 1 ? vatLines : const [],
     reverseCharge: (map['reverse_charge'] as int? ?? 0) == 1,
+    entertainmentOccasion: map['entertainment_occasion'] as String? ?? '',
+    entertainmentParticipants:
+        map['entertainment_participants'] as String? ?? '',
     id: map['id'] as int?,
     date: DateTime.parse(map['date'] as String),
     direction: (map['direction'] as String) == 'income'
@@ -395,7 +416,16 @@ class ExpenseCategory {
     required this.direction,
     this.datevAccount,
     this.isSystem = false,
+    this.kind,
   });
+
+  /// Kennung einer Kategorie mit Sonderregel (Schema 23); `entertainment`
+  /// = Bewirtung mit Abzugsbeschränkung (FA-2.60).
+  final String? kind;
+
+  static const entertainmentKind = 'entertainment';
+
+  bool get isEntertainment => kind == entertainmentKind;
 
   final int? id;
   final String name;
@@ -413,6 +443,7 @@ class ExpenseCategory {
     'direction': direction.name,
     'datev_account': datevAccount,
     'is_system': isSystem ? 1 : 0,
+    'kind': kind,
   };
 
   static ExpenseCategory fromMap(Map<String, Object?> map) => ExpenseCategory(
@@ -423,6 +454,7 @@ class ExpenseCategory {
         : BookingDirection.expense,
     datevAccount: map['datev_account'] as String?,
     isSystem: (map['is_system'] as int? ?? 0) == 1,
+    kind: map['kind'] as String?,
   );
 }
 
