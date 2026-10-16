@@ -1,3 +1,4 @@
+import 'domain/fixed_asset.dart';
 import 'package:flutter/widgets.dart';
 import 'package:path_provider/path_provider.dart';
 
@@ -389,6 +390,9 @@ class AppState extends ChangeNotifier {
   /// Satz für die Steuer aus Reverse Charge (L-28.4): Normalsatz des Landes.
   int get reverseChargePermille =>
       _profile?.taxProfile.standardVatPermille ?? 0;
+
+  /// Abschreibungsregeln des Landes (FA-15.5), `null` ohne Profil.
+  DepreciationRules? get depreciationRules => _profile?.taxProfile.depreciation;
 
   bool get inputVatDeductible => !(_profile?.isSmallBusiness ?? false);
 

@@ -77,6 +77,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
       to: period.to,
       inputVatDeductible: state.inputVatDeductible,
       reverseChargePermille: state.reverseChargePermille,
+      depreciation: state.depreciationRules,
     );
     final recent = await state.repositories.receipts.query(limit: 5);
     final trend = await _loadTrend(state);
@@ -103,6 +104,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
         to: period.to,
         inputVatDeductible: state.inputVatDeductible,
         reverseChargePermille: state.reverseChargePermille,
+        depreciation: state.depreciationRules,
       );
       bars.add(
         _MonthBar(
@@ -440,6 +442,18 @@ class _TotalsCard extends StatelessWidget {
             value: Fmt.money(totals.expenseNet),
             valueColor: AppTheme.amountColor(false, context),
           ),
+          // Anlagen (FA-15.5): Anschaffung raus, AfA rein.
+          if (!totals.capitalizedExpense.isZero)
+            LabeledValue(
+              label: 'davon Investitionen (nicht Ergebnis)',
+              value: Fmt.money(totals.capitalizedExpense),
+            ),
+          if (!totals.depreciation.isZero)
+            LabeledValue(
+              label: 'Abschreibung (AfA)',
+              value: Fmt.money(totals.depreciation),
+              valueColor: AppTheme.amountColor(false, context),
+            ),
           const Divider(height: 20),
           LabeledValue(
             label: 'Ergebnis',

@@ -8,7 +8,10 @@ import '../domain/invoice.dart';
 import '../domain/money.dart';
 import '../domain/receipt.dart';
 import '../domain/platform_import.dart';
+import '../domain/fixed_asset.dart';
+import '../services/assets/depreciation.dart';
 import '../services/vat_calculator.dart';
+import 'asset_repository.dart';
 import 'consent_repository.dart';
 import 'offer_repository.dart';
 import 'vat_check_repository.dart';
@@ -592,6 +595,44 @@ class ReceiptRepository {
     return b.toString();
   }
 
+  /// Summen je Kategorie und Richtung für die Saldenliste (FA-15.9):
+  /// netto (Kleinunternehmer: Ausgaben brutto), ohne Anschaffungsbelege von
+  /// Anlagen. Schlüssel `(categoryId, direction)`, Wert `(betrag, anzahl)`.
+  Future<List<CategorySum>> categorySums({
+    required DateTime from,
+    required DateTime to,
+    bool inputVatDeductible = true,
+  }) async {
+    final rows = await _db.rawQuery(
+      '''
+      SELECT r.category_id AS category_id, r.direction AS direction,
+             SUM(r.net_cents) AS net, SUM(r.gross_cents) AS gross,
+             COUNT(*) AS n
+      FROM receipts r
+      WHERE r.date >= ? AND r.date <= ? AND r.cancelled_at IS NULL
+        AND r.id NOT IN (SELECT receipt_id FROM fixed_assets
+                         WHERE receipt_id IS NOT NULL)
+      GROUP BY r.category_id, r.direction
+      ''',
+      [_day(from), _day(to)],
+    );
+    return [
+      for (final row in rows)
+        CategorySum(
+          categoryId: row['category_id'] as int?,
+          isIncome: row['direction'] == 'income',
+          amount: Money(
+            ((row['direction'] == 'expense' && !inputVatDeductible)
+                        ? row['gross']
+                        : row['net'])
+                    as int? ??
+                0,
+          ),
+          count: row['n'] as int? ?? 0,
+        ),
+    ];
+  }
+
   /// Summen je Richtung für einen Zeitraum – Basis für Kassabuch und UVA.
   ///
   /// Ausgewertet wird je Steuersatzzeile (L-2.27); ein Beleg ohne Zeilen
@@ -606,6 +647,7 @@ class ReceiptRepository {
     required DateTime to,
     bool inputVatDeductible = true,
     int reverseChargePermille = 0,
+    DepreciationRules? depreciation,
   }) async {
     // Reverse Charge (L-28.4): Steuer je Beleg zum Normalsatz gerundet;
     // Vorsteuer daraus nur bei Vorsteuerabzug (nicht für Kleinunternehmer).
@@ -687,6 +729,34 @@ class ReceiptRepository {
       }
     }
 
+    // Anlagevermögen (FA-15.5): der Anschaffungsbeleg ist keine
+    // Betriebsausgabe; stattdessen zählt die AfA mit ihrem Buchungstag.
+    var capitalized = const Money.zero();
+    var afa = const Money.zero();
+    if (depreciation != null) {
+      final cap = await _db.rawQuery(
+        '''
+        SELECT SUM(r.net_cents) AS net, SUM(r.gross_cents) AS gross
+        FROM receipts r
+        WHERE r.direction = 'expense' AND r.cancelled_at IS NULL
+          AND r.date >= ? AND r.date <= ?
+          AND r.id IN (SELECT receipt_id FROM fixed_assets
+                       WHERE receipt_id IS NOT NULL)
+        ''',
+        [_day(from), _day(to)],
+      );
+      capitalized = Money(
+        (cap.first[inputVatDeductible ? 'net' : 'gross'] as int?) ?? 0,
+      );
+      final assetRows = await _db.query('fixed_assets');
+      afa = Depreciation.between(
+        assetRows.map(FixedAsset.fromMap),
+        depreciation,
+        from,
+        to,
+      );
+    }
+
     return PeriodTotals(
       from: from,
       to: to,
@@ -697,6 +767,8 @@ class ReceiptRepository {
       expenseVat: expenseVat,
       expenseGross: expenseGross,
       expenseFxDifference: Money((fx.first['fx_diff'] as int?) ?? 0),
+      capitalizedExpense: capitalized,
+      depreciation: afa,
       incomeNetByRate: incomeByRate,
       inputVatByRate: expenseVatByRate,
       reverseChargeBase: rcBase,
@@ -771,6 +843,21 @@ class OpeningTurnoverRepository {
   }
 }
 
+/// Summe einer Kategorie in der Saldenliste.
+class CategorySum {
+  const CategorySum({
+    required this.categoryId,
+    required this.isIncome,
+    required this.amount,
+    required this.count,
+  });
+
+  final int? categoryId;
+  final bool isIncome;
+  final Money amount;
+  final int count;
+}
+
 /// Aggregierte Zahlen für einen Zeitraum.
 class PeriodTotals {
   const PeriodTotals({
@@ -783,6 +870,8 @@ class PeriodTotals {
     required this.expenseVat,
     required this.expenseGross,
     this.expenseFxDifference = const Money.zero(),
+    this.capitalizedExpense = const Money.zero(),
+    this.depreciation = const Money.zero(),
     required this.incomeNetByRate,
     required this.inputVatByRate,
     this.reverseChargeBase = const Money.zero(),
@@ -827,9 +916,22 @@ class PeriodTotals {
   /// Abziehbare Vorsteuer je Steuersatz.
   final Map<int, Money> inputVatByRate;
 
+  /// Anschaffungsbelege von Anlagegütern im Zeitraum (netto, beim
+  /// Kleinunternehmer brutto): in [expenseNet] enthalten, aber keine
+  /// Betriebsausgabe (FA-15.5).
+  final Money capitalizedExpense;
+
+  /// AfA, GWG, Sammelposten und Restbuchwerte mit Buchungstag im Zeitraum.
+  final Money depreciation;
+
+  /// Betriebsausgaben der Gewinnermittlung: Ausgaben ohne Anlagenzugänge,
+  /// plus AfA.
+  Money get operatingExpense => expenseNet - capitalizedExpense + depreciation;
+
   /// Gewinn nach Einnahmen-Ausgaben-Rechnung (netto, ohne durchlaufende USt).
-  /// Kursdifferenzen laut Bank fließen ein (L-2.26).
-  Money get profit => incomeNet - expenseNet - expenseFxDifference;
+  /// Kursdifferenzen laut Bank fließen ein (L-2.26), Anlagen über die AfA
+  /// (FA-15.5).
+  Money get profit => incomeNet - operatingExpense - expenseFxDifference;
 
   /// Zahllast bzw. Guthaben gegenüber dem Finanzamt.
   Money get vatPayable =>
@@ -1449,6 +1551,7 @@ class Repositories {
       platformImports = PlatformImportRepository(db),
       articles = ArticleRepository(db),
       offers = OfferRepository(db),
+      assets = AssetRepository(db),
       audit = AuditLog(db);
 
   final CompanyRepository company;
@@ -1463,6 +1566,7 @@ class Repositories {
   final ConsentRepository consents;
   final ArticleRepository articles;
   final OfferRepository offers;
+  final AssetRepository assets;
   final AuditLog audit;
 }
 

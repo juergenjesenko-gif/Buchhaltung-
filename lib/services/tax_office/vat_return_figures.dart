@@ -229,9 +229,9 @@ class VatReturnCalculator {
       KennzahlLine(
         kz: null,
         label: smallBusiness
-            ? 'Betriebsausgaben (brutto, nach Art aufteilen)'
-            : 'Betriebsausgaben (netto, nach Art aufteilen)',
-        amount: totals.expenseNet + totals.expenseFxDifference,
+            ? 'Betriebsausgaben inkl. AfA (brutto, nach Art aufteilen)'
+            : 'Betriebsausgaben inkl. AfA (netto, nach Art aufteilen)',
+        amount: totals.operatingExpense + totals.expenseFxDifference,
       ),
       KennzahlLine(
         kz: null,

@@ -42,6 +42,9 @@ String featureReason(Feature feature) => switch (feature) {
     'Dein Logo auf Rechnungen und Angeboten gibt es mit Pro.',
   Feature.exchangeRateFetch =>
     'Kurs abrufen gibt es mit Pro. Den Kurs eintippen geht in jedem Abo.',
+  Feature.annualReports =>
+    'Saldenliste und vorläufigen Jahresabschluss gibt es mit Pro. Das '
+        'Anlagenverzeichnis und den Export bekommst du in jedem Abo.',
 };
 
 /// Beschriftung mit Pro-Hinweis für Knöpfe, die ohne Pro zur Abo-Seite

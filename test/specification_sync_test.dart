@@ -484,6 +484,26 @@ void main() {
           vr.file.name,
         ].join(';'),
       );
+      // Anlagevermögen und AfA (GR-15, FA-15.x).
+      final dr = profile.depreciation;
+      expect(
+        value('spec.$prefix.depreciation'),
+        [
+          dr.timing.name,
+          dr.gwgLimit.cents,
+          dr.gwgLimitIsNet ? 'netto' : 'ak',
+          dr.poolRange == null
+              ? '-'
+              : '${dr.poolRange!.$1.cents}-${dr.poolRange!.$2.cents}',
+          dr.registerLegalRef,
+          dr.classes
+              .map(
+                (c) =>
+                    '${c.key}=${c.years}${c.minYears == null ? '' : 'min${c.minYears}'}',
+              )
+              .join(','),
+        ].join(';'),
+      );
       final ar = profile.annualReturnForm;
       expect(
         value('spec.$prefix.annual_return_kz'),

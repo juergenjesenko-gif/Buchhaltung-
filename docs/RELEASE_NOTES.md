@@ -29,11 +29,35 @@ gebaut, und was war darin geprüft?*
 
 ## Unveröffentlicht
 
-Änderungen seit 0.17.0+24, die noch in keinem Build stecken. Wandern beim
+Änderungen seit 0.18.0+25, die noch in keinem Build stecken. Wandern beim
 nächsten Versionssprung in den neuen Eintrag.
 
 | Art | Änderung | Bezug | Commit |
 |---|---|---|---|
+
+---
+
+## 0.18.0+25 — 2026-10-16
+
+| Feld | Wert |
+|---|---|
+| Art | Testbuild (ungezippte arm64-APK `JeNi-bucht-0.18.0-build-<Nr>.apk`, fester Testschlüssel); **Lizenzprüfung aus** (ohne `LICENSING=true`), alle Funktionen frei |
+| Commit | folgt |
+| Branch | `claude/agile-accounting-app-mobile-wa5j3h` |
+| Dokumentstände | Lastenheft 1.66, Spezifikation 1.66, Benutzerhandbuch für 0.18.0, DESIGN_SPEC 1.2 |
+| Datenbankschema | 21 |
+| Prüfung | `flutter analyze` ohne Befund, alle Tests grün (neu `fixed_asset_test.dart` mit Summenprobe über 600 Fälle), CI-Lauf zum Commit |
+| Steuerliche Kennwerte | neu `spec.at.depreciation`, `spec.de.depreciation`; `spec.schema_version` 21 |
+| Offene reale Prüfpunkte | wie 0.17.0+24, neu P-S59, P-S60, P-S61, P-X13 |
+| Bekannte Grenzen | Spezifikation Abschnitt 11 (neu: Anlagen vereinfacht) |
+
+**Änderungen seit 0.17.0+24**
+
+| Art | Änderung | Bezug | Commit |
+|---|---|---|---|
+| Neu | Ausgabe als Investition erfassen: Nutzungsdauer-Vorschlag je Land mit Fundstelle, eigene Dauer mit Begründung, GWG, Sammelposten (DE), AfA-Plan; Gewinn mit AfA statt Anschaffung (Schema 21) | GR-15, FA-15.1 bis FA-15.5, FA-15.7 | folgt |
+| Neu | Ausscheiden bzw. vollständig abschreiben mit Pflichtkommentar, Verkaufserlös als Einnahme | FA-15.6 | folgt |
+| Neu | Anlagenverzeichnis (jedes Abo), Saldenliste und vorläufiger Jahresabschluss als PDF/ZIP (Pro, Vorschlag 14a) | FA-15.8 bis FA-15.11, FA-13.2 | folgt |
 
 ---
 

@@ -16,6 +16,7 @@ import '../../data/receipt_scan_settings.dart';
 import '../../domain/country.dart';
 import '../../domain/exchange_rate.dart';
 import '../../domain/money.dart';
+import '../../domain/fixed_asset.dart';
 import '../../domain/receipt.dart';
 import '../../services/fx/currency_converter.dart';
 import '../../services/fx/fx_rate_service.dart';
@@ -42,6 +43,7 @@ import 'vat_split_editor.dart';
 import '../licensing/feature_gate.dart';
 import '../../services/licensing/license_policy.dart';
 import '../../services/receipt_vat_split.dart';
+import '../assets/asset_screens.dart';
 import '../help/help_screen.dart';
 import '../../services/help/help_index.dart';
 
@@ -1739,6 +1741,12 @@ class _ReceiptEditScreenState extends State<ReceiptEditScreen> {
               ),
               const SizedBox(height: 16),
               SectionCard(title: 'Kommentare', child: _buildComments(context)),
+              if (_isEditing &&
+                  !_isCancelled &&
+                  widget.existing!.direction == BookingDirection.expense) ...[
+                const SizedBox(height: 16),
+                _InvestmentTile(receipt: widget.existing!),
+              ],
               if (_isEditing && !_isCancelled)
                 DangerZone(
                   buttonKey: const Key('receipt-cancel'),
@@ -1795,4 +1803,69 @@ String _scanErrorCode(Object error) {
         : '${error.code}: $short [$where]';
   }
   return error.runtimeType.toString();
+}
+
+/// Ausgabe als Investition aktivieren bzw. die Anlage öffnen (FA-15.1).
+class _InvestmentTile extends StatefulWidget {
+  const _InvestmentTile({required this.receipt});
+
+  final Receipt receipt;
+
+  @override
+  State<_InvestmentTile> createState() => _InvestmentTileState();
+}
+
+class _InvestmentTileState extends State<_InvestmentTile> {
+  FixedAsset? _asset;
+  bool _loaded = false;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) => _load());
+  }
+
+  Future<void> _load() async {
+    final id = widget.receipt.id;
+    if (id == null) return;
+    final asset = await AppScope.read(
+      context,
+    ).repositories.assets.byReceipt(id);
+    if (mounted) {
+      setState(() {
+        _asset = asset;
+        _loaded = true;
+      });
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (!_loaded) return const SizedBox.shrink();
+    return Card(
+      child: ListTile(
+        key: const Key('receipt-investment'),
+        minVerticalPadding: 12,
+        leading: const Icon(Icons.inventory_2_outlined),
+        title: Text(
+          _asset == null ? 'Als Investition erfassen' : 'Anlage öffnen',
+        ),
+        subtitle: Text(
+          _asset == null
+              ? 'Für Anschaffungen, die länger als ein Jahr genutzt werden'
+              : _asset!.name,
+        ),
+        trailing: const Icon(Icons.chevron_right),
+        onTap: () async {
+          await Navigator.of(context).push(
+            MaterialPageRoute<void>(
+              builder: (_) =>
+                  AssetEditScreen(asset: _asset, receipt: widget.receipt),
+            ),
+          );
+          await _load();
+        },
+      ),
+    );
+  }
 }

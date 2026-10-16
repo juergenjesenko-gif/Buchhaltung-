@@ -1,5 +1,6 @@
 import 'deadline_rule.dart';
 import 'dunning.dart';
+import 'fixed_asset.dart';
 import 'holidays.dart';
 import 'money.dart';
 
@@ -113,6 +114,7 @@ class TaxProfile {
     required this.reverseCharge,
     required this.vatReturnForm,
     required this.annualReturnForm,
+    required this.depreciation,
   });
 
   final Country country;
@@ -250,6 +252,9 @@ class TaxProfile {
   /// Kennzahlen der Jahreserklärung für die Gewinnermittlung (L-6.3).
   /// Prüfpunkt P-S58.
   final AnnualReturnForm annualReturnForm;
+
+  /// Abschreibung des Anlagevermögens (FA-15.x, GR-15). Prüfpunkt P-S59.
+  final DepreciationRules depreciation;
 
   /// Normalsteuersatz (für die Steuer aus Reverse Charge).
   int get standardVatPermille => vatRates
@@ -434,6 +439,51 @@ class TaxProfile {
       file: VatReturnFile.u30Xml,
       portalName: 'FinanzOnline',
       portalUrl: 'https://finanzonline.bmf.gv.at',
+    ),
+    depreciation: DepreciationRules(
+      // § 7 Abs 2 EStG: Inbetriebnahme im zweiten Halbjahr → halbe Jahres-AfA.
+      timing: DepreciationTiming.halfYear,
+      timingLegalRef: '§ 7 Abs 1 und 2 EStG',
+      // § 13 EStG idF ab 2023: GWG bis 1.000 EUR sofort absetzbar.
+      gwgLimit: const Money(100000),
+      gwgLegalRef: '§ 13 EStG',
+      // Ohne Vorsteuerabzug zählt die nicht abziehbare USt zu den
+      // Anschaffungskosten (§ 6 Z 11 EStG) – auch für die Grenze. P-S59.
+      gwgLimitIsNet: false,
+      poolRange: null,
+      // § 7 Abs 3 EStG: Verzeichnis der abnutzbaren Anlagegüter bei E/A.
+      registerLegalRef: '§ 7 Abs 3 EStG',
+      classes: const [
+        // Betriebsgewöhnliche Nutzungsdauer § 7 Abs 1 EStG; Praxiswerte,
+        // Bestätigung Steuerberatung P-S59.
+        AssetClass(
+          'computer',
+          'Computer, Laptop, Tablet, Drucker',
+          3,
+          '§ 7 Abs 1 EStG, Praxiswert',
+        ),
+        AssetClass('software', 'Software', 3, '§ 7 Abs 1 EStG, Praxiswert'),
+        AssetClass(
+          'furniture',
+          'Büromöbel und Einrichtung',
+          10,
+          '§ 7 Abs 1 EStG, Praxiswert',
+        ),
+        // § 8 Abs 6 Z 1 EStG: PKW und Kombi mindestens 8 Jahre.
+        AssetClass('car', 'PKW, Kombi', 8, '§ 8 Abs 6 Z 1 EStG', minYears: 8),
+        AssetClass(
+          'tools',
+          'Maschinen, Werkzeuge, Geräte',
+          5,
+          '§ 7 Abs 1 EStG, Praxiswert',
+        ),
+        AssetClass(
+          'other',
+          'Sonstiges (selbst festlegen)',
+          5,
+          '§ 7 Abs 1 EStG',
+        ),
+      ],
     ),
     // Beilage E1a, Einnahmen-Ausgaben-Rechnung: Kz 9040 Erlöse
     // (Betriebseinnahmen), auch für Kleinunternehmer. P-S58.
@@ -634,6 +684,58 @@ class TaxProfile {
       file: VatReturnFile.none,
       portalName: 'Mein ELSTER',
       portalUrl: 'https://www.elster.de/eportal/start',
+    ),
+    depreciation: DepreciationRules(
+      // § 7 Abs 1 Satz 4 EStG: im Jahr der Anschaffung monatsgenau.
+      timing: DepreciationTiming.monthly,
+      timingLegalRef: '§ 7 Abs 1 EStG',
+      // § 6 Abs 2 EStG: GWG bis 800 EUR netto sofort.
+      gwgLimit: const Money(80000),
+      gwgLegalRef: '§ 6 Abs 2 EStG',
+      // § 6 Abs 2 Satz 1 EStG: „vermindert um einen darin enthaltenen
+      // Vorsteuerbetrag“ – Grenze stets netto. P-S59.
+      gwgLimitIsNet: true,
+      // § 6 Abs 2a EStG: mehr als 250 bis 1.000 EUR, 5 Jahre je 20 %.
+      poolRange: (const Money(25001), const Money(100000)),
+      // § 4 Abs 3 Satz 5 EStG: besondere, laufend zu führende Verzeichnisse.
+      registerLegalRef: '§ 4 Abs 3 Satz 5 EStG',
+      classes: const [
+        // BMF-Schreiben vom 22.02.2022 (BStBl I 2022 S. 187):
+        // Computerhardware und Software Nutzungsdauer 1 Jahr.
+        AssetClass(
+          'computer',
+          'Computer, Laptop, Tablet, Drucker',
+          1,
+          'BMF 22.02.2022, BStBl I 2022, 187',
+        ),
+        AssetClass(
+          'software',
+          'Software',
+          1,
+          'BMF 22.02.2022, BStBl I 2022, 187',
+        ),
+        // AfA-Tabelle AV (BMF 15.12.2000), Nr. 6.15 Büromöbel 13 Jahre.
+        AssetClass(
+          'furniture',
+          'Büromöbel und Einrichtung',
+          13,
+          'AfA-Tabelle AV Nr. 6.15',
+        ),
+        // AfA-Tabelle AV Nr. 4.2.1: PKW, Kombi 6 Jahre.
+        AssetClass('car', 'PKW, Kombi', 6, 'AfA-Tabelle AV Nr. 4.2.1'),
+        AssetClass(
+          'tools',
+          'Maschinen, Werkzeuge, Geräte',
+          5,
+          'AfA-Tabelle AV, je nach Art',
+        ),
+        AssetClass(
+          'other',
+          'Sonstiges (selbst festlegen)',
+          5,
+          '§ 7 Abs 1 EStG',
+        ),
+      ],
     ),
     // Anlage EÜR: Kz 111 Betriebseinnahmen als umsatzsteuerlicher
     // Kleinunternehmer, Kz 112 umsatzsteuerpflichtige Betriebseinnahmen,

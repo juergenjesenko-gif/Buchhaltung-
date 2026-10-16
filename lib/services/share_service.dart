@@ -74,6 +74,16 @@ class ShareService {
     await _share(file, 'application/xml', subject: subject);
   }
 
+  /// ZIP-Paket teilen, z. B. den vorläufigen Jahresabschluss (FA-15.10).
+  static Future<void> shareZip({
+    required String fileName,
+    required List<int> bytes,
+    String? subject,
+  }) async {
+    final file = await _writeTemp(fileName, bytes);
+    await _share(file, 'application/zip', subject: subject);
+  }
+
   static Future<void> sharePdf({
     required String fileName,
     required Uint8List bytes,

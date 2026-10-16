@@ -9,6 +9,7 @@ import '../../services/share_service.dart';
 import '../../widgets/common.dart';
 import '../../widgets/adaptive.dart';
 import '../help/help_screen.dart';
+import '../reports/reports_screen.dart';
 import '../tax_office/tax_office_screen.dart';
 
 /// Export an die Steuerberatung.
@@ -69,6 +70,7 @@ class _ExportScreenState extends State<ExportScreen> {
       to: period.to,
       inputVatDeductible: state.inputVatDeductible,
       reverseChargePermille: state.reverseChargePermille,
+      depreciation: state.depreciationRules,
     );
     final receipts = await state.repositories.receipts.query(
       from: period.from,
@@ -143,6 +145,23 @@ class _ExportScreenState extends State<ExportScreen> {
                 onTap: () => Navigator.of(context).push(
                   MaterialPageRoute<void>(
                     builder: (_) => const TaxOfficeScreen(),
+                  ),
+                ),
+              ),
+            ),
+            Card(
+              child: ListTile(
+                key: const Key('open-reports'),
+                minVerticalPadding: 12,
+                leading: const Icon(Icons.inventory_2_outlined),
+                title: const Text('Anlagen und Jahresabschluss'),
+                subtitle: const Text(
+                  'AfA, Anlagenverzeichnis, Saldenliste, vorläufiger Abschluss',
+                ),
+                trailing: const Icon(Icons.chevron_right),
+                onTap: () => Navigator.of(context).push(
+                  MaterialPageRoute<void>(
+                    builder: (_) => const ReportsScreen(),
                   ),
                 ),
               ),

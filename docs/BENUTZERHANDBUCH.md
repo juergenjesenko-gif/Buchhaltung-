@@ -1,6 +1,6 @@
 # Benutzerhandbuch – JeNi bucht
 
-**Für App-Version 0.17.0** · Stand 2026-10-16
+**Für App-Version 0.18.0** · Stand 2026-10-16
 
 Dieses Handbuch beschreibt die App aus Nutzersicht. Es wird bei jeder Änderung,
 die du in der App siehst, mitgeführt – siehe [`CLAUDE.md`](../CLAUDE.md).
@@ -1003,6 +1003,42 @@ Beilage **E1a** (Kz 9040), in Deutschland **Anlage EÜR** (Kz 111 bzw. 112,
 Die App schickt nichts selbst ans Finanzamt. Die Meldung gibst du ab – im
 Zweifel frag deine Steuerberatung.
 
+### Anlagen und Jahresabschluss
+
+Was du länger als ein Jahr nutzt und mehr kostet als die GWG-Grenze (Österreich
+1.000 €, Deutschland 800 € netto), schreibst du über mehrere Jahre ab.
+
+1. Die Ausgabe wie immer fotografieren und speichern.
+2. Beleg öffnen → **Als Investition erfassen**.
+3. **Art** wählen – die App schlägt die Nutzungsdauer vor (z. B. Computer in
+   Österreich 3 Jahre, in Deutschland 1 Jahr; PKW in Österreich mindestens
+   8 Jahre). Unter der Grenze ist **Geringwertig – sofort abschreiben**
+   vorgewählt.
+4. **Speichern**. Den AfA-Plan siehst du gleich darunter.
+
+Eine andere Nutzungsdauer geht – dann schreib kurz dazu, warum. Kleinunternehmer
+tragen den Betrag **brutto** ein, alle anderen netto. Die Vorsteuer aus dem Beleg
+bleibt wie gewohnt in der UVA.
+
+Die Anschaffung zählt **nicht** als Ausgabe im Ergebnis; stattdessen zählt die
+Abschreibung (AfA) jedes Jahr am 31.12. In der Übersicht steht dann „davon
+Investitionen“ und „Abschreibung (AfA)“.
+
+**Kaputt, verloren, verkauft?** Anlage öffnen → **Ausscheiden**, Grund und
+Datum wählen, kurz kommentieren. Der Restwert wird an diesem Tag abgeschrieben.
+Bei **Verkauft** trägst du den Erlös ein; die App bucht ihn als Einnahme.
+
+**Berichte:** Export → **Anlagen und Jahresabschluss**. Jahr wählen, optional
+einen Kommentar an deine Steuerberatung schreiben, dann:
+
+- **Anlagenverzeichnis** – Pflicht, in jedem Abo
+- **Saldenliste** (Pro) – Summen je Kategorie
+- **Vorläufiger Jahresabschluss** (Pro) – ein ZIP mit PDF, Belegliste und
+  Buchungsexport zum Weiterschicken. Alles ist als **VORLÄUFIG** markiert;
+  fertig macht ihn deine Kanzlei.
+
+**Leasing** ist keine Anlage: Raten buchst du einfach als Ausgabe.
+
 ### Was du mit deiner Kanzlei einmal klären solltest
 
 Die Kontonummern und Steuercodes in den Exporten sind **Vorschläge** nach
@@ -1303,6 +1339,17 @@ Daten bleiben in jedem Fall lesbar und exportierbar.
 Abo-Seite öffnet sich, deine Eingaben bleiben im Formular stehen. Nach dem
 Abschluss tippst du auf Zurück und speicherst wie gewohnt.
 
+**„Bitte kurz begründen, warum die Dauer abweicht“** — du hast eine andere
+Nutzungsdauer als vorgeschlagen eingetragen. Ein Satz genügt, z. B. „wird im
+Schichtbetrieb genutzt“; er steht im Anlagenverzeichnis.
+
+**„Sofort abschreiben geht nur bis …“** — der Betrag liegt über der GWG-Grenze.
+Wähle **Linear über die Nutzungsdauer** (in Deutschland bis 1.000 € netto auch
+**Sammelposten**).
+
+**„Ausscheiden buchen“ ist grau** — der Kommentar fehlt. Schreib kurz, was
+passiert ist.
+
 **„U30-Datei teilen“ ist grau** — darüber steht der Grund: Die Steuernummer
 im Firmenprofil hat keine 9 Ziffern mit Finanzamtsnummer, oder es gibt Umsätze
 ohne eindeutige Kennzahl (z. B. 0 % als Regelbesteuerte, Ausfuhr,
@@ -1454,7 +1501,10 @@ Damit du nicht darauf wartest:
   Kategorie, Steuersatz, Währung und Zahlungsart.
 - **Keine Kürzung bei Bewirtung.** Bewirtungsbelege werden nach Steuersätzen
   aufgeteilt, aber voll gezählt; die steuerliche Kürzung macht deine Kanzlei.
-- **Keine Lohnverrechnung, keine Bilanz, keine doppelte Buchführung**
+- **Keine Lohnverrechnung, keine Bilanz, keine doppelte Buchführung.** Der
+  vorläufige Jahresabschluss ist eine Einnahmen-Ausgaben-Rechnung zur Übergabe
+  an deine Kanzlei. Gebäude, degressive AfA, Investitionsfreibetrag und
+  Investitionsabzugsbetrag kann die App nicht.
 - **Keine automatische Übermittlung** an FinanzOnline oder ELSTER. Die App
   liefert die Kennzahlen zum Kopieren und in Österreich die U30-Datei zum
   Hochladen; abgeben machst du oder deine Kanzlei. Eine Zusammenfassende

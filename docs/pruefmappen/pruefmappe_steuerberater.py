@@ -24,6 +24,7 @@ THEMEN = [
     ('Aufbewahrung, GoBD/BAO, Verfahrensdokumentation', ['P-S5', 'P-S10', 'P-S15', 'P-S16', 'P-S31', 'P-M2', 'P-K4', 'P-L3', 'P-S17']),
     ('Export DATEV / BMD', ['P-S48']),
     ('Meldungen ans Finanzamt: Kennzahlen UVA/UStVA, E1a, Anlage EÜR', ['P-S57', 'P-S58']),
+    ('Anlagen, AfA, Saldenliste, vorläufiger Jahresabschluss', ['P-S59', 'P-S60', 'P-S61']),
     ('Fristen-Box und Wirtschaftsjahr', ['P-S7', 'P-S33', 'P-S34', 'P-S32']),
     ('Einnahmen-Ausgaben-Rechnung', ['P-S3', 'P-S35', 'P-S18']),
     ('Abo-Erlöse des Anbieters (eigene Steuerfragen der Auftraggeberin)', ['P-S11', 'P-S12', 'P-S13', 'P-S14', 'P-S19', 'P-S20', 'P-S21', 'P-S22', 'P-V5']),

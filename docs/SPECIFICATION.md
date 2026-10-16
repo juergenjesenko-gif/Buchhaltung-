@@ -1,7 +1,7 @@
 # Spezifikation – Buchhaltung
 
-**Dokumentversion:** 1.65 · **App-Version:** 0.17.0 · **Stand:** 2026-10-16
-**Status:** Testbuild 0.17.0 (Schema 20); Store-Start offen, siehe Abschnitt 11 und 14
+**Dokumentversion:** 1.66 · **App-Version:** 0.18.0 · **Stand:** 2026-10-16
+**Status:** Testbuild 0.18.0 (Schema 21); Store-Start offen, siehe Abschnitt 11 und 14
 
 > Das **Zielbild** des Produkts steht im [`LASTENHEFT.md`](LASTENHEFT.md); dieses
 > Dokument beschreibt, was die App **heute tatsächlich tut**.
@@ -180,6 +180,21 @@ Lastenheft L-3.7, L-3.18; `InvoiceRepository.cancelWithInvoice`.
 7. Je Originalrechnung höchstens eine Stornorechnung (eindeutiger Index);
    eine Stornorechnung selbst ist nicht stornierbar.
 
+### GR-15 · Anlagevermögen: Abschreibung ganzzahlig, Summe exakt
+
+Ein Beleg, der als Investition erfasst ist, ist **keine Betriebsausgabe**;
+statt dessen zählt die AfA (`PeriodTotals.capitalizedExpense`,
+`depreciation`, `operatingExpense`). Die Vorsteuer daraus bleibt abziehbar.
+Anschaffungskosten netto, beim Kleinunternehmer brutto (AT § 6 Z 11 EStG,
+DE § 9b Abs 1 EStG). AfA-Plan in `lib/services/assets/depreciation.dart`:
+kumuliert abgerundet – nach `k` von `n` Zeiteinheiten (DE Monate, AT
+Halbjahre) sind `AK × k ~/ n` Cent abgeschrieben, die Jahres-AfA ist die
+Differenz; Summe aller Jahre = AK exakt, das letzte Jahr trägt den Rest.
+Gebucht wird am 31.12. (planmäßig, Sammelposten), am Anschaffungstag (GWG) und
+am Tag des Ausscheidens (Restbuchwert). Kein Erinnerungswert (bei der
+Einnahmen-Ausgaben-Rechnung weder AT noch DE vorgeschrieben, P-S60). Länderwerte
+nur in `TaxProfile.depreciation`.
+
 ### GR-9 · Fremdwährung: Kurs als Ganzzahl, Umsatzsteuer und Bank getrennt
 
 Nur Eingangsbelege (Ausgaben) dürfen in fremder Währung sein; Ausgangsrechnungen
@@ -284,6 +299,7 @@ Anwendungsdokumentenverzeichnis. Aktuelle Schemaversion: **19**
 | `receipts` | Belege | Index auf `date` und `direction`. Werden nie gelöscht, nur storniert (`cancelled_at`). Seit Schema 11 `invoice_id` (Einnahme aus bezahlter Rechnung, eindeutig je Rechnung und Steuersatz); seit Schema 17 `reverse_charge` (0/1, Steuerschuld des Leistungsempfängers, FA-2.46) |
 | `receipt_vat_lines` | Steuersatzzeilen eines Belegs: `receipt_id`, `position` ab 1, `vat_permille`, `net_cents`, `vat_cents`, `gross_cents` | Schema 14. Je Zeile `net + vat == gross`, Summe der Zeilen = `receipts.gross_cents` (erzwungen in `ReceiptRepository.writeVatLines`). Bei der Migration wurde jeder bestehende Beleg zu genau einer Zeile; Einnahmen aus bezahlten Rechnungen und Mahnkosten schreiben ihre Zeile mit. Kopf des Belegs: Summen, `vat_permille` = Satz der größten Zeile. Auswertungen lesen nur Zeilen (ein Beleg ohne Zeile zählt mit seinem Kopf) |
 | `cash_register_merchants` | Lernspeicher Kasse → Händler (FA-2.36): `register_key` (`AT:<Kassen-ID>`, `DE:<Seriennummer>`), `merchant`, `updated_at` | Schema 15. Ersetzt beim Speichern eines Belegs mit Kassen-QR |
+| `fixed_assets` | Anlagevermögen (FA-15.1): `receipt_id` (Anschaffungsbeleg, optional), `name`, `acquired_on`, `cost_cents`, `category_key`, `useful_life_years`, `method` (`linear`/`gwg`/`pool`), `life_reason`, `comment`, `disposed_on`, `disposal_kind`, `disposal_proceeds_cents`, `disposal_receipt_id`, `disposal_comment` | Schema 21. AfA-Plan wird berechnet, nicht gespeichert; Änderungen im `audit_log` |
 | `supplier_memory` | Lernspeicher je Lieferant (FA-2.50): `supplier_key` (`<Richtung>|UID:<UID>` bzw. `<Richtung>|NAME:<normalisierter Name>`), `counterparty`, `category_id`, `vat_permille`, `currency`, `payment_method`, `updated_at` | Schema 20. Ersetzt bei jedem Speichern eines Belegs; nur auf dem Gerät, in der Sicherung enthalten |
 | `receipt_documents` | Originaldateien (FA-2.41): `receipt_id`, `file_path` (relativ, `belege/…`), `file_name`, `mime`, `sha256`, `size_bytes`, `source`, `created_at` | Schema 16. Nur Einfügen; Trigger verhindern `UPDATE` und `DELETE` |
 | `platform_import_rows` | Übernommene Zeilen aus Plattformexporten (FA-2.45): `platform`, `external_id`, `format`, `month` (`YYYY-MM`), `receipt_id` (Sammelbeleg oder leer bei Auszahlung/Sonstigem), `imported_at` | Schema 17. Primärschlüssel (`platform`, `external_id`): Dubletten werden mit `INSERT OR IGNORE` still übersprungen. Keine Käuferdaten |
@@ -699,7 +715,7 @@ Nutzerkonto, kein Drittanbieter-SDK. Code in `lib/services/licensing/`
 | ID | Anforderung |
 |---|---|
 | FA-13.1 | **Ein Anspruch** (L-22.1): `Entitlement` = `none` (nie ein Abo), `readOnly` (Abo beendet), `basis`, `pro`. Einzige Entscheidung über Funktionen ist `Entitlement.allows(Feature)` in `license_policy.dart`; Bildschirme fragen nur `AppState.allows` bzw. `ensureFeature` (`features/licensing/feature_gate.dart`), nie den Store und nie den Tarif |
-| FA-13.2 | **Tarifschnitt** (Lastenheft 5.10, O-4; Pro-Umfang entschieden 2026-10-15, O-34): `Feature.newBookings` (neuen Beleg speichern, neue Rechnung speichern, Rechnung ausstellen) ab Basis. **Nur Pro:** `receiptRecognition` (Belegerkennung FA-2.19 ff.), `dataImport` (Plattformimport Amazon/PayPal/Shopify/Stripe FA-5.x L-28 und Auslesen von E-Rechnungen ZUGFeRD/XRechnung/ebInterface in den Beleg; die Datei selbst wird in jedem Abo angehängt), `pdfSending` (Rechnung und Stornorechnung mit einem Tipp senden, FA-13.11), `dunningSending` (Zahlungserinnerung/Mahnung senden; erstellen und protokollieren ab Basis), `invoiceLogo` (Logo **drucken** auf neuen Rechnungen und Angeboten; wählen, ändern, entfernen immer, FA-13.12), `exchangeRateFetch` („Kurs abrufen“ bei der EZB; Kurs eintippen immer), `taxOfficeSubmission` (U30-Datei für FinanzOnline teilen, FA-14.4; Kennzahlen ansehen und kopieren bleibt frei). **Immer frei, auch ohne Abo:** ansehen, Belege und Entwürfe ändern, PDF speichern oder drucken über den Systemdialog, Export, Sicherung, Wiederherstellung, Rechtliches, Hilfe (L-10.4, L-7.15, L-22.6). Knöpfe gesperrter Funktionen tragen „(Pro)“ und führen zur Abo-Seite (`proLabel`, `ensureFeature`) |
+| FA-13.2 | **Tarifschnitt** (Lastenheft 5.10, O-4; Pro-Umfang entschieden 2026-10-15, O-34): `Feature.newBookings` (neuen Beleg speichern, neue Rechnung speichern, Rechnung ausstellen) ab Basis. **Nur Pro:** `receiptRecognition` (Belegerkennung FA-2.19 ff.), `dataImport` (Plattformimport Amazon/PayPal/Shopify/Stripe FA-5.x L-28 und Auslesen von E-Rechnungen ZUGFeRD/XRechnung/ebInterface in den Beleg; die Datei selbst wird in jedem Abo angehängt), `pdfSending` (Rechnung und Stornorechnung mit einem Tipp senden, FA-13.11), `dunningSending` (Zahlungserinnerung/Mahnung senden; erstellen und protokollieren ab Basis), `invoiceLogo` (Logo **drucken** auf neuen Rechnungen und Angeboten; wählen, ändern, entfernen immer, FA-13.12), `exchangeRateFetch` („Kurs abrufen“ bei der EZB; Kurs eintippen immer), `annualReports` (Saldenliste und vorläufiger Jahresabschluss, FA-15.9, FA-15.10; Vorschlag an die Auftraggeberin, Lastenheft 14a – Anlagen, AfA und Anlagenverzeichnis sind nie Pro), `taxOfficeSubmission` (U30-Datei für FinanzOnline teilen, FA-14.4; Kennzahlen ansehen und kopieren bleibt frei). **Immer frei, auch ohne Abo:** ansehen, Belege und Entwürfe ändern, PDF speichern oder drucken über den Systemdialog, Export, Sicherung, Wiederherstellung, Rechtliches, Hilfe (L-10.4, L-7.15, L-22.6). Knöpfe gesperrter Funktionen tragen „(Pro)“ und führen zur Abo-Seite (`proLabel`, `ensureFeature`) |
 | FA-13.3 | **Produkte** (L-22.2): eine Abogruppe mit `basis_monat`, `basis_jahr`, `pro_monat`, `pro_jahr` (Kenndaten `spec.license_product_ids`). Wechsel innerhalb der Gruppe ersetzt das Abo: Android über `ChangeSubscriptionParam` (anteilige Zeitgutschrift), iOS über die Abogruppe (Upgrade sofort, Downgrade zum Periodenende) |
 | FA-13.4 | **Test** (L-10.3, L-22.3): 14 Tage Pro als Einführungsangebot der Stores (Kenndaten `spec.license_trial_days`); der Store entscheidet über die Berechtigung. Android: bietet Play ein Angebot mit kostenloser erster Preisphase, wird dieses gekauft. Der Test geht nach Ablauf in das Abo über, wenn die Nutzerin nicht kündigt. Erster Pro-Kauf ohne früheres Abo merkt sich den Beginn; **3 Tage vor Ende** zeigt die Übersicht „Dein kostenloser Test endet am …“ (`spec.license_trial_reminder_days`) . **Entschieden 2026-10-15 (O-35):** Test bleibt Store-Test nur auf Pro; in den 14 Tagen kostenlos kündbar oder auf Basis wechselbar. Das **Widerrufsrecht** für digitale Inhalte (§ 356 Abs 5 BGB, § 18 Abs 1 Z 11 FAGG) regelt der Store unabhängig vom Test (Befund Prüfinstanz Rechtsanwalt; Bestätigung P-L10) |
 | FA-13.5 | **Abo-Seite** (`features/licensing/subscription_screen.dart`, L-22.7, L-22.8; Einstellungen → Abo, Übersicht-Hinweis, gesperrte Funktion): Stand, Umschalter Monatlich/Jährlich (56 dp), Karten Pro und Basis mit **Preis aus dem Store** inkl. USt je Zeitraum (nie im Code), bei Pro ohne früheres Abo „14 Tage kostenlos, danach ‹Preis› pro ‹Zeitraum›, jederzeit vorher kündbar“ (Wortlaut entschieden 2026-10-15, O-35), Knopf 56 dp volle Breite. Darunter Pflichttext: automatische Verlängerung um denselben Zeitraum, Kündigung spätestens 24 Stunden vor Ablauf in den Store-Einstellungen, Übergang des Tests, Widerruf und Erstattung über den Store, Daten bleiben immer lesbar. Zeilen „Kauf wiederherstellen“, „Abo verwalten oder kündigen“ (Sprung `https://play.google.com/store/account/subscriptions` bzw. `https://apps.apple.com/account/subscriptions`, ohne Browser Anleitung als Meldung), Nutzungsbedingungen, Datenschutzerklärung (offline, FA-11.5) |
@@ -735,6 +751,27 @@ Abschnitt 11).
 | FA-14.6 | **Jahreszahlen** (`VatReturnCalculator.annual`, Wirtschaftsjahr wie L-24.5): AT E1a Kz 9040 Betriebseinnahmen netto; DE Anlage EÜR Kz 112 (bzw. Kz 111 als Kleinunternehmer), Kz 140 vereinnahmte USt, Kz 185 gezahlte Vorsteuer; dazu Betriebsausgaben gesamt (ohne Kennzahl, nach Art auf die Zeilen aufzuteilen) und Ergebnis. Jede Zeile kopierbar |
 | FA-14.7 | **DE ohne Datei:** ELSTER nimmt Voranmeldungen nur über ERiC an; bis dahin Schritte für „Mein ELSTER“ und Link `https://www.elster.de/eportal/start` |
 | FA-14.8 | **Keine Übermittlung durch die App:** Die App sendet nichts ans Amt; die Datei geht nur über das Teilen-Blatt dorthin, wo die Nutzerin sie ablegt (10.1). Hinweis „Die Meldung gibst du selbst ab“ (P-R5) |
+
+### 5.11 Anlagen, AfA und Jahresabschluss
+
+Code: `lib/domain/fixed_asset.dart`, `lib/services/assets/depreciation.dart`,
+`lib/services/reports/`, `lib/data/asset_repository.dart`; Bildschirme
+`features/assets/asset_screens.dart`, `features/reports/reports_screen.dart`.
+Kenndaten `spec.*.depreciation`.
+
+| ID | Anforderung |
+|---|---|
+| FA-15.1 | **Investition erfassen:** in einer gespeicherten Ausgabe die Zeile „Als Investition erfassen“ (≥ 48 dp) öffnet „Investition erfassen“ vorbelegt mit Beschreibung, Datum und Anschaffungskosten (netto, Kleinunternehmer brutto); ist der Beleg schon Anlage, „Anlage öffnen“. Ohne Beleg über Anlagen → „Anlage ohne Beleg erfassen“. Felder: Bezeichnung, Anschaffungs-/Inbetriebnahmedatum, Anschaffungskosten, Art, Abschreibungsart, Nutzungsdauer, Kommentar. Speichern ab Basis (`newBookings`) |
+| FA-15.2 | **Vorschläge statt Pflicht:** Art wählt die Nutzungsdauer aus `TaxProfile.depreciation.classes` (AT: Computer 3, Software 3, Büromöbel 10, PKW 8 – mindestens 8 nach § 8 Abs 6 EStG –, Maschinen/Werkzeuge 5; DE: Computer und Software 1 nach BMF 22.02.2022, Büromöbel 13 nach AfA-Tabelle AV, PKW 6, Maschinen/Werkzeuge 5; Sonstiges 5), Fundstelle als Hilfetext. Abschreibungsart vorbelegt: GWG, wenn die Kosten bis zur Grenze reichen (AT 1.000 € Anschaffungskosten § 13 EStG, DE 800 € netto § 6 Abs 2 EStG), sonst linear |
+| FA-15.3 | **Eigene Nutzungsdauer:** weicht sie vom Vorschlag ab, ist eine Begründung Pflicht; sie steht im Anlagenverzeichnis. Prüfung: PKW-Mindestdauer AT, 1–50 Jahre, GWG nur bis zur Grenze, Sammelposten nur DE von 250,01 bis 1.000 € netto (§ 6 Abs 2a EStG) |
+| FA-15.4 | **AfA-Plan** (GR-15) als Vorschau im Formular: je Jahr AfA und Restbuchwert. AT Halbjahresregel (§ 7 Abs 2 EStG), DE monatsgenau (§ 7 Abs 1 Satz 4 EStG); DE Nutzungsdauer 1 Jahr voll im Anschaffungsjahr; Sammelposten fünf gleiche Teile ab dem Jahr der Bildung, Ausscheiden ändert ihn nicht |
+| FA-15.5 | **Gewinn:** `ReceiptRepository.totals(depreciation:)` zieht Anschaffungsbelege von Anlagen aus dem Ergebnis ab und zählt die AfA mit Buchungstag im Zeitraum; Übersicht zeigt „davon Investitionen (nicht Ergebnis)“ und „Abschreibung (AfA)“, wenn vorhanden. Vorsteuer und UVA bleiben unverändert |
+| FA-15.6 | **Ausscheiden / vollständig abschreiben** (Bottom-Sheet „Ausscheiden“): Art (verschrottet, verloren, verkauft, außerplanmäßig), Datum ab Anschaffung, **Kommentar Pflicht**, beim Verkauf Erlös brutto. Restbuchwert geht am Tag des Ausscheidens ab (DE vorher AfA bis zum Monat des Abgangs, AT keine AfA im Abgangsjahr – P-S60). Verkaufserlös wird als Einnahme gebucht (Steuer zum Normalsatz, Kleinunternehmer 0 %). Danach ist die Anlage schreibgeschützt |
+| FA-15.7 | **Kommentare überall:** Anlage (Kommentar), Nutzungsdauer (Begründung), Ausscheiden (Pflichtkommentar) und je Bericht ein Kommentar an die Steuerberatung; alle stehen im PDF |
+| FA-15.8 | **Anlagenverzeichnis (PDF, jedes Abo):** je Jahr alle vorhandenen Güter mit Bezeichnung, Art, Datum, Anschaffungskosten, Nutzungsdauer bzw. GWG/Sammelposten, Buchwert 1.1., AfA, Abgang, Buchwert 31.12., Kommentare und Abgänge (AT § 7 Abs 3 EStG, DE § 4 Abs 3 Satz 5 EStG). Nie Pro, weil Pflichtverzeichnis |
+| FA-15.9 | **Saldenliste (PDF, Pro `annualReports`):** Summen je Kategorie und Richtung mit Konto und Belegzahl (ohne Anschaffungsbelege), AfA, Anlagen Buchwert Anfang/Zugänge/Ende, bei Regelbesteuerung Umsatzsteuer, Vorsteuer, Zahllast |
+| FA-15.10 | **Vorläufiger Jahresabschluss (Pro):** PDF mit Einnahmen-Ausgaben-Rechnung (Gliederung E1a bzw. Anlage EÜR), Anlagenverzeichnis, Saldenliste, offenen Posten (nur Information, Zuflussprinzip) und Kommentar; jede Seite trägt „VORLÄUFIG – zur Prüfung und Fertigstellung durch die Steuerberatung“. Geteilt als ZIP mit Belegliste, DATEV- bzw. BMD-Export und Umsatzsteuer-Zusammenfassung |
+| FA-15.11 | **Berichte-Bildschirm** (Export → „Anlagen und Jahresabschluss“): Zeile Anlagen, Jahr (vorbelegt: letztes abgeschlossenes Wirtschaftsjahr), Kommentarfeld, drei Berichtszeilen ≥ 48 dp |
 
 ---
 
@@ -805,6 +842,8 @@ Kleinunternehmer:
 | Wiederherstellungscode | `features/backup/recovery_code_setup_screen.dart` | Druckblatt teilen/drucken, zwei Blöcke abtippen (FA-7.10) |
 | Rechtliches | `features/settings/legal_screen.dart` | Impressum, Datenschutz, Nutzungsbedingungen, keine Steuerberatung, Support, Lizenzen (FA-11.4, FA-11.5) |
 | Export | `features/export/export_screen.dart` | Karte „Für das Finanzamt“, Zeitraum, Vorschau, Format |
+| Anlagen und Jahresabschluss | `features/reports/reports_screen.dart` | Zeile Anlagen, Jahr, Kommentar, Anlagenverzeichnis, Saldenliste (Pro), vorläufiger Jahresabschluss als Paket (Pro) (FA-15.11) |
+| Anlagen | `features/assets/asset_screens.dart` | Liste mit Buchwert heute, unten „Anlage ohne Beleg erfassen“; „Investition erfassen“/„Anlage“ mit AfA-Plan, unten „Ausscheiden“ und „Speichern“, Bottom-Sheet Ausscheiden (FA-15.1 bis FA-15.7) |
 | Für das Finanzamt | `features/tax_office/tax_office_screen.dart` | Zeitraum, Kennzahlen der UVA/UStVA zum Kopieren, Schritte und Portal-Link, „U30-Datei teilen“ (Pro, nur AT), Jahreszahlen E1a/Anlage EÜR (FA-14.1 bis FA-14.8) |
 | Einstellungen | `features/settings/settings_screen.dart` | Stammdaten, App-Sperre, Abo (FA-13.5), Symbol auf Startbildschirm (FA-1.19, nur Android), Belege auslesen, Fremdwährung (Tageskurs-Genehmigung), Kategorien, Rechtsrahmen, Hinweise |
 | App-Sperre einrichten | `features/app_lock/app_lock_settings_screen.dart` | PIN, Biometrie, Sperrzeit, Hinweis „PIN vergessen“, Warnung ohne Sicherung |
@@ -902,6 +941,14 @@ Gegen die XSD 07_2026 mit `xmllint` geprüft (Regelbesteuert mit Reverse
 Charge und 4,9 %, Kleinunternehmer mit Reverse Charge); Prüfung durch das BMF
 und Testupload: P-D35.
 
+### 8.8 Berichte für die Steuerberatung (PDF, ZIP)
+
+`AnnualReportPdf` (Work Sans, A4, Kopfzeile „VORLÄUFIG …“ in Rot, Fußzeile
+Seite x von y und Erstelldatum). Dateinamen `Anlagenverzeichnis_<von>_<bis>.pdf`,
+`Saldenliste_…pdf`, `Vorlaeufiger_Jahresabschluss_…pdf`; Paket
+`Jahresabschluss_vorlaeufig_<von>_<bis>.zip` mit dem PDF und den CSV-Exporten
+aus 8.2 bis 8.5 (FA-15.10).
+
 ### 8.6 Kontenzuordnung
 
 Grundlage ist SKR03. Für Österreich wird auf den Einheitskontenrahmen gemappt.
@@ -940,6 +987,8 @@ Aktion:
 2. Export für die Steuerberatung teilen
 3. U30-Datei für FinanzOnline teilen (FA-14.4); die App selbst überträgt
    nichts an das Finanzamt
+4. Berichte und Jahresabschluss-Paket für die Steuerberatung teilen
+   (FA-15.8 bis FA-15.10)
 
 In beiden Fällen wählt der Nutzer das Ziel im Systemdialog. Die App kennt das
 Ziel nicht und protokolliert es nicht.
@@ -1031,6 +1080,7 @@ Offen benannt, weil eine Spezifikation, die ihre Lücken verschweigt, wertlos is
 
 | Grenze | Auswirkung | Geplant |
 |---|---|---|
+| **Anlagen vereinfacht** | AfA-Jahre sind Kalenderjahre, auch bei abweichendem Wirtschaftsjahr; keine Gebäude (AT § 8 EStG, DE § 7 Abs 4 EStG), keine degressive oder Sonder-AfA, keine Investitionsfreibeträge (AT § 11 EStG) und kein Investitionsabzugsbetrag (DE § 7g EStG); keine PKW-Luxustangente (AT 40.000 €); Sammelposten pro Gut statt einheitlich je Jahr; die Saldenliste ordnet Ausgaben nach Kategorie, nicht nach Formularzeile | später, P-S59 |
 | **Keine direkte Übermittlung ans Finanzamt** | AT: U30 nur als Datei zum Hochladen (FA-14.4). Die FinanzOnline-Webservices (Session- und File-Upload-Webservice) bräuchten einen Webservice-Benutzer der Nutzerin (Teilnehmer-ID, Benutzer-ID, PIN) im Schlüsselbund und eine Hersteller-UID; Entscheidung der Prüfinstanzen: erst nach Testupload der Datei (P-D35), Abgrenzung P-R5 und Sicherheitskonzept für die Zugangsdaten. DE: ELSTER nur über ERiC (native Bibliothek, Herstellerregistrierung, Zertifikat der Nutzerin) – bis dahin Kennzahlen zum Kopieren (FA-14.7). Keine Zusammenfassende Meldung: die App erfasst keine innergemeinschaftlichen Lieferungen oder Leistungen mit Kunden-UID; keine Jahreserklärung U1/USt-Erklärung als Datei | Stufe B (L-6.5) |
 | **Automatische Sicherung nicht auf Gerät erprobt** | iCloud-Container (FA-7.16) nur kompiliert, unsigniert; braucht vor dem ersten signierten Build den Container im Apple Developer Portal (STORE_ANMELDUNG, P-B13). Ordnerwahl und Schreiben laufen über eigenen Kotlin- bzw. Swift-Code, der hier nur kompiliert (CI), nicht auf einem Gerät getestet ist. Ob die Google-Drive-App unter Android Ordner zur Auswahl anbietet, ist offen (P-B1) | vor Release |
 | **Keine revisionssichere Archivierung** | Das `audit_log` schafft Nachvollziehbarkeit im Alltag, ist aber keine manipulationssichere Protokollierung im Sinne einer Verfahrensdokumentation. Die App ist die Vorerfassung; die revisionssichere Aufbewahrung findet in der Kanzlei statt | – |
@@ -1059,7 +1109,7 @@ Offen benannt, weil eine Spezifikation, die ihre Lücken verschweigt, wertlos is
 > Das ist der Mechanismus, der dieses Dokument aktuell hält.
 
 ```properties
-spec.schema_version = 20
+spec.schema_version = 21
 spec.u30_schema_version = 07_2026
 spec.oss_threshold_cents = 1000000
 spec.primary_action_height_dp = 56
@@ -1136,6 +1186,7 @@ spec.at.dunning_interest_legal_ref = § 1000 Abs 1 ABGB | § 456 UGB
 spec.at.reverse_charge_kz = -,057,066
 spec.at.vat_return_kz = U30;000;200=022,130=006,100=029,49=124;016;060;095;cent;u30Xml
 spec.at.annual_return_kz = E1a;9040;9040;-;-
+spec.at.depreciation = halfYear;100000;ak;-;§ 7 Abs 3 EStG;computer=3,software=3,furniture=10,car=8min8,tools=5,other=5
 spec.at.deadline_rules = UVA@15+2m | ZM@0+1m | ESt-Vorauszahlung@02-15,05-15,08-15,11-15 | ESt-/USt-Erklärung (FinanzOnline)@+1j06-30 | SVS-Beitrag@02-00,05-00,08-00,11-00~
 
 # Deutschland – § 19 UStG, § 33 UStDV, § 147 AO
@@ -1169,6 +1220,7 @@ spec.de.dunning_interest_legal_ref = § 288 Abs 1 BGB | § 288 Abs 2 BGB
 spec.de.reverse_charge_kz = 46,47,67
 spec.de.vat_return_kz = UStVA;-;190=81,70=86;-;66;83;euro;none
 spec.de.annual_return_kz = Anlage EÜR;112;111;140;185
+spec.de.depreciation = monthly;80000;netto;25001-100000;§ 4 Abs 3 Satz 5 EStG;computer=1,software=1,furniture=13,car=6,tools=5,other=5
 spec.de.deadline_rules = UStVA@10+1m+1x | ZM@25+1m | ESt-Vorauszahlung@03-10,06-10,09-10,12-10 | Steuererklärungen@+1j07-31
 ```
 
@@ -1185,6 +1237,7 @@ Dauerfristverlängerung, `02-15,…` = feste Tage, `+1j07-31` = Folgejahr,
 
 | Version | Datum | App-Version | Änderung |
 |---|---|---|---|
+| 1.66 | 2026-10-16 | 0.18.0 | Anlagen, AfA und Berichte (GR-15, 5.11 FA-15.1 bis FA-15.11): Schema 21 `fixed_assets` (4.1), AfA-Plan ganzzahlig mit exakter Summe, GWG, Sammelposten DE, Ausscheiden mit Pflichtkommentar und Verkaufserlös, Gewinn mit AfA statt Anschaffung (FA-15.5), Anlagenverzeichnis (jedes Abo), Saldenliste und vorläufiger Jahresabschluss als PDF/ZIP (Pro `annualReports`, FA-13.2), Bildschirme (7), PDF-Format 8.8, Datenfluss 10.1, Grenze 11. Kenndaten `spec.*.depreciation`, `spec.schema_version` 21. Neue Prüfpunkte P-S59, P-S60, P-S61, P-X13. Prüfinstanzen: Steuerberater (Werte mit Fundstellen, unsichere als P-S59/P-S60), Softwareentwickler (Migration neu, Plan berechnet statt gespeichert), Rechtsanwalt (Kennzeichnung VORLÄUFIG, keine Beratung), UX (Speichern unten 56 dp, Auswahlzeilen ≥ 48 dp, Pflichtkommentar nur beim Ausscheiden und bei abweichender Nutzungsdauer). |
 | 1.65 | 2026-10-16 | 0.17.0 | Meldungen ans Finanzamt (5.10, FA-14.1 bis FA-14.8): Kennzahlen UVA/UStVA und E1a/Anlage EÜR zum Kopieren, U30-Datei für FinanzOnline (8.7, Pro), Bildschirm „Für das Finanzamt“ (7), Datenfluss 10.1, Grenze in 11, FA-13.2 angepasst. Kenndaten `spec.*.vat_return_kz`, `spec.*.annual_return_kz`, `spec.u30_schema_version`. Neue Prüfpunkte P-S57, P-S58, P-D35, P-X12, P-R5 präzisiert. Prüfinstanzen: Steuerberater (Kennzahlen aus BMF-XSD 07_2026 und Formularwissen, Kleinunternehmer ohne UVA außer Reverse Charge), Softwareentwickler (XML gegen XSD validiert; Webservice und ERiC zurückgestellt), Rechtsanwalt (Werkzeug, Abgabe durch die Nutzerin, keine Daten an Dritte durch die App), UX (Zeilen 56 dp, Knopf unten 56 dp, Kopieren mit einem Tipp). |
 | 1.64 | 2026-10-16 | 0.16.0 | Prüfmappen für Steuerberatung und Rechtsberatung in `docs/pruefmappen/` (Verweis in 14), erzeugt aus Abschnitt 14; Beispielrechnungen mit `InvoicePdf`. Keine Verhaltensänderung der App. |
 | 1.63 | 2026-10-16 | 0.16.0 | Release-Vorbereitung ohne Verhaltensänderung der App: iOS-Datenschutz-Manifest und `CFBundleLocalizations` de (10.2); Release-Workflow signiert Android-AAB und iOS-IPA über Secrets, optionaler Play-/TestFlight-Upload; Skript `tool/release/bundle_id_wechsel.sh` für O-33 (nicht ausgeführt). Neue Prüfpunkte P-B15, P-B16, P-D34. Prüfinstanzen: Rechtsanwalt (Datenschutzangaben deckungsgleich mit STORE_LISTING/PRIVACY), Softwareentwickler (Manifest nur mit tatsächlich genutzter API, keine Schlüssel im Repository), Steuerberater und UX ohne Befund (keine Oberflächen- oder Steueränderung). |
@@ -1357,6 +1410,7 @@ erzeugt `beispiele_erzeugen_test.dart` mit dem PDF-Generator der App.
 | P-X10 | Abo-Seite auf Pixel 10 und iPhone einhändig: Monatlich/Jährlich, Kaufknopf, Kauf wiederherstellen, Abo verwalten mit dem Daumen ohne Fehlgriff; Store-Kaufblatt erscheint, Rückkehr in die Abo-Seite; Hinweis auf der Übersicht verständlich; Beleg im Nur-Lese-Modus: Abo-Seite statt Verlust der Eingaben | Widget-Test: alle Bedienelemente ≥ 48 dp, Kaufknöpfe 56 dp volle Breite (`licensing_test.dart`) | Store-Start | offen |
 | P-X11 | Einhandtest: Datensicherung „Wiederherstellen“ → Liste → Sicherung mit dem Daumen wählen; „Ausschalten“ nicht versehentlich neben „Ordner ändern“; Beleg mit „wie beim letzten Mal“ übernehmen ohne Korrektur | Knöpfe im Wrap mit 8 dp Abstand, Listeneinträge 56 dp, Gefahrenknopf mit Bestätigung | Release | offen |
 | P-X12 | Einhandtest „Für das Finanzamt“ auf Pixel 10 und iPhone: Quartal wählen, Kennzahl antippen und in FinanzOnline bzw. „Mein ELSTER“ im Browser einfügen, „U30-Datei teilen“ mit dem Daumen | Widget-Test: Zeilen und Knopf ≥ 48 dp (`tax_office_test.dart`) | Release | offen |
+| P-X13 | Einhandtest Anlagen auf Pixel 10 und iPhone: Ausgabe öffnen → „Als Investition erfassen“ → Art wählen → Speichern; Ausscheiden mit Kommentar über der Tastatur; Berichte teilen | Widget-Test: Speichern 56 dp im unteren Drittel, Auswahlzeilen und Berichtszeilen ≥ 48 dp (`fixed_asset_test.dart`) | Release | offen |
 
 ### Softwareentwicklung (echte Geräte und Stores)
 
@@ -1450,6 +1504,9 @@ erzeugt `beispiele_erzeugen_test.dart` mit dem PDF-Generator der App.
 | P-S56 | Stornorechnung (GR-14): (a) gemeinsamer Nummernkreis für Rechnungen und Stornorechnungen zulässig und ausreichend (AT § 11 Abs 1 Z 3 lit c UStG, UStR Rz 1535 ff.; DE § 14 Abs 4 Nr. 4 UStG, Abschn. 14.5 Abs 10 UStAE)? (b) Pflichtinhalt: Bezug Nummer und Datum, negative Beträge je Satz, Grund – genügt das als Berichtigung (§ 31 Abs 5 UStDV, Abschn. 14.11 UStAE) bzw. Rechnungsberichtigung AT? (c) § 14c UStG DE / § 11 Abs 12 UStG AT: Berichtigung des Steuerausweises erst mit Zugang beim Empfänger – reicht der Hinweis „PDF senden“? (d) Buchung: bezahlt → negative Einnahme je Satz am Rückzahlungstag (Ist-Versteuerung, § 17 UStG DE, § 16 UStG AT); offen → keine Buchung; bei Soll-Versteuerung wäre der Stornomonat maßgeblich (nicht abgebildet) | Vorbefund Steuerberater: Stornorechnung mit eigener Nummer und Bezug ist Praxis in AT und DE; ein Nummernkreis zulässig; Ist-Prinzip passt zur EAR. Rz-Fundstellen AT nicht am Volltext verifiziert | Release | offen |
 | P-S57 | Steuerberatung: Kennzahlen der Voranmeldung (FA-14.2, FA-14.5): AT U30 Kz 000, 022 (20 %), 006 (13 %), 029 (10 %), 124 (4,9 % ab 07/2026), 016 (Kleinunternehmer), 057/066, 060, 095; DE UStVA Kz 81, 86 (volle Euro), 46/47/67, 66, 83. Muss ein Kleinunternehmer nur wegen Reverse Charge eine UVA/UStVA abgeben (AT § 21 UStG, DE § 18 Abs 4a UStG), und mit Kz 000/016? Welche Kennzahl für 0 %-Umsätze eines Regelbesteuerten (App sperrt die Datei)? | Kz-Positionen aus der BMF-XSD 07_2026; Bedeutung von Kz 124 als 4,9 % aus Lage nach Kz 022 und Gesetzesänderung abgeleitet, Formular nicht abgerufen | Release | offen |
 | P-S58 | Steuerberatung: Jahreszahlen (FA-14.6) – AT E1a Kz 9040 für Betriebseinnahmen auch als Kleinunternehmer; DE Anlage EÜR Kz 111/112, 140, 185 für das aktuelle Formularjahr; reicht „Betriebsausgaben gesamt, nach Art aufteilen“ oder soll die App Kategorien Kennzahlen zuordnen? | aus Fachwissen, Formulare nicht abgerufen; Kz 9040 im BMF-XSD Jahreserklärungen vorhanden | Release | offen |
+| P-S59 | Steuerberatung: Anlagen-Katalog und Regeln (FA-15.2 bis FA-15.4): AT Nutzungsdauern Computer 3, Software 3, Büromöbel 10, Maschinen/Werkzeuge 5 (Praxiswerte), PKW 8 (§ 8 Abs 6 EStG); DE Computer/Software 1 (BMF 22.02.2022 – voll im Anschaffungsjahr oder monatsgenau?), Büromöbel 13 (AfA-Tabelle AV 6.15), PKW 6 (4.2.1), Maschinen/Werkzeuge 5; GWG-Grenze AT 1.000 € beim Kleinunternehmer brutto (nicht abziehbare USt in den AK)? DE 800 € stets netto (§ 6 Abs 2 S 1 EStG); Sammelposten je Gut statt einheitlich je Wirtschaftsjahr zulässig als Vereinfachung? | aus Fachwissen und Gesetzestext, amtliche Seiten nicht abgerufen | Release | offen |
+| P-S60 | Steuerberatung: Ausscheiden (FA-15.6) – AT im Abgangsjahr keine AfA, ganzer Restbuchwert als Abgang (oder anteilige/halbe AfA?); DE AfA bis Monat des Abgangs (R 7.4 Abs 8 EStR); Verkaufserlös als Betriebseinnahme mit USt zum Normalsatz; kein Erinnerungswert bei E/A in AT und DE; Anschaffungskosten des Kleinunternehmers brutto | Vorbefund Steuerberater: Summenwirkung im Abgangsjahr gleich, nur Aufteilung AfA/Restbuchwert offen | Release | offen |
+| P-S61 | Steuerberatung: Saldenliste und vorläufiger Jahresabschluss (FA-15.9, FA-15.10) – brauchbar als Übergabe an die Kanzlei? Gliederung, Kennzeichnung „VORLÄUFIG“, ZIP mit Belegliste und DATEV/BMD | Musterbericht mit Testdaten erzeugen und vorlegen | Release | offen |
 | P-L12 | Anwältin: Diktat über die Systemtastatur – Anbieterin nicht verantwortlich, Hinweistext genügt | — | Release | offen |
 | P-L13 | Gerätetest, nur bei eigener Spracherkennung: Erkennung im Flugmodus | — | später | offen |
 | P-L14 | Anwältin: Rollen beim Vertragsarchiv mit KI (Anbieterin als Auftragsverarbeiterin), Muster-AVV, Rechtsgrundlage Beschäftigtendaten | — | Stufe C | offen |

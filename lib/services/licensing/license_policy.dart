@@ -31,7 +31,8 @@ enum Entitlement {
     Feature.pdfSending ||
     Feature.dunningSending ||
     Feature.invoiceLogo ||
-    Feature.exchangeRateFetch => this == pro,
+    Feature.exchangeRateFetch ||
+    Feature.annualReports => this == pro,
   };
 
   String get label => switch (this) {
@@ -77,6 +78,12 @@ enum Feature {
   /// „Kurs abrufen“ bei der EZB (L-19.29, nur Pro); Kurs eintippen geht
   /// in jedem Abo.
   exchangeRateFetch,
+
+  /// Saldenliste und vorläufiger Jahresabschluss als PDF samt Paket für die
+  /// Steuerberatung (FA-15.9, FA-15.10; Vorschlag an die Auftraggeberin,
+  /// Lastenheft 14a). Anlagen, AfA und Anlagenverzeichnis sind nie Pro,
+  /// weil das Verzeichnis Pflicht ist (§ 7 Abs 3 EStG, § 4 Abs 3 S 5 EStG).
+  annualReports,
 }
 
 /// Ein Store-Produkt. Die IDs sind in Google Play Console und App Store

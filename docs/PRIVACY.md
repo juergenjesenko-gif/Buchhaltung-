@@ -122,6 +122,8 @@ Nur in diesen Fällen, die du auslöst oder einschaltest:
 - **Rechnung als PDF teilen** – du wählst im Systemdialog selbst das Ziel
   (E-Mail, Messenger, Cloud-Ordner)
 - **Export für die Steuerberatung** – gleiches Prinzip
+- **Berichte für die Steuerberatung** (Anlagenverzeichnis, Saldenliste,
+  vorläufiger Jahresabschluss als PDF oder ZIP) – gleiches Prinzip
 - **U30-Datei für FinanzOnline** (Österreich) – gleiches Prinzip; die Datei
   enthält Steuernummer, Zeitraum und Kennzahlen der Voranmeldung. Hochladen
   machst du selbst; die App verbindet sich nicht mit dem Finanzamt

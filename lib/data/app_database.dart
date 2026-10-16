@@ -16,7 +16,7 @@ class AppDatabase {
 
   /// Aktuelle Schemaversion. Öffentlich, weil docs/SPECIFICATION.md sie
   /// dokumentiert und test/specification_sync_test.dart beide vergleicht.
-  static const schemaVersion = 20;
+  static const schemaVersion = 21;
 
   Database? _db;
 
@@ -610,6 +610,33 @@ class AppDatabase {
         updated_at TEXT NOT NULL
       )
       ''',
+    ],
+    // Anlagevermögen und AfA (FA-15.x, GR-15): Wirtschaftsgüter mit
+    // Anschaffungskosten, Nutzungsdauer, Abschreibungsart, Ausscheiden und
+    // Kommentaren. Der AfA-Plan wird berechnet, nicht gespeichert.
+    21: [
+      '''
+      CREATE TABLE fixed_assets (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        receipt_id INTEGER REFERENCES receipts(id) ON DELETE SET NULL,
+        name TEXT NOT NULL,
+        acquired_on TEXT NOT NULL,
+        cost_cents INTEGER NOT NULL,
+        category_key TEXT NOT NULL,
+        useful_life_years INTEGER NOT NULL,
+        method TEXT NOT NULL DEFAULT 'linear',
+        life_reason TEXT NOT NULL DEFAULT '',
+        comment TEXT NOT NULL DEFAULT '',
+        disposed_on TEXT,
+        disposal_kind TEXT,
+        disposal_proceeds_cents INTEGER NOT NULL DEFAULT 0,
+        disposal_receipt_id INTEGER REFERENCES receipts(id) ON DELETE SET NULL,
+        disposal_comment TEXT NOT NULL DEFAULT '',
+        created_at TEXT NOT NULL,
+        updated_at TEXT NOT NULL
+      )
+      ''',
+      'CREATE INDEX idx_fixed_assets_receipt ON fixed_assets(receipt_id)',
     ],
   };
 
