@@ -227,6 +227,7 @@ Zusammengefasst aus dem Abschnitt oben; maßgeblich bleibt dieser, und
 | App-Info und -Leistung (ML Kit und Dokumentenscanner über Play-Dienste, nur Android) | Absturzprotokolle/Diagnose, geteilt mit Google, Analyse | – (Vision sendet nichts) |
 | Fotos, Dateien, Standort, Kontakte | nein (bleiben auf dem Gerät) | nein |
 | Audio (Diktat, FA-2.61) | nein: nur auf dem Gerät verarbeitet, nicht erhoben (Berechtigung `RECORD_AUDIO` im Formular „Berechtigungen“ begründen) | nein; `NSMicrophoneUsageDescription`, `NSSpeechRecognitionUsageDescription` gesetzt |
+| Wunsch oder Idee senden (FA-11.6), Support-Mail (FA-11.3) | nein: **nicht erhoben durch die App** – die App füllt nur eine E-Mail in der Mail-App der Nutzerin vor (`mailto:`), gesendet wird von ihr selbst aus ihrer Mail-App, die App überträgt nichts. Falls Google das anders wertet: „App-Info und -Leistung – andere“ und „Nachrichten – andere“, optional, vom Nutzer initiiert, Support (P-R45) | nein; Kontaktaufnahme durch die Nutzerin per E-Mail ist kein Erheben durch die App (P-R45) |
 | U30-Datei, Exporte, Berichte, PDFs über Teilen | nein: Übertragung durch die Nutzerin über das Systemblatt gilt nicht als Erheben/Teilen durch die App (wie Export) | nein |
 | Verschlüsselte Übertragung | ja | – |
 | Löschanfrage möglich | Daten liegen nur auf dem Gerät: App löschen | – |

@@ -89,6 +89,10 @@ Nachricht, um deine Anfrage zu beantworten (Art. 6 Abs 1 lit b bzw. f DSGVO;
 berechtigtes Interesse: Kundenbetreuung). Schick uns bitte keine
 Buchhaltungsdaten oder Sicherungen, wenn es nicht nötig ist. Ein freiwilliger
 Fehlerbericht wird nur gesendet, wenn du ihn selbst per E-Mail abschickst.
+Das gilt auch für „Wunsch oder Idee senden“ in den Einstellungen: Die App
+füllt nur eine E-Mail in deiner Mail-App vor; auf Wunsch mit App-Version,
+Betriebssystem, Gerätemodell, Länderprofil und Abo-Stufe – nie mit
+Geschäftsdaten oder Belegen. Du siehst alles und schickst selbst ab.
 E-Mail-Anbieter: {{EMAIL_PROVIDER}} (Auftragsverarbeiter, Sitz Arnoldstein).
 Löschung: 3 Jahre nach Abschluss der Anfrage; soweit geschäftliche Unterlagen
 betroffen sind, nach Ablauf der Aufbewahrungsfrist (§ 132 BAO: 7 Jahre).

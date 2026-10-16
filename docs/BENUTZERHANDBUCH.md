@@ -1,6 +1,6 @@
 # Benutzerhandbuch – JeNi bucht
 
-**Für App-Version 0.22.1** · Stand 2026-10-16
+**Für App-Version 0.22.2** · Stand 2026-10-16
 
 Dieses Handbuch beschreibt die App aus Nutzersicht. Es wird bei jeder Änderung,
 die du in der App siehst, mitgeführt – siehe [`CLAUDE.md`](../CLAUDE.md).
@@ -166,6 +166,24 @@ App nutzen.
 > **Tipp:** Speichere, bevor du das Tablet drehst oder die Fenstergröße
 > änderst. Ein gerade geöffneter, noch nicht gespeicherter Eintrag rechts wird
 > dabei sonst geschlossen.
+
+### Wunsch oder Idee senden
+
+Dir fehlt etwas oder stört dich etwas? In den **Einstellungen** tippst du auf
+**Wunsch oder Idee senden**:
+
+1. Art wählen: **Neue Funktion** (schon gewählt), **Verbesserung** oder
+   **Fehler melden** – ein Tipp.
+2. Titel, wenn du willst. Dann kurz beschreiben – tippen oder über das
+   Mikrofon im Feld diktieren.
+3. Unten auf **Per E-Mail senden** tippen. Deine Mail-App öffnet sich mit
+   Adresse, Betreff und Text; du schickst selbst ab.
+
+Der Schalter **App-Version und Gerät mitsenden** ist an. Dann stehen unter
+deinem Text nur App-Version, Betriebssystem, Gerätemodell, Länderprofil
+(AT/DE) und dein Abo – nie Geschäftsdaten und nie Belege. Du siehst alles,
+bevor du sendest, und kannst es in der Mail noch ändern. Die App selbst
+schickt nichts weg.
 
 ---
 
@@ -1394,6 +1412,14 @@ deiner Steuerberatung.
 ---
 
 ## 13. Wenn etwas nicht geht
+
+**„Bitte beschreibe kurz deinen Wunsch.“** (bei *Wunsch oder Idee senden*) —
+die Beschreibung ist leer. Ein paar Wörter genügen.
+
+**„Keine Mail-App gefunden. Text kopiert …“** — auf dem Telefon ist keine
+Mail-App eingerichtet. Adresse, Betreff und Text liegen in der
+Zwischenablage: in einem beliebigen Mailprogramm oder im Browser-Postfach
+einfügen und an office@jenibarb.com senden.
 
 **„„…“ nicht als Betrag verstanden“** (unter einem Betragsfeld nach dem
 Diktat) — die App konnte aus dem Gesprochenen keinen Betrag lesen; das Feld

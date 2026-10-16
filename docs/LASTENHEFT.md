@@ -1,6 +1,6 @@
 # Lastenheft – JeNi bucht, Buchhaltungsapp für Österreich und Deutschland
 
-**Dokumentversion:** 1.72 · **Stand:** 2026-10-16 · **Status:** Entwurf zur Abstimmung
+**Dokumentversion:** 1.73 · **Stand:** 2026-10-16 · **Status:** Entwurf zur Abstimmung
 **Auftraggeber:** Jürgen Jesenko (privates Vorhaben) · **Umsetzung:** Claude Code
 
 > Ein Lastenheft beschreibt, **was** das Produkt leisten soll und **warum** — nicht,
@@ -661,6 +661,7 @@ Jede Übertragung vom Gerät weg, auch die unscheinbaren:
 | Diagnose der Belegerkennung, nur Android (L-2.20, L-27.1) | Google (Google ML Kit Texterkennung und Barcode-Erkennung, beide gebündelt in der App) | Nutzungs- und Diagnosedaten der Bibliotheken (z. B. Gerätetyp, Leistung, Fehler); **keine Bilder, kein erkannter Text** | Nutzung der Belegerkennung | nein, kein offizielles Abschalten; Erkennung insgesamt abschaltbar (L-2.23). Prüfung P-R19, P-D21 | vorhanden |
 | Dokumentenscanner, nur Android (Spezifikation FA-2.51) | Google (Google Play-Dienste: Download von Modell und Oberfläche des ML Kit Document Scanners) | Nutzungs- und Diagnosedaten der Play-Dienste; **keine Bilder** (Verarbeitung auf dem Gerät) | Tippen auf „Beleg fotografieren“ bzw. „Seiten scannen“ | nein; ohne Play-Dienste automatisch Kamera. Prüfung P-R42 | vorhanden (0.20.0) |
 | Diktat (Spezifikation FA-2.61) | **keiner durch die App**: Audio verarbeitet nur der Spracherkennungsdienst des Systems auf dem Gerät (Android On-Device-Erkenner, iOS `requiresOnDeviceRecognition`); ohne Erkennung auf dem Gerät gibt es kein Diktat in der App, kein Rückfall ins Netz | – (Mikrofon nur während der Aufnahme) | Tippen auf das Mikrofon | je Vorgang | vorhanden |
+| Wunsch oder Idee senden (L-26.7, Spezifikation FA-11.6) | **keiner durch die App**: die Nutzerin sendet selbst aus ihrer Mail-App an den Anbieter (office@jenibarb.com); der Anbieter ist für die E-Mail Verantwortlicher (Rolle „Support“) | Inhalt von der Nutzerin gewählt und vor dem Senden sichtbar: Art, Titel, Beschreibung; optional (Standard an) App-Version, Betriebssystem, Gerätemodell, Länderprofil, Abo-Stufe; nie Geschäftsdaten, Belege, Kennungen | Tippen auf „Per E-Mail senden“ und Absenden in der Mail-App | je Vorgang | vorhanden (0.22.2) |
 | Rechnung über Link-QR (L-27.7) | Server der im QR-Code genannten Domain (Rechnungsaussteller bzw. dessen Dienstleister), direkt vom Gerät | Adresse aus dem QR-Code (kann eine Rechnungs- oder Kundenkennung enthalten), IP-Adresse, technische Verbindungsdaten; **keine Daten aus der App** | Tippen auf „Laden“ im Hinweisstreifen | je Vorgang | vorhanden |
 | EZB-Kursabruf (L-2.25, L-19.29) | Europäische Zentralbank, direkt vom Gerät | nur Abruf einer festen Kursdatei: IP-Adresse, Zeitpunkt, technische Verbindungsdaten; **keine Belegdaten, keine Währung, kein Betrag** | Tippen auf „Kurs abrufen“ | je Vorgang | vorhanden |
 | Foto-Zweitablage (L-2.11) | Fotobibliothek, ggf. deren Cloud | Belegfotos | Einschalten | ja | A |
@@ -978,6 +979,7 @@ Spezifikation 14, P-R25, P-R26 (Stufe 2), P-D26.
 | L-26.3 | Das Benutzerhandbuch ist die einzige Quelle; kein zweiter Hilfetext. Ein Test schlägt fehl, wenn die Hilfe nicht zum Handbuch passt | MUSS | A |
 | L-26.4 | Kontext: aus dem Belegformular geöffnet zuerst Beleg-Themen | SOLL | A |
 | L-26.5 | Ohne Treffer: E-Mail an den Support über die Mail-App, Betreff mit App-Version, keine Daten automatisch angehängt | MUSS | A |
+| L-26.7 | **Wunsch oder Idee senden** aus den Einstellungen: Art (Neue Funktion/Verbesserung/Fehler), Titel optional, Beschreibung mit Diktat; Versand nur über die Mail-App der Nutzerin an die Support-Adresse; technische Angaben (App-Version, Betriebssystem, Gerätemodell, Länderprofil, Abo-Stufe) abschaltbar, nie Geschäftsdaten oder Belege; ohne Mail-App Text in die Zwischenablage. **Umgesetzt 0.22.2** (Spezifikation FA-11.6) | SOLL | A |
 | L-26.6 | Stufe 2: Antworten durch ein KI-Modell auf einem Server, als KI gekennzeichnet, Opt-in, nur mit Prüfung P-R25/P-R26 | KANN | B |
 
 Umsetzung Stufe 1: Spezifikation 5.8, FA-11.1 bis FA-11.3; **L-26.1 bis L-26.5
@@ -1380,6 +1382,7 @@ Historie stehen. Die Einzelheiten stehen an der genannten Stelle.
 | 2026-10-16 | **Vertragsarchiv in Basis und Pro**; Auslesen (Texterkennung, Kurzübersicht) nur Pro | 5.23, Spez. FA-13.2, FA-16.3 |
 | 2026-10-16 | **Bewirtung automatisch gekürzt:** Kategorie „Bewirtung“ zählt ertragsteuerlich nur anteilig – AT 50 % (§ 20 Abs 1 Z 3 EStG, Regelfall Werbezweck), DE 70 % (§ 4 Abs 5 Satz 1 Nr. 2 EStG); Vorsteuer je Land nach Prüfinstanz (AT und DE voll); Kleinunternehmer: brutto × Anteil; nicht abziehbarer Teil in allen Auswertungen und Exporten; DE Anlass und Teilnehmer als freiwillige Felder; Belegerkennung schlägt Bewirtung für Restaurants vor. Schließt die Grenze zu P-S46 | L-2.27, Spez. FA-2.60, P-S46 |
 | 2026-10-16 | **ELSTER-Softwarehersteller beantragt** (Antwort ausstehend) | O-36 |
+| 2026-10-16 | **Wunsch oder Idee senden** in den Einstellungen: kurzes Formular, Versand über die Mail-App der Nutzerin an office@jenibarb.com, kein eigener Server, technische Angaben abschaltbar (Standard an) | L-26.7, Spez. FA-11.6 |
 | 2026-10-16 | **Diktat auf dem Gerät** in Freitext- und Betragsfeldern (Auftrag); **entschieden 2026-10-16: in Basis und Pro** (Barrierefreiheit), keine Sperre | Spez. FA-2.61 |
 
 ---
@@ -1390,6 +1393,7 @@ Historie stehen. Die Einzelheiten stehen an der genannten Stelle.
 
 | Version | Datum | Änderung |
 |---|---|---|
+| 1.73 | 2026-10-16 | L-26.7 „Wunsch oder Idee senden“ (umgesetzt 0.22.2): Zeile in der Datenflusstabelle 5.19 (Übertragung nur durch die Nutzerin aus ihrer Mail-App, Inhalt von ihr gewählt), Entscheidung in 14a. |
 | 1.72 | 2026-10-16 | O-37 neu: ELSTER-Übermittlungsserver (Cloud-Container, zustandslos) – vertagt auf nach dem Launch bei genügend deutschen Nutzerinnen. |
 | 1.71 | 2026-10-16 | Diktat auf dem Gerät (Spezifikation FA-2.61): Zeile in der Datenflusstabelle 5.19 (keine Übertragung durch die App), Eintrag und Tarifvorschlag Basis in 14a. |
 | 1.70 | 2026-10-16 | Entscheidung 14a Bewirtung mit Abzugsbeschränkung (L-2.27 angepasst, umgesetzt 0.21.0); O-36: ELSTER-Softwarehersteller am 2026-10-16 beantragt, Antwort ausstehend. Keine neue Datenübertragung (5.19 unverändert). |

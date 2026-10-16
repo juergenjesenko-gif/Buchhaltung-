@@ -181,7 +181,18 @@ nutzt die Diktierfunktion des Geräts; je nach Tastatur und Einstellung sendet
 sie die Sprache an Google bzw. Apple. Das liegt außerhalb der App; maßgeblich
 ist die Datenschutzerklärung des Tastaturanbieters.
 
-In allen Fällen bestimmst du, wohin die Daten gehen; der Anbieter erhält nichts. Ab diesem Zeitpunkt gilt die
+**Wunsch oder Idee senden** (Einstellungen): Die App öffnet deine Mail-App
+mit einer vorausgefüllten E-Mail an office@jenibarb.com – Art, Titel und
+Beschreibung, die du eingibst, und nur wenn „App-Version und Gerät
+mitsenden“ an ist (Standard) zusätzlich App-Version, Betriebssystemversion,
+Gerätemodell, Länderprofil (AT/DE) und Abo-Stufe. Keine Geschäftsdaten,
+keine Belege, keine Gerätekennung. Die App selbst sendet nichts: du siehst
+die E-Mail vollständig in deiner Mail-App, kannst sie ändern und schickst
+sie selbst ab. Ohne Mail-App wird der Text in die Zwischenablage kopiert.
+Für die E-Mail gilt dann, was unter „Support“ in der Datenschutzerklärung
+der App steht (der Anbieter ist dafür Verantwortlicher).
+
+In allen übrigen Fällen bestimmst du, wohin die Daten gehen; der Anbieter erhält nichts. Ab diesem Zeitpunkt gilt die
 Datenschutzerklärung des jeweiligen Dienstes.
 
 ## Berechtigungen und wozu sie dienen

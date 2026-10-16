@@ -42,6 +42,17 @@ class SupportMailLauncher {
     }
   }
 
+  /// Betriebssystem und Gerätemodell, z. B. „Android 15 · Google Pixel 10“
+  /// (FA-11.6); `null` wenn nicht ermittelbar. Keine Kennungen.
+  Future<String?> deviceInfo() async {
+    if (!_supported) return null;
+    try {
+      return await _channel.invokeMethod<String>('deviceInfo');
+    } on Exception {
+      return null;
+    }
+  }
+
   /// `true`, wenn eine Mail-App geöffnet wurde.
   Future<bool> openMail(Uri uri) async {
     if (!_supported) return false;

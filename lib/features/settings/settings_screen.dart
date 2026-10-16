@@ -1,4 +1,5 @@
 import '../licensing/subscription_screen.dart';
+import 'feedback_screen.dart';
 import 'legal_screen.dart';
 import 'package:flutter/material.dart';
 
@@ -183,6 +184,21 @@ class SettingsScreen extends StatelessWidget {
                 trailing: const Icon(Icons.chevron_right),
                 onTap: () => Navigator.of(context).push(
                   MaterialPageRoute(builder: (_) => const SubscriptionScreen()),
+                ),
+              ),
+            ),
+            const SizedBox(height: 16),
+            Card(
+              child: ListTile(
+                key: const Key('settings-feedback'),
+                leading: const Icon(Icons.lightbulb_outline),
+                title: const Text('Wunsch oder Idee senden'),
+                subtitle: const Text(
+                  'Erweiterungswunsch an das JeNi-bucht-Team',
+                ),
+                trailing: const Icon(Icons.chevron_right),
+                onTap: () => Navigator.of(context).push(
+                  MaterialPageRoute(builder: (_) => const FeedbackScreen()),
                 ),
               ),
             ),

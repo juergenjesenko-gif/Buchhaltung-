@@ -53,6 +53,14 @@ import UIKit
         switch call.method {
         case "appVersion":
           result(Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String)
+        case "deviceInfo":
+          // Wunsch senden (FA-11.6): nur Systemversion und Modellkennung.
+          var sys = utsname()
+          uname(&sys)
+          let model = withUnsafePointer(to: &sys.machine) {
+            $0.withMemoryRebound(to: CChar.self, capacity: 1) { String(cString: $0) }
+          }
+          result("iOS \(UIDevice.current.systemVersion) · \(model)")
         case "openMail":
           guard let text = call.arguments as? String, text.hasPrefix("mailto:"),
             let url = URL(string: text), UIApplication.shared.canOpenURL(url)

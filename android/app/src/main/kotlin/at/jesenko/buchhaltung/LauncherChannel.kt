@@ -74,6 +74,12 @@ class LauncherChannel(private val context: Context, messenger: BinaryMessenger) 
                     result.success(
                         context.packageManager.getPackageInfo(context.packageName, 0).versionName
                     )
+                // Wunsch senden (FA-11.6): nur Systemversion und Modell, keine Kennung.
+                "deviceInfo" ->
+                    result.success(
+                        "Android ${android.os.Build.VERSION.RELEASE} · " +
+                            "${android.os.Build.MANUFACTURER} ${android.os.Build.MODEL}"
+                    )
                 else -> result.notImplemented()
             }
         }

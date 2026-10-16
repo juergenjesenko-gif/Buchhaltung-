@@ -29,11 +29,33 @@ gebaut, und was war darin geprüft?*
 
 ## Unveröffentlicht
 
-Änderungen seit 0.22.1+31, die noch in keinem Build stecken. Wandern beim
+Änderungen seit 0.22.2+32, die noch in keinem Build stecken. Wandern beim
 nächsten Versionssprung in den neuen Eintrag.
 
 | Art | Änderung | Bezug | Commit |
 |---|---|---|---|
+
+---
+
+## 0.22.2+32 — 2026-10-16
+
+| Feld | Wert |
+|---|---|
+| Art | Testbuild (ungezippte arm64-APK `JeNi-bucht-0.22.2-build-<Nr>.apk`, fester Testschlüssel); **Lizenzprüfung aus** (ohne `LICENSING=true`), alle Funktionen frei |
+| Commit | `wird nachgetragen` |
+| Branch | `claude/agile-accounting-app-mobile-wa5j3h` |
+| Dokumentstände | Lastenheft 1.73, Spezifikation 1.76, Benutzerhandbuch für 0.22.2, DESIGN_SPEC 1.4 |
+| Datenbankschema | 23 |
+| Prüfung | `flutter analyze` ohne Befund, alle Tests grün (neu `feedback_test.dart`); Android/iOS-Build nur in der CI |
+| Steuerliche Kennwerte | unverändert |
+| Offene reale Prüfpunkte | wie 0.22.1+31, neu P-R45 |
+| Bekannte Grenzen | Spezifikation Abschnitt 11, unverändert |
+
+**Änderungen seit 0.22.1+31**
+
+| Art | Änderung | Bezug | Commit |
+|---|---|---|---|
+| Neu | Einstellungen → „Wunsch oder Idee senden“: Art als Chips, Titel optional, Beschreibung mit Diktat, technische Angaben abschaltbar; „Per E-Mail senden“ öffnet die Mail-App an office@jenibarb.com, ohne Mail-App Text in die Zwischenablage. Die App überträgt nichts selbst | FA-11.6, L-26.7, P-R45 | dieser Commit |
 
 ---
 
