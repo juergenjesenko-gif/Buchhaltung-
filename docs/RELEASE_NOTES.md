@@ -42,7 +42,7 @@ nächsten Versionssprung in den neuen Eintrag.
 | Feld | Wert |
 |---|---|
 | Art | Testbuild (ungezippte arm64-APK `JeNi-bucht-0.20.0-build-<Nr>.apk`, fester Testschlüssel); **Lizenzprüfung aus** (ohne `LICENSING=true`), alle Funktionen frei |
-| Commit | folgt |
+| Commit | `e4934a3` |
 | Branch | `claude/agile-accounting-app-mobile-wa5j3h` |
 | Dokumentstände | Lastenheft 1.68, Spezifikation 1.68, Benutzerhandbuch für 0.20.0, DESIGN_SPEC 1.2 |
 | Datenbankschema | 22 |
@@ -55,7 +55,7 @@ nächsten Versionssprung in den neuen Eintrag.
 
 | Art | Änderung | Bezug | Commit |
 |---|---|---|---|
-| Neu | Dokumentenscanner des Systems für Belege und Verträge (Android ML Kit Document Scanner, iOS VisionKit), mehrere Seiten, nur verarbeitetes Bild gespeichert, ohne Scanner automatisch Kamera | FA-2.51, Lastenheft 14a | folgt |
+| Neu | Dokumentenscanner des Systems für Belege und Verträge (Android ML Kit Document Scanner, iOS VisionKit), mehrere Seiten, nur verarbeitetes Bild gespeichert, ohne Scanner automatisch Kamera | FA-2.51, Lastenheft 14a | `e4934a3` |
 
 ---
 
