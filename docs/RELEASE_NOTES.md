@@ -38,7 +38,7 @@ nächsten Versionssprung in den neuen Eintrag.
 | Neu | Release-Workflow: signierte AAB und IPA als ungezippte Artefakte, Play-Upload (Entwurf) und TestFlight nur mit vorhandenen Secrets, sonst unsigniertes iOS-Archiv | FA-13.10, P-B16 | `1e85096` |
 | Neu | Skript `tool/release/bundle_id_wechsel.sh` für die Store-Kennung `at.jenibarb.jenibucht` (vorbereitet, nicht ausgeführt) | O-33 | `1e85096` |
 | Geändert | STORE_LISTING: Kategorien, Screenshot-Größen, Demodaten, Altersfreigabe-Fragebogen, Formularantworten Datensicherheit/App-Datenschutz | P-D34 | `1e85096` |
-| Neu | Prüfmappen Steuerberater und Rechtsanwalt als PDF (`docs/pruefmappen/`), aus SPECIFICATION 14 erzeugt, mit Beispielrechnungen und Rechtstexten im Anhang; keine Verhaltensänderung | P-S…, P-R…, P-L… | dieser Commit |
+| Neu | Prüfmappen Steuerberater und Rechtsanwalt als PDF (`docs/pruefmappen/`), aus SPECIFICATION 14 erzeugt, mit Beispielrechnungen und Rechtstexten im Anhang; keine Verhaltensänderung | P-S…, P-R…, P-L… | `52414ec` |
 
 ---
 
