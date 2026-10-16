@@ -16,6 +16,7 @@ import 'package:buchhaltung/domain/receipt.dart';
 import 'package:buchhaltung/services/invoice_numbering.dart';
 import 'package:buchhaltung/services/dunning_calculator.dart';
 import 'package:buchhaltung/services/small_business_monitor.dart';
+import 'package:buchhaltung/services/tax_office/u30_xml.dart';
 import 'package:buchhaltung/services/logo_store.dart';
 import 'package:buchhaltung/services/licensing/license_policy.dart';
 import 'package:buchhaltung/services/platform_import/platform_import_plan.dart';
@@ -213,6 +214,10 @@ void main() {
 
     test('Schemaversion der Datenbank stimmt', () {
       expect(intValue('spec.schema_version'), AppDatabase.schemaVersion);
+    });
+
+    test('U30-Datenstrom-Stand stimmt (FA-14.4)', () {
+      expect(value('spec.u30_schema_version'), U30Xml.schemaVersion);
     });
 
     test('OSS-Schwelle stimmt (FA-2.47)', () {
@@ -461,6 +466,34 @@ void main() {
       expect(
         value('spec.$prefix.reverse_charge_kz'),
         '${rc.baseKz ?? '-'},${rc.taxKz},${rc.inputVatKz}',
+      );
+      // Kennzahlen für das Finanzamt (FA-14.1 bis FA-14.8).
+      final vr = profile.vatReturnForm;
+      expect(
+        value('spec.$prefix.vat_return_kz'),
+        [
+          vr.formName,
+          vr.totalKz ?? '-',
+          vr.baseKzByPermille.entries
+              .map((e) => '${e.key}=${e.value}')
+              .join(','),
+          vr.smallBusinessExemptKz ?? '-',
+          vr.inputVatKz,
+          vr.payableKz,
+          vr.wholeEuroBases ? 'euro' : 'cent',
+          vr.file.name,
+        ].join(';'),
+      );
+      final ar = profile.annualReturnForm;
+      expect(
+        value('spec.$prefix.annual_return_kz'),
+        [
+          ar.formName,
+          ar.incomeKz,
+          ar.smallBusinessIncomeKz,
+          ar.outputVatKz ?? '-',
+          ar.inputVatKz ?? '-',
+        ].join(';'),
       );
     }
 

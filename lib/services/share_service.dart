@@ -64,6 +64,16 @@ class ShareService {
     await _share(file, 'text/csv', subject: subject);
   }
 
+  /// XML-Datei teilen, z. B. die U30-Datei für FinanzOnline (FA-14.4).
+  static Future<void> shareXml({
+    required String fileName,
+    required String content,
+    String? subject,
+  }) async {
+    final file = await _writeTemp(fileName, utf8.encode(content));
+    await _share(file, 'application/xml', subject: subject);
+  }
+
   static Future<void> sharePdf({
     required String fileName,
     required Uint8List bytes,

@@ -111,6 +111,8 @@ class TaxProfile {
     required this.asksSocialInsurance,
     required this.deadlineRules,
     required this.reverseCharge,
+    required this.vatReturnForm,
+    required this.annualReturnForm,
   });
 
   final Country country;
@@ -240,6 +242,14 @@ class TaxProfile {
   /// EU-Ausland ansässigen Unternehmers (L-28.4): Fundstelle und Kennzahlen
   /// der Voranmeldung. Prüfpunkt P-S52.
   final ReverseChargeRules reverseCharge;
+
+  /// Kennzahlen der Umsatzsteuervoranmeldung und Weg zum Amt (FA-14.x,
+  /// L-6.1, L-6.5). Prüfpunkt P-S57.
+  final VatReturnForm vatReturnForm;
+
+  /// Kennzahlen der Jahreserklärung für die Gewinnermittlung (L-6.3).
+  /// Prüfpunkt P-S58.
+  final AnnualReturnForm annualReturnForm;
 
   /// Normalsteuersatz (für die Steuer aus Reverse Charge).
   int get standardVatPermille => vatRates
@@ -398,6 +408,41 @@ class TaxProfile {
       baseKz: null,
       taxKz: '057',
       inputVatKz: '066',
+    ),
+    // Formular U 30 ab 07/2026, BMF-Datenstrom „ERKLAERUNGS_UEBERMITTLUNG
+    // U30 07_2026“ (Stand 24.04.2026). Bemessungsgrundlagen; die Steuer
+    // rechnet FinanzOnline. Zuordnung real zu prüfen: P-S57.
+    vatReturnForm: const VatReturnForm(
+      formName: 'U30',
+      legalRef: '§ 21 Abs 1 UStG 1994',
+      // Kz 000: Gesamtbetrag der Bemessungsgrundlagen für Lieferungen und
+      // sonstige Leistungen.
+      totalKz: '000',
+      baseKzByPermille: {
+        200: '022', // Kz 022: 20 % Normalsteuersatz, § 10 Abs 1 UStG
+        130: '006', // Kz 006: 13 %, § 10 Abs 3 UStG
+        100: '029', // Kz 029: 10 %, § 10 Abs 2 UStG
+        49: '124', // Kz 124: 4,9 %, § 10 Abs 1a UStG, neu ab 07/2026
+      },
+      // Kz 016: steuerfrei als Kleinunternehmer, § 6 Abs 1 Z 27 UStG.
+      smallBusinessExemptKz: '016',
+      // Kz 060: Gesamtbetrag der Vorsteuern, § 12 UStG.
+      inputVatKz: '060',
+      // Kz 095: Vorauszahlung bzw. Überschuss (rechnet FinanzOnline).
+      payableKz: '095',
+      wholeEuroBases: false,
+      file: VatReturnFile.u30Xml,
+      portalName: 'FinanzOnline',
+      portalUrl: 'https://finanzonline.bmf.gv.at',
+    ),
+    // Beilage E1a, Einnahmen-Ausgaben-Rechnung: Kz 9040 Erlöse
+    // (Betriebseinnahmen), auch für Kleinunternehmer. P-S58.
+    annualReturnForm: const AnnualReturnForm(
+      formName: 'E1a',
+      incomeKz: '9040',
+      smallBusinessIncomeKz: '9040',
+      outputVatKz: null,
+      inputVatKz: null,
     ),
     deadlineRules: const [
       // § 21 Abs 1 UStG 1994: 15. des zweitfolgenden Monats.
@@ -568,6 +613,38 @@ class TaxProfile {
       taxKz: '47',
       inputVatKz: '67',
     ),
+    // Vordruck USt 1 A (UStVA), § 18 Abs 1 UStG. Bemessungsgrundlagen in
+    // vollen Euro ohne Cent; die Steuer rechnet ELSTER. Übermittlung nur
+    // über ERiC (Herstellerregistrierung) – bis dahin Eingabe in „Mein
+    // ELSTER“ per Kopieren. Zuordnung real zu prüfen: P-S57.
+    vatReturnForm: const VatReturnForm(
+      formName: 'UStVA',
+      legalRef: '§ 18 Abs 1 UStG',
+      totalKz: null,
+      baseKzByPermille: {
+        190: '81', // Kz 81: Lieferungen/Leistungen zu 19 %, § 12 Abs 1 UStG
+        70: '86', // Kz 86: zu 7 %, § 12 Abs 2 UStG
+      },
+      smallBusinessExemptKz: null,
+      // Kz 66: Vorsteuerbeträge aus Rechnungen, § 15 Abs 1 Nr 1 UStG.
+      inputVatKz: '66',
+      // Kz 83: verbleibende Umsatzsteuer-Vorauszahlung bzw. Überschuss.
+      payableKz: '83',
+      wholeEuroBases: true,
+      file: VatReturnFile.none,
+      portalName: 'Mein ELSTER',
+      portalUrl: 'https://www.elster.de/eportal/start',
+    ),
+    // Anlage EÜR: Kz 111 Betriebseinnahmen als umsatzsteuerlicher
+    // Kleinunternehmer, Kz 112 umsatzsteuerpflichtige Betriebseinnahmen,
+    // Kz 140 vereinnahmte Umsatzsteuer, Kz 185 gezahlte Vorsteuer. P-S58.
+    annualReturnForm: const AnnualReturnForm(
+      formName: 'Anlage EÜR',
+      incomeKz: '112',
+      smallBusinessIncomeKz: '111',
+      outputVatKz: '140',
+      inputVatKz: '185',
+    ),
     deadlineRules: const [
       // § 18 Abs 1 UStG: 10. Tag nach Ablauf des Voranmeldungszeitraums;
       // Dauerfristverlängerung um einen Monat, §§ 46 ff. UStDV.
@@ -617,4 +694,72 @@ class ReverseChargeRules {
   final String? baseKz;
   final String taxKz;
   final String inputVatKz;
+}
+
+/// Wie die Voranmeldung zum Amt kommt.
+enum VatReturnFile {
+  /// Keine Datei: Kennzahlen abtippen bzw. kopieren (DE bis ERiC).
+  none,
+
+  /// XML-Datei nach BMF-Datenstrom U30 zum Hochladen in FinanzOnline.
+  u30Xml,
+}
+
+/// Kennzahlen der Umsatzsteuervoranmeldung eines Landes.
+class VatReturnForm {
+  const VatReturnForm({
+    required this.formName,
+    required this.legalRef,
+    required this.totalKz,
+    required this.baseKzByPermille,
+    required this.smallBusinessExemptKz,
+    required this.inputVatKz,
+    required this.payableKz,
+    required this.wholeEuroBases,
+    required this.file,
+    required this.portalName,
+    required this.portalUrl,
+  });
+
+  final String formName;
+  final String legalRef;
+
+  /// Kennzahl der Summe aller Bemessungsgrundlagen; `null`, wenn es keine
+  /// gibt.
+  final String? totalKz;
+
+  /// Kennzahl der Bemessungsgrundlage je Steuersatz in Promille.
+  final Map<int, String> baseKzByPermille;
+
+  /// Kennzahl für steuerfreie Umsätze als Kleinunternehmer, falls das
+  /// Formular eine hat.
+  final String? smallBusinessExemptKz;
+  final String inputVatKz;
+  final String payableKz;
+
+  /// Bemessungsgrundlagen in vollen Euro (Cent abgeschnitten).
+  final bool wholeEuroBases;
+  final VatReturnFile file;
+  final String portalName;
+  final String portalUrl;
+}
+
+/// Kennzahlen der Gewinnermittlung in der Jahreserklärung.
+class AnnualReturnForm {
+  const AnnualReturnForm({
+    required this.formName,
+    required this.incomeKz,
+    required this.smallBusinessIncomeKz,
+    required this.outputVatKz,
+    required this.inputVatKz,
+  });
+
+  final String formName;
+  final String incomeKz;
+  final String smallBusinessIncomeKz;
+
+  /// Vereinnahmte Umsatzsteuer als Einnahme (Bruttomethode); `null`, wenn
+  /// das Formular netto rechnet.
+  final String? outputVatKz;
+  final String? inputVatKz;
 }

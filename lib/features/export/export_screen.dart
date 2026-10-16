@@ -9,6 +9,7 @@ import '../../services/share_service.dart';
 import '../../widgets/common.dart';
 import '../../widgets/adaptive.dart';
 import '../help/help_screen.dart';
+import '../tax_office/tax_office_screen.dart';
 
 /// Export an die Steuerberatung.
 ///
@@ -128,6 +129,25 @@ class _ExportScreenState extends State<ExportScreen> {
         child: ListView(
           padding: const EdgeInsets.fromLTRB(16, 12, 16, 32),
           children: [
+            Card(
+              child: ListTile(
+                key: const Key('open-tax-office'),
+                minVerticalPadding: 12,
+                leading: const Icon(Icons.account_balance_outlined),
+                title: const Text('Für das Finanzamt'),
+                subtitle: Text(
+                  '${profile?.taxProfile.vatReturnForm.formName ?? 'UVA'} und '
+                  'Jahreszahlen zum Kopieren',
+                ),
+                trailing: const Icon(Icons.chevron_right),
+                onTap: () => Navigator.of(context).push(
+                  MaterialPageRoute<void>(
+                    builder: (_) => const TaxOfficeScreen(),
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(height: 16),
             SectionCard(
               title: 'Zeitraum',
               child: Column(

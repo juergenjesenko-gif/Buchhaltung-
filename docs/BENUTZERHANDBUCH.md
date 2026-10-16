@@ -1,6 +1,6 @@
 # Benutzerhandbuch – JeNi bucht
 
-**Für App-Version 0.16.0** · Stand 2026-10-16
+**Für App-Version 0.17.0** · Stand 2026-10-16
 
 Dieses Handbuch beschreibt die App aus Nutzersicht. Es wird bei jeder Änderung,
 die du in der App siehst, mitgeführt – siehe [`CLAUDE.md`](../CLAUDE.md).
@@ -973,6 +973,36 @@ Bereich **Export**.
 | **BMD-Buchungssätze** | Nur bei Land Österreich. Für BMD NTCS. |
 | **Umsatzsteuer-Zusammenfassung** | Die Zahlen für die Umsatzsteuervoranmeldung: Bemessungsgrundlagen je Satz, Vorsteuer, Zahllast. |
 
+### Für das Finanzamt
+
+Ganz oben im Bereich **Export** liegt die Karte **Für das Finanzamt**. Dort
+stehen die Zahlen so, wie das Formular sie verlangt – mit Kennzahl (Kz).
+
+1. **Jahr** und **Quartal** oder **Monat** wählen. Vorgewählt ist das zuletzt
+   abgeschlossene Quartal.
+2. Eine Zeile **antippen** – der Betrag ist kopiert, ohne Tausenderpunkt und
+   mit Komma. Im Formular einfügen.
+3. **Österreich:** Unten **U30-Datei teilen** (Pro) erzeugt die
+   Umsatzsteuervoranmeldung als Datei. In FinanzOnline unter
+   **Eingaben → Übermittlungen → Upload** hochladen und das Protokoll prüfen.
+   Dafür muss im Firmenprofil die Steuernummer mit Finanzamtsnummer stehen
+   (9 Ziffern, z. B. `12 345/6789`).
+4. **Deutschland:** In **Mein ELSTER** die Umsatzsteuer-Voranmeldung öffnen
+   und die Kennzahlen einfügen. Kz 81 und 86 sind in **vollen Euro** – die
+   App lässt die Cent schon weg. ELSTER rechnet die Steuer selbst; ein paar
+   Cent Abweichung sind normal.
+
+**Kleinunternehmer** brauchen keine Voranmeldung – die App sagt das und zeigt
+nur die Jahreszahlen. Ausnahme: Reverse Charge (z. B. Amazon-Gebühren); dann
+gibt es eine Voranmeldung mit der Steuer daraus.
+
+Unten stehen die **Jahreszahlen** für die Einkommensteuer: in Österreich
+Beilage **E1a** (Kz 9040), in Deutschland **Anlage EÜR** (Kz 111 bzw. 112,
+140, 185). Die Ausgaben verteilst du im Formular nach Art auf die Zeilen.
+
+Die App schickt nichts selbst ans Finanzamt. Die Meldung gibst du ab – im
+Zweifel frag deine Steuerberatung.
+
 ### Was du mit deiner Kanzlei einmal klären solltest
 
 Die Kontonummern und Steuercodes in den Exporten sind **Vorschläge** nach
@@ -1273,6 +1303,13 @@ Daten bleiben in jedem Fall lesbar und exportierbar.
 Abo-Seite öffnet sich, deine Eingaben bleiben im Formular stehen. Nach dem
 Abschluss tippst du auf Zurück und speicherst wie gewohnt.
 
+**„U30-Datei teilen“ ist grau** — darüber steht der Grund: Die Steuernummer
+im Firmenprofil hat keine 9 Ziffern mit Finanzamtsnummer, oder es gibt Umsätze
+ohne eindeutige Kennzahl (z. B. 0 % als Regelbesteuerte, Ausfuhr,
+EU-Lieferung) bzw. negative Beträge. Steuernummer ergänzen; sonst die Zahlen
+antippen, kopieren und in FinanzOnline selbst eintragen – im Zweifel mit deiner
+Kanzlei.
+
 **„Stornieren und neu schreiben“ bzw. „Stornorechnung erstellen“ ist grau** —
 das Feld *Grund* ist leer. Tippe einen der Vorschläge an oder schreib einen
 kurzen Grund; er steht auf der Stornorechnung.
@@ -1419,7 +1456,9 @@ Damit du nicht darauf wartest:
   aufgeteilt, aber voll gezählt; die steuerliche Kürzung macht deine Kanzlei.
 - **Keine Lohnverrechnung, keine Bilanz, keine doppelte Buchführung**
 - **Keine automatische Übermittlung** an FinanzOnline oder ELSTER. Die App
-  liefert dir die Zahlen; die Erklärung machst du oder deine Kanzlei.
+  liefert die Kennzahlen zum Kopieren und in Österreich die U30-Datei zum
+  Hochladen; abgeben machst du oder deine Kanzlei. Eine Zusammenfassende
+  Meldung erstellt die App nicht.
 - **Keine Erinnerung an Termine.** Die Termin-Box zeigt sie nur an;
   Benachrichtigungen sind geplant. Teilzahlungen auf Rechnungen kann die App
   noch nicht buchen – auch nicht nach einer Mahnung.

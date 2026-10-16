@@ -220,6 +220,7 @@ Zusammengefasst aus dem Abschnitt oben; maßgeblich bleibt dieser, und
 | Kaufverlauf (Store-Abfrage) | erhoben, nicht geteilt, App-Funktion | Käufe, nicht verknüpft, App-Funktionalität |
 | App-Info und -Leistung (ML Kit, nur Android) | Absturzprotokolle/Diagnose, geteilt mit Google, Analyse | – (Vision sendet nichts) |
 | Fotos, Dateien, Standort, Kontakte | nein (bleiben auf dem Gerät) | nein |
+| U30-Datei, Exporte, PDFs über Teilen | nein: Übertragung durch die Nutzerin über das Systemblatt gilt nicht als Erheben/Teilen durch die App (wie Export) | nein |
 | Verschlüsselte Übertragung | ja | – |
 | Löschanfrage möglich | Daten liegen nur auf dem Gerät: App löschen | – |
 | Tracking | nein | nein, `NSPrivacyTracking` false |

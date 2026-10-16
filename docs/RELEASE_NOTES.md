@@ -29,8 +29,29 @@ gebaut, und was war darin geprüft?*
 
 ## Unveröffentlicht
 
-Änderungen seit 0.16.0+23, die noch in keinem Build stecken. Wandern beim
+Änderungen seit 0.17.0+24, die noch in keinem Build stecken. Wandern beim
 nächsten Versionssprung in den neuen Eintrag.
+
+| Art | Änderung | Bezug | Commit |
+|---|---|---|---|
+
+---
+
+## 0.17.0+24 — 2026-10-16
+
+| Feld | Wert |
+|---|---|
+| Art | Testbuild (ungezippte arm64-APK `JeNi-bucht-0.17.0-build-<Nr>.apk`, fester Testschlüssel); **Lizenzprüfung aus** (ohne `LICENSING=true`), alle Funktionen frei |
+| Commit | folgt |
+| Branch | `claude/agile-accounting-app-mobile-wa5j3h` |
+| Dokumentstände | Lastenheft 1.65, Spezifikation 1.65, Benutzerhandbuch für 0.17.0, DESIGN_SPEC 1.2 |
+| Datenbankschema | 20 |
+| Prüfung | `flutter analyze` ohne Befund, alle Tests grün (neu `tax_office_test.dart`), U30-XML gegen BMF-XSD 07_2026 mit `xmllint` gültig, CI-Lauf zum Commit |
+| Steuerliche Kennwerte | neu `spec.at.vat_return_kz`, `spec.de.vat_return_kz`, `spec.at.annual_return_kz`, `spec.de.annual_return_kz`, `spec.u30_schema_version` 07_2026 |
+| Offene reale Prüfpunkte | wie 0.16.0+23, neu P-S57, P-S58, P-D35, P-X12; P-R5 präzisiert |
+| Bekannte Grenzen | Spezifikation Abschnitt 11 (neu: keine direkte Übermittlung ans Finanzamt, keine ZM) |
+
+**Änderungen seit 0.16.0+23**
 
 | Art | Änderung | Bezug | Commit |
 |---|---|---|---|
@@ -39,6 +60,8 @@ nächsten Versionssprung in den neuen Eintrag.
 | Neu | Skript `tool/release/bundle_id_wechsel.sh` für die Store-Kennung `at.jenibarb.jenibucht` (vorbereitet, nicht ausgeführt) | O-33 | `1e85096` |
 | Geändert | STORE_LISTING: Kategorien, Screenshot-Größen, Demodaten, Altersfreigabe-Fragebogen, Formularantworten Datensicherheit/App-Datenschutz | P-D34 | `1e85096` |
 | Neu | Prüfmappen Steuerberater und Rechtsanwalt als PDF (`docs/pruefmappen/`), aus SPECIFICATION 14 erzeugt, mit Beispielrechnungen und Rechtstexten im Anhang; keine Verhaltensänderung | P-S…, P-R…, P-L… | `52414ec` |
+| Neu | „Für das Finanzamt“: Kennzahlen UVA (U30) bzw. UStVA und Jahreszahlen E1a/Anlage EÜR, Kopieren mit einem Tipp; Kleinunternehmer ohne UVA-Hinweis außer Reverse Charge | L-6.1, L-6.3, FA-14.1 bis FA-14.3, FA-14.5 bis FA-14.8 | folgt |
+| Neu | U30-Datei nach BMF-Datenstrom 07_2026 teilen und in FinanzOnline hochladen (Pro, nur AT) | L-6.5, FA-14.4, 8.7 | folgt |
 
 ---
 

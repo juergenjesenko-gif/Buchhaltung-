@@ -1,7 +1,7 @@
 # Spezifikation – Buchhaltung
 
-**Dokumentversion:** 1.64 · **App-Version:** 0.16.0 · **Stand:** 2026-10-16
-**Status:** Testbuild 0.16.0 (Schema 20); Store-Start offen, siehe Abschnitt 11 und 14
+**Dokumentversion:** 1.65 · **App-Version:** 0.17.0 · **Stand:** 2026-10-16
+**Status:** Testbuild 0.17.0 (Schema 20); Store-Start offen, siehe Abschnitt 11 und 14
 
 > Das **Zielbild** des Produkts steht im [`LASTENHEFT.md`](LASTENHEFT.md); dieses
 > Dokument beschreibt, was die App **heute tatsächlich tut**.
@@ -699,7 +699,7 @@ Nutzerkonto, kein Drittanbieter-SDK. Code in `lib/services/licensing/`
 | ID | Anforderung |
 |---|---|
 | FA-13.1 | **Ein Anspruch** (L-22.1): `Entitlement` = `none` (nie ein Abo), `readOnly` (Abo beendet), `basis`, `pro`. Einzige Entscheidung über Funktionen ist `Entitlement.allows(Feature)` in `license_policy.dart`; Bildschirme fragen nur `AppState.allows` bzw. `ensureFeature` (`features/licensing/feature_gate.dart`), nie den Store und nie den Tarif |
-| FA-13.2 | **Tarifschnitt** (Lastenheft 5.10, O-4; Pro-Umfang entschieden 2026-10-15, O-34): `Feature.newBookings` (neuen Beleg speichern, neue Rechnung speichern, Rechnung ausstellen) ab Basis. **Nur Pro:** `receiptRecognition` (Belegerkennung FA-2.19 ff.), `dataImport` (Plattformimport Amazon/PayPal/Shopify/Stripe FA-5.x L-28 und Auslesen von E-Rechnungen ZUGFeRD/XRechnung/ebInterface in den Beleg; die Datei selbst wird in jedem Abo angehängt), `pdfSending` (Rechnung und Stornorechnung mit einem Tipp senden, FA-13.11), `dunningSending` (Zahlungserinnerung/Mahnung senden; erstellen und protokollieren ab Basis), `invoiceLogo` (Logo **drucken** auf neuen Rechnungen und Angeboten; wählen, ändern, entfernen immer, FA-13.12), `exchangeRateFetch` („Kurs abrufen“ bei der EZB; Kurs eintippen immer), `taxOfficeSubmission` (UVA/FinanzOnline/ELSTER, noch nicht gebaut, Tarif vorab festgelegt). **Immer frei, auch ohne Abo:** ansehen, Belege und Entwürfe ändern, PDF speichern oder drucken über den Systemdialog, Export, Sicherung, Wiederherstellung, Rechtliches, Hilfe (L-10.4, L-7.15, L-22.6). Knöpfe gesperrter Funktionen tragen „(Pro)“ und führen zur Abo-Seite (`proLabel`, `ensureFeature`) |
+| FA-13.2 | **Tarifschnitt** (Lastenheft 5.10, O-4; Pro-Umfang entschieden 2026-10-15, O-34): `Feature.newBookings` (neuen Beleg speichern, neue Rechnung speichern, Rechnung ausstellen) ab Basis. **Nur Pro:** `receiptRecognition` (Belegerkennung FA-2.19 ff.), `dataImport` (Plattformimport Amazon/PayPal/Shopify/Stripe FA-5.x L-28 und Auslesen von E-Rechnungen ZUGFeRD/XRechnung/ebInterface in den Beleg; die Datei selbst wird in jedem Abo angehängt), `pdfSending` (Rechnung und Stornorechnung mit einem Tipp senden, FA-13.11), `dunningSending` (Zahlungserinnerung/Mahnung senden; erstellen und protokollieren ab Basis), `invoiceLogo` (Logo **drucken** auf neuen Rechnungen und Angeboten; wählen, ändern, entfernen immer, FA-13.12), `exchangeRateFetch` („Kurs abrufen“ bei der EZB; Kurs eintippen immer), `taxOfficeSubmission` (U30-Datei für FinanzOnline teilen, FA-14.4; Kennzahlen ansehen und kopieren bleibt frei). **Immer frei, auch ohne Abo:** ansehen, Belege und Entwürfe ändern, PDF speichern oder drucken über den Systemdialog, Export, Sicherung, Wiederherstellung, Rechtliches, Hilfe (L-10.4, L-7.15, L-22.6). Knöpfe gesperrter Funktionen tragen „(Pro)“ und führen zur Abo-Seite (`proLabel`, `ensureFeature`) |
 | FA-13.3 | **Produkte** (L-22.2): eine Abogruppe mit `basis_monat`, `basis_jahr`, `pro_monat`, `pro_jahr` (Kenndaten `spec.license_product_ids`). Wechsel innerhalb der Gruppe ersetzt das Abo: Android über `ChangeSubscriptionParam` (anteilige Zeitgutschrift), iOS über die Abogruppe (Upgrade sofort, Downgrade zum Periodenende) |
 | FA-13.4 | **Test** (L-10.3, L-22.3): 14 Tage Pro als Einführungsangebot der Stores (Kenndaten `spec.license_trial_days`); der Store entscheidet über die Berechtigung. Android: bietet Play ein Angebot mit kostenloser erster Preisphase, wird dieses gekauft. Der Test geht nach Ablauf in das Abo über, wenn die Nutzerin nicht kündigt. Erster Pro-Kauf ohne früheres Abo merkt sich den Beginn; **3 Tage vor Ende** zeigt die Übersicht „Dein kostenloser Test endet am …“ (`spec.license_trial_reminder_days`) . **Entschieden 2026-10-15 (O-35):** Test bleibt Store-Test nur auf Pro; in den 14 Tagen kostenlos kündbar oder auf Basis wechselbar. Das **Widerrufsrecht** für digitale Inhalte (§ 356 Abs 5 BGB, § 18 Abs 1 Z 11 FAGG) regelt der Store unabhängig vom Test (Befund Prüfinstanz Rechtsanwalt; Bestätigung P-L10) |
 | FA-13.5 | **Abo-Seite** (`features/licensing/subscription_screen.dart`, L-22.7, L-22.8; Einstellungen → Abo, Übersicht-Hinweis, gesperrte Funktion): Stand, Umschalter Monatlich/Jährlich (56 dp), Karten Pro und Basis mit **Preis aus dem Store** inkl. USt je Zeitraum (nie im Code), bei Pro ohne früheres Abo „14 Tage kostenlos, danach ‹Preis› pro ‹Zeitraum›, jederzeit vorher kündbar“ (Wortlaut entschieden 2026-10-15, O-35), Knopf 56 dp volle Breite. Darunter Pflichttext: automatische Verlängerung um denselben Zeitraum, Kündigung spätestens 24 Stunden vor Ablauf in den Store-Einstellungen, Übergang des Tests, Widerruf und Erstattung über den Store, Daten bleiben immer lesbar. Zeilen „Kauf wiederherstellen“, „Abo verwalten oder kündigen“ (Sprung `https://play.google.com/store/account/subscriptions` bzw. `https://apps.apple.com/account/subscriptions`, ohne Browser Anleitung als Meldung), Nutzungsbedingungen, Datenschutzerklärung (offline, FA-11.5) |
@@ -711,6 +711,30 @@ Nutzerkonto, kein Drittanbieter-SDK. Code in `lib/services/licensing/`
 | FA-13.13 | **Promo-Code** (Entscheidung Auftraggeberin 2026-10-16): Code `spec.license_promo_code` für 2 Monate Pro gratis (`spec.license_promo_free_months`) für neue Abonnentinnen, beworben auf Instagram. Nur Store-Mechanik, kein eigener Server: Apple **Angebotscode** (benutzerdefinierter Code auf `pro_monat`/`pro_jahr`, „Kostenlos“, 2 Monate, Neukunden) und Google Play **Promo-Code** auf einem Angebot des Pro-Abos (kostenlose Phase 2 Monate). Wie der Test: danach kostenpflichtig, vorher kostenlos kündbar oder Wechsel auf Basis im Store. Abo-Seite: Zeile „Promo-Code einlösen“ (≥ 48 dp). iOS öffnet direkt Apples Einlöseblatt (`presentCodeRedemptionSheet`, Paket `in_app_purchase_storekit`), Android ein Bottom-Sheet mit leerem Codefeld und „Einlösen“ (56 dp), dann `https://play.google.com/redeem?code=<Code>` (`StoreBilling.redeemCode`). Ergebnis über das Kaufereignis bzw. die Abfrage bei Rückkehr in die App (`didChangeAppLifecycleState` → `refresh`). Pro aus einem Code setzt `trialIsPromo`; die Erinnerung „Dein kostenloser Test endet am …“ kommt 3 Tage vor Ende der 2 Monate statt der 14 Tage. Direktlinks für Instagram: `LicensePolicy.playRedeemUri`, `appStoreRedeemUri` (Apple-ID der App fehlt noch, P-D32). Werbetext und Pflichtangaben: `STORE_LISTING.md`, P-R40. Steuerlich ohne Folge: Gratiszeit ohne Entgelt, Umsatz erst mit der ersten Store-Abrechnung (Prüfinstanz Steuerberater) |
 | FA-13.12 | **Logo ohne Pro** (Entscheidung Auftraggeber 2026-10-16): Logo wählen geht im Onboarding und in den Stammdaten ohne Abo-Seite. `InvoiceLogo.forNewDocument` friert beim Speichern eines Entwurfs das Profil ohne `logo_path` ein, wenn `allows(Feature.invoiceLogo)` falsch ist (Basis, nur lesen, kein Abo); `InvoiceLogo.pathFor(…, logoAllowed:)` druckt Entwürfe nur mit Pro oder Store-Test. Gestellte Rechnungen behalten das eingefrorene Logo (GR-8). Das Profil behält `logo_path` und die Datei; nach dem Wechsel auf Pro erscheint das Logo wieder auf neuen Belegen. Ohne Pro zeigen die Stammdaten „Logo (Pro) – wird mit Basis nicht gedruckt“ |
 | FA-13.11 | **PDF senden ohne Pro** (`sendPdfGated` in `feature_gate.dart`): Rechnung, Stornorechnung, Zahlungserinnerung und Mahnung werden in jedem Abo erzeugt (Mahnung samt Protokoll und SHA-256). Mit Pro öffnet „PDF senden“ das Teilen-Blatt mit Betreff und Mailtext. Ohne Pro zuerst die Abo-Seite mit Begründung; danach – ohne Kauf – das Systemblatt ohne Betreff und Text zum Speichern oder Drucken. **Stornorechnung:** Sie muss der Empfängerin zugehen (§ 14c UStG, § 11 Abs 12 UStG AT bzw. Rechnungsberichtigung § 31 Abs 5 UStDV); Speichern/Drucken und eigenes Weitergeben genügt dafür, die Pflicht ist also in Basis erfüllbar (Lastenheft 5.10, letzter Absatz). Technisch ist das Systemblatt dasselbe wie beim Senden; der Tarifschnitt ist Komfort (ein Tipp, Betreff, Text), keine harte Sperre. Ein eigener Druckdialog bräuchte das Paket `printing` (Entscheidung Auftraggeber) |
+
+### 5.10 Meldungen ans Finanzamt
+
+Lastenheft L-6.1, L-6.3, L-6.5. Code: `lib/services/tax_office/`
+(`vat_return_figures.dart`, `u30_xml.dart`), Bildschirm
+`features/tax_office/tax_office_screen.dart`. Kennzahlen ausschließlich in
+`TaxProfile.vatReturnForm` und `TaxProfile.annualReturnForm` (GR-6), Kenndaten
+`spec.*.vat_return_kz`, `spec.*.annual_return_kz`, `spec.u30_schema_version`.
+
+**Umfang entschieden mit den Prüfinstanzen (2026-10-16):** AT Datei-Upload
+(Variante a) ist gebaut; die direkte Übermittlung über die FinanzOnline-
+Webservices (Variante b) und ELSTER/ERiC sind **nicht** gebaut (Begründung in
+Abschnitt 11).
+
+| ID | Anforderung |
+|---|---|
+| FA-14.1 | **Für das Finanzamt** (Export → oberste Karte): Zeitraum Jahr plus Quartal oder Monat, vorbelegt mit dem zuletzt abgeschlossenen Quartal. Zahlen aus `ReceiptRepository.totals` wie Übersicht und Export (FA-3.2, FA-3.3) |
+| FA-14.2 | **Kennzahlen der Voranmeldung** (`VatReturnCalculator.build`): AT U30 – Kz 000 Summe der Bemessungsgrundlagen, Kz 022/006/029/124 je Satz 20/13/10/4,9 %, Kz 016 steuerfrei als Kleinunternehmer, Kz 057/066 Reverse Charge, Kz 060 Vorsteuer, Kz 095 Zahllast/Überschuss (nur Anzeige, rechnet FinanzOnline). DE UStVA – Kz 81/86 für 19/7 % in **vollen Euro** (Cent abgeschnitten, `wholeEuros`), Kz 46/47/67 Reverse Charge, Kz 66 Vorsteuer, Kz 83 verbleibende Vorauszahlung. Steuer je Satz rechnet das Portal aus der Bemessungsgrundlage; Cent-Abweichungen zur Summe der je Position gerundeten Steuer (GR-5) sind möglich und werden erklärt |
+| FA-14.3 | **Kopieren mit einem Tipp:** jede Zeile ist eine Tippfläche ≥ 56 dp; der Tipp legt den Betrag ohne Tausenderpunkt mit Dezimalkomma (`KennzahlLine.copyText`, z. B. `1234,56` bzw. `1234`) in die Zwischenablage und meldet „Kz 022: … kopiert“ |
+| FA-14.4 | **U30-Datei (nur AT, Pro, `Feature.taxOfficeSubmission`):** Knopf unten „U30-Datei teilen“ (56 dp, `PrimaryActionBar`) erzeugt XML nach BMF-Datenstrom U30 (Stand 07_2026, Abschnitt 8.7) und öffnet das Teilen-Blatt; darüber vier nummerierte Schritte für den Upload in FinanzOnline und „FinanzOnline öffnen“. Gesperrt (mit Begründung als Hinweis) bei: Steuernummer ergibt keine 9-stellige FASTNR (Finanzamtsnummer + Steuernummer), Umsätze zu einem Satz ohne eindeutige Kennzahl (z. B. 0 % beim Regelbesteuerten: steuerfrei, Ausfuhr, EU-Lieferung), negative Bemessungsgrundlage oder Vorsteuer (Typ `kz` erlaubt nur ≥ 0,01). Nullbeträge entfallen in der Datei, Kz 000 steht immer |
+| FA-14.5 | **Kleinunternehmer** (AT § 6 Abs 1 Z 27 UStG, DE § 19 UStG): ohne Reverse Charge keine Voranmeldung – Hinweis „brauchst du keine …“, keine Kennzahlen, kein Knopf; es bleiben die Jahreszahlen (FA-14.6). Mit Reverse Charge Voranmeldung mit Kz 000/016/057 (AT) bzw. 46/47 (DE), Vorsteuer 0 (FA-3.4) |
+| FA-14.6 | **Jahreszahlen** (`VatReturnCalculator.annual`, Wirtschaftsjahr wie L-24.5): AT E1a Kz 9040 Betriebseinnahmen netto; DE Anlage EÜR Kz 112 (bzw. Kz 111 als Kleinunternehmer), Kz 140 vereinnahmte USt, Kz 185 gezahlte Vorsteuer; dazu Betriebsausgaben gesamt (ohne Kennzahl, nach Art auf die Zeilen aufzuteilen) und Ergebnis. Jede Zeile kopierbar |
+| FA-14.7 | **DE ohne Datei:** ELSTER nimmt Voranmeldungen nur über ERiC an; bis dahin Schritte für „Mein ELSTER“ und Link `https://www.elster.de/eportal/start` |
+| FA-14.8 | **Keine Übermittlung durch die App:** Die App sendet nichts ans Amt; die Datei geht nur über das Teilen-Blatt dorthin, wo die Nutzerin sie ablegt (10.1). Hinweis „Die Meldung gibst du selbst ab“ (P-R5) |
 
 ---
 
@@ -780,7 +804,8 @@ Kleinunternehmer:
 | Datensicherung | `features/backup/backup_screen.dart` | Sicherung erstellen und teilen, wiederherstellen mit Vorschau; automatische Sicherung mit iCloud (iOS, FA-7.16) und Liste zum Wiederherstellen |
 | Wiederherstellungscode | `features/backup/recovery_code_setup_screen.dart` | Druckblatt teilen/drucken, zwei Blöcke abtippen (FA-7.10) |
 | Rechtliches | `features/settings/legal_screen.dart` | Impressum, Datenschutz, Nutzungsbedingungen, keine Steuerberatung, Support, Lizenzen (FA-11.4, FA-11.5) |
-| Export | `features/export/export_screen.dart` | Zeitraum, Vorschau, Format |
+| Export | `features/export/export_screen.dart` | Karte „Für das Finanzamt“, Zeitraum, Vorschau, Format |
+| Für das Finanzamt | `features/tax_office/tax_office_screen.dart` | Zeitraum, Kennzahlen der UVA/UStVA zum Kopieren, Schritte und Portal-Link, „U30-Datei teilen“ (Pro, nur AT), Jahreszahlen E1a/Anlage EÜR (FA-14.1 bis FA-14.8) |
 | Einstellungen | `features/settings/settings_screen.dart` | Stammdaten, App-Sperre, Abo (FA-13.5), Symbol auf Startbildschirm (FA-1.19, nur Android), Belege auslesen, Fremdwährung (Tageskurs-Genehmigung), Kategorien, Rechtsrahmen, Hinweise |
 | App-Sperre einrichten | `features/app_lock/app_lock_settings_screen.dart` | PIN, Biometrie, Sperrzeit, Hinweis „PIN vergessen“, Warnung ohne Sicherung |
 | Sperrbildschirm | `features/app_lock/lock_screen.dart` | PIN oder Biometrie, Wartezeit nach Fehlversuchen; Abdeckung im App-Umschalter |
@@ -863,6 +888,20 @@ und Steuer, Vorsteuer je Satz, Reverse Charge mit Kennzahlen des Landes
 Guthaben, Ergebnis netto. Bei Kleinunternehmern zusätzlich der
 Befreiungsvermerk.
 
+### 8.7 U30-Datei für FinanzOnline (nur AT)
+
+XML nach BMF-Datenstrom „ERKLAERUNGS_UEBERMITTLUNG“ U30, XSD-Stand 07_2026
+(`spec.u30_schema_version`), UTF-8, Dateiname `U30_JJJJ-MM_JJJJ-MM.xml`.
+`INFO_DATEN` mit `ART_IDENTIFIKATIONSBEGRIFF` FASTNR, Paketnummer (Sekunden
+seit 2020, 1 bis 999999999), Datum und Uhrzeit; eine `ERKLAERUNG art="U30"`
+mit `ALLGEMEINE_DATEN` (ANBRINGEN U30, ZRVON/ZRBIS als Jahr-Monat, FASTNR),
+`LIEFERUNGEN_LEISTUNGEN_EIGENVERBRAUCH` (KZ000, `STEUERFREI`, `VERSTEUERT`)
+und `VORSTEUER` in der Reihenfolge der XSD; Beträge mit Punkt und zwei
+Nachkommastellen, Attribut `type="kz"`. Kz 095 steht nicht in der Datei.
+Gegen die XSD 07_2026 mit `xmllint` geprüft (Regelbesteuert mit Reverse
+Charge und 4,9 %, Kleinunternehmer mit Reverse Charge); Prüfung durch das BMF
+und Testupload: P-D35.
+
 ### 8.6 Kontenzuordnung
 
 Grundlage ist SKR03. Für Österreich wird auf den Einheitskontenrahmen gemappt.
@@ -899,6 +938,8 @@ Aktion:
 
 1. Rechnung als PDF teilen
 2. Export für die Steuerberatung teilen
+3. U30-Datei für FinanzOnline teilen (FA-14.4); die App selbst überträgt
+   nichts an das Finanzamt
 
 In beiden Fällen wählt der Nutzer das Ziel im Systemdialog. Die App kennt das
 Ziel nicht und protokolliert es nicht.
@@ -990,6 +1031,7 @@ Offen benannt, weil eine Spezifikation, die ihre Lücken verschweigt, wertlos is
 
 | Grenze | Auswirkung | Geplant |
 |---|---|---|
+| **Keine direkte Übermittlung ans Finanzamt** | AT: U30 nur als Datei zum Hochladen (FA-14.4). Die FinanzOnline-Webservices (Session- und File-Upload-Webservice) bräuchten einen Webservice-Benutzer der Nutzerin (Teilnehmer-ID, Benutzer-ID, PIN) im Schlüsselbund und eine Hersteller-UID; Entscheidung der Prüfinstanzen: erst nach Testupload der Datei (P-D35), Abgrenzung P-R5 und Sicherheitskonzept für die Zugangsdaten. DE: ELSTER nur über ERiC (native Bibliothek, Herstellerregistrierung, Zertifikat der Nutzerin) – bis dahin Kennzahlen zum Kopieren (FA-14.7). Keine Zusammenfassende Meldung: die App erfasst keine innergemeinschaftlichen Lieferungen oder Leistungen mit Kunden-UID; keine Jahreserklärung U1/USt-Erklärung als Datei | Stufe B (L-6.5) |
 | **Automatische Sicherung nicht auf Gerät erprobt** | iCloud-Container (FA-7.16) nur kompiliert, unsigniert; braucht vor dem ersten signierten Build den Container im Apple Developer Portal (STORE_ANMELDUNG, P-B13). Ordnerwahl und Schreiben laufen über eigenen Kotlin- bzw. Swift-Code, der hier nur kompiliert (CI), nicht auf einem Gerät getestet ist. Ob die Google-Drive-App unter Android Ordner zur Auswahl anbietet, ist offen (P-B1) | vor Release |
 | **Keine revisionssichere Archivierung** | Das `audit_log` schafft Nachvollziehbarkeit im Alltag, ist aber keine manipulationssichere Protokollierung im Sinne einer Verfahrensdokumentation. Die App ist die Vorerfassung; die revisionssichere Aufbewahrung findet in der Kanzlei statt | – |
 | **Keine Registrierkasse** | Wer die RKSV-Grenzen (15.000 € Umsatz und 7.500 € Barumsätze) überschreitet, braucht zusätzlich eine registrierkassenpflichtige Lösung | Nicht geplant |
@@ -1018,6 +1060,7 @@ Offen benannt, weil eine Spezifikation, die ihre Lücken verschweigt, wertlos is
 
 ```properties
 spec.schema_version = 20
+spec.u30_schema_version = 07_2026
 spec.oss_threshold_cents = 1000000
 spec.primary_action_height_dp = 56
 spec.min_touch_target_dp = 48
@@ -1091,6 +1134,8 @@ spec.at.dunning_base_rates = 2025-01-01:253,2025-07-01:153,2026-01-01:153
 spec.at.dunning_consumer_notice = nein
 spec.at.dunning_interest_legal_ref = § 1000 Abs 1 ABGB | § 456 UGB
 spec.at.reverse_charge_kz = -,057,066
+spec.at.vat_return_kz = U30;000;200=022,130=006,100=029,49=124;016;060;095;cent;u30Xml
+spec.at.annual_return_kz = E1a;9040;9040;-;-
 spec.at.deadline_rules = UVA@15+2m | ZM@0+1m | ESt-Vorauszahlung@02-15,05-15,08-15,11-15 | ESt-/USt-Erklärung (FinanzOnline)@+1j06-30 | SVS-Beitrag@02-00,05-00,08-00,11-00~
 
 # Deutschland – § 19 UStG, § 33 UStDV, § 147 AO
@@ -1122,6 +1167,8 @@ spec.de.dunning_base_rates = 2025-01-01:227,2025-07-01:127,2026-01-01:127
 spec.de.dunning_consumer_notice = ja
 spec.de.dunning_interest_legal_ref = § 288 Abs 1 BGB | § 288 Abs 2 BGB
 spec.de.reverse_charge_kz = 46,47,67
+spec.de.vat_return_kz = UStVA;-;190=81,70=86;-;66;83;euro;none
+spec.de.annual_return_kz = Anlage EÜR;112;111;140;185
 spec.de.deadline_rules = UStVA@10+1m+1x | ZM@25+1m | ESt-Vorauszahlung@03-10,06-10,09-10,12-10 | Steuererklärungen@+1j07-31
 ```
 
@@ -1138,6 +1185,7 @@ Dauerfristverlängerung, `02-15,…` = feste Tage, `+1j07-31` = Folgejahr,
 
 | Version | Datum | App-Version | Änderung |
 |---|---|---|---|
+| 1.65 | 2026-10-16 | 0.17.0 | Meldungen ans Finanzamt (5.10, FA-14.1 bis FA-14.8): Kennzahlen UVA/UStVA und E1a/Anlage EÜR zum Kopieren, U30-Datei für FinanzOnline (8.7, Pro), Bildschirm „Für das Finanzamt“ (7), Datenfluss 10.1, Grenze in 11, FA-13.2 angepasst. Kenndaten `spec.*.vat_return_kz`, `spec.*.annual_return_kz`, `spec.u30_schema_version`. Neue Prüfpunkte P-S57, P-S58, P-D35, P-X12, P-R5 präzisiert. Prüfinstanzen: Steuerberater (Kennzahlen aus BMF-XSD 07_2026 und Formularwissen, Kleinunternehmer ohne UVA außer Reverse Charge), Softwareentwickler (XML gegen XSD validiert; Webservice und ERiC zurückgestellt), Rechtsanwalt (Werkzeug, Abgabe durch die Nutzerin, keine Daten an Dritte durch die App), UX (Zeilen 56 dp, Knopf unten 56 dp, Kopieren mit einem Tipp). |
 | 1.64 | 2026-10-16 | 0.16.0 | Prüfmappen für Steuerberatung und Rechtsberatung in `docs/pruefmappen/` (Verweis in 14), erzeugt aus Abschnitt 14; Beispielrechnungen mit `InvoicePdf`. Keine Verhaltensänderung der App. |
 | 1.63 | 2026-10-16 | 0.16.0 | Release-Vorbereitung ohne Verhaltensänderung der App: iOS-Datenschutz-Manifest und `CFBundleLocalizations` de (10.2); Release-Workflow signiert Android-AAB und iOS-IPA über Secrets, optionaler Play-/TestFlight-Upload; Skript `tool/release/bundle_id_wechsel.sh` für O-33 (nicht ausgeführt). Neue Prüfpunkte P-B15, P-B16, P-D34. Prüfinstanzen: Rechtsanwalt (Datenschutzangaben deckungsgleich mit STORE_LISTING/PRIVACY), Softwareentwickler (Manifest nur mit tatsächlich genutzter API, keine Schlüssel im Repository), Steuerberater und UX ohne Befund (keine Oberflächen- oder Steueränderung). |
 | 1.62 | 2026-10-16 | 0.16.0 | FA-2.50 Lernen je Lieferant (Schema 20 `supplier_memory`, 4.1, 10.1, 11); FA-7.16 iCloud-Sicherung unter iOS und Liste zum Wiederherstellen (5.5a, 7, 10.1, 11); `spec.schema_version` 20 (12); P-B13, P-B14, P-X11, P-D33 neu, P-D3 präzisiert (14). Geprüft mit den Prüfinstanzen Rechtsanwalt (Apple als Auftragsverarbeiter, Opt-in), Steuerberater (Gelerntes nur als Vorschlag, gebucht wird Bestätigtes), Softwareentwickler (Entitlements ohne Wirkung im unsignierten CI-Build), UX (Knöpfe ≥ 48 dp, Listeneinträge 56 dp, ein Tipp weniger beim Einrichten mit iCloud). |
@@ -1245,7 +1293,7 @@ erzeugt `beispiele_erzeugen_test.dart` mit dem PDF-Generator der App.
 | P-R2 | Rabatt- und Streichpreiswerbung für Store-Abos | 30-Tage-Regel (§ 11 PAngV, § 9a PrAG) für Dienstleistungen streitig; Irreführungsverbot gilt immer; ohne vorher verlangten Listenpreis nur „Einführungspreis bis …" | erste Werbung | offen |
 | P-R3 | BFSG (DE) / BaFG (AT) | voraussichtlich nicht anwendbar (B2B, Kleinstunternehmen); Unternehmensgröße bestätigen | vor Stufe B | offen |
 | P-R4 | Tragweite der Bestätigung „keine Steuerberatung" und Haftungsbegrenzung in den AGB | begrenzt wirksam; Vorsatz, grobe Fahrlässigkeit, Personenschäden nicht ausschließbar | Release | offen |
-| P-R5 | Abgrenzung zur Hilfeleistung in Steuersachen (StBerG, WTBG) bei UVA-Übermittlung und ESt-Vorbereitung | zulässig als Werkzeug, Übermittlung nur im Namen und mit Zugang der Nutzerin; keine Einzelfallempfehlung | Stufe B | offen |
+| P-R5 | Abgrenzung zur Hilfeleistung in Steuersachen (StBerG, WTBG) bei UVA-Übermittlung und ESt-Vorbereitung; seit 0.17.0 Kennzahlen und U30-Datei (FA-14.x), Abgabe durch die Nutzerin selbst; vor Webservice-Übermittlung (Zugangsdaten der Nutzerin im Gerät) erneut prüfen | zulässig als Werkzeug, Übermittlung nur im Namen und mit Zugang der Nutzerin; keine Einzelfallempfehlung | Stufe B | offen |
 | P-R6 | DSGVO: Datenschutzerklärung, Verzeichnis, TOM, Datenpannenprozess; ab Stufe C AVV und Unterauftragsverarbeiter | Rollen laut Lastenheft L-19 im Kern richtig, um Anbieter- und Store-Daten ergänzt | Release / Stufe C | offen |
 | P-R7 | Markenrecherche „JeNi bucht" (TMview, Klassen 9, 35, 36, 42) | Recherche der Auftraggeberin ohne Befund (2026-10-15); Name festgelegt | Store-Eintrag | erledigt 2026-10-15 |
 | P-R8 | Rechtsform, Haftung, Versicherung des Anbieters | Einzelunternehmen haftet persönlich | Release | offen |
@@ -1308,6 +1356,7 @@ erzeugt `beispiele_erzeugen_test.dart` mit dem PDF-Generator der App.
 | P-X9 | Einhandtest auf dem Pixel 10: Rechnung bearbeiten, „Beenden“ und „PDF senden“ mit dem Daumen ohne Fehlgriff, nach dem Teilen-Blatt zurück im Formular, System-Zurück-Geste speichert den Entwurf bzw. fragt einmal | Widget-Test: beide Knöpfe ≥ 48 dp, Zurück ohne Kunde zeigt den Dialog (`invoice_form_ux_test.dart`) | Release | offen |
 | P-X10 | Abo-Seite auf Pixel 10 und iPhone einhändig: Monatlich/Jährlich, Kaufknopf, Kauf wiederherstellen, Abo verwalten mit dem Daumen ohne Fehlgriff; Store-Kaufblatt erscheint, Rückkehr in die Abo-Seite; Hinweis auf der Übersicht verständlich; Beleg im Nur-Lese-Modus: Abo-Seite statt Verlust der Eingaben | Widget-Test: alle Bedienelemente ≥ 48 dp, Kaufknöpfe 56 dp volle Breite (`licensing_test.dart`) | Store-Start | offen |
 | P-X11 | Einhandtest: Datensicherung „Wiederherstellen“ → Liste → Sicherung mit dem Daumen wählen; „Ausschalten“ nicht versehentlich neben „Ordner ändern“; Beleg mit „wie beim letzten Mal“ übernehmen ohne Korrektur | Knöpfe im Wrap mit 8 dp Abstand, Listeneinträge 56 dp, Gefahrenknopf mit Bestätigung | Release | offen |
+| P-X12 | Einhandtest „Für das Finanzamt“ auf Pixel 10 und iPhone: Quartal wählen, Kennzahl antippen und in FinanzOnline bzw. „Mein ELSTER“ im Browser einfügen, „U30-Datei teilen“ mit dem Daumen | Widget-Test: Zeilen und Knopf ≥ 48 dp (`tax_office_test.dart`) | Release | offen |
 
 ### Softwareentwicklung (echte Geräte und Stores)
 
@@ -1399,6 +1448,8 @@ erzeugt `beispiele_erzeugen_test.dart` mit dem PDF-Generator der App.
 | P-S54 | Steuerberatung: Gebühren von PayPal (Europe) S.à r.l. et Cie, S.C.A. (LU) als steuerfreier Finanzumsatz (Art 135 Abs 1 lit d MwStSystRL; AT § 6 Abs 1 Z 8 UStG 1994; DE § 4 Nr 8 Buchst d UStG) ohne Reverse Charge; Stripe (Stripe Technology Europe Ltd./Stripe Payments Europe Ltd., IE) und Shopify Payments (Shopify International Ltd., IE) als steuerpflichtige Leistung mit Reverse Charge – Leistender und Behandlung je Vertrag/Rechnung bestätigen | nicht gesichert recherchiert (Quellen der Anbieter nicht abrufbar); so umgesetzt (FA-2.46) | vor Release | offen |
 | P-S55 | Spaltennamen und Typwerte mit echten Exporten je Sprache abgleichen: Amazon Transaktionsbericht DE/EN/FR/IT/ES, Abrechnung V2 (amount-type/-description), PayPal Aktivitäten DE/EN, Shopify, Stripe | nur synthetische Dateien (`test/fixtures/plattform/`), Spaltennamen nach Hilfeseiten und Fachwissen | vor Release | offen |
 | P-S56 | Stornorechnung (GR-14): (a) gemeinsamer Nummernkreis für Rechnungen und Stornorechnungen zulässig und ausreichend (AT § 11 Abs 1 Z 3 lit c UStG, UStR Rz 1535 ff.; DE § 14 Abs 4 Nr. 4 UStG, Abschn. 14.5 Abs 10 UStAE)? (b) Pflichtinhalt: Bezug Nummer und Datum, negative Beträge je Satz, Grund – genügt das als Berichtigung (§ 31 Abs 5 UStDV, Abschn. 14.11 UStAE) bzw. Rechnungsberichtigung AT? (c) § 14c UStG DE / § 11 Abs 12 UStG AT: Berichtigung des Steuerausweises erst mit Zugang beim Empfänger – reicht der Hinweis „PDF senden“? (d) Buchung: bezahlt → negative Einnahme je Satz am Rückzahlungstag (Ist-Versteuerung, § 17 UStG DE, § 16 UStG AT); offen → keine Buchung; bei Soll-Versteuerung wäre der Stornomonat maßgeblich (nicht abgebildet) | Vorbefund Steuerberater: Stornorechnung mit eigener Nummer und Bezug ist Praxis in AT und DE; ein Nummernkreis zulässig; Ist-Prinzip passt zur EAR. Rz-Fundstellen AT nicht am Volltext verifiziert | Release | offen |
+| P-S57 | Steuerberatung: Kennzahlen der Voranmeldung (FA-14.2, FA-14.5): AT U30 Kz 000, 022 (20 %), 006 (13 %), 029 (10 %), 124 (4,9 % ab 07/2026), 016 (Kleinunternehmer), 057/066, 060, 095; DE UStVA Kz 81, 86 (volle Euro), 46/47/67, 66, 83. Muss ein Kleinunternehmer nur wegen Reverse Charge eine UVA/UStVA abgeben (AT § 21 UStG, DE § 18 Abs 4a UStG), und mit Kz 000/016? Welche Kennzahl für 0 %-Umsätze eines Regelbesteuerten (App sperrt die Datei)? | Kz-Positionen aus der BMF-XSD 07_2026; Bedeutung von Kz 124 als 4,9 % aus Lage nach Kz 022 und Gesetzesänderung abgeleitet, Formular nicht abgerufen | Release | offen |
+| P-S58 | Steuerberatung: Jahreszahlen (FA-14.6) – AT E1a Kz 9040 für Betriebseinnahmen auch als Kleinunternehmer; DE Anlage EÜR Kz 111/112, 140, 185 für das aktuelle Formularjahr; reicht „Betriebsausgaben gesamt, nach Art aufteilen“ oder soll die App Kategorien Kennzahlen zuordnen? | aus Fachwissen, Formulare nicht abgerufen; Kz 9040 im BMF-XSD Jahreserklärungen vorhanden | Release | offen |
 | P-L12 | Anwältin: Diktat über die Systemtastatur – Anbieterin nicht verantwortlich, Hinweistext genügt | — | Release | offen |
 | P-L13 | Gerätetest, nur bei eigener Spracherkennung: Erkennung im Flugmodus | — | später | offen |
 | P-L14 | Anwältin: Rollen beim Vertragsarchiv mit KI (Anbieterin als Auftragsverarbeiterin), Muster-AVV, Rechtsgrundlage Beschäftigtendaten | — | Stufe C | offen |
@@ -1465,4 +1516,5 @@ erzeugt `beispiele_erzeugen_test.dart` mit dem PDF-Generator der App.
 | P-D32 | Promo-Code in beiden Stores anlegen (`STORE_ANMELDUNG.md` Formular 4, Abschnitt Promo-Code) und einlösen: Android über die Abo-Seite und über `https://play.google.com/redeem?code=JENIBUCHT2M`, iOS über das Einlöseblatt und über den App-Store-Link mit echter Apple-ID der App (`id=<APP_ID>` ersetzen); Pro aktiv nach Rückkehr, Erinnerung zum Ende der 2 Monate, Kündigung in der Gratiszeit kostenlos | Logik mit Store-Ersatz getestet (`licensing_test.dart`); Apple-ID der App existiert noch nicht | vor der ersten Kampagne | offen |
 | P-D33 | Lernen je Lieferant an echten Belegen: zweiter Bon desselben Händlers (andere Filiale, schlechteres Foto) wird erkannt und vorbelegt; keine falsche Zuordnung bei ähnlichen Namen (z. B. „Billa“ / „Billa Plus“) | Unit-Tests mit Varianten | vor Release | offen |
 | P-D34 | Store-Screenshots mit den Demodaten aus `STORE_LISTING.md` aufnehmen (Android 1080×1920, iPhone 6,9", iPad 13"), Inhalt gegen Werbe-Negativliste prüfen; optional automatisiert über `integration_test` (Plan dort) | nur Plan und Demodaten | erste Einreichung | offen |
+| P-D35 | U30-Datei beim BMF prüfen: Upload einer Testdatei in FinanzOnline (Eingaben → Übermittlungen → Upload, bzw. Test-Upload), Annahme ohne Fehler für Monat und Quartal, Kleinunternehmer mit Reverse Charge; Menüpfad im Handbuch bestätigen; Stand der XSD vor jedem Release mit den BMF-Seiten „Informationen für Softwarehersteller“ abgleichen | XML gegen XSD 07_2026 (Kopie aus github.com/FlorianRauscha/fon-api, BMF-Seite gesperrt) mit `xmllint` gültig | Release | offen |
 | P-D31 | Store-Abfrage auf Geräten (FA-13.6): StoreKit 2 ohne aktives Abo – kommt innerhalb 7 s eine Meldung oder gilt „leer“ zu Recht? Android mit Abo in Grace Period bzw. Kontosperre (on hold) – meldet Play den Kauf weiter? Kein falsches Herabstufen bei schlechtem Netz | Verlässlichkeit nur mit geladener Produktliste; sonst bleibt der Stand | Store-Start | offen |
