@@ -1,6 +1,6 @@
 # Lastenheft – JeNi bucht, Buchhaltungsapp für Österreich und Deutschland
 
-**Dokumentversion:** 1.71 · **Stand:** 2026-10-16 · **Status:** Entwurf zur Abstimmung
+**Dokumentversion:** 1.72 · **Stand:** 2026-10-16 · **Status:** Entwurf zur Abstimmung
 **Auftraggeber:** Jürgen Jesenko (privates Vorhaben) · **Umsetzung:** Claude Code
 
 > Ein Lastenheft beschreibt, **was** das Produkt leisten soll und **warum** — nicht,
@@ -1336,6 +1336,7 @@ Zu entscheiden, bevor die betroffene Anforderung umgesetzt wird:
 | ~~O-35~~ | **Entschieden am 2026-10-15:** Test nur auf Pro als Einführungsangebot der Stores: Abschluss von Pro mit 14 Tagen gratis, danach automatisch kostenpflichtig; in den 14 Tagen kostenlos kündbar oder Wechsel auf Basis. Kein eigener Basis-Test, kein App-Test. Text auf Abo-Seite und im Store: „14 Tage kostenlos, danach ‹Preis› pro Monat, jederzeit vorher kündbar“ | erledigt |
 | O-33 | **Bundle-ID für den Store festlegen** (Vorschlag `at.jenibarb.jenibucht`). Heute `at.jesenko.buchhaltung`; ein Wechsel erzwingt auf Testgeräten eine Neuinstallation (Daten vorher sichern) und ist nach der ersten Store-Einreichung nicht mehr möglich. **Entschieden 2026-10-15:** Wechsel auf `at.jenibarb.jenibucht` unmittelbar vor der ersten Store-Einreichung (bis dahin alte Kennung, damit Testgeräte ohne Neuinstallation aktualisieren); Umstellung mit dem vorbereiteten Skript `tool/release/bundle_id_wechsel.sh` | vor der ersten Store-Einreichung |
 | O-36 | **Direkte Übermittlung ans Finanzamt (L-6.5), nächster Schritt:** (a) DE: ELSTER-Hersteller-ID beantragen (ERiC-Entwicklerbereich, https://www.elster.de/elsterweb/softwareprodukt) – **Antrag als Softwarehersteller von der Auftraggeberin am 2026-10-16 gestellt; Status: beantragt, Antwort ausstehend** – Voraussetzung für jede UStVA-Übermittlung aus der App; ERiC ist eine native Bibliothek je Plattform und braucht das Zertifikat der Nutzerin. (b) AT: Webservice-Übermittlung über FinanzOnline (Webservice-Benutzer der Nutzerin, Hersteller-UID) erst nach erfolgreichem Testupload der U30-Datei (Spezifikation P-D35) und Prüfung P-R5. Stand 0.17.0: Kennzahlen zum Kopieren (AT/DE) und U30-Datei zum Hochladen (AT) | Stufe B |
+| O-37 | **ELSTER-Übermittlungsserver (DE) nach dem Launch:** ERiC gibt es nur für Windows, Linux und macOS, nicht für Android/iOS; direkte UStVA/EÜR-Übermittlung aus der App braucht daher einen Anbieter-Server. Skizze: verwalteter Container (kein eigenes Betriebssystem) bei einem Cloud-Anbieter mit Rechenzentrum in der EU; zustandslos – Meldung kommt verschlüsselt vom Gerät, wird an ELSTER weitergereicht, nichts wird gespeichert (weder Daten noch Zertifikat); grob 10–30 €/Monat. Beim Anbieter verbleiben trotz Cloud: Rolle als Auftragsverarbeiter (AVV mit dem Cloud-Anbieter, Datenschutzerklärung, Store-Angaben, Eintrag in 5.19), ERiC-Updates, Sicherheit des eigenen Codes, Haftung, ELSTER-Herstellerpflichten. Bis dahin: Kennzahlen zum Kopieren in „Mein ELSTER“ (FA-Stand 0.17.0). **Vertagt am 2026-10-16 durch die Auftraggeberin:** erst nach dem Launch und wenn genügend deutsche Nutzerinnen auf der Plattform sind; gemeinsam mit O-32 und der KI-Server-Frage betrachten | nach dem Launch |
 | O-20 | Welche Vorsoftware-Formate sind beim Import vorrangig zu unterstützen? Richtet sich nach dem, womit die ersten Nutzer tatsächlich kommen | Stufe B |
 | ~~O-21~~ | **Vorläufig beantwortet am 2026-10-10 (Prüfinstanz Rechtsanwalt):** BFSG/BaFG voraussichtlich nicht anwendbar (B2B, Kleinstunternehmen). Grundbarrierefreiheit trotzdem als NF-Anforderung; Bestätigung siehe Spezifikation Abschnitt 14, P-R3 | erledigt |
 | ~~O-23~~ | **Entschieden am 2026-10-09:** wählbar je Rücksendung über den Schalter „Ware wieder verkaufbar?" (L-3.20) | erledigt |
@@ -1389,6 +1390,7 @@ Historie stehen. Die Einzelheiten stehen an der genannten Stelle.
 
 | Version | Datum | Änderung |
 |---|---|---|
+| 1.72 | 2026-10-16 | O-37 neu: ELSTER-Übermittlungsserver (Cloud-Container, zustandslos) – vertagt auf nach dem Launch bei genügend deutschen Nutzerinnen. |
 | 1.71 | 2026-10-16 | Diktat auf dem Gerät (Spezifikation FA-2.61): Zeile in der Datenflusstabelle 5.19 (keine Übertragung durch die App), Eintrag und Tarifvorschlag Basis in 14a. |
 | 1.70 | 2026-10-16 | Entscheidung 14a Bewirtung mit Abzugsbeschränkung (L-2.27 angepasst, umgesetzt 0.21.0); O-36: ELSTER-Softwarehersteller am 2026-10-16 beantragt, Antwort ausstehend. Keine neue Datenübertragung (5.19 unverändert). |
 | 1.69 | 2026-10-16 | Entscheidungen 14a: Anlagen nur Pro (Ausnahme zur Regel in 5.10, mit Datenzugang und Hinweis), Vertragsarchiv Basis/Pro mit Auslesen nur Pro; Vorschläge geschlossen. |
