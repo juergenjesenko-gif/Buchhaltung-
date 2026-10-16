@@ -34,6 +34,7 @@ nächsten Versionssprung in den neuen Eintrag.
 
 | Art | Änderung | Bezug | Commit |
 |---|---|---|---|
+| Behoben | Verzugszinsen DE: Basiszinssatz 1,52 % ab 1.7.2026 ergänzt (Bundesbank); interne Prüfung der Steuer- und Rechtspunkte, neuer Status „intern geprüft“, Prüfmappen nur mit offenen Punkten | P-S44, SPEC 14 | folgt |
 
 ---
 

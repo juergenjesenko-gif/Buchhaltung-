@@ -32,8 +32,11 @@ fehlend = [i for i, p in alle.items() if (i.startswith('P-R') or i.startswith('P
 if fehlend:
     sys.exit(f'Nicht zugeordnete Rechts-Prüfpunkte: {fehlend}')
 themen = [(t, [alle[i] for i in ids if i in alle and (offen(alle[i]) or i in STETS)]) for t, ids in THEMEN]
+themen = [(t, p) for t, p in themen if p]
 anzahl = sum(len(p) for _, p in themen)
-stunden = anzahl * MIN_JE_PUNKT / 60
+INTERN = {i for i in intern_geprueft() if i.startswith(('P-R', 'P-L'))}
+MIN_JE_STICHPROBE = 2
+stunden = (anzahl * MIN_JE_PUNKT + len(INTERN) * MIN_JE_STICHPROBE) / 60
 
 ZUSATZ = {
     'P-R7': 'Genügt die eigene Recherche ohne Befund, oder raten Sie zu einer Anmeldung (AT/EUIPO) bzw. einer Ähnlichkeitsrecherche?',
@@ -64,7 +67,8 @@ s.append(Paragraph('Bitte um ein Fixpreisangebot', h2))
 s.append(Paragraph(
     f'Die Mappe enthält <b>{anzahl} Prüfpunkte</b> in {len(themen)} Themen; die Texte stehen im Anhang. '
     f'Unsere Schätzung: etwa {MIN_JE_PUNKT} Minuten je Punkt plus Durchsicht der Texte, zusammen rund '
-    f'<b>{stunden + 3:.0f} Stunden</b>. Wir bitten um ein <b>Fixpreisangebot</b>, gern getrennt nach '
+    f'<b>{stunden + 3:.0f} Stunden</b> (darin {len(INTERN)} intern geprüfte Punkte im Anhang F zur Stichprobe, '
+    f'etwa {MIN_JE_STICHPROBE} Minuten je Punkt). Wir bitten um ein <b>Fixpreisangebot</b>, gern getrennt nach '
     '„vor Store-Start“ (Benötigt vor: Release, erster Upload, Store-Start, Werbung) und „später“ (Stufe B/C), '
     'mit Kennzeichnung der Punkte, die Sie ablehnen oder weiterverweisen.', b))
 s.append(Paragraph('Übersicht', h2))
@@ -73,7 +77,7 @@ s.append(tabelle([['Thema', 'Punkte', 'IDs']] +
                  [70, 14, 90]))
 s.append(Paragraph('Anhang: A Nutzungsbedingungen · B Datenschutzerklärung (Entwurf und gültige PRIVACY.md) · '
                    'C Impressum · D Store-Texte, Werbe-Negativliste, Instagram-Text · E Texte in der App '
-                   '(Rechtliches, Abo-Seite, Rechnung/Mahnung in Sie-Form).', sm))
+                   '(Rechtliches, Abo-Seite, Rechnung/Mahnung in Sie-Form) · F intern geprüfte Punkte zur Stichprobe.', sm))
 s.append(PageBreak())
 
 for i, (thema, punkte) in enumerate(themen, 1):
@@ -99,6 +103,9 @@ code_anhang('lib/features/licensing/license_notice.dart', s, titel='E3 – Hinwe
 code_anhang('lib/services/invoice_texts.dart', s, titel='E4 – Texte auf Rechnung, Angebot, Mahnung (Sie-Form)')
 code_anhang('lib/services/dunning_service.dart', s, 116, 145, titel='E5 – Zahlungserinnerung/Mahnung, Mahnkostenhinweis')
 code_anhang('lib/domain/country.dart', s, 465, 475, titel='E6 – Verbraucherhinweis § 286 Abs. 3 BGB')
+
+s.append(PageBreak())
+anhang_intern(s, INTERN, 'Anhang F – Intern geprüfte Punkte (zur Stichprobe)')
 
 ziel = 'docs/pruefmappen/Pruefmappe_Rechtsanwalt.pdf'
 baue(ziel, TITEL, s)

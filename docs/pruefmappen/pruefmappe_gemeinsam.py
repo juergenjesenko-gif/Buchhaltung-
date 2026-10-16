@@ -72,8 +72,42 @@ def pruefpunkte(spec='docs/SPECIFICATION.md'):
 
 
 def offen(p):
+    """Nur Punkte, die noch eine echte Fachperson prüfen muss (offen – extern)."""
     s = p['status'].lower()
-    return not (s.startswith('erledigt') or s.startswith('bestätigt') or s.startswith('widerlegt'))
+    return not (s.startswith('erledigt') or s.startswith('bestätigt') or s.startswith('widerlegt')
+                or s.startswith('extern bestätigt') or s.startswith('intern geprüft'))
+
+
+def intern_geprueft(spec='docs/SPECIFICATION.md'):
+    """Tabelle „Ergebnisse der internen Prüfung“ aus Abschnitt 14: id -> dict."""
+    text = open(spec, encoding='utf-8').read()
+    teil = text[text.index('### Ergebnisse der internen Prüfung'):]
+    out = {}
+    for zeile in teil.splitlines():
+        m = re.match(r'^\| (P-[A-Z]+\d+) \|', zeile)
+        if not m:
+            continue
+        pid, ergebnis, quellen, sicherheit = [x.strip() for x in zeile.strip().strip('|').split(' | ')][:4]
+        out[pid] = dict(id=pid, ergebnis=ergebnis, quellen=quellen, sicherheit=sicherheit)
+    return out
+
+
+def anhang_intern(story, ids, titel):
+    """Anhang: intern geprüfte Punkte mit Kurzergebnis und Quelle zur Stichprobe."""
+    erg = intern_geprueft()
+    alle = pruefpunkte()
+    zeilen = [[e['id'], inline(alle[e['id']]['frage']) if e['id'] in alle else '', inline(e['ergebnis']),
+               inline(e['quellen']), e['sicherheit']]
+              for i, e in erg.items() if i in ids]
+    story.append(Paragraph(titel, h2))
+    story.append(Paragraph(
+        'Diese Punkte hat die interne Prüfinstanz am 2026-10-16 selbstständig mit Gesetz, '
+        'Verwaltungsanweisung oder Rechtsprechung beantwortet; sie stehen deshalb <b>nicht</b> im '
+        'Hauptteil. Wir bitten nur um eine Stichprobe: Fällt Ihnen ein Ergebnis als falsch auf, '
+        'genügt ein Vermerk in der letzten Spalte.', sm))
+    story.append(tabelle([['ID', 'Frage', 'Ergebnis', 'Quelle', 'Sicherheit / Vermerk']] + zeilen,
+                         [14, 38, 62, 42, 18]))
+    return len(zeilen)
 
 
 def _seite(canvas, doc, titel):

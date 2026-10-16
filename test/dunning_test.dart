@@ -62,6 +62,9 @@ void main() {
     expect(at.statutoryRateBp(business: true, date: d), 153 + 920);
     expect(de.statutoryRateBp(business: false, date: d), 127 + 500);
     expect(de.statutoryRateBp(business: true, date: d), 127 + 900);
+    final h2 = DateTime(2026, 8, 1);
+    expect(de.statutoryRateBp(business: true, date: h2), 152 + 900);
+    expect(at.statutoryRateBp(business: true, date: h2), 153 + 920);
     expect(at.consumerDefaultNotice, isNull);
     expect(de.consumerDefaultNotice, contains('§ 286 Abs. 3 BGB'));
   });
@@ -76,8 +79,9 @@ void main() {
       business: true,
     );
     expect(result.periods.map((p) => p.days), [30, 31]);
-    // 100000 × 1027 × 30 / 3.650.000 = 844,1 → 844; × 31 = 872,2 → 872
-    expect(result.amount, const Money(844 + 872));
+    // Juni: 100000 × 1027 × 30 / 3.650.000 = 844,1 → 844;
+    // Juli (Basiszins 1,52 %): 100000 × 1052 × 31 / 3.650.000 = 893,5 → 893
+    expect(result.amount, const Money(844 + 893));
   });
 
   test('AT Verbraucher 4 % ohne Halbjahresteilung', () {

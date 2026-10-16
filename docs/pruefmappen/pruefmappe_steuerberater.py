@@ -38,8 +38,11 @@ fehlend = [i for i, p in alle.items() if i.startswith('P-S') and offen(p) and i 
 if fehlend:
     sys.exit(f'Nicht zugeordnete Steuer-Prüfpunkte: {fehlend}')
 themen = [(t, [alle[i] for i in ids if i in alle and offen(alle[i])]) for t, ids in THEMEN]
+themen = [(t, p) for t, p in themen if p]
 anzahl = sum(len(p) for _, p in themen)
-stunden = anzahl * MIN_JE_PUNKT / 60
+INTERN = {i for i in intern_geprueft() if i.startswith(('P-S', 'P-U', 'P-M', 'P-K', 'P-B'))}
+MIN_JE_STICHPROBE = 2
+stunden = (anzahl * MIN_JE_PUNKT + len(INTERN) * MIN_JE_STICHPROBE) / 60
 
 s = []
 s.append(Paragraph(TITEL, h1))
@@ -65,7 +68,8 @@ s.append(Paragraph(
 s.append(Paragraph('Bitte um ein Fixpreisangebot', h2))
 s.append(Paragraph(
     f'Die Mappe enthält <b>{anzahl} Prüfpunkte</b> in {len(themen)} Themen. Unsere Schätzung: '
-    f'etwa {MIN_JE_PUNKT} Minuten je Punkt, zusammen rund <b>{stunden:.0f} Stunden</b>. '
+    f'etwa {MIN_JE_PUNKT} Minuten je Punkt; dazu {len(INTERN)} intern geprüfte Punkte im Anhang C zur '
+    f'Stichprobe (etwa {MIN_JE_STICHPROBE} Minuten je Punkt), zusammen rund <b>{stunden:.0f} Stunden</b>. '
     'Wir bitten um ein <b>Fixpreisangebot</b> für die Durchsicht und das Ausfüllen der Antwortfelder, '
     'gern getrennt nach Österreich und Deutschland und mit Kennzeichnung, welche Punkte Sie '
     'ablehnen oder an eine Kollegin verweisen. Der letzte Themenblock betrifft die Steuern der '
@@ -111,6 +115,9 @@ s.append(Paragraph('Anhang B – Steuerliche Kennwerte im Code (Auszug TaxProfil
 s.append(Paragraph('Länderunterschiede stehen in der App an genau einer Stelle. Der Auszug zeigt Steuersätze, '
                    'Grenzwerte, Pflichthinweise und Fundstellen, wie sie die App verwendet.', sm))
 code_anhang('lib/domain/country.dart', s)
+
+s.append(PageBreak())
+anhang_intern(s, INTERN, 'Anhang C – Intern geprüfte Punkte (zur Stichprobe)')
 
 ziel = 'docs/pruefmappen/Pruefmappe_Steuerberater.pdf'
 baue(ziel, TITEL, s)

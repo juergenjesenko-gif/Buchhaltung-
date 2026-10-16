@@ -291,8 +291,10 @@ class TaxProfile {
       businessSurchargeBp: 920,
       consumerInterestLegalRef: '§ 1000 Abs 1 ABGB',
       businessInterestLegalRef: '§ 456 UGB',
-      // Basiszinssatz der OeNB (2. Euro-JuBeG). Vorbefund, real zu prüfen:
-      // P-S44.
+      // Basiszinssatz der OeNB (2. Euro-JuBeG); ändert sich erst, wenn sich
+      // der EZB-Hauptrefinanzierungssatz um mindestens 0,5 Prozentpunkte
+      // bewegt hat, daher 1,53 % auch nach der EZB-Anhebung 07/2026
+      // (intern geprüft 2026-10-16, P-S44; Sicherheit mittel).
       baseRates: [
         BaseRate(DateTime(2025, 1, 1), 253),
         BaseRate(DateTime(2025, 7, 1), 153),
@@ -548,12 +550,14 @@ class TaxProfile {
       businessSurchargeBp: 900,
       consumerInterestLegalRef: '§ 288 Abs 1 BGB',
       businessInterestLegalRef: '§ 288 Abs 2 BGB',
-      // § 247 BGB, Bekanntmachung der Bundesbank zum 1.1. und 1.7.
-      // Vorbefund, real zu prüfen: P-S44.
+      // § 247 BGB, Bekanntmachung der Bundesbank zum 1.1. und 1.7.;
+      // 1,52 % ab 1.7.2026 laut Pressemitteilung der Bundesbank
+      // (intern geprüft 2026-10-16, P-S44).
       baseRates: [
         BaseRate(DateTime(2025, 1, 1), 227),
         BaseRate(DateTime(2025, 7, 1), 127),
         BaseRate(DateTime(2026, 1, 1), 127),
+        BaseRate(DateTime(2026, 7, 1), 152),
       ],
       baseRateLegalRef: '§ 247 BGB',
       // § 288 Abs 5 BGB: 40 EUR Pauschale, nicht gegenüber Verbrauchern.
