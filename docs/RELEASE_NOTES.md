@@ -36,7 +36,7 @@ nächsten Versionssprung in den neuen Eintrag.
 |---|---|---|---|
 | Geändert | Pro-Umfang: Import (Plattformen, E-Rechnung auslesen), PDF senden (Rechnung, Storno), Mahnung senden, Logo, Kurs abrufen nur Pro, Finanzamt-Übermittlung vorab Pro; ohne Pro PDF speichern/drucken über den Systemdialog | O-34, FA-13.2, FA-13.11 | `f3ae91c` |
 | Geändert | Abo-Seite: „14 Tage kostenlos, danach ‹Preis› pro ‹Zeitraum›, jederzeit vorher kündbar“ | O-35, FA-13.5 | `eb79a9e` |
-| Geändert | Logo im Onboarding ohne Abo-Seite wählbar; gedruckt nur mit Pro oder Test, mit Basis nicht auf neuen Rechnungen; gestellte behalten ihr Logo | FA-13.12, L-1.7 | folgt |
+| Geändert | Logo im Onboarding ohne Abo-Seite wählbar; gedruckt nur mit Pro oder Test, mit Basis nicht auf neuen Rechnungen; gestellte behalten ihr Logo | FA-13.12, L-1.7 | `35173cd` |
 
 ---
 
