@@ -626,19 +626,25 @@ class _ReceiptEditScreenState extends State<ReceiptEditScreen> {
   Future<void> _addPage(ImageSource source) async {
     // Dokumentenscanner des Systems zuerst (FA-2.51): entzerrt, mehrere
     // Seiten. Ohne Scanner automatisch die Kamera, ohne Rückfrage.
+    // Gescannte Seiten laufen durch dieselbe Erkennung wie Kamerafotos.
     if (source == ImageSource.camera) {
-      final scanned = await const DocumentScanner().scan();
-      if (scanned != null) {
-        if (scanned.isEmpty || !mounted) return;
-        for (final file in scanned) {
-          final relative = await ReceiptImageStore.store(file);
-          if (!mounted) return;
+      final outcome = await ScanIntake.run(
+        store: ReceiptImageStore.store,
+        onPage: (relative) {
+          if (!mounted) return false;
           setState(() => _pages.add(relative));
-        }
-        await _resolveFiles();
-        if (_scanEnabled && !_isEditing) await _scan();
-        return;
-      }
+          return true;
+        },
+        afterPages: () async {
+          await _resolveFiles();
+          if (!mounted || _isEditing) return;
+          // Einstellung frisch laden: der Scan kann schneller zurück sein
+          // als das erste Laden beim Öffnen.
+          await _loadScanSetting();
+          if (mounted && _scanEnabled) await _scan();
+        },
+      );
+      if (outcome != ScanIntakeOutcome.unavailable) return;
     }
     try {
       final picked = await ImagePicker().pickImage(

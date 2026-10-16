@@ -216,15 +216,16 @@ class _ContractEditScreenState extends State<ContractEditScreen> {
   Future<void> _addPhoto(ImageSource source) async {
     // Dokumentenscanner zuerst (FA-2.51), sonst automatisch die Kamera.
     if (source == ImageSource.camera) {
-      final scanned = await const DocumentScanner().scan();
-      if (scanned != null) {
-        for (final f in scanned) {
-          final rel = await ReceiptImageStore.store(f);
-          if (!mounted) return;
+      final outcome = await ScanIntake.run(
+        store: ReceiptImageStore.store,
+        onPage: (rel) {
+          if (!mounted) return false;
           setState(() => _newPages.add(rel));
-        }
-        return;
-      }
+          return true;
+        },
+        afterPages: () async {},
+      );
+      if (outcome != ScanIntakeOutcome.unavailable) return;
     }
     try {
       final picker = ImagePicker();

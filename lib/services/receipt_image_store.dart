@@ -12,6 +12,7 @@ class ReceiptImageStore {
   const ReceiptImageStore._();
 
   static const _folder = 'belege';
+  static int _seq = 0;
 
   static Future<Directory> _dir() async {
     final base = await getApplicationDocumentsDirectory();
@@ -26,7 +27,10 @@ class ReceiptImageStore {
     final extension = p.extension(source.path).isEmpty
         ? '.jpg'
         : p.extension(source.path);
-    final name = 'beleg_${DateTime.now().millisecondsSinceEpoch}$extension';
+    // Laufnummer dazu: mehrere Scan-Seiten in derselben Millisekunde
+    // überschrieben sonst einander.
+    final name =
+        'beleg_${DateTime.now().millisecondsSinceEpoch}_${_seq++}$extension';
     await source.copy(p.join(dir.path, name));
     return p.join(_folder, name);
   }

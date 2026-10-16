@@ -43,6 +43,12 @@ class MainActivity : FlutterFragmentActivity() {
             }
     }
 
+    override fun onResume() {
+        super.onResume()
+        // Dokumentenscanner: offene Antwort nie liegen lassen (Gerätetest 0.21.0).
+        scanner?.onResume()
+    }
+
     override fun onNewIntent(intent: android.content.Intent) {
         super.onNewIntent(intent)
         shareIn?.handle(intent)

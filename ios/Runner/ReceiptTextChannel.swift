@@ -240,13 +240,24 @@ class DocumentScannerChannel: NSObject, VNDocumentCameraViewControllerDelegate {
     return top
   }
 
+  /// Schließt die offene Antwort genau einmal ab (Gerätetest 0.21.0: eine
+  /// liegengebliebene Antwort sperrte den Scanner bis zum Neustart).
+  private func finish(_ value: Any?) {
+    guard let result = pending else { return }
+    pending = nil
+    result(value)
+  }
+
   private func scan(_ result: @escaping FlutterResult) {
-    guard pending == nil else {
-      result(FlutterError(code: "busy", message: "Scanner läuft bereits", details: nil))
-      return
-    }
+    // Liegengebliebene Antwort abschließen statt dauerhaft „busy“; doppelte
+    // Tipps fängt Dart ab.
+    finish([String]())
     guard VNDocumentCameraViewController.isSupported, let top = topController() else {
       result(FlutterError(code: "unavailable", message: "Kein Dokumentenscanner", details: nil))
+      return
+    }
+    if top.isBeingDismissed || top.isBeingPresented {
+      result(FlutterError(code: "unavailable", message: "Ansicht nicht bereit", details: nil))
       return
     }
     pending = result
@@ -258,34 +269,35 @@ class DocumentScannerChannel: NSObject, VNDocumentCameraViewControllerDelegate {
   func documentCameraViewController(
     _ controller: VNDocumentCameraViewController, didFinishWith scan: VNDocumentCameraScan
   ) {
-    let dir = FileManager.default.temporaryDirectory.appendingPathComponent("scanner")
-    try? FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
-    let stamp = Int(Date().timeIntervalSince1970 * 1000)
-    var paths: [String] = []
-    for i in 0..<scan.pageCount {
-      let target = dir.appendingPathComponent("scan_\(stamp)_\(i).jpg")
-      if let data = scan.imageOfPage(at: i).jpegData(compressionQuality: 0.85),
-        (try? data.write(to: target)) != nil
-      {
-        paths.append(target.path)
-      }
-    }
+    // Seiten im Hintergrund schreiben, Antwort auf dem Hauptthread.
+    let images = (0..<scan.pageCount).map { scan.imageOfPage(at: $0) }
     controller.dismiss(animated: true)
-    pending?(paths)
-    pending = nil
+    DispatchQueue.global(qos: .userInitiated).async {
+      let dir = FileManager.default.temporaryDirectory.appendingPathComponent("scanner")
+      try? FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
+      let stamp = Int(Date().timeIntervalSince1970 * 1000)
+      var paths: [String] = []
+      for (i, image) in images.enumerated() {
+        let target = dir.appendingPathComponent("scan_\(stamp)_\(i).jpg")
+        if let data = image.jpegData(compressionQuality: 0.9),
+          (try? data.write(to: target)) != nil
+        {
+          paths.append(target.path)
+        }
+      }
+      DispatchQueue.main.async { self.finish(paths) }
+    }
   }
 
   func documentCameraViewControllerDidCancel(_ controller: VNDocumentCameraViewController) {
     controller.dismiss(animated: true)
-    pending?([String]())
-    pending = nil
+    finish([String]())
   }
 
   func documentCameraViewController(
     _ controller: VNDocumentCameraViewController, didFailWithError error: Error
   ) {
     controller.dismiss(animated: true)
-    pending?(FlutterError(code: "unavailable", message: error.localizedDescription, details: nil))
-    pending = nil
+    finish(FlutterError(code: "unavailable", message: error.localizedDescription, details: nil))
   }
 }
