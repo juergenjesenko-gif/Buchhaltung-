@@ -24,9 +24,9 @@ enum ReceiptBranch {
   postal('Porto', 'Büromaterial'),
   telecom('Telefon/Internet', 'Telefon & Internet'),
   books('Fachliteratur', 'Fortbildung & Fachliteratur'),
-  // Baumarkt, Möbel, Sport: keine eigene Startkategorie, Vorschlag
-  // „Sonstige Ausgaben“; die Nutzerin wählt bei Bedarf Wareneinkauf o. Ä.
-  hardware('Baumarkt-Einkauf', 'Sonstige Ausgaben'),
+  // Baumarkt: Startkategorie „Material und Werkzeug“ (Entscheidung
+  // Auftraggeberin 2026-10-17). Möbel, Sport: „Sonstige Ausgaben“.
+  hardware('Baumarkt-Einkauf', 'Material und Werkzeug'),
   furniture('Einrichtung', 'Sonstige Ausgaben'),
   retail('Einkauf', 'Sonstige Ausgaben');
 

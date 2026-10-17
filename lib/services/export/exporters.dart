@@ -189,6 +189,9 @@ class Exporter {
     '4945' => '7820', // Fortbildung
     '4600' => '7650', // Werbung
     '4970' => '8280', // Bankspesen
+    // Werkzeuge und Kleingeräte → EKR 5300 Hilfsstoffaufwand (Material und
+    // Werkzeug, FA-2.31); Zuordnung prüft die Kanzlei (P-S66).
+    '4985' => '5300',
     _ => '7800', // Sonstiger Aufwand
   };
 

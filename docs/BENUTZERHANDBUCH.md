@@ -1,6 +1,6 @@
 # Benutzerhandbuch – JeNi bucht
 
-**Für App-Version 0.23.0** · Stand 2026-10-17
+**Für App-Version 0.23.1** · Stand 2026-10-17
 
 Dieses Handbuch beschreibt die App aus Nutzersicht. Es wird bei jeder Änderung,
 die du in der App siehst, mitgeführt – siehe [`CLAUDE.md`](../CLAUDE.md).
@@ -294,7 +294,8 @@ Lieferant, Rechnungsnummer und UID des Ausstellers**. Solche Felder sind mit
   Bon, z. B. „Lasurpinsel u. a.“ (BAUHAUS) oder „Baguette u. a.“ (SPAR). Ohne
   lesbaren Artikel schlägt sie die Art vor, z. B. „Maut“, „Treibstoff“ oder
   „Baumarkt-Einkauf“, sonst bleibt das Feld leer. Die **Kategorie** kommt
-  dazu, z. B. *Kfz-Kosten* oder *Sonstige Ausgaben*. Eine Beschreibung, die du
+  dazu, z. B. *Kfz-Kosten*, beim Baumarkt (BAUHAUS, OBI, Hornbach, Lagerhaus …)
+  *Material und Werkzeug*, sonst *Sonstige Ausgaben*. Eine Beschreibung, die du
   schon getippt hast, überschreibt sie nicht. Ohne Vorschlag steht ein neuer
   Beleg auf *Sonstige Ausgaben*.
 - **Die App lernt je Lieferant.** Speicherst du einen Beleg, merkt sie sich

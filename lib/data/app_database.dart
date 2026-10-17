@@ -17,7 +17,7 @@ class AppDatabase {
 
   /// Aktuelle Schemaversion. Öffentlich, weil docs/SPECIFICATION.md sie
   /// dokumentiert und test/specification_sync_test.dart beide vergleicht.
-  static const schemaVersion = 24;
+  static const schemaVersion = 25;
 
   Database? _db;
 
@@ -740,6 +740,20 @@ class AppDatabase {
       )
       ''',
     ],
+    // Startkategorie „Material und Werkzeug“ (Entscheidung Auftraggeberin
+    // 2026-10-17, Lastenheft 14a, FA-2.31). SKR03 4985 „Werkzeuge und
+    // Kleingeräte“ (SKR04 6845). Nur in bestehende Datenbanken mit
+    // Kategorien; neue erhalten sie über [seedCategories].
+    25: [
+      '''
+      INSERT INTO categories (name, direction, datev_account, is_system)
+      SELECT 'Material und Werkzeug', 'expense', '4985', 1
+      WHERE EXISTS (SELECT 1 FROM categories)
+        AND NOT EXISTS (
+          SELECT 1 FROM categories WHERE name = 'Material und Werkzeug'
+        )
+      ''',
+    ],
   };
 
   /// Startkategorien, damit die App nicht mit einer leeren Auswahlliste startet.
@@ -765,6 +779,9 @@ class AppDatabase {
     // SKR03 4650 Bewirtungskosten; Abzugsbeschränkung FA-2.60.
     ('Bewirtung', 'expense', '4650'),
     ('Bankspesen', 'expense', '4970'),
+    // SKR03 4985 Werkzeuge und Kleingeräte (SKR04 6845); Baumarkt-Einkauf,
+    // FA-2.31. Kontenzuordnung prüft die Kanzlei (P-S66).
+    ('Material und Werkzeug', 'expense', '4985'),
     ('Sonstige Ausgaben', 'expense', '4900'),
   ];
 

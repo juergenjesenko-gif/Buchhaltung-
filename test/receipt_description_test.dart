@@ -40,7 +40,7 @@ A-9500 Villach
 $_items$_slip''');
     expect(r.merchant?.value, 'BAUHAUS Depot GmbH');
     expect(c.description, 'Lasurpinsel u. a.');
-    expect(c.categoryName, 'Sonstige Ausgaben');
+    expect(c.categoryName, 'Material und Werkzeug');
     expect(c.description, isNot(contains('BAUHAUS')));
   });
 

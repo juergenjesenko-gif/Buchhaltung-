@@ -1,6 +1,6 @@
 # Lastenheft – JeNi bucht, Buchhaltungsapp für Österreich und Deutschland
 
-**Dokumentversion:** 1.74 · **Stand:** 2026-10-17 · **Status:** Entwurf zur Abstimmung
+**Dokumentversion:** 1.75 · **Stand:** 2026-10-17 · **Status:** Entwurf zur Abstimmung
 **Auftraggeber:** Jürgen Jesenko (privates Vorhaben) · **Umsetzung:** Claude Code
 
 > Ein Lastenheft beschreibt, **was** das Produkt leisten soll und **warum** — nicht,
@@ -1045,7 +1045,7 @@ P-X20.
 | L-29.4 | **Zwei Wege je Kopplung:** (a) Messenger oder Mail über das Teilen-Blatt (Standard, ohne Einrichtung), (b) gemeinsamer Cloud-Ordner „Eingang“ des Betriebs; das Hauptgerät liest den Ordner beim Start und bei Rückkehr in die App | MUSS | A |
 | L-29.5 | **Eingang** auf dem Hauptgerät: jeder Beleg öffnet im normalen Formular, vorbelegt und „von ‹Gerät›“ markiert; ein Tipp auf Speichern übernimmt; Ablehnen mit Grund; Dubletten (gleiche Kennung) werden erkannt | MUSS | A |
 | L-29.6 | **Ende-zu-Ende verschlüsselt** und gegen Veränderung geschützt (AEAD); unbekannte oder getrennte Geräte werden mit klarer Meldung abgelehnt; Trennen wechselt den Schlüssel; der Mithelfer erhält nie Daten des Betriebs | MUSS | A |
-| L-29.7 | **Tarif:** Koppeln ist Pro auf dem Hauptgerät; Mithelfer brauchen kein eigenes Abo (Vorschlag, 14a); ohne Pro nimmt der Eingang bereits gesendete Belege weiter an | MUSS | A |
+| L-29.7 | **Tarif:** Koppeln ist Pro auf dem Hauptgerät; Mithelfer brauchen kein eigenes Abo, keine Gerätegrenze (entschieden 2026-10-17, 14a); ohne Pro nimmt der Eingang bereits gesendete Belege weiter an | MUSS | A |
 | L-29.8 | iOS und Android in beliebiger Mischung | MUSS | A |
 | L-29.9 | Hinweis: die Inhaberin bleibt für die Buchhaltung verantwortlich; Mithelfer handeln für sie (Handbuch, P-R46) | MUSS | A |
 
@@ -1406,7 +1406,9 @@ Historie stehen. Die Einzelheiten stehen an der genannten Stelle.
 | 2026-10-16 | **Bewirtung automatisch gekürzt:** Kategorie „Bewirtung“ zählt ertragsteuerlich nur anteilig – AT 50 % (§ 20 Abs 1 Z 3 EStG, Regelfall Werbezweck), DE 70 % (§ 4 Abs 5 Satz 1 Nr. 2 EStG); Vorsteuer je Land nach Prüfinstanz (AT und DE voll); Kleinunternehmer: brutto × Anteil; nicht abziehbarer Teil in allen Auswertungen und Exporten; DE Anlass und Teilnehmer als freiwillige Felder; Belegerkennung schlägt Bewirtung für Restaurants vor. Schließt die Grenze zu P-S46 | L-2.27, Spez. FA-2.60, P-S46 |
 | 2026-10-16 | **ELSTER-Softwarehersteller beantragt** (Antwort ausstehend) | O-36 |
 | 2026-10-16 | **Wunsch oder Idee senden** in den Einstellungen: kurzes Formular, Versand über die Mail-App der Nutzerin an office@jenibarb.com, kein eigener Server, technische Angaben abschaltbar (Standard an) | L-26.7, Spez. FA-11.6 |
-| 2026-10-17 | **Mithelfer-Geräte / Belegsammler** (Familienbetriebe): Koppeln per QR, Mithelfer nur Erfassen, Wege Messenger/Mail und gemeinsamer Ordner, Eingang mit Übernehmen; **Pro auf dem Hauptgerät**. **Auslegung zur Bestätigung:** Mithelfer-Geräte ohne eigenes Abo | 5.29, Spez. 5.13, O-38 |
+| 2026-10-17 | **Mithelfer-Geräte / Belegsammler** (Familienbetriebe): Koppeln per QR, Mithelfer nur Erfassen, Wege Messenger/Mail und gemeinsamer Ordner, Eingang mit Übernehmen; **Pro auf dem Hauptgerät**. Mithelfer-Geräte ohne eigenes Abo | 5.29, Spez. 5.13, O-38 |
+| 2026-10-17 | **Bestätigt:** Mithelfer-Geräte brauchen **kein eigenes Abo**; **keine Gerätegrenze** | L-29.7 |
+| 2026-10-17 | Neue Startkategorie **„Material und Werkzeug“** (Ausgabe); Baumarkt-Belege schlagen sie statt „Sonstige Ausgaben“ vor; bestehende Datenbanken erhalten sie per Migration | Spez. FA-2.31, P-S66 |
 | 2026-10-16 | **Diktat auf dem Gerät** in Freitext- und Betragsfeldern (Auftrag); **entschieden 2026-10-16: in Basis und Pro** (Barrierefreiheit), keine Sperre | Spez. FA-2.61 |
 
 ---
@@ -1417,6 +1419,7 @@ Historie stehen. Die Einzelheiten stehen an der genannten Stelle.
 
 | Version | Datum | Änderung |
 |---|---|---|
+| 1.75 | 2026-10-17 | 14a: Mithelfer ohne eigenes Abo und ohne Gerätegrenze entschieden (L-29.7); neue Startkategorie „Material und Werkzeug“ (umgesetzt 0.23.1). Keine neue Datenübertragung. |
 | 1.74 | 2026-10-17 | Neuer Abschnitt 5.29 Mithelfer-Geräte / Belegsammler (L-29.1 bis L-29.9, umgesetzt 0.23.0), Zeile in der Datenflusstabelle 5.19, Entscheidung und Auslegung „ohne eigenes Abo“ in 14a, O-38 volle Mehrgeräte-Synchronisierung nach dem Launch. |
 | 1.73 | 2026-10-16 | L-26.7 „Wunsch oder Idee senden“ (umgesetzt 0.22.2): Zeile in der Datenflusstabelle 5.19 (Übertragung nur durch die Nutzerin aus ihrer Mail-App, Inhalt von ihr gewählt), Entscheidung in 14a. |
 | 1.72 | 2026-10-16 | O-37 neu: ELSTER-Übermittlungsserver (Cloud-Container, zustandslos) – vertagt auf nach dem Launch bei genügend deutschen Nutzerinnen. |

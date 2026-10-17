@@ -34,6 +34,7 @@ nächsten Versionssprung in den neuen Eintrag.
 
 | Art | Änderung | Bezug | Commit |
 |---|---|---|---|
+| Neu | Startkategorie „Material und Werkzeug“ (SKR03 4985), Schema 25; Baumarkt-Belege schlagen sie vor; Mithelfer ohne eigenes Abo/Gerätegrenze bestätigt | FA-2.31, L-29.7, P-S66 | folgt |
 
 ---
 
