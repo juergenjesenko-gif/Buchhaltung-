@@ -42,7 +42,7 @@ nächsten Versionssprung in den neuen Eintrag.
 | Feld | Wert |
 |---|---|
 | Art | Testbuild (ungezippte arm64-APK `JeNi-bucht-0.22.3-build-<Nr>.apk`, fester Testschlüssel); **Lizenzprüfung aus** (ohne `LICENSING=true`), alle Funktionen frei |
-| Commit | `0000000` |
+| Commit | `f4c4721` |
 | Branch | `claude/agile-accounting-app-mobile-wa5j3h` |
 | Dokumentstände | Lastenheft 1.73, Spezifikation 1.77, Benutzerhandbuch für 0.22.3, DESIGN_SPEC 1.4 |
 | Datenbankschema | 23 |
@@ -55,8 +55,8 @@ nächsten Versionssprung in den neuen Eintrag.
 
 | Art | Änderung | Bezug | Commit |
 |---|---|---|---|
-| Behoben | BAUHAUS-Bon: Artikelzeile „SET 3L Lasurpinsel-S“ wurde Lieferant; jetzt Zeile mit Rechtsform bzw. bekannte Kette („BAUHAUS Depot GmbH“), Artikelzeilen nie Lieferant, Kettenliste AT/DE erweitert, OCR-Varianten | FA-2.31, L-2.20 | `0000000` |
-| Geändert | Beschreibung = was gekauft wurde („Lasurpinsel u. a.“), sonst Branche („Maut“, „Baumarkt-Einkauf“), sonst leer; nie der Händlername | FA-2.31 | `0000000` |
+| Behoben | BAUHAUS-Bon: Artikelzeile „SET 3L Lasurpinsel-S“ wurde Lieferant; jetzt Zeile mit Rechtsform bzw. bekannte Kette („BAUHAUS Depot GmbH“), Artikelzeilen nie Lieferant, Kettenliste AT/DE erweitert, OCR-Varianten | FA-2.31, L-2.20 | `f4c4721` |
+| Geändert | Beschreibung = was gekauft wurde („Lasurpinsel u. a.“), sonst Branche („Maut“, „Baumarkt-Einkauf“), sonst leer; nie der Händlername | FA-2.31 | `f4c4721` |
 
 ---
 
