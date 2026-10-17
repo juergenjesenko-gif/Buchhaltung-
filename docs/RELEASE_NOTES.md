@@ -42,7 +42,7 @@ nächsten Versionssprung in den neuen Eintrag.
 | Feld | Wert |
 |---|---|
 | Art | Testbuild (ungezippte arm64-APK `JeNi-bucht-0.23.0-build-<Nr>.apk`, fester Testschlüssel); **Lizenzprüfung aus** (ohne `LICENSING=true`), alle Funktionen frei |
-| Commit | `0000000` |
+| Commit | `e2591a7` |
 | Branch | `claude/agile-accounting-app-mobile-wa5j3h` |
 | Dokumentstände | Lastenheft 1.74, Spezifikation 1.78, Benutzerhandbuch für 0.23.0, DESIGN_SPEC 1.4 |
 | Datenbankschema | 24 |
@@ -55,7 +55,7 @@ nächsten Versionssprung in den neuen Eintrag.
 
 | Art | Änderung | Bezug | Commit |
 |---|---|---|---|
-| Neu | Mithelfer-Geräte / Belegsammler: Koppeln per QR (Pro auf dem Hauptgerät), Mithelfer-Modus nur zum Erfassen, Belegpaket `.jenibeleg` Ende-zu-Ende verschlüsselt (AES-256-GCM), Wege Messenger/Mail und gemeinsamer Ordner, Eingang mit Übernehmen/Ablehnen, Dublettenschutz, Trennen; Schema 24 | FA-17.1 bis FA-17.8, L-29.1 bis L-29.9, P-D42, P-R46, P-S65, P-X20 | `0000000` |
+| Neu | Mithelfer-Geräte / Belegsammler: Koppeln per QR (Pro auf dem Hauptgerät), Mithelfer-Modus nur zum Erfassen, Belegpaket `.jenibeleg` Ende-zu-Ende verschlüsselt (AES-256-GCM), Wege Messenger/Mail und gemeinsamer Ordner, Eingang mit Übernehmen/Ablehnen, Dublettenschutz, Trennen; Schema 24 | FA-17.1 bis FA-17.8, L-29.1 bis L-29.9, P-D42, P-R46, P-S65, P-X20 | `e2591a7` |
 
 ---
 
