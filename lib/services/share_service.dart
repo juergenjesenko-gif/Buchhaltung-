@@ -46,10 +46,13 @@ class ShareService {
       });
       return;
     }
+    // iOS: UIActivityViewController (share_plus). Auf dem iPad verlangt das
+    // Teilen-Blatt einen Ankerpunkt, sonst bricht es ab (FA-17.4).
     await Share.shareXFiles(
       [XFile(file.path, mimeType: mimeType)],
       subject: subject,
       text: text,
+      sharePositionOrigin: const Rect.fromLTWH(0, 0, 1, 1),
     );
   }
 

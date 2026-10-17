@@ -24,6 +24,18 @@ import 'package:cryptography/cryptography.dart';
 /// Dateiendung der Belegpakete.
 const helperPackageExtension = '.jenibeleg';
 
+/// Eigener MIME-Typ der Belegpakete (Android-Intent-Filter, iOS-UTI
+/// `at.jesenko.buchhaltung.jenibeleg`). Gesendet wird als
+/// `application/octet-stream`, weil Messenger fremde Typen sonst ablehnen.
+const helperPackageMimeType = 'application/x-jenibeleg';
+
+/// Kurzhinweis beim Ordnerweg (FA-17.5): gemischte Familien
+/// (Android und iPhone) brauchen einen Ordner, den beide Systeme öffnen.
+const helperFolderHint =
+    'Android und iPhone gemischt? iCloud Drive gibt es auf Android nicht – '
+    'nehmt Google Drive, OneDrive oder Dropbox, oder sendet per Messenger '
+    'oder Mail.';
+
 /// Ein vom Mithelfer erfasster Beleg. Alles Vorschläge; gebucht wird erst auf
 /// dem Hauptgerät.
 class HelperReceipt {
@@ -125,6 +137,8 @@ class HelperPackageException implements Exception {
 }
 
 abstract final class HelperPackage {
+  static Cipher _defaultCipher() => AesGcm.with256bits();
+
   static const _magic = [0x4A, 0x42, 0x48, 0x50]; // "JBHP"
   static const formatVersion = 1;
   static const _headerLength = 4 + 1 + 16;
@@ -157,26 +171,32 @@ abstract final class HelperPackage {
   static String fileName(String pairingId, String uuid) =>
       '${pairingId.substring(0, 8)}_$uuid$helperPackageExtension';
 
+  /// Verpackt [receipt]. Plattformunabhängig: Kopf und Längen als Bytes ohne
+  /// Ganzzahlen mit Bytereihenfolge, Werte als UTF-8-JSON, Bilder unverändert
+  /// als Base64, AES-256-GCM nach NIST SP 800-38D (FA-17.4). [cipher] und
+  /// [nonce] nur für Tests (Gegenprobe, festes Prüfmuster).
   static Future<Uint8List> seal(
     HelperReceipt receipt, {
     required String pairingId,
     required List<int> key,
+    Cipher? cipher,
+    List<int>? nonce,
   }) async {
     if (key.length != 32) throw ArgumentError('Schlüssel muss 32 Byte haben');
     final id = fromHex(pairingId);
     if (id.length != 16) throw ArgumentError('Kopplungs-ID ungültig');
     final header = Uint8List.fromList([..._magic, formatVersion, ...id]);
-    final aes = AesGcm.with256bits();
-    final nonce = aes.newNonce();
+    final aes = cipher ?? _defaultCipher();
+    final iv = nonce ?? aes.newNonce();
     final box = await aes.encrypt(
       utf8.encode(jsonEncode(receipt.toJson())),
       secretKey: SecretKey(key),
-      nonce: nonce,
+      nonce: iv,
       aad: header,
     );
     return (BytesBuilder()
           ..add(header)
-          ..add(nonce)
+          ..add(iv)
           ..add(box.cipherText)
           ..add(box.mac.bytes))
         .toBytes();
@@ -195,17 +215,26 @@ abstract final class HelperPackage {
 
   /// Entschlüsselt und prüft; wirft [HelperPackageException] mit
   /// [HelperPackageError.notPackage] oder [HelperPackageError.damaged].
-  static Future<HelperReceipt> open(Uint8List data, List<int> key) async {
+  ///
+  /// [cipher] nur für Tests: andere AES-GCM-Implementierung (z. B. die reine
+  /// Dart-Implementierung gegen die Plattform-Vorgabe), um zu belegen, dass
+  /// das Format nicht vom Betriebssystem abhängt.
+  static Future<HelperReceipt> open(
+    Uint8List data,
+    List<int> key, {
+    Cipher? cipher,
+  }) async {
     if (pairingIdOf(data) == null) {
       throw const HelperPackageException(HelperPackageError.notPackage);
     }
     final header = data.sublist(0, _headerLength);
     final nonce = data.sublist(_headerLength, _headerLength + 12);
-    final cipher = data.sublist(_headerLength + 12, data.length - 16);
+    final cipherText = data.sublist(_headerLength + 12, data.length - 16);
     final mac = data.sublist(data.length - 16);
     try {
-      final plain = await AesGcm.with256bits().decrypt(
-        SecretBox(cipher, nonce: nonce, mac: Mac(mac)),
+      final aes = cipher ?? _defaultCipher();
+      final plain = await aes.decrypt(
+        SecretBox(cipherText, nonce: nonce, mac: Mac(mac)),
         secretKey: SecretKey(key),
         aad: header,
       );

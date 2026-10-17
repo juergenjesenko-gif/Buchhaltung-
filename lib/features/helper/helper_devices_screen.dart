@@ -143,9 +143,8 @@ class _HelperDevicesScreenState extends State<HelperDevicesScreen> {
                   leading: const Icon(Icons.folder_shared_outlined),
                   title: const Text('Gemeinsamer Ordner „Eingang“'),
                   subtitle: Text(
-                    _folderLabel ??
-                        'Nicht gewählt – nur nötig, wenn Geräte über einen '
-                            'Cloud-Ordner senden',
+                    '${_folderLabel ?? 'Nicht gewählt – nur nötig, wenn Geräte '
+                            'über einen Cloud-Ordner senden'}\n$helperFolderHint',
                   ),
                   trailing: const Icon(Icons.chevron_right),
                   onTap: _pickFolder,
@@ -265,7 +264,7 @@ class _AddDeviceSheetState extends State<_AddDeviceSheet> {
                     ? 'Ohne Einrichtung – kommt als Datei in WhatsApp, Signal '
                           'oder Mail; antippen und „Teilen“ an JeNi bucht'
                     : 'Automatisch über einen Cloud-Ordner, den ihr beide '
-                          'öffnen könnt (Google Drive, iCloud Drive …)',
+                          'öffnen könnt. $helperFolderHint',
               ),
             ),
           const SizedBox(height: 12),

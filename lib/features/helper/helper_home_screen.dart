@@ -65,6 +65,7 @@ class _HelperHomeScreenState extends State<HelperHomeScreen> {
       final picked = await PlatformBackupTarget.pick();
       if (picked == null) return;
       await state.setHelperLink(link.withFolder(picked.folder, picked.label));
+      if (mounted) showSnack(context, helperFolderHint);
       return;
     }
     final yes = await showDialog<bool>(

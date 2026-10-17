@@ -1684,12 +1684,16 @@ erscheint **übernommen**, sobald die Inhaberin den Beleg gebucht hat.
 ### Belege übernehmen (Hauptgerät)
 
 - **Messenger oder Mail:** die Datei `….jenibeleg` im Chat antippen und an
-  **JeNi bucht** teilen bzw. „Öffnen mit“. Auf dem iPhone die Datei zuerst
-  **In Dateien sichern**, dann **Einstellungen → Mithelfer-Geräte → Eingang →
-  Belegpaket öffnen**.
+  **JeNi bucht** teilen bzw. „Öffnen mit“. Auf dem iPhone: Datei antippen →
+  Teilen-Symbol → **JeNi bucht** („Öffnen in“) – der Beleg landet direkt im
+  Eingang, auch aus Mail und der Dateien-App.
+- **Android und iPhone gemischt** geht in beide Richtungen: koppeln per QR,
+  senden per Messenger oder Mail.
 - **Gemeinsamer Ordner:** einmal unter **Einstellungen → Mithelfer-Geräte →
   Gemeinsamer Ordner „Eingang“** denselben Ordner wählen. Neue Belege holt die
-  App bei jedem Öffnen.
+  App bei jedem Öffnen. iCloud Drive gibt es auf Android nicht: Habt ihr
+  Android und iPhone gemischt, nehmt Google Drive, OneDrive oder Dropbox –
+  oder sendet einfach per Messenger.
 
 Im **Eingang** antippen: das gewohnte Belegformular öffnet sich mit Fotos und
 Werten, markiert mit „von Handy Anna“. Steuersatz prüfen, **Beleg speichern** –

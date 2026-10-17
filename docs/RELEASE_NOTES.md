@@ -29,12 +29,34 @@ gebaut, und was war darin geprüft?*
 
 ## Unveröffentlicht
 
-Änderungen seit 0.23.0+34, die noch in keinem Build stecken. Wandern beim
+Änderungen seit 0.23.1+35, die noch in keinem Build stecken. Wandern beim
 nächsten Versionssprung in den neuen Eintrag.
 
 | Art | Änderung | Bezug | Commit |
 |---|---|---|---|
-| Neu | Startkategorie „Material und Werkzeug“ (SKR03 4985), Schema 25; Baumarkt-Belege schlagen sie vor; Mithelfer ohne eigenes Abo/Gerätegrenze bestätigt | FA-2.31, L-29.7, P-S66 | folgt |
+
+---
+
+## 0.23.1+35 — 2026-10-17
+
+| Feld | Wert |
+|---|---|
+| Art | Testbuild (ungezippte arm64-APK `JeNi-bucht-0.23.1-build-<Nr>.apk`, fester Testschlüssel); **Lizenzprüfung aus** (ohne `LICENSING=true`), alle Funktionen frei |
+| Commit | folgt |
+| Branch | `claude/agile-accounting-app-mobile-wa5j3h` |
+| Dokumentstände | Lastenheft 1.75, Spezifikation 1.79, Benutzerhandbuch für 0.23.1, DESIGN_SPEC 1.4 |
+| Datenbankschema | 25 |
+| Prüfung | `flutter analyze` ohne Befund, alle Tests grün (neu `material_category_test.dart`, `helper_package_platform_test.dart` mit Prüfmuster `test/fixtures/belegpaket/pruefmuster_v1.jenibeleg`; geändert `receipt_description_test.dart`); Android/iOS-Build nur in der CI |
+| Steuerliche Kennwerte | `spec.schema_version` 25, `spec.seed_category_count` 18, `spec.seed_category_expense_count` 15 |
+| Offene reale Prüfpunkte | wie 0.23.0+34, neu P-S66, P-D42 erweitert (gemischt in beide Richtungen) |
+| Bekannte Grenzen | Spezifikation Abschnitt 11, unverändert |
+
+**Änderungen seit 0.23.0+34**
+
+| Art | Änderung | Bezug | Commit |
+|---|---|---|---|
+| Neu | Startkategorie „Material und Werkzeug“ (SKR03 4985, BMD EKR 5300), Schema 25 für bestehende Datenbanken; Baumarkt-Belege schlagen sie vor; Mithelfer ohne eigenes Abo/Gerätegrenze bestätigt | FA-2.31, L-29.7, P-S66 | `329f27b` |
+| Neu | Belegsammler gemischt Android/iPhone: Paketformat mit Prüfmuster, iOS „Öffnen in JeNi bucht“ (eigener Dateityp), Android „Öffnen mit“ (MIME/Endung), iPad-Anker im Teilen-Blatt, Ordnerhinweis | FA-17.4, 8.9, P-D42 | folgt |
 
 ---
 
