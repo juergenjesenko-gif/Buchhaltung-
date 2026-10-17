@@ -94,6 +94,7 @@ class ScanIntake {
     required void Function(String message) onError,
     DocumentScanner scanner = const DocumentScanner(),
     Future<File> Function(File page) enhance = enhanceScannedPage,
+    Future<void> Function(File original)? beforeEnhance,
   }) async {
     final List<File>? scanned;
     try {
@@ -108,6 +109,15 @@ class ScanIntake {
     final failed = <int>[];
     for (var i = 0; i < scanned.length; i++) {
       final original = scanned[i];
+      // Codes (Kassen-QR) auch auf dem unverbesserten Original lesen: die
+      // Kontrastverstärkung kann feine QR-Module verschlucken (FA-2.62).
+      if (beforeEnhance != null) {
+        try {
+          await beforeEnhance(original);
+        } catch (e) {
+          debugPrint('Codes auf dem Original nicht gelesen: $e');
+        }
+      }
       File page;
       try {
         page = await enhance(original);

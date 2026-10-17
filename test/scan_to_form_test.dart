@@ -140,12 +140,19 @@ void main() {
     }
   }
 
+  /// Erkennung auf den abgelegten Seiten; Aufrufe auf dem unverbesserten
+  /// Scan-Original (nur Codes, FA-2.62) liegen im Cache und zählen nicht.
+  List<String> stored() => [
+    for (final p in recognized)
+      if (!p.contains('/cache/')) p,
+  ];
+
   void expectScannedForm(WidgetTester tester, {int pages = 1}) {
     expect(find.byType(ReceiptEditScreen), findsOneWidget);
     expect(find.text('Seite $pages'), findsOneWidget);
     expect(find.byType(Image), findsWidgets);
     expect(find.text('Erneut auslesen'), findsOneWidget);
-    expect(recognized, hasLength(pages));
+    expect(stored(), hasLength(pages));
   }
 
   testWidgets('Scan von der Übersicht: Seitenbild, Auslesen, Vorbelegung', (
@@ -192,7 +199,7 @@ void main() {
     await settleLong(tester);
     expect(find.text('Seite 1'), findsOneWidget);
     expect(find.text('Erneut auslesen'), findsOneWidget);
-    expect(recognized, hasLength(1));
+    expect(stored(), hasLength(1));
     await tester.runAsync(db.close);
   });
 

@@ -412,6 +412,13 @@ class _ReceiptEditScreenState extends State<ReceiptEditScreen> {
           if (_pageFiles[path] != null) _pageFiles[path]!.path,
       ];
       final document = _textLayer ?? await _recognizer.recognize(files);
+      // Codes jeder Seite (FA-2.62): auch bei PDF-Textebene die Seitenbilder
+      // nach Kassen-QR absuchen, dazu Codes vom unverbesserten Scan-Original.
+      final rawCodes = <String>{
+        ...document.codes,
+        ..._originalCodes,
+        if (_textLayer != null && files.isNotEmpty) ...await _codesOnly(files),
+      };
       final result = ReceiptTextParser(
         tax,
         ownVatId: state.profile?.vatId,
@@ -425,7 +432,7 @@ class _ReceiptEditScreenState extends State<ReceiptEditScreen> {
       );
       // Codes auf demselben Foto (L-27.1 bis L-27.3): Kassen-QR hat Vorrang
       // bei Betrag, Datum und Sätzen; Händler aus dem Lernspeicher.
-      final codes = [for (final raw in document.codes) ?ReceiptCode.parse(raw)];
+      final codes = [for (final raw in rawCodes) ?ReceiptCode.parse(raw)];
       final registerKey = ReceiptCodePrefill.registerIdOf(codes);
       final known = registerKey == null
           ? null
@@ -543,6 +550,7 @@ class _ReceiptEditScreenState extends State<ReceiptEditScreen> {
     }
     _codeSource = prefill.codeSource;
     _registerKey = prefill.registerId;
+    _printedVat = prefill.printedVat;
     _applyForeign(prefill.currency, prefill.originalGross);
     _scanHints = prefill.hints;
   }
@@ -590,6 +598,9 @@ class _ReceiptEditScreenState extends State<ReceiptEditScreen> {
   /// Kassen-ID für den Lernspeicher (L-27.2).
   String? _registerKey;
 
+  /// Gedruckte Netto-/Steuerbeträge je Satz aus der Erkennung (FA-2.62).
+  Map<int, PrintedVat> _printedVat = const {};
+
   VatSplit? get _split {
     final gross = _gross;
     if (gross == null) return null;
@@ -611,7 +622,10 @@ class _ReceiptEditScreenState extends State<ReceiptEditScreen> {
   List<ReceiptVatLine>? get _vatLines {
     final values = _splitParts.values;
     if (values == null) return null;
-    return ReceiptVatSplit.lines(ReceiptVatSplit.normalize(values));
+    return ReceiptVatSplit.lines(
+      ReceiptVatSplit.normalize(values),
+      printed: _printedVat,
+    );
   }
 
   /// „Weiteren Steuersatz hinzufügen“: zweiter Satz ist der erste andere
@@ -656,6 +670,10 @@ class _ReceiptEditScreenState extends State<ReceiptEditScreen> {
     if (source == ImageSource.camera) {
       final outcome = await ScanIntake.run(
         store: ReceiptImageStore.store,
+        beforeEnhance: (original) async {
+          final doc = await _recognizer.recognize([original.path]);
+          _originalCodes.addAll(doc.codes);
+        },
         onPage: (relative) {
           if (!mounted) return false;
           setState(() => _pages.add(relative));
@@ -883,6 +901,18 @@ class _ReceiptEditScreenState extends State<ReceiptEditScreen> {
 
   /// Textebene einer geteilten PDF (iOS), ersetzt dann die Texterkennung.
   OcrDocument? _textLayer;
+
+  /// Nur die Codes der Bilder; ohne Erkennung leer.
+  Future<List<String>> _codesOnly(List<String> files) async {
+    try {
+      return (await _recognizer.recognize(files)).codes;
+    } on Exception {
+      return const [];
+    }
+  }
+
+  /// Codes vom unverbesserten Scan-Original (FA-2.62).
+  final Set<String> _originalCodes = {};
 
   /// Verschiebt eine noch nicht gespeicherte Seite um [delta] Plätze.
   void _movePage(int index, int delta) {

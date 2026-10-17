@@ -149,6 +149,12 @@ class ReceiptCodePrefill {
       categoryName: base.categoryName,
       codeSource: 'Kassen-QR',
       registerId: key,
+      // Gedruckte Werte der Steuertabelle, falls lesbar; ReceiptVatSplit
+      // nimmt sie nur, wenn sie zum Betrag je Satz aus dem QR passen.
+      printedVat: {
+        for (final l in ocr?.vatLines ?? const <DetectedVat>[])
+          if (l.confidence >= 85) l.permille: (net: l.net, vat: l.vat),
+      },
     );
   }
 
@@ -176,6 +182,7 @@ class ReceiptCodePrefill {
       gross: code.amount ?? base.gross,
       vatPermille: base.vatPermille,
       vatParts: base.vatParts,
+      printedVat: base.printedVat,
       counterparty: code.name,
       documentNumber: base.documentNumber,
       issuerVatId: base.issuerVatId,
@@ -294,5 +301,6 @@ class ReceiptCodePrefill {
     note: b.note,
     codeSource: b.codeSource,
     registerId: registerId ?? b.registerId,
+    printedVat: b.printedVat,
   );
 }

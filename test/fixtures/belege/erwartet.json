@@ -108,6 +108,31 @@
       "anmerkung": "Slowenische DDV 22 % erkennen, aber als ausländische Umsatzsteuer nicht als Vorsteuer abziehbar → 0 % vorbelegen (P-S27, P-S30). Schlüsselwörter: Skupaj EUR, DDV %, Osnova za DDV, Znesek DDV, Datum in čas izdaje.",
       "beschreibung_enthaelt": "Maut",
       "kategorie": "Kfz-Kosten"
+    },
+    {
+      "datei": "omv_kaiserwald_20260519.jpg",
+      "beschreibung": "OMV-Tankstelle Dobl (Kaiserwald), nur Shop-Artikel: 4× Vöslauer 20 % und 4× Einwegpfand 0 %, Zahlung mit zwei Wertbons und Mastercard, Kassen-QR (RKSV) unten",
+      "haendler": "OMV Tankstelle",
+      "datum": "2026-05-19",
+      "waehrung": "EUR",
+      "brutto": 896,
+      "uid": "ATU62993700",
+      "rechnungsnummer": "1617/3/260519/197",
+      "steuer": [
+        {
+          "promille": 200,
+          "netto": 664,
+          "steuer": 132
+        },
+        {
+          "promille": 0,
+          "netto": 100,
+          "steuer": 0
+        }
+      ],
+      "anmerkung": "Gerätetest 0.23.1: als 7,96 € zu 20 % gelesen. Zahlungszeilen (Wertbon 0,70, Mastercard 7,56) sind nie der Gesamtbetrag; kein Treibstoff → keine Kfz-Kosten (FA-2.62).",
+      "beschreibung_enthaelt": "Vöslauer",
+      "kategorie": "Sonstige Ausgaben"
     }
   ]
 }

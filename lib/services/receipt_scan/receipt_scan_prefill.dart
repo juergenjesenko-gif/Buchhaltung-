@@ -30,6 +30,7 @@ class ReceiptScanPrefill {
     this.note,
     this.codeSource,
     this.registerId,
+    this.printedVat = const {},
   });
 
   factory ReceiptScanPrefill.from(
@@ -128,6 +129,7 @@ class ReceiptScanPrefill {
     // denselben Regeln wie oben – ausländischer Satz bei Ausgaben 0 %, ein
     // unbekannter oder noch nicht gültiger Satz verhindert die Vorbelegung.
     var vatParts = const <VatPart>[];
+    var printedVat = const <int, PrintedVat>{};
     if (r.vatLines.length > 1) {
       final listed = [
         for (final l in r.vatLines)
@@ -156,6 +158,12 @@ class ReceiptScanPrefill {
       final normalized = ReceiptVatSplit.normalize(parts);
       if (mappable && normalized.length > 1) {
         vatParts = normalized;
+        // Gedruckte Netto-/Steuerbeträge geprüfter Steuerzeilen übernehmen
+        // (FA-2.62); die Form prüft net + vat == gross je Zeile.
+        printedVat = {
+          for (final l in r.vatLines)
+            if (l.confidence >= 85) l.permille: (net: l.net, vat: l.vat),
+        };
         hints.add(
           'Mehrere Steuersätze erkannt ($listed) – als Aufteilung '
           'vorbelegt, bitte prüfen.',
@@ -192,6 +200,7 @@ class ReceiptScanPrefill {
       description: classification?.description,
       categoryName: classification?.categoryName,
       vatParts: vatParts,
+      printedVat: printedVat,
     );
   }
 
@@ -224,6 +233,10 @@ class ReceiptScanPrefill {
 
   /// Kassen-ID aus dem Kassen-QR für den Lernspeicher Kasse → Händler.
   final String? registerId;
+
+  /// Gedruckte Netto- und Steuerbeträge je Satz (Steuertabelle des Belegs,
+  /// FA-2.62); gelten nur, wenn sie zur Aufteilung passen.
+  final Map<int, PrintedVat> printedVat;
 }
 
 /// Protokolltext „erkannt gegenüber bestätigt“ für das audit_log (L-2.22,

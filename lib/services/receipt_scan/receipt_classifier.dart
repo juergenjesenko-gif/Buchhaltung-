@@ -248,11 +248,28 @@ abstract final class ReceiptClassifier {
         }
       }
     }
+    // Tankstelle, aber nur Shop-Artikel (Getränke, Pfand): kein Treibstoff,
+    // also nicht Kfz-Kosten, sondern der Einkauf laut Artikeln (FA-2.62,
+    // OMV-Beleg Gerätetest 0.23.1).
+    if (branch == ReceiptBranch.fuel &&
+        !rows.any((r) => fuelItem.hasMatch(r)) &&
+        itemNames(rows).isNotEmpty) {
+      branch = ReceiptBranch.retail;
+    }
     return ReceiptClassification(
       branch: branch,
       description: _description(merchant, branch, rows),
     );
   }
+
+  /// Treibstoff in einer Artikelzeile: Sorte oder Menge in Litern mit
+  /// Literpreis („41,23 l x 1,659 EUR/l“).
+  static final fuelItem = RegExp(
+    r'diesel|\bsuper\b|eurosuper|super ?plus|benzin|adblue|\bliter\b|'
+    r'\blitre\b|\bltr\b|maxxmotion|v-power|ultimate|\bbenzina\b|\bgorivo\b|'
+    r'\d[,.]\d{1,3}\s?l\b|eur\s?/\s?l\b|€\s?/\s?l\b|/\s?ltr?\b',
+    caseSensitive: false,
+  );
 
   /// Was gekauft wurde, nicht bei wem (Gerätetest 0.22.2): erster Artikel
   /// plus „u. a.“, sonst die Branche („Maut“, „Baumarkt-Einkauf“), sonst
@@ -299,7 +316,12 @@ abstract final class ReceiptClassifier {
     for (final row in rows) {
       final t = row.trim();
       final lower = t.toLowerCase();
-      if (_endOfItems.hasMatch(lower)) break;
+      // Spaltenkopf „ZP Artikel Bezeichnung Summe“ (OMV) ist kein Ende.
+      if (_endOfItems.hasMatch(lower) &&
+          (RegExp(r'\d[,.]\d{2}').hasMatch(t) ||
+              t.split(RegExp(r'\s+')).length <= 2)) {
+        break;
+      }
       if (_noItemLine.hasMatch(lower)) continue;
       final price = _trailingPrice.firstMatch(t);
       String? raw;
@@ -323,7 +345,8 @@ abstract final class ReceiptClassifier {
   );
 
   static final _endOfItems = RegExp(
-    r'\b(summe|zwischensumme|gesamt|total|zu zahlen|zahlbetrag|betrag)\b',
+    r'\b(summe|zwischensumme|gesamt|gesamtbetrag|gesamtsumme|endsumme|endbetrag|'
+    r'rechnungsbetrag|total|zu zahlen|zahlbetrag|betrag)\b',
   );
 
   static final _noItemLine = RegExp(
@@ -339,7 +362,12 @@ abstract final class ReceiptClassifier {
   /// Buchstaben übrig bleibt.
   static String? cleanItem(String raw) {
     final words = <String>[];
-    for (var w in raw.trim().split(RegExp(r'\s+'))) {
+    // Kassenkürzel mit Punkten („VÖSL.MIN.0.KS“) in Wörter zerlegen.
+    final spaced = raw.replaceAll(
+      RegExp(r'(?<=\p{L})\.(?=[\p{L}\d])', unicode: true),
+      ' ',
+    );
+    for (var w in spaced.trim().split(RegExp(r'\s+'))) {
       w = w.replaceAll(RegExp(r'^[^\p{L}]+|[^\p{L}]+$', unicode: true), '');
       // Abgeschnittenes Anhängsel „Lasurpinsel-S“.
       w = w.replaceFirst(RegExp(r'-\p{L}$', unicode: true), '');
@@ -360,6 +388,7 @@ abstract final class ReceiptClassifier {
         continue;
       }
       if (_noItem.contains(w.toUpperCase())) continue;
+      w = _abbreviations[w.toUpperCase()] ?? w;
       // Kürzel in Großbuchstaben („SET“, „BIO“) nur, wenn es Gemischtes gibt.
       words.add(w);
     }
@@ -379,6 +408,15 @@ abstract final class ReceiptClassifier {
     final text = kept.join(' ');
     return text.length <= 40 ? text : '${text.substring(0, 39)}…';
   }
+
+  /// Häufige Kassenkürzel, ausgeschrieben.
+  static const _abbreviations = {
+    'VÖSL': 'Vöslauer',
+    'VOSL': 'Vöslauer',
+    'MIN': 'Mineral',
+    'MINW': 'Mineralwasser',
+    'MINERALW': 'Mineralwasser',
+  };
 
   static const _noItem = {
     'EUR', 'SUMME', 'GESAMT', 'BAR', 'KARTE', 'DEBIT', 'MASTERCARD', 'VISA', //

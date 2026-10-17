@@ -189,6 +189,7 @@ class SupplierLearning {
         note: p.note,
         codeSource: p.codeSource,
         registerId: p.registerId,
+        printedVat: p.printedVat,
       ),
       categoryId: learned.categoryId,
       paymentMethod: learned.paymentMethod,

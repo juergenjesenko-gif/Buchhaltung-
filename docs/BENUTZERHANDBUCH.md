@@ -1,6 +1,6 @@
 # Benutzerhandbuch – JeNi bucht
 
-**Für App-Version 0.23.1** · Stand 2026-10-17
+**Für App-Version 0.23.2** · Stand 2026-10-17
 
 Dieses Handbuch beschreibt die App aus Nutzersicht. Es wird bei jeder Änderung,
 die du in der App siehst, mitgeführt – siehe [`CLAUDE.md`](../CLAUDE.md).
@@ -379,6 +379,16 @@ ihn **auf demselben Foto** mit, du musst nichts extra tun.
   Betrag, IBAN und Verwendungszweck werden übernommen; IBAN und Referenz
   stehen in der Notiz. Zahlen musst du weiterhin in deiner Banking-App.
 - Das **Foto bleibt der Beleg**. Der QR-Code ist nur eine Lesehilfe.
+- Die App sucht den QR-Code **auf jeder Seite** und beim Scanner auch auf dem
+  unbearbeiteten Original – ein QR-Code unten am langen Bon wird also auch
+  gefunden, wenn er auf einer eigenen Seite steht.
+- **Ohne lesbaren QR-Code** gilt: zuerst die Steuertabelle des Bons (eine
+  Zeile je Satz, z. B. 20 % für Getränke und 0 % für Pfand), dann
+  „Gesamtbetrag“, „Summe“ oder „Total“. **Zahlungszeilen** wie Wertbon,
+  Gutschein, Karte, Mastercard, Bar oder Rückgeld sind nie der Betrag des
+  Belegs.
+- **Tankstelle ohne Tanken** (nur Getränke, Snacks, Pfand): die App schlägt
+  den Artikel als Beschreibung vor und nicht „Treibstoff“ und Kfz-Kosten.
 
 ### Beleg aus einer anderen App teilen
 

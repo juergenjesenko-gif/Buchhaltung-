@@ -6,6 +6,9 @@ import 'vat_calculator.dart';
 /// so wie er auf dem Beleg steht.
 typedef VatPart = ({int permille, Money gross});
 
+/// Gedruckte Netto- und Steuerbeträge eines Satzes laut Beleg.
+typedef PrintedVat = ({Money net, Money vat});
+
 /// Aufteilung eines Belegs nach Steuersätzen (L-2.27), z. B. Speisen 10 %
 /// und Getränke 20 % auf einem Bewirtungsbeleg oder 10 %/20 % beim
 /// Supermarkteinkauf.
@@ -17,10 +20,39 @@ class ReceiptVatSplit {
   const ReceiptVatSplit._();
 
   /// Zeilen aus den Teilen, je Teil `net + vat == gross`.
-  static List<ReceiptVatLine> lines(List<VatPart> parts) => [
+  ///
+  /// [printed]: auf dem Beleg gedruckte Netto- und Steuerbeträge je Satz
+  /// (Steuertabelle, FA-2.62). Sie gelten, wenn sie zum Teil passen
+  /// (`net + vat == gross`) und höchstens [printedTolerance] Cent von der
+  /// Rechnung abweichen (Kassen runden je Position); sonst wird gerechnet.
+  static List<ReceiptVatLine> lines(
+    List<VatPart> parts, {
+    Map<int, PrintedVat> printed = const {},
+  }) => [
     for (final part in parts)
-      _line(VatCalculator.fromGross(part.gross, part.permille)),
+      _line(_printedOrComputed(part, printed[part.permille])),
   ];
+
+  /// Größte Abweichung gedruckter Steuer von der gerechneten, in Cent je
+  /// angefangenen 10 Euro Brutto plus 2 (Rundung je Position).
+  static int printedTolerance(Money gross) => 2 + gross.cents ~/ 1000;
+
+  static VatSplit _printedOrComputed(VatPart part, PrintedVat? printed) {
+    final computed = VatCalculator.fromGross(part.gross, part.permille);
+    if (printed == null) return computed;
+    if (printed.net + printed.vat != part.gross) return computed;
+    if (printed.vat.isNegative || printed.net.isNegative) return computed;
+    if ((printed.vat - computed.vat).cents.abs() >
+        printedTolerance(part.gross)) {
+      return computed;
+    }
+    return VatSplit(
+      net: printed.net,
+      vat: printed.vat,
+      gross: part.gross,
+      permille: part.permille,
+    );
+  }
 
   static ReceiptVatLine _line(VatSplit split) => ReceiptVatLine(
     vatPermille: split.permille,

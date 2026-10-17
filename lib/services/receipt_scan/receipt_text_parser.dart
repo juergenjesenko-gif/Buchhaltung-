@@ -129,6 +129,14 @@ class ReceiptTextParser {
       // Gegenprobe: Summe der Steuerzeilen gleich Gesamtbetrag.
       if ((vatSum - gross.value).cents.abs() <= vatLines.length) {
         gross = Detected(gross.value, 97);
+      } else if (gross.confidence >= 92 && gross.value > vatSum) {
+        // Eindeutiger Gesamtbetrag („Gesamtbetrag“, „Zu zahlen“) größer als
+        // die lesbaren Steuerzeilen: eine Zeile fehlt (z. B. 0 % Pfand,
+        // OMV-Beleg Gerätetest 0.23.1). Der Gesamtbetrag gilt (FA-2.62).
+      } else if (vatProven && vatSum > gross.value && gross.confidence < 92) {
+        // Geprüfte Steuerzeilen ergeben mehr als ein „Summe“-Treffer: der
+        // Treffer war ein Spaltenkopf oder eine Teilsumme (FA-2.62).
+        gross = Detected(vatSum, vatSumPrinted ? 90 : 75);
       } else if (vatProven && (vatSumPrinted || gross.confidence < 60)) {
         // Rechnerisch geprüfte Steuerzeilen (Netto + Steuer = Brutto) gehen
         // einem unsicheren Gesamtbetrag vor, z. B. wenn der Daumen „Summe“
@@ -196,8 +204,18 @@ class ReceiptTextParser {
   static final _excludeForGross = RegExp(
     r'zwischensumme|subtotal|sub-total|sub total|'
     r'gegeben|rückgeld|rueckgeld|\bchange\b|rabatt|\btip\b|trinkgeld|'
-    r'bonus|punkte|ersparnis|gespart|vračilo|vracilo|resto|visszajáró',
+    r'bonus|punkte|ersparnis|gespart|vračilo|vracilo|resto|visszajáró|'
+    // Zahlungszeilen sind nie der Gesamtbetrag (FA-2.62, OMV-Beleg:
+    // „Wertbon 70 Cent: 0,70 EUR“, „Mastercard - contactless: 7,56 EUR“).
+    '$paymentWords',
   );
+
+  /// Zahlungsmittel auf Belegen; solche Zeilen tragen einen Teilbetrag.
+  static const paymentWords =
+      r'wertbon|gutschein|voucher|mastercard|maestro|\bvisa\b|v pay|vpay|'
+      r'kreditkarte|bankomat|girocard|\bec[- ]karte|\bkarte\b|kartenzahlung|'
+      r'contactless|kontaktlos|\bbar\b|bargeld|\bcash\b|amex|american express|'
+      r'apple pay|google pay|paypal';
 
   static bool _notGrossRow(String lower) =>
       _excludeForGross.hasMatch(lower) ||
@@ -374,8 +392,9 @@ class ReceiptTextParser {
     }
 
     if (strong.isEmpty) {
-      final table = _vatTable(rows);
-      if (table != null) strong[table.permille] = table;
+      for (final line in _vatTable(rows)) {
+        strong[line.permille] = line;
+      }
     }
     final result = <int, DetectedVat>{};
     if (strong.isEmpty && keyword.isEmpty) {
@@ -402,32 +421,66 @@ class ReceiptTextParser {
   /// über die Lage zusammengeführt; die Spalten werden über die Rechenprobe
   /// zugeordnet (Netto + Steuer = Brutto, Steuer = Netto × Satz), weil ML Kit
   /// die Kopfwörter auf Thermopapier oft entstellt („00Y“, „DOV“).
-  DetectedVat? _vatTable(List<String> rows) {
+  ///
+  /// Mehrere Zeilen untereinander ergeben mehrere Sätze („20,0 6,64 1,32
+  /// 7,96“ / „0,0 1,00 0,00 1,00“, OMV-Beleg Gerätetest 0.23.1), auch 0 %.
+  List<DetectedVat> _vatTable(List<String> rows) {
     for (var i = 0; i + 1 < rows.length; i++) {
       final header = rows[i];
       if (!header.contains('%') || _percent.hasMatch(header)) continue;
       if (_percentAfter.hasMatch(header)) continue;
-      final rate = RegExp(
-        r'^\s*(\d{1,2})[.,](\d)(?![\d])',
-      ).firstMatch(rows[i + 1]);
-      if (rate == null) continue;
-      final p = int.parse(rate.group(1)!) * 10 + int.parse(rate.group(2)!);
-      if (p < 10 || p > 300) continue;
-      final values = [
-        ...amounts(rows[i + 1].substring(rate.end)),
-        if (i + 2 < rows.length) ...amounts(rows[i + 2]),
-      ].map((m) => m.cents).toList();
-      for (final net in values) {
-        for (final vat in values) {
-          if (net == vat || !values.contains(net + vat)) continue;
-          if ((vat - _vatOfNet(net, p)).abs() <= _tolerance(Money(vat))) {
-            return DetectedVat(
-              permille: p,
-              net: Money(net),
-              vat: Money(vat),
-              confidence: 90,
-            );
-          }
+      final found = <int, DetectedVat>{};
+      for (var j = i + 1; j < rows.length; j++) {
+        final rate = RegExp(
+          r'^\s*(\d{1,2})[.,](\d)(?![\d])',
+        ).firstMatch(rows[j]);
+        if (rate == null) break;
+        final p = int.parse(rate.group(1)!) * 10 + int.parse(rate.group(2)!);
+        if (p != 0 && (p < 10 || p > 300)) break;
+        final own = amounts(rows[j].substring(rate.end));
+        var line = _tableRow(p, own.map((m) => m.cents).toList());
+        if (line == null && found.isEmpty && j + 1 < rows.length) {
+          // Basis eine Zeile tiefer (slowenischer Beleg).
+          line = _tableRow(p, [
+            ...own.map((m) => m.cents),
+            ...amounts(rows[j + 1]).map((m) => m.cents),
+          ]);
+        }
+        if (line == null) break;
+        found[p] = line;
+      }
+      if (found.isNotEmpty) return found.values.toList();
+    }
+    return const [];
+  }
+
+  /// Netto und Steuer einer Tabellenzeile über die Rechenprobe; bei 0 % muss
+  /// die Steuer 0,00 gedruckt und Netto gleich Brutto sein.
+  DetectedVat? _tableRow(int p, List<int> values) {
+    if (p == 0) {
+      if (!values.contains(0)) return null;
+      final rest = [
+        for (final v in values)
+          if (v > 0) v,
+      ];
+      if (rest.isEmpty || !rest.every((v) => v == rest.first)) return null;
+      return DetectedVat(
+        permille: 0,
+        net: Money(rest.first),
+        vat: const Money(0),
+        confidence: 90,
+      );
+    }
+    for (final net in values) {
+      for (final vat in values) {
+        if (net == vat || !values.contains(net + vat)) continue;
+        if ((vat - _vatOfNet(net, p)).abs() <= _tolerance(Money(vat))) {
+          return DetectedVat(
+            permille: p,
+            net: Money(net),
+            vat: Money(vat),
+            confidence: 90,
+          );
         }
       }
     }
@@ -653,6 +706,18 @@ class ReceiptTextParser {
       final chain = ReceiptClassifier.chainIn(rows[i], exactOnly: true);
       if (chain != null) return Detected(chain.$1, 85);
     }
+    // Kurze Kopfzeile, die mit einer Marke beginnt („OMV Tankstelle“):
+    // die ganze Zeile ist der Name, OCR-Trennungen werden geschlossen
+    // („Tankstel le“, Gerätetest 0.23.1).
+    for (var i = 0; i < rows.length && i < 3; i++) {
+      final row = rows[i].trim();
+      final words = row.split(RegExp(r'\s+'));
+      if (words.length < 2 || words.length > 4) continue;
+      if (RegExp(r'\d').hasMatch(row) || looksLikeItem(row)) continue;
+      final chain = ReceiptClassifier.chainIn(words.first, exactOnly: true);
+      if (chain == null) continue;
+      return Detected(joinSplitWords(row), 85);
+    }
     // Marke als erstes Wort einer Kopfzeile („BAUHAUS Depot GmbH, NL 797“).
     for (var i = 0; i < rows.length && i < 8; i++) {
       if (looksLikeItem(rows[i])) continue;
@@ -688,6 +753,27 @@ class ReceiptTextParser {
       }
     }
     return heuristic;
+  }
+
+  /// Häufige Wörter in Kopfzeilen, die ML Kit auf Thermopapier trennt.
+  static const _splitWords = [
+    'tankstelle', 'apotheke', 'trafik', 'bäckerei', 'baeckerei', //
+    'konditorei', 'fleischerei', 'buchhandlung', 'raststation',
+  ];
+
+  /// Schließt OCR-Trennungen bekannter Wörter („Tankstel le“ → „Tankstelle“).
+  static String joinSplitWords(String text) {
+    final words = text.trim().split(RegExp(r'\s+'));
+    final out = <String>[];
+    for (final w in words) {
+      if (out.isNotEmpty &&
+          _splitWords.contains('${out.last}$w'.toLowerCase())) {
+        out[out.length - 1] = '${out.last}$w';
+      } else {
+        out.add(w);
+      }
+    }
+    return out.join(' ');
   }
 
   Detected<String>? _merchantHeuristic(List<String> rows) {

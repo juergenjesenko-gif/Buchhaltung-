@@ -29,11 +29,33 @@ gebaut, und was war darin geprüft?*
 
 ## Unveröffentlicht
 
-Änderungen seit 0.23.1+35, die noch in keinem Build stecken. Wandern beim
+Änderungen seit 0.23.2+36, die noch in keinem Build stecken. Wandern beim
 nächsten Versionssprung in den neuen Eintrag.
 
 | Art | Änderung | Bezug | Commit |
 |---|---|---|---|
+
+---
+
+## 0.23.2+36 — 2026-10-17
+
+| Feld | Wert |
+|---|---|
+| Art | Testbuild (ungezippte arm64-APK `JeNi-bucht-0.23.2-build-<Nr>.apk`, fester Testschlüssel); **Lizenzprüfung aus** (ohne `LICENSING=true`), alle Funktionen frei |
+| Commit | folgt |
+| Branch | `claude/agile-accounting-app-mobile-wa5j3h` |
+| Dokumentstände | Lastenheft 1.75, Spezifikation 1.80, Benutzerhandbuch für 0.23.2, DESIGN_SPEC 1.4 |
+| Datenbankschema | 25 |
+| Prüfung | `flutter analyze` ohne Befund, alle Tests grün (neu `receipt_omv_test.dart`, erweitert `document_scanner_test.dart`, Korpus um `omv_kaiserwald_20260519.jpg`); Android/iOS-Build nur in der CI |
+| Steuerliche Kennwerte | unverändert |
+| Offene reale Prüfpunkte | wie 0.23.1+35, neu P-D43 |
+| Bekannte Grenzen | Spezifikation Abschnitt 11, unverändert |
+
+**Änderungen seit 0.23.1+35**
+
+| Art | Änderung | Bezug | Commit |
+|---|---|---|---|
+| Behoben | OMV-Beleg 8,96 € mit 20 %/0 % statt 7,96 € zu 20 %: Rangfolge QR > Steuertabelle (mehrere Zeilen, 0 %) > Gesamtbetrag; Zahlungszeilen nie Gesamtbetrag; gedruckte Netto/Steuer; Codes auf jeder Seite und auf dem Scan-Original; „OMV Tankstelle“; Tankstelle ohne Treibstoff nicht Kfz-Kosten | FA-2.62, P-D43 | folgt |
 
 ---
 

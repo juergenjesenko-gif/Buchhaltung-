@@ -156,6 +156,38 @@ void main() {
       ]);
     });
 
+    test(
+      'Codes werden auf jedem Original vor dem Verbessern gelesen',
+      () async {
+        messenger.setMockMethodCallHandler(
+          channel,
+          (call) async => ['/tmp/a.jpg', '/tmp/b.jpg'],
+        );
+        final events = <String>[];
+        final outcome = await ScanIntake.run(
+          store: (f) async => f.path,
+          onPage: (_) => true,
+          afterPages: () async {},
+          onError: fail,
+          beforeEnhance: (f) async {
+            events.add('Codes ${f.uri.pathSegments.last}');
+            if (f.path.endsWith('b.jpg')) throw Exception('kein Code');
+          },
+          enhance: (f) async {
+            events.add('verbessert ${f.uri.pathSegments.last}');
+            return f;
+          },
+        );
+        expect(outcome, ScanIntakeOutcome.added);
+        expect(events, [
+          'Codes a.jpg',
+          'verbessert a.jpg',
+          'Codes b.jpg',
+          'verbessert b.jpg',
+        ]);
+      },
+    );
+
     test('kein Scanner: Kamera, keine Vorbelegung', () async {
       var prefills = 0;
       final outcome = await ScanIntake.run(
