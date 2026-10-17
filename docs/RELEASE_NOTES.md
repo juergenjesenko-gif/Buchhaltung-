@@ -42,7 +42,7 @@ nächsten Versionssprung in den neuen Eintrag.
 | Feld | Wert |
 |---|---|
 | Art | Testbuild (ungezippte arm64-APK `JeNi-bucht-0.23.1-build-<Nr>.apk`, fester Testschlüssel); **Lizenzprüfung aus** (ohne `LICENSING=true`), alle Funktionen frei |
-| Commit | folgt |
+| Commit | `f3f22be` |
 | Branch | `claude/agile-accounting-app-mobile-wa5j3h` |
 | Dokumentstände | Lastenheft 1.75, Spezifikation 1.79, Benutzerhandbuch für 0.23.1, DESIGN_SPEC 1.4 |
 | Datenbankschema | 25 |
@@ -56,7 +56,7 @@ nächsten Versionssprung in den neuen Eintrag.
 | Art | Änderung | Bezug | Commit |
 |---|---|---|---|
 | Neu | Startkategorie „Material und Werkzeug“ (SKR03 4985, BMD EKR 5300), Schema 25 für bestehende Datenbanken; Baumarkt-Belege schlagen sie vor; Mithelfer ohne eigenes Abo/Gerätegrenze bestätigt | FA-2.31, L-29.7, P-S66 | `329f27b` |
-| Neu | Belegsammler gemischt Android/iPhone: Paketformat mit Prüfmuster, iOS „Öffnen in JeNi bucht“ (eigener Dateityp), Android „Öffnen mit“ (MIME/Endung), iPad-Anker im Teilen-Blatt, Ordnerhinweis | FA-17.4, 8.9, P-D42 | folgt |
+| Neu | Belegsammler gemischt Android/iPhone: Paketformat mit Prüfmuster, iOS „Öffnen in JeNi bucht“ (eigener Dateityp), Android „Öffnen mit“ (MIME/Endung), iPad-Anker im Teilen-Blatt, Ordnerhinweis | FA-17.4, 8.9, P-D42 | `f3f22be` |
 
 ---
 
