@@ -1,3 +1,4 @@
+import '../../data/helper_repository.dart';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
@@ -78,7 +79,12 @@ class ReceiptEditScreen extends StatefulWidget {
     this.existing,
     this.start = ReceiptStart.none,
     this.sharedFiles = const [],
+    this.helperEntry,
   });
+
+  /// Beleg aus dem Eingang eines Mithelfer-Geräts (FA-17.5): Seiten und
+  /// Werte vorbelegt, Vermerk „von ‹Gerät›“; kein erneutes Auslesen.
+  final InboxEntry? helperEntry;
 
   /// Über „Teilen“ aus einer anderen App empfangene Bilder (L-27.4): werden
   /// als Seiten übernommen und sofort ausgelesen.
@@ -168,7 +174,11 @@ class _ReceiptEditScreenState extends State<ReceiptEditScreen> {
   void initState() {
     super.initState();
     _direction = widget.direction;
-    if (widget.sharedFiles.isNotEmpty && widget.existing == null) {
+    if (widget.helperEntry != null && widget.existing == null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) _addHelperEntry(widget.helperEntry!);
+      });
+    } else if (widget.sharedFiles.isNotEmpty && widget.existing == null) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (mounted) _addSharedFiles(widget.sharedFiles);
       });
@@ -563,6 +573,8 @@ class _ReceiptEditScreenState extends State<ReceiptEditScreen> {
     if (_learned.contains(field)) return 'wie beim letzten Mal';
     if (!_recognized.contains(field)) return null;
     if (_codeSource == 'E-Rechnung') return 'aus der E-Rechnung';
+    // Vom Mithelfer erfasst (FA-17.5): „von Handy Anna“.
+    if (_codeSource?.startsWith('von ') ?? false) return _codeSource;
     if (_codeSource != null && _codeFields.contains(field)) {
       return 'vom $_codeSource';
     }
@@ -719,6 +731,36 @@ class _ReceiptEditScreenState extends State<ReceiptEditScreen> {
     } on DocumentScanException catch (e) {
       if (mounted) showSnack(context, e.message);
     }
+  }
+
+  /// Beleg vom Mithelfer übernehmen (FA-17.5).
+  Future<void> _addHelperEntry(InboxEntry entry) async {
+    final state = AppScope.read(context);
+    for (final path in entry.pagePaths) {
+      final relative = await ReceiptImageStore.store(File(path));
+      _pages.add(relative);
+    }
+    if (!mounted) return;
+    await _resolveFiles();
+    if (!mounted) return;
+    final r = entry.receipt;
+    final note = r.comment.isEmpty
+        ? null
+        : 'Kommentar von ${entry.deviceName}: ${r.comment}';
+    setState(
+      () => _applyPrefill(
+        ReceiptScanPrefill(
+          date: r.date,
+          gross: r.grossCents == null ? null : Money(r.grossCents!),
+          counterparty: r.counterparty.isEmpty ? null : r.counterparty,
+          description: r.description.isEmpty ? null : r.description,
+          categoryName: r.categoryName,
+          note: note,
+          codeSource: 'von ${entry.deviceName}',
+        ),
+        state,
+      ),
+    );
   }
 
   /// Geteilte Dateien übernehmen (L-27.4): Bilder als Seiten, PDF und XML

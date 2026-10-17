@@ -29,11 +29,33 @@ gebaut, und was war darin geprüft?*
 
 ## Unveröffentlicht
 
-Änderungen seit 0.22.3+33, die noch in keinem Build stecken. Wandern beim
+Änderungen seit 0.23.0+34, die noch in keinem Build stecken. Wandern beim
 nächsten Versionssprung in den neuen Eintrag.
 
 | Art | Änderung | Bezug | Commit |
 |---|---|---|---|
+
+---
+
+## 0.23.0+34 — 2026-10-17
+
+| Feld | Wert |
+|---|---|
+| Art | Testbuild (ungezippte arm64-APK `JeNi-bucht-0.23.0-build-<Nr>.apk`, fester Testschlüssel); **Lizenzprüfung aus** (ohne `LICENSING=true`), alle Funktionen frei |
+| Commit | `0000000` |
+| Branch | `claude/agile-accounting-app-mobile-wa5j3h` |
+| Dokumentstände | Lastenheft 1.74, Spezifikation 1.78, Benutzerhandbuch für 0.23.0, DESIGN_SPEC 1.4 |
+| Datenbankschema | 24 |
+| Prüfung | `flutter analyze` ohne Befund, alle Tests grün (neu `helper_devices_test.dart`; erweitert `licensing_test.dart`); Android/iOS-Build nur in der CI |
+| Steuerliche Kennwerte | unverändert (`spec.schema_version` 24) |
+| Offene reale Prüfpunkte | wie 0.22.3+33, neu P-D42, P-R46, P-S65, P-X20 |
+| Bekannte Grenzen | Spezifikation Abschnitt 11, neu „Mithelfer-Geräte ohne Synchronisierung“ |
+
+**Änderungen seit 0.22.3+33**
+
+| Art | Änderung | Bezug | Commit |
+|---|---|---|---|
+| Neu | Mithelfer-Geräte / Belegsammler: Koppeln per QR (Pro auf dem Hauptgerät), Mithelfer-Modus nur zum Erfassen, Belegpaket `.jenibeleg` Ende-zu-Ende verschlüsselt (AES-256-GCM), Wege Messenger/Mail und gemeinsamer Ordner, Eingang mit Übernehmen/Ablehnen, Dublettenschutz, Trennen; Schema 24 | FA-17.1 bis FA-17.8, L-29.1 bis L-29.9, P-D42, P-R46, P-S65, P-X20 | `0000000` |
 
 ---
 

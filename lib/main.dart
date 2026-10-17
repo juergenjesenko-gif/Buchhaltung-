@@ -9,6 +9,7 @@ import 'package:intl/date_symbol_data_local.dart';
 import 'app_state.dart';
 import 'features/app_lock/lock_screen.dart';
 import 'features/home/home_shell.dart';
+import 'features/helper/helper_home_screen.dart';
 import 'features/onboarding/company_setup_screen.dart';
 import 'features/onboarding/consent_screen.dart';
 import 'theme.dart';
@@ -24,6 +25,7 @@ Future<void> main() async {
   // Ebenso die automatische Sicherung (L-7.2), wenn eingeschaltet.
   unawaited(state.runVatChecksIfDue());
   unawaited(state.runAutoBackupIfDue());
+  unawaited(state.syncHelperInbox());
   // Abo beim Store bestätigen (L-22.5); offline bleibt der gespeicherte Stand.
   unawaited(state.license.refresh());
   _lifecycle = AppLifecycleListener(
@@ -35,6 +37,7 @@ Future<void> main() async {
       state.onAppResumed();
       unawaited(state.runVatChecksIfDue());
       unawaited(state.runAutoBackupIfDue());
+      unawaited(state.syncHelperInbox());
     },
   );
   runApp(BuchhaltungApp(state: state));
@@ -86,6 +89,8 @@ class _Root extends StatelessWidget {
     if (state.missingConsents.isNotEmpty) {
       return ConsentScreen(texts: state.missingConsents);
     }
+    // Mithelfer-Gerät (FA-17.2): nur Erfassung, keine Bücher.
+    if (state.isHelperDevice) return const HelperHomeScreen();
     if (state.needsOnboarding) {
       return const CompanySetupScreen(isOnboarding: true);
     }

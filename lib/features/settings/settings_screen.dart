@@ -1,5 +1,6 @@
 import '../licensing/subscription_screen.dart';
 import 'feedback_screen.dart';
+import '../helper/helper_devices_screen.dart';
 import 'legal_screen.dart';
 import 'package:flutter/material.dart';
 
@@ -92,6 +93,24 @@ class SettingsScreen extends StatelessWidget {
                     ),
                   ),
                   const _HomeShortcutTile(),
+                  ListTile(
+                    key: const Key('settings-helper-devices'),
+                    contentPadding: EdgeInsets.zero,
+                    minTileHeight: 56,
+                    leading: const Icon(Icons.phonelink_outlined),
+                    title: const Text('Mithelfer-Geräte'),
+                    subtitle: Text(
+                      state.inboxCount > 0
+                          ? 'Eingang: ${state.inboxCount} Belege'
+                          : 'Belege von Familie oder Team sammeln',
+                    ),
+                    trailing: const Icon(Icons.chevron_right),
+                    onTap: () => Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (_) => const HelperDevicesScreen(),
+                      ),
+                    ),
+                  ),
                   ListTile(
                     contentPadding: EdgeInsets.zero,
                     leading: const Icon(Icons.category_outlined),

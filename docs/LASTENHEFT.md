@@ -1,6 +1,6 @@
 # Lastenheft – JeNi bucht, Buchhaltungsapp für Österreich und Deutschland
 
-**Dokumentversion:** 1.73 · **Stand:** 2026-10-16 · **Status:** Entwurf zur Abstimmung
+**Dokumentversion:** 1.74 · **Stand:** 2026-10-17 · **Status:** Entwurf zur Abstimmung
 **Auftraggeber:** Jürgen Jesenko (privates Vorhaben) · **Umsetzung:** Claude Code
 
 > Ein Lastenheft beschreibt, **was** das Produkt leisten soll und **warum** — nicht,
@@ -662,6 +662,7 @@ Jede Übertragung vom Gerät weg, auch die unscheinbaren:
 | Dokumentenscanner, nur Android (Spezifikation FA-2.51) | Google (Google Play-Dienste: Download von Modell und Oberfläche des ML Kit Document Scanners) | Nutzungs- und Diagnosedaten der Play-Dienste; **keine Bilder** (Verarbeitung auf dem Gerät) | Tippen auf „Beleg fotografieren“ bzw. „Seiten scannen“ | nein; ohne Play-Dienste automatisch Kamera. Prüfung P-R42 | vorhanden (0.20.0) |
 | Diktat (Spezifikation FA-2.61) | **keiner durch die App**: Audio verarbeitet nur der Spracherkennungsdienst des Systems auf dem Gerät (Android On-Device-Erkenner, iOS `requiresOnDeviceRecognition`); ohne Erkennung auf dem Gerät gibt es kein Diktat in der App, kein Rückfall ins Netz | – (Mikrofon nur während der Aufnahme) | Tippen auf das Mikrofon | je Vorgang | vorhanden |
 | Wunsch oder Idee senden (L-26.7, Spezifikation FA-11.6) | **keiner durch die App**: die Nutzerin sendet selbst aus ihrer Mail-App an den Anbieter (office@jenibarb.com); der Anbieter ist für die E-Mail Verantwortlicher (Rolle „Support“) | Inhalt von der Nutzerin gewählt und vor dem Senden sichtbar: Art, Titel, Beschreibung; optional (Standard an) App-Version, Betriebssystem, Gerätemodell, Länderprofil, Abo-Stufe; nie Geschäftsdaten, Belege, Kennungen | Tippen auf „Per E-Mail senden“ und Absenden in der Mail-App | je Vorgang | vorhanden (0.22.2) |
+| Mithelfer-Geräte (L-29.4, Spezifikation FA-17.4) | **keiner durch die App direkt**: der Mithelfer übergibt das Belegpaket über das Teilen-Blatt an einen Messenger bzw. eine Mail-App seiner Wahl, oder die App schreibt es in einen Cloud-Ordner des Betriebs, den beide Geräte gewählt haben (Upload durch Betriebssystem bzw. Dokumentanbieter). Messenger- bzw. Cloud-Anbieter sehen nur Chiffrat, Dateiname, Größe, Zeitpunkt | Belegbilder und Werte eines Belegs (Betrag, Lieferant, Datum, Kategorie, Beschreibung, Kommentar), Ende-zu-Ende verschlüsselt (AES-256-GCM) | Tippen auf „Senden“ | je Vorgang bzw. Wahl des Ordners | vorhanden (0.23.0) |
 | Rechnung über Link-QR (L-27.7) | Server der im QR-Code genannten Domain (Rechnungsaussteller bzw. dessen Dienstleister), direkt vom Gerät | Adresse aus dem QR-Code (kann eine Rechnungs- oder Kundenkennung enthalten), IP-Adresse, technische Verbindungsdaten; **keine Daten aus der App** | Tippen auf „Laden“ im Hinweisstreifen | je Vorgang | vorhanden |
 | EZB-Kursabruf (L-2.25, L-19.29) | Europäische Zentralbank, direkt vom Gerät | nur Abruf einer festen Kursdatei: IP-Adresse, Zeitpunkt, technische Verbindungsdaten; **keine Belegdaten, keine Währung, kein Betrag** | Tippen auf „Kurs abrufen“ | je Vorgang | vorhanden |
 | Foto-Zweitablage (L-2.11) | Fotobibliothek, ggf. deren Cloud | Belegfotos | Einschalten | ja | A |
@@ -1027,6 +1028,27 @@ FA-2.49, FA-3.3, FA-3.4. **L-28.1 bis L-28.7 umgesetzt in 0.11.0.**
 | L-28.6 | **Datensparsamkeit**: Käuferdaten (Name, Adresse, E-Mail, Telefon) werden nie übernommen; die Spalten werden verworfen, ein Test prüft es | MUSS | B1 |
 | L-28.7 | Die Monatsrechnungen von Amazon bleiben **eigene Belege**: Hinweis „Gebührenrechnung aus Seller Central als Beleg ablegen“ mit direktem Link; Anleitung je Plattform im Handbuch mit direktem Link zur Berichtsseite | MUSS | B1 |
 
+### 5.29 Mithelfer-Geräte / Belegsammler
+
+**Entscheidung der Auftraggeberin vom 2026-10-17:** Familienbetriebe nutzen
+mehrere Handys. Ein Hauptgerät führt die Bücher; Mithelfer-Geräte sammeln nur
+Belege und senden sie verschlüsselt. Kein Anbieter-Server. Volle
+Mehrgeräte-Synchronisierung bleibt O-38. Umsetzung 0.23.0: Spezifikation 5.13
+(FA-17.1 bis FA-17.8). Real zu prüfen: Spezifikation 14, P-D42, P-R46, P-S65,
+P-X20.
+
+| ID | Anforderung | Priorität | Stufe |
+|---|---|---|---|
+| L-29.1 | **Koppeln per QR-Code** auf dem Hauptgerät (Einstellungen → Mithelfer-Geräte → „Gerät hinzufügen“); der Code trägt Kopplungs-ID, Schlüssel, Betriebsname und Weg. Mithelfer: „Ich helfe mit – Gerät koppeln“ im ersten Start | MUSS | A |
+| L-29.2 | **Mithelfer-Modus nur zum Erfassen:** großer Aufnahmeknopf wie auf dem Hauptgerät, Foto/Datei, kurz Betrag, Lieferant, Datum, Kategorie aus der Texterkennung bestätigen, Kommentar mit Diktat; **keine** Buchung, Rechnung oder Auswertung; Liste der gesendeten Belege mit Status | MUSS | A |
+| L-29.3 | Der Mithelfer **bewahrt nichts dauerhaft auf**: Bilder bis zum erfolgreichen Senden, danach gelöscht; nur eine Zusammenfassung ohne Bilder bleibt | MUSS | A |
+| L-29.4 | **Zwei Wege je Kopplung:** (a) Messenger oder Mail über das Teilen-Blatt (Standard, ohne Einrichtung), (b) gemeinsamer Cloud-Ordner „Eingang“ des Betriebs; das Hauptgerät liest den Ordner beim Start und bei Rückkehr in die App | MUSS | A |
+| L-29.5 | **Eingang** auf dem Hauptgerät: jeder Beleg öffnet im normalen Formular, vorbelegt und „von ‹Gerät›“ markiert; ein Tipp auf Speichern übernimmt; Ablehnen mit Grund; Dubletten (gleiche Kennung) werden erkannt | MUSS | A |
+| L-29.6 | **Ende-zu-Ende verschlüsselt** und gegen Veränderung geschützt (AEAD); unbekannte oder getrennte Geräte werden mit klarer Meldung abgelehnt; Trennen wechselt den Schlüssel; der Mithelfer erhält nie Daten des Betriebs | MUSS | A |
+| L-29.7 | **Tarif:** Koppeln ist Pro auf dem Hauptgerät; Mithelfer brauchen kein eigenes Abo (Vorschlag, 14a); ohne Pro nimmt der Eingang bereits gesendete Belege weiter an | MUSS | A |
+| L-29.8 | iOS und Android in beliebiger Mischung | MUSS | A |
+| L-29.9 | Hinweis: die Inhaberin bleibt für die Buchhaltung verantwortlich; Mithelfer handeln für sie (Handbuch, P-R46) | MUSS | A |
+
 ## 6. Nichtfunktionale Anforderungen
 
 | ID | Anforderung |
@@ -1339,6 +1361,7 @@ Zu entscheiden, bevor die betroffene Anforderung umgesetzt wird:
 | O-33 | **Bundle-ID für den Store festlegen** (Vorschlag `at.jenibarb.jenibucht`). Heute `at.jesenko.buchhaltung`; ein Wechsel erzwingt auf Testgeräten eine Neuinstallation (Daten vorher sichern) und ist nach der ersten Store-Einreichung nicht mehr möglich. **Entschieden 2026-10-15:** Wechsel auf `at.jenibarb.jenibucht` unmittelbar vor der ersten Store-Einreichung (bis dahin alte Kennung, damit Testgeräte ohne Neuinstallation aktualisieren); Umstellung mit dem vorbereiteten Skript `tool/release/bundle_id_wechsel.sh` | vor der ersten Store-Einreichung |
 | O-36 | **Direkte Übermittlung ans Finanzamt (L-6.5), nächster Schritt:** (a) DE: ELSTER-Hersteller-ID beantragen (ERiC-Entwicklerbereich, https://www.elster.de/elsterweb/softwareprodukt) – **Antrag als Softwarehersteller von der Auftraggeberin am 2026-10-16 gestellt; Status: beantragt, Antwort ausstehend** – Voraussetzung für jede UStVA-Übermittlung aus der App; ERiC ist eine native Bibliothek je Plattform und braucht das Zertifikat der Nutzerin. (b) AT: Webservice-Übermittlung über FinanzOnline (Webservice-Benutzer der Nutzerin, Hersteller-UID) erst nach erfolgreichem Testupload der U30-Datei (Spezifikation P-D35) und Prüfung P-R5. Stand 0.17.0: Kennzahlen zum Kopieren (AT/DE) und U30-Datei zum Hochladen (AT) | Stufe B |
 | O-37 | **ELSTER-Übermittlungsserver (DE) nach dem Launch:** ERiC gibt es nur für Windows, Linux und macOS, nicht für Android/iOS; direkte UStVA/EÜR-Übermittlung aus der App braucht daher einen Anbieter-Server. Skizze: verwalteter Container (kein eigenes Betriebssystem) bei einem Cloud-Anbieter mit Rechenzentrum in der EU; zustandslos – Meldung kommt verschlüsselt vom Gerät, wird an ELSTER weitergereicht, nichts wird gespeichert (weder Daten noch Zertifikat); grob 10–30 €/Monat. Beim Anbieter verbleiben trotz Cloud: Rolle als Auftragsverarbeiter (AVV mit dem Cloud-Anbieter, Datenschutzerklärung, Store-Angaben, Eintrag in 5.19), ERiC-Updates, Sicherheit des eigenen Codes, Haftung, ELSTER-Herstellerpflichten. Bis dahin: Kennzahlen zum Kopieren in „Mein ELSTER“ (FA-Stand 0.17.0). **Vertagt am 2026-10-16 durch die Auftraggeberin:** erst nach dem Launch und wenn genügend deutsche Nutzerinnen auf der Plattform sind; gemeinsam mit O-32 und der KI-Server-Frage betrachten | nach dem Launch |
+| O-38 | **Volle Mehrgeräte-Synchronisierung** (Weg 2 Cloud-Ordner mit Änderungsjournal nach L-19.15 ff. bzw. Weg 3 Anbieter-Server): nach dem Launch bei genügend Nutzerinnen, gemeinsam mit O-32/O-37 zu entscheiden. Bis dahin Mithelfer-Geräte als Einbahn (5.29) | nach dem Launch |
 | O-20 | Welche Vorsoftware-Formate sind beim Import vorrangig zu unterstützen? Richtet sich nach dem, womit die ersten Nutzer tatsächlich kommen | Stufe B |
 | ~~O-21~~ | **Vorläufig beantwortet am 2026-10-10 (Prüfinstanz Rechtsanwalt):** BFSG/BaFG voraussichtlich nicht anwendbar (B2B, Kleinstunternehmen). Grundbarrierefreiheit trotzdem als NF-Anforderung; Bestätigung siehe Spezifikation Abschnitt 14, P-R3 | erledigt |
 | ~~O-23~~ | **Entschieden am 2026-10-09:** wählbar je Rücksendung über den Schalter „Ware wieder verkaufbar?" (L-3.20) | erledigt |
@@ -1383,6 +1406,7 @@ Historie stehen. Die Einzelheiten stehen an der genannten Stelle.
 | 2026-10-16 | **Bewirtung automatisch gekürzt:** Kategorie „Bewirtung“ zählt ertragsteuerlich nur anteilig – AT 50 % (§ 20 Abs 1 Z 3 EStG, Regelfall Werbezweck), DE 70 % (§ 4 Abs 5 Satz 1 Nr. 2 EStG); Vorsteuer je Land nach Prüfinstanz (AT und DE voll); Kleinunternehmer: brutto × Anteil; nicht abziehbarer Teil in allen Auswertungen und Exporten; DE Anlass und Teilnehmer als freiwillige Felder; Belegerkennung schlägt Bewirtung für Restaurants vor. Schließt die Grenze zu P-S46 | L-2.27, Spez. FA-2.60, P-S46 |
 | 2026-10-16 | **ELSTER-Softwarehersteller beantragt** (Antwort ausstehend) | O-36 |
 | 2026-10-16 | **Wunsch oder Idee senden** in den Einstellungen: kurzes Formular, Versand über die Mail-App der Nutzerin an office@jenibarb.com, kein eigener Server, technische Angaben abschaltbar (Standard an) | L-26.7, Spez. FA-11.6 |
+| 2026-10-17 | **Mithelfer-Geräte / Belegsammler** (Familienbetriebe): Koppeln per QR, Mithelfer nur Erfassen, Wege Messenger/Mail und gemeinsamer Ordner, Eingang mit Übernehmen; **Pro auf dem Hauptgerät**. **Auslegung zur Bestätigung:** Mithelfer-Geräte ohne eigenes Abo | 5.29, Spez. 5.13, O-38 |
 | 2026-10-16 | **Diktat auf dem Gerät** in Freitext- und Betragsfeldern (Auftrag); **entschieden 2026-10-16: in Basis und Pro** (Barrierefreiheit), keine Sperre | Spez. FA-2.61 |
 
 ---
@@ -1393,6 +1417,7 @@ Historie stehen. Die Einzelheiten stehen an der genannten Stelle.
 
 | Version | Datum | Änderung |
 |---|---|---|
+| 1.74 | 2026-10-17 | Neuer Abschnitt 5.29 Mithelfer-Geräte / Belegsammler (L-29.1 bis L-29.9, umgesetzt 0.23.0), Zeile in der Datenflusstabelle 5.19, Entscheidung und Auslegung „ohne eigenes Abo“ in 14a, O-38 volle Mehrgeräte-Synchronisierung nach dem Launch. |
 | 1.73 | 2026-10-16 | L-26.7 „Wunsch oder Idee senden“ (umgesetzt 0.22.2): Zeile in der Datenflusstabelle 5.19 (Übertragung nur durch die Nutzerin aus ihrer Mail-App, Inhalt von ihr gewählt), Entscheidung in 14a. |
 | 1.72 | 2026-10-16 | O-37 neu: ELSTER-Übermittlungsserver (Cloud-Container, zustandslos) – vertagt auf nach dem Launch bei genügend deutschen Nutzerinnen. |
 | 1.71 | 2026-10-16 | Diktat auf dem Gerät (Spezifikation FA-2.61): Zeile in der Datenflusstabelle 5.19 (keine Übertragung durch die App), Eintrag und Tarifvorschlag Basis in 14a. |

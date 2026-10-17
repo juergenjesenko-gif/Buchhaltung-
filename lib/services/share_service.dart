@@ -93,4 +93,20 @@ class ShareService {
     final file = await _writeTemp(fileName, bytes);
     await _share(file, 'application/pdf', subject: subject, text: text);
   }
+
+  /// Verschlüsseltes Belegpaket vom Mithelfer-Gerät an Messenger oder Mail
+  /// (FA-17.3). Der Inhalt ist nur mit dem Kopplungsschlüssel lesbar.
+  static Future<void> shareHelperPackage({
+    required String fileName,
+    required Uint8List bytes,
+    required String businessName,
+  }) async {
+    final file = await _writeTemp(fileName, bytes);
+    await _share(
+      file,
+      'application/octet-stream',
+      subject: 'Beleg für $businessName',
+      text: 'Beleg für $businessName – in JeNi bucht öffnen.',
+    );
+  }
 }

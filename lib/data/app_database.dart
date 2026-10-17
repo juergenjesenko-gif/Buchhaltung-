@@ -17,7 +17,7 @@ class AppDatabase {
 
   /// Aktuelle Schemaversion. Öffentlich, weil docs/SPECIFICATION.md sie
   /// dokumentiert und test/specification_sync_test.dart beide vergleicht.
-  static const schemaVersion = 23;
+  static const schemaVersion = 24;
 
   Database? _db;
 
@@ -696,6 +696,49 @@ class AppDatabase {
         AND NOT EXISTS (SELECT 1 FROM categories WHERE name = 'Bewirtung')
       ''',
       "UPDATE categories SET kind = 'entertainment' WHERE name = 'Bewirtung'",
+    ],
+    // Mithelfer-Geräte / Belegsammler (Lastenheft 5.29, FA-17.x).
+    // Hauptgerät: Kopplungen und Eingang; Mithelfer: eigene Kopplung und
+    // gesendete Belege (ohne Bilder). Einstellungen als Schlüssel/Wert.
+    24: [
+      '''
+      CREATE TABLE helper_pairings (
+        id TEXT PRIMARY KEY,
+        device_name TEXT NOT NULL,
+        key_hex TEXT NOT NULL,
+        transport TEXT NOT NULL DEFAULT 'share',
+        created_at TEXT NOT NULL,
+        revoked_at TEXT
+      )
+      ''',
+      '''
+      CREATE TABLE helper_inbox (
+        uuid TEXT PRIMARY KEY,
+        pairing_id TEXT NOT NULL,
+        device_name TEXT NOT NULL,
+        received_at TEXT NOT NULL,
+        status TEXT NOT NULL DEFAULT 'pending',
+        reason TEXT NOT NULL DEFAULT '',
+        values_json TEXT NOT NULL,
+        page_paths TEXT NOT NULL DEFAULT ''
+      )
+      ''',
+      '''
+      CREATE TABLE helper_outbox (
+        uuid TEXT PRIMARY KEY,
+        created_at TEXT NOT NULL,
+        file_name TEXT NOT NULL,
+        transport TEXT NOT NULL,
+        status TEXT NOT NULL,
+        summary TEXT NOT NULL DEFAULT ''
+      )
+      ''',
+      '''
+      CREATE TABLE helper_settings (
+        key TEXT PRIMARY KEY,
+        value TEXT NOT NULL
+      )
+      ''',
     ],
   };
 

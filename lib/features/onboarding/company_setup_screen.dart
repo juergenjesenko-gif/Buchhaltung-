@@ -1,3 +1,4 @@
+import '../helper/helper_pair_screen.dart';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
@@ -533,6 +534,23 @@ class _CompanySetupScreenState extends State<CompanySetupScreen> {
                     label: const Text(
                       'Aus einer Datensicherung wiederherstellen',
                     ),
+                  ),
+                ),
+                // Mithelfer-Gerät (FA-17.2): nur Belege sammeln, kein Profil.
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: TextButton.icon(
+                    key: const Key('onboarding-helper'),
+                    style: TextButton.styleFrom(
+                      minimumSize: const Size(48, 48),
+                    ),
+                    onPressed: () => Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (_) => const HelperPairScreen(),
+                      ),
+                    ),
+                    icon: const Icon(Icons.qr_code_scanner),
+                    label: const Text('Ich helfe mit – Gerät koppeln'),
                   ),
                 ),
                 const SizedBox(height: 12),

@@ -1,3 +1,8 @@
+import 'dart:io';
+import '../../app_state.dart';
+import '../../widgets/common.dart';
+import '../../services/helper/helper_package.dart';
+import '../helper/inbox_screen.dart';
 import 'package:flutter/material.dart';
 
 import '../../services/licensing/license_policy.dart';
@@ -81,6 +86,39 @@ class _HomeShellState extends State<HomeShell> {
   Future<void> _takeShared() async {
     var files = await ShareInService.instance.take();
     if (files.isEmpty || !mounted) return;
+    // Belegpakete vom Mithelfer-Gerät (FA-17.4) erkennt die App am Inhalt,
+    // nicht nur an der Endung – Messenger benennen Dateien um.
+    final packages = <File>[];
+    for (final f in files) {
+      final head = await f
+          .openRead(0, 5)
+          .fold<List<int>>([], (a, b) => a..addAll(b));
+      if (f.path.endsWith(helperPackageExtension) ||
+          (head.length == 5 && String.fromCharCodes(head.take(4)) == 'JBHP')) {
+        packages.add(f);
+      }
+    }
+    files = [
+      for (final f in files)
+        if (!packages.contains(f)) f,
+    ];
+    if (packages.isNotEmpty) {
+      if (!mounted) return;
+      final state = AppScope.read(context);
+      final inbox = await state.helperInbox();
+      final messages = <String>[];
+      for (final f in packages) {
+        messages.add((await inbox.importBytes(await f.readAsBytes())).message);
+      }
+      await state.refreshInboxCount();
+      if (!mounted) return;
+      showSnack(context, messages.toSet().join('\n'));
+      await Navigator.of(
+        context,
+      ).push(MaterialPageRoute<void>(builder: (_) => const InboxScreen()));
+      if (!mounted || files.isEmpty) return;
+    }
+    if (!mounted) return;
     // Plattformexporte (L-28.1) gehen in den Import, alles andere wird Beleg.
     final tables = [
       for (final f in files)

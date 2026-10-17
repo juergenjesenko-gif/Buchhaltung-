@@ -47,6 +47,8 @@
                 <data android:mimeType="text/tab-separated-values"/>
                 <data android:mimeType="text/plain"/>
                 <data android:mimeType="application/vnd.ms-excel"/>
+                <!-- Belegpakete vom Mithelfer-Gerät (FA-17.4), Messenger senden sie als Binärdatei -->
+                <data android:mimeType="application/octet-stream"/>
             </intent-filter>
             <!-- „Öffnen mit“ aus Dateien-App und Downloads (L-28.1) -->
             <intent-filter>
@@ -56,6 +58,7 @@
                 <data android:mimeType="text/csv"/>
                 <data android:mimeType="text/comma-separated-values"/>
                 <data android:mimeType="text/tab-separated-values"/>
+                <data android:mimeType="application/octet-stream"/>
             </intent-filter>
         </activity>
         <!-- Geteilte Exporte (FA-5.35): dauerhafter Ordner statt share_plus-Cache -->

@@ -1,3 +1,4 @@
+import 'helper_repository.dart';
 import 'package:sqflite/sqflite.dart';
 
 import '../domain/company_profile.dart';
@@ -1603,6 +1604,7 @@ class Repositories {
       offers = OfferRepository(db),
       assets = AssetRepository(db),
       contracts = ContractRepository(db),
+      helpers = HelperRepository(db),
       audit = AuditLog(db);
 
   final CompanyRepository company;
@@ -1618,6 +1620,7 @@ class Repositories {
   final ArticleRepository articles;
   final OfferRepository offers;
   final AssetRepository assets;
+  final HelperRepository helpers;
   final ContractRepository contracts;
   final AuditLog audit;
 }

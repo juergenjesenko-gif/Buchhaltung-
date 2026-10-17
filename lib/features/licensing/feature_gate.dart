@@ -42,6 +42,9 @@ String featureReason(Feature feature) => switch (feature) {
     'Dein Logo auf Rechnungen und Angeboten gibt es mit Pro.',
   Feature.exchangeRateFetch =>
     'Kurs abrufen gibt es mit Pro. Den Kurs eintippen geht in jedem Abo.',
+  Feature.helperDevices =>
+    'Mithelfer-Geräte koppeln gibt es mit Pro. Belege, die schon gesendet '
+        'wurden, nimmt der Eingang in jedem Abo an.',
   Feature.contractSummary =>
     'Texterkennung und Kurzübersicht für Verträge gibt es mit Pro. Ablegen '
         'und Fristen gehen in jedem Abo.',

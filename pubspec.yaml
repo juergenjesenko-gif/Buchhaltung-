@@ -4,7 +4,7 @@ publish_to: "none"
 
 # version: <Store-Versionsname>+<Buildnummer>
 # Die Buildnummer wird in CI aus der Run-Nummer gesetzt, siehe docs/RELEASE_PLAYBOOK.md
-version: 0.22.3+33
+version: 0.23.0+34
 
 environment:
   sdk: ^3.10.0
@@ -43,6 +43,9 @@ dependencies:
   local_auth: ^3.0.2
   # E-Rechnungen (XRechnung, ZUGFeRD, ebInterface), reines Dart, MIT.
   xml: ^7.1.0
+  # Kopplungs-QR für Mithelfer-Geräte (FA-17.1), reines Dart, BSD-3; kommt
+  # ohnehin über pdf → barcode mit – keine neue Abhängigkeit im Build.
+  qr: ^3.0.2
   # Abo über Google Play Billing und StoreKit (L-22.2). Kein Server, kein
   # Drittanbieter-SDK (L-22.10); der Android-Teil nur für den Abowechsel.
   in_app_purchase: ^3.3.1

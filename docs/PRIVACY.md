@@ -181,6 +181,19 @@ nutzt die Diktierfunktion des Geräts; je nach Tastatur und Einstellung sendet
 sie die Sprache an Google bzw. Apple. Das liegt außerhalb der App; maßgeblich
 ist die Datenschutzerklärung des Tastaturanbieters.
 
+**Mithelfer-Geräte** (Belegsammler): Ein gekoppeltes Handy, z. B. eines
+Familienmitglieds, kann Belege fotografieren und an dein Hauptgerät senden.
+Das Belegpaket (Fotos und Betrag, Lieferant, Datum, Kategorie, Beschreibung,
+Kommentar) ist Ende-zu-Ende verschlüsselt; den Schlüssel überträgt nur der
+QR-Code vom Bildschirm deines Hauptgeräts in die Kamera des anderen Handys.
+Das Paket geht entweder über einen Messenger oder eine Mail-App, die die
+Person beim Senden selbst wählt, oder in einen Cloud-Ordner deines Betriebs,
+den ihr beide gewählt habt. Diese Dienste sehen nur die verschlüsselte Datei,
+ihren Namen, ihre Größe und den Zeitpunkt; der Anbieter der App erhält
+nichts. Auf dem Mithelfer-Gerät werden die Fotos nach dem Senden gelöscht.
+Du bleibst für die Buchhaltung und die Belege verantwortlich; wer für dich
+Belege sammelt, handelt in deinem Auftrag.
+
 **Wunsch oder Idee senden** (Einstellungen): Die App öffnet deine Mail-App
 mit einer vorausgefüllten E-Mail an office@jenibarb.com – Art, Titel und
 Beschreibung, die du eingibst, und nur wenn „App-Version und Gerät

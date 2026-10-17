@@ -34,7 +34,8 @@ enum Entitlement {
     Feature.exchangeRateFetch ||
     Feature.annualReports ||
     Feature.assetManagement ||
-    Feature.contractSummary => this == pro,
+    Feature.contractSummary ||
+    Feature.helperDevices => this == pro,
   };
 
   String get label => switch (this) {
@@ -97,6 +98,12 @@ enum Feature {
   /// Entscheidung Auftraggeberin 2026-10-16, Lastenheft 14a). Verträge ablegen, Fristen,
   /// Abgleich und Aufbewahrung gehen ab Basis.
   contractSummary,
+
+  /// Mithelfer-Geräte koppeln (FA-17.1, Lastenheft 5.29; Entscheidung
+  /// Auftraggeberin 2026-10-17: Pro auf dem Hauptgerät). Mithelfer-Geräte
+  /// brauchen kein eigenes Abo (Vorschlag, Lastenheft 14a). Der Eingang nimmt
+  /// bereits gesendete Belege in jedem Anspruch an – nichts geht verloren.
+  helperDevices,
 }
 
 /// Ein Store-Produkt. Die IDs sind in Google Play Console und App Store

@@ -26,6 +26,10 @@ import 'services/licensing/in_app_purchase_billing.dart';
 import 'services/licensing/license_cache.dart';
 import 'services/licensing/license_manager.dart';
 import 'services/licensing/license_policy.dart';
+import 'data/helper_repository.dart';
+import 'services/helper/helper_exchange.dart';
+import 'dart:io';
+import 'package:path/path.dart' as p;
 
 /// Anwendungszustand. Bewusst ein einziger [ChangeNotifier] statt eines
 /// State-Management-Pakets: der Zustand dieser App ist klein und
@@ -271,9 +275,63 @@ class AppState extends ChangeNotifier {
     notifyListeners();
   }
 
+  // ---------------------------------------------------------------------
+  // Mithelfer-Geräte / Belegsammler (FA-17.x)
+
+  HelperLink? _helperLink;
+
+  /// Gesetzt: dieses Gerät ist Mithelfer und zeigt nur die Erfassung.
+  HelperLink? get helperLink => _helperLink;
+  bool get isHelperDevice => _helperLink != null;
+
+  int _inboxCount = 0;
+
+  /// Offene Belege im Eingang des Hauptgeräts.
+  int get inboxCount => _inboxCount;
+
+  Future<void> setHelperLink(HelperLink? link) async {
+    await repositories.helpers.saveLink(link);
+    _helperLink = link;
+    notifyListeners();
+  }
+
+  Future<HelperInbox> helperInbox() async {
+    final base = await getApplicationDocumentsDirectory();
+    return HelperInbox(
+      repositories.helpers,
+      pagesDir: Directory(p.join(base.path, 'eingang')),
+    );
+  }
+
+  /// Ordner „Eingang“ des Hauptgeräts (gemeinsamer Ordner), falls gewählt.
+  Future<PlatformBackupTarget?> inboxFolder() async {
+    final f = await repositories.helpers.setting('inbox_folder');
+    return f == null ? null : PlatformBackupTarget(f);
+  }
+
+  /// Gemeinsamen Ordner prüfen (Start, Rückkehr in die App). Nie auf einem
+  /// Mithelfer-Gerät. Fehler bleiben still; der Eingang zeigt den Stand.
+  Future<void> syncHelperInbox() async {
+    if (isHelperDevice || needsOnboarding) return;
+    try {
+      final folder = await inboxFolder();
+      if (folder != null) await (await helperInbox()).syncFolder(folder);
+    } on Object {
+      // Ordner nicht erreichbar: beim nächsten Mal wieder.
+    }
+    await refreshInboxCount();
+  }
+
+  Future<void> refreshInboxCount() async {
+    _inboxCount = (await repositories.helpers.inbox()).length;
+    notifyListeners();
+  }
+
   Future<void> reload() async {
     // Nach Wiederherstellung einer Sicherung sind alle Belege neu.
     _bookingsRevision++;
+    _helperLink = await repositories.helpers.link();
+    _inboxCount = (await repositories.helpers.inbox()).length;
     _missingConsents = await repositories.consents.missing();
     _profile = await repositories.company.load();
     _categories = await repositories.categories.all();

@@ -1,6 +1,6 @@
 # Benutzerhandbuch – JeNi bucht
 
-**Für App-Version 0.22.3** · Stand 2026-10-17
+**Für App-Version 0.23.0** · Stand 2026-10-17
 
 Dieses Handbuch beschreibt die App aus Nutzersicht. Es wird bei jeder Änderung,
 die du in der App siehst, mitgeführt – siehe [`CLAUDE.md`](../CLAUDE.md).
@@ -21,6 +21,7 @@ die du in der App siehst, mitgeführt – siehe [`CLAUDE.md`](../CLAUDE.md).
 12. [Häufige Fragen](#12-häufige-fragen)
 13. [Wenn etwas nicht geht](#13-wenn-etwas-nicht-geht)
 14. [Was die App nicht kann](#14-was-die-app-nicht-kann)
+15. [Mithelfer-Geräte: Belege von Familie und Team](#15-mithelfer-geräte-belege-von-familie-und-team)
 
 ---
 
@@ -1608,6 +1609,9 @@ Damit du nicht darauf wartest:
   das mittelfristig wichtig.
 - **Storno nur für die ganze Rechnung.** Einzelne Positionen oder einen
   Teilbetrag zurücknehmen geht noch nicht; nimm dafür **Korrigieren**.
+- **Mithelfer-Geräte senden nur in eine Richtung.** Zwei Handys mit
+  denselben Büchern (gemeinsam buchen) gehen noch nicht; Mithelfer sammeln
+  nur Belege für das Hauptgerät (Kapitel 15).
 - **Die Belegerkennung merkt sich keine Beschreibungen und keine
   Aufteilung nach Steuersätzen.** Gelernt werden je Lieferant nur Name,
   Kategorie, Steuersatz, Währung und Zahlungsart.
@@ -1638,3 +1642,73 @@ Diese App unterstützt dich bei der Buchhaltung. Sie ist **keine
 Steuerberatung**. Für die Richtigkeit deiner Buchhaltung und deiner
 Steuererklärungen bist du selbst verantwortlich. Bei Zweifeln frag deine
 Steuerberatung – das kostet weniger als eine Korrektur nach einer Prüfung.
+
+---
+
+## 15. Mithelfer-Geräte: Belege von Familie und Team
+
+Im Familienbetrieb hat oft jemand anderes den Beleg in der Hand. Mit
+**Mithelfer-Geräten** fotografiert diese Person den Beleg mit ihrem eigenen
+Handy und schickt ihn dir. Die Bücher bleiben nur auf deinem Handy, dem
+**Hauptgerät**. Koppeln braucht **Pro** auf dem Hauptgerät; das Handy der
+Mithelferin braucht **kein eigenes Abo**.
+
+### Gerät koppeln
+
+1. Auf deinem Handy: **Einstellungen → Mithelfer-Geräte → Gerät hinzufügen**.
+2. Namen eingeben (z. B. „Handy Anna“) und den Weg wählen:
+   - **Per Messenger oder Mail** – ohne Einrichtung, Standard.
+   - **Gemeinsamer Ordner** – automatisch über einen Cloud-Ordner, den ihr
+     beide öffnen könnt.
+3. **QR-Code zeigen** tippen.
+4. Auf dem anderen Handy JeNi bucht installieren, öffnen und
+   **Ich helfe mit – Gerät koppeln** tippen.
+5. **QR-Code fotografieren** und den Code auf deinem Bildschirm aufnehmen.
+
+Der Code ist der Schlüssel zu deinem Eingang: zeig ihn nur dem Handy, das du
+koppeln willst, und schick ihn nicht als Foto herum.
+
+### Als Mithelferin einen Beleg senden
+
+1. Unten in der Mitte **Beleg** tippen (oder **Foto** bzw. **Datei**).
+2. Betrag, Lieferant, Datum und Kategorie prüfen – die App schlägt sie vor.
+   Ein Kommentar ist freiwillig, auch per Mikrofon.
+3. **Senden** tippen. Beim Weg „Messenger oder Mail“ öffnet sich das
+   Teilen-Fenster: den Chat mit der Inhaberin oder ihre Mail-Adresse wählen.
+
+Nach dem Senden löscht die App die Fotos auf diesem Handy. In der Liste steht
+nur noch Betrag und Lieferant mit **gesendet**; beim gemeinsamen Ordner
+erscheint **übernommen**, sobald die Inhaberin den Beleg gebucht hat.
+
+### Belege übernehmen (Hauptgerät)
+
+- **Messenger oder Mail:** die Datei `….jenibeleg` im Chat antippen und an
+  **JeNi bucht** teilen bzw. „Öffnen mit“. Auf dem iPhone die Datei zuerst
+  **In Dateien sichern**, dann **Einstellungen → Mithelfer-Geräte → Eingang →
+  Belegpaket öffnen**.
+- **Gemeinsamer Ordner:** einmal unter **Einstellungen → Mithelfer-Geräte →
+  Gemeinsamer Ordner „Eingang“** denselben Ordner wählen. Neue Belege holt die
+  App bei jedem Öffnen.
+
+Im **Eingang** antippen: das gewohnte Belegformular öffnet sich mit Fotos und
+Werten, markiert mit „von Handy Anna“. Steuersatz prüfen, **Beleg speichern** –
+fertig. Passt ein Beleg nicht (privat, doppelt), tippe auf das Sperrsymbol und
+gib einen Grund an.
+
+**Meldungen:** „schon im Eingang“ – derselbe Beleg kam zweimal, er wird nicht
+doppelt gebucht. „Gerät nicht gekoppelt“ bzw. „getrennt“ – neu koppeln.
+„beschädigt oder verändert“ – die Datei ist unterwegs kaputtgegangen; bitte
+noch einmal senden lassen.
+
+### Gerät trennen
+
+**Einstellungen → Mithelfer-Geräte → Trennen.** Belege, die danach von diesem
+Handy kommen, werden abgelehnt. Was schon im Eingang liegt, bleibt.
+
+### Wer ist verantwortlich?
+
+Du. Mithelferinnen und Mithelfer handeln für deinen Betrieb und senden nur
+Vorschläge; gebucht wird erst auf deinem Handy. Bei Beschäftigten informiere
+sie, dass sie Belege deines Betriebs verarbeiten. Bewahre Papierbelege auf,
+bis deine Steuerberatung etwas anderes sagt.
+

@@ -1,6 +1,6 @@
 # Spezifikation – Buchhaltung
 
-**Dokumentversion:** 1.77 · **App-Version:** 0.22.3 · **Stand:** 2026-10-17
+**Dokumentversion:** 1.78 · **App-Version:** 0.23.0 · **Stand:** 2026-10-17
 **Status:** Testbuild 0.21.0 (Schema 23); Store-Start offen, siehe Abschnitt 11 und 14
 
 > Das **Zielbild** des Produkts steht im [`LASTENHEFT.md`](LASTENHEFT.md); dieses
@@ -284,9 +284,10 @@ ein änderbarer Vorschlag.
 ## 4. Datenmodell
 
 **Speicher:** SQLite auf dem Gerät, Datei `buchhaltung.db` im
-Anwendungsdokumentenverzeichnis. Aktuelle Schemaversion: **23**
+Anwendungsdokumentenverzeichnis. Aktuelle Schemaversion: **24**
 (`spec.schema_version`). Bilder liegen als Dateien daneben: Belegseiten in
-`belege/`, Firmenlogos in `logo/`.
+`belege/`, Firmenlogos in `logo/`, Seiten im Eingang der Mithelfer-Geräte in
+`eingang/<uuid>/` (bis zur Übernahme, FA-17.5).
 
 ### 4.1 Tabellen
 
@@ -315,6 +316,10 @@ Anwendungsdokumentenverzeichnis. Aktuelle Schemaversion: **23**
 | `consents` | Bestätigte Texte: Art, Fassung, Zeitpunkt | Nur Einfügen (Schema 7) |
 | `vat_id_checks` | Protokoll der UID-Abfragen: UID, Ergebnis, Zeitpunkt, Name/Anschrift laut VIES, Abfragenummer, Fehlercode | Nur Einfügen (Schema 5) |
 | `ecb_rates` | Abgerufene EZB-Referenzkurse: `date`, `currency`, `rate_micros` (Einheiten je 1 € × 10^6), `fetched_at` | Schema 10. Schlüssel (`date`, `currency`); nur durch „Kurs abrufen“ befüllt |
+| `helper_pairings` | Mithelfer-Geräte auf dem Hauptgerät (FA-17.1): `id` (16 Byte hex), `device_name`, `key_hex` (256 Bit), `transport` (`share`/`folder`), `created_at`, `revoked_at` | Schema 24. Trennen setzt `revoked_at` und löscht den Schlüssel; Zeile bleibt, damit spätere Pakete als „getrennt“ erkannt werden |
+| `helper_inbox` | Eingang (FA-17.5): `uuid` (Beleg), `pairing_id`, `device_name`, `received_at`, `status` (`pending`/`accepted`/`rejected`), `reason`, `values_json` (Werte ohne Bilder), `page_paths` | Schema 24. `uuid` Primärschlüssel = Dublettenerkennung; Seitenpfade werden beim Abschließen geleert |
+| `helper_outbox` | Gesendete Belege auf dem Mithelfer-Gerät (FA-17.3): `uuid`, `created_at`, `file_name`, `transport`, `status` (`sent`/`accepted`), `summary` | Schema 24. **Keine Bilder**, nur Betrag und Lieferant als Zusammenfassung |
+| `helper_settings` | Schlüssel/Wert: Hauptgerät `inbox_folder`, `inbox_folder_label`; Mithelfer `link` (Kopplung als JSON samt Schlüssel) | Schema 24 |
 | `opening_turnover` | Umsatz je Jahr vor Beginn der Erfassung (Eröffnungswert) | Ein Eintrag je Jahr; fehlend ≠ 0 € (seit Schema 2) |
 
 ### 4.2 Datenwörterbuch – zentrale Felder
@@ -720,7 +725,7 @@ Nutzerkonto, kein Drittanbieter-SDK. Code in `lib/services/licensing/`
 | ID | Anforderung |
 |---|---|
 | FA-13.1 | **Ein Anspruch** (L-22.1): `Entitlement` = `none` (nie ein Abo), `readOnly` (Abo beendet), `basis`, `pro`. Einzige Entscheidung über Funktionen ist `Entitlement.allows(Feature)` in `license_policy.dart`; Bildschirme fragen nur `AppState.allows` bzw. `ensureFeature` (`features/licensing/feature_gate.dart`), nie den Store und nie den Tarif |
-| FA-13.2 | **Tarifschnitt** (Lastenheft 5.10, O-4; Pro-Umfang entschieden 2026-10-15, O-34): `Feature.newBookings` (neuen Beleg speichern, neue Rechnung speichern, Rechnung ausstellen) ab Basis. **Nur Pro:** `receiptRecognition` (Belegerkennung FA-2.19 ff.), `dataImport` (Plattformimport Amazon/PayPal/Shopify/Stripe FA-5.x L-28 und Auslesen von E-Rechnungen ZUGFeRD/XRechnung/ebInterface in den Beleg; die Datei selbst wird in jedem Abo angehängt), `pdfSending` (Rechnung und Stornorechnung mit einem Tipp senden, FA-13.11), `dunningSending` (Zahlungserinnerung/Mahnung senden; erstellen und protokollieren ab Basis), `invoiceLogo` (Logo **drucken** auf neuen Rechnungen und Angeboten; wählen, ändern, entfernen immer, FA-13.12), `exchangeRateFetch` („Kurs abrufen“ bei der EZB; Kurs eintippen immer), `contractSummary` (Texterkennung und Kurzübersicht im Vertragsarchiv, FA-16.3; Vertragsarchiv selbst ab Basis; entschieden 2026-10-16, Lastenheft 14a), `annualReports` (Saldenliste und vorläufiger Jahresabschluss, FA-15.9, FA-15.10; entschieden 2026-10-16), `assetManagement` (Anlage anlegen, ändern, ausscheiden, FA-15.1 bis FA-15.7; Entscheidung Auftraggeberin 2026-10-16 trotz Regel Lastenheft 5.10 „gesetzliche Pflicht nie nur in Pro“, P-S64, P-R43). **Erfasste Anlagen bleiben in jedem Anspruch ansehbar, das Anlagenverzeichnis exportierbar und ihre jährliche AfA läuft nach einer Herabstufung weiter** (Gewinn bleibt richtig). Ohne Pro zählt eine Ausgabe voll als Betriebsausgabe; ist sie über der GWG-Grenze (`Depreciation.exceedsGwg`, Grenze und brutto/netto aus `TaxProfile`), zeigt der Beleg statt „Als Investition erfassen“ die Zeile „Als Investition erfassen (Pro)“ mit dem Hinweis, dass die Anschaffung aktiviert und ins Anlagenverzeichnis gehört; darunter erscheint ohne Pro nichts, `taxOfficeSubmission` (U30-Datei für FinanzOnline teilen, FA-14.4; Kennzahlen ansehen und kopieren bleibt frei). **Immer frei, auch ohne Abo:** ansehen, Belege und Entwürfe ändern, PDF speichern oder drucken über den Systemdialog, Export, Sicherung, Wiederherstellung, Rechtliches, Hilfe (L-10.4, L-7.15, L-22.6). Knöpfe gesperrter Funktionen tragen „(Pro)“ und führen zur Abo-Seite (`proLabel`, `ensureFeature`) |
+| FA-13.2 | **Tarifschnitt** (Lastenheft 5.10, O-4; Pro-Umfang entschieden 2026-10-15, O-34): `Feature.newBookings` (neuen Beleg speichern, neue Rechnung speichern, Rechnung ausstellen) ab Basis. **Nur Pro:** `helperDevices` (Mithelfer-Geräte koppeln, FA-17.1; der Eingang nimmt in jedem Anspruch an; Mithelfer ohne eigenes Abo), `receiptRecognition` (Belegerkennung FA-2.19 ff.), `dataImport` (Plattformimport Amazon/PayPal/Shopify/Stripe FA-5.x L-28 und Auslesen von E-Rechnungen ZUGFeRD/XRechnung/ebInterface in den Beleg; die Datei selbst wird in jedem Abo angehängt), `pdfSending` (Rechnung und Stornorechnung mit einem Tipp senden, FA-13.11), `dunningSending` (Zahlungserinnerung/Mahnung senden; erstellen und protokollieren ab Basis), `invoiceLogo` (Logo **drucken** auf neuen Rechnungen und Angeboten; wählen, ändern, entfernen immer, FA-13.12), `exchangeRateFetch` („Kurs abrufen“ bei der EZB; Kurs eintippen immer), `contractSummary` (Texterkennung und Kurzübersicht im Vertragsarchiv, FA-16.3; Vertragsarchiv selbst ab Basis; entschieden 2026-10-16, Lastenheft 14a), `annualReports` (Saldenliste und vorläufiger Jahresabschluss, FA-15.9, FA-15.10; entschieden 2026-10-16), `assetManagement` (Anlage anlegen, ändern, ausscheiden, FA-15.1 bis FA-15.7; Entscheidung Auftraggeberin 2026-10-16 trotz Regel Lastenheft 5.10 „gesetzliche Pflicht nie nur in Pro“, P-S64, P-R43). **Erfasste Anlagen bleiben in jedem Anspruch ansehbar, das Anlagenverzeichnis exportierbar und ihre jährliche AfA läuft nach einer Herabstufung weiter** (Gewinn bleibt richtig). Ohne Pro zählt eine Ausgabe voll als Betriebsausgabe; ist sie über der GWG-Grenze (`Depreciation.exceedsGwg`, Grenze und brutto/netto aus `TaxProfile`), zeigt der Beleg statt „Als Investition erfassen“ die Zeile „Als Investition erfassen (Pro)“ mit dem Hinweis, dass die Anschaffung aktiviert und ins Anlagenverzeichnis gehört; darunter erscheint ohne Pro nichts, `taxOfficeSubmission` (U30-Datei für FinanzOnline teilen, FA-14.4; Kennzahlen ansehen und kopieren bleibt frei). **Immer frei, auch ohne Abo:** ansehen, Belege und Entwürfe ändern, PDF speichern oder drucken über den Systemdialog, Export, Sicherung, Wiederherstellung, Rechtliches, Hilfe (L-10.4, L-7.15, L-22.6). Knöpfe gesperrter Funktionen tragen „(Pro)“ und führen zur Abo-Seite (`proLabel`, `ensureFeature`) |
 | FA-13.3 | **Produkte** (L-22.2): eine Abogruppe mit `basis_monat`, `basis_jahr`, `pro_monat`, `pro_jahr` (Kenndaten `spec.license_product_ids`). Wechsel innerhalb der Gruppe ersetzt das Abo: Android über `ChangeSubscriptionParam` (anteilige Zeitgutschrift), iOS über die Abogruppe (Upgrade sofort, Downgrade zum Periodenende) |
 | FA-13.4 | **Test** (L-10.3, L-22.3): 14 Tage Pro als Einführungsangebot der Stores (Kenndaten `spec.license_trial_days`); der Store entscheidet über die Berechtigung. Android: bietet Play ein Angebot mit kostenloser erster Preisphase, wird dieses gekauft. Der Test geht nach Ablauf in das Abo über, wenn die Nutzerin nicht kündigt. Erster Pro-Kauf ohne früheres Abo merkt sich den Beginn; **3 Tage vor Ende** zeigt die Übersicht „Dein kostenloser Test endet am …“ (`spec.license_trial_reminder_days`) . **Entschieden 2026-10-15 (O-35):** Test bleibt Store-Test nur auf Pro; in den 14 Tagen kostenlos kündbar oder auf Basis wechselbar. Das **Widerrufsrecht** für digitale Inhalte (§ 356 Abs 5 BGB, § 18 Abs 1 Z 11 FAGG) regelt der Store unabhängig vom Test (Befund Prüfinstanz Rechtsanwalt; Bestätigung P-L10) |
 | FA-13.5 | **Abo-Seite** (`features/licensing/subscription_screen.dart`, L-22.7, L-22.8; Einstellungen → Abo, Übersicht-Hinweis, gesperrte Funktion): Stand, Umschalter Monatlich/Jährlich (56 dp), Karten Pro und Basis mit **Preis aus dem Store** inkl. USt je Zeitraum (nie im Code), bei Pro ohne früheres Abo „14 Tage kostenlos, danach ‹Preis› pro ‹Zeitraum›, jederzeit vorher kündbar“ (Wortlaut entschieden 2026-10-15, O-35), Knopf 56 dp volle Breite. Darunter Pflichttext: automatische Verlängerung um denselben Zeitraum, Kündigung spätestens 24 Stunden vor Ablauf in den Store-Einstellungen, Übergang des Tests, Widerruf und Erstattung über den Store, Daten bleiben immer lesbar. Zeilen „Kauf wiederherstellen“, „Abo verwalten oder kündigen“ (Sprung `https://play.google.com/store/account/subscriptions` bzw. `https://apps.apple.com/account/subscriptions`, ohne Browser Anleitung als Meldung), Nutzungsbedingungen, Datenschutzerklärung (offline, FA-11.5) |
@@ -799,6 +804,24 @@ L-23.10, Stufe C mit Anbieter-Backend) ist nicht gebaut und hat keinen Knopf.
 
 ---
 
+### 5.13 Mithelfer-Geräte / Belegsammler
+
+Lastenheft 5.29 (L-29.1 bis L-29.9), Entscheidung Auftraggeberin 2026-10-17.
+Code: `lib/services/helper/`, `lib/data/helper_repository.dart`,
+`lib/features/helper/`. Kein Anbieter-Server; volle Mehrgeräte-Synchronisierung
+bleibt O-38 bzw. L-19.12 ff.
+
+| ID | Anforderung |
+|---|---|
+| FA-17.1 | **Koppeln auf dem Hauptgerät** (Pro `helperDevices`, FA-13.2): Einstellungen → Mithelfer-Geräte → „Gerät hinzufügen“: Name und Weg (Standard „Per Messenger oder Mail“, alternativ „Gemeinsamer Ordner“) → QR-Code mit `JENIBELEG1:` + Base64url-JSON {Kopplungs-ID 16 Byte, Schlüssel 32 Byte aus `Random.secure`, Betriebsname, Gerätename, Weg}. Hinweis: Code nur dem eigenen Gerät zeigen (P-R46) |
+| FA-17.2 | **Mithelfer-Modus:** „Ich helfe mit – Gerät koppeln“ im ersten Start bzw. „QR-Code fotografieren“ (Scanner/Kamera, Code über die Codeerkennung von FA-2.19) oder Code einfügen. Danach zeigt die App nur den Mithelfer-Start (kein Profil, keine Buchungen, Rechnungen, Berichte, Einstellungen). „Kopplung aufheben“ im Menü. Mithelfer brauchen **kein eigenes Abo** (Vorschlag Lastenheft 14a) |
+| FA-17.3 | **Erfassen und senden:** Aufnahmeleiste wie FA-12.1 (Scanner, Galerie, Datei; PDF wird zu Seitenbildern); Vorschläge aus der Texterkennung auf dem Gerät (Betrag in EUR, Lieferant, Datum, Beschreibung, Kategorie aus den Startkategorien); Kommentar mit Diktat. „Senden“ verpackt und verschlüsselt (8.9) und übergibt dem Weg; **erst nach erfolgreichem Senden** werden die Seitenbilder gelöscht. Gemerkt bleibt nur Betrag · Lieferant mit Status „gesendet“ bzw. „übernommen“ |
+| FA-17.4 | **Wege:** (a) Teilen-Blatt (Android eigener Kanal `share_out`, iOS share_plus), Datei `‹id8›_‹uuid›.jenibeleg`, MIME `application/octet-stream`; das Hauptgerät empfängt über „Teilen“/„Öffnen mit“ (Android-Filter `application/octet-stream`, Erkennung an Endung **oder** Kennung `JBHP`) oder über „Belegpaket öffnen“ im Eingang (Dateiauswahl, iOS: Anhang zuvor in „Dateien“ sichern). (b) Gemeinsamer Ordner: beide Geräte wählen denselben Cloud-Ordner „Eingang“ über die Ordnerauswahl der Datensicherung (`BackupFolderChannel`); der Mithelfer schreibt je Beleg eine Datei, das Hauptgerät liest beim Start und bei jeder Rückkehr in die App. „übernommen“ sieht der Mithelfer nur im Ordnerweg (Datei vom Hauptgerät entfernt) |
+| FA-17.5 | **Eingang auf dem Hauptgerät:** Antippen öffnet das normale Belegformular mit Seiten und Werten, Vermerk „von ‹Gerät›“ an jedem vorbelegten Feld, Kommentar in der Notiz; kein erneutes Auslesen (Steuersatz wählt die Inhaberin). „Beleg speichern“ = übernehmen; danach werden Seiten im Eingang und das Paket im Ordner gelöscht. Ablehnen mit Grund. Der Eingang nimmt Pakete **in jedem Anspruch** an (L-22.6: nichts geht verloren) |
+| FA-17.6 | **Sicherheit:** AES-256-GCM, Kopf als zusätzliche Daten (AEAD); verändertes Paket → „beschädigt oder verändert“; unbekannte Kopplung → „nicht gekoppelt“; getrennte Kopplung → „getrennt, bitte neu koppeln“; keine Datei dieses Formats → Meldung. Gleiche Beleg-UUID ein zweites Mal → „schon im Eingang“, nicht doppelt |
+| FA-17.7 | **Trennen** auf dem Hauptgerät löscht den Schlüssel und markiert die Kopplung; neu koppeln erzeugt Kennung und Schlüssel neu. Das Mithelfer-Gerät erhält **nie Daten** vom Hauptgerät zurück |
+| FA-17.8 | Hinweis im Bildschirm Mithelfer-Geräte: die Inhaberin bleibt für die Buchhaltung verantwortlich; Mithelfer senden nur Vorschläge |
+
 ## 6. Zustandsmodelle
 
 ### 6.1 Rechnung
@@ -876,6 +899,11 @@ Kleinunternehmer:
 | Sperrbildschirm | `features/app_lock/lock_screen.dart` | PIN oder Biometrie, Wartezeit nach Fehlversuchen; Abdeckung im App-Umschalter |
 | Abo | `features/licensing/subscription_screen.dart` | Stand, Monatlich/Jährlich, Basis und Pro mit Store-Preis, Test, Pflichttext, Kauf wiederherstellen, Promo-Code einlösen (FA-13.13), Abo verwalten, Nutzungsbedingungen, Datenschutz (FA-13.5) |
 | Hilfe | `features/help/help_screen.dart` | Suche im Handbuch (FA-11.2), Abschnitt lesen, Support-Mail ohne Treffer (FA-11.3); erreichbar über das Fragezeichen oben rechts (FA-11.1) |
+| Mithelfer-Geräte | `features/helper/helper_devices_screen.dart` | Eingang, gemeinsamer Ordner, gekoppelte Geräte mit „Trennen“ (48 dp), „Gerät hinzufügen“ unten 56 dp → Name und Weg im Bottom-Sheet → QR-Code (FA-17.1) |
+| Eingang | `features/helper/inbox_screen.dart` | Belege der Mithelfer, Zeile 64 dp antippen = Belegformular „von ‹Gerät›“, Ablehnen 48 dp mit Grund, „Belegpaket öffnen“ unten (FA-17.5) |
+| Mithelfer: Start | `features/helper/helper_home_screen.dart` | Ersetzt die Hauptnavigation auf dem Mithelfer-Gerät: Aufnahmeleiste unten mittig wie FA-12.1, gesendete Belege mit „gesendet“/„übernommen“, Menü: Ordner wählen, Kopplung aufheben (FA-17.2) |
+| Mithelfer: Beleg senden | `features/helper/helper_capture_screen.dart` | Seiten, Betrag, Lieferant, Datum, Kategorie (Startkategorien), Beschreibung, Kommentar mit Diktat; „Senden“ unten 56 dp (FA-17.3) |
+| Mithelfer: koppeln | `features/helper/helper_pair_screen.dart` | „QR-Code fotografieren“ unten 56 dp, Code von Hand einfügen; erreichbar über „Ich helfe mit – Gerät koppeln“ im ersten Start (FA-17.2) |
 
 **Navigation:** Vier Ziele – Übersicht, Belege, Rechnungen, Export – in der
 Tab-Leiste (Telefon) bzw. in der Navigationsleiste links (Tablet, Querformat,
@@ -975,6 +1003,17 @@ Seite x von y und Erstelldatum). Dateinamen `Anlagenverzeichnis_<von>_<bis>.pdf`
 `Saldenliste_…pdf`, `Vorlaeufiger_Jahresabschluss_…pdf`; Paket
 `Jahresabschluss_vorlaeufig_<von>_<bis>.zip` mit dem PDF und den CSV-Exporten
 aus 8.2 bis 8.5 (FA-15.10).
+
+### 8.9 Belegpaket der Mithelfer-Geräte (`.jenibeleg`)
+
+`HelperPackage` (`lib/services/helper/helper_package.dart`), Formatversion 1:
+4 Byte Kennung `JBHP`, 1 Byte Version, 16 Byte Kopplungs-ID, 12 Byte Nonce,
+Chiffrat, 16 Byte GCM-Tag; die ersten 21 Byte sind zusätzliche
+authentifizierte Daten. Klartext UTF-8-JSON: `v` (1), `uuid` (UUID v4),
+`device`, `created` (ISO 8601), `date` (`JJJJ-MM-TT`), `gross` (Cent, ganzzahlig),
+`counterparty`, `category` (Name einer Startkategorie), `description`,
+`comment`, `pages` (Base64 der Seitenbilder, JPEG/PNG wie aufgenommen).
+Dateiname `‹erste 8 Zeichen der Kopplungs-ID›_‹uuid›.jenibeleg`.
 
 ### 8.6 Kontenzuordnung
 
@@ -1077,6 +1116,15 @@ Lastenheft 5.19 und `STORE_LISTING.md`; Prüfung P-B6, P-B9.
 **Lernen je Lieferant (FA-2.50):** bleibt in der Datenbank auf dem Gerät;
 nichts wird übertragen.
 
+**Mithelfer-Geräte (FA-17.x):** Belegpakete (Bilder und Werte eines Belegs)
+gehen Ende-zu-Ende verschlüsselt vom Mithelfer- zum Hauptgerät, entweder über
+das Teilen-Blatt an einen Messenger bzw. eine Mail-App, die die Nutzerin wählt,
+oder in einen Cloud-Ordner des Betriebs, den beide Geräte gewählt haben. Der
+Messenger- bzw. Cloud-Anbieter sieht nur das Chiffrat, Dateiname, Größe und
+Zeitpunkt; der Anbieter der App erhält nichts. Der Kopplungsschlüssel geht nur
+per QR-Code von Bildschirm zu Kamera. Offengelegt in `PRIVACY.md`,
+Lastenheft 5.19 und `STORE_LISTING.md`; Prüfung P-R46.
+
 ### 10.2 Berechtigungen
 
 | Berechtigung | Plattformschlüssel | Zweck |
@@ -1130,6 +1178,7 @@ Offen benannt, weil eine Spezifikation, die ihre Lücken verschweigt, wertlos is
 | **Plattformimport ohne Dateiauswahl in der App** | Die Exportdatei kommt über Teilen bzw. „Öffnen mit“ (Dateien-App, Downloads); eine eigene Dateiauswahl fehlt. Nur EUR; Bestimmungsland für OSS nur näherungsweise (Marktplatz, Lieferland), bei PayPal/Stripe keins. Umsatzsteuer der Verkäufe ohne Steuerspalte zum Normalsatz (P-S51); Spaltennamen nur an synthetischen Dateien geprüft (P-S55) | später |
 | **Mengen mit zwei Dezimalstellen** | Die Mengeneingabe verarbeitet zwei Nachkommastellen, obwohl das Datenmodell drei erlaubt | – |
 | **Offene Detailseite beim Wechsel der Breitenklasse** | Wird ein Tablet von quer (expanded) auf hoch (medium) gedreht oder das Fenster verkleinert, während rechts ein Beleg, eine Rechnung oder ein Kunde in Bearbeitung ist, schließt sich der Detailbereich; ungespeicherte Eingaben gehen verloren. Gespeichertes bleibt unberührt | später |
+| **Mithelfer-Geräte ohne Synchronisierung** | Nur Einbahn Mithelfer → Hauptgerät (FA-17.x). Der Kopplungsschlüssel liegt in der Datenbank (und damit in der Datensicherung), nicht im Schlüsselbund; wer den QR-Code fotografiert, kann Pakete senden, bis getrennt wird. „übernommen“ nur im Ordnerweg. iOS empfängt Pakete aus Messengern über „In Dateien sichern“ und „Belegpaket öffnen“ (kein „Öffnen in …“-Dokumenttyp). Der Mithelfer schlägt nur Startkategorien vor und keinen Steuersatz. Volle Mehrgeräte-Synchronisierung: O-38 | O-38 |
 | **Abo nicht mit echten Stores erprobt** | Die Lizenzlogik ist mit einem Store-Ersatz getestet (`test/licensing_test.dart`); Produkte in Play Console und App Store Connect fehlen noch (P-D30), Testkäufe ebenso (P-D4). Kaufbelege werden **nicht selbst** kryptografisch geprüft (L-22.4 offen): die App verlässt sich auf die Prüfung durch Play Billing bzw. StoreKit 2 im Paket. Ob StoreKit ohne Abo ein leeres Ergebnis meldet, ist unbekannt; die App wartet bis 7 s (P-D31). Die Testerinnerung kennt nur Käufe auf diesem Gerät; nach Neuinstallation fehlt sie | vor Store-Start |
 | **Android-APK-Build nicht lokal verifiziert** | Im Entwicklungscontainer ist `dl.google.com` per Netzwerk-Policy gesperrt, das Android SDK ließ sich nicht installieren. Analyse, Format und Tests laufen lokal; die Plattform-Builds verifiziert die CI | – |
 
@@ -1142,7 +1191,7 @@ Offen benannt, weil eine Spezifikation, die ihre Lücken verschweigt, wertlos is
 > Das ist der Mechanismus, der dieses Dokument aktuell hält.
 
 ```properties
-spec.schema_version = 23
+spec.schema_version = 24
 spec.u30_schema_version = 07_2026
 spec.contract_match_tolerance_days = 20
 spec.scanner_page_limit = 20
@@ -1278,6 +1327,7 @@ Ertragsteuer; Fundstelle Vorsteuer.
 
 | Version | Datum | App-Version | Änderung |
 |---|---|---|---|
+| 1.78 | 2026-10-17 | 0.23.0 | Mithelfer-Geräte / Belegsammler (5.13, FA-17.1 bis FA-17.8; Lastenheft 5.29): Schema 24 `helper_pairings`, `helper_inbox`, `helper_outbox`, `helper_settings` (4.1), Belegpaket `.jenibeleg` (8.9), Bildschirme (7), Datenfluss (10.1), Grenze (11), `spec.schema_version` 24 (12), Pro `helperDevices` (FA-13.2). Neue Prüfpunkte P-D42, P-R46, P-S65, P-X20. Prüfinstanzen: Rechtsanwalt (Inhaberin bleibt Verantwortliche, Übertragung nur über Wege der Nutzerin, Store-Angaben wie Teilen), Steuerberater (nur Vorschläge, Buchung auf dem Hauptgerät, Bild unverändert, Papierbeleg aufbewahren bis P-S65), Softwareentwickler (AES-256-GCM mit Kopf als AAD wie Datensicherung, Schlüssel 256 Bit, Dublettenschutz über UUID, Migration neu, Bilder erst nach Senden gelöscht), UX (Aufnahmeleiste unverändert, Senden/Gerät hinzufügen unten 56 dp, Ablehnen 48 dp, Standardweg ohne Einrichtung). |
 | 1.77 | 2026-10-17 | 0.22.3 | FA-2.31 nach Gerätetest 0.22.2 (BAUHAUS-Bon): Beschreibung aus Artikelzeilen statt Händlername, sonst Branche, sonst leer; Lieferant bevorzugt Rechtsform und bekannte Ketten AT/DE (erweitert, OCR-Varianten), Artikelzeilen nie Lieferant. Kein Schemawechsel. |
 | 1.76 | 2026-10-16 | 0.22.2 | App-Version 0.22.2 (Testbuild). FA-11.6 „Wunsch oder Idee senden“ (Lastenheft L-26.7): Formular in den Einstellungen, Versand über die Mail-App der Nutzerin, technische Angaben abschaltbar; Kanalmethode `deviceInfo`; Abschnitt 7; neuer Prüfpunkt P-R45. Prüfinstanzen: Rechtsanwalt (keine Übertragung durch die App, Inhalt vor dem Senden sichtbar, Anbieter Verantwortlicher für die E-Mail; Store-Wertung als P-R45), Softwareentwickler (vorhandener Kanal statt `url_launcher`, Adresse an einer Stelle, Tests mit Fake-Launcher), UX (Chips ≥ 48 dp, ein Tipp, nur ein Pflichtfeld, Senden unten volle Breite 56 dp, Fehlermeldung am Feld), Steuerberater ohne Befund. |
 | 1.75 | 2026-10-16 | 0.22.1 | Gerätetest 0.22.0 (Pixel): nach dem Scan Formular leer, keine Seite. Ursache: Android-Request-Code 4711 doppelt (Scanner, Sicherungsordner), Ergebnis verschluckt, Rückfall nach `onResume` meldete still „abgebrochen“. FA-2.51: eindeutige Codes in `RequestCodes.kt`, Fehler `lost` statt stillem Abbruch, Meldung bei jedem Fehler, Original bei gescheiterter Nachbearbeitung. FA-12.1, Abschnitt 7 (Entscheidung Auftraggeberin): „Foto“ und „Datei“ als kleinere runde Knöpfe neben „Beleg“ auf Übersicht und Belegliste (DESIGN_SPEC 1.4 Regel 13). Neue Prüfpunkte P-X19, P-D41. Prüfinstanzen: Softwareentwickler (Ursache im Code belegt, Widget-Tests mit Fake-Scanner und echten JPEG-Bytes), UX (56 dp ≥ 48 dp, 48 dp Abstand, spiegelgleich, Hauptknopf größer und mittig, leeres Formular schließt sich bei Abbruch), Rechtsanwalt/Steuerberater ohne Befund (keine Datenübertragung, Bild aus Galerie/Datei unverändert). |
@@ -1481,6 +1531,7 @@ erzeugt `beispiele_erzeugen_test.dart` mit dem PDF-Generator der App.
 | P-X15 | Einhandtest Scanner: „Beleg fotografieren“ → Systemscanner (Android/iOS) mit dem Daumen auslösen, Seiten hinzufügen, „Fertig/Speichern“ erreichbar; Rückkehr ins Formular mit allen Seiten; Abbrechen ohne Beleg-Anlage. Die Scanner-Oberfläche liefert das System (nicht änderbar) | nicht automatisierbar | Release | offen |
 | P-X16 | Einhandtest Bewirtung (FA-2.60): Kategorie „Bewirtung“ mit dem Daumen wählen, Hinweis lesbar; DE: Anlass und Teilnehmer erreichen, Tastatur verdeckt die Speicherleiste nicht, Speichern ohne die Felder möglich | Widgettests nur für Logik | Release | offen |
 | P-X17 | Blindtest Aufnahmeknopf (FA-12.1, DESIGN_SPEC 5a Regel 13): auf Pixel 10 und iPhone einhändig rechts und links, ohne hinzusehen, den runden Knopf „Beleg“ auf Übersicht und Belegliste treffen; im Belegformular „Seite“ treffen, ohne „Beleg speichern“ auszulösen; TalkBack/VoiceOver liest „Beleg fotografieren“ | Widget-Test: Kreis ≥ 72 dp, Mitte ± 2 dp, über Speichern | Release | offen |
+| P-X20 | Einhandtest Mithelfer (FA-17.2, FA-17.3, FA-17.5): auf dem Mithelfer-Gerät „Beleg“ unten mittig, „Senden“ unten mit dem Daumen ohne Umgreifen; auf dem Hauptgerät Ablehnen (48 dp) neben der Zeile nicht versehentlich treffen; QR-Code auf 360-dp-Gerät vollständig und scharf | Widget-Test: Aufnahmeknopf ≥ 72 dp mittig im unteren Drittel, Nebenknöpfe ≥ 48 dp | Release | offen |
 | P-X19 | Blindtest Aufnahmeleiste (FA-12.1, DESIGN_SPEC 5a Regel 13): einhändig rechts und links „Foto“, „Beleg“ und „Datei“ ohne hinzusehen treffen, kein Fehltipp auf den Nachbarn; TalkBack/VoiceOver liest „Foto aus der Galerie als Beleg“ und „Datei als Beleg wählen“ | Widget-Test: 56 dp, 48 dp Abstand, spiegelgleich, 360 und 412 dp | Release | offen |
 | P-X18 | Einhandtest Diktat (FA-2.61): Mikrofon im Feld Beschreibung/Notiz und im Betrag mit dem Daumen treffen, ohne das Feld daneben zu öffnen; Stopp mit einem Tipp; Vorschlag im Betrag sichtbar, Tastatur verdeckt die Speicherleiste nicht | Widget-Test: Knopf ≥ 48 dp | Release | offen |
 
@@ -1620,6 +1671,7 @@ erzeugt `beispiele_erzeugen_test.dart` mit dem PDF-Generator der App.
 | P-R43 | Anlagen nur in Pro (Entscheidung Auftraggeberin 2026-10-16, FA-13.2) entgegen Lastenheft 5.10 „gesetzliche Pflicht nie nur in Pro“: Ist es irreführend (§ 5 UWG DE, § 2 UWG AT) oder ein Mangel (§ 327e BGB, VGG), wenn Basis eine Buchhaltung anbietet, die das Pflichtverzeichnis (§ 7 Abs 3 EStG AT, § 4 Abs 3 Satz 5 EStG DE) nicht führt? Reicht der Hinweis am Beleg und in Store-Text/Handbuch? | Vorbefund Rechtsanwalt: vertretbar bei klarer Angabe im Tarifvergleich und Hinweis am Beleg; Daten bleiben zugänglich | Release | offen |
 | P-R42 | Datenschutz Dokumentenscanner Android (FA-2.51): Google Play-Dienste laden das Scanner-Modul und können Nutzungs-/Diagnosedaten senden; Angaben in PRIVACY und Google Data Safety ausreichend? Auftragsverarbeitung/Rolle Google wie bei ML Kit (P-R19) | Vorbefund: Bilder bleiben laut Google auf dem Gerät; Telemetrie wie gebündeltes ML Kit offenlegen | Release | offen |
 | P-R44 | Datenschutz Diktat (FA-2.61): Audio wird nur vom Spracherkennungsdienst des Systems auf dem Gerät verarbeitet (Android: Systemdienst, z. B. „Speech Services by Google“; iOS: Apple, `requiresOnDeviceRecognition`); die App überträgt nichts. Genügt die Offenlegung in PRIVACY (Berechtigung Mikrofon/Spracherkennung) und die Store-Angabe „Audio nicht erhoben“? Kann der Systemdienst selbst Diagnosedaten senden (Rolle Google/Apple)? | Vorbefund: keine Erhebung durch die App, Systemdienst in PRIVACY nennen | Release | offen |
+| P-R46 | Mithelfer-Geräte (FA-17.x): (a) Mithelfer (Familie, Beschäftigte) handeln für die Inhaberin, die Verantwortliche bleibt; bei Beschäftigten Hinweis nach Art. 13 DSGVO bzw. Mitbestimmung (§ 87 Abs 1 Nr 6 BetrVG, § 96/96a ArbVG) nötig? (b) Übertragung über einen von der Nutzerin gewählten Messenger bzw. Cloud-Ordner als „nicht erhoben durch die App“ für Google Play und Apple; (c) Hinweis „Code nur dem eigenen Gerät zeigen“ ausreichend | Rechtsanwalt intern: (a) Inhaberin Verantwortliche, Mithelfer weisungsgebunden, Hinweis im Handbuch; (b) wie Export/Teilen nicht erhoben, mittel; (c) ja, mittel | Release | offen |
 | P-R45 | „Wunsch oder Idee senden“ (FA-11.6): bestätigen, dass eine von der Nutzerin selbst aus ihrer Mail-App gesendete E-Mail mit technischen Angaben für Google Play („Datensicherheit“) und Apple („App-Datenschutz“) nicht als Erheben durch die App gilt; sonst Angaben in STORE_LISTING anpassen | Rechtsanwalt intern: nicht erhoben (wie Teilen/Export), mittel | Release | offen |
 | P-R39 | Angebots-PDF: „Dieses Angebot ist gültig bis <Datum>“ bindet die Unternehmerin bis zu diesem Tag (§ 148 BGB Annahmefrist; AT § 862 ABGB). Reicht das, oder braucht es eine Option „freibleibend“/„unverbindlich“? | Vorbefund Rechtsanwalt: Fristsetzung ist zulässig und schafft Klarheit; „freibleibend“ wäre nur eine Aufforderung zur Angebotsabgabe. Frage, ob Nutzerinnen das wählen können sollen. Mittlere Sicherheit | Release | intern geprüft 2026-10-16 (hoch) |
 | P-R38 | Jahresabo und automatische Verlängerung um ein weiteres Jahr gegenüber deutschen Verbraucherinnen: § 309 Nr. 9 BGB (seit 1.3.2022 stillschweigende Verlängerung nur auf unbestimmte Zeit mit Monatskündigung) – greift das bei Store-Abos, deren Vertragsbedingungen Apple bzw. Google stellen, oder trifft es den Anbieter über die Nutzungsbedingungen 4.3? Ebenso § 312k BGB (P-R12) | Vorbefund Rechtsanwalt: Verkäufer ist der Store, dessen Verlängerungsmechanik gilt; Nutzungsbedingungen 4.3 beschreiben sie nur. Restrisiko, wenn der Anbieter als Vertragspartner der Leistung gilt; Alternative wäre ein Hinweis „Jahresabo jederzeit zum Periodenende kündbar“. Mittlere Sicherheit | Store-Start | offen |
@@ -1656,6 +1708,8 @@ erzeugt `beispiele_erzeugen_test.dart` mit dem PDF-Generator der App.
 | P-D35 | U30-Datei beim BMF prüfen: Upload einer Testdatei in FinanzOnline (Eingaben → Übermittlungen → Upload, bzw. Test-Upload), Annahme ohne Fehler für Monat und Quartal, Kleinunternehmer mit Reverse Charge; Menüpfad im Handbuch bestätigen; Stand der XSD vor jedem Release mit den BMF-Seiten „Informationen für Softwarehersteller“ abgleichen | XML gegen XSD 07_2026 (Kopie aus github.com/FlorianRauscha/fon-api, BMF-Seite gesperrt) mit `xmllint` gültig | Release | offen |
 | P-D36 | Vertragsarchiv auf Pixel 10 und iPhone: mehrseitiges PDF teilen (Seitenbilder, Original), Texterkennung über mehrere Seiten, Kurzübersicht an einem echten Miet- und Leasingvertrag (Treffer und Fundstellen stimmen), Sicherung und Wiederherstellung mit Vertragsseiten | Heuristik nur an synthetischem Text geprüft | Release | offen |
 | P-D37 | Android-Gerätetest Dokumentenscanner (Pixel 10, Release-Build mit R8): Modul-Download beim ersten Start, mehrseitiger Scan, Galerie-Import, Ergebnis in Belegseiten und Texterkennung; Gerät/Emulator ohne Play-Dienste bzw. Huawei → Kamera ohne Rückfrage | nur CI-Build | Release | offen |
+| P-D42 | Gerätetest Mithelfer 0.23.0, **gemischt iOS und Android** (Pixel 10 als Hauptgerät, iPhone als Mithelfer und umgekehrt): QR fotografieren und koppeln; Beleg per WhatsApp/Signal/Mail senden und auf dem Hauptgerät über „Teilen“ (Android) bzw. „Belegpaket öffnen“ (iOS) übernehmen; Weg Ordner über Google Drive (Android) und iCloud Drive (iOS) bzw. einen Dienst, den beide als Ordner zeigen; nach Übernahme „übernommen“ beim Mithelfer; Trennen → nächstes Paket abgelehnt; Bilder auf dem Mithelfer nach dem Senden gelöscht | Tests mit Ordner-Ersatz und Teilen-Rückruf (`helper_devices_test.dart`) | Release | offen |
+| P-S65 | Belegbilder vom Mithelfer-Gerät (FA-17.3): aufgenommen auf einem fremden Gerät, dort nach dem Senden gelöscht, auf dem Hauptgerät unverändert gespeichert – genügt das den Aufbewahrungs- und Ordnungsvorschriften (§ 132 BAO, § 147 AO, GoBD Rz 136 ff. ersetzendes Scannen) und wie in die Verfahrensdokumentation aufnehmen? | Steuerberater intern: Original (Papier) bleibt beim Betrieb bis zur Entscheidung über ersetzendes Scannen; Bild unverändert übernommen, Herkunft „von ‹Gerät›“ in der Notiz, mittel | Release | offen |
 | P-D41 | Gerätetest 0.22.1 (Pixel 10): Scan von Übersicht, Belegliste und im Formular zeigt Seitenbild, „Erneut auslesen“ und Vorbelegung; Sicherungsordner wählen und Sicherung wiederherstellen funktionieren weiter (Request-Codes neu); „Datei“ mit PDF, XRechnung/ZUGFeRD und Bild aus Google Drive und Downloads; iPhone: „Datei“ über die Dateien-App | Widget-Tests mit Fake-Channels, Test auf eindeutige Request-Codes | Release | offen |
 | P-D39 | Gerätetest Scanner-Fix 0.21.1 (Pixel 10 und iPhone): zweimal hintereinander scannen, auch aus neuem Beleg über Übersicht und Belegliste; Abbrechen und erneut scannen; nach dem Scan Vorbelegung von Betrag und Händler; Nachbearbeitung (Papier hell, Schrift kräftig, Thermobon grau) sichtbar und Erkennung nicht schlechter als mit Kamerafoto | Widget-/Unit-Tests mit Fake-Channel und synthetischen Bildern | Release | offen |
 | P-D40 | Gerätetest Diktat (Pixel 10 mit Android 16, iPhone): Knopf nur bei Erkennung auf dem Gerät; im Flugmodus funktioniert das Diktat; Erlaubnis Mikrofon/Spracherkennung (Texte deutsch); „zwölf Euro fünfzig“, „eintausendzweihundert“, „zwölf komma fünf null“ in de-AT und de-DE; Gerät ohne On-Device-Erkennung (Android 11 bzw. ältere iPhones) zeigt keinen Knopf | Unit-Tests Parser, Widget-Tests mit Fake-Channel | Release | offen |
