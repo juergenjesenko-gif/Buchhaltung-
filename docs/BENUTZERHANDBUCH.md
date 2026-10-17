@@ -1,6 +1,6 @@
 # Benutzerhandbuch – JeNi bucht
 
-**Für App-Version 0.22.2** · Stand 2026-10-16
+**Für App-Version 0.22.3** · Stand 2026-10-17
 
 Dieses Handbuch beschreibt die App aus Nutzersicht. Es wird bei jeder Änderung,
 die du in der App siehst, mitgeführt – siehe [`CLAUDE.md`](../CLAUDE.md).
@@ -288,9 +288,12 @@ Lieferant, Rechnungsnummer und UID des Ausstellers**. Solche Felder sind mit
 - **Prüf die markierten Felder** mit dem Beleg. Gebucht wird erst, wenn du auf
   **Beleg speichern** tippst – vorher ist nichts verbucht.
 - Was die App nicht sicher erkennt, lässt sie leer.
-- **Beschreibung und Kategorie** schlägt die App vor, z. B. „SPAR –
-  Lebensmittel (Baguette, Biomilch)“ mit Kategorie *Sonstige Ausgaben* oder
-  „Marktgemeinde Treffen – Maut“ mit *Kfz-Kosten*. Eine Beschreibung, die du
+- **Beschreibung heißt: was du gekauft hast**, nicht bei wem – der Laden
+  steht schon unter *Geschäftspartner*. Die App nimmt den ersten Artikel vom
+  Bon, z. B. „Lasurpinsel u. a.“ (BAUHAUS) oder „Baguette u. a.“ (SPAR). Ohne
+  lesbaren Artikel schlägt sie die Art vor, z. B. „Maut“, „Treibstoff“ oder
+  „Baumarkt-Einkauf“, sonst bleibt das Feld leer. Die **Kategorie** kommt
+  dazu, z. B. *Kfz-Kosten* oder *Sonstige Ausgaben*. Eine Beschreibung, die du
   schon getippt hast, überschreibt sie nicht. Ohne Vorschlag steht ein neuer
   Beleg auf *Sonstige Ausgaben*.
 - **Die App lernt je Lieferant.** Speicherst du einen Beleg, merkt sie sich

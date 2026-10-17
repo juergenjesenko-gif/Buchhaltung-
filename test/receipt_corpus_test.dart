@@ -247,7 +247,7 @@ void main() {
       expect(p.vatPermille, 49);
       expect(p.date, DateTime(2026, 9, 10));
       expect(p.categoryName, 'Sonstige Ausgaben');
-      expect(p.description, startsWith('SPAR – Lebensmittel'));
+      expect(p.description, 'Baguette u. a.');
     });
 
     test('DARS Slowenien: 22 % erkannt, 0 % mit Hinweis vorbelegt', () {

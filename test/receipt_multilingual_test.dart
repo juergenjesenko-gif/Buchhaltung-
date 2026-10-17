@@ -152,11 +152,11 @@ void main() {
       final r = parser.parse(OcrDocument.fromText(rows.join('\n')));
       final c = ReceiptClassifier.classify(rows, r);
       expect(c.branch, ReceiptBranch.supermarket);
-      expect(c.description, 'SPAR – Lebensmittel (Baguette, Biomilch)');
+      expect(c.description, 'Baguette u. a.');
       expect(c.categoryName, 'Sonstige Ausgaben');
     });
 
-    test('Maut → Kfz-Kosten, Beschreibung höchstens 60 Zeichen', () {
+    test('Maut → Kfz-Kosten, Beschreibung höchstens 40 Zeichen', () {
       final rows = ['Marktgemeinde Treffen', 'Mautticket', 'Gesamt 10,00'];
       final c = ReceiptClassifier.classify(
         rows,
@@ -164,7 +164,7 @@ void main() {
       );
       expect(c.branch, ReceiptBranch.toll);
       expect(c.categoryName, 'Kfz-Kosten');
-      expect(c.description, 'Marktgemeinde Treffen – Maut');
+      expect(c.description, 'Maut');
       expect(c.description!.length, lessThanOrEqualTo(maxDescriptionLength));
     });
 

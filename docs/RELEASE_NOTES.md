@@ -29,11 +29,34 @@ gebaut, und was war darin geprüft?*
 
 ## Unveröffentlicht
 
-Änderungen seit 0.22.2+32, die noch in keinem Build stecken. Wandern beim
+Änderungen seit 0.22.3+33, die noch in keinem Build stecken. Wandern beim
 nächsten Versionssprung in den neuen Eintrag.
 
 | Art | Änderung | Bezug | Commit |
 |---|---|---|---|
+
+---
+
+## 0.22.3+33 — 2026-10-17
+
+| Feld | Wert |
+|---|---|
+| Art | Testbuild (ungezippte arm64-APK `JeNi-bucht-0.22.3-build-<Nr>.apk`, fester Testschlüssel); **Lizenzprüfung aus** (ohne `LICENSING=true`), alle Funktionen frei |
+| Commit | `0000000` |
+| Branch | `claude/agile-accounting-app-mobile-wa5j3h` |
+| Dokumentstände | Lastenheft 1.73, Spezifikation 1.77, Benutzerhandbuch für 0.22.3, DESIGN_SPEC 1.4 |
+| Datenbankschema | 23 |
+| Prüfung | `flutter analyze` ohne Befund, alle Tests grün (neu `receipt_description_test.dart`; Korpus-Sollwert SPAR „Baguette“ statt „Lebensmittel“); Android/iOS-Build nur in der CI |
+| Steuerliche Kennwerte | unverändert |
+| Offene reale Prüfpunkte | wie 0.22.2+32 (P-D22 Belegerkennung auf dem Gerät) |
+| Bekannte Grenzen | Spezifikation Abschnitt 11, unverändert |
+
+**Änderungen seit 0.22.2+32**
+
+| Art | Änderung | Bezug | Commit |
+|---|---|---|---|
+| Behoben | BAUHAUS-Bon: Artikelzeile „SET 3L Lasurpinsel-S“ wurde Lieferant; jetzt Zeile mit Rechtsform bzw. bekannte Kette („BAUHAUS Depot GmbH“), Artikelzeilen nie Lieferant, Kettenliste AT/DE erweitert, OCR-Varianten | FA-2.31, L-2.20 | `0000000` |
+| Geändert | Beschreibung = was gekauft wurde („Lasurpinsel u. a.“), sonst Branche („Maut“, „Baumarkt-Einkauf“), sonst leer; nie der Händlername | FA-2.31 | `0000000` |
 
 ---
 

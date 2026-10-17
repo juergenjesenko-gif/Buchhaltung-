@@ -23,11 +23,16 @@ enum ReceiptBranch {
   electronics('Elektronik', 'Büromaterial'),
   postal('Porto', 'Büromaterial'),
   telecom('Telefon/Internet', 'Telefon & Internet'),
-  books('Fachliteratur', 'Fortbildung & Fachliteratur');
+  books('Fachliteratur', 'Fortbildung & Fachliteratur'),
+  // Baumarkt, Möbel, Sport: keine eigene Startkategorie, Vorschlag
+  // „Sonstige Ausgaben“; die Nutzerin wählt bei Bedarf Wareneinkauf o. Ä.
+  hardware('Baumarkt-Einkauf', 'Sonstige Ausgaben'),
+  furniture('Einrichtung', 'Sonstige Ausgaben'),
+  retail('Einkauf', 'Sonstige Ausgaben');
 
   const ReceiptBranch(this.label, this.category);
 
-  /// Kurzbezeichnung in der Beschreibung („SPAR – Lebensmittel“).
+  /// Beschreibung, wenn keine Artikelzeile erkannt wurde („Maut“).
   final String label;
 
   /// Name der vorgeschlagenen Startkategorie.
@@ -90,6 +95,26 @@ const receiptChains = <(String, String, ReceiptBranch)>[
   ('obb', 'ÖBB', ReceiptBranch.transport),
   ('db', 'Deutsche Bahn', ReceiptBranch.transport),
   ('a1', 'A1', ReceiptBranch.telecom),
+  ('merkur', 'Merkur', ReceiptBranch.supermarket),
+  ('muller', 'Müller', ReceiptBranch.drugstore),
+  ('bauhaus', 'BAUHAUS', ReceiptBranch.hardware),
+  ('obi', 'OBI', ReceiptBranch.hardware),
+  ('hornbach', 'Hornbach', ReceiptBranch.hardware),
+  ('hagebau', 'hagebau', ReceiptBranch.hardware),
+  ('hagebaumarkt', 'hagebau', ReceiptBranch.hardware),
+  ('lagerhaus', 'Lagerhaus', ReceiptBranch.hardware),
+  ('toom', 'toom', ReceiptBranch.hardware),
+  ('xxxlutz', 'XXXLutz', ReceiptBranch.furniture),
+  ('mobelix', 'Möbelix', ReceiptBranch.furniture),
+  ('moebelix', 'Möbelix', ReceiptBranch.furniture),
+  ('kika', 'kika', ReceiptBranch.furniture),
+  ('leiner', 'Leiner', ReceiptBranch.furniture),
+  ('action', 'Action', ReceiptBranch.retail),
+  ('tedi', 'TEDi', ReceiptBranch.retail),
+  ('kik', 'KiK', ReceiptBranch.retail),
+  ('hervis', 'Hervis', ReceiptBranch.retail),
+  ('intersport', 'Intersport', ReceiptBranch.retail),
+  ('decathlon', 'Decathlon', ReceiptBranch.retail),
   ('magenta', 'Magenta', ReceiptBranch.telecom),
 ];
 
@@ -138,7 +163,7 @@ class ReceiptClassification {
   String? get categoryName => branch?.category;
 }
 
-const maxDescriptionLength = 60;
+const maxDescriptionLength = 40;
 
 abstract final class ReceiptClassifier {
   static String _norm(String s) => s
@@ -147,6 +172,28 @@ abstract final class ReceiptClassifier {
       .replaceAll('ü', 'u')
       .replaceAll('ä', 'a')
       .replaceAll(RegExp(r'[^a-z0-9]'), '');
+
+  /// Häufige OCR-Verwechslungen in Markennamen angleichen (0→o, 5→s, 1→l).
+  static String ocrFold(String n) =>
+      n.replaceAll('0', 'o').replaceAll('5', 's').replaceAll('1', 'l');
+
+  /// Bekannte Kette als eigenes Wort irgendwo in der Zeile („BAUHAUS Depot
+  /// GmbH, NL 797“, „Danke für Ihren Einkauf bei OBI“). Nur Marken ab vier
+  /// Buchstaben, damit „dm“, „bp“ oder „Post“ nicht in Fließtext treffen.
+  static (String, ReceiptBranch)? chainWordIn(String row) {
+    final words = [
+      for (final w in row.split(RegExp(r'[^\p{L}\p{N}]+', unicode: true)))
+        if (w.isNotEmpty) ocrFold(_norm(w)),
+    ];
+    for (final (key, name, branch) in receiptChains) {
+      if (key.length < 5 || _commonWords.contains(key)) continue;
+      if (words.contains(key)) return (name, branch);
+    }
+    return null;
+  }
+
+  /// Marken, die auch gewöhnliche Wörter auf Belegen sind.
+  static const _commonWords = {'netto', 'petrol', 'action', 'merkur'};
 
   /// Bekannte Kette in einer Kopfzeile, auch mit Logo-Rauschen am Wortende
   /// („SPARO“: Tannensymbol als O gelesen, „BILLA®“).
@@ -157,8 +204,16 @@ abstract final class ReceiptClassifier {
     final n = _norm(row);
     if (n.isEmpty) return null;
     final firstWord = _norm(row.trim().split(RegExp(r'\s+')).first);
+    final nFold = ocrFold(n);
+    final firstFold = ocrFold(firstWord);
     for (final (key, name, branch) in receiptChains) {
       if (n == key || (!exactOnly && firstWord == key)) {
+        return (name, branch);
+      }
+      // OCR-Varianten („BAUHAU5“, „H0FER“) nur bei Marken ohne Ziffern.
+      if (key.length >= 4 &&
+          !RegExp(r'\d').hasMatch(key) &&
+          (nFold == key || (!exactOnly && firstFold == key))) {
         return (name, branch);
       }
       // Logo-Rauschen: ein bis zwei angehängte O/0 an einer Marke in
@@ -199,52 +254,130 @@ abstract final class ReceiptClassifier {
     );
   }
 
-  /// „SPAR – Lebensmittel (Baguette, Biomilch)“; ohne Händler nur die
-  /// Branche, ohne beides `null`.
+  /// Was gekauft wurde, nicht bei wem (Gerätetest 0.22.2): erster Artikel
+  /// plus „u. a.“, sonst die Branche („Maut“, „Baumarkt-Einkauf“), sonst
+  /// `null`. Der Händlername steht im Feld Geschäftspartner und wird nie in
+  /// die Beschreibung kopiert.
   static String? _description(
     String? merchant,
     ReceiptBranch? branch,
     List<String> rows,
   ) {
-    final head = [?merchant, ?branch?.label].join(' – ');
-    if (head.isEmpty) return null;
-    final items =
-        branch == ReceiptBranch.supermarket ||
-            branch == ReceiptBranch.drugstore ||
-            branch == ReceiptBranch.office ||
-            branch == ReceiptBranch.electronics
-        ? _items(rows)
-        : const <String>[];
-    var text = head;
-    for (var n = items.length; n > 0; n--) {
-      final candidate = '$head (${items.take(n).join(', ')})';
-      if (candidate.length <= maxDescriptionLength) {
-        text = candidate;
-        break;
-      }
+    final retail =
+        branch == null ||
+        const {
+          ReceiptBranch.supermarket,
+          ReceiptBranch.drugstore,
+          ReceiptBranch.office,
+          ReceiptBranch.electronics,
+          ReceiptBranch.hardware,
+          ReceiptBranch.furniture,
+          ReceiptBranch.retail,
+        }.contains(branch);
+    final items = retail ? itemNames(rows) : const <String>[];
+    final merchantNorm = _norm(merchant ?? '');
+    final useful = [
+      for (final i in items)
+        if (merchantNorm.isEmpty || !merchantNorm.contains(_norm(i))) i,
+    ];
+    if (useful.isNotEmpty) {
+      final suffix = useful.length > 1 ? ' u. a.' : '';
+      var first = useful.first;
+      final room = maxDescriptionLength - suffix.length;
+      if (first.length > room) first = '${first.substring(0, room - 1)}…';
+      return '$first$suffix';
     }
-    return text.length <= maxDescriptionLength
-        ? text
-        : '${text.substring(0, maxDescriptionLength - 1)}…';
+    return branch?.label;
   }
 
-  /// Bis zu drei Artikelbezeichnungen: Zeilen aus Großbuchstaben mit
-  /// mindestens einem Wort von 4 Buchstaben, ohne Betrag, ohne Schlüsselwort.
-  static List<String> _items(List<String> rows) {
+  /// Artikelbezeichnungen in Belegreihenfolge, bereinigt: ohne Menge
+  /// („1 x“, „2 Stk“), Artikelnummer, Preis, Steuerkennzeichen und Kürzel
+  /// in Großbuchstaben („SET 3L Lasurpinsel-S“ → „Lasurpinsel“). Nur Zeilen
+  /// vor der Summe.
+  static List<String> itemNames(List<String> rows) {
     final result = <String>[];
     for (final row in rows) {
       final t = row.trim();
-      if (ReceiptTextParser.amounts(t).isNotEmpty) {
-        // „SCHOKORULADE HIMBEERE 3,49 A“: Bezeichnung vor dem Betrag.
-        final m = RegExp(r'^([A-ZÄÖÜ][A-ZÄÖÜ ]{5,}?)\s+\d').firstMatch(t);
-        if (m == null) continue;
-        _addItem(result, m.group(1)!);
+      final lower = t.toLowerCase();
+      if (_endOfItems.hasMatch(lower)) break;
+      if (_noItemLine.hasMatch(lower)) continue;
+      final price = _trailingPrice.firstMatch(t);
+      String? raw;
+      if (price != null) {
+        raw = t.substring(0, price.start);
       } else if (RegExp(r'^[A-ZÄÖÜ0-9 ]{6,}$').hasMatch(t)) {
-        _addItem(result, t);
+        // Supermarkt-Bon, Preise in eigener Spalte („SBUDGET BAGUETTE“).
+        raw = t;
       }
+      if (raw == null) continue;
+      final name = cleanItem(raw);
+      if (name != null && !result.contains(name)) result.add(name);
       if (result.length == 3) break;
     }
     return result;
+  }
+
+  static final _trailingPrice = RegExp(
+    r'\s-?\d{1,5}[,.]\d{2}(?:\s*(?:€|eur))?(?:\s*[A-D*]{1,2})?\s*$',
+    caseSensitive: false,
+  );
+
+  static final _endOfItems = RegExp(
+    r'\b(summe|zwischensumme|gesamt|total|zu zahlen|zahlbetrag|betrag)\b',
+  );
+
+  static final _noItemLine = RegExp(
+    r'mwst|ust\b|uid|steuer|netto|brutto|rabatt|pfand|rückgeld|ruckgeld|'
+    r'gegeben|bar\b|karte|visa|mastercard|maestro|debit|kontaktlos|'
+    r'tel\b|tel\.|fax|www|@|datum|uhrzeit|kassa|kasse|bon\b|beleg|rechnung|'
+    r'gmbh|\bag\b|\bkg\b|filiale|\bnl\b|straße|strasse|str\.|'
+    r'^\s*[a-z]?-?\d{4,5}\s+\p{L}',
+    unicode: true,
+  );
+
+  /// Bereinigt eine Artikelbezeichnung; `null`, wenn kein Wort ab vier
+  /// Buchstaben übrig bleibt.
+  static String? cleanItem(String raw) {
+    final words = <String>[];
+    for (var w in raw.trim().split(RegExp(r'\s+'))) {
+      w = w.replaceAll(RegExp(r'^[^\p{L}]+|[^\p{L}]+$', unicode: true), '');
+      // Abgeschnittenes Anhängsel „Lasurpinsel-S“.
+      w = w.replaceFirst(RegExp(r'-\p{L}$', unicode: true), '');
+      if (w.isEmpty) continue;
+      if (RegExp(r'\d').hasMatch(w)) continue;
+      final lower = w.toLowerCase();
+      if (const {
+        'x',
+        'stk',
+        'st',
+        'stück',
+        'kg',
+        'pkg',
+        'pck',
+        'm',
+        'l',
+      }.contains(lower)) {
+        continue;
+      }
+      if (_noItem.contains(w.toUpperCase())) continue;
+      // Kürzel in Großbuchstaben („SET“, „BIO“) nur, wenn es Gemischtes gibt.
+      words.add(w);
+    }
+    final mixed = words.any((w) => w != w.toUpperCase());
+    final kept = [
+      for (final w in words)
+        if (!(mixed && w.length <= 3 && w == w.toUpperCase())) w,
+    ];
+    if (!kept.any((w) => RegExp(r'^\p{L}{4,}', unicode: true).hasMatch(w))) {
+      return null;
+    }
+    if (!mixed) {
+      // „SBUDGET BAGUETTE“ → „Baguette“: das längste Wort benennt die Ware.
+      final w = kept.reduce((a, b) => b.length > a.length ? b : a);
+      return w[0] + w.substring(1).toLowerCase();
+    }
+    final text = kept.join(' ');
+    return text.length <= 40 ? text : '${text.substring(0, 39)}…';
   }
 
   static const _noItem = {
@@ -252,19 +385,4 @@ abstract final class ReceiptClassifier {
     'KONTAKTLOS', 'KUNDENBELEG', 'VERKAUF', 'DUPLIKAT', 'TOTAL', 'BUDGET',
     'FREEFROM', 'KASSA', 'MWST', 'UST',
   };
-
-  static void _addItem(List<String> result, String raw) {
-    final words = [
-      for (final w in raw.split(RegExp(r'\s+')))
-        if (w.length >= 4 &&
-            RegExp(r'^[A-ZÄÖÜ]+$').hasMatch(w) &&
-            !_noItem.contains(w))
-          w,
-    ];
-    if (words.isEmpty) return;
-    // „SBUDGET BAGUETTE“ → „Baguette“: das längste Wort benennt die Ware.
-    final w = words.reduce((a, b) => b.length > a.length ? b : a);
-    final item = w[0] + w.substring(1).toLowerCase();
-    if (!result.contains(item)) result.add(item);
-  }
 }

@@ -626,12 +626,53 @@ class ReceiptTextParser {
     'PayPal', 'Stripe', 'Dropbox', 'Zoom', 'Spotify', 'Netflix',
   ];
 
+  /// Sieht aus wie eine Artikelzeile: Preis am Ende, Menge („2 x“, „1 Stk“),
+  /// Artikelnummer oder Kürzel mit Ziffern („SET 3L Lasurpinsel-S 12,99“).
+  /// Solche Zeilen sind nie der Lieferant (Gerätetest 0.22.2).
+  static bool looksLikeItem(String row) {
+    final t = row.trim();
+    if (RegExp(r'\s-?\d{1,5}[,.]\d{2}(?:\s*[A-D*€]{1,2})?\s*$').hasMatch(t)) {
+      return true;
+    }
+    if (RegExp(
+      r'^\d+\s*(x|stk\.?|st\.?)\s',
+      caseSensitive: false,
+    ).hasMatch(t)) {
+      return true;
+    }
+    if (RegExp(r'^\d{5,}\s').hasMatch(t)) return true;
+    // Großbuchstabenkürzel, dann Mengenangabe mit Einheit: „SET 3L …“.
+    return RegExp(
+      r'^[A-ZÄÖÜ]{2,5}\s+\d+(?:[,.]\d+)?\s?(l|ml|kg|g|m|mm|cm|stk)\b',
+      caseSensitive: false,
+    ).hasMatch(t);
+  }
+
   Detected<String>? _merchant(List<String> rows) {
     for (var i = 0; i < rows.length && i < 6; i++) {
       final chain = ReceiptClassifier.chainIn(rows[i], exactOnly: true);
       if (chain != null) return Detected(chain.$1, 85);
     }
+    // Marke als erstes Wort einer Kopfzeile („BAUHAUS Depot GmbH, NL 797“).
+    for (var i = 0; i < rows.length && i < 8; i++) {
+      if (looksLikeItem(rows[i])) continue;
+      final chain = ReceiptClassifier.chainWordIn(rows[i]);
+      if (chain == null) continue;
+      // Mit Rechtsform den Firmennamen („BAUHAUS Depot GmbH“, „BILLA AG“).
+      final legal = _merchantHeuristic([rows[i]]);
+      return Detected(
+        legal != null && legal.confidence >= 75 ? legal.value : chain.$1,
+        85,
+      );
+    }
     final heuristic = _merchantHeuristic(rows);
+    if (heuristic != null && heuristic.confidence >= 75) return heuristic;
+    // Kopf abgeschnitten: bekannte Kette weiter unten (Kartenbeleg, Fußzeile).
+    for (var i = 8; i < rows.length; i++) {
+      if (looksLikeItem(rows[i])) continue;
+      final chain = ReceiptClassifier.chainWordIn(rows[i]);
+      if (chain != null) return Detected(chain.$1, 70);
+    }
     if (heuristic != null && heuristic.confidence >= 75) return heuristic;
     // Bekannter Anbieter als eigenes Wort irgendwo auf dem Beleg; in einer
     // Kopfzeile allein stehend sicherer als im Fließtext.
@@ -650,26 +691,36 @@ class ReceiptTextParser {
   }
 
   Detected<String>? _merchantHeuristic(List<String> rows) {
-    for (var i = 0; i < rows.length && i < 6; i++) {
+    // Zeile mit Rechtsform im Kopfblock geht der ersten Zeile vor.
+    final legal = RegExp(
+      r'\b(gmbh|ag|kg|og|e\.u\.|e\.k\.|ltd|inc|llc|se|co|d\.d|d\.o\.o)\b',
+      caseSensitive: false,
+    );
+    final order = [
+      for (var i = 0; i < rows.length && i < 8; i++)
+        if (legal.hasMatch(rows[i])) i,
+      for (var i = 0; i < rows.length && i < 6; i++)
+        if (!legal.hasMatch(rows[i])) i,
+    ];
+    for (final i in order) {
       final row = rows[i].trim();
-      final letters = RegExp(r'[A-Za-zÄÖÜäöüß]').allMatches(row).length;
-      if (letters < 3 || letters * 2 < row.length) continue;
+      if (looksLikeItem(row)) continue;
       if (RegExp(r'^\d').hasMatch(row) || row.contains('):')) continue;
-      if (_notMerchant.hasMatch(row.toLowerCase())) continue;
-      final legalForm = RegExp(
-        r'\b(gmbh|ag|kg|og|e\.u\.|e\.k\.|ltd|inc|llc|se|co|d\.d|d\.o\.o)\b',
-        caseSensitive: false,
-      ).hasMatch(row);
+      final legalForm = legal.hasMatch(row);
       // Rechtsform beendet den Namen; danach folgt oft Rauschen aus einem
-      // daneben liegenden Block („… GMBH  72% sos“).
+      // daneben liegenden Block („… GMBH  72% sos“) oder die Adresse
+      // („Depot GmbH, NL 797, Triglavstrasse 28“).
       final end = RegExp(
-        r'\b(gmbh|ag|kg|og|e\.u\.|e\.k\.|ltd|inc|llc|se|d\.d\.|d\.o\.o\.)(?=\s|$)',
+        r'\b(gmbh|ag|kg|og|e\.u\.|e\.k\.|ltd|inc|llc|se|d\.d\.|d\.o\.o\.)(?=[\s,;]|$)',
         caseSensitive: false,
       ).firstMatch(row);
       final name = (end == null ? row : row.substring(0, end.end)).replaceAll(
         RegExp(r'\s{2,}'),
         ' ',
       );
+      final letters = RegExp(r'[A-Za-zÄÖÜäöüß]').allMatches(name).length;
+      if (letters < 3 || letters * 2 < name.length) continue;
+      if (_notMerchant.hasMatch(name.toLowerCase())) continue;
       return Detected(name, legalForm ? 75 : (i == 0 ? 60 : 45));
     }
     return null;
