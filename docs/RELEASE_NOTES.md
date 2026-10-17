@@ -42,7 +42,7 @@ nächsten Versionssprung in den neuen Eintrag.
 | Feld | Wert |
 |---|---|
 | Art | Testbuild (ungezippte arm64-APK `JeNi-bucht-0.24.0-build-<Nr>.apk`, fester Testschlüssel); **Lizenzprüfung aus** (ohne `LICENSING=true`), alle Funktionen frei |
-| Commit | folgt |
+| Commit | `4775b1f` |
 | Branch | `claude/agile-accounting-app-mobile-wa5j3h` |
 | Dokumentstände | Lastenheft 1.76, Spezifikation 1.81, Benutzerhandbuch für 0.24.0, DESIGN_SPEC 1.4 |
 | Datenbankschema | 26 |
@@ -55,7 +55,7 @@ nächsten Versionssprung in den neuen Eintrag.
 
 | Art | Änderung | Bezug | Commit |
 |---|---|---|---|
-| Neu | Belegsammler per E-Mail als Standardweg: Hauptgerät empfängt an der Geschäfts-E-Mail (Häkchen „Andere E-Mail-Adresse …“), liest das Postfach nur lesend per IMAP stündlich und beim Öffnen; Mithelfer sendet einmal am Tag und beim Öffnen aus dem eigenen Postfach per SMTP ein verschlüsseltes Sammelpaket (v2, v1 lesbar); Gmail-/iCloud-App-Passwort mit Anleitung und Link; Autoconfig; Erinnerung „Belege senden“ mit Mailfenster ohne Postfach; Aufbewahrung 90 Tage; „Exportieren“ als Notweg; Schema 26 | FA-17.9 bis FA-17.12, L-29.10, P-D44, P-R47, P-S67, P-X21 | folgt |
+| Neu | Belegsammler per E-Mail als Standardweg: Hauptgerät empfängt an der Geschäfts-E-Mail (Häkchen „Andere E-Mail-Adresse …“), liest das Postfach nur lesend per IMAP stündlich und beim Öffnen; Mithelfer sendet einmal am Tag und beim Öffnen aus dem eigenen Postfach per SMTP ein verschlüsseltes Sammelpaket (v2, v1 lesbar); Gmail-/iCloud-App-Passwort mit Anleitung und Link; Autoconfig; Erinnerung „Belege senden“ mit Mailfenster ohne Postfach; Aufbewahrung 90 Tage; „Exportieren“ als Notweg; Schema 26 | FA-17.9 bis FA-17.12, L-29.10, P-D44, P-R47, P-S67, P-X21 | `4775b1f` |
 
 ---
 
