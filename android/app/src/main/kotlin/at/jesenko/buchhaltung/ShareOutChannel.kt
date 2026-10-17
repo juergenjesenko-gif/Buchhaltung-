@@ -59,6 +59,39 @@ class ShareOutChannel(private val activity: Activity, messenger: BinaryMessenger
                         result.error("share", e.message, null)
                     }
                 }
+                "compose" -> {
+                    // Mithelfer ohne eigenes Postfach (FA-17.9): Mail-App mit
+                    // Empfänger, Betreff, Text und Belegpaket als Anhang. Der
+                    // Selektor `mailto:` lässt nur Mail-Apps zu.
+                    val path = call.argument<String>("path")
+                    val to = call.argument<String>("to")
+                    if (path == null || to == null) {
+                        result.success(false)
+                        return@setMethodCallHandler
+                    }
+                    try {
+                        val file = File(path)
+                        val uri = FileProvider.getUriForFile(
+                            activity, "${activity.packageName}.geteilt", file
+                        )
+                        val send = Intent(Intent.ACTION_SEND).apply {
+                            type = "application/octet-stream"
+                            putExtra(Intent.EXTRA_EMAIL, arrayOf(to))
+                            putExtra(Intent.EXTRA_SUBJECT, call.argument<String>("subject") ?: "")
+                            putExtra(Intent.EXTRA_TEXT, call.argument<String>("text") ?: "")
+                            putExtra(Intent.EXTRA_STREAM, uri)
+                            clipData = ClipData.newUri(activity.contentResolver, file.name, uri)
+                            addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                            selector = Intent(Intent.ACTION_SENDTO, android.net.Uri.parse("mailto:"))
+                        }
+                        activity.startActivity(send)
+                        result.success(true)
+                    } catch (e: android.content.ActivityNotFoundException) {
+                        result.success(false)
+                    } catch (e: Exception) {
+                        result.success(false)
+                    }
+                }
                 else -> result.notImplemented()
             }
         }

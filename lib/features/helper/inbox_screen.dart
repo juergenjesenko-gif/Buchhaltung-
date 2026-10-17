@@ -34,6 +34,8 @@ class _InboxScreenState extends State<InboxScreen> {
   Future<void> _load() async {
     final state = AppScope.read(context);
     await state.syncHelperInbox();
+    // Postfach mitlesen (FA-17.9), gedrosselt auf einen Abruf in 2 Minuten.
+    await state.runMailSync();
     final entries = await state.repositories.helpers.inbox();
     if (mounted) setState(() => _entries = entries);
   }

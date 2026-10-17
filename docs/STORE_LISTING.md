@@ -43,9 +43,9 @@ Verkäufe, Gebühren und Auszahlungen je Monat zusammen.
 
 BELEGE VON DER GANZEN FAMILIE
 Mithelfer-Geräte per QR-Code koppeln: Partnerin, Kinder oder Team
-fotografieren Belege mit ihrem Handy, die App schickt sie verschlüsselt per
-Messenger, Mail oder gemeinsamem Cloud-Ordner in deinen Eingang. Du
-übernimmst mit einem Tipp. Mithelfer brauchen kein eigenes Abo.
+fotografieren Belege mit ihrem Handy, die App schickt sie einmal am Tag
+verschlüsselt per E-Mail in deinen Eingang – von selbst. Du übernimmst mit
+einem Tipp. Mithelfer brauchen kein eigenes Abo.
 
 DEINE ZAHLEN JEDERZEIT
 Einnahmen, Ausgaben und Ergebnis für Monat, Quartal oder Jahr. Umsatzsteuer je
@@ -235,6 +235,8 @@ Zusammengefasst aus dem Abschnitt oben; maßgeblich bleibt dieser, und
 | Audio (Diktat, FA-2.61) | nein: nur auf dem Gerät verarbeitet, nicht erhoben (Berechtigung `RECORD_AUDIO` im Formular „Berechtigungen“ begründen) | nein; `NSMicrophoneUsageDescription`, `NSSpeechRecognitionUsageDescription` gesetzt |
 | Wunsch oder Idee senden (FA-11.6), Support-Mail (FA-11.3) | nein: **nicht erhoben durch die App** – die App füllt nur eine E-Mail in der Mail-App der Nutzerin vor (`mailto:`), gesendet wird von ihr selbst aus ihrer Mail-App, die App überträgt nichts. Falls Google das anders wertet: „App-Info und -Leistung – andere“ und „Nachrichten – andere“, optional, vom Nutzer initiiert, Support (P-R45) | nein; Kontaktaufnahme durch die Nutzerin per E-Mail ist kein Erheben durch die App (P-R45) |
 | Mithelfer-Geräte (FA-17.x): Belegpaket über Messenger/Mail (Teilen-Blatt) oder gemeinsamen Cloud-Ordner | nein: Übertragung durch die Nutzerin über das Systemblatt bzw. in ihren gewählten Ordner, Ende-zu-Ende verschlüsselt, der Anbieter erhält nichts – nicht erhoben/geteilt durch die App (wie Export, P-R46) | nein |
+| Mithelfer-Mailweg (FA-17.9 bis FA-17.12): verschlüsseltes Sammelpaket über das eigene Postfach des Mithelfers (SMTP), Abruf auf dem Hauptgerät aus dem Postfach der Nutzerin (IMAP, nur lesend); Kennwörter nur im sicheren Speicher des jeweiligen Geräts | nein: Übertragung zwischen den Mailkonten der Nutzerinnen (Ende-zu-Ende verschlüsselt), der Anbieter erhält nichts – nicht erhoben/geteilt durch die App; Anmeldedaten verlassen das Gerät nur zum eigenen Mailserver. Falls Google das anders wertet: „Nachrichten – E-Mails“ und „Fotos“, optional, App-Funktion, verschlüsselt (P-R47) | nein; Mailserver der Nutzerin sind keine Drittanbieter der App (P-R47) |
+| Serversuche Mail (FA-17.9): Domain der Adresse an Mozilla ISPDB bzw. den Domainbetreiber | nein: nur Domain und technische Verbindungsdaten, keine personenbezogenen Daten aus der App; offengelegt in der Datenschutzerklärung (P-R47) | nein |
 | U30-Datei, Exporte, Berichte, PDFs über Teilen | nein: Übertragung durch die Nutzerin über das Systemblatt gilt nicht als Erheben/Teilen durch die App (wie Export) | nein |
 | Verschlüsselte Übertragung | ja | – |
 | Löschanfrage möglich | Daten liegen nur auf dem Gerät: App löschen | – |

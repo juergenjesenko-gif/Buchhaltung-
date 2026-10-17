@@ -17,7 +17,7 @@ class AppDatabase {
 
   /// Aktuelle Schemaversion. Öffentlich, weil docs/SPECIFICATION.md sie
   /// dokumentiert und test/specification_sync_test.dart beide vergleicht.
-  static const schemaVersion = 25;
+  static const schemaVersion = 26;
 
   Database? _db;
 
@@ -753,6 +753,23 @@ class AppDatabase {
           SELECT 1 FROM categories WHERE name = 'Material und Werkzeug'
         )
       ''',
+    ],
+    // Mailweg der Mithelfer-Geräte (FA-17.9, Entscheidung Auftraggeberin
+    // 2026-10-17). Hauptgerät: verarbeitete Message-IDs, damit keine Mail
+    // doppelt gelesen wird (Mails selbst bleiben unverändert im Postfach).
+    // Mithelfer: verschlüsseltes Paket je Beleg und Sendezeitpunkt für die
+    // Aufbewahrungsfrist.
+    26: [
+      '''
+      CREATE TABLE helper_mail_seen (
+        message_id TEXT PRIMARY KEY,
+        seen_at TEXT NOT NULL,
+        result TEXT NOT NULL DEFAULT ''
+      )
+      ''',
+      "ALTER TABLE helper_outbox ADD COLUMN sent_at TEXT",
+      "ALTER TABLE helper_outbox ADD COLUMN package_path TEXT NOT NULL "
+          "DEFAULT ''",
     ],
   };
 

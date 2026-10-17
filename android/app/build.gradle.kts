@@ -23,6 +23,9 @@ android {
     ndkVersion = flutter.ndkVersion
 
     compileOptions {
+        // flutter_local_notifications (Erinnerung „Belege senden“, FA-17.9)
+        // setzt Desugaring der Java-Bibliotheken voraus.
+        isCoreLibraryDesugaringEnabled = true
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
     }
@@ -99,4 +102,6 @@ dependencies {
     // Play-Dienste (Download durch Play, ca. 300 KB in der App). Ohne
     // Play-Dienste nimmt die App automatisch die Kamera.
     implementation("com.google.android.gms:play-services-mlkit-document-scanner:16.0.0")
+    // Desugaring für flutter_local_notifications (FA-17.9).
+    coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.1.4")
 }

@@ -7,12 +7,16 @@
 ///
 /// ```
 /// 4 Byte  Kennung "JBHP"
-/// 1 Byte  Formatversion (1)
+/// 1 Byte  Formatversion (1 = ein Beleg, 2 = Sammelpaket)
 /// 16 Byte Kopplungs-ID
 /// 12 Byte Nonce
-/// n Byte  Chiffrat (UTF-8-JSON, siehe [HelperReceipt.toJson])
+/// n Byte  Chiffrat (UTF-8-JSON, siehe [HelperReceipt.toJson]; Version 2:
+///         `{"v": 2, "receipts": [...]}`)
 /// 16 Byte Authentifizierungs-Tag (AEAD; Kopf als zusätzliche Daten)
 /// ```
+///
+/// Version 2 (seit 0.24.0, FA-17.9) trägt mehrere Belege in einer Datei für
+/// den Mailweg; Version 1 bleibt lesbar.
 library;
 
 import 'dart:convert';
@@ -141,6 +145,9 @@ abstract final class HelperPackage {
 
   static const _magic = [0x4A, 0x42, 0x48, 0x50]; // "JBHP"
   static const formatVersion = 1;
+
+  /// Sammelpaket mit mehreren Belegen (FA-17.9).
+  static const bundleVersion = 2;
   static const _headerLength = 4 + 1 + 16;
 
   /// Neue Kopplungs-ID (16 Byte) bzw. neuer Schlüssel (32 Byte).
@@ -181,15 +188,54 @@ abstract final class HelperPackage {
     required List<int> key,
     Cipher? cipher,
     List<int>? nonce,
+  }) => _seal(
+    receipt.toJson(),
+    version: formatVersion,
+    pairingId: pairingId,
+    key: key,
+    cipher: cipher,
+    nonce: nonce,
+  );
+
+  /// Sammelpaket (Version 2) mit allen [receipts] in einer Datei.
+  static Future<Uint8List> sealBundle(
+    List<HelperReceipt> receipts, {
+    required String pairingId,
+    required List<int> key,
+    Cipher? cipher,
+    List<int>? nonce,
+  }) => _seal(
+    {
+      'v': bundleVersion,
+      'receipts': [for (final r in receipts) r.toJson()],
+    },
+    version: bundleVersion,
+    pairingId: pairingId,
+    key: key,
+    cipher: cipher,
+    nonce: nonce,
+  );
+
+  /// Dateiname eines Sammelpakets: Kopplung (8 Zeichen), Tag und Nummer.
+  static String bundleFileName(String pairingId, String stamp) =>
+      '${pairingId.substring(0, 8)}_$stamp$helperPackageExtension';
+
+  static Future<Uint8List> _seal(
+    Map<String, Object?> json, {
+    required int version,
+    required String pairingId,
+    required List<int> key,
+    Cipher? cipher,
+    List<int>? nonce,
   }) async {
     if (key.length != 32) throw ArgumentError('Schlüssel muss 32 Byte haben');
     final id = fromHex(pairingId);
     if (id.length != 16) throw ArgumentError('Kopplungs-ID ungültig');
-    final header = Uint8List.fromList([..._magic, formatVersion, ...id]);
+    final header = Uint8List.fromList([..._magic, version, ...id]);
     final aes = cipher ?? _defaultCipher();
     final iv = nonce ?? aes.newNonce();
     final box = await aes.encrypt(
-      utf8.encode(jsonEncode(receipt.toJson())),
+      utf8.encode(jsonEncode(json)),
       secretKey: SecretKey(key),
       nonce: iv,
       aad: header,
@@ -209,7 +255,7 @@ abstract final class HelperPackage {
     for (var i = 0; i < 4; i++) {
       if (data[i] != _magic[i]) return null;
     }
-    if (data[4] != formatVersion) return null;
+    if (data[4] != formatVersion && data[4] != bundleVersion) return null;
     return hex(data.sublist(5, _headerLength));
   }
 
@@ -220,6 +266,14 @@ abstract final class HelperPackage {
   /// Dart-Implementierung gegen die Plattform-Vorgabe), um zu belegen, dass
   /// das Format nicht vom Betriebssystem abhängt.
   static Future<HelperReceipt> open(
+    Uint8List data,
+    List<int> key, {
+    Cipher? cipher,
+  }) async => (await openAll(data, key, cipher: cipher)).first;
+
+  /// Alle Belege eines Pakets: Version 1 ergibt einen, Version 2 beliebig
+  /// viele (auch keinen).
+  static Future<List<HelperReceipt>> openAll(
     Uint8List data,
     List<int> key, {
     Cipher? cipher,
@@ -238,12 +292,18 @@ abstract final class HelperPackage {
         secretKey: SecretKey(key),
         aad: header,
       );
-      return HelperReceipt.fromJson(
-        (jsonDecode(utf8.decode(plain)) as Map).cast<String, Object?>(),
-      );
+      final json = (jsonDecode(utf8.decode(plain)) as Map)
+          .cast<String, Object?>();
+      if (data[4] == formatVersion) return [HelperReceipt.fromJson(json)];
+      return [
+        for (final r in json['receipts'] as List)
+          HelperReceipt.fromJson((r as Map).cast<String, Object?>()),
+      ];
     } on SecretBoxAuthenticationError {
       throw const HelperPackageException(HelperPackageError.damaged);
     } on FormatException {
+      throw const HelperPackageException(HelperPackageError.damaged);
+    } on TypeError {
       throw const HelperPackageException(HelperPackageError.damaged);
     }
   }
@@ -251,18 +311,28 @@ abstract final class HelperPackage {
 
 /// Weg vom Mithelfer zum Hauptgerät, je Kopplung gewählt.
 enum HelperTransport {
-  /// Teilen-Blatt: Messenger oder Mail (Standard, ohne Einrichtung).
-  share,
+  /// E-Mail (Standard seit 0.24.0, FA-17.9): der Mithelfer sendet aus
+  /// seinem eigenen Postfach, das Hauptgerät liest die Empfangsadresse.
+  mail,
 
-  /// Gemeinsamer Cloud-Ordner des Betriebs (Ordner „Eingang“).
-  folder;
+  /// Gemeinsamer Cloud-Ordner des Betriebs (Ordner „Eingang“), optional.
+  folder,
+
+  /// Teilen-Blatt von Hand (nur noch für ältere Kopplungen; Notweg ist
+  /// „Exportieren“).
+  share;
 
   String get label => switch (this) {
-    share => 'Per Messenger oder Mail',
+    mail => 'Per E-Mail (automatisch)',
+    share => 'Per Datei teilen',
     folder => 'Gemeinsamer Ordner',
   };
 
-  static HelperTransport parse(String? s) => s == 'folder' ? folder : share;
+  static HelperTransport parse(String? s) => switch (s) {
+    'folder' => folder,
+    'share' => share,
+    _ => mail,
+  };
 }
 
 /// Inhalt des Kopplungs-QR-Codes auf dem Hauptgerät.
@@ -273,9 +343,14 @@ class HelperPairingCode {
     required this.businessName,
     required this.deviceName,
     required this.transport,
+    this.receivingAddress,
   });
 
   static const prefix = 'JENIBELEG1:';
+
+  /// Empfangsadresse des Betriebs für den Mailweg (FA-17.9). Nie ein
+  /// Kennwort im Code.
+  final String? receivingAddress;
 
   final String pairingId;
   final Uint8List key;
@@ -293,6 +368,7 @@ class HelperPairingCode {
             'b': businessName,
             'd': deviceName,
             't': transport.name,
+            if (receivingAddress != null) 'a': receivingAddress,
           }),
         ),
       );
@@ -321,7 +397,9 @@ class HelperPairingCode {
         key: Uint8List.fromList(key),
         businessName: j['b'] as String? ?? '',
         deviceName: j['d'] as String? ?? '',
-        transport: HelperTransport.parse(j['t'] as String?),
+        // Codes vor 0.24.0 ohne Weg galten als Teilen.
+        transport: HelperTransport.parse(j['t'] as String? ?? 'share'),
+        receivingAddress: j['a'] as String?,
       );
     } on Object {
       return null;

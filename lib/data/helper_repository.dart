@@ -37,7 +37,11 @@ class HelperLink {
     required this.transport,
     this.folder,
     this.folderLabel,
+    this.receivingAddress,
   });
+
+  /// Empfangsadresse des Betriebs aus dem QR-Code (Mailweg, FA-17.9).
+  final String? receivingAddress;
 
   final String pairingId;
   final Uint8List key;
@@ -57,6 +61,7 @@ class HelperLink {
     'transport': transport.name,
     'folder': folder,
     'folderLabel': folderLabel,
+    'address': receivingAddress,
   };
 
   static HelperLink fromJson(Map<String, Object?> j) => HelperLink(
@@ -67,6 +72,7 @@ class HelperLink {
     transport: HelperTransport.parse(j['transport'] as String?),
     folder: j['folder'] as String?,
     folderLabel: j['folderLabel'] as String?,
+    receivingAddress: j['address'] as String?,
   );
 
   HelperLink withFolder(String? folder, String? label) => HelperLink(
@@ -77,6 +83,7 @@ class HelperLink {
     transport: transport,
     folder: folder,
     folderLabel: label,
+    receivingAddress: receivingAddress,
   );
 }
 
@@ -109,9 +116,22 @@ class InboxEntry {
   final List<String> pagePaths;
 }
 
-enum OutboxStatus { sent, accepted }
+enum OutboxStatus {
+  /// Mailweg: verschlüsselt abgelegt, wartet auf den nächsten Versand.
+  queued,
+  sent,
+  accepted;
 
-/// Gesendeter Beleg auf dem Mithelfer-Gerät (`helper_outbox`, ohne Bilder).
+  String get label => switch (this) {
+    queued => 'wartet auf Versand',
+    sent => 'gesendet',
+    accepted => 'übernommen',
+  };
+}
+
+/// Beleg auf dem Mithelfer-Gerät (`helper_outbox`). Bilder nur im
+/// verschlüsselten Paket [packagePath] (Mailweg, FA-17.9), bis die
+/// Aufbewahrungsfrist abläuft; sonst nur die Zusammenfassung.
 class OutboxEntry {
   const OutboxEntry({
     required this.uuid,
@@ -120,6 +140,8 @@ class OutboxEntry {
     required this.transport,
     required this.status,
     required this.summary,
+    this.sentAt,
+    this.packagePath = '',
   });
 
   final String uuid;
@@ -128,6 +150,10 @@ class OutboxEntry {
   final HelperTransport transport;
   final OutboxStatus status;
   final String summary;
+  final DateTime? sentAt;
+
+  /// Absoluter Pfad des verschlüsselten Einzelpakets; leer, wenn gelöscht.
+  final String packagePath;
 }
 
 class HelperRepository {
@@ -274,7 +300,54 @@ class HelperRepository {
     'transport': e.transport.name,
     'status': e.status.name,
     'summary': e.summary,
+    'sent_at': e.sentAt?.toIso8601String(),
+    'package_path': e.packagePath,
   });
+
+  /// Mailweg: Belege als gesendet markieren.
+  Future<void> markOutboxSent(Iterable<String> uuids, DateTime now) async {
+    for (final u in uuids) {
+      await db.update(
+        'helper_outbox',
+        {'status': OutboxStatus.sent.name, 'sent_at': now.toIso8601String()},
+        where: 'uuid = ? AND status = ?',
+        whereArgs: [u, OutboxStatus.queued.name],
+      );
+    }
+  }
+
+  /// Paket nach Ablauf der Frist gelöscht: Pfad leeren.
+  Future<void> clearOutboxPackage(String uuid) => db.update(
+    'helper_outbox',
+    {'package_path': ''},
+    where: 'uuid = ?',
+    whereArgs: [uuid],
+  );
+
+  /// Alle Belege mit noch vorhandenem Paket (für Versand, Export, Frist).
+  Future<List<OutboxEntry>> outboxWithPackages() async => [
+    for (final r in await db.query(
+      'helper_outbox',
+      where: "package_path <> ''",
+      orderBy: 'created_at',
+    ))
+      _outbox(r),
+  ];
+
+  // ------------------------------------------------------ Mailweg Hauptgerät
+
+  Future<bool> hasSeenMail(String messageId) async => (await db.query(
+    'helper_mail_seen',
+    where: 'message_id = ?',
+    whereArgs: [messageId],
+  )).isNotEmpty;
+
+  Future<void> markMailSeen(String messageId, DateTime now, String result) =>
+      db.insert('helper_mail_seen', {
+        'message_id': messageId,
+        'seen_at': now.toIso8601String(),
+        'result': result,
+      }, conflictAlgorithm: ConflictAlgorithm.replace);
 
   Future<void> markOutboxAccepted(String uuid) => db.update(
     'helper_outbox',
@@ -289,13 +362,19 @@ class HelperRepository {
       orderBy: 'created_at DESC',
       limit: 100,
     ))
-      OutboxEntry(
-        uuid: r['uuid'] as String,
-        createdAt: DateTime.parse(r['created_at'] as String),
-        fileName: r['file_name'] as String,
-        transport: HelperTransport.parse(r['transport'] as String?),
-        status: OutboxStatus.values.byName(r['status'] as String),
-        summary: r['summary'] as String,
-      ),
+      _outbox(r),
   ];
+
+  static OutboxEntry _outbox(Map<String, Object?> r) => OutboxEntry(
+    uuid: r['uuid'] as String,
+    createdAt: DateTime.parse(r['created_at'] as String),
+    fileName: r['file_name'] as String,
+    transport: HelperTransport.parse(r['transport'] as String?),
+    status: OutboxStatus.values.byName(r['status'] as String),
+    summary: r['summary'] as String,
+    sentAt: r['sent_at'] == null
+        ? null
+        : DateTime.parse(r['sent_at'] as String),
+    packagePath: r['package_path'] as String? ?? '',
+  );
 }

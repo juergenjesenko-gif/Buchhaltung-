@@ -67,6 +67,7 @@ class _HelperPairScreenState extends State<HelperPairScreen> {
       businessName: code.businessName,
       deviceName: code.deviceName,
       transport: code.transport,
+      receivingAddress: code.receivingAddress,
     );
     if (code.transport == HelperTransport.folder) {
       final ok = await showDialog<bool>(
@@ -105,8 +106,9 @@ class _HelperPairScreenState extends State<HelperPairScreen> {
         children: [
           const Text(
             'Mit diesem Handy fotografierst du Belege für einen Betrieb. Die '
-            'Buchhaltung bleibt auf dem Hauptgerät; hier wird nichts gebucht '
-            'und nach dem Senden nichts aufbewahrt.\n\n'
+            'Buchhaltung bleibt auf dem Hauptgerät; hier wird nichts gebucht. '
+            'Gesendete Belege bleiben verschlüsselt auf diesem Handy, bis die '
+            'Aufbewahrungsfrist abläuft.\n\n'
             '1. Auf dem Hauptgerät: Einstellungen → Mithelfer-Geräte → '
             '„Gerät hinzufügen“.\n'
             '2. Hier „QR-Code fotografieren“ tippen und den Code aufnehmen.',

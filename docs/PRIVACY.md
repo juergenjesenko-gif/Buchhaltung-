@@ -194,6 +194,26 @@ nichts. Auf dem Mithelfer-Gerät werden die Fotos nach dem Senden gelöscht.
 Du bleibst für die Buchhaltung und die Belege verantwortlich; wer für dich
 Belege sammelt, handelt in deinem Auftrag.
 
+**Belege per E-Mail** (Standardweg seit Version 0.24.0): Das Mithelfer-Handy
+sendet die verschlüsselten Belege einmal am Tag und beim Öffnen der App **aus
+dem eigenen Postfach der Person, die mithilft** (z. B. Gmail oder iCloud), an
+die Empfangsadresse deines Betriebs – deine Geschäfts-E-Mail oder eine andere
+Adresse, die du festlegst. Die Person meldet sich dafür einmal nur in der
+Mithelfer-App an und stimmt damit zu; ihr Kennwort bzw. App-Passwort bleibt im
+sicheren Speicher ihres Handys und kommt nie auf dein Gerät. Dein Hauptgerät
+meldet sich **nur lesend** an deinem Postfach an, sucht nach Mails mit
+„[JeNi-Beleg]“ im Betreff und lädt nur deren Anhang; keine Mail wird
+gelöscht, verschoben oder als gelesen markiert. Dein Kennwort bleibt im
+sicheren Speicher deines Geräts. Die Mailanbieter sehen Absender, Empfänger,
+Betreff (Kennzeichen, Kopplungsnummer, Datum), Zeitpunkt, Größe und die
+verschlüsselte Datei, aber keine Belegwerte und keine Fotos. Alle Verbindungen
+sind TLS-verschlüsselt. Um den Mailserver zu finden, fragt die App mit der
+**Domain** deiner Adresse (nicht der ganzen Adresse) beim Verzeichnis von
+Mozilla Thunderbird (autoconfig.thunderbird.net) bzw. beim Betreiber der
+Domain nach; bei Gmail und iCloud kennt die App die Server selbst. Gesendete
+Belege bleiben verschlüsselt auf dem Mithelfer-Handy, bis die eingestellte
+Frist (Standard 90 Tage) abläuft. Der Anbieter der App erhält nichts.
+
 **Wunsch oder Idee senden** (Einstellungen): Die App öffnet deine Mail-App
 mit einer vorausgefüllten E-Mail an office@jenibarb.com – Art, Titel und
 Beschreibung, die du eingibst, und nur wenn „App-Version und Gerät

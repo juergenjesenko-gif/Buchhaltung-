@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'dart:io';
 
 import 'package:flutter/material.dart';
@@ -116,20 +118,39 @@ class _HelperCaptureScreenState extends State<HelperCaptureScreen> {
         if (gross != null) Fmt.money(gross),
         if (receipt.counterparty.isNotEmpty) receipt.counterparty,
       ].join(' · ');
-      await HelperOutbox(state.repositories.helpers).send(
-        link: link,
-        receipt: receipt,
-        summary: summary.isEmpty ? 'Beleg' : summary,
-        folder: link.folder == null ? null : PlatformBackupTarget(link.folder!),
-        share: (name, bytes) => ShareService.shareHelperPackage(
-          fileName: name,
-          bytes: bytes,
-          businessName: link.businessName,
-        ),
-        deleteAfter: widget.pages,
-      );
+      final String done;
+      if (link.transport == HelperTransport.mail) {
+        // Mailweg (FA-17.9): verschlüsselt ablegen; gesendet wird gesammelt
+        // einmal am Tag und bei jedem Öffnen der App.
+        await (await state.mailSync()).outbox.queue(
+          link: link,
+          receipt: receipt,
+          summary: summary.isEmpty ? 'Beleg' : summary,
+          deleteAfter: widget.pages,
+        );
+        unawaited(state.runMailSync());
+        done =
+            'Beleg gespeichert – geht mit dem nächsten Versand an '
+            '${link.businessName}.';
+      } else {
+        await HelperOutbox(state.repositories.helpers).send(
+          link: link,
+          receipt: receipt,
+          summary: summary.isEmpty ? 'Beleg' : summary,
+          folder: link.folder == null
+              ? null
+              : PlatformBackupTarget(link.folder!),
+          share: (name, bytes) => ShareService.shareHelperPackage(
+            fileName: name,
+            bytes: bytes,
+            businessName: link.businessName,
+          ),
+          deleteAfter: widget.pages,
+        );
+        done = 'Beleg gesendet.';
+      }
       if (!mounted) return;
-      showSnack(context, 'Beleg gesendet.');
+      showSnack(context, done);
       Navigator.of(context).pop(true);
     } on HelperSendException catch (e) {
       if (mounted) showSnack(context, e.message);

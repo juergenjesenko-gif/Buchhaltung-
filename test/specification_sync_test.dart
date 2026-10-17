@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:buchhaltung/services/helper/helper_mail_schedule.dart';
 import 'package:buchhaltung/core/window_size.dart';
 import 'package:buchhaltung/data/app_database.dart';
 import 'package:buchhaltung/domain/exchange_rate.dart';
@@ -216,6 +217,21 @@ void main() {
 
     test('Schemaversion der Datenbank stimmt', () {
       expect(intValue('spec.schema_version'), AppDatabase.schemaVersion);
+    });
+
+    test('Mailweg der Mithelfer: Takt und Aufbewahrung (FA-17.10 ff.)', () {
+      expect(
+        intValue('spec.helper_mail_poll_minutes'),
+        HelperMailSchedule.pollInterval.inMinutes,
+      );
+      expect(
+        intValue('spec.helper_mail_send_hours'),
+        HelperMailSchedule.sendInterval.inHours,
+      );
+      expect(
+        intValue('spec.helper_mail_retention_days'),
+        HelperMailSchedule.defaultRetentionDays,
+      );
     });
 
     test('Seitenlimit Dokumentenscanner stimmt (FA-2.51)', () {

@@ -28,6 +28,15 @@ import 'services/licensing/license_manager.dart';
 import 'services/licensing/license_policy.dart';
 import 'data/helper_repository.dart';
 import 'services/helper/helper_exchange.dart';
+import 'services/helper/helper_mail.dart';
+import 'services/helper/helper_mail_platform.dart';
+import 'services/helper/helper_mail_schedule.dart';
+import 'services/helper/helper_mail_sync.dart';
+import 'services/helper/helper_package.dart';
+import 'services/mail/mail_autoconfig.dart';
+import 'services/mail/mail_channel.dart';
+import 'services/mail/mail_credentials.dart';
+import 'services/mail/mail_server.dart';
 import 'dart:io';
 import 'package:path/path.dart' as p;
 
@@ -293,6 +302,11 @@ class AppState extends ChangeNotifier {
     await repositories.helpers.saveLink(link);
     _helperLink = link;
     notifyListeners();
+    try {
+      await configureMailBackground();
+    } on Object {
+      // Ohne Hintergrund: Senden beim Öffnen der App.
+    }
   }
 
   Future<HelperInbox> helperInbox() async {
@@ -320,6 +334,71 @@ class AppState extends ChangeNotifier {
       // Ordner nicht erreichbar: beim nächsten Mal wieder.
     }
     await refreshInboxCount();
+  }
+
+  // ------------------------------------------------- Mailweg (FA-17.9)
+
+  /// Kennwörter der Postfächer; Tests setzen einen Speicher-Ersatz.
+  MailCredentialStore mailCredentials = const SecureMailCredentialStore();
+
+  /// Ersatz-Server für Tests; `null` = echte Verbindung.
+  MailConnector? mailConnector;
+
+  /// Serversuche; Tests setzen einen Abruf-Ersatz.
+  MailAutoconfig mailAutoconfig = MailAutoconfig();
+
+  /// Letzter Fehler des Mailwegs, für den Hinweis in der Oberfläche.
+  MailException? lastMailError;
+
+  Future<HelperMailSync> mailSync({HelperNotifier? notifier}) async =>
+      HelperMailSync(
+        repositories.helpers,
+        documentsDir: await getApplicationDocumentsDirectory(),
+        credentials: mailCredentials,
+        notifier: notifier,
+        connector: mailConnector,
+      );
+
+  /// Ein Lauf beim Öffnen der App bzw. bei jeder Rückkehr. Fehler bleiben
+  /// still und erscheinen als Hinweis; der nächste Lauf versucht es wieder.
+  Future<MailSyncOutcome?> runMailSync({
+    MailTrigger trigger = MailTrigger.appOpen,
+  }) async {
+    if (needsOnboarding && !isHelperDevice) return null;
+    try {
+      final outcome = await (await mailSync()).run(trigger);
+      lastMailError = outcome.error;
+      if (outcome.polled) await refreshInboxCount();
+      notifyListeners();
+      return outcome;
+    } on Object {
+      return null;
+    }
+  }
+
+  /// Hintergrundauftrag passend zur Rolle planen (stündlich lesen bzw.
+  /// täglich senden) oder entfernen.
+  Future<void> configureMailBackground() async {
+    final link = _helperLink;
+    String? role;
+    if (link != null) {
+      role = link.transport == HelperTransport.mail ? 'send' : null;
+    } else {
+      final settings = await MailReceiveSettings.load(repositories.helpers);
+      final password = await mailCredentials.read(MailSlots.receive);
+      role = settings.imap != null && (password ?? '').isNotEmpty
+          ? 'poll'
+          : null;
+    }
+    await MailBackground.configure(role);
+  }
+
+  /// Empfangsadresse für den QR-Code: Geschäfts-E-Mail oder die eigene
+  /// Adresse aus „Andere E-Mail-Adresse …“.
+  Future<String?> receivingAddress() async {
+    final s = await MailReceiveSettings.load(repositories.helpers);
+    final a = s.address(_profile?.email ?? '');
+    return isMailAddress(a) ? a : null;
   }
 
   Future<void> refreshInboxCount() async {

@@ -12,6 +12,7 @@ import 'features/home/home_shell.dart';
 import 'features/helper/helper_home_screen.dart';
 import 'features/onboarding/company_setup_screen.dart';
 import 'features/onboarding/consent_screen.dart';
+import 'services/helper/helper_mail_platform.dart';
 import 'theme.dart';
 
 Future<void> main() async {
@@ -26,6 +27,11 @@ Future<void> main() async {
   unawaited(state.runVatChecksIfDue());
   unawaited(state.runAutoBackupIfDue());
   unawaited(state.syncHelperInbox());
+  // Mailweg der Mithelfer (FA-17.9): lesen bzw. senden beim Öffnen, dazu
+  // der Hintergrundauftrag passend zur Rolle.
+  unawaited(LocalHelperNotifier.instance.init());
+  unawaited(state.runMailSync());
+  unawaited(state.configureMailBackground());
   // Abo beim Store bestätigen (L-22.5); offline bleibt der gespeicherte Stand.
   unawaited(state.license.refresh());
   _lifecycle = AppLifecycleListener(
@@ -38,6 +44,7 @@ Future<void> main() async {
       unawaited(state.runVatChecksIfDue());
       unawaited(state.runAutoBackupIfDue());
       unawaited(state.syncHelperInbox());
+      unawaited(state.runMailSync());
     },
   );
   runApp(BuchhaltungApp(state: state));

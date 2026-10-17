@@ -9,13 +9,23 @@ import 'helper_package.dart';
 
 /// Ergebnis eines Imports auf dem Hauptgerät.
 class HelperImportResult {
-  const HelperImportResult._({this.entry, this.error, this.duplicate = false});
+  const HelperImportResult._({
+    this.entry,
+    this.error,
+    this.duplicate = false,
+    this.added = 0,
+  });
 
+  /// Erster neu eingegangener Beleg.
   final InboxEntry? entry;
   final HelperPackageError? error;
 
-  /// Derselbe Beleg (gleiche UUID) war schon im Eingang.
+  /// Derselbe Beleg (gleiche UUID) war schon im Eingang; bei Sammelpaketen:
+  /// alle Belege waren schon da.
   final bool duplicate;
+
+  /// Neu im Eingang (Sammelpaket: mehrere).
+  final int added;
 
   bool get ok => entry != null;
 
@@ -25,6 +35,7 @@ class HelperImportResult {
           'übernommen.';
     }
     if (error != null) return error!.message;
+    if (added > 1) return '$added Belege von ${entry!.deviceName} im Eingang.';
     return 'Beleg von ${entry!.deviceName} im Eingang.';
   }
 }
@@ -46,6 +57,7 @@ class HelperInbox {
     required String deviceName,
     required String businessName,
     required HelperTransport transport,
+    String? receivingAddress,
   }) async {
     final id = HelperPackage.hex(HelperPackage.randomBytes(16));
     final key = HelperPackage.randomBytes(32);
@@ -64,6 +76,9 @@ class HelperInbox {
       businessName: businessName,
       deviceName: deviceName,
       transport: transport,
+      receivingAddress: transport == HelperTransport.mail
+          ? receivingAddress
+          : null,
     );
   }
 
@@ -82,15 +97,31 @@ class HelperInbox {
     if (pairing.isRevoked) {
       return const HelperImportResult._(error: HelperPackageError.revoked);
     }
-    final HelperReceipt receipt;
+    final List<HelperReceipt> receipts;
     try {
-      receipt = await HelperPackage.open(data, pairing.key);
+      receipts = await HelperPackage.openAll(data, pairing.key);
     } on HelperPackageException catch (e) {
       return HelperImportResult._(error: e.error);
     }
-    if (await repo.hasInbox(receipt.uuid)) {
-      return const HelperImportResult._(duplicate: true);
+    // Idempotent über die Beleg-UUID (FA-17.6, FA-17.9): derselbe Beleg in
+    // mehreren Mails oder Dateien kommt nur einmal in den Eingang.
+    InboxEntry? first;
+    var added = 0;
+    for (final receipt in receipts) {
+      if (await repo.hasInbox(receipt.uuid)) continue;
+      final entry = await _store(receipt, pairing);
+      first ??= entry;
+      added++;
     }
+    if (first == null) return const HelperImportResult._(duplicate: true);
+    return HelperImportResult._(entry: first, added: added);
+  }
+
+  Future<InboxEntry> _store(
+    HelperReceipt receipt,
+    HelperPairing pairing,
+  ) async {
+    final id = pairing.id;
     final dir = Directory(p.join(pagesDir.path, receipt.uuid));
     await dir.create(recursive: true);
     final paths = <String>[];
@@ -106,8 +137,7 @@ class HelperInbox {
       receipt.toJson()..['device'] = pairing.deviceName,
     );
     await repo.addInbox(named, pairingId: id, pagePaths: paths, now: _clock());
-    final entry = (await repo.inbox()).firstWhere((e) => e.uuid == named.uuid);
-    return HelperImportResult._(entry: entry);
+    return (await repo.inbox()).firstWhere((e) => e.uuid == named.uuid);
   }
 
   /// Liest neue Pakete aus dem gemeinsamen Ordner. Pakete bleiben dort, bis

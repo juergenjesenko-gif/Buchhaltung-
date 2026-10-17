@@ -1,5 +1,8 @@
 import Flutter
+import MessageUI
 import UIKit
+import UserNotifications
+import workmanager_apple
 
 @main
 @objc class AppDelegate: FlutterAppDelegate, FlutterImplicitEngineDelegate {
@@ -7,8 +10,20 @@ import UIKit
     _ application: UIApplication,
     didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?
   ) -> Bool {
+    // Mailweg der Mithelfer (FA-17.9): Hintergrundabruf über BGAppRefreshTask
+    // (bestmöglich, iOS entscheidet über den Zeitpunkt). Mit UIScene müssen
+    // die Handler vor dem Ende dieser Methode angemeldet sein.
+    WorkmanagerPlugin.setPluginRegistrantCallback { registry in
+      GeneratedPluginRegistrant.register(with: registry)
+    }
+    WorkmanagerPlugin.registerPeriodicTask(
+      withIdentifier: "at.jesenko.buchhaltung.mailsync", earliestBeginInSeconds: 3600)
+    WorkmanagerPlugin.registerLaunchHandlers()
+    UNUserNotificationCenter.current().delegate = self as? UNUserNotificationCenterDelegate
     return super.application(application, didFinishLaunchingWithOptions: launchOptions)
   }
+
+  private let mailComposer = MailComposeDelegate()
 
   private var backupFolder: BackupFolderChannel?
   private var receiptText: ReceiptTextChannel?
@@ -78,6 +93,32 @@ import UIKit
             return
           }
           UIApplication.shared.open(url) { ok in result(ok) }
+        case "composeMail":
+          // Mithelfer ohne eigenes Postfach (FA-17.9): Apple Mail mit
+          // Empfänger, Betreff, Text und Belegpaket als Anhang.
+          guard let args = call.arguments as? [String: Any],
+            let path = args["path"] as? String,
+            let to = args["to"] as? String,
+            MFMailComposeViewController.canSendMail(),
+            let data = FileManager.default.contents(atPath: path)
+          else {
+            result(false)
+            return
+          }
+          let vc = MFMailComposeViewController()
+          vc.mailComposeDelegate = self.mailComposer
+          vc.setToRecipients([to])
+          vc.setSubject(args["subject"] as? String ?? "")
+          vc.setMessageBody(args["text"] as? String ?? "", isHTML: false)
+          vc.addAttachmentData(
+            data, mimeType: "application/octet-stream",
+            fileName: (path as NSString).lastPathComponent)
+          guard let top = MailComposeDelegate.topViewController() else {
+            result(false)
+            return
+          }
+          top.present(vc, animated: true)
+          result(true)
         case "isSupported", "requestPin":
           result(false)
         default:
@@ -85,5 +126,27 @@ import UIKit
         }
       }
     }
+  }
+}
+
+/// Schließt das Mailfenster nach Senden oder Abbrechen (FA-17.9).
+final class MailComposeDelegate: NSObject, MFMailComposeViewControllerDelegate {
+  func mailComposeController(
+    _ controller: MFMailComposeViewController,
+    didFinishWith result: MFMailComposeResult, error: Error?
+  ) {
+    controller.dismiss(animated: true)
+  }
+
+  static func topViewController() -> UIViewController? {
+    let window = UIApplication.shared.connectedScenes
+      .compactMap { $0 as? UIWindowScene }
+      .flatMap { $0.windows }
+      .first { $0.isKeyWindow }
+    var top = window?.rootViewController
+    while let presented = top?.presentedViewController {
+      top = presented
+    }
+    return top
   }
 }

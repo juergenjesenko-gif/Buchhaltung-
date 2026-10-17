@@ -4,7 +4,7 @@ publish_to: "none"
 
 # version: <Store-Versionsname>+<Buildnummer>
 # Die Buildnummer wird in CI aus der Run-Nummer gesetzt, siehe docs/RELEASE_PLAYBOOK.md
-version: 0.23.2+36
+version: 0.24.0+37
 
 environment:
   sdk: ^3.10.0
@@ -52,6 +52,13 @@ dependencies:
   in_app_purchase_android: ^0.5.4
   # Nur für das Einlöseblatt der Angebotscodes auf iOS (Promo-Code, FA-13.13).
   in_app_purchase_storekit: ^0.4.13
+  # Mailweg der Mithelfer (FA-17.12): Hintergrundabruf/-versand über Android
+  # WorkManager bzw. iOS BGTaskScheduler (Flutter Community, MIT, gepflegt).
+  # IMAP/SMTP selbst in reinem Dart (lib/services/mail/): enough_mail 2.1.7
+  # verlangt xml < 7 und kollidiert mit xml ^7.1 oben.
+  workmanager: ^0.10.10
+  # Erinnerung „Belege senden“ beim Mithelfer ohne Postfach (FA-17.10), BSD-3.
+  flutter_local_notifications: ^22.3.2
 
 dev_dependencies:
   flutter_test:

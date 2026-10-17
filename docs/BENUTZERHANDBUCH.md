@@ -1,6 +1,6 @@
 # Benutzerhandbuch – JeNi bucht
 
-**Für App-Version 0.23.2** · Stand 2026-10-17
+**Für App-Version 0.24.0** · Stand 2026-10-17
 
 Dieses Handbuch beschreibt die App aus Nutzersicht. Es wird bei jeder Änderung,
 die du in der App siehst, mitgeführt – siehe [`CLAUDE.md`](../CLAUDE.md).
@@ -1428,6 +1428,24 @@ deiner Steuerberatung.
 
 ## 13. Wenn etwas nicht geht
 
+**„In den Stammdaten steht keine gültige Geschäfts-E-Mail …“** (bei *Empfang
+per E-Mail*) — trag die E-Mail in den Stammdaten ein oder setze das Häkchen
+**Andere E-Mail-Adresse für den Empfang von Belegen** und schreib dort eine
+Adresse hin.
+
+**„Anmeldung am Postfach abgelehnt …“** bzw. **„Anmeldung beim Mailserver
+abgelehnt …“** — Kennwort oder App-Passwort stimmt nicht. Bei Gmail und
+iCloud geht nur ein App-Passwort (Anleitung im Formular). Nichts geht
+verloren: wartende Belege gehen beim nächsten Versuch.
+
+**„Server nicht automatisch gefunden …“** — unter **Server selbst
+eintragen** die Angaben deines Anbieters ergänzen (Eingang IMAP, meist Port
+993; Ausgang SMTP, Port 465 oder 587).
+
+**„Der Server bietet keine verschlüsselte Verbindung …“** — die App sendet
+und liest nur verschlüsselt. Anderen Port bzw. SSL/TLS wählen oder den
+Anbieter fragen.
+
 **„Bitte beschreibe kurz deinen Wunsch.“** (bei *Wunsch oder Idee senden*) —
 die Beschreibung ist leer. Ein paar Wörter genügen.
 
@@ -1620,6 +1638,10 @@ Damit du nicht darauf wartest:
   das mittelfristig wichtig.
 - **Storno nur für die ganze Rechnung.** Einzelne Positionen oder einen
   Teilbetrag zurücknehmen geht noch nicht; nimm dafür **Korrigieren**.
+- **E-Mail ohne Google- oder Microsoft-Anmeldung.** Gmail und iCloud gehen
+  mit App-Passwort; Microsoft 365/Outlook.com ohne Kennwort-Anmeldung noch
+  nicht. Am iPhone entscheidet iOS, wann im Hintergrund gesendet wird – im
+  Zweifel kurz die App öffnen.
 - **Mithelfer-Geräte senden nur in eine Richtung.** Zwei Handys mit
   denselben Büchern (gemeinsam buchen) gehen noch nicht; Mithelfer sammeln
   nur Belege für das Hauptgerät (Kapitel 15).
@@ -1664,14 +1686,32 @@ Handy und schickt ihn dir. Die Bücher bleiben nur auf deinem Handy, dem
 **Hauptgerät**. Koppeln braucht **Pro** auf dem Hauptgerät; das Handy der
 Mithelferin braucht **kein eigenes Abo**.
 
+### Einmal einrichten: Belege per E-Mail empfangen
+
+Der einfachste Weg: Die Belege kommen **per E-Mail** und landen von selbst in
+deinem Eingang.
+
+1. **Einstellungen → Mithelfer-Geräte → Empfang per E-Mail**.
+2. Empfangen wird an deiner **Geschäfts-E-Mail** aus den Stammdaten. Willst du
+   eine eigene Adresse nur für Belege, setze das Häkchen **Andere
+   E-Mail-Adresse für den Empfang von Belegen** und trag sie ein.
+3. Kennwort deines Postfachs eintragen – bei Gmail und iCloud ein
+   **App-Passwort** (Anleitung und Link stehen direkt darunter).
+4. **Verbinden und speichern** tippen. Die App sucht den Server selbst; nur
+   wenn sie keinen findet, trägst du ihn unter **Server selbst eintragen** ein.
+
+Die App liest dein Postfach **nur**: Sie sucht Mails mit „[JeNi-Beleg]“ im
+Betreff, lädt den Anhang und lässt alles andere in Ruhe – keine Mail wird
+gelöscht, verschoben oder als gelesen markiert. Sie sieht etwa stündlich und
+bei jedem Öffnen nach. Dein Kennwort bleibt nur auf deinem Handy.
+
 ### Gerät koppeln
 
 1. Auf deinem Handy: **Einstellungen → Mithelfer-Geräte → Gerät hinzufügen**.
-2. Namen eingeben (z. B. „Handy Anna“) und den Weg wählen:
-   - **Per Messenger oder Mail** – ohne Einrichtung, Standard.
-   - **Gemeinsamer Ordner** – automatisch über einen Cloud-Ordner, den ihr
-     beide öffnen könnt.
-3. **QR-Code zeigen** tippen.
+2. Namen eingeben (z. B. „Handy Anna“). Der Weg **Per E-Mail (automatisch)**
+   ist vorgewählt; **Gemeinsamer Ordner** gibt es weiter als Option.
+3. **QR-Code zeigen** tippen. Der Code trägt deine Empfangsadresse, aber nie
+   ein Kennwort.
 4. Auf dem anderen Handy JeNi bucht installieren, öffnen und
    **Ich helfe mit – Gerät koppeln** tippen.
 5. **QR-Code fotografieren** und den Code auf deinem Bildschirm aufnehmen.
@@ -1679,38 +1719,74 @@ Mithelferin braucht **kein eigenes Abo**.
 Der Code ist der Schlüssel zu deinem Eingang: zeig ihn nur dem Handy, das du
 koppeln willst, und schick ihn nicht als Foto herum.
 
+### Als Mithelferin: einmal dein E-Mail-Konto verbinden
+
+Die Belege gehen **aus deinem eigenen Postfach** an den Betrieb. Du meldest
+dich dafür nur in dieser Mithelfer-App an, nie auf dem Handy der Inhaberin.
+
+1. Auf der Startseite **Mit deinem E-Mail-Konto senden** tippen.
+2. Deine E-Mail-Adresse eintragen.
+3. **Gmail:** **App-Passwort erstellen** tippen (öffnet
+   myaccount.google.com/apppasswords), Namen „JeNi bucht“ eingeben,
+   **Erstellen**, das 16-stellige Passwort kopieren.
+   **iCloud:** **App-Passwort erstellen** tippen (öffnet account.apple.com) →
+   Anmeldung und Sicherheit → App-spezifische Passwörter → „+“, kopieren.
+   Andere Anbieter: meist das normale Kennwort.
+4. Passwort einfügen und **Prüfen und speichern** tippen.
+5. Einmal erlauben: **Mitteilungen** (Erinnerung, falls etwas nicht gesendet
+   werden konnte); am iPhone die **Hintergrundaktualisierung** für JeNi bucht
+   eingeschaltet lassen.
+
+Mit dem Einrichten stimmst du zu, dass die App aus deinem Postfach einmal am
+Tag eine Mail mit den verschlüsselten Belegen an den Betrieb sendet. Dein
+Kennwort bleibt nur auf deinem Handy; du kannst es jederzeit über das Menü
+**E-Mail-Konto** ändern oder die Kopplung aufheben.
+
 ### Als Mithelferin einen Beleg senden
 
 1. Unten in der Mitte **Beleg** tippen (oder **Foto** bzw. **Datei**).
 2. Betrag, Lieferant, Datum und Kategorie prüfen – die App schlägt sie vor.
    Ein Kommentar ist freiwillig, auch per Mikrofon.
-3. **Senden** tippen. Beim Weg „Messenger oder Mail“ öffnet sich das
-   Teilen-Fenster: den Chat mit der Inhaberin oder ihre Mail-Adresse wählen.
+3. **Senden** tippen. Der Beleg wird verschlüsselt gespeichert (**wartet auf
+   Versand**) und geht mit dem nächsten Versand: einmal am Tag und bei jedem
+   Öffnen der App, alle wartenden Belege zusammen in **einer** Mail. Sofort
+   geht es mit **Jetzt senden**.
 
-Nach dem Senden löscht die App die Fotos auf diesem Handy. In der Liste steht
-nur noch Betrag und Lieferant mit **gesendet**; beim gemeinsamen Ordner
-erscheint **übernommen**, sobald die Inhaberin den Beleg gebucht hat.
+Ohne verbundenes E-Mail-Konto erinnert dich die App einmal am Tag mit
+**Belege senden**; Antippen öffnet deine Mail-App mit Empfänger, Betreff und
+Anhang – nur noch **Senden** tippen. Gesendete Belege bleiben verschlüsselt
+auf deinem Handy, standardmäßig **90 Tage** (Menü **Aufbewahrung**: 30, 90,
+180 oder 365 Tage), dann löscht die App sie. **Exportieren** im Menü teilt
+alle gespeicherten Belege als eine Datei – der Notweg, falls Mail einmal nicht
+geht. Beim gemeinsamen Ordner erscheint **übernommen**, sobald die Inhaberin
+den Beleg gebucht hat.
 
 ### Belege übernehmen (Hauptgerät)
 
-- **Messenger oder Mail:** die Datei `….jenibeleg` im Chat antippen und an
-  **JeNi bucht** teilen bzw. „Öffnen mit“. Auf dem iPhone: Datei antippen →
+- **E-Mail (Standard):** nichts zu tun – neue Belege erscheinen von selbst
+  im Eingang. Dieselben Belege in zwei Mails kommen nur einmal an.
+- **Datei (Notweg):** eine Datei `….jenibeleg` (z. B. aus „Exportieren“)
+  antippen und an **JeNi bucht** teilen bzw. „Öffnen mit“. Auf dem iPhone: Datei antippen →
   Teilen-Symbol → **JeNi bucht** („Öffnen in“) – der Beleg landet direkt im
   Eingang, auch aus Mail und der Dateien-App.
 - **Android und iPhone gemischt** geht in beide Richtungen: koppeln per QR,
-  senden per Messenger oder Mail.
+  senden per E-Mail.
 - **Gemeinsamer Ordner:** einmal unter **Einstellungen → Mithelfer-Geräte →
   Gemeinsamer Ordner „Eingang“** denselben Ordner wählen. Neue Belege holt die
   App bei jedem Öffnen. iCloud Drive gibt es auf Android nicht: Habt ihr
   Android und iPhone gemischt, nehmt Google Drive, OneDrive oder Dropbox –
-  oder sendet einfach per Messenger.
+  oder einfach E-Mail.
 
 Im **Eingang** antippen: das gewohnte Belegformular öffnet sich mit Fotos und
 Werten, markiert mit „von Handy Anna“. Steuersatz prüfen, **Beleg speichern** –
 fertig. Passt ein Beleg nicht (privat, doppelt), tippe auf das Sperrsymbol und
 gib einen Grund an.
 
-**Meldungen:** „schon im Eingang“ – derselbe Beleg kam zweimal, er wird nicht
+**Meldungen:** „Anmeldung abgelehnt“ – Kennwort bzw. App-Passwort prüfen;
+die Belege warten und gehen beim nächsten Versuch. „Server nicht automatisch
+gefunden“ – Angaben deines Anbieters unter **Server selbst eintragen**
+(IMAP meist Port 993, SMTP 465 oder 587). Die App verbindet sich nur
+verschlüsselt. „schon im Eingang“ – derselbe Beleg kam zweimal, er wird nicht
 doppelt gebucht. „Gerät nicht gekoppelt“ bzw. „getrennt“ – neu koppeln.
 „beschädigt oder verändert“ – die Datei ist unterwegs kaputtgegangen; bitte
 noch einmal senden lassen.
@@ -1724,6 +1800,8 @@ Handy kommen, werden abgelehnt. Was schon im Eingang liegt, bleibt.
 
 Du. Mithelferinnen und Mithelfer handeln für deinen Betrieb und senden nur
 Vorschläge; gebucht wird erst auf deinem Handy. Bei Beschäftigten informiere
-sie, dass sie Belege deines Betriebs verarbeiten. Bewahre Papierbelege auf,
+sie, dass sie Belege deines Betriebs verarbeiten und dafür **ihr eigenes
+Postfach** verwenden; sie geben das einmal beim Einrichten frei. Die
+Mailanbieter sehen nur verschlüsselte Anhänge, nie die Belege selbst. Bewahre Papierbelege auf,
 bis deine Steuerberatung etwas anderes sagt.
 
