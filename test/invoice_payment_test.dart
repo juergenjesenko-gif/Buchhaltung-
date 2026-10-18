@@ -136,4 +136,18 @@ void main() {
     final totals = await receipts.totals(from: wj.from, to: wj.to);
     expect(totals.incomeGross, const Money(250000));
   });
+
+  test('bezahlte Rechnung bucht immer auf die Heimat, nie auf ein weiteres '
+      'Steuerland (Entscheidung 2026-10-18, Grenze 11)', () async {
+    final (db, invoices, _, id) = await setUp();
+    await invoices.markPaid(id, DateTime(2026, 10, 14));
+    final rows = await db.query(
+      'receipts',
+      columns: ['tax_registration_id'],
+      where: 'invoice_id = ?',
+      whereArgs: [id],
+    );
+    expect(rows, isNotEmpty);
+    expect(rows.every((r) => r['tax_registration_id'] == null), isTrue);
+  });
 }

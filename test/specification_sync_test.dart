@@ -684,5 +684,5 @@ String _ruleSpec(DeadlineRule rule) {
       monthDays.map((md) => '${two(md.$1)}-${two(md.$2)}').join(','),
     FollowingYear(:final month, :final day) => '+1j${two(month)}-${two(day)}',
   };
-  return '${rule.label}@$schedule${rule.approximate ? '~' : ''}';
+  return '${rule.label}@$schedule${rule.approximate ? '~' : ''}${rule.shiftsToWorkday ? '' : '='}';
 }

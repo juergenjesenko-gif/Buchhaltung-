@@ -232,7 +232,7 @@ class DeadlineCalculator {
     String prefix = '',
     bool Function(DateTime from, DateTime to)? inPeriod,
   }) {
-    DateTime shift(DateTime date) => rule.approximate
+    DateTime shift(DateTime date) => rule.approximate || !rule.shiftsToWorkday
         ? date
         : tax.holidayCalendar.nextWorkday(date, state: state);
     Deadline make(DateTime raw, String label) => Deadline(

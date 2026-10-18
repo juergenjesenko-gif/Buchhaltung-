@@ -1870,6 +1870,19 @@ das. Amazon-Gebühren bleiben in deinem Heimatland (Reverse Charge).
   *Wirtschaftsjahr und Termine* **One-Stop-Shop (OSS)** ein – dann steht die
   vierteljährliche OSS-Erklärung in der Termin-Box.
 
+- **Warnhinweis „Nicht enthalten: Ware … in ein Lager“:** Bringst du Ware
+  aus deinem Heimatland in ein Lager im anderen Land (z. B. Amazon FBA), ist
+  das ein *innergemeinschaftliches Verbringen*. Die App bucht das bewusst
+  nicht – sie bucht nur deine Verkäufe aus dem Lager. Deshalb fehlen in der
+  deutschen UStVA der Erwerb (Kz 89) und die Vorsteuer daraus (Kz 61); in der
+  Heimat fehlt die Meldung des Verbringens (UVA und Zusammenfassende Meldung).
+  Diese Zeilen ergänzt deine Kanzlei, sonst ist die Meldung unvollständig.
+- **Rechnungen:** Jede Rechnung, die du in der App schreibst, wird nach den
+  Regeln deines Heimatlands besteuert – egal, in welchem Land deine Kundin
+  sitzt. Ein Steuerland wählst du nur bei Belegen, nicht bei Rechnungen.
+- **OSS-Termin:** Die OSS-Erklärung ist am Monatsende fällig, auch wenn das ein
+  Samstag oder Sonntag ist – die App verschiebt diesen Termin nicht.
+
 ### Was du mit deiner Kanzlei klären solltest
 
 Ob du dich in einem Land registrieren musst, welche Besteuerung dort gilt und

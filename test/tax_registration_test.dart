@@ -157,6 +157,9 @@ void main() {
       final oss = l.where((d) => d.label.startsWith('OSS')).toList();
       expect(oss, hasLength(4));
       expect(pairs(oss).first, ('OSS-Erklärung Q1/2026', day(2026, 4, 30)));
+      // 31.10.2026 ist ein Samstag: EU-Frist ohne Verschiebung (P-S72).
+      expect(pairs(oss)[2], ('OSS-Erklärung Q3/2026', day(2026, 10, 31)));
+      expect(oss[2].approximate, isFalse);
     });
 
     test('Termin-Box mischt Heimat und Registrierung', () {
@@ -506,4 +509,17 @@ void main() {
       expect(find.textContaining('DE beginnen'), findsOneWidget);
     });
   });
+
+  test(
+    'Verbringen-Hinweis nennt die fehlenden Kennzahlen (P-S68, Grenze 11)',
+    () {
+      final de = TaxProfile.germany.warehouseTransferHint;
+      expect(de, contains('Kz 89'));
+      expect(de, contains('Kz 61'));
+      expect(de, contains('UStVA'));
+      final at = TaxProfile.austria.warehouseTransferHint;
+      expect(at, contains('Kz 072'));
+      expect(at, contains('Kz 065'));
+    },
+  );
 }

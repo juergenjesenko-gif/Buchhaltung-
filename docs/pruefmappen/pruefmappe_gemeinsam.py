@@ -101,7 +101,7 @@ def anhang_intern(story, ids, titel):
               for i, e in erg.items() if i in ids]
     story.append(Paragraph(titel, h2))
     story.append(Paragraph(
-        'Diese Punkte hat die interne Prüfinstanz am 2026-10-16 selbstständig mit Gesetz, '
+        'Diese Punkte hat die interne Prüfinstanz am 2026-10-16 bzw. 2026-10-18 selbstständig mit Gesetz, '
         'Verwaltungsanweisung oder Rechtsprechung beantwortet; sie stehen deshalb <b>nicht</b> im '
         'Hauptteil. Wir bitten nur um eine Stichprobe: Fällt Ihnen ein Ergebnis als falsch auf, '
         'genügt ein Vermerk in der letzten Spalte.', sm))

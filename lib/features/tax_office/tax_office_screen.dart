@@ -368,6 +368,14 @@ class _TaxOfficeScreenState extends State<TaxOfficeScreen> {
                         'Firmenprofil.',
                   ),
                 ],
+                if (reg != null) ...[
+                  const SizedBox(height: 12),
+                  NoticeBanner(
+                    key: const Key('tax-office-transfer-hint'),
+                    icon: Icons.warning_amber_outlined,
+                    message: tax.warehouseTransferHint,
+                  ),
+                ],
                 const SizedBox(height: 16),
                 _StepsCard(form: form),
               ],

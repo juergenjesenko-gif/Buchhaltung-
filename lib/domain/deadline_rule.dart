@@ -107,6 +107,7 @@ class DeadlineRule {
     required this.schedule,
     this.condition = DeadlineCondition.always,
     this.approximate = false,
+    this.shiftsToWorkday = true,
   });
 
   /// Bezeichnung, z. B. „UVA“; der Zeitraum wird angehängt.
@@ -121,4 +122,10 @@ class DeadlineRule {
   /// Nur ungefähr bekannt (z. B. SVS-Fälligkeit): angezeigt als „ca.“, ohne
   /// Verschiebung auf den nächsten Werktag. Spezifikation 14, P-S34.
   final bool approximate;
+
+  /// Fällt der Termin auf Wochenende oder Feiertag, gilt der nächste Werktag
+  /// (§ 108 Abs 3 AO, § 108 Abs 3 BAO). `false` für unionsrechtliche Fristen
+  /// ohne Verschiebung (OSS Art 369g, EU-KU Art 284d MwStSystRL; P-S72):
+  /// genaues Datum, nicht „ca.“.
+  final bool shiftsToWorkday;
 }

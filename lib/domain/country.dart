@@ -114,6 +114,7 @@ class TaxProfile {
     required this.registrationDeadlineRules,
     required this.foreignTaxOffices,
     required this.foreignTaxOfficeLegalRef,
+    required this.warehouseTransferHint,
     required this.reverseCharge,
     required this.vatReturnForm,
     required this.annualReturnForm,
@@ -263,6 +264,12 @@ class TaxProfile {
   /// Land mit dem Schlüssel (ISO-Code) hier registriert ist (FA-18.2).
   final Map<String, String> foreignTaxOffices;
   final String foreignTaxOfficeLegalRef;
+
+  /// Hinweis in „Für das Finanzamt“ bei einer *weiteren* Registrierung in
+  /// diesem Land mit Regelbesteuerung: Das Verbringen ins Lager bucht die App
+  /// nicht (Entscheidung Auftraggeberin 2026-10-18, Spezifikation Grenze 11,
+  /// P-S68), die Kennzahlen sind dann unvollständig.
+  final String warehouseTransferHint;
 
   /// Steuerschuld des Leistungsempfängers für sonstige Leistungen eines im
   /// EU-Ausland ansässigen Unternehmers (L-28.4): Fundstelle und Kennzahlen
@@ -579,13 +586,14 @@ class TaxProfile {
       ),
       // Art 369g Abs 1 MwStSystRL, Art 25a Abs 6 UStG 1994
       // (Binnenmarktregelung): OSS-Erklärung vierteljährlich bis Ende des
-      // Folgemonats. Ob die Frist bei Wochenende/Feiertag verschoben wird,
-      // ist ungesichert (EU-Recht kennt keine Verschiebung): P-S72.
+      // Folgemonats, ohne Verschiebung auf den nächsten Werktag (EU-Recht
+      // kennt keine; intern geprüft 2026-10-18, P-S72).
       DeadlineRule(
         label: 'OSS-Erklärung',
         legalRef: 'Art 369g MwStSystRL, Art 25a UStG',
         schedule: AfterPeriod(dueDay: 0, monthsAfter: 1, quarterly: true),
         condition: DeadlineCondition.oss,
+        shiftsToWorkday: false,
       ),
       // Art 284d Abs 1 MwStSystRL: Umsatzmeldung im EU-Kleinunternehmer-
       // Verfahren binnen eines Monats nach Quartalsende. P-S69.
@@ -594,6 +602,7 @@ class TaxProfile {
         legalRef: 'Art 284d Abs 1 MwStSystRL',
         schedule: AfterPeriod(dueDay: 0, monthsAfter: 1, quarterly: true),
         condition: DeadlineCondition.euSmallBusinessReport,
+        shiftsToWorkday: false,
       ),
     ],
     registrationDeadlineRules: const [
@@ -620,6 +629,13 @@ class TaxProfile {
       'DE': 'Finanzamt Österreich, Dienststelle Graz-Stadt',
     },
     foreignTaxOfficeLegalRef: '§ 60 Abs 2 BAO, AVOG 2010',
+    // Verbringen nach AT: ig. Erwerb Art 1 Abs 3 Z 1 lit a BMR, Kz 070/072,
+    // Vorsteuer Kz 065 der UVA (U30).
+    warehouseTransferHint:
+        'Nicht enthalten: Ware, die du aus deinem Heimatland in ein Lager '
+        'in Österreich gebracht hast (innergemeinschaftliches Verbringen). '
+        'Diesen Erwerb (Kz 070, zu 20 % Kz 072) und die Vorsteuer daraus (Kz 065) trägt '
+        'deine Steuerberatung selbst ein – sonst ist die UVA unvollständig.',
   );
 
   /// Deutschland – § 19 UStG in der ab 1.1.2025 geltenden Fassung.
@@ -886,6 +902,7 @@ class TaxProfile {
         legalRef: 'Art 369g MwStSystRL, § 18j Abs 3 UStG',
         schedule: AfterPeriod(dueDay: 0, monthsAfter: 1, quarterly: true),
         condition: DeadlineCondition.oss,
+        shiftsToWorkday: false,
       ),
       // Art 284d Abs 1 MwStSystRL, § 19a UStG: Umsatzmeldung im
       // EU-Kleinunternehmer-Verfahren binnen eines Monats nach Quartalsende.
@@ -895,6 +912,7 @@ class TaxProfile {
         legalRef: 'Art 284d Abs 1 MwStSystRL, § 19a UStG',
         schedule: AfterPeriod(dueDay: 0, monthsAfter: 1, quarterly: true),
         condition: DeadlineCondition.euSmallBusinessReport,
+        shiftsToWorkday: false,
       ),
     ],
     registrationDeadlineRules: const [
@@ -921,6 +939,14 @@ class TaxProfile {
     // Real zu prüfen (aktuelle Fassung): P-S71.
     foreignTaxOffices: const {'AT': 'Finanzamt München'},
     foreignTaxOfficeLegalRef: '§ 21 Abs 1 Satz 2 AO, § 1 Abs 1 UStZustV',
+    // Verbringen nach DE: ig. Erwerb § 1a Abs 2 UStG, UStVA Kz 89 (19 %),
+    // Vorsteuer Kz 61 (§ 15 Abs 1 Satz 1 Nr. 3 UStG).
+    warehouseTransferHint:
+        'Nicht enthalten: Ware, die du aus deinem Heimatland in ein Lager '
+        'in Deutschland gebracht hast (innergemeinschaftliches Verbringen, '
+        'z. B. Amazon-Lager). Diesen Erwerb (Kz 89) und die Vorsteuer daraus '
+        '(Kz 61) trägt deine Steuerberatung selbst ein – sonst ist die UStVA '
+        'unvollständig.',
   );
 }
 
