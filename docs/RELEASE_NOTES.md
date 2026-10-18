@@ -42,7 +42,7 @@ nächsten Versionssprung in den neuen Eintrag.
 | Feld | Wert |
 |---|---|
 | Art | Testbuild (ungezippte arm64-APK `JeNi-bucht-0.25.0-build-<Nr>.apk`, fester Testschlüssel); **Lizenzprüfung aus** (ohne `LICENSING=true`), alle Funktionen frei |
-| Commit | folgt |
+| Commit | `659b3b4` |
 | Branch | `claude/agile-accounting-app-mobile-wa5j3h` |
 | Dokumentstände | Lastenheft 1.77, Spezifikation 1.82, Benutzerhandbuch für 0.25.0, DESIGN_SPEC 1.4 |
 | Datenbankschema | 27 |
@@ -55,9 +55,9 @@ nächsten Versionssprung in den neuen Eintrag.
 
 | Art | Änderung | Bezug | Commit |
 |---|---|---|---|
-| Neu | Steuerliche Registrierungen in mehreren Ländern: Stammdaten „Weitere Länder“ mit „Land hinzufügen“ (AT/DE, weitere „bald“), UID-Prüfung je Land, Finanzamt-Vorschlag, Besteuerungsform, Zeitraum, Dauerfristverlängerung, Beginn/Ende; Steuerland-Chips im Belegformular ab zwei Registrierungen; Amazon-Import ordnet FBA-Verkäufe aus dem Lager dem Steuerland zu; „Für das Finanzamt“ je Land, E1a/EÜR über alle Länder; Termine je Registrierung mit Länderkürzel, OSS-Schalter und EU-KU-Meldung; Schema 27 | FA-18.1 bis FA-18.9, GR-16, L-30.1 bis L-30.7, P-S68 bis P-S74, P-X22, P-D45 | folgt |
-| Geändert | Kleinunternehmergrenze der Heimat zählt nur Belege ohne weiteres Steuerland | FA-18.7, P-S70 | folgt |
-| Behoben | Prüfmappen-Generatoren: P-S65, P-S66, P-S67 und P-R44 bis P-R48 waren keinem Thema zugeordnet (Abbruch) | Spezifikation 14 | folgt |
+| Neu | Steuerliche Registrierungen in mehreren Ländern: Stammdaten „Weitere Länder“ mit „Land hinzufügen“ (AT/DE, weitere „bald“), UID-Prüfung je Land, Finanzamt-Vorschlag, Besteuerungsform, Zeitraum, Dauerfristverlängerung, Beginn/Ende; Steuerland-Chips im Belegformular ab zwei Registrierungen; Amazon-Import ordnet FBA-Verkäufe aus dem Lager dem Steuerland zu; „Für das Finanzamt“ je Land, E1a/EÜR über alle Länder; Termine je Registrierung mit Länderkürzel, OSS-Schalter und EU-KU-Meldung; Schema 27 | FA-18.1 bis FA-18.9, GR-16, L-30.1 bis L-30.7, P-S68 bis P-S74, P-X22, P-D45 | `659b3b4` |
+| Geändert | Kleinunternehmergrenze der Heimat zählt nur Belege ohne weiteres Steuerland | FA-18.7, P-S70 | `659b3b4` |
+| Behoben | Prüfmappen-Generatoren: P-S65, P-S66, P-S67 und P-R44 bis P-R48 waren keinem Thema zugeordnet (Abbruch) | Spezifikation 14 | `659b3b4` |
 
 ---
 
