@@ -2,6 +2,7 @@ import '../domain/company_profile.dart';
 import '../domain/country.dart';
 import '../domain/deadline_rule.dart';
 import '../domain/money.dart';
+import '../domain/tax_registration.dart';
 
 /// Hinweis unter der Termin-Box (L-25.7). Formulierung real zu prüfen:
 /// Spezifikation 14, P-R24.
@@ -91,19 +92,30 @@ class DeadlineCalculator {
   }
 
   /// Alle Termine ab [today] (einschließlich), aufsteigend, höchstens
-  /// [count].
+  /// [count]. [registrations] sind die weiteren Steuerländer (FA-18.5).
   static DeadlineOverview upcoming({
     required CompanyProfile profile,
     required DateTime today,
     required VatReturnInterval interval,
     int count = boxCount,
     List<Deadline> extra = const [],
+    List<TaxRegistration> registrations = const [],
   }) {
     final tax = profile.taxProfile;
     final day = DateTime(today.year, today.month, today.day);
     final all = <Deadline>[];
     for (var year = day.year - 1; year <= day.year + 1; year++) {
-      all.addAll(forYear(profile: profile, year: year, interval: interval));
+      all.addAll(
+        forYear(
+          profile: profile,
+          year: year,
+          interval: interval,
+          registrations: registrations,
+        ),
+      );
+      for (final r in registrations) {
+        all.addAll(forRegistration(registration: r, year: year));
+      }
     }
     // Vertragstermine (FA-16.4) laufen in derselben Box.
     all.addAll(extra);
@@ -127,84 +139,152 @@ class DeadlineCalculator {
     required CompanyProfile profile,
     required int year,
     required VatReturnInterval interval,
+    List<TaxRegistration> registrations = const [],
   }) {
     final tax = profile.taxProfile;
     final monthly = interval == VatReturnInterval.monthly;
     final result = <Deadline>[];
-
-    DateTime shift(DateTime date, DeadlineRule rule) => rule.approximate
-        ? date
-        : tax.holidayCalendar.nextWorkday(date, state: profile.federalState);
+    final euSmallBusiness = registrations.any(
+      (r) =>
+          r.scheme == VatScheme.euSmallBusiness &&
+          r.overlaps(DateTime(year), DateTime(year, 12, 31)),
+    );
 
     for (final rule in tax.deadlineRules) {
-      if (!_applies(rule.condition, profile)) continue;
-      switch (rule.schedule) {
-        case AfterPeriod(
-          :final dueDay,
-          :final monthsAfter,
-          :final extensionMonths,
-        ):
-          final step = monthly ? 1 : 3;
-          final extra =
+      final applies = switch (rule.condition) {
+        DeadlineCondition.always => true,
+        DeadlineCondition.notSmallBusiness => !profile.isSmallBusiness,
+        DeadlineCondition.filesEcsl => profile.filesEcsl,
+        DeadlineCondition.socialInsurance =>
+          tax.asksSocialInsurance && profile.svsInsured,
+        DeadlineCondition.annualReturn => !profile.hasTaxAdvisor,
+        DeadlineCondition.oss => profile.ossParticipant,
+        DeadlineCondition.euSmallBusinessReport => euSmallBusiness,
+        DeadlineCondition.registrationReturn ||
+        DeadlineCondition.registrationAnnual => false,
+      };
+      if (!applies) continue;
+      result.addAll(
+        _expand(
+          rule: rule,
+          tax: tax,
+          year: year,
+          monthly: monthly,
+          extension:
               rule.condition == DeadlineCondition.notSmallBusiness &&
-                  profile.vatPermanentExtension &&
-                  tax.hasPermanentExtension
-              ? extensionMonths
-              : 0;
-          for (var start = 1; start <= 12; start += step) {
-            final endMonth = start + step - 1;
-            final dueMonth = endMonth + monthsAfter + extra;
-            final raw = dueDay == 0
-                ? DateTime(year, dueMonth + 1, 0)
-                : DateTime(year, dueMonth, dueDay);
-            final period = monthly
-                ? '${tax.monthNames[start - 1]} $year'
-                : 'Q${(start + 2) ~/ 3}/$year';
-            result.add(
-              Deadline(
-                date: shift(raw, rule),
-                label: '${rule.label} $period',
-                legalRef: rule.legalRef,
-                approximate: rule.approximate,
-              ),
-            );
-          }
-        case FixedDates(:final monthDays):
-          var quarter = 1;
-          for (final (month, d) in monthDays) {
-            final raw = d == 0
-                ? DateTime(year, month + 1, 0)
-                : DateTime(year, month, d);
-            result.add(
-              Deadline(
-                date: shift(raw, rule),
-                label: '${rule.label} Q${quarter++}/$year',
-                legalRef: rule.legalRef,
-                approximate: rule.approximate,
-              ),
-            );
-          }
-        case FollowingYear(:final month, :final day):
-          result.add(
-            Deadline(
-              date: shift(DateTime(year + 1, month, day), rule),
-              label: '${rule.label} $year',
-              legalRef: rule.legalRef,
-              approximate: rule.approximate,
-            ),
-          );
-      }
+              profile.vatPermanentExtension &&
+              tax.hasPermanentExtension,
+          state: profile.federalState,
+        ),
+      );
     }
     return result;
   }
 
-  static bool _applies(DeadlineCondition condition, CompanyProfile p) =>
-      switch (condition) {
-        DeadlineCondition.always => true,
-        DeadlineCondition.notSmallBusiness => !p.isSmallBusiness,
-        DeadlineCondition.filesEcsl => p.filesEcsl,
-        DeadlineCondition.socialInsurance =>
-          p.taxProfile.asksSocialInsurance && p.svsInsured,
-        DeadlineCondition.annualReturn => !p.hasTaxAdvisor,
-      };
+  /// Umsatzsteuertermine einer weiteren Registrierung im Jahr [year]
+  /// (FA-18.5): Regeln aus `TaxProfile.registrationDeadlineRules` des
+  /// Registrierungslandes, Feiertage dieses Landes (bundesweit), Länderkürzel
+  /// vor der Bezeichnung. Nur Zeiträume innerhalb von Beginn/Ende.
+  static List<Deadline> forRegistration({
+    required TaxRegistration registration,
+    required int year,
+  }) {
+    final r = registration;
+    final tax = r.taxProfile;
+    if (r.scheme != VatScheme.standard || r.interval == FilingInterval.none) {
+      return const [];
+    }
+    final result = <Deadline>[];
+    for (final rule in tax.registrationDeadlineRules) {
+      final periodic = rule.condition == DeadlineCondition.registrationReturn;
+      if (periodic &&
+          r.interval != FilingInterval.monthly &&
+          r.interval != FilingInterval.quarterly) {
+        continue;
+      }
+      if (!periodic && rule.condition != DeadlineCondition.registrationAnnual) {
+        continue;
+      }
+      result.addAll(
+        _expand(
+          rule: rule,
+          tax: tax,
+          year: year,
+          monthly: r.interval == FilingInterval.monthly,
+          extension:
+              periodic && r.permanentExtension && tax.hasPermanentExtension,
+          state: '',
+          prefix: '${r.shortLabel} · ',
+          inPeriod: r.overlaps,
+        ),
+      );
+    }
+    return result;
+  }
+
+  static List<Deadline> _expand({
+    required DeadlineRule rule,
+    required TaxProfile tax,
+    required int year,
+    required bool monthly,
+    required bool extension,
+    required String state,
+    String prefix = '',
+    bool Function(DateTime from, DateTime to)? inPeriod,
+  }) {
+    DateTime shift(DateTime date) => rule.approximate
+        ? date
+        : tax.holidayCalendar.nextWorkday(date, state: state);
+    Deadline make(DateTime raw, String label) => Deadline(
+      date: shift(raw),
+      label: '$prefix$label',
+      legalRef: rule.legalRef,
+      approximate: rule.approximate,
+    );
+    final result = <Deadline>[];
+    switch (rule.schedule) {
+      case AfterPeriod(
+        :final dueDay,
+        :final monthsAfter,
+        :final extensionMonths,
+        :final quarterly,
+      ):
+        final byMonth = monthly && !quarterly;
+        final step = byMonth ? 1 : 3;
+        final extra = extension ? extensionMonths : 0;
+        for (var start = 1; start <= 12; start += step) {
+          final endMonth = start + step - 1;
+          if (inPeriod != null &&
+              !inPeriod(
+                DateTime(year, start),
+                DateTime(year, endMonth + 1, 0),
+              )) {
+            continue;
+          }
+          final dueMonth = endMonth + monthsAfter + extra;
+          final raw = dueDay == 0
+              ? DateTime(year, dueMonth + 1, 0)
+              : DateTime(year, dueMonth, dueDay);
+          final period = byMonth
+              ? '${tax.monthNames[start - 1]} $year'
+              : 'Q${(start + 2) ~/ 3}/$year';
+          result.add(make(raw, '${rule.label} $period'));
+        }
+      case FixedDates(:final monthDays):
+        var quarter = 1;
+        for (final (month, d) in monthDays) {
+          final raw = d == 0
+              ? DateTime(year, month + 1, 0)
+              : DateTime(year, month, d);
+          result.add(make(raw, '${rule.label} Q${quarter++}/$year'));
+        }
+      case FollowingYear(:final month, :final day):
+        if (inPeriod != null &&
+            !inPeriod(DateTime(year), DateTime(year, 12, 31))) {
+          break;
+        }
+        result.add(make(DateTime(year + 1, month, day), '${rule.label} $year'));
+    }
+    return result;
+  }
 }

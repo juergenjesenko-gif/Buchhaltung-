@@ -491,6 +491,18 @@ void main() {
         value('spec.$prefix.deadline_rules'),
         profile.deadlineRules.map(_ruleSpec).join(' | '),
       );
+      // Weitere Registrierungen (FA-18.2, FA-18.5).
+      expect(
+        value('spec.$prefix.registration_deadline_rules'),
+        profile.registrationDeadlineRules.map(_ruleSpec).join(' | '),
+      );
+      expect(
+        value('spec.$prefix.foreign_tax_offices'),
+        [
+          for (final e in profile.foreignTaxOffices.entries)
+            '${e.key}=${e.value}',
+        ].join(','),
+      );
       final rc = profile.reverseCharge;
       expect(
         value('spec.$prefix.reverse_charge_kz'),
@@ -659,9 +671,15 @@ Map<String, String> _parseSpecBlock(String markdown) {
 String _ruleSpec(DeadlineRule rule) {
   String two(int v) => v.toString().padLeft(2, '0');
   final schedule = switch (rule.schedule) {
-    AfterPeriod(:final dueDay, :final monthsAfter, :final extensionMonths) =>
+    AfterPeriod(
+      :final dueDay,
+      :final monthsAfter,
+      :final extensionMonths,
+      :final quarterly,
+    ) =>
       '$dueDay+${monthsAfter}m'
-          '${extensionMonths == 0 ? '' : '+${extensionMonths}x'}',
+          '${extensionMonths == 0 ? '' : '+${extensionMonths}x'}'
+          '${quarterly ? 'q' : ''}',
     FixedDates(:final monthDays) =>
       monthDays.map((md) => '${two(md.$1)}-${two(md.$2)}').join(','),
     FollowingYear(:final month, :final day) => '+1j${two(month)}-${two(day)}',

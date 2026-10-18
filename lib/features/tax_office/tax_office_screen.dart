@@ -5,6 +5,7 @@ import '../../app_state.dart';
 import '../../core/formatting.dart';
 import '../../data/repositories.dart';
 import '../../domain/country.dart';
+import '../../domain/tax_registration.dart';
 import '../../services/launcher/open_url.dart';
 import '../../services/licensing/license_policy.dart';
 import '../../services/share_service.dart';
@@ -34,6 +35,9 @@ class _TaxOfficeScreenState extends State<TaxOfficeScreen> {
   PeriodTotals? _yearTotals;
   bool _loading = true;
   bool _sharing = false;
+
+  /// Steuerland der Voranmeldung (FA-18.4): `null` = Heimat.
+  int? _registrationId;
 
   @override
   void initState() {
@@ -71,22 +75,50 @@ class _TaxOfficeScreenState extends State<TaxOfficeScreen> {
             _year,
             profile.taxProfile.monthNames,
           );
-    final totals = await state.repositories.receipts.totals(
+    final receipts = state.repositories.receipts;
+    final registrations = state.registrations;
+    final reg = state.registrationById(_registrationId);
+    // Voranmeldung je Steuerland mit dessen Vorsteuerabzug (FA-18.4).
+    final totals = await receipts.totals(
       from: period.from,
       to: period.to,
-      inputVatDeductible: state.inputVatDeductible,
-      reverseChargePermille: state.reverseChargePermille,
-      depreciation: state.depreciationRules,
+      inputVatDeductible: reg == null
+          ? state.inputVatDeductible
+          : !reg.isSmallBusiness,
+      reverseChargePermille: reg == null
+          ? state.reverseChargePermille
+          : reg.taxProfile.standardVatPermille,
+      depreciation: reg == null ? state.depreciationRules : null,
       entertainment: state.entertainmentRules,
+      scope: reg != null
+          ? RegistrationScope.of(reg.id!)
+          : registrations.isEmpty
+          ? RegistrationScope.all
+          : RegistrationScope.home,
     );
-    final yearTotals = await state.repositories.receipts.totals(
+    // Gewinnermittlung (E1a/EÜR) immer im Heimatland über alle Steuerländer,
+    // je Land mit dessen Vorsteuerabzug (FA-18.8).
+    var yearTotals = await receipts.totals(
       from: yearPeriod.from,
       to: yearPeriod.to,
       inputVatDeductible: state.inputVatDeductible,
       reverseChargePermille: state.reverseChargePermille,
       depreciation: state.depreciationRules,
       entertainment: state.entertainmentRules,
+      scope: registrations.isEmpty
+          ? RegistrationScope.all
+          : RegistrationScope.home,
     );
+    for (final r in registrations) {
+      yearTotals += await receipts.totals(
+        from: yearPeriod.from,
+        to: yearPeriod.to,
+        inputVatDeductible: !r.isSmallBusiness,
+        reverseChargePermille: r.taxProfile.standardVatPermille,
+        entertainment: state.entertainmentRules,
+        scope: RegistrationScope.of(r.id!),
+      );
+    }
     if (!mounted) return;
     setState(() {
       _totals = totals;
@@ -140,16 +172,19 @@ class _TaxOfficeScreenState extends State<TaxOfficeScreen> {
     if (profile == null) {
       return const Scaffold(body: SizedBox.shrink());
     }
-    final tax = profile.taxProfile;
+    final home = profile.taxProfile;
+    final reg = state.registrationById(_registrationId);
+    final tax = reg?.taxProfile ?? home;
+    final smallBusiness = reg?.isSmallBusiness ?? profile.isSmallBusiness;
     final form = tax.vatReturnForm;
     final figures = totals == null
         ? null
         : VatReturnCalculator.build(
             totals: totals,
             tax: tax,
-            smallBusiness: profile.isSmallBusiness,
+            smallBusiness: smallBusiness,
           );
-    final fastNr = U30Xml.fastNr(profile.taxNumber);
+    final fastNr = U30Xml.fastNr(reg?.taxNumber ?? profile.taxNumber);
     final offersFile = form.file == VatReturnFile.u30Xml;
     final canShare = figures != null && figures.fileAvailable && fastNr != null;
 
@@ -185,6 +220,35 @@ class _TaxOfficeScreenState extends State<TaxOfficeScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  // Steuerland nur bei mehreren Registrierungen (FA-18.4).
+                  if (state.registrations.isNotEmpty) ...[
+                    Wrap(
+                      spacing: 8,
+                      runSpacing: 8,
+                      children: [
+                        ChoiceChip(
+                          key: const Key('tax-office-home'),
+                          label: Text(profile.country.label),
+                          selected: _registrationId == null,
+                          onSelected: (_) {
+                            setState(() => _registrationId = null);
+                            _load();
+                          },
+                        ),
+                        for (final r in state.registrations)
+                          ChoiceChip(
+                            key: Key('tax-office-reg-${r.id}'),
+                            label: Text(r.country.label),
+                            selected: _registrationId == r.id,
+                            onSelected: (_) {
+                              setState(() => _registrationId = r.id);
+                              _load();
+                            },
+                          ),
+                      ],
+                    ),
+                    const SizedBox(height: 12),
+                  ],
                   DropdownButtonFormField<int>(
                     initialValue: _year,
                     decoration: const InputDecoration(labelText: 'Jahr'),
@@ -256,10 +320,13 @@ class _TaxOfficeScreenState extends State<TaxOfficeScreen> {
               if (!figures.required)
                 NoticeBanner(
                   icon: Icons.check_circle_outline,
-                  message:
-                      'Als Kleinunternehmer (${tax.smallBusinessLegalRef}) '
-                      'brauchst du keine ${form.formName}. Für dich zählen '
-                      'die Jahreszahlen unten.',
+                  message: reg != null && reg.scheme != VatScheme.standard
+                      ? 'In ${reg.country.label}: ${reg.scheme.label} – keine '
+                            '${form.formName}. Bitte mit der Steuerberatung '
+                            'abstimmen (Spezifikation 14, P-S69).'
+                      : 'Als Kleinunternehmer (${tax.smallBusinessLegalRef}) '
+                            'brauchst du keine ${form.formName}. Für dich zählen '
+                            'die Jahreszahlen unten.',
                 )
               else
                 SectionCard(
@@ -307,16 +374,22 @@ class _TaxOfficeScreenState extends State<TaxOfficeScreen> {
               const SizedBox(height: 16),
               SectionCard(
                 title:
-                    '${tax.annualReturnForm.formName} – Jahr '
+                    '${home.annualReturnForm.formName} – Jahr '
                     '${profile.fiscalYear.shortLabel(_year)}',
                 child: Column(
                   children: [
                     for (final line in VatReturnCalculator.annual(
                       totals: yearTotals,
-                      tax: tax,
+                      tax: home,
                       smallBusiness: profile.isSmallBusiness,
                     ))
                       _KennzahlTile(line: line, onTap: () => _copy(line)),
+                    if (state.registrations.isNotEmpty)
+                      Text(
+                        'Alle Steuerländer zusammen: Den Gewinn erklärst du '
+                        'nur in ${profile.country.label}.',
+                        style: Theme.of(context).textTheme.bodySmall,
+                      ),
                   ],
                 ),
               ),

@@ -42,6 +42,21 @@ enum DeadlineCondition {
   /// Jahreserklärung: ohne Steuerberatung mit Datum, mit Steuerberatung
   /// „laut Kanzlei“.
   annualReturn,
+
+  /// Nimmt am One-Stop-Shop (EU-Regelung) teil (FA-18.6).
+  oss,
+
+  /// Mindestens eine weitere Registrierung im EU-Kleinunternehmer-
+  /// Verfahren: vierteljährliche Umsatzmeldung im Heimatland (FA-18.6).
+  euSmallBusinessReport,
+
+  /// Voranmeldung einer weiteren Registrierung (Regelbesteuerung,
+  /// monatlich oder vierteljährlich; FA-18.5).
+  registrationReturn,
+
+  /// Jahreserklärung einer weiteren Registrierung (Regelbesteuerung,
+  /// Zeitraum nicht „keine“; FA-18.5).
+  registrationAnnual,
 }
 
 /// Wie das Fälligkeitsdatum entsteht.
@@ -57,11 +72,16 @@ class AfterPeriod extends DeadlineSchedule {
     required this.dueDay,
     required this.monthsAfter,
     this.extensionMonths = 0,
+    this.quarterly = false,
   });
 
   final int dueDay;
   final int monthsAfter;
   final int extensionMonths;
+
+  /// Immer vierteljährlich, unabhängig vom Voranmeldungszeitraum (OSS,
+  /// EU-Kleinunternehmer-Meldung).
+  final bool quarterly;
 }
 
 /// Feste Tage im Jahr, z. B. Vorauszahlungen. Tag 0 = Monatsletzter.

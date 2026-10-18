@@ -112,7 +112,13 @@ class PlatformEntry {
     this.destinationCountry,
     this.fulfilledByPlatform = false,
     this.marketplaceCollectedTax = false,
+    this.shipFromCountry,
   });
+
+  /// Abgangsland (Lager) laut Bericht, ISO-Code, soweit eine Spalte dafür
+  /// vorhanden ist (z. B. Amazon-USt-Transaktionsbericht); sonst `null`
+  /// (FA-18.9).
+  final String? shipFromCountry;
 
   /// Eindeutige Kennung je Plattform (Transaktions-ID bzw. Prüfsumme aus
   /// Abrechnungsnummer und Zeileninhalt) für das Überspringen von Dubletten.

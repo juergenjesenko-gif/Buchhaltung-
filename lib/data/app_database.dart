@@ -17,7 +17,7 @@ class AppDatabase {
 
   /// Aktuelle Schemaversion. Öffentlich, weil docs/SPECIFICATION.md sie
   /// dokumentiert und test/specification_sync_test.dart beide vergleicht.
-  static const schemaVersion = 26;
+  static const schemaVersion = 27;
 
   Database? _db;
 
@@ -770,6 +770,32 @@ class AppDatabase {
       "ALTER TABLE helper_outbox ADD COLUMN sent_at TEXT",
       "ALTER TABLE helper_outbox ADD COLUMN package_path TEXT NOT NULL "
           "DEFAULT ''",
+    ],
+    // Steuerliche Registrierungen in weiteren Ländern (FA-18.x, Lastenheft
+    // L-30, Entscheidung Auftraggeber 2026-10-18): z. B. deutsche
+    // USt-Registrierung wegen Amazon-FBA-Lager. Belege tragen ihr Steuerland
+    // (NULL = Heimat). OSS-Teilnahme fürs Firmenprofil.
+    27: [
+      '''
+      CREATE TABLE tax_registrations (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        country_code TEXT NOT NULL,
+        vat_id TEXT NOT NULL DEFAULT '',
+        tax_number TEXT NOT NULL DEFAULT '',
+        tax_office TEXT NOT NULL DEFAULT '',
+        scheme TEXT NOT NULL DEFAULT 'standard',
+        filing_interval TEXT NOT NULL DEFAULT 'monthly',
+        permanent_extension INTEGER NOT NULL DEFAULT 0,
+        valid_from TEXT,
+        valid_to TEXT
+      )
+      ''',
+      'ALTER TABLE receipts ADD COLUMN tax_registration_id INTEGER '
+          'REFERENCES tax_registrations(id)',
+      'CREATE INDEX idx_receipts_registration '
+          'ON receipts(tax_registration_id)',
+      'ALTER TABLE company_profile ADD COLUMN oss_participant INTEGER '
+          'NOT NULL DEFAULT 0',
     ],
   };
 

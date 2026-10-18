@@ -147,6 +147,9 @@ class _ReceiptEditScreenState extends State<ReceiptEditScreen> {
   int? _categoryId;
   PaymentMethod _paymentMethod = PaymentMethod.bank;
 
+  /// Steuerland (FA-18.3): `null` = Heimat.
+  int? _registrationId;
+
   /// Seiten des Belegs in fester Reihenfolge (L-2.15), relative Pfade.
   final List<String> _pages = [];
 
@@ -209,6 +212,7 @@ class _ReceiptEditScreenState extends State<ReceiptEditScreen> {
       }
       _categoryId = existing.categoryId;
       _paymentMethod = existing.paymentMethod;
+      _registrationId = existing.taxRegistrationId;
       _grossController.text = Fmt.amount(existing.gross);
       _descriptionController.text = existing.description;
       _counterpartyController.text = existing.counterparty;
@@ -1101,6 +1105,7 @@ class _ReceiptEditScreenState extends State<ReceiptEditScreen> {
       fxRateSource: foreign ? _rateSource : null,
       bankGross: foreign ? Money.tryParse(_bankController.text) : null,
       createdAt: widget.existing?.createdAt,
+      taxRegistrationId: _registrationId,
     );
 
     // Erkannt gegenüber bestätigt ins Protokoll, ohne Bilddaten (L-2.22).
@@ -1566,11 +1571,61 @@ class _ReceiptEditScreenState extends State<ReceiptEditScreen> {
     );
   }
 
+  /// Steuerland-Chips, nur bei mehr als einer Registrierung (FA-18.3):
+  /// Heimat vorgewählt, ein Tipp wechselt. Der Steuersatz springt auf den
+  /// Normalsatz des Landes (bzw. 0 bei Kleinunternehmer).
+  Widget _buildTaxCountry(AppState state, Country home) {
+    void choose(int? id) {
+      final reg = state.registrationById(id);
+      final small = reg?.isSmallBusiness ?? state.profile!.isSmallBusiness;
+      final tax = reg?.taxProfile ?? home.taxProfile;
+      setState(() {
+        _registrationId = id;
+        if (!_splitParts.active) {
+          _vatPermille = small ? 0 : tax.standardVatPermille;
+        }
+      });
+    }
+
+    return Padding(
+      padding: const EdgeInsets.only(top: 12),
+      child: Wrap(
+        spacing: 8,
+        runSpacing: 8,
+        crossAxisAlignment: WrapCrossAlignment.center,
+        children: [
+          Text('Steuerland', style: Theme.of(context).textTheme.labelLarge),
+          ChoiceChip(
+            key: const Key('tax-country-home'),
+            materialTapTargetSize: MaterialTapTargetSize.padded,
+            label: Text(home.code),
+            selected: _registrationId == null,
+            onSelected: _isCancelled ? null : (_) => choose(null),
+          ),
+          for (final r in state.registrations)
+            if (r.activeOn(_date) || r.id == _registrationId)
+              ChoiceChip(
+                key: Key('tax-country-${r.country.code}'),
+                materialTapTargetSize: MaterialTapTargetSize.padded,
+                label: Text(r.country.code),
+                selected: _registrationId == r.id,
+                onSelected: _isCancelled ? null : (_) => choose(r.id),
+              ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final state = AppScope.of(context);
     final profile = state.profile;
-    final tax = profile?.taxProfile ?? TaxProfile.austria;
+    final registration = state.registrationById(_registrationId);
+    // Steuersätze des Steuerlands (FA-18.3).
+    final tax =
+        registration?.taxProfile ?? profile?.taxProfile ?? TaxProfile.austria;
+    final smallBusiness =
+        registration?.isSmallBusiness ?? profile?.isSmallBusiness ?? false;
     final categories = state.categoriesFor(_direction);
     final split = _split;
     final isIncome = _direction == BookingDirection.income;
@@ -1656,6 +1711,8 @@ class _ReceiptEditScreenState extends State<ReceiptEditScreen> {
                           });
                         },
                       ),
+                      if (profile != null && state.registrations.isNotEmpty)
+                        _buildTaxCountry(state, profile.country),
                       if (!isIncome) _buildForeignCurrency(context),
                       const SizedBox(height: 16),
                       if (!_foreign || isIncome)
@@ -1754,7 +1811,7 @@ class _ReceiptEditScreenState extends State<ReceiptEditScreen> {
                         const VatSplitNote(),
                       ],
                       if (profile != null &&
-                          profile.isSmallBusiness &&
+                          smallBusiness &&
                           (_vatPermille > 0 ||
                               _splitParts.parts.any(
                                 (p) => p.permille > 0,

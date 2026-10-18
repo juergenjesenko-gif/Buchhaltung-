@@ -44,6 +44,7 @@ class _PlatformImportScreenState extends State<PlatformImportScreen> {
         country: profile.country,
         isSmallBusiness: profile.isSmallBusiness,
         otherFormatMonths: formats,
+        registrations: state.registrations,
       );
     });
   }

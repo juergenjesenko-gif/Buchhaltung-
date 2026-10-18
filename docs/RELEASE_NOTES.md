@@ -29,11 +29,35 @@ gebaut, und was war darin geprüft?*
 
 ## Unveröffentlicht
 
-Änderungen seit 0.24.0+37, die noch in keinem Build stecken. Wandern beim
+Änderungen seit 0.25.0+38, die noch in keinem Build stecken. Wandern beim
 nächsten Versionssprung in den neuen Eintrag.
 
 | Art | Änderung | Bezug | Commit |
 |---|---|---|---|
+
+---
+
+## 0.25.0+38 — 2026-10-18
+
+| Feld | Wert |
+|---|---|
+| Art | Testbuild (ungezippte arm64-APK `JeNi-bucht-0.25.0-build-<Nr>.apk`, fester Testschlüssel); **Lizenzprüfung aus** (ohne `LICENSING=true`), alle Funktionen frei |
+| Commit | folgt |
+| Branch | `claude/agile-accounting-app-mobile-wa5j3h` |
+| Dokumentstände | Lastenheft 1.77, Spezifikation 1.82, Benutzerhandbuch für 0.25.0, DESIGN_SPEC 1.4 |
+| Datenbankschema | 27 |
+| Prüfung | `flutter analyze` ohne Befund, alle Tests grün (neu `tax_registration_test.dart`: Termine je Land und Zeitraum inkl. Wochenende, Kennzahlen je Registrierung, Importzuordnung, Migration 26 → 27, Bedienmaße; erweitert `specification_sync_test.dart`); Prüfmappen neu erzeugt; Android/iOS-Build nur in der CI |
+| Steuerliche Kennwerte | `spec.schema_version` 27; `spec.at.deadline_rules`/`spec.de.deadline_rules` um OSS-Erklärung und EU-KU-Meldung; neu `spec.*.registration_deadline_rules`, `spec.*.foreign_tax_offices` |
+| Offene reale Prüfpunkte | wie 0.24.0+37, neu P-S68 bis P-S74, P-X22, P-D45 |
+| Bekannte Grenzen | Spezifikation Abschnitt 11, neu „Mehrere Steuerländer: erste Stufe“ |
+
+**Änderungen seit 0.24.0+37**
+
+| Art | Änderung | Bezug | Commit |
+|---|---|---|---|
+| Neu | Steuerliche Registrierungen in mehreren Ländern: Stammdaten „Weitere Länder“ mit „Land hinzufügen“ (AT/DE, weitere „bald“), UID-Prüfung je Land, Finanzamt-Vorschlag, Besteuerungsform, Zeitraum, Dauerfristverlängerung, Beginn/Ende; Steuerland-Chips im Belegformular ab zwei Registrierungen; Amazon-Import ordnet FBA-Verkäufe aus dem Lager dem Steuerland zu; „Für das Finanzamt“ je Land, E1a/EÜR über alle Länder; Termine je Registrierung mit Länderkürzel, OSS-Schalter und EU-KU-Meldung; Schema 27 | FA-18.1 bis FA-18.9, GR-16, L-30.1 bis L-30.7, P-S68 bis P-S74, P-X22, P-D45 | folgt |
+| Geändert | Kleinunternehmergrenze der Heimat zählt nur Belege ohne weiteres Steuerland | FA-18.7, P-S70 | folgt |
+| Behoben | Prüfmappen-Generatoren: P-S65, P-S66, P-S67 und P-R44 bis P-R48 waren keinem Thema zugeordnet (Abbruch) | Spezifikation 14 | folgt |
 
 ---
 

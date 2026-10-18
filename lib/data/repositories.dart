@@ -18,6 +18,9 @@ import 'contract_repository.dart';
 import 'consent_repository.dart';
 import 'offer_repository.dart';
 import 'vat_check_repository.dart';
+import 'tax_registration_repository.dart';
+
+export 'tax_registration_repository.dart';
 
 /// Schreibt Änderungen an buchungsrelevanten Daten mit. Löschen und Ändern
 /// bleiben in der App möglich, hinterlassen aber eine Spur.
@@ -652,7 +655,9 @@ class ReceiptRepository {
     int reverseChargePermille = 0,
     DepreciationRules? depreciation,
     EntertainmentRules? entertainment,
+    RegistrationScope scope = RegistrationScope.all,
   }) async {
+    final only = scope.where('r');
     // Bewirtung (FA-2.60): nicht abziehbarer Teil je Beleg, abziehbarer Teil
     // auf Cent gerundet, Rest nicht abziehbar. Basis ist der Aufwand des
     // Belegs: netto, ohne Vorsteuerabzug brutto. Die Vorsteuer bleibt in
@@ -666,6 +671,7 @@ class ReceiptRepository {
         FROM receipts r JOIN categories c ON c.id = r.category_id
         WHERE c.kind = 'entertainment' AND r.direction = 'expense'
           AND r.date >= ? AND r.date <= ? AND r.cancelled_at IS NULL
+          AND $only
           AND r.id NOT IN (SELECT receipt_id FROM fixed_assets
                            WHERE receipt_id IS NOT NULL)
         ''',
@@ -684,9 +690,10 @@ class ReceiptRepository {
     // Vorsteuer daraus nur bei Vorsteuerabzug (nicht für Kleinunternehmer).
     final rcRows = await _db.rawQuery(
       '''
-      SELECT net_cents FROM receipts
-      WHERE reverse_charge = 1 AND direction = 'expense'
-        AND date >= ? AND date <= ? AND cancelled_at IS NULL
+      SELECT r.net_cents AS net_cents FROM receipts r
+      WHERE r.reverse_charge = 1 AND r.direction = 'expense'
+        AND r.date >= ? AND r.date <= ? AND r.cancelled_at IS NULL
+        AND $only
       ''',
       [_day(from), _day(to)],
     );
@@ -712,16 +719,18 @@ class ReceiptRepository {
         WHERE id NOT IN (SELECT receipt_id FROM receipt_vat_lines)
       ) l ON l.receipt_id = r.id
       WHERE r.date >= ? AND r.date <= ? AND r.cancelled_at IS NULL
+        AND $only
       GROUP BY r.direction, l.vat_permille
       ''',
       [_day(from), _day(to)],
     );
     final fx = await _db.rawQuery(
       '''
-      SELECT SUM(COALESCE(bank_gross_cents, gross_cents) - gross_cents) AS fx_diff
-      FROM receipts
-      WHERE direction = 'expense' AND date >= ? AND date <= ?
-        AND cancelled_at IS NULL
+      SELECT SUM(COALESCE(r.bank_gross_cents, r.gross_cents) - r.gross_cents)
+             AS fx_diff
+      FROM receipts r
+      WHERE r.direction = 'expense' AND r.date >= ? AND r.date <= ?
+        AND r.cancelled_at IS NULL AND $only
       ''',
       [_day(from), _day(to)],
     );
@@ -764,13 +773,14 @@ class ReceiptRepository {
     // Betriebsausgabe; stattdessen zählt die AfA mit ihrem Buchungstag.
     var capitalized = const Money.zero();
     var afa = const Money.zero();
-    if (depreciation != null) {
+    // Anlagen gehören zur Heimatregistrierung (FA-18.8).
+    if (depreciation != null && scope.includesHome) {
       final cap = await _db.rawQuery(
         '''
         SELECT SUM(r.net_cents) AS net, SUM(r.gross_cents) AS gross
         FROM receipts r
         WHERE r.direction = 'expense' AND r.cancelled_at IS NULL
-          AND r.date >= ? AND r.date <= ?
+          AND r.date >= ? AND r.date <= ? AND $only
           AND r.id IN (SELECT receipt_id FROM fixed_assets
                        WHERE receipt_id IS NOT NULL)
         ''',
@@ -811,6 +821,8 @@ class ReceiptRepository {
   }
 
   /// Umsatz eines Kalenderjahres für die Kleinunternehmergrenze.
+  /// Nur Heimatregistrierung: Umsätze aus einem Lager im Ausland sind dort
+  /// steuerbar und zählen nicht zur Heimatgrenze (FA-18.7, P-S70).
   ///
   /// Maßgeblich ist der Umsatz, also die Einnahmenseite. Für Kleinunternehmer
   /// ist netto gleich brutto; wer regelbesteuert ist, rechnet ohnehin netto.
@@ -822,7 +834,7 @@ class ReceiptRepository {
       '''
       SELECT SUM($column) AS total FROM receipts
       WHERE direction = 'income' AND date >= ? AND date <= ?
-        AND cancelled_at IS NULL
+        AND cancelled_at IS NULL AND tax_registration_id IS NULL
       ''',
       ['$year-01-01', '$year-12-31'],
     );
@@ -989,6 +1001,65 @@ class PeriodTotals {
       incomeVat - expenseVat + reverseChargeVat - reverseChargeInputVat;
 
   bool get isEmpty => incomeGross.isZero && expenseGross.isZero;
+
+  /// Summe zweier Auswertungen desselben Zeitraums, z. B. Heimat plus
+  /// weitere Registrierungen für die Gewinnermittlung (FA-18.8).
+  PeriodTotals operator +(PeriodTotals o) {
+    Map<int, Money> add(Map<int, Money> a, Map<int, Money> b) => {
+      ...a,
+      for (final e in b.entries)
+        e.key: (a[e.key] ?? const Money.zero()) + e.value,
+    };
+    return PeriodTotals(
+      from: from,
+      to: to,
+      incomeNet: incomeNet + o.incomeNet,
+      incomeVat: incomeVat + o.incomeVat,
+      incomeGross: incomeGross + o.incomeGross,
+      expenseNet: expenseNet + o.expenseNet,
+      expenseVat: expenseVat + o.expenseVat,
+      expenseGross: expenseGross + o.expenseGross,
+      expenseFxDifference: expenseFxDifference + o.expenseFxDifference,
+      capitalizedExpense: capitalizedExpense + o.capitalizedExpense,
+      depreciation: depreciation + o.depreciation,
+      incomeNetByRate: add(incomeNetByRate, o.incomeNetByRate),
+      inputVatByRate: add(inputVatByRate, o.inputVatByRate),
+      reverseChargeBase: reverseChargeBase + o.reverseChargeBase,
+      reverseChargeVat: reverseChargeVat + o.reverseChargeVat,
+      reverseChargeInputVat: reverseChargeInputVat + o.reverseChargeInputVat,
+      entertainmentExpense: entertainmentExpense + o.entertainmentExpense,
+      entertainmentNonDeductible:
+          entertainmentNonDeductible + o.entertainmentNonDeductible,
+    );
+  }
+}
+
+/// Welche Belege eine Auswertung umfasst (FA-18.4): alle, nur die
+/// Heimatregistrierung oder genau eine weitere Registrierung.
+class RegistrationScope {
+  const RegistrationScope._(this.registrationId, {this.everything = false});
+
+  /// Alle Belege (bisheriges Verhalten, z. B. Kassabuch).
+  static const all = RegistrationScope._(null, everything: true);
+
+  /// Nur Belege ohne weiteres Steuerland.
+  static const home = RegistrationScope._(null);
+
+  /// Nur Belege einer weiteren Registrierung.
+  const RegistrationScope.of(int id) : this._(id);
+
+  final int? registrationId;
+  final bool everything;
+
+  bool get includesHome => everything || registrationId == null;
+
+  /// SQL-Bedingung für den Tabellenalias [alias]; die ID ist eine Ganzzahl
+  /// und wird deshalb direkt eingesetzt.
+  String where(String alias) => everything
+      ? '1 = 1'
+      : registrationId == null
+      ? '$alias.tax_registration_id IS NULL'
+      : '$alias.tax_registration_id = $registrationId';
 }
 
 class InvoiceRepository {
@@ -1605,6 +1676,7 @@ class Repositories {
       assets = AssetRepository(db),
       contracts = ContractRepository(db),
       helpers = HelperRepository(db),
+      registrations = TaxRegistrationRepository(db),
       audit = AuditLog(db);
 
   final CompanyRepository company;
@@ -1622,6 +1694,7 @@ class Repositories {
   final AssetRepository assets;
   final HelperRepository helpers;
   final ContractRepository contracts;
+  final TaxRegistrationRepository registrations;
   final AuditLog audit;
 }
 

@@ -1,6 +1,6 @@
 # Lastenheft – JeNi bucht, Buchhaltungsapp für Österreich und Deutschland
 
-**Dokumentversion:** 1.76 · **Stand:** 2026-10-17 · **Status:** Entwurf zur Abstimmung
+**Dokumentversion:** 1.77 · **Stand:** 2026-10-18 · **Status:** Entwurf zur Abstimmung
 **Auftraggeber:** Jürgen Jesenko (privates Vorhaben) · **Umsetzung:** Claude Code
 
 > Ein Lastenheft beschreibt, **was** das Produkt leisten soll und **warum** — nicht,
@@ -1054,6 +1054,28 @@ P-X20.
 | L-29.10 | **E-Mail als Standardweg** (Entscheidung 2026-10-17, 14a): Hauptgerät empfängt an der Geschäfts-E-Mail (oder per Häkchen an einer anderen Adresse) und liest das Postfach **nur lesend** (IMAP, stündlich und beim Öffnen); der Mithelfer sendet einmal am Tag und beim Öffnen **aus seinem eigenen Postfach** (SMTP, einmalige Einrichtung nur in der Mithelfer-App) ein verschlüsseltes Sammelpaket; Kennwörter nur im sicheren Speicher des jeweiligen Geräts, nie im QR-Code; ohne Postfach tägliche Erinnerung mit Mailfenster; Cloud-Ordner optional, Datei „Exportieren“ als Notweg, WhatsApp nicht mehr beworben. Gesendete Belege bleiben verschlüsselt beim Mithelfer, Standard 90 Tage (einstellbar) – ersetzt L-29.3 für den Mailweg | MUSS | A |
 | L-29.11 | Anmeldung über **Google-OAuth** (`gmail.send`) und **Microsoft-OAuth** (Graph `Mail.Send`) statt App-Passwort | KANN | B (offen, O-39) |
 
+### 5.30 Steuerliche Registrierungen in mehreren Ländern
+
+**Entscheidung des Auftraggebers vom 2026-10-18:** Viele Kleinbetriebe sind in
+mehreren Ländern umsatzsteuerlich registriert. Beispiel: Spirits by JeNiBarb
+e.U. ist in Österreich (Heimat) Kleinunternehmer, verkauft aber über Amazon
+FBA mit Lager in Deutschland und hat deshalb eine deutsche USt-Registrierung
+(USt-IdNr. DE…, Steuernummer, Finanzamt). Start mit AT und DE, ausgelegt für
+weitere EU-Länder. Umsetzung 0.25.0: Spezifikation 5.14 (FA-18.1 bis FA-18.9).
+Real zu prüfen: Spezifikation 14, P-S68 bis P-S74, P-X22, P-D45.
+
+| ID | Anforderung | Priorität | Stufe |
+|---|---|---|---|
+| L-30.1 | In den Stammdaten **„Steuerliche Registrierungen“**: Heimat (Firmenprofil) plus „Weitere Länder“ mit „Land hinzufügen“ (≥ 56 dp); Länderauswahl AT/DE, weitere Länder sichtbar als „bald“ | MUSS | A |
+| L-30.2 | Je Registrierung: Land, UID (Formatprüfung je Land), Steuernummer, Finanzamt (freier Text mit Vorschlag), Besteuerungsform (Regelbesteuerung, Kleinunternehmer, EU-Kleinunternehmer-Verfahren), Voranmeldungszeitraum (monatlich, vierteljährlich, jährlich, keine), Dauerfristverlängerung (DE), Beginn/Ende | MUSS | A |
+| L-30.3 | Jede Einnahme/Ausgabe hat ein **Steuerland**; Standard Heimat; Auswahl im Formular nur bei mehr als einer Registrierung, ein Tipp zum Wechseln | MUSS | A |
+| L-30.4 | Plattformimporte ordnen Verkäufe aus einem Lager im Ausland dem Steuerland mit Registrierung zu (Abgangsland laut Bericht, sonst FBA-Marktplatzland) | MUSS | A |
+| L-30.5 | Kennzahlen der Voranmeldung **je Registrierung** (DE-Registrierung → UStVA nur aus DE-Belegen; AT-Kleinunternehmer-Heimat → U30 nur bei Reverse Charge); Gewinnermittlung (E1a/EÜR) bleibt im Heimatland über alle Länder | MUSS | A |
+| L-30.6 | Termin-Box: Abgabe- und Zahlungstermine je Registrierung aus den Länderregeln (DE UStVA 10. des Folgemonats, mit Dauerfristverlängerung +1 Monat, DE-Jahreserklärung; AT UVA 15. des zweitfolgenden Monats, U1; OSS vierteljährlich; EU-KU-Meldung) mit Länderkürzel; nur Anzeige | MUSS | A |
+| L-30.7 | Keine neue Datenübertragung (Datenflusstabelle 5.19 unverändert) | MUSS | A |
+| L-30.8 | Weitere EU-Länder (IT, FR, ES, PL, CZ, NL) als reine Konfiguration im `TaxProfile` | SOLL | B |
+| L-30.9 | Innergemeinschaftliches Verbringen (Warenbewegung ins Lager) als eigene Buchung mit Kennzahlen (DE Kz 89/61, AT ZM/U30) | SOLL | B (offen, O-40) |
+
 ## 6. Nichtfunktionale Anforderungen
 
 | ID | Anforderung |
@@ -1367,6 +1389,7 @@ Zu entscheiden, bevor die betroffene Anforderung umgesetzt wird:
 | O-36 | **Direkte Übermittlung ans Finanzamt (L-6.5), nächster Schritt:** (a) DE: ELSTER-Hersteller-ID beantragen (ERiC-Entwicklerbereich, https://www.elster.de/elsterweb/softwareprodukt) – **Antrag als Softwarehersteller von der Auftraggeberin am 2026-10-16 gestellt; Status: beantragt, Antwort ausstehend** – Voraussetzung für jede UStVA-Übermittlung aus der App; ERiC ist eine native Bibliothek je Plattform und braucht das Zertifikat der Nutzerin. (b) AT: Webservice-Übermittlung über FinanzOnline (Webservice-Benutzer der Nutzerin, Hersteller-UID) erst nach erfolgreichem Testupload der U30-Datei (Spezifikation P-D35) und Prüfung P-R5. Stand 0.17.0: Kennzahlen zum Kopieren (AT/DE) und U30-Datei zum Hochladen (AT) | Stufe B |
 | O-37 | **ELSTER-Übermittlungsserver (DE) nach dem Launch:** ERiC gibt es nur für Windows, Linux und macOS, nicht für Android/iOS; direkte UStVA/EÜR-Übermittlung aus der App braucht daher einen Anbieter-Server. Skizze: verwalteter Container (kein eigenes Betriebssystem) bei einem Cloud-Anbieter mit Rechenzentrum in der EU; zustandslos – Meldung kommt verschlüsselt vom Gerät, wird an ELSTER weitergereicht, nichts wird gespeichert (weder Daten noch Zertifikat); grob 10–30 €/Monat. Beim Anbieter verbleiben trotz Cloud: Rolle als Auftragsverarbeiter (AVV mit dem Cloud-Anbieter, Datenschutzerklärung, Store-Angaben, Eintrag in 5.19), ERiC-Updates, Sicherheit des eigenen Codes, Haftung, ELSTER-Herstellerpflichten. Bis dahin: Kennzahlen zum Kopieren in „Mein ELSTER“ (FA-Stand 0.17.0). **Vertagt am 2026-10-16 durch die Auftraggeberin:** erst nach dem Launch und wenn genügend deutsche Nutzerinnen auf der Plattform sind; gemeinsam mit O-32 und der KI-Server-Frage betrachten | nach dem Launch |
 | O-39 | **OAuth für den Mailweg** (L-29.11): Gmail und Microsoft 365/Outlook.com ohne App-Passwort. **To-dos Auftraggeberin:** (1) Google Cloud-Projekt anlegen, OAuth-Zustimmungsbildschirm mit Datenschutzerklärung auf eigener Domain, Bereich `gmail.send` (eingeschränkt) beantragen, OAuth-Verifizierung inkl. Sicherheitsprüfung (CASA) durchlaufen; (2) Azure-App-Registrierung (Microsoft Entra ID, „Konten in beliebigen Organisationen und persönliche Microsoft-Konten“), Berechtigung Graph `Mail.Send` (delegiert), Publisher Verification. Kosten und Pflichten: P-R48. Bis dahin App-Passwort (Gmail, iCloud) bzw. Kennwort | vor Store-Release offen |
+| O-40 | **Innergemeinschaftliches Verbringen** (L-30.9): Ware ins Amazon-Lager im Ausland als eigene Buchung (DE ig. Erwerb Kz 89 mit Vorsteuer Kz 61; AT ig. Lieferung/ZM bzw. Kleinunternehmer-Befreiung). Fachlich zuerst P-S68 klären, dann umsetzen | nach P-S68 |
 | O-38 | **Volle Mehrgeräte-Synchronisierung** (Weg 2 Cloud-Ordner mit Änderungsjournal nach L-19.15 ff. bzw. Weg 3 Anbieter-Server): nach dem Launch bei genügend Nutzerinnen, gemeinsam mit O-32/O-37 zu entscheiden. Bis dahin Mithelfer-Geräte als Einbahn (5.29) | nach dem Launch |
 | O-20 | Welche Vorsoftware-Formate sind beim Import vorrangig zu unterstützen? Richtet sich nach dem, womit die ersten Nutzer tatsächlich kommen | Stufe B |
 | ~~O-21~~ | **Vorläufig beantwortet am 2026-10-10 (Prüfinstanz Rechtsanwalt):** BFSG/BaFG voraussichtlich nicht anwendbar (B2B, Kleinstunternehmen). Grundbarrierefreiheit trotzdem als NF-Anforderung; Bestätigung siehe Spezifikation Abschnitt 14, P-R3 | erledigt |
@@ -1415,6 +1438,7 @@ Historie stehen. Die Einzelheiten stehen an der genannten Stelle.
 | 2026-10-17 | **Mithelfer-Geräte / Belegsammler** (Familienbetriebe): Koppeln per QR, Mithelfer nur Erfassen, Wege Messenger/Mail und gemeinsamer Ordner, Eingang mit Übernehmen; **Pro auf dem Hauptgerät**. Mithelfer-Geräte ohne eigenes Abo | 5.29, Spez. 5.13, O-38 |
 | 2026-10-17 | **Bestätigt:** Mithelfer-Geräte brauchen **kein eigenes Abo**; **keine Gerätegrenze** | L-29.7 |
 | 2026-10-17 | Neue Startkategorie **„Material und Werkzeug“** (Ausgabe); Baumarkt-Belege schlagen sie statt „Sonstige Ausgaben“ vor; bestehende Datenbanken erhalten sie per Migration | Spez. FA-2.31, P-S66 |
+| 2026-10-18 | **Steuerliche Registrierungen in mehreren Ländern** (Auftrag): Heimat plus weitere Länder in den Stammdaten, Steuerland je Buchung, Importzuordnung FBA, Kennzahlen und Termine je Registrierung; Ertragsteuer bleibt im Heimatland. Start AT/DE, weitere Länder „bald“ | 5.30, Spez. 5.14, O-40 |
 | 2026-10-17 | **Belegsammler per E-Mail als Standardweg:** Hauptgerät empfängt an der Geschäfts-E-Mail (Häkchen „Andere E-Mail-Adresse für den Empfang von Belegen“ wie bei einer abweichenden Rechnungsadresse) mit nur lesendem Postfachzugriff; der Mithelfer meldet sich **nur in der Mithelfer-App mit seinem eigenen Postfach** an und sendet einmal am Tag gesammelt; Cloud-Ordner optional, Datei-Export als Notweg, WhatsApp nicht mehr beworben; Google-/Microsoft-OAuth als offener Punkt | L-29.10, L-29.11, O-39, Spez. FA-17.9 ff. |
 | 2026-10-16 | **Diktat auf dem Gerät** in Freitext- und Betragsfeldern (Auftrag); **entschieden 2026-10-16: in Basis und Pro** (Barrierefreiheit), keine Sperre | Spez. FA-2.61 |
 
@@ -1426,6 +1450,7 @@ Historie stehen. Die Einzelheiten stehen an der genannten Stelle.
 
 | Version | Datum | Änderung |
 |---|---|---|
+| 1.77 | 2026-10-18 | Neuer Abschnitt 5.30 Steuerliche Registrierungen in mehreren Ländern (L-30.1 bis L-30.9, umgesetzt 0.25.0 außer L-30.8/L-30.9), Entscheidung in 14a, O-40 Verbringen. Keine neue Datenübertragung (5.19 unverändert, L-30.7). |
 | 1.76 | 2026-10-17 | Mailweg der Mithelfer (L-29.10, L-29.11, umgesetzt 0.24.0 ohne OAuth): drei Zeilen in der Datenflusstabelle 5.19 (SMTP Mithelfer, IMAP Hauptgerät, Serversuche), Entscheidung in 14a, offener Punkt O-39 mit To-dos der Auftraggeberin (Google-Cloud-Projekt und OAuth-Verifizierung, Azure-App-Registrierung). |
 | 1.75 | 2026-10-17 | 14a: Mithelfer ohne eigenes Abo und ohne Gerätegrenze entschieden (L-29.7); neue Startkategorie „Material und Werkzeug“ (umgesetzt 0.23.1). Keine neue Datenübertragung. |
 | 1.74 | 2026-10-17 | Neuer Abschnitt 5.29 Mithelfer-Geräte / Belegsammler (L-29.1 bis L-29.9, umgesetzt 0.23.0), Zeile in der Datenflusstabelle 5.19, Entscheidung und Auslegung „ohne eigenes Abo“ in 14a, O-38 volle Mehrgeräte-Synchronisierung nach dem Launch. |

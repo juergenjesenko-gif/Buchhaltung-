@@ -11,6 +11,7 @@ import 'domain/legal_texts.dart';
 import 'domain/money.dart';
 import 'domain/country.dart' show EntertainmentRules;
 import 'domain/receipt.dart';
+import 'domain/tax_registration.dart';
 import 'services/deadline_calculator.dart';
 import 'services/small_business_monitor.dart';
 import 'domain/deadline_rule.dart';
@@ -414,6 +415,7 @@ class AppState extends ChangeNotifier {
     _missingConsents = await repositories.consents.missing();
     _profile = await repositories.company.load();
     _categories = await repositories.categories.all();
+    _registrations = await repositories.registrations.all();
     // Vor Schema 11 als bezahlt markierte Rechnungen nachbuchen (L-25.9).
     await repositories.invoices.bookMissingPayments();
     if (_profile != null) {
@@ -486,7 +488,40 @@ class AppState extends ChangeNotifier {
       interval: profile.vatReturnInterval == VatReturnInterval.auto
           ? _suggestedInterval
           : profile.vatReturnInterval,
+      registrations: _registrations,
     );
+  }
+
+  List<TaxRegistration> _registrations = const [];
+
+  /// Weitere steuerliche Registrierungen (FA-18.x); leer = nur Heimat.
+  List<TaxRegistration> get registrations => _registrations;
+
+  /// Registrierung zu einer ID, `null` für Heimat oder unbekannt.
+  TaxRegistration? registrationById(int? id) {
+    if (id == null) return null;
+    for (final r in _registrations) {
+      if (r.id == id) return r;
+    }
+    return null;
+  }
+
+  Future<void> saveRegistration(TaxRegistration registration) async {
+    await repositories.registrations.save(registration);
+    _registrations = await repositories.registrations.all();
+    await _refreshSmallBusiness();
+    notifyListeners();
+  }
+
+  /// `false`, wenn noch Belege darauf gebucht sind.
+  Future<bool> deleteRegistration(int id) async {
+    final ok = await repositories.registrations.delete(id);
+    if (ok) {
+      _registrations = await repositories.registrations.all();
+      await _refreshSmallBusiness();
+      notifyListeners();
+    }
+    return ok;
   }
 
   VatReturnInterval _suggestedInterval = VatReturnInterval.quarterly;

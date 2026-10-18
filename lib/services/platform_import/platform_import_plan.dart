@@ -2,6 +2,7 @@ import '../../domain/country.dart';
 import '../../domain/money.dart';
 import '../../domain/platform_import.dart';
 import '../../domain/receipt.dart';
+import '../../domain/tax_registration.dart';
 import '../vat_calculator.dart';
 
 /// Grenze für Fernverkäufe an Privatpersonen in andere EU-Länder, ab der
@@ -98,7 +99,32 @@ class PlatformImportPlanner {
     required Country country,
     required bool isSmallBusiness,
     Map<String, Set<String>> otherFormatMonths = const {},
+    List<TaxRegistration> registrations = const [],
   }) {
+    // Steuerland je Verkauf (FA-18.9): Abgangsland laut Bericht, sonst bei
+    // Versand durch die Plattform das Marktplatzland, wenn dort eine
+    // Registrierung besteht (Annahme Lager im Marktplatzland, P-S73).
+    var assumedStorage = false;
+    var distanceFromStorage = false;
+    TaxRegistration? registrationFor(PlatformEntry e) {
+      var from = e.shipFromCountry;
+      var assumed = false;
+      if (from == null && e.fulfilledByPlatform) {
+        from = e.destinationCountry;
+        assumed = true;
+      }
+      if (from == null || from == country.code) return null;
+      for (final reg in registrations) {
+        if (reg.country.code == from && reg.activeOn(e.date)) {
+          if (assumed) assumedStorage = true;
+          final dest = e.destinationCountry;
+          if (dest != null && dest != from) distanceFromStorage = true;
+          return reg;
+        }
+      }
+      return null;
+    }
+
     final profile = country.taxProfile;
     final supplier = FeeSupplier.of(file.platform);
     final byMonth = <String, PlatformMonthSummary>{};
@@ -132,7 +158,26 @@ class PlatformImportPlanner {
       final summary = byMonth[key]!;
       final entries = monthEntries[key]!;
       final orders = <String>{};
-      final saleIds = <String>[];
+      // Verkäufe je Steuerland: null = Heimat (FA-18.9).
+      final saleIds = <int?, List<String>>{};
+      final saleSum = <int?, Money>{};
+      final saleTax = <int?, Money>{};
+      final saleOrders = <int?, Set<String>>{};
+      final regById = <int?, TaxRegistration?>{null: null};
+      void addSale(PlatformEntry e) {
+        final reg = registrationFor(e);
+        final k = reg?.id;
+        regById[k] = reg;
+        saleIds.putIfAbsent(k, () => []).add(e.externalId);
+        saleSum[k] = (saleSum[k] ?? const Money.zero()) + e.amount;
+        saleTax[k] = (saleTax[k] ?? const Money.zero()) + e.tax;
+        if (e.kind == PlatformEntryKind.sale) {
+          saleOrders
+              .putIfAbsent(k, () => {})
+              .add(e.orderRef.isEmpty ? e.externalId : e.orderRef);
+        }
+      }
+
       final feeIds = <String>[];
       final adIds = <String>[];
       var last = entries.first.date;
@@ -143,11 +188,11 @@ class PlatformImportPlanner {
             summary.sales += e.amount;
             summary.salesTax += e.tax;
             orders.add(e.orderRef.isEmpty ? e.externalId : e.orderRef);
-            saleIds.add(e.externalId);
+            addSale(e);
           case PlatformEntryKind.refund:
             summary.refunds += e.amount;
             summary.salesTax += e.tax;
-            saleIds.add(e.externalId);
+            addSale(e);
           case PlatformEntryKind.fee:
             summary.fees -= e.amount;
             feeIds.add(e.externalId);
@@ -164,31 +209,43 @@ class PlatformImportPlanner {
       final label =
           '${file.platform.label} ${monthLabel(summary.month, profile)}';
 
-      // Umsatz (Einnahme).
-      final sales = summary.salesTotal;
-      if (sales.isNegative) {
-        warnings.add(
-          '$label: mehr Erstattungen als Verkäufe – bitte selbst buchen.',
-        );
-      } else if (!sales.isZero) {
-        final split = isSmallBusiness
+      // Umsatz (Einnahme), je Steuerland eine Sammelbuchung.
+      for (final k in saleSum.keys) {
+        final reg = regById[k];
+        final sales = saleSum[k]!;
+        final where = reg == null ? '' : ' (${reg.shortLabel})';
+        if (sales.isNegative) {
+          warnings.add(
+            '$label$where: mehr Erstattungen als Verkäufe – bitte selbst '
+            'buchen.',
+          );
+          continue;
+        }
+        if (sales.isZero) continue;
+        final small = reg == null ? isSmallBusiness : reg.isSmallBusiness;
+        final split = small
             ? VatCalculator.exempt(sales)
-            : _salesSplit(sales, summary.salesTax, profile);
+            : _salesSplit(sales, saleTax[k]!, reg?.taxProfile ?? profile);
+        final count = saleOrders[k]?.length ?? 0;
         drafts.add(
           PlatformBookingDraft(
             categoryName: 'Umsatzerlöse',
-            entryIds: saleIds,
+            entryIds: saleIds[k]!,
             receipt: Receipt(
               date: last,
               direction: BookingDirection.income,
-              description: '$label: ${summary.saleCount} Verkäufe',
+              description: '$label$where: $count Verkäufe',
               counterparty: '${file.platform.label}-Kunden (Sammelbuchung)',
               net: split.net,
               vat: split.vat,
               gross: split.gross,
               vatPermille: split.permille,
               paymentMethod: PaymentMethod.other,
-              note: 'Import ${file.format.label}',
+              note: reg == null
+                  ? 'Import ${file.format.label}'
+                  : 'Import ${file.format.label}, Steuerland '
+                        '${reg.country.label}',
+              taxRegistrationId: reg?.id,
             ),
           ),
         );
@@ -250,7 +307,21 @@ class PlatformImportPlanner {
     }
 
     warnings.addAll(_ossWarnings(fresh, country));
-    if (fresh.any((e) => e.fulfilledByPlatform)) {
+    if (assumedStorage) {
+      warnings.add(
+        'Versand durch Amazon: Verkäufe auf dem Marktplatz eines Landes mit '
+        'eigener Registrierung wurden diesem Steuerland zugeordnet (Lager '
+        'dort angenommen). Bei Pan-EU-Versand mit dem USt-Transaktionsbericht '
+        'prüfen.',
+      );
+    }
+    if (distanceFromStorage) {
+      warnings.add(
+        'Verkäufe aus dem Lager im Ausland in ein drittes Land: Fernverkauf – '
+        'Steuerland und OSS mit der Steuerberatung klären.',
+      );
+    }
+    if (registrations.isEmpty && fresh.any((e) => e.fulfilledByPlatform)) {
       warnings.add(
         'Versand durch Amazon: Lagert Ware in anderen Ländern (z. B. Pan-EU, '
         'CEE), brauchst du dort meist eine Umsatzsteuer-Registrierung. Mit '

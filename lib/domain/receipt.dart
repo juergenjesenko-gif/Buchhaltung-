@@ -57,7 +57,12 @@ class Receipt {
     this.reverseCharge = false,
     this.entertainmentOccasion = '',
     this.entertainmentParticipants = '',
+    this.taxRegistrationId,
   });
+
+  /// Steuerland (Schema 27, FA-18.3): `null` = Heimatregistrierung (das
+  /// Firmenprofil), sonst `TaxRegistration.id` einer weiteren Registrierung.
+  final int? taxRegistrationId;
 
   /// Anlass der Bewirtung (Schema 23, FA-2.60). Vorschlagsfeld, nie Pflicht;
   /// in Deutschland Teil des Bewirtungsnachweises (§ 4 Abs 5 Satz 1 Nr. 2
@@ -200,6 +205,8 @@ class Receipt {
     bool? reverseCharge,
     String? entertainmentOccasion,
     String? entertainmentParticipants,
+    int? taxRegistrationId,
+    bool clearTaxRegistration = false,
   }) {
     return Receipt(
       id: id ?? this.id,
@@ -233,6 +240,9 @@ class Receipt {
           entertainmentOccasion ?? this.entertainmentOccasion,
       entertainmentParticipants:
           entertainmentParticipants ?? this.entertainmentParticipants,
+      taxRegistrationId: clearTaxRegistration
+          ? null
+          : (taxRegistrationId ?? this.taxRegistrationId),
     );
   }
 
@@ -261,6 +271,7 @@ class Receipt {
     'reverse_charge': reverseCharge ? 1 : 0,
     'entertainment_occasion': entertainmentOccasion,
     'entertainment_participants': entertainmentParticipants,
+    'tax_registration_id': taxRegistrationId,
     'created_at': (createdAt ?? DateTime.now()).toIso8601String(),
     'updated_at': DateTime.now().toIso8601String(),
   };
@@ -271,6 +282,7 @@ class Receipt {
   ]) => Receipt(
     vatLines: vatLines.length > 1 ? vatLines : const [],
     reverseCharge: (map['reverse_charge'] as int? ?? 0) == 1,
+    taxRegistrationId: map['tax_registration_id'] as int?,
     entertainmentOccasion: map['entertainment_occasion'] as String? ?? '',
     entertainmentParticipants:
         map['entertainment_participants'] as String? ?? '',

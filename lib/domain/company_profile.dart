@@ -40,6 +40,7 @@ class CompanyProfile {
     this.vatReturnInterval = VatReturnInterval.auto,
     this.vatPermanentExtension = false,
     this.filesEcsl = false,
+    this.ossParticipant = false,
     this.hasTaxAdvisor = false,
     this.svsInsured = true,
     this.defaultSkontoDays = 0,
@@ -89,6 +90,10 @@ class CompanyProfile {
 
   /// Gibt eine Zusammenfassende Meldung ab.
   final bool filesEcsl;
+
+  /// Nimmt am One-Stop-Shop teil (Schema 27, FA-18.6): OSS-Termin in der
+  /// Termin-Box.
+  final bool ossParticipant;
 
   /// Hat eine Steuerberatung (Erklärungsfrist „laut Kanzlei“).
   final bool hasTaxAdvisor;
@@ -255,6 +260,7 @@ class CompanyProfile {
     VatReturnInterval? vatReturnInterval,
     bool? vatPermanentExtension,
     bool? filesEcsl,
+    bool? ossParticipant,
     bool? hasTaxAdvisor,
     bool? svsInsured,
     int? defaultSkontoDays,
@@ -303,6 +309,7 @@ class CompanyProfile {
       vatPermanentExtension:
           vatPermanentExtension ?? this.vatPermanentExtension,
       filesEcsl: filesEcsl ?? this.filesEcsl,
+      ossParticipant: ossParticipant ?? this.ossParticipant,
       hasTaxAdvisor: hasTaxAdvisor ?? this.hasTaxAdvisor,
       svsInsured: svsInsured ?? this.svsInsured,
       defaultSkontoDays: defaultSkontoDays ?? this.defaultSkontoDays,
@@ -353,6 +360,7 @@ class CompanyProfile {
     'vat_return_interval': vatReturnInterval.name,
     'vat_permanent_extension': vatPermanentExtension ? 1 : 0,
     'files_ecsl': filesEcsl ? 1 : 0,
+    'oss_participant': ossParticipant ? 1 : 0,
     'has_tax_advisor': hasTaxAdvisor ? 1 : 0,
     'svs_insured': svsInsured ? 1 : 0,
     'default_skonto_days': defaultSkontoDays,
@@ -410,6 +418,7 @@ class CompanyProfile {
     ),
     vatPermanentExtension: (map['vat_permanent_extension'] as int? ?? 0) == 1,
     filesEcsl: (map['files_ecsl'] as int? ?? 0) == 1,
+    ossParticipant: (map['oss_participant'] as int? ?? 0) == 1,
     hasTaxAdvisor: (map['has_tax_advisor'] as int? ?? 0) == 1,
     svsInsured: (map['svs_insured'] as int? ?? 1) == 1,
     defaultSkontoDays: map['default_skonto_days'] as int? ?? 0,

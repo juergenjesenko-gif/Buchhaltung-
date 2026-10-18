@@ -53,6 +53,8 @@ class SettingsScreen extends StatelessWidget {
                         profile?.isSmallBusiness == true
                             ? 'Kleinunternehmer'
                             : 'Regelbesteuerung',
+                        if (state.registrations.isNotEmpty)
+                          '+ ${state.registrations.map((r) => r.country.code).join(', ')}',
                       ].whereType<String>().join(' · '),
                     ),
                     trailing: const Icon(Icons.chevron_right),

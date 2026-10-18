@@ -1,6 +1,6 @@
 # Spezifikation – Buchhaltung
 
-**Dokumentversion:** 1.81 · **App-Version:** 0.24.0 · **Stand:** 2026-10-17
+**Dokumentversion:** 1.82 · **App-Version:** 0.25.0 · **Stand:** 2026-10-18
 **Status:** Testbuild 0.21.0 (Schema 23); Store-Start offen, siehe Abschnitt 11 und 14
 
 > Das **Zielbild** des Produkts steht im [`LASTENHEFT.md`](LASTENHEFT.md); dieses
@@ -124,6 +124,19 @@ ausgewiesene Betrag mit der Summe der Zeilen überein.
 
 Alles Landesspezifische steht in `TaxProfile` in `lib/domain/country.dart`. Eine
 Länderabfrage in einem Widget verletzt diese Regel.
+
+### GR-16 · Mehrere Steuerländer: Umsatzsteuer je Registrierung, Gewinn im Heimatland
+
+Seit 0.25.0 (FA-18.x). Die **Heimatregistrierung** ist das Firmenprofil; weitere
+Länder stehen in `tax_registrations`. Jeder Beleg hat ein **Steuerland**
+(`receipts.tax_registration_id`, `NULL` = Heimat). Umsatzsteuer (Sätze,
+Vorsteuerabzug, Kennzahlen, Termine) folgt dem `TaxProfile` des Steuerlands und
+der Besteuerungsform der Registrierung; die Länderregeln stehen ausschließlich
+im `TaxProfile` (`registrationDeadlineRules`, `foreignTaxOffices`, GR-6).
+**Ertragsteuer bleibt im Heimatland:** E1a bzw. Anlage EÜR summieren alle
+Steuerländer, jedes mit seinem Vorsteuerabzug; Anlagen gehören zur Heimat. Ein
+Amazon-Lager begründet nach Vorbefund keine Betriebsstätte (P-S74). Die
+Kleinunternehmergrenze der Heimat zählt nur Heimatumsätze (P-S70).
 
 ### GR-7 · Migrationen sind unveränderlich
 
@@ -284,7 +297,7 @@ ein änderbarer Vorschlag.
 ## 4. Datenmodell
 
 **Speicher:** SQLite auf dem Gerät, Datei `buchhaltung.db` im
-Anwendungsdokumentenverzeichnis. Aktuelle Schemaversion: **24**
+Anwendungsdokumentenverzeichnis. Aktuelle Schemaversion: **27**
 (`spec.schema_version`). Bilder liegen als Dateien daneben: Belegseiten in
 `belege/`, Firmenlogos in `logo/`, Seiten im Eingang der Mithelfer-Geräte in
 `eingang/<uuid>/` (bis zur Übernahme, FA-17.5).
@@ -293,7 +306,8 @@ Anwendungsdokumentenverzeichnis. Aktuelle Schemaversion: **24**
 
 | Tabelle | Zweck | Besonderheit |
 |---|---|---|
-| `company_profile` | Firmenstammdaten | Genau eine Zeile, erzwungen durch `CHECK (id = 1)` |
+| `company_profile` | Firmenstammdaten | Genau eine Zeile, erzwungen durch `CHECK (id = 1)`. Seit Schema 27 `oss_participant` (0/1, FA-18.6) |
+| `tax_registrations` | Weitere steuerliche Registrierungen (FA-18.2): `country_code`, `vat_id`, `tax_number`, `tax_office`, `scheme` (`standard`/`smallBusiness`/`euSmallBusiness`), `filing_interval` (`monthly`/`quarterly`/`annual`/`none`), `permanent_extension` (0/1), `valid_from`, `valid_to` | Schema 27. Löschen nur ohne Belege, sonst Ende-Datum |
 | `categories` | Buchhaltungskategorien | 18 Startkategorien, `is_system = 1` schützt vor Löschen. Seit Schema 25 „Material und Werkzeug“ (SKR03 4985, bestehende Datenbanken erhalten sie bei der Migration). Seit Schema 23 `kind` (`entertainment` = Bewirtung, FA-2.60; bestehende Datenbanken erhalten „Bewirtung“ bei der Migration) |
 | `customers` | Rechnungsempfänger | Löschen blockiert, solange Rechnungen bestehen. Seit Schema 13 `is_business` (1 = Unternehmen; bei der Migration 1, wo eine UID eingetragen ist) |
 | `dunning_notices` | Zahlungserinnerungen und Mahnungen: `invoice_id`, `level`, `issued_on`, `new_due_date`, `principal_cents`, `fee_cents`, `fees_total_cents`, `interest_cents`, `interest_rate_bp`, `flat_fee_cents`, `total_cents`, `text`, `pdf_sha256`, `cancelled_at`, `cancel_reason`, `created_at` | Schema 13. Unveränderlich (Trigger); einzig erlaubt: einmaliges Storno mit Begründung |
@@ -351,7 +365,7 @@ Anwendungsdokumentenverzeichnis. Aktuelle Schemaversion: **24**
 | `logo_path` | TEXT | Relativer Pfad des Firmenlogos in `logo/`, `NULL` = kein Logo (Schema 8, FA-1.12) |
 | `last_backup_at` | TEXT | Zeitpunkt der letzten Datensicherung bzw. der wiederhergestellten Sicherung; nur vom Sicherungsdienst geschrieben (Schema 4) |
 
-**`receipts`** — zusätzlich seit Schema 3: `cancelled_at` (TEXT, Zeitpunkt der Stornierung, `NULL` = gültig). Seit Schema 9: `document_number` (TEXT, Rechnungsnummer des Ausstellers), `issuer_vat_id` (TEXT, UID des Ausstellers), `currency` (TEXT, ISO 4217, Standard `EUR`), `original_gross_cents` (INTEGER, Betrag laut Beleg in fremder Währung, sonst `NULL`). `net_cents`, `vat_cents`, `gross_cents` sind immer Euro (FA-2.21). Seit Schema 10 (FA-2.24): `fx_rate_micros` (INTEGER, Kurs je 1 € × 10^6), `fx_rate_date` (TEXT, `YYYY-MM` beim Monatskurs, sonst `YYYY-MM-DD`), `fx_rate_source` (TEXT: `bmf_monthly`, `ecb_monthly_avg`, `ecb_daily`, `manual`, `bank`), `bank_gross_cents` (INTEGER, tatsächlich abgebuchter Euro-Betrag, `NULL` = wie `gross_cents`)
+**`receipts`** — seit Schema 27: `tax_registration_id` (INTEGER, Verweis auf `tax_registrations`, `NULL` = Heimat; Index `idx_receipts_registration`; FA-18.3). Zusätzlich seit Schema 3: `cancelled_at` (TEXT, Zeitpunkt der Stornierung, `NULL` = gültig). Seit Schema 9: `document_number` (TEXT, Rechnungsnummer des Ausstellers), `issuer_vat_id` (TEXT, UID des Ausstellers), `currency` (TEXT, ISO 4217, Standard `EUR`), `original_gross_cents` (INTEGER, Betrag laut Beleg in fremder Währung, sonst `NULL`). `net_cents`, `vat_cents`, `gross_cents` sind immer Euro (FA-2.21). Seit Schema 10 (FA-2.24): `fx_rate_micros` (INTEGER, Kurs je 1 € × 10^6), `fx_rate_date` (TEXT, `YYYY-MM` beim Monatskurs, sonst `YYYY-MM-DD`), `fx_rate_source` (TEXT: `bmf_monthly`, `ecb_monthly_avg`, `ecb_daily`, `manual`, `bank`), `bank_gross_cents` (INTEGER, tatsächlich abgebuchter Euro-Betrag, `NULL` = wie `gross_cents`)
 
 **`company_profile`** — seit Schema 9: `receipt_scan_enabled` (INTEGER, Standard 1, FA-2.23). Seit Schema 10: `fx_daily_rate_approved` (INTEGER, Standard 0, Tageskurs vom Finanzamt genehmigt, FA-2.25)
 
@@ -658,7 +672,8 @@ Fachlogik: `lib/services/launcher/home_shortcut_service.dart`, Plattform:
 
 Lastenheft L-24 und L-25. Termine in `lib/services/deadline_calculator.dart`,
 Regeln je Land in `TaxProfile.deadlineRules` (`spec.*.deadline_rules`),
-Feiertage in `lib/domain/holidays.dart`.
+Feiertage in `lib/domain/holidays.dart`. Termine weiterer Registrierungen und
+OSS: FA-18.5, FA-18.6 (Kennzeichen `q` = immer vierteljährlich).
 
 | ID | Anforderung |
 |---|---|
@@ -828,6 +843,29 @@ bleibt O-38 bzw. L-19.12 ff.
 | FA-17.11 | **Abruf auf dem Hauptgerät** (`HelperMailInbox`, `ImapReader`): stündlich im Hintergrund und bei jedem Öffnen/Zurückkehren (höchstens alle 2 Minuten) sowie beim Öffnen des Eingangs. `UID SEARCH SUBJECT "[JeNi-Beleg]"`, je Treffer nur Kopf (`BODY.PEEK[HEADER.FIELDS (MESSAGE-ID SUBJECT)]`); nur Betreff mit gültigem Kennzeichen **und** bekannter Kopplungs-ID wird ganz geladen (`BODY.PEEK[]`), Anhänge `.jenibeleg` (auch in weitergeleiteten Mails) entschlüsselt und in den Eingang gelegt. **Nie** `STORE`, `COPY`, `MOVE`, `EXPUNGE` oder `DELETE`: nichts wird gelöscht, verschoben oder als gelesen markiert. Verarbeitete Message-IDs in `helper_mail_seen`; fremde Mails werden nicht gemerkt. Import idempotent über die Beleg-UUID: dieselben Belege in mehreren Mails oder Dateien kommen einmal in den Eingang. Getrennte Kopplung: Mail gemerkt, Belege abgelehnt (FA-17.6) |
 | FA-17.12 | **Hintergrund und Berechtigungen:** Android WorkManager (Paket `workmanager`) periodisch 1 h (Hauptgerät, `spec.helper_mail_poll_minutes`) bzw. 24 h (Mithelfer, `spec.helper_mail_send_hours`) mit Bedingung „Netz verbunden“; iOS `BGAppRefreshTask` `at.jesenko.buchhaltung.mailsync` (bestmöglich, iOS bestimmt den Zeitpunkt). Zeitentscheidungen rein in Dart (`HelperMailSchedule`). Vor den Systemabfragen **einmal** eine Erklärung (Mitteilungen für die Erinnerung, iPhone-Hintergrundaktualisierung); danach Abfrage der Mitteilungsberechtigung (Android 13+ `POST_NOTIFICATIONS`, iOS Alert/Ton) über `flutter_local_notifications`. Eigene IMAP/SMTP-Implementierung in reinem Dart (`lib/services/mail/`), weil `enough_mail` 2.1.7 `xml` < 7 verlangt und mit der vorhandenen `xml` ^7.1 (E-Rechnungen) kollidiert; nur die benutzten Befehle, Tests mit Ersatzserver. Google-OAuth (`gmail.send`) und Microsoft-OAuth (Graph `Mail.Send`) nicht gebaut: offener Punkt Lastenheft 14a |
 
+### 5.14 Steuerliche Registrierungen in mehreren Ländern
+
+Lastenheft 5.30 (L-30.1 bis L-30.7), Entscheidung Auftraggeber 2026-10-18,
+Regel GR-16. Code: `lib/domain/tax_registration.dart`,
+`lib/data/tax_registration_repository.dart`,
+`lib/features/settings/tax_registration_screen.dart`,
+`DeadlineCalculator.forRegistration`, `RegistrationScope` in
+`lib/data/repositories.dart`. Beispiel: österreichischer Kleinunternehmer mit
+deutscher USt-Registrierung wegen Amazon-FBA-Lager (Prüfinstanz Steuerberater,
+P-S68).
+
+| ID | Anforderung |
+|---|---|
+| FA-18.1 | **Stammdaten → „Steuerliche Registrierungen“** (nicht im Onboarding): Zeile Heimat (Land, Kleinunternehmer/Regelbesteuerung), darunter je weiterem Land eine Zeile 56 dp (Besteuerung, Zeitraum, UID, Ende), Knopf **„Land hinzufügen“** volle Breite 56 dp. Länderauswahl als Bottom-Sheet: AT/DE ohne Heimatland, bereits angelegte ausgegraut, IT, FR, ES, PL, CZ, NL sichtbar mit „bald“ (`upcomingRegistrationCountries`). Einstellungen zeigen „+ DE“ in der Stammdatenzeile |
+| FA-18.2 | **Formular je Land:** Besteuerung (Regelbesteuerung – Standard; Kleinunternehmer; EU-Kleinunternehmer-Verfahren), UID mit Formatprüfung (`VatIdFormat`) und passendem Länderpräfix, Steuernummer, Finanzamt (freier Text, vorbelegt aus `TaxProfile.foreignTaxOffices` des Registrierungslands für das Heimatland: AT-Unternehmen in DE → „Finanzamt München“, `spec.de.foreign_tax_offices`; DE-Unternehmen in AT → „Finanzamt Österreich, Dienststelle Graz-Stadt“, P-S71), Voranmeldungszeitraum (monatlich – Standard, vierteljährlich, nur jährlich), Dauerfristverlängerung (nur wo `hasPermanentExtension`, DE § 46 UStDV), Beginn und Ende. Ohne Regelbesteuerung wird der Zeitraum „keine“ gespeichert. „Land entfernen“ in der Gefahrenzone, nur ohne Belege |
+| FA-18.3 | **Steuerland je Beleg:** Im Belegformular Chips „Steuerland“ (Heimatkürzel, z. B. AT, und jedes am Belegdatum gültige weitere Land) **nur bei mindestens einer weiteren Registrierung**; Heimat vorgewählt, ein Tipp wechselt. Der Wechsel setzt den Steuersatz auf den Normalsatz des Landes (0 bei Kleinunternehmer) und zeigt dessen Sätze. Rechnungen buchen immer auf die Heimat (Grenze 11) |
+| FA-18.4 | **Für das Finanzamt:** Bei weiteren Registrierungen Chips je Land über dem Zeitraum. Heimat: nur Belege ohne Steuerland, Heimatformular (AT-Kleinunternehmer: U30 nur bei Reverse Charge, sonst Hinweis). Weiteres Land: nur dessen Belege, dessen `vatReturnForm` und Vorsteuerabzug nach Besteuerungsform (DE-Regelbesteuerung → UStVA Kz 81/86/66/83); ohne Regelbesteuerung Hinweis statt Kennzahlen (P-S69) |
+| FA-18.5 | **Termine je Registrierung** (Termin-Box, nur Anzeige wie FA-10.3): Regeln aus `TaxProfile.registrationDeadlineRules` des Registrierungslands (`spec.*.registration_deadline_rules`) – DE: UStVA 10. des Folgemonats bzw. nach Quartalsende, mit Dauerfristverlängerung einen Monat später (§ 18 Abs 1 UStG, § 46 UStDV), USt-Jahreserklärung 31.07. des Folgejahres (§ 18 Abs 3 UStG, § 149 Abs 2 AO); AT: UVA 15. des zweitfolgenden Monats (§ 21 Abs 1 UStG), U1 30.06. (§ 21 Abs 4 UStG, § 134 BAO). Bezeichnung mit Länderkürzel („DE · UStVA Januar 2027“), Verschiebung auf den nächsten Werktag mit den bundesweiten Feiertagen des Registrierungslands (P-S71), nur Zeiträume zwischen Beginn und Ende; „nur jährlich“ → nur Jahreserklärung; „keine“, Kleinunternehmer oder EU-KU → keine Termine im anderen Land |
+| FA-18.6 | **Heimattermine:** Schalter „One-Stop-Shop (OSS)“ in „Wirtschaftsjahr und Termine“ → OSS-Erklärung vierteljährlich bis Ende des Folgemonats (Art 369g MwStSystRL; AT Art 25a UStG, DE § 18j Abs 3 UStG; P-S72), unabhängig vom UVA-Zeitraum. Mindestens eine Registrierung im EU-Kleinunternehmer-Verfahren → „EU-KU-Meldung“ vierteljährlich bis Ende des Folgemonats im Heimatland (Art 284d MwStSystRL; P-S69) |
+| FA-18.7 | **Kleinunternehmergrenze der Heimat** (FA-4.x) zählt nur Belege ohne Steuerland; Umsätze aus einem Lager im anderen Land sind dort steuerbar (P-S70). Die EU-weite Grenze des EU-KU-Verfahrens (100.000 €) prüft die App nicht (Grenze 11) |
+| FA-18.8 | **Gewinnermittlung** (E1a/Anlage EÜR) im Heimatland über alle Steuerländer (`PeriodTotals +`), je Land mit dessen Vorsteuerabzug; Anlagen und AfA nur Heimat; Hinweis „Alle Steuerländer zusammen“. Übersicht, Kassabuch und Exporte rechnen weiter über alle Belege mit den Heimatregeln (Grenze 11) |
+| FA-18.9 | **Plattformimport** (FA-2.43 ff.): Abgangsland je Verkauf aus der Spalte `ship-from-country`/`sale-depart-country` u. ä., sonst bei Versand durch Amazon (FBA) das Marktplatzland. Besteht dafür eine am Verkaufstag gültige Registrierung, wird je Monat **eine eigene Sammelbuchung** mit diesem Steuerland gebucht (Normalsatz des Landes bzw. Steuer laut Bericht, steuerfrei bei Kleinunternehmer-/EU-KU-Registrierung), Beschreibung „Amazon März 2026 (DE): n Verkäufe“. Hinweise: „Lager dort angenommen“ (nur Marktplatzland, P-S73) und „Fernverkauf“ (Abgangsland ≠ Bestimmungsland). Gebühren bleiben Heimat (Reverse Charge am Sitz). Ohne Registrierung unverändert mit Pan-EU-Hinweis |
+
 ## 6. Zustandsmodelle
 
 ### 6.1 Rechnung
@@ -899,7 +937,8 @@ Kleinunternehmer:
 | Verträge | `features/contracts/contract_screens.dart` | Liste mit Art, Partner, nächstem Termin, Rate; „Vertrag ablegen“ mit Seiten, Kurzübersicht (Pro), Fristen, Zahlung, Abgleich, Buchungsvorschlag, Belege verknüpfen, Aufbewahrung, Löschen (FA-16.1 bis FA-16.8) |
 | Anlagen und Jahresabschluss | `features/reports/reports_screen.dart` | Zeile Anlagen, Jahr, Kommentar, Anlagenverzeichnis, Saldenliste (Pro), vorläufiger Jahresabschluss als Paket (Pro) (FA-15.11) |
 | Anlagen | `features/assets/asset_screens.dart` | Liste mit Buchwert heute, unten „Anlage ohne Beleg erfassen“; „Investition erfassen“/„Anlage“ mit AfA-Plan, unten „Ausscheiden“ und „Speichern“, Bottom-Sheet Ausscheiden (FA-15.1 bis FA-15.7) |
-| Für das Finanzamt | `features/tax_office/tax_office_screen.dart` | Zeitraum, Kennzahlen der UVA/UStVA zum Kopieren, Schritte und Portal-Link, „U30-Datei teilen“ (Pro, nur AT), Jahreszahlen E1a/Anlage EÜR (FA-14.1 bis FA-14.8) |
+| Steuerliche Registrierungen | `features/settings/tax_registration_screen.dart` | Abschnitt in den Stammdaten: Heimat, weitere Länder (Zeilen 56 dp), „Land hinzufügen“ 56 dp mit Länder-Bottom-Sheet (Zeilen 56 dp, „bald“), Formular mit Besteuerung, UID, Steuernummer, Finanzamt-Vorschlag, Zeitraum, Dauerfristverlängerung, Beginn/Ende, „Speichern“ unten 56 dp, „Land entfernen“ in der Gefahrenzone (FA-18.1, FA-18.2) |
+| Für das Finanzamt | `features/tax_office/tax_office_screen.dart` | Steuerland-Chips bei weiteren Registrierungen (FA-18.4), Zeitraum, Kennzahlen der UVA/UStVA zum Kopieren, Schritte und Portal-Link, „U30-Datei teilen“ (Pro, nur AT), Jahreszahlen E1a/Anlage EÜR (FA-14.1 bis FA-14.8) |
 | Einstellungen | `features/settings/settings_screen.dart` | Stammdaten, App-Sperre, Abo (FA-13.5), Symbol auf Startbildschirm (FA-1.19, nur Android), Belege auslesen, Fremdwährung (Tageskurs-Genehmigung), Kategorien, Rechtsrahmen, Wunsch oder Idee senden (FA-11.6), Rechtliches, Hinweise |
 | App-Sperre einrichten | `features/app_lock/app_lock_settings_screen.dart` | PIN, Biometrie, Sperrzeit, Hinweis „PIN vergessen“, Warnung ohne Sicherung |
 | Sperrbildschirm | `features/app_lock/lock_screen.dart` | PIN oder Biometrie, Wartezeit nach Fehlversuchen; Abdeckung im App-Umschalter |
@@ -1217,6 +1256,7 @@ Offen benannt, weil eine Spezifikation, die ihre Lücken verschweigt, wertlos is
 | **Fremdwährung nur bei Ausgaben** | Eingangsbelege werden umgerechnet (FA-2.24 bis FA-2.27); Ausgangsrechnungen nur in Euro. Den BMF-Monatskurs lädt die App nicht, er wird von Hand übernommen; das EZB-Monatsmittel ist nur eine Näherung (P-S23, P-S24). DATEV/BMD exportieren nur Euro (P-D23). Ein Land mit anderer Währung setzt Mehrwährungsfähigkeit voraus | Backlog G7 |
 | **Termine nur als Anzeige** | Die Termin-Box (FA-10.3) erinnert nicht aktiv; Bescheid-Termine (z. B. abweichende Vorauszahlungen, Nachzahlungen) kennt sie nicht. Teil- und Anzahlungen auf Rechnungen bildet die App nicht ab (P-S35) | Stufe 2: Benachrichtigungen |
 | **Bewirtung nur mit Regelsatz** | Die Kürzung (AT 50 %, DE 70 %, FA-2.60) gilt für jede Ausgabe der Kategorie „Bewirtung“; AT-Bewirtung ohne Werbezweck (0 %) und unangemessene Aufwendungen erkennt die App nicht. Keine eigene Kennzahl in E1a/Anlage EÜR (P-S46); BMD ohne Umbuchung | später |
+| **Mehrere Steuerländer: erste Stufe** | Nur AT und DE wählbar (weitere „bald“, L-30.8). Rechnungen buchen immer auf die Heimat; Übersicht, Kassabuch und Exporte (CSV, DATEV, BMD, Saldenliste) rechnen über alle Belege mit den Heimatregeln. Innergemeinschaftliches Verbringen ins Lager (DE Kz 89/61, AT ZM) wird nicht gebucht (O-40, P-S68). Keine Prüfung der EU-weiten 100.000-€-Grenze des EU-KU-Verfahrens. Feiertage des Registrierungslands nur bundesweit. Lagerland aus dem Marktplatz nur angenommen (P-S73); der Amazon-USt-Transaktionsbericht wird nicht als eigenes Format erkannt | L-30.8, L-30.9, O-40 |
 | **Kleinunternehmerstatus nicht je Jahr** | Ob Ausgaben brutto zählen, richtet sich nach der aktuellen Einstellung, auch für Vorjahre | später |
 | **Keine Teilzahlungen** | Mahnkosten und Zinsen werden nur bei voller Zahlung mitgebucht; Teilzahlungen und deren Anrechnung (§ 1416 ABGB, § 367 BGB) bildet die App noch nicht ab; Basiszinssätze ändern sich nur per App-Update (P-S44) | später |
 | **Plattformimport ohne Dateiauswahl in der App** | Die Exportdatei kommt über Teilen bzw. „Öffnen mit“ (Dateien-App, Downloads); eine eigene Dateiauswahl fehlt. Nur EUR; Bestimmungsland für OSS nur näherungsweise (Marktplatz, Lieferland), bei PayPal/Stripe keins. Umsatzsteuer der Verkäufe ohne Steuerspalte zum Normalsatz (P-S51); Spaltennamen nur an synthetischen Dateien geprüft (P-S55) | später |
@@ -1236,7 +1276,7 @@ Offen benannt, weil eine Spezifikation, die ihre Lücken verschweigt, wertlos is
 > Das ist der Mechanismus, der dieses Dokument aktuell hält.
 
 ```properties
-spec.schema_version = 26
+spec.schema_version = 27
 spec.helper_mail_poll_minutes = 60
 spec.helper_mail_send_hours = 24
 spec.helper_mail_retention_days = 90
@@ -1320,7 +1360,9 @@ spec.at.vat_return_kz = U30;000;200=022,130=006,100=029,49=124;016;060;095;cent;
 spec.at.annual_return_kz = E1a;9040;9040;-;-
 spec.at.entertainment = 500;voll;nein;§ 20 Abs 1 Z 3 EStG;§ 12 Abs 2 Z 2 lit a UStG 1994
 spec.at.depreciation = halfYear;100000;ak;-;§ 7 Abs 3 EStG;computer=3,software=3,furniture=10,car=8min8,tools=5,other=5
-spec.at.deadline_rules = UVA@15+2m | ZM@0+1m | ESt-Vorauszahlung@02-15,05-15,08-15,11-15 | ESt-/USt-Erklärung (FinanzOnline)@+1j06-30 | SVS-Beitrag@02-00,05-00,08-00,11-00~
+spec.at.deadline_rules = UVA@15+2m | ZM@0+1m | ESt-Vorauszahlung@02-15,05-15,08-15,11-15 | ESt-/USt-Erklärung (FinanzOnline)@+1j06-30 | SVS-Beitrag@02-00,05-00,08-00,11-00~ | OSS-Erklärung@0+1mq | EU-KU-Meldung@0+1mq
+spec.at.registration_deadline_rules = UVA@15+2m | USt-Jahreserklärung (U1)@+1j06-30
+spec.at.foreign_tax_offices = DE=Finanzamt Österreich, Dienststelle Graz-Stadt
 
 # Deutschland – § 19 UStG, § 33 UStDV, § 147 AO
 spec.de.vat_permille = 190,70,0
@@ -1355,7 +1397,9 @@ spec.de.vat_return_kz = UStVA;-;190=81,70=86;-;66;83;euro;none
 spec.de.annual_return_kz = Anlage EÜR;112;111;140;185
 spec.de.entertainment = 700;voll;ja;§ 4 Abs 5 Satz 1 Nr. 2 EStG;§ 15 Abs 1a Satz 2 UStG
 spec.de.depreciation = monthly;80000;netto;25001-100000;§ 4 Abs 3 Satz 5 EStG;computer=1,software=1,furniture=13,car=6,tools=5,other=5
-spec.de.deadline_rules = UStVA@10+1m+1x | ZM@25+1m | ESt-Vorauszahlung@03-10,06-10,09-10,12-10 | Steuererklärungen@+1j07-31
+spec.de.deadline_rules = UStVA@10+1m+1x | ZM@25+1m | ESt-Vorauszahlung@03-10,06-10,09-10,12-10 | Steuererklärungen@+1j07-31 | OSS-Erklärung@0+1mq | EU-KU-Meldung@0+1mq
+spec.de.registration_deadline_rules = UStVA@10+1m+1x | USt-Jahreserklärung@+1j07-31
+spec.de.foreign_tax_offices = AT=Finanzamt München
 ```
 
 Umrechnung: Beträge in Cent. `5500000` Cent = 55.000,00 €.
@@ -1375,6 +1419,7 @@ Ertragsteuer; Fundstelle Vorsteuer.
 
 | Version | Datum | App-Version | Änderung |
 |---|---|---|---|
+| 1.82 | 2026-10-18 | 0.25.0 | App-Version 0.25.0 (Testbuild). Steuerliche Registrierungen in mehreren Ländern (Auftrag Auftraggeber 2026-10-18, Lastenheft 5.30): GR-16 neu (3); Schema 27 `tax_registrations`, `receipts.tax_registration_id`, `company_profile.oss_participant` (4.1, 4.2); 5.14 FA-18.1 bis FA-18.9; 5.6a Verweis; Bildschirm „Steuerliche Registrierungen“ und Steuerland-Chips in „Für das Finanzamt“ (7); Grenze „Mehrere Steuerländer: erste Stufe“ (11); Kenndaten `spec.schema_version` 27, `spec.*.deadline_rules` um OSS und EU-KU-Meldung, neu `spec.*.registration_deadline_rules`, `spec.*.foreign_tax_offices` (12). Neue Prüfpunkte P-S68 bis P-S74, P-X22, P-D45. Prüfinstanzen: Steuerberater (JeNiBarb: FBA-Lager in DE → DE-Registrierung und DE-Regelbesteuerung für Verkäufe ab DE-Lager, Verbringen als ig. Erwerb Kz 89/61, deutsches § 19 nur für Inländer, EU-KU-Verfahren nur unter Bedingungen; AT-KU ohne U30 außer RC; Ertragsteuer nur AT; Finanzamt München; P-S68 bis P-S74), Rechtsanwalt (keine neue Übertragung, Finanzamt nur Vorschlag; P-R5 unverändert), Softwareentwickler (Migration neu, `RegistrationScope` statt Länder-ifs, Fremdschlüssel mit Löschsperre, Datensicherung über alle Tabellen), UX (Chips nur ab zwei Registrierungen, Heimat vorgewählt, Land hinzufügen und Länderzeilen 56 dp, Gefahrenzone am Formularende, ein Tipp zum Wechseln). |
 | 1.81 | 2026-10-17 | 0.24.0 | App-Version 0.24.0 (Testbuild). Belegsammler per E-Mail als Standardweg (Entscheidungen Auftraggeberin 2026-10-17, Lastenheft 14a): FA-17.9 bis FA-17.12 neu, FA-17.1/17.3/17.4 angepasst; Sammelpaket Version 2 (8.9); Schema 26 `helper_mail_seen`, `helper_outbox.sent_at`/`package_path` (4.1); Bildschirme (7); Datenflüsse IMAP/SMTP/Serversuche und Berechtigungen (10.1, 10.2); Grenze „Mailweg ohne OAuth“ (11); Kenndaten `spec.schema_version` 26, `spec.helper_mail_poll_minutes`, `spec.helper_mail_send_hours`, `spec.helper_mail_retention_days` (12). Neue Prüfpunkte P-R47, P-R48, P-D44, P-X21, P-S67. Prüfinstanzen: Rechtsanwalt (eigenes Postfach des Beschäftigten mit einmaliger Einwilligung, Inhaberin Verantwortliche, Mailanbieter nur Chiffrat, Store-Angaben „nicht erhoben“ bleibt, ISPDB-Abruf offenlegen; P-R47, P-R48), Steuerberater (Belege bleiben Vorschläge, verschlüsselte Kopie beim Mithelfer bis 90 Tage ersetzt keine Aufbewahrung; P-S67), Softwareentwickler (`enough_mail` wegen `xml`-Konflikt nicht nutzbar → eigenes IMAP/SMTP, nur lesende Befehle, TLS Pflicht, Kennwort im Keystore/Schlüsselbund, `workmanager` 0.10.10 und `flutter_local_notifications` 22.3.2 gepflegt, Desugaring nötig; Tests mit Ersatzserver), UX (E-Mail vorgewählt, Bottom-Sheet scrollbar statt Überlauf auf 360×740, Fehler oben sichtbar, alle Knöpfe ≥ 48 dp, Speichern unten 56 dp, ein Einrichtungsschritt je Gerät). |
 | 1.80 | 2026-10-17 | 0.23.2 | App-Version 0.23.2 (Testbuild). Belegerkennung OMV-Beleg (FA-2.62): Rangfolge Kassen-QR > Steuertabelle mit mehreren Zeilen (auch 0 %) > Gesamtbetrag/Summe/Total > Rest; Zahlungszeilen nie Gesamtbetrag; gedruckte Netto/Steuer je Satz mit Toleranz übernommen; Codes auf jeder Seite, auch PDF-Seitenbilder und unverbessertes Scan-Original; Händler „OMV Tankstelle“ trotz OCR-Trennung; Tankstelle ohne Treibstoff nicht Kfz-Kosten. Korpus um den OMV-Beleg erweitert. Prüfinstanzen: Steuerberater (Pfand 0 % als eigener Satz, Vorsteuer nur aus 20 %-Teil; ohne Befund), Softwareentwickler (Rangfolge in Tests, Korpus-Regression), UX (kein zusätzlicher Schritt, weniger Korrekturen), Rechtsanwalt ohne Befund. Kein Schemawechsel. |
 | 1.79 | 2026-10-17 | 0.23.1 | App-Version 0.23.1 (Testbuild). Belegsammler gemischt Android/iPhone (Entscheidung Auftraggeberin 2026-10-17, FA-17.4, 8.9): Paketformat plattformunabhängig mit Prüfmuster, iOS-Dateityp `.jenibeleg` (Öffnen in…), Android „Öffnen mit“ über eigenen MIME-Typ und Endung, Teilen-Blatt mit iPad-Anker, Ordnerhinweis für gemischte Familien; P-D42 auf beide Richtungen erweitert. UX: kein zusätzlicher Schritt, ein Umweg weniger auf dem iPhone; Rechtsanwalt/Steuerberater ohne Befund (keine neue Übertragung durch die App). Entscheidungen Auftraggeberin (Lastenheft 14a): Mithelfer-Geräte ohne eigenes Abo und ohne Gerätegrenze bestätigt (FA-17.x unverändert). Neue Startkategorie „Material und Werkzeug“ (SKR03 4985, SKR04 6845, BMD EKR 5300), Schema 25 ergänzt sie in bestehenden Datenbanken (4.1); Baumarkt-Belege schlagen sie vor (FA-2.31). `spec.schema_version` 25, `spec.seed_category_count` 18, `spec.seed_category_expense_count` 15 (12). Neuer Prüfpunkt P-S66. Prüfinstanzen: Steuerberater (Konto Werkzeuge/Kleingeräte, Material für Aufträge ggf. Wareneinsatz – Kanzlei, P-S66), Softwareentwickler (Migration neu, idempotent), UX (nur anderer Vorschlag, kein Schritt mehr), Rechtsanwalt ohne Befund. |
@@ -1533,6 +1578,13 @@ erzeugt `beispiele_erzeugen_test.dart` mit dem PDF-Generator der App.
 | P-S8 | Rechnungshinweis DE Kleinunternehmer | „Steuerbefreiung nach § 19 UStG (Kleinunternehmer)" empfohlen; seit Spezifikation 1.5 im Code | Release | intern geprüft 2026-10-16 (hoch) |
 | P-S9 | AT Rechnung über 10.000 € brutto braucht UID des Empfängers | Prüfung im Formular fehlt | Release | intern geprüft 2026-10-16 (hoch) |
 | P-S10 | GoBD/BAO: Unveränderbarkeit, Verfahrensdokumentation, RKSV-Abgrenzung bei Bareinnahmen | Belege werden seit Spezifikation 1.11 storniert statt gelöscht (FA-2.11); Unveränderbarkeit des `audit_log` und Verfahrensdokumentation offen | Release | offen |
+| P-S68 | **Spirits by JeNiBarb e.U. (AT-Kleinunternehmer, Amazon FBA mit Lager in DE):** (a) DE-Registrierung Pflicht ab erster Einlagerung? (b) Verkäufe ab DE-Lager an DE-Kunden in DE steuerbar (§ 3 Abs 6 UStG) und **regelbesteuert** (19 % Spirituosen), monatliche UStVA in den ersten zwei Jahren (§ 18 Abs 2 S 4 UStG)? (c) Verbringen AT→DE: in DE ig. Erwerb (§ 1a Abs 2 UStG, Kz 89, Vorsteuer Kz 61), in AT ig. Lieferung (Art 3 Abs 1 Z 1 BMR) – greift für den AT-Kleinunternehmer die Befreiung § 6 Abs 1 Z 27 UStG vor Art 6 Abs 1 BMR, ZM nötig? (d) Gebühren Amazon EU (LU) bleiben RC in AT (Sitz) | Vorbefund Steuerberater 2026-10-18: (a) ja, (b) ja, Regelbesteuerung, da § 19 UStG nur im Inland ansässigen Unternehmern offensteht (§ 19 Abs 1 UStG idF JStG 2024); (c) DE-Seite gesichert, AT-Seite unsicher (mittel), App bucht Verbringen nicht (O-40); (d) ja (§ 3a Abs 6 UStG 1994). Sicherheit: (a)(b)(d) hoch, (c) mittel. Quellen: §§ 1a, 3 Abs 6, 18, 19 UStG; Art 3, 6, 7 BMR; § 6 Abs 1 Z 27 UStG 1994; UStAE 1a.2 | Release | offen |
+| P-S69 | **EU-Kleinunternehmer-Verfahren statt DE-Registrierung** (seit 1.1.2025): Voraussetzungen (EU-Jahresumsatz ≤ 100.000 €, DE-Grenzen 25.000/100.000 €, Teilnahme über FinanzOnline mit EX-Kennung), vereinbar mit FBA-Lager und Verbringen? Meldefrist vierteljährlich einen Monat nach Quartalsende (Art 284d MwStSystRL) im Heimatland; Fundstellen AT/DE (§ 6 Abs 1 Z 27 UStG 1994 idF AbgÄG 2024, §§ 19, 19a UStG) | Vorbefund: grundsätzlich möglich, aber bei Lagerung in DE wegen ig. Erwerb aus Verbringen praktisch kaum nutzbar; App bietet die Form an, erzeugt dann keine DE-Termine und die EU-KU-Meldung. Sicherheit mittel | Release | offen |
+| P-S70 | Kleinunternehmergrenze der Heimat: zählen Umsätze aus dem DE-Lager (in DE steuerbar) zur AT-Grenze 55.000 € (§ 6 Abs 1 Z 27 UStG 1994: „im Inland“)? App rechnet sie nicht mit (FA-18.7). Gegenprobe DE-Heimat mit AT-Lager | Vorbefund: nein, nur im Inland steuerbare Umsätze; für EU-KU zusätzlich EU-Gesamtumsatz. Sicherheit mittel | Release | offen |
+| P-S71 | Zuständiges Finanzamt für ausländische Unternehmer: AT-Unternehmen in DE → Finanzamt München (§ 21 Abs 1 S 2 AO, § 1 Abs 1 UStZustV, aktuelle Fassung?); DE-Unternehmen in AT → Finanzamt Österreich, Dienststelle Graz-Stadt (§ 60 Abs 2 BAO, AVOG 2010)? Feiertage für die Fristverschiebung: am Sitz des Finanzamts (Bayern) oder bundesweit? | Vorbefund: München hoch, Graz-Stadt mittel; Feiertage: App nimmt bundesweite (unsicher) | Release | offen |
+| P-S72 | OSS-Erklärung: Frist Ende des Folgemonats nach Quartalsende (Art 369g MwStSystRL) – Verschiebung bei Wochenende/Feiertag? Fernverkäufe aus dem DE-Lager in andere EU-Länder: Meldung über das AT-OSS mit Abgangsland DE? | Vorbefund: Frist hoch; Verschiebung nach EU-Recht nein (mittel) – App verschiebt wie alle Termine; Fernverkäufe über Heimat-OSS (hoch) | Release | offen |
+| P-S73 | Importzuordnung (FA-18.9): FBA-Verkauf auf amazon.de ⇒ Lager DE als Annahme vertretbar? Bei Pan-EU/CEE nur mit USt-Transaktionsbericht (`SALE_DEPART_COUNTRY`); Steuer laut Bericht oder Normalsatz 19 % für Spirituosen | Vorbefund: als Vorschlag mit Hinweis vertretbar, Prüfung durch die Kanzlei je Quartal. Sicherheit mittel | Release | offen |
+| P-S74 | Ertragsteuer: begründet das FBA-Lager in DE eine Betriebsstätte (§ 12 AO, Art 5 DBA AT-DE)? App: Gewinn nur in AT (E1a) über alle Steuerländer (GR-16) | Vorbefund: nein, keine Verfügungsmacht über das Amazon-Lager (h. M.), Sicherheit mittel | Release | offen |
 
 ### Rechtsstand-Überwachung (Validierung, Lastenheft L-20)
 
@@ -1584,6 +1636,7 @@ erzeugt `beispiele_erzeugen_test.dart` mit dem PDF-Generator der App.
 | P-X17 | Blindtest Aufnahmeknopf (FA-12.1, DESIGN_SPEC 5a Regel 13): auf Pixel 10 und iPhone einhändig rechts und links, ohne hinzusehen, den runden Knopf „Beleg“ auf Übersicht und Belegliste treffen; im Belegformular „Seite“ treffen, ohne „Beleg speichern“ auszulösen; TalkBack/VoiceOver liest „Beleg fotografieren“ | Widget-Test: Kreis ≥ 72 dp, Mitte ± 2 dp, über Speichern | Release | offen |
 | P-X20 | Einhandtest Mithelfer (FA-17.2, FA-17.3, FA-17.5): auf dem Mithelfer-Gerät „Beleg“ unten mittig, „Senden“ unten mit dem Daumen ohne Umgreifen; auf dem Hauptgerät Ablehnen (48 dp) neben der Zeile nicht versehentlich treffen; QR-Code auf 360-dp-Gerät vollständig und scharf | Widget-Test: Aufnahmeknopf ≥ 72 dp mittig im unteren Drittel, Nebenknöpfe ≥ 48 dp | Release | offen |
 | P-X21 | Einhandtest Mailweg (FA-17.9, FA-17.10): Häkchen „Andere E-Mail-Adresse …“ und „Verbinden und speichern“ mit dem Daumen; Mithelfer: App-Passwort aus der Google-/Apple-Seite kopieren und einfügen ohne Umgreifen, „Jetzt senden“ (48 dp) nicht mit „Beleg“ (Aufnahmeknopf) verwechseln; Bottom-Sheet „Gerät hinzufügen“ mit offener Tastatur auf 360-dp-Gerät | Widget-Tests: Häkchen 56 dp, Knöpfe ≥ 48 dp, Speichern 56 dp, Bottom-Sheet scrollbar (`helper_mail_ui_test.dart`) | Release | offen |
+| P-X22 | Einhandtest Steuerland (FA-18.1, FA-18.3) ab 0.25.0 auf Pixel und iPhone: Stammdaten → „Land hinzufügen“ → Deutschland → Speichern mit dem Daumen; im Belegformular Chip „DE“ ein Tipp, Steuersatz springt auf 19 %; Chips nicht neben Gefahrenknöpfen | Widget-Test misst 56 dp (`test/tax_registration_test.dart`); Gerät offen | Release | offen |
 | P-X19 | Blindtest Aufnahmeleiste (FA-12.1, DESIGN_SPEC 5a Regel 13): einhändig rechts und links „Foto“, „Beleg“ und „Datei“ ohne hinzusehen treffen, kein Fehltipp auf den Nachbarn; TalkBack/VoiceOver liest „Foto aus der Galerie als Beleg“ und „Datei als Beleg wählen“ | Widget-Test: 56 dp, 48 dp Abstand, spiegelgleich, 360 und 412 dp | Release | offen |
 | P-X18 | Einhandtest Diktat (FA-2.61): Mikrofon im Feld Beschreibung/Notiz und im Betrag mit dem Daumen treffen, ohne das Feld daneben zu öffnen; Stopp mit einem Tipp; Vorschlag im Betrag sichtbar, Tastatur verdeckt die Speicherleiste nicht | Widget-Test: Knopf ≥ 48 dp | Release | offen |
 
@@ -1766,6 +1819,7 @@ erzeugt `beispiele_erzeugen_test.dart` mit dem PDF-Generator der App.
 | P-D42 | Gerätetest Mithelfer ab 0.23.1, **gemischt in beide Richtungen**: (1) Pixel als Hauptgerät, iPhone als Mithelfer; (2) iPhone als Hauptgerät, Android als Mithelfer. Je Richtung: QR in der App fotografieren und koppeln; Beleg über das Teilen-Blatt (iPhone: `UIActivityViewController`, auch iPad) per WhatsApp/Signal/Mail senden; auf dem Hauptgerät Datei antippen → „Öffnen mit JeNi bucht“ (Android) bzw. „Öffnen in JeNi bucht“ aus Mail, WhatsApp und Dateien (iOS, ohne Umweg über „In Dateien sichern“) → Eingang; Weg Ordner über Google Drive, OneDrive oder Dropbox, den beide Systeme zeigen (iCloud Drive nur iPhone–iPhone), Hinweis sichtbar; nach Übernahme „übernommen“ beim Mithelfer; Trennen → nächstes Paket abgelehnt; Bilder auf dem Mithelfer nach dem Senden gelöscht | Tests mit Ordner-Ersatz und Teilen-Rückruf (`helper_devices_test.dart`) | Release | offen |
 | P-D43 | Gerätetest OMV-Beleg ab 0.23.2 (FA-2.62): Originalbon Dobl (Kaiserwald) mit Kamera, Dokumentenscanner und als geteiltes Foto erfassen; erwartet 8,96 € mit 7,96 € zu 20 % (Netto 6,64, Steuer 1,32) und 1,00 € zu 0 %, Vermerk „vom Kassen-QR“, Händler „OMV Tankstelle“, Kategorie nicht Kfz-Kosten; zusätzlich ML-Kit-Ergebnis als Korpus-JSON aus dem CI-Job übernehmen | `receipt_omv_test.dart`, Korpus `erwartet.json` | Release | offen |
 | P-D44 | Gerätetest Mailweg ab 0.24.0: (1) Hauptgerät Pixel mit Geschäftsadresse bei einem AT-Anbieter (z. B. World4You, A1) über Autoconfig, dann mit Gmail-App-Passwort; (2) Mithelfer iPhone mit iCloud-App-Passwort und Android mit Gmail-App-Passwort; je zwei Belege erfassen, App schließen, am nächsten Tag ohne Öffnen prüfen, ob die Mail gesendet wurde (Android WorkManager; iOS bestmöglich) und ob sie binnen einer Stunde im Eingang liegt; Mail im Postfach bleibt ungelesen und unverschoben; dieselbe Mail weiterleiten → kein doppelter Beleg; Mithelfer ohne Postfach: Mitteilung „Belege senden“ einmal am Tag, Antippen öffnet Mailfenster mit Anhang (Android Gmail, iOS Apple Mail); falsches App-Passwort → Meldung, Belege warten; Trennen → nächste Mail abgelehnt; Aufbewahrung 30 Tage wählen | `helper_mail_test.dart` mit Ersatzserver, `helper_mail_ui_test.dart` | Release | offen |
+| P-D45 | Gerätetest 0.25.0: Update von 0.24.0 mit vorhandenen Belegen (Migration 26 → 27), DE-Registrierung anlegen, Amazon-Abrechnung (FBA amazon.de) importieren → Sammelbuchung „(DE)“, „Für das Finanzamt“ DE zeigt Kz 81/66, Termin-Box „DE · UStVA …“; Datensicherung wiederherstellen | Migration und Rechnung mit Tests geprüft; Gerät offen | Release | offen |
 | P-S65 | Belegbilder vom Mithelfer-Gerät (FA-17.3): aufgenommen auf einem fremden Gerät, dort nach dem Senden gelöscht, auf dem Hauptgerät unverändert gespeichert – genügt das den Aufbewahrungs- und Ordnungsvorschriften (§ 132 BAO, § 147 AO, GoBD Rz 136 ff. ersetzendes Scannen) und wie in die Verfahrensdokumentation aufnehmen? | Steuerberater intern: Original (Papier) bleibt beim Betrieb bis zur Entscheidung über ersetzendes Scannen; Bild unverändert übernommen, Herkunft „von ‹Gerät›“ in der Notiz, mittel | Release | offen |
 | P-S67 | Verschlüsselte Kopie der Belege auf dem Mithelfer-Gerät bis zur Aufbewahrungsfrist (Standard 90 Tage) und Belegmails im Postfach der Geschäftsadresse: Teil der Aufbewahrung nach § 132 BAO / § 147 AO oder nur Transport? Muss die Verfahrensdokumentation den Mailweg nennen? | Steuerberater intern: nur Transport, maßgeblich ist der gebuchte Beleg auf dem Hauptgerät (und Papier bis P-S65), Mailweg in der Verfahrensdokumentation nennen, mittel | Release | offen |
 | P-D41 | Gerätetest 0.22.1 (Pixel 10): Scan von Übersicht, Belegliste und im Formular zeigt Seitenbild, „Erneut auslesen“ und Vorbelegung; Sicherungsordner wählen und Sicherung wiederherstellen funktionieren weiter (Request-Codes neu); „Datei“ mit PDF, XRechnung/ZUGFeRD und Bild aus Google Drive und Downloads; iPhone: „Datei“ über die Dateien-App | Widget-Tests mit Fake-Channels, Test auf eindeutige Request-Codes | Release | offen |

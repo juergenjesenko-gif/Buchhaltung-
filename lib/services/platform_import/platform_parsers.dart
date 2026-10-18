@@ -102,6 +102,7 @@ class PlatformImportParser {
       final fba = normalizeHeader(
         c.get(r, _Amz.fulfillment),
       ).contains('amazon');
+      final shipFrom = _isoCountry(c.get(r, _Amz.shipFrom));
       // Kennung aus Abrechnungsnummer und buchungsrelevantem Zeileninhalt –
       // ohne Käuferspalten, damit sich die ID nicht an Personendaten bindet.
       final key = out.uniqueKey('dr', [
@@ -138,6 +139,7 @@ class PlatformImportParser {
           country: country,
           fba: fba,
           marketplaceTax: withheld != 0,
+          shipFrom: shipFrom,
         );
         if (fees != 0) {
           out.add('$key:fee', date, PlatformEntryKind.fee, fees);
@@ -205,6 +207,7 @@ class PlatformImportParser {
       ]);
       final country = _marketplaceCountry(c.get(r, _Amz.marketplaceName));
       final fba = normalizeHeader(c.get(r, _Amz.fulfillmentId)) == 'afn';
+      final shipFrom = _isoCountry(c.get(r, _Amz.shipFrom));
       final isRefund = _isAny(txType, _Amz.refundTypes);
       if (_isAdvertising(amountType) || _isAdvertising(desc)) {
         out.add(key, date, PlatformEntryKind.advertising, amount);
@@ -222,6 +225,7 @@ class PlatformImportParser {
           country: country,
           fba: fba,
           marketplaceTax: amountType == 'itemwithheldtax',
+          shipFrom: shipFrom,
         );
       } else if (amountType.contains('fee') ||
           desc.contains('fee') ||
@@ -470,6 +474,12 @@ class PlatformImportParser {
 
   static const _nonEuroMarketplaces = {'GB', 'US', 'PL', 'SE', 'TR', 'CZ'};
 
+  /// Zweistelliger Ländercode aus einer Abgangsland-Spalte, sonst `null`.
+  static String? _isoCountry(String raw) {
+    final v = raw.trim().toUpperCase();
+    return RegExp(r'^[A-Z]{2}$').hasMatch(v) ? v : null;
+  }
+
   /// Marktplatz → Bestimmungsland (Näherung für die OSS-Warnung).
   static String? _marketplaceCountry(String raw) {
     final m = RegExp(
@@ -514,6 +524,7 @@ class _Collector {
     String? country,
     bool fba = false,
     bool marketplaceTax = false,
+    String? shipFrom,
   }) {
     if (cents == 0 && kind != PlatformEntryKind.sale) return;
     entries.add(
@@ -527,6 +538,7 @@ class _Collector {
         destinationCountry: country,
         fulfilledByPlatform: fba,
         marketplaceCollectedTax: marketplaceTax,
+        shipFromCountry: shipFrom,
       ),
     );
   }
@@ -600,6 +612,15 @@ abstract final class _Amz {
     'descripcion',
   ];
   static const marketplace = ['marketplace', 'webdeamazon', 'sitoweb'];
+
+  /// Abgangsland/Lagerland, falls der Bericht es enthält (FA-18.9).
+  static const shipFrom = [
+    'shipfromcountry',
+    'saledepartcountry',
+    'versandlandabgang',
+    'abgangsland',
+    'shipfromcountrycode',
+  ];
   static const fulfillment = [
     'fulfillment',
     'fulfilment',

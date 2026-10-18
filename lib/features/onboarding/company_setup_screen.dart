@@ -16,6 +16,7 @@ import '../../services/contact_format.dart';
 import '../../services/vat_id/vat_id_format.dart';
 import '../../widgets/vat_check_status.dart';
 import '../backup/backup_screen.dart';
+import '../settings/tax_registration_screen.dart';
 import '../../app_state.dart';
 import '../../core/formatting.dart';
 import '../../domain/company_profile.dart';
@@ -69,6 +70,7 @@ class _CompanySetupScreenState extends State<CompanySetupScreen> {
   VatReturnInterval _vatInterval = VatReturnInterval.auto;
   bool _permanentExtension = false;
   bool _filesEcsl = false;
+  bool _oss = false;
   bool _hasTaxAdvisor = false;
   bool _svsInsured = true;
 
@@ -175,6 +177,7 @@ class _CompanySetupScreenState extends State<CompanySetupScreen> {
     _vatInterval = profile.vatReturnInterval;
     _permanentExtension = profile.vatPermanentExtension;
     _filesEcsl = profile.filesEcsl;
+    _oss = profile.ossParticipant;
     _hasTaxAdvisor = profile.hasTaxAdvisor;
     _svsInsured = profile.svsInsured;
   }
@@ -290,6 +293,14 @@ class _CompanySetupScreenState extends State<CompanySetupScreen> {
             subtitle: const Text('Nur bei Leistungen an Firmen im EU-Ausland'),
             value: _filesEcsl,
             onChanged: (v) => setState(() => _filesEcsl = v),
+          ),
+          SwitchListTile(
+            key: const Key('setup-oss'),
+            contentPadding: EdgeInsets.zero,
+            title: const Text('One-Stop-Shop (OSS)'),
+            subtitle: const Text('Verkäufe an Private in anderen EU-Ländern'),
+            value: _oss,
+            onChanged: (v) => setState(() => _oss = v),
           ),
           SwitchListTile(
             contentPadding: EdgeInsets.zero,
@@ -457,6 +468,7 @@ class _CompanySetupScreenState extends State<CompanySetupScreen> {
       vatReturnInterval: _vatInterval,
       vatPermanentExtension: _permanentExtension,
       filesEcsl: _filesEcsl,
+      ossParticipant: _oss,
       hasTaxAdvisor: _hasTaxAdvisor,
       svsInsured: _svsInsured,
       trackingStart: existing?.trackingStart ?? _trackingStart,
@@ -831,6 +843,8 @@ class _CompanySetupScreenState extends State<CompanySetupScreen> {
 
               if (!widget.isOnboarding) ...[
                 _deadlineSection(),
+                const SizedBox(height: 16),
+                const TaxRegistrationsSection(),
                 const SizedBox(height: 16),
               ],
 

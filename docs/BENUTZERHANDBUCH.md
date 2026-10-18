@@ -1,6 +1,6 @@
 # Benutzerhandbuch – JeNi bucht
 
-**Für App-Version 0.24.0** · Stand 2026-10-17
+**Für App-Version 0.25.0** · Stand 2026-10-18
 
 Dieses Handbuch beschreibt die App aus Nutzersicht. Es wird bei jeder Änderung,
 die du in der App siehst, mitgeführt – siehe [`CLAUDE.md`](../CLAUDE.md).
@@ -22,6 +22,7 @@ die du in der App siehst, mitgeführt – siehe [`CLAUDE.md`](../CLAUDE.md).
 13. [Wenn etwas nicht geht](#13-wenn-etwas-nicht-geht)
 14. [Was die App nicht kann](#14-was-die-app-nicht-kann)
 15. [Mithelfer-Geräte: Belege von Familie und Team](#15-mithelfer-geräte-belege-von-familie-und-team)
+16. [Mehrere Länder: weitere Steuer-Registrierungen](#16-mehrere-länder-weitere-steuer-registrierungen)
 
 ---
 
@@ -1428,6 +1429,14 @@ deiner Steuerberatung.
 
 ## 13. Wenn etwas nicht geht
 
+**„Die Nummer muss mit DE beginnen.“** (bei *Steuerliche Registrierungen*) —
+für ein Land gilt nur dessen UID, also für Deutschland eine USt-IdNr. mit
+„DE“, für Österreich mit „ATU“.
+
+**„Es gibt Belege mit diesem Steuerland …“** (beim Entfernen eines Landes) —
+ein Land mit Belegen bleibt, damit deine Zahlen stimmen. Trag stattdessen
+ein **Ende** ein; danach erscheinen keine Termine mehr.
+
 **„In den Stammdaten steht keine gültige Geschäfts-E-Mail …“** (bei *Empfang
 per E-Mail*) — trag die E-Mail in den Stammdaten ein oder setze das Häkchen
 **Andere E-Mail-Adresse für den Empfang von Belegen** und schreib dort eine
@@ -1664,6 +1673,10 @@ Damit du nicht darauf wartest:
   Benachrichtigungen sind geplant. Teilzahlungen auf Rechnungen kann die App
   noch nicht buchen – auch nicht nach einer Mahnung.
 - **Keine Synchronisierung** zwischen Geräten
+- **Weitere Länder erst in einer ersten Stufe.** Wählbar sind Österreich und
+  Deutschland; andere EU-Länder stehen als „bald“ da. Rechnungen gehen immer
+  auf dein Heimatland, und die Warenbewegung in ein Amazon-Lager im Ausland
+  (Verbringen) bucht die App nicht – das macht deine Kanzlei (Kapitel 16).
 - **Plattformberichte nur über Teilen.** Eine Dateiauswahl in der App gibt
   es noch nicht, und eine direkte Verbindung zu Amazon & Co. ist nicht
   geplant, solange die App ohne Server auskommt. Fremdwährungen aus
@@ -1804,4 +1817,62 @@ sie, dass sie Belege deines Betriebs verarbeiten und dafür **ihr eigenes
 Postfach** verwenden; sie geben das einmal beim Einrichten frei. Die
 Mailanbieter sehen nur verschlüsselte Anhänge, nie die Belege selbst. Bewahre Papierbelege auf,
 bis deine Steuerberatung etwas anderes sagt.
+
+## 16. Mehrere Länder: weitere Steuer-Registrierungen
+
+Viele kleine Betriebe sind in mehr als einem Land für die Umsatzsteuer
+gemeldet. Beispiel: Du bist in Österreich Kleinunternehmer, verkaufst aber über
+Amazon mit Lager in Deutschland (FBA). Dann hast du meist auch eine deutsche
+USt-IdNr. und gibst dort Voranmeldungen ab. Die App führt beides getrennt.
+
+### Ein Land hinzufügen
+
+1. **Einstellungen → Stammdaten** öffnen und nach unten zu
+   **Steuerliche Registrierungen** scrollen.
+2. **Land hinzufügen** tippen und **Deutschland** (bzw. Österreich) wählen.
+3. USt-IdNr. und Steuernummer eintragen. Das **Finanzamt** ist schon
+   vorgeschlagen (für österreichische Betriebe in Deutschland: Finanzamt
+   München) – nur ändern, wenn dein Bescheid etwas anderes sagt.
+4. **Besteuerung** lassen (Regelbesteuerung ist bei einem Lager üblich) und
+   den **Zeitraum** aus deinem Bescheid wählen (am Anfang meist monatlich).
+5. **Speichern.**
+
+Andere Länder wie Italien oder Frankreich stehen schon in der Liste mit
+„bald“.
+
+### Steuerland beim Beleg
+
+Sobald es ein zweites Land gibt, zeigt das Belegformular unter Einnahme/Ausgabe
+die Chips **Steuerland**, z. B. **AT** und **DE**. Dein Heimatland ist
+vorgewählt. Ein Tipp auf **DE** bucht den Beleg in Deutschland und stellt den
+Steuersatz auf 19 %. Ohne zweites Land siehst du davon nichts.
+
+### Amazon-Verkäufe aus dem Lager
+
+Beim Übernehmen eines Amazon-Berichts (Kapitel 4) bucht die App Verkäufe, die
+Amazon aus deinem Lager in Deutschland versendet, als eigene Sammelbuchung mit
+Steuerland DE („Amazon März 2026 (DE): …“). Steht im Bericht kein Lagerland,
+nimmt sie bei Versand durch Amazon das Land des Marktplatzes an und sagt dir
+das. Amazon-Gebühren bleiben in deinem Heimatland (Reverse Charge).
+
+### Meldungen und Termine je Land
+
+- **Für das Finanzamt:** oben das Land wählen. **DE** zeigt die Kennzahlen der
+  deutschen Voranmeldung nur aus deinen DE-Belegen. Dein Heimatland zeigt nur
+  die übrigen; als österreichischer Kleinunternehmer brauchst du die UVA nur
+  bei Reverse Charge.
+- **Gewinn:** E1a bzw. Anlage EÜR rechnet alle Länder zusammen – die
+  Einkommensteuer erklärst du nur in deinem Heimatland.
+- **Termin-Box:** Termine eines anderen Landes tragen das Kürzel, z. B.
+  „DE · UStVA Januar 2027“ am 10. Februar, mit Dauerfristverlängerung einen
+  Monat später, dazu die deutsche Jahreserklärung bis 31. Juli.
+- **OSS:** Nimmst du am One-Stop-Shop teil, schalte in den Stammdaten unter
+  *Wirtschaftsjahr und Termine* **One-Stop-Shop (OSS)** ein – dann steht die
+  vierteljährliche OSS-Erklärung in der Termin-Box.
+
+### Was du mit deiner Kanzlei klären solltest
+
+Ob du dich in einem Land registrieren musst, welche Besteuerung dort gilt und
+wie die Ware ins Lager gebucht wird (Verbringen), entscheidet deine
+Steuerberatung. Die App rechnet nur mit dem, was du einträgst.
 

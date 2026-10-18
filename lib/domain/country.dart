@@ -111,6 +111,9 @@ class TaxProfile {
     required this.hasPermanentExtension,
     required this.asksSocialInsurance,
     required this.deadlineRules,
+    required this.registrationDeadlineRules,
+    required this.foreignTaxOffices,
+    required this.foreignTaxOfficeLegalRef,
     required this.reverseCharge,
     required this.vatReturnForm,
     required this.annualReturnForm,
@@ -251,6 +254,15 @@ class TaxProfile {
 
   /// Steuer- und Abgabetermine (L-25), ohne Länder-ifs im Widget.
   final List<DeadlineRule> deadlineRules;
+
+  /// Termine einer *weiteren* Registrierung in diesem Land (FA-18.5): nur
+  /// Umsatzsteuer, die Ertragsteuer bleibt im Heimatland (FA-18.8).
+  final List<DeadlineRule> registrationDeadlineRules;
+
+  /// Vorschlag für das zuständige Finanzamt, wenn ein Unternehmen aus dem
+  /// Land mit dem Schlüssel (ISO-Code) hier registriert ist (FA-18.2).
+  final Map<String, String> foreignTaxOffices;
+  final String foreignTaxOfficeLegalRef;
 
   /// Steuerschuld des Leistungsempfängers für sonstige Leistungen eines im
   /// EU-Ausland ansässigen Unternehmers (L-28.4): Fundstelle und Kennzahlen
@@ -565,7 +577,49 @@ class TaxProfile {
         condition: DeadlineCondition.socialInsurance,
         approximate: true,
       ),
+      // Art 369g Abs 1 MwStSystRL, Art 25a Abs 6 UStG 1994
+      // (Binnenmarktregelung): OSS-Erklärung vierteljährlich bis Ende des
+      // Folgemonats. Ob die Frist bei Wochenende/Feiertag verschoben wird,
+      // ist ungesichert (EU-Recht kennt keine Verschiebung): P-S72.
+      DeadlineRule(
+        label: 'OSS-Erklärung',
+        legalRef: 'Art 369g MwStSystRL, Art 25a UStG',
+        schedule: AfterPeriod(dueDay: 0, monthsAfter: 1, quarterly: true),
+        condition: DeadlineCondition.oss,
+      ),
+      // Art 284d Abs 1 MwStSystRL: Umsatzmeldung im EU-Kleinunternehmer-
+      // Verfahren binnen eines Monats nach Quartalsende. P-S69.
+      DeadlineRule(
+        label: 'EU-KU-Meldung',
+        legalRef: 'Art 284d Abs 1 MwStSystRL',
+        schedule: AfterPeriod(dueDay: 0, monthsAfter: 1, quarterly: true),
+        condition: DeadlineCondition.euSmallBusinessReport,
+      ),
     ],
+    registrationDeadlineRules: const [
+      // § 21 Abs 1 UStG 1994: 15. des zweitfolgenden Monats.
+      DeadlineRule(
+        label: 'UVA',
+        legalRef: '§ 21 Abs 1 UStG',
+        schedule: AfterPeriod(dueDay: 15, monthsAfter: 2),
+        condition: DeadlineCondition.registrationReturn,
+      ),
+      // § 21 Abs 4 UStG 1994 iVm § 134 Abs 1 BAO: Jahreserklärung U1
+      // elektronisch bis 30.06. des Folgejahres.
+      DeadlineRule(
+        label: 'USt-Jahreserklärung (U1)',
+        legalRef: '§ 21 Abs 4 UStG, § 134 Abs 1 BAO',
+        schedule: FollowingYear(month: 6, day: 30),
+        condition: DeadlineCondition.registrationAnnual,
+      ),
+    ],
+    // Ausländische Unternehmer ohne Sitz/Betriebsstätte in Österreich:
+    // Finanzamt Österreich, Dienststelle Graz-Stadt (Sonderzuständigkeit,
+    // § 60 Abs 2 BAO iVm AVOG 2010). Ungesichert: P-S71.
+    foreignTaxOffices: const {
+      'DE': 'Finanzamt Österreich, Dienststelle Graz-Stadt',
+    },
+    foreignTaxOfficeLegalRef: '§ 60 Abs 2 BAO, AVOG 2010',
   );
 
   /// Deutschland – § 19 UStG in der ab 1.1.2025 geltenden Fassung.
@@ -825,7 +879,48 @@ class TaxProfile {
         schedule: FollowingYear(month: 7, day: 31),
         condition: DeadlineCondition.annualReturn,
       ),
+      // Art 369g Abs 1 MwStSystRL, § 18j Abs 3 UStG: OSS-Erklärung
+      // vierteljährlich bis Ende des Folgemonats. P-S72.
+      DeadlineRule(
+        label: 'OSS-Erklärung',
+        legalRef: 'Art 369g MwStSystRL, § 18j Abs 3 UStG',
+        schedule: AfterPeriod(dueDay: 0, monthsAfter: 1, quarterly: true),
+        condition: DeadlineCondition.oss,
+      ),
+      // Art 284d Abs 1 MwStSystRL, § 19a UStG: Umsatzmeldung im
+      // EU-Kleinunternehmer-Verfahren binnen eines Monats nach Quartalsende.
+      // P-S69.
+      DeadlineRule(
+        label: 'EU-KU-Meldung',
+        legalRef: 'Art 284d Abs 1 MwStSystRL, § 19a UStG',
+        schedule: AfterPeriod(dueDay: 0, monthsAfter: 1, quarterly: true),
+        condition: DeadlineCondition.euSmallBusinessReport,
+      ),
     ],
+    registrationDeadlineRules: const [
+      // § 18 Abs 1 UStG: 10. Tag nach Ablauf des Voranmeldungszeitraums;
+      // Dauerfristverlängerung um einen Monat, §§ 46 ff. UStDV (bei
+      // monatlicher Abgabe mit Sondervorauszahlung 1/11, § 47 UStDV).
+      DeadlineRule(
+        label: 'UStVA',
+        legalRef: '§ 18 Abs 1 UStG, § 46 UStDV',
+        schedule: AfterPeriod(dueDay: 10, monthsAfter: 1, extensionMonths: 1),
+        condition: DeadlineCondition.registrationReturn,
+      ),
+      // § 18 Abs 3 UStG iVm § 149 Abs 2 AO: Jahreserklärung bis 31.07. des
+      // Folgejahres (ohne Beratung).
+      DeadlineRule(
+        label: 'USt-Jahreserklärung',
+        legalRef: '§ 18 Abs 3 UStG, § 149 Abs 2 AO',
+        schedule: FollowingYear(month: 7, day: 31),
+        condition: DeadlineCondition.registrationAnnual,
+      ),
+    ],
+    // Zentrale Zuständigkeit für Unternehmer ohne Sitz im Inland: § 21 Abs 1
+    // Satz 2 AO iVm § 1 Abs 1 UStZustV – Österreich: Finanzamt München.
+    // Real zu prüfen (aktuelle Fassung): P-S71.
+    foreignTaxOffices: const {'AT': 'Finanzamt München'},
+    foreignTaxOfficeLegalRef: '§ 21 Abs 1 Satz 2 AO, § 1 Abs 1 UStZustV',
   );
 }
 
