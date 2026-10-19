@@ -1,4 +1,4 @@
-package at.jesenko.buchhaltung
+package at.jenibarb.jenibucht
 
 /**
  * Alle Request-Codes der App an einer Stelle, jeder genau einmal.

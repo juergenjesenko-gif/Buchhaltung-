@@ -29,7 +29,7 @@ import 'package:cryptography/cryptography.dart';
 const helperPackageExtension = '.jenibeleg';
 
 /// Eigener MIME-Typ der Belegpakete (Android-Intent-Filter, iOS-UTI
-/// `at.jesenko.buchhaltung.jenibeleg`). Gesendet wird als
+/// `at.jenibarb.jenibucht.jenibeleg`). Gesendet wird als
 /// `application/octet-stream`, weil Messenger fremde Typen sonst ablehnen.
 const helperPackageMimeType = 'application/x-jenibeleg';
 

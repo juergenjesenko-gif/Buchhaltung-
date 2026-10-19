@@ -56,7 +56,7 @@ Danach je Update etwa 5 Minuten.
    Capabilities** →
    - **Team:** „Add an Account…“ → mit deiner Apple-ID anmelden → dann
      „Jürgen Jesenko (Personal Team)“ wählen.
-   - **Bundle Identifier:** auf `at.jesenko.buchhaltung.test` ändern
+   - **Bundle Identifier:** auf `at.jenibarb.jenibucht.test` ändern
      (die kostenlose Signierung braucht eine eigene Kennung).
    - Steht unter „Signing“ ein roter Fehler zu einer Fähigkeit
      (z. B. „iCloud“), diese Zeile mit dem Minus entfernen – sie geht mit
@@ -86,7 +86,7 @@ Danach kannst du das Kabel abziehen; die App bleibt 7 Tage nutzbar.
 - **Fehler mit „pod install“**: im Terminal `cd ios && pod install && cd ..`,
   dann Schritt 10 wiederholen.
 - **„Failed to register bundle identifier“**: in Schritt 8 eine andere Kennung
-  wählen, z. B. `at.jesenko.buchhaltung.test2`.
+  wählen, z. B. `at.jenibarb.jenibucht.test2`.
 - Alles andere: Screenshot des Fehlers an Claude schicken.
 
 Was du auf dem iPhone besonders prüfen solltest: Face ID bei der App-Sperre,

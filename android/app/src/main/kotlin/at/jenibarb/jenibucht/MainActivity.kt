@@ -1,4 +1,4 @@
-package at.jesenko.buchhaltung
+package at.jenibarb.jenibucht
 
 import android.os.Build
 import io.flutter.embedding.android.FlutterFragmentActivity

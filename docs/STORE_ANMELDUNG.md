@@ -247,7 +247,8 @@ Bundle-ID; nach dem Wechsel der Bundle-ID (O-33) für die neue ID wiederholen.
 
 1. [Identifiers → iCloud Containers → +](https://developer.apple.com/account/resources/identifiers/add/cloudContainer)
    → Beschreibung „JeNi bucht Sicherung“, Kennung
-   `iCloud.at.jesenko.buchhaltung` (nach O-33: `iCloud.at.jenibarb.jenibucht`)
+   `iCloud.at.jenibarb.jenibucht` (seit O-33 am 2026-10-19; ein früher
+   angelegter Container für die alte Kennung wird nicht mehr gebraucht)
    → **Continue → Register**.
 2. [Identifiers → App IDs](https://developer.apple.com/account/resources/identifiers/list)
    → App-ID der App öffnen → Haken bei **iCloud** → **Include CloudKit

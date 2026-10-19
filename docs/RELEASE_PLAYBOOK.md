@@ -4,6 +4,12 @@ Weg von diesem Repository in den App Store und den Google Play Store.
 
 ## Vor dem allerersten Upload: Bundle-ID wechseln
 
+**Erledigt am 2026-10-19 (App-Version 0.26.0):** Kennung ist jetzt
+`at.jenibarb.jenibucht` (Android, iOS, Play-Upload in `release.yml`). Offen nur
+noch: iCloud-Container `iCloud.at.jenibarb.jenibucht` und App-ID im Apple
+Developer Portal anlegen (Spezifikation 14, P-B13). Die folgenden Schritte
+bleiben zur Nachvollziehbarkeit stehen.
+
 Entschieden (Lastenheft O-33, 2026-10-15): Store-Kennung
 `at.jenibarb.jenibucht`. Bis zur ersten Einreichung bleibt
 `at.jesenko.buchhaltung`, damit Testgeräte ohne Neuinstallation aktualisieren.

@@ -111,6 +111,8 @@ void main() {
   test('iOS: Belegpaket als eigener Dateityp angemeldet', () {
     final plist = File('ios/Runner/Info.plist').readAsStringSync();
     expect(plist, contains('UTExportedTypeDeclarations'));
+    expect(plist, contains('at.jenibarb.jenibucht.jenibeleg'));
+    expect(plist, contains('UTImportedTypeDeclarations'));
     expect(plist, contains('at.jesenko.buchhaltung.jenibeleg'));
     expect(plist, contains('<string>jenibeleg</string>'));
   });

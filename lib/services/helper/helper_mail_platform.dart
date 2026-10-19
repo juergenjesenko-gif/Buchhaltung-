@@ -16,7 +16,7 @@ import 'helper_mail_sync.dart';
 
 /// Kennung des Hintergrundauftrags; iOS: in `Info.plist` unter
 /// `BGTaskSchedulerPermittedIdentifiers` (FA-17.9).
-const mailTaskId = 'at.jesenko.buchhaltung.mailsync';
+const mailTaskId = 'at.jenibarb.jenibucht.mailsync';
 
 /// Einstieg für WorkManager (Android) bzw. BGTaskScheduler (iOS). Läuft ohne
 /// Oberfläche in einem eigenen Isolate.

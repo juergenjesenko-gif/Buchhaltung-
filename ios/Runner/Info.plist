@@ -122,7 +122,8 @@
 			<string>Owner</string>
 			<key>LSItemContentTypes</key>
 			<array>
-				<string>at.jesenko.buchhaltung.jenibeleg</string>
+				<string>at.jenibarb.jenibucht.jenibeleg</string>
+				<string>at.jenibarb.jenibucht.jenibeleg</string>
 			</array>
 		</dict>
 	</array>
@@ -150,6 +151,21 @@
 			</dict>
 		</dict>
 	</array>
+	<!-- Alte Kennung vor O-33 (bis 0.25.0) als importierter Typ, damit
+	     Belegpakete von Mithelfer-Geräten mit älterer App weiter öffnen. -->
+	<key>UTImportedTypeDeclarations</key>
+	<array>
+		<dict>
+			<key>UTTypeIdentifier</key>
+			<string>at.jesenko.buchhaltung.jenibeleg</string>
+			<key>UTTypeDescription</key>
+			<string>Belegpaket JeNi bucht (ältere Version)</string>
+			<key>UTTypeConformsTo</key>
+			<array>
+				<string>public.data</string>
+			</array>
+		</dict>
+	</array>
 	<key>LSSupportsOpeningDocumentsInPlace</key>
 	<false/>
 	<!-- iCloud-Sicherung (FA-7.16, L-7.20): Container in der Dateien-App
@@ -169,7 +185,7 @@
 	</dict>
 	<key>BGTaskSchedulerPermittedIdentifiers</key>
 	<array>
-		<string>at.jesenko.buchhaltung.mailsync</string>
+		<string>at.jenibarb.jenibucht.mailsync</string>
 	</array>
 	<key>UIBackgroundModes</key>
 	<array>

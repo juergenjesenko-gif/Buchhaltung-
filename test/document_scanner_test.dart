@@ -269,7 +269,7 @@ void main() {
   // Ursache Gerätetest 0.22.0: Scanner und Sicherungsordner hatten denselben
   // Request-Code, das Scan-Ergebnis wurde vom Sicherungsordner verschluckt.
   test('Android: Request-Codes eindeutig, nur in RequestCodes.kt', () {
-    final dir = Directory('android/app/src/main/kotlin/at/jesenko/buchhaltung');
+    final dir = Directory('android/app/src/main/kotlin/at/jenibarb/jenibucht');
     final codes = File('${dir.path}/RequestCodes.kt').readAsStringSync();
     final values = RegExp(
       r'const val \w+ = (\d+)',

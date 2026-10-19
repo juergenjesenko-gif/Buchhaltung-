@@ -17,7 +17,7 @@ import workmanager_apple
       GeneratedPluginRegistrant.register(with: registry)
     }
     WorkmanagerPlugin.registerPeriodicTask(
-      withIdentifier: "at.jesenko.buchhaltung.mailsync", earliestBeginInSeconds: 3600)
+      withIdentifier: "at.jenibarb.jenibucht.mailsync", earliestBeginInSeconds: 3600)
     WorkmanagerPlugin.registerLaunchHandlers()
     UNUserNotificationCenter.current().delegate = self as? UNUserNotificationCenterDelegate
     return super.application(application, didFinishLaunchingWithOptions: launchOptions)

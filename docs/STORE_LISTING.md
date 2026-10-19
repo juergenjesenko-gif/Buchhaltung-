@@ -7,9 +7,9 @@ Textvorlagen für Google Play und den App Store. Deutsch, weil die Zielgruppe
 
 **JeNi bucht** (10 von 30 Zeichen bei Google Play). Festgelegt von der
 Auftraggeberin am 2026-10-15 nach Markenrecherche ohne Befund (Lastenheft O-2,
-O-25; Spezifikation 14, P-R7). Die technische Kennung bleibt vorerst
-`at.jesenko.buchhaltung`; Store-Kennung `at.jenibarb.jenibucht`, gewechselt
-unmittelbar vor der ersten Einreichung mit `tool/release/bundle_id_wechsel.sh`
+O-25; Spezifikation 14, P-R7). Technische Kennung und Store-Kennung
+`at.jenibarb.jenibucht`, gewechselt am 2026-10-19 (App-Version 0.26.0) vor der
+ersten Einreichung mit `tool/release/bundle_id_wechsel.sh`
 (Lastenheft O-33, `docs/RELEASE_PLAYBOOK.md`).
 
 ## Kurzbeschreibung (Google Play, max. 80 Zeichen)

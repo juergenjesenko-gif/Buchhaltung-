@@ -24,7 +24,7 @@ flutter build apk --release --target-platform android-x64 \
 adb install -r build/app/outputs/flutter-apk/app-release.apk
 adb logcat -G 16M || true
 adb logcat -c
-adb shell am start -W -n at.jesenko.buchhaltung/.MainActivity
+adb shell am start -W -n at.jenibarb.jenibucht/.MainActivity
 for _ in $(seq 1 300); do
   if adb logcat -d | grep -q 'OCR-SELBSTTEST ERGEBNIS'; then break; fi
   sleep 2

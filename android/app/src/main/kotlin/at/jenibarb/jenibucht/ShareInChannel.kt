@@ -1,4 +1,4 @@
-package at.jesenko.buchhaltung
+package at.jenibarb.jenibucht
 
 import android.content.Context
 import android.content.Intent

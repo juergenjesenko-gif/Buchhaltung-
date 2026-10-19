@@ -1,6 +1,21 @@
 # Benutzerhandbuch – JeNi bucht
 
-**Für App-Version 0.25.0** · Stand 2026-10-18
+**Für App-Version 0.26.0** · Stand 2026-10-19
+
+> **Testerinnen und Tester, Umstieg auf 0.26.0:** Ab dieser Version hat die App
+> eine neue technische Kennung. Sie wird **neben** der alten App installiert,
+> nicht darüber, und startet leer. So nimmst du deine Daten mit:
+>
+> 1. In der **alten** App: **Einstellungen → Datensicherung → Sicherung erstellen**,
+>    Datei in Google Drive, iCloud Drive oder „Dateien“ ablegen (nicht im
+>    App-Ordner der alten App, die automatische iCloud-Sicherung der alten
+>    App sieht die neue nicht).
+> 2. Die neue App installieren und öffnen.
+> 3. In der **neuen** App: **Einstellungen → Datensicherung → Wiederherstellen**,
+>    die Datei wählen, Kennwort eingeben.
+> 4. Prüfen, ob Belege und Rechnungen da sind; dann die alte App löschen.
+>
+> Mithelfer-Geräte ebenfalls auf die neue App umstellen.
 
 Dieses Handbuch beschreibt die App aus Nutzersicht. Es wird bei jeder Änderung,
 die du in der App siehst, mitgeführt – siehe [`CLAUDE.md`](../CLAUDE.md).
