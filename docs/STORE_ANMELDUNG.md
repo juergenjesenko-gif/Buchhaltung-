@@ -213,18 +213,29 @@ im Code steht kein Preis.
 4. Je Abo **Grundpreis** für Österreich und Deutschland wählen (12,90 € /
    129 € / 17,90 € / 179 €), Anzeigename und Beschreibung auf Deutsch, Prüfungs-Screenshot
    der Abo-Seite der App.
-5. **Einführungsangebot** je Abo nach der Entscheidung zu Lastenheft
-   **O-45**. Apple erlaubt **ein** Einführungsangebot je Abogruppe und
-   Apple-ID – 14 Tage gratis **und** Einführungspreis zugleich gehen nicht.
-   - **Variante B (Empfehlung): erstes Jahr günstiger, kein Test.**
-     Einführungsangebot → Länder AT und DE → `basis_monat`/`pro_monat`:
-     **„Pay as you go“**, Dauer 1 Monat, **12 Zeiträume**, 6,90 € bzw.
-     12,90 €; `basis_jahr`/`pro_jahr`: **„Pay up front“**, Dauer **1 Jahr**,
-     69 € bzw. 129 €. Startdatum heute, ohne Enddatum.
-   - **Variante A: 14 Tage gratis, dann Grundpreis.** Einführungsangebot
-     **„Kostenlos“**, Dauer **2 Wochen** auf allen vier Abos.
-   Wer Basis eingeführt bekommen hat, bekommt für Pro kein zweites
-   Einführungsangebot (P-D47).
+5. **Einführungsangebot: 14 Tage gratis** (Entscheidung Auftraggeber
+   2026-10-19, Lastenheft O-45, Variante A plus Codes). Apple erlaubt **ein**
+   Einführungsangebot je Abogruppe und Apple-ID. Auf **allen vier** Abos:
+   Einführungsangebot → Länder AT und DE → **„Kostenlos“**, Dauer
+   **2 Wochen**, Startdatum heute, ohne Enddatum. Danach gilt der
+   **Grundpreis** (12,90 € / 129 € / 17,90 € / 179 €) – auf dem iPhone gibt es
+   **keinen automatischen** Preis fürs erste Jahr. Wer Basis eingeführt
+   bekommen hat, bekommt für Pro kein zweites Einführungsangebot (P-D47).
+5a. **Preis fürs erste Jahr nur per Angebotscode** „JENIBUCHTSTART“: je Abo
+   **Angebotscodes** → „Angebotscode erstellen“, Name „Start erstes Jahr“,
+   Berechtigung **Neue Abonnenten**, „Bestehendes Einführungsangebot“
+   **Nein**. Apple erlaubt einen benutzerdefinierten Code nur für **ein**
+   Angebot, also je Produkt ein Code (Vorschlag für die Namen):
+
+   | Produkt | Angebot | Preis | Code |
+   |---|---|---|---|
+   | `basis_monat` | Pay as you go, 1 Monat, 12 Zeiträume | 6,90 € | `JENIBUCHTSTART` |
+   | `basis_jahr` | Pay up front, 1 Jahr | 69 € | `JENIBUCHTSTARTJAHR` |
+   | `pro_monat` | Pay as you go, 1 Monat, 12 Zeiträume | 12,90 € | `JENIBUCHTSTARTPRO` |
+   | `pro_jahr` | Pay up front, 1 Jahr | 129 € | `JENIBUCHTSTARTPROJAHR` |
+
+   Danach Grundpreis. Android braucht keinen dieser Codes (Einführungspreis
+   läuft dort automatisch, siehe oben). Ergebnis am Gerät: P-D55.
 6. In der Abogruppe **Kulanzzeitraum für Abrechnung** (Billing Grace Period)
    einschalten.
 7. Sandbox-Testkonto anlegen:
@@ -269,8 +280,8 @@ sind angelegt und aktiv.
 
 ### Promo-Code „JENIBUCHT20“ (20 % aufs Jahresabo im ersten Jahr)
 
-Vorschlag zu Lastenheft **O-46**; erst anlegen, wenn der Auftraggeber Name und
-Parallelbetrieb bestätigt hat. Ergebnis: Basis 55,20 €, Pro 103,20 € für das
+Entschieden am 2026-10-19 (Lastenheft **O-46**): läuft **parallel** zu
+`JENIBUCHT2M`; Instagram bewirbt den **Pro-Code**. Ergebnis: Basis 55,20 €, Pro 103,20 € für das
 erste Jahr, danach 129 € bzw. 179 €.
 
 **Google Play** (Google-Promo-Codes geben nur Gratisphasen, deshalb ein
@@ -285,7 +296,8 @@ Angebot, das die App nach Eingabe des Codes zeigt – Spezifikation FA-13.16):
 4. **Angebots-Tags → `jenibucht20`** eintragen (genau so, klein) →
    **Aktivieren**.
 5. Dasselbe bei `pro_jahr` mit **103,20 €**.
-6. Testen: App → Abo → **Promo-Code einlösen** → `JENIBUCHT20` → beim
+6. Testen: App → Abo → **Promo-Code einlösen** → `JENIBUCHT20` oder
+   `JENIBUCHT20PRO` (beide schalten dasselbe Tag frei) → beim
    Jahresabo steht „55,20 € im ersten Jahr, danach 129 €/Jahr“ (P-D55).
 
 **Apple App Store**
@@ -299,9 +311,10 @@ Angebot, das die App nach Eingabe des Codes zeigt – Spezifikation FA-13.16):
    Grundpreis).
 4. **Benutzerdefinierter Code** → `JENIBUCHT20`, Anzahl Einlösungen,
    Ablaufdatum der Kampagne → erstellen.
-5. Bei `pro_jahr` dasselbe mit **103,20 €** – Apple erlaubt einen
-   benutzerdefinierten Code nur für **ein** Angebot; dort z. B.
-   `JENIBUCHT20PRO` oder nur Basis bewerben (O-46).
+5. Bei `pro_jahr` dasselbe mit **103,20 €** und dem Code
+   **`JENIBUCHT20PRO`** – Apple erlaubt einen benutzerdefinierten Code nur
+   für **ein** Angebot. Instagram bewirbt `JENIBUCHT20PRO` (O-46); auf
+   Android gilt derselbe Code (App-Tag `jenibucht20`, nicht geheim, P-R63).
 
 ### iCloud-Container für die Sicherung (ab App-Version 0.16.0)
 

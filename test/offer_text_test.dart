@@ -117,6 +117,26 @@ void main() {
     test('20-%-Code', () {
       expect(DiscountPromo.matches(' jenibucht20 '), isTrue);
       expect(DiscountPromo.matches('JENIBUCHT2M'), isFalse);
+      expect(DiscountPromo.matches('jenibucht20pro'), isTrue);
+    });
+
+    test('iOS (O-45): 14 Tage gratis, danach Grundpreis ohne Jahrespreis', () {
+      const phases = [
+        OfferPhase(
+          price: '0,00 €',
+          free: true,
+          unit: PeriodUnit.day,
+          periodCount: 14,
+          cycles: 1,
+        ),
+        OfferPhase(price: '12,90 €', free: false, unit: PeriodUnit.month),
+      ];
+      expect(OfferText.priceLine(phases, 'x'), '12,90 €/Monat');
+      expect(
+        OfferText.summary(phases),
+        '14 Tage gratis, danach 12,90 €/Monat. Verlängert sich automatisch, '
+        'jederzeit im Store kündbar.',
+      );
     });
   });
 }

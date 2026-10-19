@@ -70,8 +70,8 @@ String featureReason(Feature feature) => switch (feature) {
     'Saldenliste und vorläufigen Jahresabschluss gibt es mit Pro. Das '
         'Anlagenverzeichnis und den Export bekommst du in jedem Abo.',
   Feature.eInvoiceIssue =>
-    'E-Rechnungen (ZUGFeRD, XRechnung, ebInterface) ausstellen gibt es mit '
-        'Pro. Das normale PDF geht in jedem Abo.',
+    'E-Rechnungen (ZUGFeRD, XRechnung, ebInterface) ausstellen gibt es ab '
+        'Basis. Ansehen und Exportieren geht auch ohne Abo.',
   Feature.levyReserve =>
     'Abgaben & Rücklagen gibt es mit Pro. Deine Buchungen für Steuern und '
         'Sozialversicherung bleiben in jedem Abo ganz normale Buchungen.',

@@ -43,7 +43,6 @@ void main() {
         Feature.contractSummary,
         Feature.assetManagement,
         Feature.helperDevices,
-        Feature.eInvoiceIssue,
       ];
       for (final feature in proOnly) {
         expect(Entitlement.pro.allows(feature), isTrue, reason: '$feature');
@@ -60,8 +59,15 @@ void main() {
       expect(Feature.values.toSet(), {
         ...proOnly,
         Feature.newBookings,
+        Feature.eInvoiceIssue,
         Feature.dataExport,
       });
+      // O-44: E-Rechnung ausstellen ab Basis, ohne Abo und in der Demo nicht.
+      expect(Entitlement.basis.allows(Feature.eInvoiceIssue), isTrue);
+      expect(Entitlement.pro.allows(Feature.eInvoiceIssue), isTrue);
+      expect(Entitlement.readOnly.allows(Feature.eInvoiceIssue), isFalse);
+      expect(Entitlement.none.allows(Feature.eInvoiceIssue), isFalse);
+      expect(Entitlement.demo.allows(Feature.eInvoiceIssue), isFalse);
       expect(Entitlement.pro.allows(Feature.newBookings), isTrue);
     });
 

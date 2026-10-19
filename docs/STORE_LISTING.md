@@ -80,12 +80,12 @@ UID-Nummer prüfen lässt, einen Wechselkurs abrufst oder eine Rechnung über
 einen QR-Link lädst. App-Sperre mit PIN oder Fingerabdruck.
 
 BASIS UND PRO
-Basis: Belege, Rechnungen, Storno, Mahnungen erstellen, Kassabuch, Kunden,
+Basis: Belege, Rechnungen, E-Rechnungen ausstellen (ZUGFeRD, XRechnung,
+ebInterface), Storno, Mahnungen erstellen, Kassabuch, Kunden,
 Übersicht, Kleinunternehmer-Ampel, Vertragsarchiv, Export, Sicherung, PDF
-ansehen, speichern und drucken.
+ansehen, speichern, teilen und drucken.
 Pro zusätzlich: Belegerkennung per Kamera, Import aus Amazon, PayPal, Shopify,
-Stripe und E-Rechnungen, E-Rechnungen ausstellen (ZUGFeRD, XRechnung,
-ebInterface), PDF und Mahnungen mit einem Tipp senden, Logo auf
+Stripe und E-Rechnungen, PDF und Mahnungen mit einem Tipp senden, Logo auf
 Rechnungen, Wechselkurs abrufen, Anlagen mit Abschreibung und
 Anlagenverzeichnis, Saldenliste und vorläufiger Jahresabschluss, Abgaben &
 Rücklagen (Schätzung für Steuern und SV), Verträge auslesen, Mithelfer-Geräte
@@ -323,22 +323,29 @@ Prüfpunkt P-R40):
 | Basis | 6,90 €/Monat · 69 €/Jahr | 12,90 €/Monat · 129 €/Jahr |
 | Pro | 12,90 €/Monat · 129 €/Jahr | 17,90 €/Monat · 179 €/Jahr |
 
-Alle Preise inkl. USt, Österreich und Deutschland gleich. Solange Apple keinen
-14-Tage-Test hat (Lastenheft O-45, Variante B), in Texten für beide Stores
-„14 Tage gratis (Android)“ bzw. den Test weglassen (P-R62).
+Alle Preise inkl. USt, Österreich und Deutschland gleich. **„14 Tage kostenlos
+testen“ gilt in beiden Stores** (Lastenheft O-45, Variante A plus Codes).
+Der Preis fürs erste Jahr kommt auf Android automatisch nach dem Test, auf dem
+iPhone **nur mit Code** (`JENIBUCHTSTART` …, `STORE_ANMELDUNG.md` Formular 4);
+ohne Code gilt dort nach dem Test der Grundpreis. Texte, die den Preis fürs
+erste Jahr nennen, deshalb mit „auf Android bzw. mit Code im App Store“
+ergänzen (P-R62).
 
-### Instagram-Werbetext: 20 % aufs Jahresabo (Code `JENIBUCHT20`, O-46)
+### Instagram-Werbetext: 20 % aufs Pro-Jahresabo (Code `JENIBUCHT20PRO`, O-46)
 
-> 20 % auf dein erstes Jahr JeNi bucht – mit dem Code JENIBUCHT20: Basis
-> 55,20 € statt 69 € oder Pro 103,20 € statt 129 € für das erste Jahr
-> (Jahresabo, inkl. USt). Für neue Abonnentinnen und Abonnenten. Ab dem
-> zweiten Jahr verlängert sich das Abo automatisch zu 129 € (Basis) bzw.
-> 179 € (Pro) im Jahr, bis du kündigst. Kündigen geht jederzeit in den
+Entschieden 2026-10-19: Instagram bewirbt den Pro-Code; `JENIBUCHT20` (Basis)
+läuft parallel, ebenso `JENIBUCHT2M`.
+
+> 20 % auf dein erstes Jahr JeNi bucht Pro – mit dem Code JENIBUCHT20PRO:
+> 103,20 € statt 129 € für das erste Jahr (Jahresabo, inkl. USt). Für neue
+> Abonnentinnen und Abonnenten. Ab dem zweiten Jahr verlängert sich das Abo
+> automatisch zu 179 € im Jahr, bis du kündigst. Kündigen geht jederzeit in den
 > Abo-Einstellungen von Google Play bzw. App Store. Code in der App unter
 > Abo → Promo-Code einlösen. Keine Steuerberatung.
 
-„statt 69 €“ nur, weil 69 € der tatsächlich verlangte Einführungspreis ist
-(P-R63); keinen „statt“-Preis über dem Store-Preis nennen.
+„statt 129 €“ nur, weil 129 € der tatsächlich verlangte Einführungspreis ist
+(Android automatisch, iPhone mit `JENIBUCHTSTARTPROJAHR`; ohne Code verlangt
+Apple 179 € – Formulierung P-R63); keinen „statt“-Preis über dem Store-Preis nennen.
 
 ### Instagram-Werbetext: 2 Monate gratis (Code `JENIBUCHT2M`)
 

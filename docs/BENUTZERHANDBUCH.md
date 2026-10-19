@@ -929,7 +929,8 @@ gehen so (als Gutschrift).
 Beim Ansehen der Rechnung heißt der Knopf dann **XML senden**: er teilt die
 XML-Datei, die du im Rechnungsportal hochlädst (Deutschland z. B. ZRE oder
 OZG-RE, Österreich e-Rechnung.gv.at im USP). **Drucken** druckt weiter das
-PDF.
+PDF. E-Rechnungen ausstellen und über das Teilen-Blatt zustellen geht ab
+**Basis**; nur das Senden mit einem Tipp ist Pro.
 
 Fehlt etwas, das die E-Rechnung braucht, steht im Betrachter z. B. „Ohne
 XRechnung – es fehlt: Leitweg-ID der Kundin“. Ergänze es in den Stammdaten
@@ -1379,7 +1380,8 @@ Store**. Ein Konto bei uns brauchst du nicht; das Abo hängt an deinem
 Store-Konto. Du findest alles unter **Einstellungen → Abo**.
 
 - **Basis** – alles, was eine ordentliche Buchhaltung braucht: Belege,
-  Rechnungen, Kassabuch, Kunden, Übersicht, Kleinunternehmer-Ampel, Export,
+  Rechnungen, **E-Rechnungen ausstellen** (ZUGFeRD, XRechnung, ebInterface;
+  zustellen über **Teilen**, Speichern oder Drucken), Kassabuch, Kunden, Übersicht, Kleinunternehmer-Ampel, Export,
   Sicherung.
 - **Pro** – zusätzlich:
   - **Belegerkennung**: Betrag, Datum und Händler kommen aus dem Foto. Ohne
@@ -1425,8 +1427,12 @@ Store-Konto. Du findest alles unter **Einstellungen → Abo**.
   Umsatzsteuer, monatlich oder jährlich – mit allen Stufen, z. B. „14 Tage
   gratis, dann 6,90 €/Monat im ersten Jahr, danach 12,90 €/Monat“. Was im
   Store für dich gilt (Test, Einführungspreis), entscheidet der Store; das
-  Kaufblatt zeigt es vor dem Bestätigen noch einmal.
-- **Code für 20 % aufs Jahresabo** (z. B. `JENIBUCHT20` aus Instagram): unter
+  Kaufblatt zeigt es vor dem Bestätigen noch einmal. **Auf dem iPhone** gilt
+  nach den 14 Tagen gleich der volle Preis (z. B. „14 Tage gratis, danach
+  12,90 €/Monat“); den Preis fürs erste Jahr gibt es dort nur mit einem Code
+  wie **JENIBUCHTSTART** unter **Promo-Code einlösen**.
+- **Code für 20 % aufs Jahresabo** (`JENIBUCHT20PRO` für Pro aus Instagram,
+  `JENIBUCHT20` für Basis): unter
   **Promo-Code einlösen** eingeben. Auf Android erscheint danach das
   Rabattangebot auf der Abo-Seite, auf dem iPhone löst Apple den Code ein.
 - **Kündigen:** Tippe auf **Abo verwalten oder kündigen** – das öffnet die

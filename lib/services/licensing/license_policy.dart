@@ -31,7 +31,10 @@ enum Entitlement {
 
   /// Die einzige Stelle, die entscheidet, was ein Anspruch erlaubt.
   bool allows(Feature feature) => switch (feature) {
-    Feature.newBookings => this == basis || this == pro,
+    // E-Rechnung ausstellen ab Basis (Entscheidung Auftraggeber 2026-10-19,
+    // O-44): gesetzliche Pflicht nie nur in Pro (Lastenheft 5.10).
+    Feature.newBookings ||
+    Feature.eInvoiceIssue => this == basis || this == pro,
     // Ausprobieren in der Demo: Erkennung füllt das Formular, Kurs abrufen
     // zeigt den Kurs – gespeichert wird nichts (newBookings fehlt).
     Feature.receiptRecognition ||
@@ -48,8 +51,7 @@ enum Entitlement {
     Feature.invoiceLogo ||
     Feature.assetManagement ||
     Feature.contractSummary ||
-    Feature.helperDevices ||
-    Feature.eInvoiceIssue => this == pro,
+    Feature.helperDevices => this == pro,
   };
 
   String get label => switch (this) {
@@ -126,9 +128,10 @@ enum Feature {
   levyReserve,
 
   /// E-Rechnung ausstellen (FA-5.49): ZUGFeRD-PDF, XRechnung, ebInterface.
-  /// Pro nach Lastenheft 5.10 (Tarifschnitt O-4). Vorschlag an den
-  /// Auftraggeber, das ab Basis freizugeben (O-44, Pflicht zum Ausstellen
-  /// in DE ab 2027/2028): eine Zeile in [Entitlement.allows].
+  /// Ab Basis (Entscheidung Auftraggeber 2026-10-19, O-44): Pflicht zum
+  /// Ausstellen in DE ab 2027/2028 (§ 27 Abs. 38 UStG), eine gesetzliche
+  /// Pflicht liegt nie nur in Pro (Lastenheft 5.10). Zustellen geht in Basis
+  /// über das Teilen-Blatt; Senden mit einem Tipp bleibt Pro ([pdfSending]).
   eInvoiceIssue,
 
   /// Exportieren, Teilen, Sichern und Wiederherstellen (L-22.6). Ohne Abo

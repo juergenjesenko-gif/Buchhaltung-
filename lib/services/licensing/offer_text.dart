@@ -150,16 +150,23 @@ abstract final class OfferText {
   }
 }
 
-/// Zweiter Instagram-Code (Entscheidung Auftraggeber 2026-10-19, O-45):
+/// Zweiter Instagram-Code (Entscheidung Auftraggeber 2026-10-19, O-46;
+/// läuft parallel zu `JENIBUCHT2M`, Instagram bewirbt [proCode]):
 /// 20 % auf das Jahresabo im ersten Jahr. Apple: Angebotscode
-/// (benutzerdefiniert, „Pay up front“ 1 Jahr). Google Play kennt für Abos
+/// (benutzerdefiniert, „Pay up front“ 1 Jahr), je Produkt ein Code:
+/// [code] auf `basis_jahr`, [proCode] auf `pro_jahr`. Google Play kennt für Abos
 /// nur Promo-Codes mit Gratisphase; der Rabatt läuft dort als vom Entwickler
 /// bestimmtes Angebot mit dem Tag [androidOfferTag], das die App erst nach
 /// Eingabe des Codes anzeigt (ohne Server, also nicht geheim; P-R59).
 abstract final class DiscountPromo {
   static const code = 'JENIBUCHT20';
+  static const proCode = 'JENIBUCHT20PRO';
   static const percent = 20;
   static const androidOfferTag = 'jenibucht20';
 
-  static bool matches(String input) => input.trim().toUpperCase() == code;
+  /// Android: beide Codes schalten dasselbe Angebots-Tag frei.
+  static bool matches(String input) {
+    final c = input.trim().toUpperCase();
+    return c == code || c == proCode;
+  }
 }

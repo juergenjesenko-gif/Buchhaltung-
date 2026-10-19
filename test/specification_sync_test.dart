@@ -104,6 +104,10 @@ void main() {
       expect(value('spec.license_promo_code'), LicensePolicy.promoCode);
       expect(value('spec.license_promo_code_discount'), DiscountPromo.code);
       expect(
+        value('spec.license_promo_code_discount_pro'),
+        DiscountPromo.proCode,
+      );
+      expect(
         intValue('spec.license_promo_discount_percent'),
         DiscountPromo.percent,
       );

@@ -1,6 +1,6 @@
 # Lastenheft – JeNi bucht, Buchhaltungsapp für Österreich und Deutschland
 
-**Dokumentversion:** 1.86 · **Stand:** 2026-10-19 · **Status:** Entwurf zur Abstimmung
+**Dokumentversion:** 1.87 · **Stand:** 2026-10-19 · **Status:** Entwurf zur Abstimmung
 **Auftraggeber:** Jürgen Jesenko (privates Vorhaben) · **Umsetzung:** Claude Code
 
 > Ein Lastenheft beschreibt, **was** das Produkt leisten soll und **warum** — nicht,
@@ -365,10 +365,13 @@ Deutschland:
 | Basis | 6,90 €/Monat oder 69 €/Jahr | 12,90 €/Monat oder 129 €/Jahr |
 | Pro | 12,90 €/Monat oder 129 €/Jahr | 17,90 €/Monat oder 179 €/Jahr |
 
-Dazu am Anfang 14 Tage gratis (O-42, Basis mit Pro inklusive), soweit der
-Store beides zugleich zulässt (Apple: O-45). Instagram: `JENIBUCHT2M`
-(2 Monate gratis) und `JENIBUCHT20` (20 % auf das Jahresabo im ersten Jahr:
-Basis 55,20 €, Pro 103,20 €; O-46). Die App zeigt die Preise nur so, wie der
+Dazu am Anfang 14 Tage gratis (O-42, Basis mit Pro inklusive), in beiden
+Stores. Apple erlaubt nur ein Einführungsangebot: dort gilt nach dem Test der
+Grundpreis, den Preis fürs erste Jahr gibt es nur per Angebotscode
+`JENIBUCHTSTART` (O-45). Instagram: `JENIBUCHT2M` (2 Monate gratis) und
+parallel `JENIBUCHT20`/`JENIBUCHT20PRO` (20 % auf das Jahresabo im ersten
+Jahr: Basis 55,20 €, Pro 103,20 €; beworben wird der Pro-Code; O-46).
+E-Rechnung ausstellen ist ab Basis (O-44). Die App zeigt die Preise nur so, wie der
 Store sie meldet (Spezifikation FA-13.16).
 
 Rabatte laufen über die Angebotsmechanik der Stores (Einführungs- und
@@ -1449,10 +1452,10 @@ Zu entscheiden, bevor die betroffene Anforderung umgesetzt wird:
 | O-39 | **OAuth für den Mailweg** (L-29.11): Gmail und Microsoft 365/Outlook.com ohne App-Passwort. **To-dos Auftraggeberin:** (1) Google Cloud-Projekt anlegen, OAuth-Zustimmungsbildschirm mit Datenschutzerklärung auf eigener Domain, Bereich `gmail.send` (eingeschränkt) beantragen, OAuth-Verifizierung inkl. Sicherheitsprüfung (CASA) durchlaufen; (2) Azure-App-Registrierung (Microsoft Entra ID, „Konten in beliebigen Organisationen und persönliche Microsoft-Konten“), Berechtigung Graph `Mail.Send` (delegiert), Publisher Verification. Kosten und Pflichten: P-R48. Bis dahin App-Passwort (Gmail, iCloud) bzw. Kennwort | vor Store-Release offen |
 | O-40 | **Innergemeinschaftliches Verbringen** (L-30.9): **geschlossen 2026-10-18** – Entscheidung der Auftraggeberin (14a): Verbringen ins Auslandslager wird nicht in der App gebucht, nur die Verkäufe aus dem Lager; die App warnt in „Für das Finanzamt“, dass DE Kz 89/61 (bzw. AT Kz 070/072/065) die Kanzlei ergänzt (Spezifikation FA-18.4, Grenze 11, P-S68) | erledigt |
 | O-43 | **Tarif „Abgaben & Rücklagen“** (L-31): **Pro** (Rechenhilfe mit Mehrwert, passt zu Saldenliste/Jahresabschluss); Buchungen in Abgabenkategorien bleiben in jedem Anspruch normale Buchungen | entschieden 2026-10-19 – umgesetzt 0.30.0 |
-| O-44 | **E-Rechnung ausstellen: Basis statt Pro?** Umgesetzt nach 5.10 als Pro (`Feature.eInvoiceIssue`). **Vorschlag:** ab Basis, weil das Ausstellen in Deutschland ab 2028 für alle Regelbesteuerten Pflicht wird (ab 2027 bei Vorjahresumsatz über 800.000 €) und Basis „alles für eine ordentliche Buchhaltung“ sein soll; Pro behält „mit einem Tipp senden“. Änderung im Code: eine Zeile | offen – Entscheidung Auftraggeber |
+| ~~O-44~~ | **Entschieden am 2026-10-19 (Auftraggeber):** E-Rechnung ausstellen (ZUGFeRD, XRechnung, ebInterface) **ab Basis** – Pflicht in DE ab 2027/2028, Regel 5.10 „gesetzliche Pflicht nie nur in Pro“. Zustellen in Basis über Teilen-Blatt (Speichern, Drucken, Teilen, „XML senden“); Senden mit einem Tipp bleibt Pro. Spezifikation FA-13.2 | erledigt |
 | ~~O-42~~ | **Entschieden am 2026-10-19 (Auftraggeber), ersetzt O-35:** (A) Die Kundin wählt und startet ein Abo (Basis oder Pro, monatlich/jährlich) im Store; **alle vier Produkte** haben ein Einführungsangebot 14 Tage kostenlos, Kündigung in den 14 Tagen kostet nichts. Bei Basis gibt die App in den ersten 14 Tagen des ersten Abos alle Pro-Funktionen frei („Pro inklusive in der Testzeit“), danach Basis, Daten bleiben; Hinweis 3 Tage vorher „Noch X Tage Pro inklusive – danach Basis. Jetzt auf Pro wechseln?“. Pro bleibt Pro. Text: „14 Tage kostenlos testen – mit allen Pro-Funktionen. Danach gilt dein gewähltes Abo (Preis aus Store). Jederzeit vorher im Store kündbar.“ (B) **Demo ohne Abo** mit eigener Muster-Datenbank, nichts speichern, Wasserzeichen „MUSTER – DEMO“, Band „DEMO – Abo wählen, um mit deinen eigenen Daten zu starten“ (L-10.6). (C) „Store-Test nur auf Pro“ entfällt, ein App-eigener Test bleibt verworfen. Umgesetzt in 0.27.0: Spezifikation FA-13.4, FA-13.5, FA-13.14, FA-13.15; Store-Einrichtung `STORE_ANMELDUNG.md` Formular 4 | erledigt |
-| O-45 | **Apple: Test und Einführungspreis zugleich geht nicht.** Apple erlaubt je Abogruppe und Apple-ID **ein** Einführungsangebot (Kostenlos, Pay as you go oder Pay up front). Varianten: **(A)** Einführung = 14 Tage gratis, Grundpreis sofort danach – iPhone-Kundinnen zahlen im ersten Jahr den vollen Preis, der Einführungspreis nur per Code; **(B, Empfehlung)** Einführung = erstes Jahr zum Einführungspreis (Monat: Pay as you go 12 × 6,90 € bzw. 12,90 €; Jahr: Pay up front 1 Jahr 69 € bzw. 129 €), **kein** 14-Tage-Test auf dem iPhone, Gratiszeit nur über `JENIBUCHT2M`; Kundin kündigt jederzeit, zahlt aber ab dem ersten Tag; **(C)** Grundpreis = Einführungspreis, nach einem Jahr Preiserhöhung – braucht Zustimmung jeder Kundin (Apple, L-22.9), +87 %, viele Abos enden: abgeraten. Android kann Test **und** Einführungspreis in einem Angebot | Entscheidung Auftraggeber |
-| O-46 | **20-%-Code:** Name `JENIBUCHT20` (Vorschlag) und ob er **parallel** zu `JENIBUCHT2M` läuft (Vorschlag: ja, je Kampagne ein Code, beide nur für Neukundinnen). Android: Google-Promo-Codes geben nur Gratisphasen; der Rabatt läuft als vom Entwickler bestimmtes Angebot, das die App nach Eingabe des Codes zeigt – ohne Server nicht geheim (P-R63). Alternative: 20 % nur auf dem iPhone | Entscheidung Auftraggeber |
+| ~~O-45~~ | **Entschieden am 2026-10-19 (Auftraggeber): Variante A plus Codes.** Apple-Einführungsangebot 14 Tage gratis auf allen vier Produkten (wie Android), danach Grundpreis; kein automatischer Preis fürs erste Jahr auf iOS, nur per Angebotscode: `JENIBUCHTSTART` (Einführungspreis erstes Jahr, je Produkt ein Code), `JENIBUCHT2M`, `JENIBUCHT20`/`JENIBUCHT20PRO`. Android behält das mehrphasige Angebot (14 Tage gratis → erstes Jahr → Grundpreis). „14 Tage kostenlos testen“ gilt in beiden Stores. Spezifikation FA-13.16, `STORE_ANMELDUNG.md` Formular 4 | erledigt |
+| ~~O-46~~ | **Entschieden am 2026-10-19 (Auftraggeber):** `JENIBUCHT20` läuft parallel zu `JENIBUCHT2M`; Instagram bewirbt den Pro-Code `JENIBUCHT20PRO` (Apple: eigener Code auf `pro_jahr`, Android: derselbe Code schaltet das Tag `jenibucht20` frei). Nicht geheimer Android-Code akzeptiert; rechtliche Prüfung P-R63 bleibt offen | erledigt |
 | O-41 | **Nächstes Land** (L-30.8): Empfehlung der [Länderanalyse](LAENDERANALYSE.md) vom 2026-10-18 – zuerst **Frankreich als weiteres Steuerland** (Registrierung für ein FBA-Lager, nur `TaxProfile` mit Sätzen, CA3 und Terminen), danach **Niederlande als erstes neues Heimatland** (keine E-Rechnungs- oder Kassenpflicht); Italien trotz größtem Markt erst später wegen SDI-Pflicht (braucht Server bzw. Vermittler). Vor Umsetzung die dort markierten Punkte („vor Umsetzung prüfen“) klären und in Spezifikation 14 aufnehmen | Entscheidung Auftraggeberin |
 | O-38 | **Volle Mehrgeräte-Synchronisierung** (Weg 2 Cloud-Ordner mit Änderungsjournal nach L-19.15 ff. bzw. Weg 3 Anbieter-Server): nach dem Launch bei genügend Nutzerinnen, gemeinsam mit O-32/O-37 zu entscheiden. Bis dahin Mithelfer-Geräte als Einbahn (5.29) | nach dem Launch |
 | O-20 | Welche Vorsoftware-Formate sind beim Import vorrangig zu unterstützen? Richtet sich nach dem, womit die ersten Nutzer tatsächlich kommen | Stufe B |
@@ -1523,6 +1526,9 @@ Historie stehen. Die Einzelheiten stehen an der genannten Stelle.
 | 2026-10-19 | „Abgaben & Rücklagen“ nur Pro; ohne Pro Hinweis „(Pro)“ zur Abo-Seite, Basis in der Testzeit mit Pro inklusive, Demo zeigt es; Abgabenbuchungen bleiben in jedem Abo normale Buchungen | O-43, FA-19.1 |
 | 2026-10-19 | **Preise inkl. USt, AT/DE gleich:** erstes Jahr Basis 6,90 €/Monat oder 69 €/Jahr, Pro 12,90 €/Monat oder 129 €/Jahr; ab dem zweiten Jahr Basis 12,90 €/Monat oder 129 €/Jahr, Pro 17,90 €/Monat oder 179 €/Jahr; dazu 14 Tage Test; Instagram „2 Monate gratis“ oder „20 % aufs Jahresabo im ersten Jahr“ | 5.10, O-3, O-45, O-46, Spez. FA-13.16 |
 | 2026-10-19 | RZL-Export jetzt nicht; zurückgestellt | L-33.4, P-D52 |
+| 2026-10-19 | E-Rechnung ausstellen ab Basis; Zustellen in Basis über das Teilen-Blatt, Senden mit einem Tipp bleibt Pro | 5.10, O-44 |
+| 2026-10-19 | Apple: Variante A plus Codes – 14 Tage gratis auf allen vier Produkten, Preis fürs erste Jahr nur per Angebotscode (`JENIBUCHTSTART`, je Produkt ein Code); Android unverändert mehrphasig | 5.10, O-45 |
+| 2026-10-19 | `JENIBUCHT20` parallel zu `JENIBUCHT2M`; Instagram bewirbt `JENIBUCHT20PRO`; nicht geheimer Android-Code akzeptiert (P-R63 bleibt beim Anwalt) | 5.10, O-46 |
 | 2026-10-19 | PDF-Betrachter in der App: jedes erzeugte PDF und PDF-Anhänge vor dem Senden/Drucken ansehen; Drucken über den Systemdialog in jedem Abo, Senden wie bisher Pro | FA-5.48, FA-13.11 |
 | 2026-10-19 | Willkommensseite: Unterzeile „… nach den Regeln, die auch Profis anwenden“ (statt „mit der Qualität von Profis“, UWG) und vier Funktionszeilen | FA-1.13, P-R60 |
 
@@ -1534,6 +1540,7 @@ Historie stehen. Die Einzelheiten stehen an der genannten Stelle.
 
 | Version | Datum | Änderung |
 |---|---|---|
+| 1.87 | 2026-10-19 | Entscheidungen Auftraggeber 2026-10-19 (14a): O-44 (E-Rechnung ausstellen ab Basis), O-45 (Apple Variante A plus Codes), O-46 (Pro-Code `JENIBUCHT20PRO`, parallel) erledigt. |
 | 1.86 | 2026-10-19 | E-Rechnung erstellen umgesetzt (L-4.1, L-4.2, 0.32.0); Datenfluss „Rechnungsversand“ um ZUGFeRD-PDF und XML ergänzt (5.19); neu O-44 (Tarif für E-Rechnung ausstellen). |
 | 1.85 | 2026-10-19 | Neue Preise (5.10, 14a): Einführungspreis erstes Jahr, Grundpreis ab dem zweiten Jahr; O-3 überholt; neue offene Punkte O-45 (Apple: Test oder Einführungspreis), O-46 (20-%-Code) |
 | 1.84 | 2026-10-19 | Rückmeldung zu 0.30.0: Mithelfer-Koppeln als Nebenoption in Schritt 2 der Ersteinrichtung statt auf der Willkommensseite (L-29.1). |
