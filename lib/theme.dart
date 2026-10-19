@@ -1,11 +1,15 @@
 import 'package:flutter/material.dart';
 
-/// Farbwelt der App. Ein ruhiges Blau als Grundton – Buchhaltung soll nicht
-/// aufregend aussehen, sondern verlässlich.
+/// Farbwelt der App: Markenfarben Marineblau #0B3A67 und Hellblau #EAF2FF
+/// (endgültiges Logo 2026-10-19, DESIGN_SPEC 2). Kontrast WCAG AA:
+/// Weiß auf Marineblau 11,6 : 1, Marineblau auf Hellblau 10,3 : 1.
 class AppTheme {
   AppTheme._();
 
-  static const seed = Color(0xFF1B4965);
+  static const seed = Color(0xFF0B3A67);
+
+  /// Hellblau als Akzentfläche (Container) im hellen Modus.
+  static const accentLight = Color(0xFFEAF2FF);
 
   /// Grün für Einnahmen, Rot für Ausgaben. Zusätzlich zur Farbe steht überall
   /// ein Vorzeichen oder ein Icon – Farbe allein wäre für farbenblinde Nutzer
@@ -18,10 +22,17 @@ class AppTheme {
   static ThemeData get dark => _build(Brightness.dark);
 
   static ThemeData _build(Brightness brightness) {
-    final scheme = ColorScheme.fromSeed(
-      seedColor: seed,
-      brightness: brightness,
-    );
+    final base = ColorScheme.fromSeed(seedColor: seed, brightness: brightness);
+    // Hell: Marineblau exakt als Primärfarbe, Hellblau als Container.
+    // Dunkel: die hellen Töne aus dem Seed, damit Text lesbar bleibt.
+    final scheme = brightness == Brightness.light
+        ? base.copyWith(
+            primary: seed,
+            onPrimary: Colors.white,
+            primaryContainer: accentLight,
+            onPrimaryContainer: seed,
+          )
+        : base;
     return ThemeData(
       colorScheme: scheme,
       useMaterial3: true,

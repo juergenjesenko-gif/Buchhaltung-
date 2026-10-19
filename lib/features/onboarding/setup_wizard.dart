@@ -28,9 +28,16 @@ import '../settings/tax_registration_screen.dart';
 import 'company_setup_screen.dart' show logoBasisHint;
 import 'consent_screen.dart';
 
-/// Austauschbares Logo der Willkommensseite (FA-1.13). Das endgültige Logo
-/// ersetzt nur diese Datei; Platzhalter ist Icon-Entwurf 1.
+/// Hauptlogo der Willkommensseite (FA-1.13, endgültig seit 2026-10-19,
+/// DESIGN_SPEC 10a): Marineblau auf transparent, im Dunkelmodus dieselben
+/// Linien in Hellblau (#EAF2FF), damit sie auf dunklem Grund lesbar bleiben.
+/// Erzeugt mit docs/design/logo-final/erzeuge_assets.py (1x/2x/3x).
 const brandLogoAsset = 'assets/brand/logo.png';
+const brandLogoDarkAsset = 'assets/brand/logo_dark.png';
+
+/// Breite 280 dp; Höhe aus dem Seitenverhältnis des Logos (1435 × 528).
+const brandLogoWidth = 280.0;
+const brandLogoHeight = 103.0;
 
 /// Seiten der Ersteinrichtung. [welcome] zählt nicht als Schritt.
 enum SetupPage { welcome, consent, company, details, extras, subscription }
@@ -597,16 +604,16 @@ class _SetupWizardState extends State<SetupWizard> {
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
                         Center(
-                          child: ClipRRect(
-                            borderRadius: BorderRadius.circular(22),
-                            child: Image.asset(
-                              brandLogoAsset,
-                              key: const Key('welcome-logo'),
-                              width: 96,
-                              height: 96,
-                              errorBuilder: (_, _, _) =>
-                                  const Icon(Icons.receipt_long, size: 96),
-                            ),
+                          child: Image.asset(
+                            theme.brightness == Brightness.dark
+                                ? brandLogoDarkAsset
+                                : brandLogoAsset,
+                            key: const Key('welcome-logo'),
+                            width: brandLogoWidth,
+                            height: brandLogoHeight,
+                            semanticLabel: 'JeNi bucht',
+                            errorBuilder: (_, _, _) =>
+                                const Icon(Icons.receipt_long, size: 96),
                           ),
                         ),
                         const SizedBox(height: 24),

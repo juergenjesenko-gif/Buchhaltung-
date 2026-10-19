@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- App-Symbol „JeNi bucht“, Vektor-Rekonstruktion aus logo-uebersicht.png
+     (2026-10-19). Ersetzen, sobald die Originaldateien der Designerin
+     vorliegen (DESIGN_SPEC 10a). Raster 1024, Glyphe ohne Hintergrund in
+     <g id="glyph">. -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" width="1024" height="1024">
+  <rect id="bg" width="1024" height="1024" rx="0" fill="#0B3A67"/>
+  <g id="glyph">
+    <!-- Scan-Ecken -->
+    <g fill="none" stroke="#FFFFFF" stroke-width="58" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M232 352 V292 Q232 232 292 232 H352"/>
+      <path d="M672 232 H732 Q792 232 792 292 V352"/>
+      <path d="M232 672 V732 Q232 792 292 792 H352"/>
+    </g>
+    <!-- Beleg mit Zackenrand oben -->
+    <path fill="#FFFFFF" d="M352 330 L384 300 L416 330 L448 300 L480 330 L512 300 L544 330 L576 300 L608 330 L640 300 L672 330 V758 Q672 788 642 788 H382 Q352 788 352 758 Z"/>
+    <g stroke="#0B3A67" stroke-width="40" stroke-linecap="round">
+      <line x1="414" y1="430" x2="606" y2="430"/>
+      <line x1="414" y1="512" x2="606" y2="512"/>
+      <line x1="414" y1="594" x2="530" y2="594"/>
+    </g>
+    <!-- Häkchen-Kreis mit Freistellung -->
+    <circle cx="690" cy="700" r="150" fill="#0B3A67"/>
+    <circle cx="690" cy="700" r="118" fill="#FFFFFF"/>
+    <path d="M630 700 L672 742 L752 662" fill="none" stroke="#0B3A67" stroke-width="40" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+</svg>

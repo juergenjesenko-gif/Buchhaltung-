@@ -1,6 +1,6 @@
 # Lastenheft – JeNi bucht, Buchhaltungsapp für Österreich und Deutschland
 
-**Dokumentversion:** 1.87 · **Stand:** 2026-10-19 · **Status:** Entwurf zur Abstimmung
+**Dokumentversion:** 1.88 · **Stand:** 2026-10-19 · **Status:** Entwurf zur Abstimmung
 **Auftraggeber:** Jürgen Jesenko (privates Vorhaben) · **Umsetzung:** Claude Code
 
 > Ein Lastenheft beschreibt, **was** das Produkt leisten soll und **warum** — nicht,
@@ -1528,6 +1528,7 @@ Historie stehen. Die Einzelheiten stehen an der genannten Stelle.
 | 2026-10-19 | RZL-Export jetzt nicht; zurückgestellt | L-33.4, P-D52 |
 | 2026-10-19 | E-Rechnung ausstellen ab Basis; Zustellen in Basis über das Teilen-Blatt, Senden mit einem Tipp bleibt Pro | 5.10, O-44 |
 | 2026-10-19 | Apple: Variante A plus Codes – 14 Tage gratis auf allen vier Produkten, Preis fürs erste Jahr nur per Angebotscode (`JENIBUCHTSTART`, je Produkt ein Code); Android unverändert mehrphasig | 5.10, O-45 |
+| 2026-10-19 | **Logo endgültig** (Hauptlogo Willkommensseite, App-Symbol, Palette Marineblau `#0B3A67` / Hellblau `#EAF2FF` / Grau `#6B7C93`, Schriften Montserrat Bold + Allura nur im Logo); Instagram-Text zum 20-%-Code ohne „statt“-Preis | DESIGN_SPEC 10a, `STORE_LISTING.md`, P-R63 |
 | 2026-10-19 | `JENIBUCHT20` parallel zu `JENIBUCHT2M`; Instagram bewirbt `JENIBUCHT20PRO`; nicht geheimer Android-Code akzeptiert (P-R63 bleibt beim Anwalt) | 5.10, O-46 |
 | 2026-10-19 | PDF-Betrachter in der App: jedes erzeugte PDF und PDF-Anhänge vor dem Senden/Drucken ansehen; Drucken über den Systemdialog in jedem Abo, Senden wie bisher Pro | FA-5.48, FA-13.11 |
 | 2026-10-19 | Willkommensseite: Unterzeile „… nach den Regeln, die auch Profis anwenden“ (statt „mit der Qualität von Profis“, UWG) und vier Funktionszeilen | FA-1.13, P-R60 |
@@ -1540,6 +1541,7 @@ Historie stehen. Die Einzelheiten stehen an der genannten Stelle.
 
 | Version | Datum | Änderung |
 |---|---|---|
+| 1.88 | 2026-10-19 | 14a: Logo endgültig (DESIGN_SPEC 10a), Instagram-Text zum 20-%-Code ohne „statt“-Preis. |
 | 1.87 | 2026-10-19 | Entscheidungen Auftraggeber 2026-10-19 (14a): O-44 (E-Rechnung ausstellen ab Basis), O-45 (Apple Variante A plus Codes), O-46 (Pro-Code `JENIBUCHT20PRO`, parallel) erledigt. |
 | 1.86 | 2026-10-19 | E-Rechnung erstellen umgesetzt (L-4.1, L-4.2, 0.32.0); Datenfluss „Rechnungsversand“ um ZUGFeRD-PDF und XML ergänzt (5.19); neu O-44 (Tarif für E-Rechnung ausstellen). |
 | 1.85 | 2026-10-19 | Neue Preise (5.10, 14a): Einführungspreis erstes Jahr, Grundpreis ab dem zweiten Jahr; O-3 überholt; neue offene Punkte O-45 (Apple: Test oder Einführungspreis), O-46 (20-%-Code) |

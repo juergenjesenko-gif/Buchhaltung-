@@ -29,14 +29,39 @@ gebaut, und was war darin geprüft?*
 
 ## Unveröffentlicht
 
-Änderungen seit 0.32.0+45, die noch in keinem Build stecken. Wandern beim
+Änderungen seit 0.33.0+46, die noch in keinem Build stecken. Wandern beim
 nächsten Versionssprung in den neuen Eintrag.
+
+| Art | Änderung | Bezug | Commit |
+|---|---|---|---|
+
+---
+
+## 0.33.0+46 — 2026-10-19
+
+| Feld | Wert |
+|---|---|
+| Art | Testbuild (ungezippte arm64-APK `JeNi-bucht-0.33.0-build-<Nr>.apk`, fester Testschlüssel); **Lizenzprüfung aus** (ohne `LICENSING=true`), alle Funktionen frei |
+| Commit | `HASH` |
+| Branch | `claude/agile-accounting-app-mobile-wa5j3h` |
+| Dokumentstände | Lastenheft 1.88, Spezifikation 1.93, Benutzerhandbuch für 0.33.0, DESIGN_SPEC 1.7 |
+| Datenbankschema | 30 |
+| Prüfung | `flutter analyze` ohne Befund, alle Tests grün (neu `brand_assets_test.dart`: Logo hell/dunkel 1x/2x/3x, Android-Symbole klassisch/adaptiv/monochrom, iOS 1024 ohne Alpha; `welcome_page_test.dart`: Logo 280 dp auf 360 × 740 ohne Scrollen, Dunkelmodus helles Logo). Android/iOS-Build nur in der CI |
+| Steuerliche Kennwerte | unverändert |
+| Offene reale Prüfpunkte | wie 0.32.0+45 (P-R63 um Werbetext ohne „statt“-Preis ergänzt) |
+| Bekannte Grenzen | Spezifikation Abschnitt 11 unverändert; App-Symbol ist eine Vektor-Rekonstruktion bis zur Lieferung der Originale (DESIGN_SPEC 10a) |
+
+**Änderungen seit 0.32.0+45**
 
 | Art | Änderung | Bezug | Commit |
 |---|---|---|---|
 | Geändert | E-Rechnung ausstellen ab Basis (`Feature.eInvoiceIssue`), Zustellen über Teilen-Blatt, Senden mit einem Tipp bleibt Pro | FA-13.2, O-44 | `69ae0d8` |
 | Geändert | Apple: 14 Tage gratis auf allen vier Produkten, Preis fürs erste Jahr nur per Angebotscode `JENIBUCHTSTART`; Abo-Text „14 Tage gratis, danach Grundpreis“ auf iOS getestet | FA-13.16, O-45 | `69ae0d8` |
 | Neu | Pro-Code `JENIBUCHT20PRO` (20 % aufs Pro-Jahresabo), auf Android gleiches Angebots-Tag | FA-13.16, O-46 | `69ae0d8` |
+| Neu | Endgültiges Hauptlogo auf der Willkommensseite, im Dunkelmodus mit hellen Linien | FA-1.13, DESIGN_SPEC 10a | `HASH` |
+| Neu | App-Symbol (Android klassisch, adaptiv, Android-13-Monochrom; iOS-Satz), Startbildschirm Hellblau mit Symbol | DESIGN_SPEC 10a | `HASH` |
+| Geändert | Farbschema Marineblau `#0B3A67`, Hellblau `#EAF2FF` als Container | DESIGN_SPEC 2 | `HASH` |
+| Doku | Instagram-Texte zum 20-%-Code ohne „statt“-Preis (Pro und Basis) | O-46, P-R63 | `HASH` |
 
 ---
 

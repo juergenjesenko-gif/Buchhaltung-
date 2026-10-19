@@ -1,6 +1,6 @@
 # Benutzerhandbuch – JeNi bucht
 
-**Für App-Version 0.32.0** · Stand 2026-10-19
+**Für App-Version 0.33.0** · Stand 2026-10-19
 
 > **Testerinnen und Tester, Umstieg auf 0.26.0:** Ab dieser Version hat die App
 > eine neue technische Kennung. Sie wird **neben** der alten App installiert,
@@ -63,7 +63,7 @@ Einrichtung. Oben siehst du, wo du stehst („Schritt 2 von 5“), mit dem Pfeil
 oben links (oder der Zurück-Geste) gehst du einen Schritt zurück. Schließt du
 die App mittendrin, geht es beim nächsten Öffnen an derselben Stelle weiter.
 
-**Willkommensseite** – oben in vier Zeilen, was die App kann; unten zwei große Knöpfe:
+**Willkommensseite** – ganz oben das Logo von JeNi bucht, darunter in vier Zeilen, was die App kann; unten zwei große Knöpfe:
 
 - **Los geht's** – startet die Einrichtung.
 - **Erst ansehen (Demo)** – zeigt eine erfundene Musterfirma, siehe

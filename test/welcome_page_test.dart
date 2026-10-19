@@ -80,6 +80,10 @@ void main() {
           reason: '„$text“ passt nicht in eine Zeile',
         );
       }
+      // Endgültiges Hauptlogo, 280 dp breit (DESIGN_SPEC 10a).
+      final logo = tester.widget<Image>(find.byKey(const Key('welcome-logo')));
+      expect((logo.image as AssetImage).assetName, brandLogoAsset);
+      expect(tester.getSize(find.byKey(const Key('welcome-logo'))).width, 280);
       expect(find.textContaining('Ich habe schon Daten'), findsNothing);
       expect(find.textContaining('Gerät koppeln'), findsNothing);
       // Seit 0.32.0 gebaut und getestet (FA-5.49, UWG P-R61).
@@ -90,4 +94,25 @@ void main() {
       expect(scrollable.position.maxScrollExtent, 0);
     });
   }
+
+  testWidgets('Dunkelmodus zeigt das helle Logo', (tester) async {
+    final db = (await tester.runAsync(openDb))!;
+    final state = stateFor(db);
+    await tester.runAsync(state.reload);
+    tester.view.physicalSize = const Size(360, 740);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+    await tester.pumpWidget(
+      AppScope(
+        state: state,
+        child: MaterialApp(
+          theme: ThemeData(brightness: Brightness.dark),
+          home: const SetupWizard(),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+    final logo = tester.widget<Image>(find.byKey(const Key('welcome-logo')));
+    expect((logo.image as AssetImage).assetName, brandLogoDarkAsset);
+  });
 }

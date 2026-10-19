@@ -336,16 +336,33 @@ ergänzen (P-R62).
 Entschieden 2026-10-19: Instagram bewirbt den Pro-Code; `JENIBUCHT20` (Basis)
 läuft parallel, ebenso `JENIBUCHT2M`.
 
-> 20 % auf dein erstes Jahr JeNi bucht Pro – mit dem Code JENIBUCHT20PRO:
-> 103,20 € statt 129 € für das erste Jahr (Jahresabo, inkl. USt). Für neue
-> Abonnentinnen und Abonnenten. Ab dem zweiten Jahr verlängert sich das Abo
-> automatisch zu 179 € im Jahr, bis du kündigst. Kündigen geht jederzeit in den
-> Abo-Einstellungen von Google Play bzw. App Store. Code in der App unter
-> Abo → Promo-Code einlösen. Keine Steuerberatung.
+Wortlaut vom Auftraggeber freigegeben am 2026-10-19, **ohne „statt“-Preis**:
 
-„statt 129 €“ nur, weil 129 € der tatsächlich verlangte Einführungspreis ist
-(Android automatisch, iPhone mit `JENIBUCHTSTARTPROJAHR`; ohne Code verlangt
-Apple 179 € – Formulierung P-R63); keinen „statt“-Preis über dem Store-Preis nennen.
+> Mit Code JENIBUCHT20PRO: 20 % auf das erste Jahr JeNi bucht Pro. Danach
+> 179 €/Jahr, jederzeit kündbar.
+>
+> Preis im ersten Jahr mit Code 103,20 € (Jahresabo, inkl. USt). Für neue
+> Abonnentinnen und Abonnenten. Das Abo verlängert sich automatisch, bis du
+> kündigst. Kündigen geht jederzeit in den Abo-Einstellungen von Google Play
+> bzw. App Store. Code in der App unter Abo → Promo-Code einlösen. Keine
+> Steuerberatung.
+
+Basis-Variante (`JENIBUCHT20`, gleicher Aufbau):
+
+> Mit Code JENIBUCHT20: 20 % auf das erste Jahr JeNi bucht Basis. Danach
+> 129 €/Jahr, jederzeit kündbar.
+>
+> Preis im ersten Jahr mit Code 55,20 € (Jahresabo, inkl. USt). Für neue
+> Abonnentinnen und Abonnenten. Das Abo verlängert sich automatisch, bis du
+> kündigst. Kündigen geht jederzeit in den Abo-Einstellungen von Google Play
+> bzw. App Store. Code in der App unter Abo → Promo-Code einlösen. Keine
+> Steuerberatung.
+
+Kein Vergleichspreis („statt …“), damit es auf dem iPhone, wo ohne Code im
+ersten Jahr der Grundpreis gilt (O-45), keinen unzutreffenden Bezugspreis
+gibt. Der genannte Endpreis mit Code muss in beiden Stores tatsächlich
+verlangt werden (Apple-Angebotscode und Android-Angebot `jenibucht20` auf
+103,20 € bzw. 55,20 € einrichten) – Prüfung P-R63.
 
 ### Instagram-Werbetext: 2 Monate gratis (Code `JENIBUCHT2M`)
 

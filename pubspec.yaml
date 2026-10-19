@@ -4,7 +4,7 @@ publish_to: "none"
 
 # version: <Store-Versionsname>+<Buildnummer>
 # Die Buildnummer wird in CI aus der Run-Nummer gesetzt, siehe docs/RELEASE_PLAYBOOK.md
-version: 0.32.0+45
+version: 0.33.0+46
 
 environment:
   sdk: ^3.10.0
@@ -84,9 +84,10 @@ flutter:
     - assets/fonts/WorkSans-Regular.ttf
     - assets/fonts/WorkSans-Bold.ttf
     - assets/fonts/OFL.txt
-    # Logo der Willkommensseite (FA-1.10): eine austauschbare Datei,
-    # Platzhalter = Icon-Entwurf 1, docs/design/icon-entwuerfe.
+    # Hauptlogo der Willkommensseite (FA-1.13), hell und dunkel, 1x/2x/3x
+    # (2.0x/3.0x werden automatisch gefunden), DESIGN_SPEC 10a.
     - assets/brand/logo.png
+    - assets/brand/logo_dark.png
     # Farbprofil sRGB IEC61966-2.1 (ICC, frei weitergebbar) für die
     # PDF/A-3 der ZUGFeRD-Rechnung (FA-5.49, P-R64).
     - assets/icc/sRGB2014.icc

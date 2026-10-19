@@ -1,6 +1,6 @@
 # Designspezifikation
 
-**Version 1.6 · Stand 2026-10-19 · Produktname „JeNi bucht“**
+**Version 1.7 · Stand 2026-10-19 · Produktname „JeNi bucht“**
 
 Zweck: Grundlage, gegen die eine KI (oder ein Mensch) **mehrere unterschiedliche
 Designvarianten** entwickeln kann, die alle fachlich und rechtlich korrekt
@@ -11,9 +11,9 @@ bleiben. Jede Regel ist entweder
 
 Dieses Dokument legt kein Verhalten fest. Verhalten steht in
 [`SPECIFICATION.md`](SPECIFICATION.md), Anforderungen in
-[`LASTENHEFT.md`](LASTENHEFT.md). Bei Widerspruch gelten diese beiden. Name und
-Marke sind offen (Lastenheft O-25, Spezifikation 14 P-R7): **kein finales Logo,
-kein finaler Name in einer Variante**, nur Platzhalter.
+[`LASTENHEFT.md`](LASTENHEFT.md). Bei Widerspruch gelten diese beiden. Name „JeNi
+bucht“ entschieden 2026-10-15; **Logo endgültig seit 2026-10-19** (Abschnitt
+10a). Varianten verwenden das Logo unverändert.
 
 ---
 
@@ -128,8 +128,15 @@ empfohlen.
 Alle Werte: Grundton, Seed-Farbe oder handverlesene Palette, Rundungen, Dichte
 innerhalb der Mindestmaße, Schatten oder flach, Bewegungskurven.
 
-Ist-Stand (Variante „Basis“ in `lib/theme.dart`): Seed `#1B4965`
-(ruhiges Blau), `income #1B7F5A`, `expense #B3261E`, `warning #B26A00`,
+Ist-Stand (`lib/theme.dart`, seit 0.33.0 Markenfarben aus dem endgültigen
+Logo): Seed und helle Primärfarbe **Marineblau `#0B3A67`**, Container im hellen
+Modus **Hellblau `#EAF2FF`**, Grau `#6B7C93` nur für Grafik (auf Weiß 4,4 : 1,
+daher nicht für Fließtext); Dunkelmodus nimmt die hellen Töne aus dem Seed.
+Kontrast: Weiß auf Marineblau 11,6 : 1, Marineblau auf Hellblau 10,3 : 1
+(beide über 7 : 1). Schriften des Logos (Montserrat Bold, Allura Regular,
+SIL OFL) nur im Bildzeichen, nicht in der Oberfläche; Oberfläche bleibt Work
+Sans bzw. Systemschrift. Rechnungs-PDF behält vorerst `#1B4965` (Abschnitt 9).
+Bisher: `income #1B7F5A`, `expense #B3261E`, `warning #B26A00`,
 Kartenradius 14, Buttonradius 10, Buttonhöhe 48.
 
 ---
@@ -419,6 +426,40 @@ heutige `lib/theme.dart` wird beim ersten Variantenbau zur Variante „Basis“
 
 ---
 
+## 10a. Logo und App-Symbol (endgültig)
+
+Entschieden vom Auftraggeber am 2026-10-19 (Lastenheft 14a). Quellen in
+`docs/design/logo-final/`:
+
+| Datei | Inhalt |
+|---|---|
+| `hauptlogo-willkommen.png` | Hauptlogo (Frau mit Handy, Beleg im Scanrahmen, Wortmarke), Quelle der Willkommensseite |
+| `logo-uebersicht.png` | Gestaltungsblatt: Symbol, horizontal/gestapelt, Negativ, einfarbig, Palette, Schriften, Größenvorgaben |
+| `app-icon.svg` | **Vektor-Rekonstruktion** des App-Symbols aus dem Blatt (Raster 1024) |
+| `JeNi_bucht_Hauptlogo_Marineblau.svg` | vom Auftraggeber geliefert (2026-10-19), **nachgezeichnete** Konturen (Füllung `#0B2F57`), kein natives Original. Gerendert verliert sie Innenflächen: Häkchen im Kreis wird zur vollen Scheibe, Haarlinien laufen zu. Die Willkommensseite nutzt deshalb weiter `hauptlogo-willkommen.png` (Entscheid UX-Instanz: Lesbarkeit zuerst) |
+| `JeNi_bucht_Logo-Uebersicht.svg` | automatisch nachgezeichnetes Gestaltungsblatt, für das App-Symbol nicht sauber genug; nur Referenz |
+| `erzeuge_assets.py` | erzeugt alle Dateien unten (cairosvg, Pillow) |
+
+Erzeugt: `assets/brand/logo.png` und `logo_dark.png` (1x/2x/3x, 280 dp breit,
+Rand beschnitten, Weiß → transparent; im Dunkelmodus Linien Hellblau statt
+heller Karte – Entscheid UX-Instanz: lesbar, ohne Kasten, eine Fläche weniger);
+Android `mipmap-*/ic_launcher.png` (abgerundet), adaptiv
+`ic_launcher_foreground.png` (Glyphe 50 dp auf 108 dp, sichere Zone 66 dp),
+Hintergrund `#0B3A67`, `ic_launcher_monochrome.png` (Android 13),
+`launch_image.png`; iOS `AppIcon.appiconset` vollflächig ohne Alpha inkl. 1024;
+`LaunchImage` 120 pt; `play-store-512.png`, `splash-1152.png`,
+`android-adaptiv-*-432.png`. Startbildschirm Hellblau `#EAF2FF` mit Symbol
+mittig, im Dunkelmodus Android Marineblau.
+
+**Abweichung:** Das Blatt ist für Store-Symbole zu grob gerastert; das Symbol ist
+deshalb nachgezeichnet. Häkchen wie im Blatt: weißer Kreis, Marineblau
+freigestellt, Häkchen Marineblau. Die gelieferten SVGs sind Nachzeichnungen, keine Originale. **Sobald die
+nativen Originaldateien der Designerin (SVG/AI, besonders das App-Symbol)
+vorliegen, ersetzen sie `app-icon.svg` und das Hauptlogo; danach
+`erzeuge_assets.py` erneut ausführen.** Auftraggeber-Aufgabe: Originale und die
+schriftliche Übertragung der Nutzungsrechte (wie im Briefing gefordert)
+anfordern.
+
 ## 11. Briefing-Vorlage und Bewertungsraster
 
 ### Briefing (kopierfertig)
@@ -501,7 +542,7 @@ Vergleichskriterien (je 1–5 Punkte):
 | Punkt | Stand | Verweis |
 |---|---|---|
 | Produktname und Marke | entschieden 2026-10-15: „JeNi bucht“, Markenrecherche ohne Befund | Lastenheft O-25, Spezifikation 14 **P-R7** |
-| Logo | erst nach Namensentscheidung; bis dahin nur Platzhalter | folgt aus O-25 / P-R7 |
+| Logo | endgültig 2026-10-19 (Abschnitt 10a); Originale und Nutzungsrechte von der Designerin anfordern | Lastenheft 14a |
 | Ansprache du / Sie | „du“ – entschieden 2026-10-12 | erledigt |
 | Store-Screenshots je Variante | vor jeder Einreichung prüfen | Spezifikation 14 **P-R13** |
 | Barrierefreiheitspflicht | voraussichtlich nicht anwendbar | Spezifikation 14 **P-R3** |
@@ -518,6 +559,7 @@ Auftraggeber sie freigibt, und hier nur per ID verwiesen.
 
 | Version | Datum | Änderung |
 |---|---|---|
+| 1.7 | 2026-10-19 | Logo endgültig: Abschnitt 10a (Quellen, Vektor-Rekonstruktion App-Symbol, erzeugte Dateien, Dunkelmodus-Logo); Markenfarben Marineblau/Hellblau im Ist-Stand Abschnitt 2 mit Kontrastwerten. |
 | 1.6 | 2026-10-19 | Abschnitt 5a Regeln 14 und 15: Aufnahmeleiste weicht beim Scrollen aus; Nebenoptionen statt Pflichtfragen (Mithelfer-Koppeln in Schritt 2). Willkommensseite: Titel größer, Funktionszeilen einzeilig auf 360 dp. PDF-Betrachter: Papier immer weiß. |
 | 1.5 | 2026-10-19 | Abschnitt 7: Ersteinrichtung als Schrittfolge (Willkommensseite, Schritte 1–5), Bestätigungen mit einem Häkchen und beschriftetem Knopf; Stammdaten nur noch zum Bearbeiten. |
 | 1.4 | 2026-10-16 | Abschnitt 5a Regel 13: „Foto“ und „Datei“ (56 dp, 48 dp Abstand, spiegelgleich) neben dem Aufnahmeknopf auf Übersicht und Belegliste. |
