@@ -1,6 +1,6 @@
 # Lastenheft – JeNi bucht, Buchhaltungsapp für Österreich und Deutschland
 
-**Dokumentversion:** 1.82 · **Stand:** 2026-10-19 · **Status:** Entwurf zur Abstimmung
+**Dokumentversion:** 1.83 · **Stand:** 2026-10-19 · **Status:** Entwurf zur Abstimmung
 **Auftraggeber:** Jürgen Jesenko (privates Vorhaben) · **Umsetzung:** Claude Code
 
 > Ein Lastenheft beschreibt, **was** das Produkt leisten soll und **warum** — nicht,
@@ -1120,7 +1120,7 @@ doppelt bucht. Dafür die Standardformate der Kanzleien unterstützen.
 | L-33.1 | DATEV-Buchungsstapel EXTF (Kategorie 21, Version 700) | MUSS | B | vorhanden (8.3), Import P-D50 |
 | L-33.2 | Belegbilder zum DATEV-Stapel als ZIP mit Beleg-ID; DATEV Belegbildtransfer ist online (DATEV-Konto) und offline nicht möglich | MUSS | B | ZIP 0.29.0 (FA-15.12) |
 | L-33.3 | BMD NTCS Buchungsimport (AT) | MUSS | B | vorhanden (8.4), Import P-D51 |
-| L-33.4 | RZL (AT): Importformat prüfen, bis dahin Belegliste/BMD-CSV | SOLL | B | offen P-D52 |
+| L-33.4 | RZL (AT): Importformat prüfen, bis dahin Belegliste/BMD-CSV; eigener RZL-Export **zurückgestellt** (Entscheidung Auftraggeber 2026-10-19) | SOLL | B | zurückgestellt, später P-D52 |
 | L-33.5 | Generische CSV-Belegliste | MUSS | B | vorhanden (8.2) |
 | L-33.6 | Vorgabe **„Für Kapitalgesellschaft / doppelte Buchführung“**: Saldenliste PDF + Buchungsliste + Belegkopien ZIP | MUSS | B | 0.29.0 (FA-15.12), P-S84, P-D53 |
 
@@ -1440,7 +1440,7 @@ Zu entscheiden, bevor die betroffene Anforderung umgesetzt wird:
 | O-37 | **ELSTER-Übermittlungsserver (DE) nach dem Launch:** ERiC gibt es nur für Windows, Linux und macOS, nicht für Android/iOS; direkte UStVA/EÜR-Übermittlung aus der App braucht daher einen Anbieter-Server. Skizze: verwalteter Container (kein eigenes Betriebssystem) bei einem Cloud-Anbieter mit Rechenzentrum in der EU; zustandslos – Meldung kommt verschlüsselt vom Gerät, wird an ELSTER weitergereicht, nichts wird gespeichert (weder Daten noch Zertifikat); grob 10–30 €/Monat. Beim Anbieter verbleiben trotz Cloud: Rolle als Auftragsverarbeiter (AVV mit dem Cloud-Anbieter, Datenschutzerklärung, Store-Angaben, Eintrag in 5.19), ERiC-Updates, Sicherheit des eigenen Codes, Haftung, ELSTER-Herstellerpflichten. Bis dahin: Kennzahlen zum Kopieren in „Mein ELSTER“ (FA-Stand 0.17.0). **Vertagt am 2026-10-16 durch die Auftraggeberin:** erst nach dem Launch und wenn genügend deutsche Nutzerinnen auf der Plattform sind; gemeinsam mit O-32 und der KI-Server-Frage betrachten | nach dem Launch |
 | O-39 | **OAuth für den Mailweg** (L-29.11): Gmail und Microsoft 365/Outlook.com ohne App-Passwort. **To-dos Auftraggeberin:** (1) Google Cloud-Projekt anlegen, OAuth-Zustimmungsbildschirm mit Datenschutzerklärung auf eigener Domain, Bereich `gmail.send` (eingeschränkt) beantragen, OAuth-Verifizierung inkl. Sicherheitsprüfung (CASA) durchlaufen; (2) Azure-App-Registrierung (Microsoft Entra ID, „Konten in beliebigen Organisationen und persönliche Microsoft-Konten“), Berechtigung Graph `Mail.Send` (delegiert), Publisher Verification. Kosten und Pflichten: P-R48. Bis dahin App-Passwort (Gmail, iCloud) bzw. Kennwort | vor Store-Release offen |
 | O-40 | **Innergemeinschaftliches Verbringen** (L-30.9): **geschlossen 2026-10-18** – Entscheidung der Auftraggeberin (14a): Verbringen ins Auslandslager wird nicht in der App gebucht, nur die Verkäufe aus dem Lager; die App warnt in „Für das Finanzamt“, dass DE Kz 89/61 (bzw. AT Kz 070/072/065) die Kanzlei ergänzt (Spezifikation FA-18.4, Grenze 11, P-S68) | erledigt |
-| O-43 | **Tarif „Abgaben & Rücklagen“** (L-31): Vorschlag **Pro** (Rechenhilfe mit Mehrwert, passt zu Saldenliste/Jahresabschluss); derzeit in jedem Abo sichtbar, bis der Auftraggeber entscheidet | offen – Auftraggeber |
+| O-43 | **Tarif „Abgaben & Rücklagen“** (L-31): **Pro** (Rechenhilfe mit Mehrwert, passt zu Saldenliste/Jahresabschluss); Buchungen in Abgabenkategorien bleiben in jedem Anspruch normale Buchungen | entschieden 2026-10-19 – umgesetzt 0.30.0 |
 | ~~O-42~~ | **Entschieden am 2026-10-19 (Auftraggeber), ersetzt O-35:** (A) Die Kundin wählt und startet ein Abo (Basis oder Pro, monatlich/jährlich) im Store; **alle vier Produkte** haben ein Einführungsangebot 14 Tage kostenlos, Kündigung in den 14 Tagen kostet nichts. Bei Basis gibt die App in den ersten 14 Tagen des ersten Abos alle Pro-Funktionen frei („Pro inklusive in der Testzeit“), danach Basis, Daten bleiben; Hinweis 3 Tage vorher „Noch X Tage Pro inklusive – danach Basis. Jetzt auf Pro wechseln?“. Pro bleibt Pro. Text: „14 Tage kostenlos testen – mit allen Pro-Funktionen. Danach gilt dein gewähltes Abo (Preis aus Store). Jederzeit vorher im Store kündbar.“ (B) **Demo ohne Abo** mit eigener Muster-Datenbank, nichts speichern, Wasserzeichen „MUSTER – DEMO“, Band „DEMO – Abo wählen, um mit deinen eigenen Daten zu starten“ (L-10.6). (C) „Store-Test nur auf Pro“ entfällt, ein App-eigener Test bleibt verworfen. Umgesetzt in 0.27.0: Spezifikation FA-13.4, FA-13.5, FA-13.14, FA-13.15; Store-Einrichtung `STORE_ANMELDUNG.md` Formular 4 | erledigt |
 | O-41 | **Nächstes Land** (L-30.8): Empfehlung der [Länderanalyse](LAENDERANALYSE.md) vom 2026-10-18 – zuerst **Frankreich als weiteres Steuerland** (Registrierung für ein FBA-Lager, nur `TaxProfile` mit Sätzen, CA3 und Terminen), danach **Niederlande als erstes neues Heimatland** (keine E-Rechnungs- oder Kassenpflicht); Italien trotz größtem Markt erst später wegen SDI-Pflicht (braucht Server bzw. Vermittler). Vor Umsetzung die dort markierten Punkte („vor Umsetzung prüfen“) klären und in Spezifikation 14 aufnehmen | Entscheidung Auftraggeberin |
 | O-38 | **Volle Mehrgeräte-Synchronisierung** (Weg 2 Cloud-Ordner mit Änderungsjournal nach L-19.15 ff. bzw. Weg 3 Anbieter-Server): nach dem Launch bei genügend Nutzerinnen, gemeinsam mit O-32/O-37 zu entscheiden. Bis dahin Mithelfer-Geräte als Einbahn (5.29) | nach dem Launch |
@@ -1509,6 +1509,10 @@ Historie stehen. Die Einzelheiten stehen an der genannten Stelle.
 | 2026-10-19 | Umfang bleibt Einzelunternehmen inkl. Abgaben ans Finanzamt und Sozialversicherung; „Abgaben & Rücklagen“ gebaut (0.29.0), Tarif-Vorschlag Pro offen | 5.31, O-43 |
 | 2026-10-19 | GmbH und Lohnverrechnung (ÖGK für Dienstnehmer, DB, DZ, Kommunalsteuer, Lohnsteuer, ELDA) später als Stufe „Premium Plus“ | 5.32 |
 | 2026-10-19 | GmbH-Nutzerinnen: Belege buchen, Saldenliste und Belegkopien an die Kanzlei; Standardschnittstellen DATEV, BMD, RZL, CSV und Vorgabe „Für Kapitalgesellschaft / doppelte Buchführung“ | 5.33 |
+| 2026-10-19 | „Abgaben & Rücklagen“ nur Pro; ohne Pro Hinweis „(Pro)“ zur Abo-Seite, Basis in der Testzeit mit Pro inklusive, Demo zeigt es; Abgabenbuchungen bleiben in jedem Abo normale Buchungen | O-43, FA-19.1 |
+| 2026-10-19 | RZL-Export jetzt nicht; zurückgestellt | L-33.4, P-D52 |
+| 2026-10-19 | PDF-Betrachter in der App: jedes erzeugte PDF und PDF-Anhänge vor dem Senden/Drucken ansehen; Drucken über den Systemdialog in jedem Abo, Senden wie bisher Pro | FA-5.48, FA-13.11 |
+| 2026-10-19 | Willkommensseite: Unterzeile „… nach den Regeln, die auch Profis anwenden“ (statt „mit der Qualität von Profis“, UWG) und vier Funktionszeilen | FA-1.13, P-R60 |
 
 ---
 
@@ -1518,6 +1522,7 @@ Historie stehen. Die Einzelheiten stehen an der genannten Stelle.
 
 | Version | Datum | Änderung |
 |---|---|---|
+| 1.83 | 2026-10-19 | Entscheidungen des Auftraggebers vom 2026-10-19 (14a): O-43 entschieden (Pro), RZL-Export zurückgestellt (L-33.4), PDF-Betrachter, Willkommensseite |
 | 1.82 | 2026-10-19 | Entscheidungen des Auftraggebers vom 2026-10-19 (14a): 5.31 Abgaben & Rücklagen (Einzelunternehmen, umgesetzt 0.29.0), 5.32 Ausbaustufe „Premium Plus“ (GmbH, Lohnverrechnung; nur Umriss), 5.33 Schnittstellen zu Kanzleiprogrammen (DATEV, BMD, RZL, CSV, Paket doppelte Buchführung); offener Punkt O-43 (Tarif). Keine neue Datenübertragung (5.19 unverändert). |
 | 1.81 | 2026-10-19 | Rückmeldung des Auftraggebers vom 2026-10-19 (14a): geführte Ersteinrichtung, knappere Bestätigungen, EU-KU-Nummer (EX), Belegfeld „Produkt oder Leistung“, Mithelfer-Hilfe und Koppeln aus den Einstellungen (Spezifikation 1.86). |
 | 1.80 | 2026-10-19 | Entscheidungen des Auftraggebers vom 2026-10-19 (14a, O-42 neu und erledigt, ersetzt O-35): Test auf allen vier Produkten mit Pro inklusive (L-10.3, L-22.3 neu gefasst), Demo ohne Abo (L-10.6 neu), L-22.1 um Demo ergänzt; Umsetzungsstand 0.27.0 (10a). Keine neue Datenübertragung (5.19 unverändert: Demo bleibt auf dem Gerät). |

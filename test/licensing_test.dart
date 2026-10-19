@@ -39,6 +39,7 @@ void main() {
         Feature.invoiceLogo,
         Feature.exchangeRateFetch,
         Feature.annualReports,
+        Feature.levyReserve,
         Feature.contractSummary,
         Feature.assetManagement,
         Feature.helperDevices,
@@ -109,6 +110,7 @@ void main() {
         expect(d.allows(Feature.receiptRecognition), isTrue);
         expect(d.allows(Feature.exchangeRateFetch), isTrue);
         expect(d.allows(Feature.annualReports), isTrue);
+        expect(d.allows(Feature.levyReserve), isTrue);
         for (final f in [
           Feature.newBookings,
           Feature.dataExport,

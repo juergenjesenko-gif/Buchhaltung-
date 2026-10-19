@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 
-import '../../services/invoice_texts.dart';
-
 import '../../app_state.dart';
 import '../../domain/invoice.dart';
 import '../../services/invoice_logo.dart';
@@ -9,10 +7,11 @@ import '../../services/invoice_pdf.dart';
 import '../../services/invoice_seller.dart';
 import '../../services/logo_store.dart';
 import '../../services/licensing/license_policy.dart';
-import '../licensing/feature_gate.dart';
+import '../../services/invoice_texts.dart';
 import '../../widgets/common.dart';
+import '../pdf_viewer/pdf_viewer_screen.dart';
 
-/// Erzeugt das Rechnungs-PDF und öffnet den Teilen-Dialog (FA-5.10).
+/// Erzeugt das Rechnungs-PDF und öffnet den Betrachter (FA-5.10, FA-5.48).
 /// Gemeinsam für Rechnungsliste und Rechnungsformular („PDF senden“ direkt
 /// nach dem Ausstellen).
 Future<void> shareInvoicePdf(BuildContext context, Invoice invoice) async {
@@ -44,9 +43,13 @@ Future<void> shareInvoicePdf(BuildContext context, Invoice invoice) async {
       '-',
     );
     if (!context.mounted) return;
-    await sendPdfGated(
+    // Erst ansehen, dann senden oder drucken (FA-5.48).
+    await openPdfViewer(
       context,
-      Feature.pdfSending,
+      title: invoice.isCancellation
+          ? InvoiceTexts.cancellationTitle(invoice.number)
+          : 'Rechnung ${invoice.number}',
+      sendFeature: Feature.pdfSending,
       fileName: invoice.isCancellation
           ? 'Stornorechnung_$safeNumber.pdf'
           : 'Rechnung_$safeNumber.pdf',

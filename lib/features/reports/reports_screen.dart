@@ -15,6 +15,7 @@ import '../../widgets/adaptive.dart';
 import '../../widgets/common.dart';
 import '../assets/asset_screens.dart';
 import '../help/help_screen.dart';
+import '../pdf_viewer/pdf_viewer_screen.dart';
 import '../licensing/feature_gate.dart';
 
 /// Berichte für die Steuerberatung (FA-15.8 bis FA-15.12): Anlagen,
@@ -103,9 +104,13 @@ class _ReportsScreenState extends State<ReportsScreen> {
       final data = await _data();
       if (data == null) return;
       final pdf = AnnualReportPdf(data);
-      await ShareService.sharePdf(
+      final bytes = await pdf.build(kind);
+      if (!mounted) return;
+      await openPdfViewer(
+        context,
+        title: kind.title,
         fileName: pdf.fileName(kind),
-        bytes: await pdf.build(kind),
+        bytes: bytes,
         subject: '${kind.title} ${data.periodLabel}',
       );
     });

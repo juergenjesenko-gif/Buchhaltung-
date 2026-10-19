@@ -15,7 +15,7 @@ ersten Einreichung mit `tool/release/bundle_id_wechsel.sh`
 ## Kurzbeschreibung (Google Play, max. 80 Zeichen)
 
 ```
-Belege fotografieren, Rechnungen schreiben. 14 Tage kostenlos testen.
+Belege scannen, Rechnungen schreiben, Fristen im Blick. 14 Tage gratis testen.
 ```
 
 ## Untertitel (App Store, max. 30 Zeichen)
@@ -77,12 +77,13 @@ einen QR-Link lädst. App-Sperre mit PIN oder Fingerabdruck.
 BASIS UND PRO
 Basis: Belege, Rechnungen, Storno, Mahnungen erstellen, Kassabuch, Kunden,
 Übersicht, Kleinunternehmer-Ampel, Vertragsarchiv, Export, Sicherung, PDF
-speichern und drucken.
+ansehen, speichern und drucken.
 Pro zusätzlich: Belegerkennung per Kamera, Import aus Amazon, PayPal, Shopify,
 Stripe und E-Rechnungen, PDF und Mahnungen mit einem Tipp senden, Logo auf
 Rechnungen, Wechselkurs abrufen, Anlagen mit Abschreibung und
-Anlagenverzeichnis, Saldenliste und vorläufiger Jahresabschluss, Verträge
-auslesen, Mithelfer-Geräte koppeln.
+Anlagenverzeichnis, Saldenliste und vorläufiger Jahresabschluss, Abgaben &
+Rücklagen (Schätzung für Steuern und SV), Verträge auslesen, Mithelfer-Geräte
+koppeln.
 
 14 TAGE KOSTENLOS TESTEN
 14 Tage kostenlos testen – mit allen Pro-Funktionen, auch wenn du Basis

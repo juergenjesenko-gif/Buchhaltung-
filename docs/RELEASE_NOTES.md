@@ -29,11 +29,37 @@ gebaut, und was war darin geprüft?*
 
 ## Unveröffentlicht
 
-Änderungen seit 0.29.0+42, die noch in keinem Build stecken. Wandern beim
+Änderungen seit 0.30.0+43, die noch in keinem Build stecken. Wandern beim
 nächsten Versionssprung in den neuen Eintrag.
 
 | Art | Änderung | Bezug | Commit |
 |---|---|---|---|
+
+---
+
+## 0.30.0+43 — 2026-10-19
+
+| Feld | Wert |
+|---|---|
+| Art | Testbuild (ungezippte arm64-APK `JeNi-bucht-0.30.0-build-<Nr>.apk`, fester Testschlüssel); **Lizenzprüfung aus** (ohne `LICENSING=true`), alle Funktionen frei |
+| Commit | `dieser Commit` |
+| Branch | `claude/agile-accounting-app-mobile-wa5j3h` |
+| Dokumentstände | Lastenheft 1.83, Spezifikation 1.88, Benutzerhandbuch für 0.30.0, DESIGN_SPEC 1.5 |
+| Datenbankschema | 29 |
+| Prüfung | `flutter analyze` ohne Befund, alle Tests grün (neu `pdf_viewer_test.dart`: Seiten wischen, „Seite x von n“, Leiste 56 dp in der Daumenzone, Drucken frei, Demo: Drucken zeigt Demo-Blatt; neu `welcome_page_test.dart`: Willkommensseite ohne Scrollen auf 360 × 740 und 412 × 915 dp, kein „E-Rechnung schreiben“; angepasst `licensing_test.dart` (`levyReserve` nur Pro, Demo frei), `setup_wizard_test.dart` (echte Schrift)); Android/iOS-Build nur in der CI |
+| Steuerliche Kennwerte | keine Änderung |
+| Offene reale Prüfpunkte | wie 0.29.0+42, neu P-X26, P-D54, P-R60 |
+| Bekannte Grenzen | Spezifikation Abschnitt 11; „Demo ohne PDF-Vorschau“ erledigt |
+
+**Änderungen seit 0.29.0+42**
+
+| Art | Änderung | Bezug | Commit |
+|---|---|---|---|
+| Neu | PDF-Betrachter (Paket `printing`): jedes erzeugte PDF und PDF-Anhänge eines Belegs zuerst ansehen; wischen, zoomen, Seitenanzeige; Schließen, Drucken (frei), Senden (Pro wie bisher); Demo gesperrt mit Hinweis | FA-5.48, FA-13.11, FA-13.14 | `dieser Commit` |
+| Geändert | „PDF senden“ heißt „Ansehen“ bzw. „PDF ansehen“ (Rechnungsliste, Rechnungsformular, Storno-Hinweis, Angebot, Mahnung, Berichte); Angebot gilt erst nach „Senden“ als gesendet | FA-5.46, FA-5.48 | `dieser Commit` |
+| Geändert | „Abgaben & Rücklagen“ nur Pro; ohne Pro Hinweiszeile „(Pro)“ zur Abo-Seite auf der Übersicht und in „Für das Finanzamt“ | O-43, FA-13.2, FA-19.1 | `dieser Commit` |
+| Geändert | Willkommensseite: Unterzeile und vier Funktionszeilen; Store-Kurzbeschreibung angepasst | FA-1.13, P-R60 | `dieser Commit` |
+| Doku | RZL-Export zurückgestellt (L-33.4, P-D52); Lastenheft 14a; interne Prüfung 2026-10-19 PDF-Betrachter | Spezifikation 14 | `dieser Commit` |
 
 ---
 

@@ -4,7 +4,7 @@ publish_to: "none"
 
 # version: <Store-Versionsname>+<Buildnummer>
 # Die Buildnummer wird in CI aus der Run-Nummer gesetzt, siehe docs/RELEASE_PLAYBOOK.md
-version: 0.29.0+42
+version: 0.30.0+43
 
 environment:
   sdk: ^3.10.0
@@ -59,6 +59,9 @@ dependencies:
   workmanager: ^0.10.10
   # Erinnerung „Belege senden“ beim Mithelfer ohne Postfach (FA-17.10), BSD-3.
   flutter_local_notifications: ^22.3.2
+  # PDF-Betrachter und Systemdruckdialog (FA-5.48), DavBfr wie `pdf`,
+  # Apache-2.0; rendert mit Plattformmitteln, offline, ohne PDFium-Binärdatei.
+  printing: ^5.15.1
 
 dev_dependencies:
   flutter_test:

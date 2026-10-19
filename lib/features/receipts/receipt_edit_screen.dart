@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 
+import '../pdf_viewer/pdf_viewer_screen.dart';
 import '../../widgets/dictation_button.dart';
 import '../../widgets/danger_zone.dart';
 import 'package:flutter/services.dart';
@@ -903,6 +904,19 @@ class _ReceiptEditScreenState extends State<ReceiptEditScreen> {
   /// Originaldateien (PDF, XML), die beim Speichern angehängt werden.
   final List<ReceiptDocument> _documents = [];
 
+  Future<void> _viewDocument(ReceiptDocument doc) async {
+    final file = await ReceiptImageStore.resolve(doc.filePath);
+    if (file == null || !await file.exists() || !mounted) return;
+    final bytes = await file.readAsBytes();
+    if (!mounted) return;
+    await openPdfViewer(
+      context,
+      title: doc.fileName,
+      fileName: doc.fileName,
+      bytes: bytes,
+    );
+  }
+
   /// Textebene einer geteilten PDF (iOS), ersetzt dann die Texterkennung.
   OcrDocument? _textLayer;
 
@@ -1208,6 +1222,16 @@ class _ReceiptEditScreenState extends State<ReceiptEditScreen> {
                     style: muted,
                   ),
                 ),
+                // PDF-Anhang im Betrachter ansehen (FA-5.48).
+                if (doc.mime == 'application/pdf')
+                  TextButton(
+                    key: Key('doc-view-${doc.sha256}'),
+                    style: TextButton.styleFrom(
+                      minimumSize: const Size(48, 48),
+                    ),
+                    onPressed: () => _viewDocument(doc),
+                    child: const Text('Ansehen'),
+                  ),
               ],
             ),
           ),

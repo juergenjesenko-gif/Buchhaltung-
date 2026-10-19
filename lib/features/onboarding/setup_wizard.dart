@@ -48,6 +48,29 @@ enum _Intent { setup, demo, restore, helper }
 /// Nach der Einrichtung bleiben Stammdaten und Einstellungen der Ort zum
 /// Bearbeiten (unverändert).
 class SetupWizard extends StatefulWidget {
+  /// Unterzeile der Willkommensseite (Entscheidung 2026-10-19).
+  static const welcomeSubline =
+      'Rechnungswesen und Buchhaltung leicht gemacht – ohne Vorwissen, nach '
+      'den Regeln, die auch Profis anwenden.';
+
+  /// Was die App kann – nur Gebautes (E-Rechnungen werden gelesen, noch
+  /// nicht erstellt).
+  static const welcomePoints = [
+    (
+      Icons.document_scanner_outlined,
+      'Belege scannen und automatisch auslesen',
+    ),
+    (
+      Icons.receipt_long_outlined,
+      'Rechnungen schreiben – E-Rechnungen empfangen',
+    ),
+    (Icons.event_note_outlined, 'Verträge und Fristen im Blick'),
+    (
+      Icons.table_chart_outlined,
+      'Saldenliste und Jahresübersicht laufend aktuell',
+    ),
+  ];
+
   const SetupWizard({super.key});
 
   /// Höhe des Hauptknopfs.
@@ -578,7 +601,7 @@ class _SetupWizardState extends State<SetupWizard> {
                 constraints: BoxConstraints(minHeight: constraints.maxHeight),
                 child: IntrinsicHeight(
                   child: Padding(
-                    padding: const EdgeInsets.fromLTRB(16, 32, 16, 16),
+                    padding: const EdgeInsets.fromLTRB(16, 24, 16, 16),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
@@ -602,12 +625,36 @@ class _SetupWizardState extends State<SetupWizard> {
                           style: theme.textTheme.headlineSmall,
                         ),
                         const SizedBox(height: 8),
+                        // Wortlaut geprüft (UWG § 2 AT / § 5 DE): kein
+                        // unbelegbares Qualitätsversprechen („Qualität von
+                        // Profis“), nur nachprüfbare Arbeitsweise.
                         Text(
-                          'Beleg fotografieren, Rechnung schreiben, Termine im '
-                          'Blick – in fünf Minuten eingerichtet.',
+                          SetupWizard.welcomeSubline,
+                          key: const Key('welcome-subline'),
                           textAlign: TextAlign.center,
                           style: theme.textTheme.bodyLarge,
                         ),
+                        const SizedBox(height: 20),
+                        for (final (icon, text) in SetupWizard.welcomePoints)
+                          Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 5),
+                            child: Row(
+                              children: [
+                                Icon(
+                                  icon,
+                                  size: 22,
+                                  color: theme.colorScheme.primary,
+                                ),
+                                const SizedBox(width: 12),
+                                Expanded(
+                                  child: Text(
+                                    text,
+                                    style: theme.textTheme.bodyMedium,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
                         const Spacer(),
                         const SizedBox(height: 16),
                         link(

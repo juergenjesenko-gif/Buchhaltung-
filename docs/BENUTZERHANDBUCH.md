@@ -1,6 +1,6 @@
 # Benutzerhandbuch – JeNi bucht
 
-**Für App-Version 0.29.0** · Stand 2026-10-19
+**Für App-Version 0.30.0** · Stand 2026-10-19
 
 > **Testerinnen und Tester, Umstieg auf 0.26.0:** Ab dieser Version hat die App
 > eine neue technische Kennung. Sie wird **neben** der alten App installiert,
@@ -63,7 +63,7 @@ Einrichtung. Oben siehst du, wo du stehst („Schritt 2 von 5“), mit dem Pfeil
 oben links (oder der Zurück-Geste) gehst du einen Schritt zurück. Schließt du
 die App mittendrin, geht es beim nächsten Öffnen an derselben Stelle weiter.
 
-**Willkommensseite** – unten zwei große Knöpfe:
+**Willkommensseite** – oben in vier Zeilen, was die App kann; unten zwei große Knöpfe:
 
 - **Los geht's** – startet die Einrichtung.
 - **Erst ansehen (Demo)** – zeigt eine erfundene Musterfirma, siehe
@@ -801,7 +801,8 @@ Unter der Ampel steht immer im Klartext, was der Status für dich bedeutet.
 7. Optional **Anmerkungen** – erscheinen unter den Positionen
 8. Unten **Entwurf** speichern oder **Rechnung ausstellen**. Die Leiste bleibt
    auch bei offener Tastatur sichtbar. Nach dem Ausstellen steht dort
-   **PDF senden** – ein Tipp, und der Teilen-Dialog öffnet sich.
+   **PDF ansehen** – die Rechnung öffnet im PDF-Betrachter; dort **Senden**
+   oder **Drucken** (siehe [PDF ansehen, drucken, senden](#pdf-ansehen-drucken-senden)).
 
 ### Rabatt, Versandkosten und Skonto
 
@@ -878,12 +879,30 @@ dieselbe Nummer. Die App lehnt ein Muster ohne `{N}` ab.
 Der Zähler läuft weiter und springt nie zurück – auch nicht, wenn du deine
 Stammdaten bearbeitest.
 
+### PDF ansehen, drucken, senden
+
+Jedes PDF – Rechnung, Stornorechnung, Mahnung, Angebot, Saldenliste,
+Jahresabschluss, Anlagenverzeichnis und PDF-Anhänge eines Belegs – öffnet
+zuerst im Betrachter:
+
+1. Mit dem Finger **wischen** für die nächste Seite, mit zwei Fingern
+   **zoomen**. Unten steht „Seite 1 von 2“.
+2. Unten **Drucken** – der Druckdialog des Telefons; dort geht auch
+   „Als PDF speichern“. Drucken geht in jedem Abo.
+3. Oder **Senden** – mit Pro mit Betreff und Text; ohne Pro steht dort
+   **Senden (Pro)** (siehe Abschnitt 10).
+4. **Schließen** – zurück, ohne etwas zu senden.
+
+In der Demo siehst du das Muster-PDF mit dem Schriftzug „DEMO“; Drucken und
+Senden zeigen den Demo-Hinweis.
+
 ### Rechnung versenden
 
-Direkt nach dem Ausstellen mit **PDF senden** unten im Formular. Nach dem
+Direkt nach dem Ausstellen mit **PDF ansehen** unten im Formular, dann
+**Senden**. Nach dem
 Senden bleibt die Rechnung offen; mit **Beenden** daneben geht es zurück zur
 Liste. Oder später in
-der Rechnungsliste auf der Karte mit **PDF senden**. Eine neue Rechnung beginnst
+der Rechnungsliste auf der Karte mit **Ansehen**. Eine neue Rechnung beginnst
 du unten in der Mitte mit **Neue Rechnung**. Rechnung und Mahnung sprechen
 deine Kunden mit **Sie** an; € und Gedankenstrich erscheinen im PDF richtig.
 Liegt das Leistungsdatum nach dem Rechnungsdatum, fragt das Formular dezent
@@ -1333,7 +1352,11 @@ Store-Konto. Du findest alles unter **Einstellungen → Abo**.
   - **Logo** auf Rechnungen und Angeboten (wählen geht in jedem Abo).
   - **Kurs abrufen** bei Fremdwährung (eintippen geht immer).
   - Später: direkte Übermittlung ans Finanzamt (UVA).
-- Knöpfe mit **(Pro)** öffnen ohne Pro die Abo-Seite. Bei **PDF senden**
+  - **Abgaben & Rücklagen**: die Schätzung für Steuern und SV. Ohne Pro
+    steht auf der Übersicht **Abgaben & Rücklagen (Pro)**; deine Buchungen
+    für SVS, Einkommensteuer und Gewerbesteuer bleiben ganz normale Buchungen.
+- **Drucken** geht im PDF-Betrachter in jedem Abo.
+- Knöpfe mit **(Pro)** öffnen ohne Pro die Abo-Seite. Bei **Senden (Pro)**
   kommt danach trotzdem das Teilen-Blatt: Dort kannst du das PDF
   **speichern oder drucken** und selbst an die Kundin schicken. So erreicht
   jede Rechnung und Stornorechnung auch mit Basis ihre Empfängerin.
@@ -2059,7 +2082,8 @@ Steuerberatung. Die App rechnet nur mit dem, was du einträgst.
 
 ## 17. Abgaben & Rücklagen
 
-Damit dich die Nachzahlung nicht überrascht: Die App schätzt, was du für
+Gibt es mit **Pro** (und in der Testzeit und Demo). Damit dich die
+Nachzahlung nicht überrascht: Die App schätzt, was du für
 Einkommensteuer und Sozialversicherung zurücklegen solltest. **Schätzung –
 ersetzt keine Steuerberatung.**
 

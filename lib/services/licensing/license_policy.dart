@@ -36,7 +36,8 @@ enum Entitlement {
     // zeigt den Kurs – gespeichert wird nichts (newBookings fehlt).
     Feature.receiptRecognition ||
     Feature.exchangeRateFetch ||
-    Feature.annualReports => this == pro || this == demo,
+    Feature.annualReports ||
+    Feature.levyReserve => this == pro || this == demo,
     // Ansehen, Export, Sicherung und Wiederherstellung bleiben ohne Abo
     // erlaubt (L-10.4, L-22.6); nur die Demo hat keine eigenen Daten.
     Feature.dataExport => this != demo,
@@ -117,6 +118,11 @@ enum Feature {
   /// brauchen kein eigenes Abo (Vorschlag, Lastenheft 14a). Der Eingang nimmt
   /// bereits gesendete Belege in jedem Anspruch an – nichts geht verloren.
   helperDevices,
+
+  /// Karte und Bildschirm „Abgaben & Rücklagen“ (FA-19.1 ff.; Entscheidung
+  /// Auftraggeber 2026-10-19, O-43: nur Pro, in der Demo sichtbar). Buchungen
+  /// in Abgabenkategorien bleiben in jedem Anspruch normale Buchungen.
+  levyReserve,
 
   /// Exportieren, Teilen, Sichern und Wiederherstellen (L-22.6). Ohne Abo
   /// und im Nur-Lese-Modus immer erlaubt; gesperrt nur in der Demo

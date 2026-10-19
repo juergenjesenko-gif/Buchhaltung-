@@ -225,12 +225,23 @@ class _TaxOfficeScreenState extends State<TaxOfficeScreen> {
                 key: const Key('open-levies'),
                 minVerticalPadding: 12,
                 leading: const Icon(Icons.savings_outlined),
-                title: const Text('Abgaben & Rücklagen'),
+                title: Text(
+                  proLabel(context, Feature.levyReserve, 'Abgaben & Rücklagen'),
+                ),
                 subtitle: const Text('Einkommensteuer, Sozialversicherung'),
                 trailing: const Icon(Icons.chevron_right),
-                onTap: () => Navigator.of(context).push(
-                  MaterialPageRoute<void>(builder: (_) => const LeviesScreen()),
-                ),
+                // Nur Pro (O-43).
+                onTap: () async {
+                  if (!await ensureFeature(context, Feature.levyReserve) ||
+                      !context.mounted) {
+                    return;
+                  }
+                  await Navigator.of(context).push(
+                    MaterialPageRoute<void>(
+                      builder: (_) => const LeviesScreen(),
+                    ),
+                  );
+                },
               ),
             ),
             const SizedBox(height: 16),

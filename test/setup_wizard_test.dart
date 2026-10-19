@@ -13,6 +13,7 @@ import 'package:buchhaltung/services/licensing/fake_store_billing.dart';
 import 'package:buchhaltung/services/licensing/license_cache.dart';
 import 'package:buchhaltung/services/licensing/license_manager.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
@@ -26,6 +27,11 @@ void main() {
     sqfliteFfiInit();
     databaseFactory = databaseFactoryFfi;
     await initializeDateFormatting('de');
+    // Echte Schrift statt Ahem: die Willkommensseite ist auf echte
+    // Zeichenbreiten ausgelegt (welcome_page_test.dart).
+    final font = FontLoader('Roboto')
+      ..addFont(rootBundle.load('assets/fonts/WorkSans-Regular.ttf'));
+    await font.load();
   });
 
   Future<Database> openDb() => databaseFactoryFfi.openDatabase(

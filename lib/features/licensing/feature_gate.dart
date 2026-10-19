@@ -69,6 +69,9 @@ String featureReason(Feature feature) => switch (feature) {
   Feature.annualReports =>
     'Saldenliste und vorläufigen Jahresabschluss gibt es mit Pro. Das '
         'Anlagenverzeichnis und den Export bekommst du in jedem Abo.',
+  Feature.levyReserve =>
+    'Abgaben & Rücklagen gibt es mit Pro. Deine Buchungen für Steuern und '
+        'Sozialversicherung bleiben in jedem Abo ganz normale Buchungen.',
   Feature.assetManagement =>
     'Anlagen anlegen, ändern und ausscheiden gibt es mit Pro. Erfasste '
         'Anlagen, ihre AfA und das Anlagenverzeichnis bleiben in jedem Abo.',

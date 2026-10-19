@@ -12,6 +12,7 @@ import '../../services/dunning_service.dart';
 import '../../services/invoice_seller.dart';
 import '../../services/invoice_texts.dart';
 import '../../services/licensing/license_policy.dart';
+import '../pdf_viewer/pdf_viewer_screen.dart';
 import '../licensing/feature_gate.dart';
 import '../../theme.dart';
 import '../../widgets/common.dart';
@@ -138,9 +139,10 @@ class _DunningSheetState extends State<_DunningSheet> {
         '-',
       );
       if (!mounted) return;
-      await sendPdfGated(
+      await openPdfViewer(
         context,
-        Feature.dunningSending,
+        title: '${notice.title} zu ${widget.invoice.number}',
+        sendFeature: Feature.dunningSending,
         fileName: '${notice.title.replaceAll(' ', '_')}_$safe.pdf',
         bytes: bytes,
         subject: '${notice.title} zu Rechnung ${widget.invoice.number}',

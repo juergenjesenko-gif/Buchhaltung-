@@ -14,6 +14,7 @@ import '../../widgets/common.dart';
 import '../../widgets/primary_action_bar.dart';
 import '../articles/position_picker.dart';
 import '../invoices/invoice_edit_screen.dart';
+import '../pdf_viewer/pdf_viewer_screen.dart';
 import '../licensing/feature_gate.dart';
 
 /// Angebotsliste (L-3.13 bis L-3.17). Erreichbar über Rechnungen → Angebote.
@@ -253,15 +254,16 @@ class _OfferEditScreenState extends State<OfferEditScreen> {
       logo: logo,
     ).build();
     if (!mounted) return;
-    await sendPdfGated(
+    final sent = await openPdfViewer(
       context,
-      Feature.pdfSending,
+      title: InvoiceTexts.offerTitle(offer.number),
+      sendFeature: Feature.pdfSending,
       fileName: 'Angebot_${offer.number}.pdf',
       bytes: bytes,
       subject: InvoiceTexts.offerTitle(offer.number),
       text: InvoiceTexts.shareOffer(offer.number),
     );
-    if (offer.status == OfferStatus.draft) {
+    if (sent && offer.status == OfferStatus.draft) {
       await state.repositories.offers.setStatus(offer.id!, OfferStatus.sent);
       final reloaded = await state.repositories.offers.byId(offer.id!);
       if (mounted) setState(() => _offer = reloaded);
@@ -559,8 +561,8 @@ class _OfferEditScreenState extends State<OfferEditScreen> {
       bottomNavigationBar: PrimaryActionBar(
         secondary: PrimaryActionBar.outlined(
           key: const Key('offer-send'),
-          label: proLabel(context, Feature.pdfSending, 'PDF senden'),
-          icon: Icons.send_outlined,
+          label: 'PDF ansehen',
+          icon: Icons.picture_as_pdf_outlined,
           onPressed: _busy ? null : _sendPdf,
         ),
         primary: !saved

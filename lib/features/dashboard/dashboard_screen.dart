@@ -9,6 +9,7 @@ import '../../domain/money.dart';
 import '../../domain/receipt.dart';
 import '../../services/deadline_calculator.dart';
 import '../../services/levies/levy_estimator.dart';
+import '../../services/licensing/license_policy.dart';
 import '../../services/levies/levy_overview.dart';
 import '../../services/small_business_monitor.dart';
 import '../../theme.dart';
@@ -20,6 +21,7 @@ import '../receipts/receipt_edit_screen.dart';
 import '../settings/settings_screen.dart';
 import '../help/help_screen.dart';
 import '../levies/levies_screen.dart';
+import '../licensing/feature_gate.dart';
 import '../licensing/license_notice.dart';
 
 /// Kassabuch-Übersicht: das Erste, was der Nutzer sieht.
@@ -241,7 +243,34 @@ class _DashboardScreenState extends State<DashboardScreen> {
               ),
               const SizedBox(height: 16),
               // Rücklage für Steuern & SV (FA-19.1), direkt unter dem Ergebnis.
-              if (_levies != null && !_levies!.totalYear.isZero) ...[
+              // Nur Pro (O-43): ohne Pro ein Hinweis mit „(Pro)“ zur Abo-Seite.
+              if (!state.allows(Feature.levyReserve)) ...[
+                Card(
+                  child: ListTile(
+                    key: const Key('levy-teaser'),
+                    minTileHeight: 56,
+                    leading: const Icon(Icons.savings_outlined),
+                    title: const Text('Abgaben & Rücklagen (Pro)'),
+                    subtitle: const Text(
+                      'Wie viel du für Steuern und SV zurücklegen solltest',
+                    ),
+                    trailing: const Icon(Icons.chevron_right),
+                    onTap: () async {
+                      if (!await ensureFeature(context, Feature.levyReserve) ||
+                          !context.mounted) {
+                        return;
+                      }
+                      await Navigator.of(context).push(
+                        MaterialPageRoute<void>(
+                          builder: (_) => const LeviesScreen(),
+                        ),
+                      );
+                      await _load();
+                    },
+                  ),
+                ),
+                const SizedBox(height: 16),
+              ] else if (_levies != null && !_levies!.totalYear.isZero) ...[
                 LevyReserveCard(
                   estimate: _levies!,
                   onTap: () async {
