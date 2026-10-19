@@ -42,7 +42,7 @@ nächsten Versionssprung in den neuen Eintrag.
 | Feld | Wert |
 |---|---|
 | Art | Testbuild (ungezippte arm64-APK `JeNi-bucht-0.31.0-build-<Nr>.apk`, fester Testschlüssel); **Lizenzprüfung aus** (ohne `LICENSING=true`), alle Funktionen frei |
-| Commit | `dieser Commit` |
+| Commit | `b400a36` |
 | Branch | `claude/agile-accounting-app-mobile-wa5j3h` |
 | Dokumentstände | Lastenheft 1.84, Spezifikation 1.89, Benutzerhandbuch für 0.31.0, DESIGN_SPEC 1.6 |
 | Datenbankschema | 29 |
@@ -55,11 +55,11 @@ nächsten Versionssprung in den neuen Eintrag.
 
 | Art | Änderung | Bezug | Commit |
 |---|---|---|---|
-| Geändert | Willkommensseite: Punkt statt Gedankenstrich, Titel größer, mehr Abstand, Funktionszeilen einzeilig, „Sicherung wiederherstellen“; Mithelfer-Koppeln als Nebenoption in Schritt 2 | FA-1.13, FA-17.2, FA-17.13, L-29.1 | `dieser Commit` |
-| Behoben | PDF-Betrachter im dunklen Modus: Seite auf weißem Papier in Originalfarben | FA-5.48 | `dieser Commit` |
-| Neu | Aufnahmeleiste der Übersicht weicht beim Scrollen aus, nach 5 s zurück | FA-12.1 | `dieser Commit` |
-| Geändert | Kleinunternehmergrenze je Land: DE misst an 25.000 € mit Warnung fürs Folgejahr, Grenzenhinweis DE/AT | FA-4.14, P-S85 | `dieser Commit` |
-| Neu | Demo mit Landeswahl (Deutschland zuerst) und deutscher Musterfirma „Muster Handel“ (§ 19 UStG) | FA-13.14 | `dieser Commit` |
+| Geändert | Willkommensseite: Punkt statt Gedankenstrich, Titel größer, mehr Abstand, Funktionszeilen einzeilig, „Sicherung wiederherstellen“; Mithelfer-Koppeln als Nebenoption in Schritt 2 | FA-1.13, FA-17.2, FA-17.13, L-29.1 | `b400a36` |
+| Behoben | PDF-Betrachter im dunklen Modus: Seite auf weißem Papier in Originalfarben | FA-5.48 | `b400a36` |
+| Neu | Aufnahmeleiste der Übersicht weicht beim Scrollen aus, nach 5 s zurück | FA-12.1 | `b400a36` |
+| Geändert | Kleinunternehmergrenze je Land: DE misst an 25.000 € mit Warnung fürs Folgejahr, Grenzenhinweis DE/AT | FA-4.14, P-S85 | `b400a36` |
+| Neu | Demo mit Landeswahl (Deutschland zuerst) und deutscher Musterfirma „Muster Handel“ (§ 19 UStG) | FA-13.14 | `b400a36` |
 
 ---
 
