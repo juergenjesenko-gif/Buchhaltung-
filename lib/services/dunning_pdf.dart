@@ -32,7 +32,7 @@ class DunningPdf {
   final Customer customer;
   final CompanyProfile profile;
 
-  static const _accent = PdfColor.fromInt(0xFF1B4965);
+  static const _accent = PdfColor.fromInt(0xFF0B3A67);
   static const _muted = PdfColor.fromInt(0xFF5A6B78);
 
   /// Zeilen der Betragstabelle – auch für Tests und die Vorschau.

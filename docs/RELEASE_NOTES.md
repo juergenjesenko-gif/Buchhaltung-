@@ -34,6 +34,7 @@ nächsten Versionssprung in den neuen Eintrag.
 
 | Art | Änderung | Bezug | Commit |
 |---|---|---|---|
+| Geändert | Rechnungs-, Storno- und Mahnungs-PDF in Markenfarbe Marineblau #0B3A67 statt #1B4965 | DESIGN_SPEC 9 | folgt |
 
 ---
 

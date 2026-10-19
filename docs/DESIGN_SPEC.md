@@ -135,7 +135,7 @@ daher nicht für Fließtext); Dunkelmodus nimmt die hellen Töne aus dem Seed.
 Kontrast: Weiß auf Marineblau 11,6 : 1, Marineblau auf Hellblau 10,3 : 1
 (beide über 7 : 1). Schriften des Logos (Montserrat Bold, Allura Regular,
 SIL OFL) nur im Bildzeichen, nicht in der Oberfläche; Oberfläche bleibt Work
-Sans bzw. Systemschrift. Rechnungs-PDF behält vorerst `#1B4965` (Abschnitt 9).
+Sans bzw. Systemschrift. Rechnungs-, Storno- und Mahnungs-PDF nutzen ebenfalls Marineblau `#0B3A67` (Abschnitt 9, seit 0.33.1).
 Bisher: `income #1B7F5A`, `expense #B3261E`, `warning #B26A00`,
 Kartenradius 14, Buttonradius 10, Buttonhöhe 48.
 
@@ -349,7 +349,7 @@ Zusatz.
 ## 9. Rechnungs-PDF
 
 Erzeugt in `lib/services/invoice_pdf.dart` (Ist-Stand: Helvetica, Akzent
-`#1B4965`, Grauton `#5A6B78`).
+`#0B3A67` (Marineblau, seit 0.33.1), Grauton `#5A6B78`).
 
 ### FEST
 

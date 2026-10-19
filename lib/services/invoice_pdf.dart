@@ -81,7 +81,7 @@ class InvoicePdf {
   static const logoMaxWidth = 140.0;
   static const logoMaxHeight = 60.0;
 
-  static const _accent = PdfColor.fromInt(0xFF1B4965);
+  static const _accent = PdfColor.fromInt(0xFF0B3A67);
   static const _muted = PdfColor.fromInt(0xFF5A6B78);
   static const _hairline = PdfColor.fromInt(0xFFD6DEE4);
 
