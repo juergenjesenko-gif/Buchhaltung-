@@ -49,6 +49,7 @@ void main() {
   Future<(AppState, List<String>)> pump(
     WidgetTester tester, {
     bool demo = false,
+    bool dark = false,
   }) async {
     final db = (await tester.runAsync(openDb))!;
     final state = AppState(
@@ -74,6 +75,7 @@ void main() {
       AppScope(
         state: state,
         child: MaterialApp(
+          theme: dark ? ThemeData.dark() : null,
           home: PdfViewerScreen(
             title: 'Rechnung 1',
             fileName: 'Rechnung_1.pdf',
@@ -113,6 +115,25 @@ void main() {
     await tester.tap(find.byKey(const Key('pdf-print')));
     await tester.pumpAndSettle();
     expect(printed, ['Rechnung_1.pdf']);
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('Dunkler Modus: Seite auf weißem Papier, keine Farbfilter', (
+    tester,
+  ) async {
+    await pump(tester, dark: true);
+    final paper = tester.widget<Material>(find.byKey(const Key('pdf-paper-0')));
+    expect(paper.color, Colors.white);
+    expect(paper.surfaceTintColor, Colors.transparent);
+    final image = tester.widget<Image>(
+      find.descendant(
+        of: find.byKey(const Key('pdf-paper-0')),
+        matching: find.byType(Image),
+      ),
+    );
+    expect(image.color, isNull);
+    expect(image.colorBlendMode, isNull);
+    expect(find.byType(ColorFiltered), findsNothing);
     expect(tester.takeException(), isNull);
   });
 

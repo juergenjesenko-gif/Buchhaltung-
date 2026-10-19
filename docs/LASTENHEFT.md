@@ -1,6 +1,6 @@
 # Lastenheft – JeNi bucht, Buchhaltungsapp für Österreich und Deutschland
 
-**Dokumentversion:** 1.83 · **Stand:** 2026-10-19 · **Status:** Entwurf zur Abstimmung
+**Dokumentversion:** 1.84 · **Stand:** 2026-10-19 · **Status:** Entwurf zur Abstimmung
 **Auftraggeber:** Jürgen Jesenko (privates Vorhaben) · **Umsetzung:** Claude Code
 
 > Ein Lastenheft beschreibt, **was** das Produkt leisten soll und **warum** — nicht,
@@ -1043,7 +1043,7 @@ P-X20.
 
 | ID | Anforderung | Priorität | Stufe |
 |---|---|---|---|
-| L-29.1 | **Koppeln per QR-Code** auf dem Hauptgerät (Einstellungen → Mithelfer-Geräte → „Gerät hinzufügen“); der Code trägt Kopplungs-ID, Schlüssel, Betriebsname und Weg. Mithelfer: „Ich helfe mit – Gerät koppeln“ im ersten Start | MUSS | A |
+| L-29.1 | **Koppeln per QR-Code** auf dem Hauptgerät (Einstellungen → Mithelfer-Geräte → „Gerät hinzufügen“); der Code trägt Kopplungs-ID, Schlüssel, Betriebsname und Weg. Mithelfer: „Dieses Gerät ist ein Mithelfer-Gerät (koppeln)“ in Schritt 2 der Ersteinrichtung (seit 0.31.0) | MUSS | A |
 | L-29.2 | **Mithelfer-Modus nur zum Erfassen:** großer Aufnahmeknopf wie auf dem Hauptgerät, Foto/Datei, kurz Betrag, Lieferant, Datum, Kategorie aus der Texterkennung bestätigen, Kommentar mit Diktat; **keine** Buchung, Rechnung oder Auswertung; Liste der gesendeten Belege mit Status | MUSS | A |
 | L-29.3 | Der Mithelfer **bewahrt nichts dauerhaft auf**: Bilder bis zum erfolgreichen Senden, danach gelöscht; nur eine Zusammenfassung ohne Bilder bleibt | MUSS | A |
 | L-29.4 | **Zwei Wege je Kopplung:** (a) Messenger oder Mail über das Teilen-Blatt (Standard, ohne Einrichtung), (b) gemeinsamer Cloud-Ordner „Eingang“ des Betriebs; das Hauptgerät liest den Ordner beim Start und bei Rückkehr in die App | MUSS | A |
@@ -1522,6 +1522,7 @@ Historie stehen. Die Einzelheiten stehen an der genannten Stelle.
 
 | Version | Datum | Änderung |
 |---|---|---|
+| 1.84 | 2026-10-19 | Rückmeldung zu 0.30.0: Mithelfer-Koppeln als Nebenoption in Schritt 2 der Ersteinrichtung statt auf der Willkommensseite (L-29.1). |
 | 1.83 | 2026-10-19 | Entscheidungen des Auftraggebers vom 2026-10-19 (14a): O-43 entschieden (Pro), RZL-Export zurückgestellt (L-33.4), PDF-Betrachter, Willkommensseite |
 | 1.82 | 2026-10-19 | Entscheidungen des Auftraggebers vom 2026-10-19 (14a): 5.31 Abgaben & Rücklagen (Einzelunternehmen, umgesetzt 0.29.0), 5.32 Ausbaustufe „Premium Plus“ (GmbH, Lohnverrechnung; nur Umriss), 5.33 Schnittstellen zu Kanzleiprogrammen (DATEV, BMD, RZL, CSV, Paket doppelte Buchführung); offener Punkt O-43 (Tarif). Keine neue Datenübertragung (5.19 unverändert). |
 | 1.81 | 2026-10-19 | Rückmeldung des Auftraggebers vom 2026-10-19 (14a): geführte Ersteinrichtung, knappere Bestätigungen, EU-KU-Nummer (EX), Belegfeld „Produkt oder Leistung“, Mithelfer-Hilfe und Koppeln aus den Einstellungen (Spezifikation 1.86). |

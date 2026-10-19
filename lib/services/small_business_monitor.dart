@@ -28,6 +28,8 @@ class SmallBusinessAssessment {
     required this.limit,
     required this.headroom,
     required this.message,
+    this.nextYearLimit,
+    this.limitsNote = '',
   });
 
   final SmallBusinessStatus status;
@@ -39,10 +41,28 @@ class SmallBusinessAssessment {
 
   final String message;
 
+  /// Grenze, deren Überschreiten im laufenden Jahr erst das **nächste** Jahr
+  /// kostet (DE: 25.000 € nach § 19 Abs 1 UStG). `null`, wenn sie mit
+  /// [limit] zusammenfällt (AT: 55.000 € für beide Jahre).
+  final Money? nextYearLimit;
+
+  /// Kurzer Hinweis auf die Grenzen des Landes, z. B. „§ 19 UStG:
+  /// 25.000 € Vorjahr · 100.000 € laufendes Jahr“.
+  final String limitsNote;
+
+  /// Grenze, an der der Balken gemessen wird: solange die Vorjahresgrenze
+  /// für das nächste Jahr noch nicht gerissen ist, diese (DE), sonst [limit].
+  Money get displayLimit {
+    final next = nextYearLimit;
+    if (next != null && currentYearTurnover <= next) return next;
+    return limit;
+  }
+
   /// Ausnutzung der Grenze in Prozent, gedeckelt bei 999 für die Anzeige.
   double get utilizationPercent {
-    if (limit.cents <= 0) return 0;
-    final value = currentYearTurnover.cents / limit.cents * 100;
+    final shown = displayLimit;
+    if (shown.cents <= 0) return 0;
+    final value = currentYearTurnover.cents / shown.cents * 100;
     return value > 999 ? 999 : value;
   }
 
@@ -86,6 +106,79 @@ class SmallBusinessMonitor {
     required Money? previousYearTurnover,
     required bool currentYearComplete,
     bool isFoundingYear = false,
+  }) {
+    final base = _assess(
+      taxProfile: taxProfile,
+      isSmallBusiness: isSmallBusiness,
+      currentYearTurnover: currentYearTurnover,
+      previousYearTurnover: previousYearTurnover,
+      currentYearComplete: currentYearComplete,
+      isFoundingYear: isFoundingYear,
+    );
+    final previousLimit = taxProfile.previousYearTurnoverLimit;
+    // Zweite Grenze nur, wenn sie von der laufenden abweicht (DE ab 2025:
+    // 25.000 € Vorjahr, 100.000 € laufend, § 19 Abs 1 UStG). Im
+    // Gründungsjahr ist die laufende Grenze schon 25.000 €.
+    final next = previousLimit != null && previousLimit != base.limit
+        ? previousLimit
+        : null;
+    final note = previousLimit == null
+        ? '${taxProfile.smallBusinessLegalRef}: ${_euro(base.limit)}'
+        : previousLimit == taxProfile.currentYearTurnoverLimit
+        ? '${taxProfile.smallBusinessLegalRef}: ${_euro(base.limit)} im '
+              'Vorjahr und im laufenden Jahr'
+              '${taxProfile.toleranceLimit == null ? '' : ', Toleranz bis ${_euro(taxProfile.toleranceLimit!)}'}'
+        : isFoundingYear
+        ? '${taxProfile.smallBusinessLegalRef}: ${_euro(base.limit)} im '
+              'Gründungsjahr'
+        : '${taxProfile.smallBusinessLegalRef}: ${_euro(previousLimit)} '
+              'Vorjahr · ${_euro(taxProfile.currentYearTurnoverLimit)} '
+              'laufendes Jahr';
+    if (base.status == SmallBusinessStatus.notApplicable) return base;
+    var status = base.status;
+    var message = base.message;
+    if (next != null &&
+        (status == SmallBusinessStatus.ok ||
+            status == SmallBusinessStatus.approaching)) {
+      if (currentYearTurnover > next) {
+        status = SmallBusinessStatus.approaching;
+        message =
+            'Der Umsatz liegt über ${_euro(next)}. In diesem Jahr bleibt die '
+            'Kleinunternehmerregelung bis ${_euro(base.limit)}, ab dem '
+            'nächsten Jahr gilt die Regelbesteuerung '
+            '(${taxProfile.smallBusinessLegalRef}). Jetzt planen.';
+      } else if (currentYearTurnover.cents >= next.cents * warnThreshold) {
+        status = SmallBusinessStatus.approaching;
+        message =
+            'Noch ${_euro(next - currentYearTurnover)} bis ${_euro(next)}. '
+            'Darüber gilt ab dem nächsten Jahr die Regelbesteuerung '
+            '(${taxProfile.smallBusinessLegalRef}).';
+      } else {
+        status = SmallBusinessStatus.ok;
+        message =
+            'Noch ${_euro(next - currentYearTurnover)} bis ${_euro(next)} – '
+            'darüber gilt ab dem nächsten Jahr die Regelbesteuerung. In '
+            'diesem Jahr endet die Regelung erst über ${_euro(base.limit)}.';
+      }
+    }
+    return SmallBusinessAssessment(
+      status: status,
+      currentYearTurnover: base.currentYearTurnover,
+      limit: base.limit,
+      headroom: base.headroom,
+      message: message,
+      nextYearLimit: next,
+      limitsNote: note,
+    );
+  }
+
+  static SmallBusinessAssessment _assess({
+    required TaxProfile taxProfile,
+    required bool isSmallBusiness,
+    required Money currentYearTurnover,
+    required Money? previousYearTurnover,
+    required bool currentYearComplete,
+    required bool isFoundingYear,
   }) {
     // Im Gründungsjahr gibt es kein Vorjahr; manche Länder setzen eine
     // niedrigere Grenze (DE, § 19 Abs 1 UStG).

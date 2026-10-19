@@ -65,8 +65,23 @@ void main() {
       expect(tester.takeException(), isNull);
       expect(find.text(SetupWizard.welcomeSubline), findsOneWidget);
       for (final (_, text) in SetupWizard.welcomePoints) {
-        expect(find.text(text), findsOneWidget);
+        final f = find.byKey(Key('welcome-point-$text'));
+        expect(f, findsOneWidget);
+        // Jede Zeile in einer Zeile, ohne Abschneiden.
+        final widget = tester.widget<Text>(f);
+        final painter = TextPainter(
+          text: TextSpan(text: text, style: widget.style),
+          textDirection: TextDirection.ltr,
+          textScaler: MediaQuery.textScalerOf(tester.element(f)),
+        )..layout();
+        expect(
+          painter.width,
+          lessThanOrEqualTo(tester.getSize(f).width),
+          reason: '„$text“ passt nicht in eine Zeile',
+        );
       }
+      expect(find.textContaining('Ich habe schon Daten'), findsNothing);
+      expect(find.textContaining('Gerät koppeln'), findsNothing);
       expect(find.textContaining('E-Rechnung schreiben'), findsNothing);
       final scrollable = tester.state<ScrollableState>(
         find.byType(Scrollable).first,

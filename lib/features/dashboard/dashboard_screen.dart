@@ -14,6 +14,7 @@ import '../../services/levies/levy_overview.dart';
 import '../../services/small_business_monitor.dart';
 import '../../theme.dart';
 import '../../widgets/capture_button.dart';
+import '../../widgets/scroll_auto_hide.dart';
 import '../../widgets/common.dart';
 import '../backup/backup_screen.dart';
 import '../onboarding/company_setup_screen.dart';
@@ -44,6 +45,15 @@ class _DashboardScreenState extends State<DashboardScreen> {
   LevyEstimate? _levies;
   bool _loading = true;
   int? _loadedRevision;
+
+  /// Aufnahmeleiste weicht beim Scrollen aus (Rückmeldung zu 0.30.0).
+  final _barVisibility = ScrollHideController();
+
+  @override
+  void dispose() {
+    _barVisibility.dispose();
+    super.dispose();
+  }
 
   /// Die Übersicht lebt im `IndexedStack` der Startseite weiter und wird
   /// nicht neu aufgebaut, wenn in einem anderen Reiter gebucht wird. Deshalb
@@ -171,95 +181,114 @@ class _DashboardScreenState extends State<DashboardScreen> {
           ),
         ],
       ),
-      body: RefreshIndicator(
-        onRefresh: _load,
-        child: ListView(
-          // Unten Platz für beide schwebenden Knöpfe (40 + 10 + 56 dp plus
-          // 16 dp Rand) und Luft, damit keine Karte verdeckt bleibt
-          // (Gerätetest 0.3.4).
-          padding: const EdgeInsets.fromLTRB(16, 8, 16, 112),
-          children: [
-            const LicenseNotice(),
-            if (profile != null && !profile.canIssueInvoices) ...[
-              NoticeBanner(
-                icon: Icons.warning_amber_rounded,
-                color: AppTheme.warning,
-                message:
-                    'Für rechtssichere Rechnungen fehlen noch: '
-                    '${profile.missingInvoiceFields.join(', ')}.',
-                onTap: () async {
-                  await Navigator.of(context).push(
-                    MaterialPageRoute(
-                      builder: (_) => const CompanySetupScreen(),
+      body: NotificationListener<ScrollNotification>(
+        onNotification: _barVisibility.handle,
+        child: RefreshIndicator(
+          onRefresh: _load,
+          child: ListView(
+            // Unten Platz für beide schwebenden Knöpfe (40 + 10 + 56 dp plus
+            // 16 dp Rand) und Luft, damit keine Karte verdeckt bleibt
+            // (Gerätetest 0.3.4).
+            padding: const EdgeInsets.fromLTRB(16, 8, 16, 112),
+            children: [
+              const LicenseNotice(),
+              if (profile != null && !profile.canIssueInvoices) ...[
+                NoticeBanner(
+                  icon: Icons.warning_amber_rounded,
+                  color: AppTheme.warning,
+                  message:
+                      'Für rechtssichere Rechnungen fehlen noch: '
+                      '${profile.missingInvoiceFields.join(', ')}.',
+                  onTap: () async {
+                    await Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (_) => const CompanySetupScreen(),
+                      ),
+                    );
+                    if (mounted) await _load();
+                  },
+                ),
+                const SizedBox(height: 16),
+              ],
+
+              if (state.autoBackupError != null) ...[
+                NoticeBanner(
+                  icon: Icons.cloud_off_outlined,
+                  color: AppTheme.expense,
+                  message:
+                      'Automatische Sicherung fehlgeschlagen: '
+                      '${state.autoBackupError}',
+                  onTap: () => Navigator.of(context).push(
+                    MaterialPageRoute(builder: (_) => const BackupScreen()),
+                  ),
+                ),
+                const SizedBox(height: 16),
+              ],
+
+              if (profile != null &&
+                  !state.isLoading &&
+                  profile.needsBackup(DateTime.now())) ...[
+                BackupReminder(profile: profile),
+                const SizedBox(height: 16),
+              ],
+
+              if (state.smallBusiness != null &&
+                  state.smallBusiness!.status !=
+                      SmallBusinessStatus.notApplicable) ...[
+                _SmallBusinessCard(assessment: state.smallBusiness!),
+                const SizedBox(height: 16),
+              ],
+
+              _rangeSelector(),
+              const SizedBox(height: 16),
+
+              if (_loading && totals == null)
+                const Padding(
+                  padding: EdgeInsets.symmetric(vertical: 48),
+                  child: Center(child: CircularProgressIndicator()),
+                )
+              else if (totals != null) ...[
+                _TotalsCard(
+                  totals: totals,
+                  period: _period,
+                  inputVatDeductible: state.inputVatDeductible,
+                ),
+                const SizedBox(height: 16),
+                // Rücklage für Steuern & SV (FA-19.1), direkt unter dem Ergebnis.
+                // Nur Pro (O-43): ohne Pro ein Hinweis mit „(Pro)“ zur Abo-Seite.
+                if (!state.allows(Feature.levyReserve)) ...[
+                  Card(
+                    child: ListTile(
+                      key: const Key('levy-teaser'),
+                      minTileHeight: 56,
+                      leading: const Icon(Icons.savings_outlined),
+                      title: const Text('Abgaben & Rücklagen (Pro)'),
+                      subtitle: const Text(
+                        'Wie viel du für Steuern und SV zurücklegen solltest',
+                      ),
+                      trailing: const Icon(Icons.chevron_right),
+                      onTap: () async {
+                        if (!await ensureFeature(
+                              context,
+                              Feature.levyReserve,
+                            ) ||
+                            !context.mounted) {
+                          return;
+                        }
+                        await Navigator.of(context).push(
+                          MaterialPageRoute<void>(
+                            builder: (_) => const LeviesScreen(),
+                          ),
+                        );
+                        await _load();
+                      },
                     ),
-                  );
-                  if (mounted) await _load();
-                },
-              ),
-              const SizedBox(height: 16),
-            ],
-
-            if (state.autoBackupError != null) ...[
-              NoticeBanner(
-                icon: Icons.cloud_off_outlined,
-                color: AppTheme.expense,
-                message:
-                    'Automatische Sicherung fehlgeschlagen: '
-                    '${state.autoBackupError}',
-                onTap: () => Navigator.of(
-                  context,
-                ).push(MaterialPageRoute(builder: (_) => const BackupScreen())),
-              ),
-              const SizedBox(height: 16),
-            ],
-
-            if (profile != null &&
-                !state.isLoading &&
-                profile.needsBackup(DateTime.now())) ...[
-              BackupReminder(profile: profile),
-              const SizedBox(height: 16),
-            ],
-
-            if (state.smallBusiness != null &&
-                state.smallBusiness!.status !=
-                    SmallBusinessStatus.notApplicable) ...[
-              _SmallBusinessCard(assessment: state.smallBusiness!),
-              const SizedBox(height: 16),
-            ],
-
-            _rangeSelector(),
-            const SizedBox(height: 16),
-
-            if (_loading && totals == null)
-              const Padding(
-                padding: EdgeInsets.symmetric(vertical: 48),
-                child: Center(child: CircularProgressIndicator()),
-              )
-            else if (totals != null) ...[
-              _TotalsCard(
-                totals: totals,
-                period: _period,
-                inputVatDeductible: state.inputVatDeductible,
-              ),
-              const SizedBox(height: 16),
-              // Rücklage für Steuern & SV (FA-19.1), direkt unter dem Ergebnis.
-              // Nur Pro (O-43): ohne Pro ein Hinweis mit „(Pro)“ zur Abo-Seite.
-              if (!state.allows(Feature.levyReserve)) ...[
-                Card(
-                  child: ListTile(
-                    key: const Key('levy-teaser'),
-                    minTileHeight: 56,
-                    leading: const Icon(Icons.savings_outlined),
-                    title: const Text('Abgaben & Rücklagen (Pro)'),
-                    subtitle: const Text(
-                      'Wie viel du für Steuern und SV zurücklegen solltest',
-                    ),
-                    trailing: const Icon(Icons.chevron_right),
+                  ),
+                  const SizedBox(height: 16),
+                ] else if (_levies != null && !_levies!.totalYear.isZero) ...[
+                  LevyReserveCard(
+                    estimate: _levies!,
                     onTap: () async {
-                      if (!await ensureFeature(context, Feature.levyReserve) ||
-                          !context.mounted) {
-                        return;
-                      }
                       await Navigator.of(context).push(
                         MaterialPageRoute<void>(
                           builder: (_) => const LeviesScreen(),
@@ -268,63 +297,55 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       await _load();
                     },
                   ),
-                ),
-                const SizedBox(height: 16),
-              ] else if (_levies != null && !_levies!.totalYear.isZero) ...[
-                LevyReserveCard(
-                  estimate: _levies!,
-                  onTap: () async {
-                    await Navigator.of(context).push(
-                      MaterialPageRoute<void>(
-                        builder: (_) => const LeviesScreen(),
-                      ),
-                    );
-                    await _load();
-                  },
-                ),
-                const SizedBox(height: 16),
+                  const SizedBox(height: 16),
+                ],
+                if (!totals.isEmpty) ...[
+                  _VatCard(
+                    totals: totals,
+                    isSmallBusiness: profile?.isSmallBusiness ?? true,
+                    reverseCharge: (profile?.country ?? Country.at)
+                        .taxProfile
+                        .reverseCharge,
+                  ),
+                  const SizedBox(height: 16),
+                ],
+                if (_trend.any(
+                  (bar) => !bar.income.isZero || !bar.expense.isZero,
+                )) ...[
+                  SectionCard(
+                    title: 'Letzte 6 Monate',
+                    child: _TrendChart(bars: _trend),
+                  ),
+                  const SizedBox(height: 16),
+                ],
+                _recentCard(),
               ],
-              if (!totals.isEmpty) ...[
-                _VatCard(
-                  totals: totals,
-                  isSmallBusiness: profile?.isSmallBusiness ?? true,
-                  reverseCharge:
-                      (profile?.country ?? Country.at).taxProfile.reverseCharge,
-                ),
-                const SizedBox(height: 16),
-              ],
-              if (_trend.any(
-                (bar) => !bar.income.isZero || !bar.expense.isZero,
-              )) ...[
-                SectionCard(
-                  title: 'Letzte 6 Monate',
-                  child: _TrendChart(bars: _trend),
-                ),
-                const SizedBox(height: 16),
-              ],
-              _recentCard(),
-            ],
 
-            // Termine stehen am Ende: zuerst die Zahlen, dann der Ausblick
-            // (Gerätetest 0.6.0).
-            if (state.deadlines != null &&
-                (state.deadlines!.upcoming.isNotEmpty ||
-                    state.deadlines!.advisorNote != null)) ...[
-              const SizedBox(height: 16),
-              _DeadlineCard(overview: state.deadlines!),
+              // Termine stehen am Ende: zuerst die Zahlen, dann der Ausblick
+              // (Gerätetest 0.6.0).
+              if (state.deadlines != null &&
+                  (state.deadlines!.upcoming.isNotEmpty ||
+                      state.deadlines!.advisorNote != null)) ...[
+                const SizedBox(height: 16),
+                _DeadlineCard(overview: state.deadlines!),
+              ],
             ],
-          ],
+          ),
         ),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
       // Runder Aufnahmeknopf unten in der Mitte, wie in der Belegliste
       // (DESIGN_SPEC 5a, Regel 13).
-      floatingActionButton: CaptureBar(
-        cameraKey: const Key('dashboard-photo'),
-        keyPrefix: 'dashboard',
-        onCamera: () => _addReceipt(ReceiptStart.camera),
-        onPhoto: () => _addReceipt(ReceiptStart.gallery),
-        onFile: () => _addReceipt(ReceiptStart.file),
+      floatingActionButton: ScrollHidingBar(
+        key: const Key('dashboard-capture-bar'),
+        controller: _barVisibility,
+        child: CaptureBar(
+          cameraKey: const Key('dashboard-photo'),
+          keyPrefix: 'dashboard',
+          onCamera: () => _addReceipt(ReceiptStart.camera),
+          onPhoto: () => _addReceipt(ReceiptStart.gallery),
+          onFile: () => _addReceipt(ReceiptStart.file),
+        ),
       ),
     );
   }
@@ -680,7 +701,7 @@ class _SmallBusinessCard extends StatelessWidget {
                 child: Text(
                   '${incomplete ? 'mind. ' : ''}'
                   '${Fmt.money(assessment.currentYearTurnover)} von '
-                  '${Fmt.money(assessment.limit)}',
+                  '${Fmt.money(assessment.displayLimit)}',
                   style: Theme.of(context).textTheme.titleMedium?.copyWith(
                     fontWeight: FontWeight.w700,
                   ),
@@ -704,6 +725,14 @@ class _SmallBusinessCard extends StatelessWidget {
               valueColor: AlwaysStoppedAnimation(color),
             ),
           ),
+          if (assessment.limitsNote.isNotEmpty) ...[
+            const SizedBox(height: 8),
+            Text(
+              assessment.limitsNote,
+              key: const Key('small-business-limits'),
+              style: Theme.of(context).textTheme.bodySmall,
+            ),
+          ],
           const SizedBox(height: 12),
           Text(
             assessment.message,

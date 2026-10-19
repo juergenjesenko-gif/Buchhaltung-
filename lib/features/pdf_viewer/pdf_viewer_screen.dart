@@ -29,6 +29,9 @@ Stream<ImageProvider> rasterPdfPages(Uint8List bytes) async* {
   }
 }
 
+/// Farbe des Papiers im Betrachter – unabhängig vom Farbschema.
+const pdfPaperColor = Colors.white;
+
 /// PDF ansehen, bevor es gesendet oder gedruckt wird (FA-5.48).
 ///
 /// Liefert `true`, wenn gesendet wurde (Angebot gilt dann als gesendet).
@@ -199,7 +202,13 @@ class _PdfViewerScreenState extends State<PdfViewerScreen> {
                       child: Center(
                         child: Padding(
                           padding: const EdgeInsets.all(8),
+                          // Papier ist immer weiß (auch im dunklen Modus):
+                          // das Rasterbild ist dort transparent, wo die
+                          // Seite nichts zeichnet. Keine Farbfilter.
                           child: Material(
+                            key: Key('pdf-paper-$i'),
+                            color: pdfPaperColor,
+                            surfaceTintColor: Colors.transparent,
                             elevation: 2,
                             child: Image(image: _pages[i]),
                           ),

@@ -1,6 +1,6 @@
 # Benutzerhandbuch – JeNi bucht
 
-**Für App-Version 0.30.0** · Stand 2026-10-19
+**Für App-Version 0.31.0** · Stand 2026-10-19
 
 > **Testerinnen und Tester, Umstieg auf 0.26.0:** Ab dieser Version hat die App
 > eine neue technische Kennung. Sie wird **neben** der alten App installiert,
@@ -69,13 +69,13 @@ die App mittendrin, geht es beim nächsten Öffnen an derselben Stelle weiter.
 - **Erst ansehen (Demo)** – zeigt eine erfundene Musterfirma, siehe
   [Demo ansehen](#demo-ansehen).
 
-Darüber zwei weitere Wege:
+Darüber **Sicherung wiederherstellen** – für ein neues Telefon (siehe
+[Abschnitt 11](#auf-einem-neuen-telefon-weitermachen)).
 
-- **Ich habe schon Daten – Sicherung wiederherstellen** – für ein neues
-  Telefon (siehe [Abschnitt 11](#auf-einem-neuen-telefon-weitermachen)).
-- **Ich helfe mit – Gerät koppeln** – für das Handy einer Mithelferin
-  (siehe [Abschnitt 15](#15-mithelfer-geräte-belege-von-familie-und-team));
-  das **?** daneben erklärt kurz, was das ist.
+**Handy einer Mithelferin?** Tippe **Los geht's** und im Schritt „Dein
+Unternehmen“ ganz oben **Dieses Gerät ist ein Mithelfer-Gerät (koppeln)**
+(siehe [Abschnitt 15](#15-mithelfer-geräte-belege-von-familie-und-team));
+das **?** daneben erklärt kurz, was das ist.
 
 **Schritt 1 – Bestätigungen.** Setz das Häkchen, dass die App **keine
 Steuerberatung** ist, und tippe **Akzeptieren und weiter** – damit nimmst du
@@ -268,6 +268,9 @@ Das ist die Funktion, die du täglich nutzt. Sie ist auf Geschwindigkeit gebaut.
    ihn aus. Wählst du nichts, bist du wieder dort, wo du getippt hast.
    Klappt etwas nicht (Scan nicht angekommen, Datei nicht lesbar), sagt dir
    die App das unten in einer Meldung – dann einfach noch einmal tippen.
+   Scrollst du in der Übersicht, gleitet die Leiste mit **Foto**, **Beleg**
+   und **Datei** nach unten weg, damit du alles lesen kannst. Nach 5 Sekunden
+   ohne Scrollen – oder sobald du ganz oben bist – ist sie wieder da.
 2. **Bruttobetrag** eintippen – also die Zahl, die auf dem Beleg steht, inklusive
    Umsatzsteuer. Netto und Steuer rechnet die App sofort darunter aus.
 3. **Umsatzsteuersatz** prüfen. Die App wählt deinen Standardsatz vor.
@@ -762,6 +765,13 @@ und die App kennt beide.
   auszuweisen.
 - War dein Vorjahr über 25.000 €, gilt die Regelung im ganzen laufenden Jahr
   nicht – auch wenn du dieses Jahr wenig umsetzt
+- **Der Balken misst an 25.000 €**, solange du darunter bist: Kommst du in
+  diesem Jahr über 25.000 €, bleibst du dieses Jahr noch Kleinunternehmerin
+  (bis 100.000 €), **ab dem nächsten Jahr** aber nicht mehr. Die App wird
+  dann orange und sagt dir das. Darüber misst der Balken an 100.000 €
+
+Unter dem Balken stehen immer die Grenzen deines Landes, z. B. „§ 19 UStG:
+25.000 € Vorjahr · 100.000 € laufendes Jahr“.
 
 ### Was die Farben bedeuten
 
@@ -895,6 +905,9 @@ zuerst im Betrachter:
 
 In der Demo siehst du das Muster-PDF mit dem Schriftzug „DEMO“; Drucken und
 Senden zeigen den Demo-Hinweis.
+
+Die Seite steht immer auf **weißem Papier** in den Originalfarben – auch
+wenn dein Telefon auf dunkel gestellt ist.
 
 ### Rechnung versenden
 
@@ -1394,7 +1407,14 @@ Store-Konto. Du findest alles unter **Einstellungen → Abo**.
 
 ### Demo ansehen
 
-Die Demo zeigt eine **erfundene Musterfirma** („Muster Handel e.U.“ in Wien,
+Zuerst wählst du das Land: **Deutschland** (oben, hervorgehoben) oder
+**Österreich**. Die deutsche Musterfirma „Muster Handel“ (Musterstadt) ist
+Kleinunternehmerin nach § 19 UStG mit rund 14.500 € Umsatz – der Balken
+misst an 25.000 € –, mit EÜR, Belegen mit 19 % und 7 %, Rechnungen, Storno,
+Angebot, Mietvertrag, Gewerbesteuer in „Abgaben & Rücklagen“ und deutschen
+Fristen.
+
+Die österreichische Demo zeigt eine **erfundene Musterfirma** („Muster Handel e.U.“ in Wien,
 Kleinunternehmerin mit Lager in Deutschland – die Umsatzgrenze steht bei
 rund 27 %)
 mit Belegen von Tankstelle, Baumarkt, Gasthaus und Büro, Rechnungen (bezahlt,
@@ -1896,7 +1916,8 @@ bei jedem Öffnen nach. Dein Kennwort bleibt nur auf deinem Handy.
 3. **QR-Code zeigen** tippen. Der Code trägt deine Empfangsadresse, aber nie
    ein Kennwort.
 4. Auf dem anderen Handy JeNi bucht installieren, öffnen und
-   **Ich helfe mit – Gerät koppeln** tippen. Ist die App dort schon als
+   **Los geht's** und dann **Dieses Gerät ist ein Mithelfer-Gerät (koppeln)**
+   tippen. Ist die App dort schon als
    eigenes Hauptgerät eingerichtet, aber ohne Belege: **Einstellungen → Als
    Mithelfer-Gerät koppeln** und bestätigen.
 5. **QR-Code fotografieren** und den Code auf deinem Bildschirm aufnehmen.

@@ -6,6 +6,7 @@ import 'package:sqflite/sqflite.dart';
 
 import '../../data/app_database.dart';
 import '../../data/repositories.dart';
+import '../../domain/country.dart';
 import '../receipt_image_store.dart';
 import 'demo_dataset.dart';
 
@@ -23,6 +24,7 @@ class DemoSession {
     required Directory documentsDir,
     required DateTime today,
     DatabaseFactory? factory,
+    Country country = Country.at,
   }) async {
     final images = Directory(
       p.join(documentsDir.path, ReceiptImageStore.demoFolder),
@@ -43,6 +45,7 @@ class DemoSession {
     await DemoDataset.seed(
       db,
       today: today,
+      country: country,
       writeImage: (name, Uint8List png) async {
         await File(p.join(images.path, name)).writeAsBytes(png, flush: true);
         return p.join(ReceiptImageStore.demoFolder, name);

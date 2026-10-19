@@ -22,6 +22,7 @@ import '../dunning_service.dart';
 import '../invoice_numbering.dart';
 import '../receipt_vat_split.dart';
 import '../vat_calculator.dart';
+import 'demo_dataset_de.dart';
 import 'demo_receipt_image.dart';
 
 /// Legt ein Belegbild ab und liefert den relativen Pfad (`demo_belege/…`).
@@ -66,7 +67,19 @@ class DemoDataset {
   /// Ungefähre Zahl der Belege (Ausgaben und Einnahmen ohne Rechnungen).
   static const receiptCount = 28;
 
+  /// Musterfirma für [country] anlegen (Auswahl „Deutschland“ /
+  /// „Österreich“ beim Demo-Start, Rückmeldung zu 0.30.0).
   static Future<void> seed(
+    Database db, {
+    required DateTime today,
+    required DemoImageWriter writeImage,
+    Country country = Country.at,
+  }) => switch (country) {
+    Country.de => DemoDatasetDe.seed(db, today: today, writeImage: writeImage),
+    Country.at => _seedAt(db, today: today, writeImage: writeImage),
+  };
+
+  static Future<void> _seedAt(
     Database db, {
     required DateTime today,
     required DemoImageWriter writeImage,

@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
 
 import '../../app_state.dart';
+import '../../domain/country.dart';
 import '../../services/demo/demo_session.dart';
 import '../../widgets/primary_action_bar.dart';
 import 'demo_sheet.dart';
@@ -15,20 +16,75 @@ Future<Directory> Function() demoDocumentsDir =
 
 /// Demo starten (FA-13.14): Muster-Datenbank frisch anlegen und anzeigen.
 /// [fromSettings]: aus Einstellungen → „Demo ansehen“.
+///
+/// Ohne [country] fragt zuerst ein Blatt „Deutschland“ / „Österreich“
+/// (Deutschland vorn und hervorgehoben, größerer Markt). Abbrechen startet
+/// nichts.
 Future<void> startDemo(
   BuildContext context, {
   bool fromSettings = false,
+  Country? country,
 }) async {
   final state = AppScope.read(context);
+  final chosen = country ?? await chooseDemoCountry(context);
+  if (chosen == null || !context.mounted) return;
   Navigator.of(context).popUntil((r) => r.isFirst);
   final dir = await demoDocumentsDir();
-  final db = await DemoSession.open(documentsDir: dir, today: DateTime.now());
+  final db = await DemoSession.open(
+    documentsDir: dir,
+    today: DateTime.now(),
+    country: chosen,
+  );
   await state.enterDemo(
     db,
     fromSettings: fromSettings,
     onLeave: () => DemoSession.clear(dir),
   );
 }
+
+/// Blatt „Welche Musterfirma?“: zwei große Knöpfe (56 dp), Deutschland
+/// zuerst und gefüllt hervorgehoben – ein Tipp startet.
+Future<Country?> chooseDemoCountry(BuildContext context) =>
+    showModalBottomSheet<Country>(
+      context: context,
+      showDragHandle: true,
+      builder: (context) => SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Text(
+                'Musterfirma aus welchem Land?',
+                style: Theme.of(context).textTheme.titleLarge,
+              ),
+              const SizedBox(height: 4),
+              const Text('Steuerregeln, Fristen und Grenzen folgen dem Land.'),
+              const SizedBox(height: 16),
+              FilledButton.icon(
+                key: const Key('demo-country-de'),
+                style: FilledButton.styleFrom(
+                  minimumSize: const Size.fromHeight(56),
+                ),
+                onPressed: () => Navigator.of(context).pop(Country.de),
+                icon: const Icon(Icons.check),
+                label: const Text('Deutschland'),
+              ),
+              const SizedBox(height: 12),
+              OutlinedButton(
+                key: const Key('demo-country-at'),
+                style: OutlinedButton.styleFrom(
+                  minimumSize: const Size.fromHeight(56),
+                ),
+                onPressed: () => Navigator.of(context).pop(Country.at),
+                child: const Text('Österreich'),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
 
 /// Dauerhaftes Band oben in der Demo (FA-13.14), mindestens 48 dp hoch.
 /// Tippen öffnet die Abo-Seite bzw. – bei Demo aus den Einstellungen –

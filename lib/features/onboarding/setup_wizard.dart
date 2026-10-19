@@ -50,25 +50,16 @@ enum _Intent { setup, demo, restore, helper }
 class SetupWizard extends StatefulWidget {
   /// Unterzeile der Willkommensseite (Entscheidung 2026-10-19).
   static const welcomeSubline =
-      'Rechnungswesen und Buchhaltung leicht gemacht – ohne Vorwissen, nach '
+      'Rechnungswesen und Buchhaltung leicht gemacht. Ohne Vorwissen, nach '
       'den Regeln, die auch Profis anwenden.';
 
-  /// Was die App kann – nur Gebautes (E-Rechnungen werden gelesen, noch
-  /// nicht erstellt).
+  /// Was die App kann – nur Gebautes (UWG). Jede Zeile passt auf 360 dp in
+  /// eine Zeile (Rückmeldung Auftraggeber zu 0.30.0).
   static const welcomePoints = [
-    (
-      Icons.document_scanner_outlined,
-      'Belege scannen und automatisch auslesen',
-    ),
-    (
-      Icons.receipt_long_outlined,
-      'Rechnungen schreiben – E-Rechnungen empfangen',
-    ),
+    (Icons.document_scanner_outlined, 'Belege scannen und auslesen'),
+    (Icons.receipt_long_outlined, 'Rechnungen stellen, E-Rechnung lesen'),
     (Icons.event_note_outlined, 'Verträge und Fristen im Blick'),
-    (
-      Icons.table_chart_outlined,
-      'Saldenliste und Jahresübersicht laufend aktuell',
-    ),
+    (Icons.table_chart_outlined, 'Saldenliste und Jahresübersicht'),
   ];
 
   const SetupWizard({super.key});
@@ -310,7 +301,7 @@ class _SetupWizardState extends State<SetupWizard> {
           context,
         ).push(MaterialPageRoute<void>(builder: (_) => const BackupScreen()));
       case _Intent.helper:
-        setState(() => _page = SetupPage.welcome);
+        // Aus Schritt 2 heraus: der Assistent bleibt dort stehen.
         await Navigator.of(context).push(
           MaterialPageRoute<void>(builder: (_) => const HelperPairScreen()),
         );
@@ -622,9 +613,9 @@ class _SetupWizardState extends State<SetupWizard> {
                         Text(
                           'Willkommen bei JeNi bucht',
                           textAlign: TextAlign.center,
-                          style: theme.textTheme.headlineSmall,
+                          style: theme.textTheme.headlineMedium,
                         ),
-                        const SizedBox(height: 8),
+                        const SizedBox(height: 20),
                         // Wortlaut geprüft (UWG § 2 AT / § 5 DE): kein
                         // unbelegbares Qualitätsversprechen („Qualität von
                         // Profis“), nur nachprüfbare Arbeitsweise.
@@ -634,7 +625,7 @@ class _SetupWizardState extends State<SetupWizard> {
                           textAlign: TextAlign.center,
                           style: theme.textTheme.bodyLarge,
                         ),
-                        const SizedBox(height: 20),
+                        const SizedBox(height: 32),
                         for (final (icon, text) in SetupWizard.welcomePoints)
                           Padding(
                             padding: const EdgeInsets.symmetric(vertical: 5),
@@ -649,6 +640,10 @@ class _SetupWizardState extends State<SetupWizard> {
                                 Expanded(
                                   child: Text(
                                     text,
+                                    key: Key('welcome-point-$text'),
+                                    maxLines: 1,
+                                    softWrap: false,
+                                    overflow: TextOverflow.ellipsis,
                                     style: theme.textTheme.bodyMedium,
                                   ),
                                 ),
@@ -660,21 +655,8 @@ class _SetupWizardState extends State<SetupWizard> {
                         link(
                           const Key('welcome-restore'),
                           Icons.restore,
-                          'Ich habe schon Daten – Sicherung wiederherstellen',
+                          'Sicherung wiederherstellen',
                           _Intent.restore,
-                        ),
-                        Row(
-                          children: [
-                            Expanded(
-                              child: link(
-                                const Key('welcome-helper'),
-                                Icons.qr_code_scanner,
-                                'Ich helfe mit – Gerät koppeln',
-                                _Intent.helper,
-                              ),
-                            ),
-                            const HelperHelpButton(),
-                          ],
                         ),
                         const SizedBox(height: 16),
                         OutlinedButton.icon(
@@ -762,6 +744,28 @@ class _SetupWizardState extends State<SetupWizard> {
           padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
           children: [
             _progress(context),
+            // Mithelfer-Gerät: kleine Nebenoption statt Pflichtfrage – die
+            // meisten richten ein Hauptgerät ein (UX-Instanz 0.31.0).
+            Row(
+              children: [
+                Expanded(
+                  child: TextButton.icon(
+                    key: const Key('setup-helper'),
+                    style: TextButton.styleFrom(
+                      minimumSize: const Size.fromHeight(48),
+                      alignment: Alignment.centerLeft,
+                    ),
+                    onPressed: _busy ? null : () => _choose(_Intent.helper),
+                    icon: const Icon(Icons.qr_code_scanner),
+                    label: const Text(
+                      'Dieses Gerät ist ein Mithelfer-Gerät (koppeln)',
+                    ),
+                  ),
+                ),
+                const HelperHelpButton(),
+              ],
+            ),
+            const SizedBox(height: 8),
             Text(
               'Land des Unternehmenssitzes',
               style: theme.textTheme.labelLarge,

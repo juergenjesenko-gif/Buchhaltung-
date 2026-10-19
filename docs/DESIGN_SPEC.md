@@ -1,6 +1,6 @@
 # Designspezifikation
 
-**Version 1.5 · Stand 2026-10-19 · Produktname „JeNi bucht“**
+**Version 1.6 · Stand 2026-10-19 · Produktname „JeNi bucht“**
 
 Zweck: Grundlage, gegen die eine KI (oder ein Mensch) **mehrere unterschiedliche
 Designvarianten** entwickeln kann, die alle fachlich und rechtlich korrekt
@@ -253,6 +253,8 @@ Knopf „Beleg fotografieren“**; Einnahme/Ausgabe wird im Formular gewählt.
 11. Geprüft auf 360 × 640 und 412 × 915 dp, Schrift 200 %, Dunkelmodus.
 12. Widget-Test prüft Mindestgröße (≥ 48 dp) und Lage der Primäraktion (unteres Drittel).
 13. **Aufnahmeknopf** (Entscheidung Auftraggeberin 2026-10-16): Beleg fotografieren ist die wichtigste Funktion und muss blind mit dem Daumen gehen. Runder Knopf `CaptureButton` (`lib/widgets/capture_button.dart`), Kreis 76 dp (≥ 72 dp), Kamerasymbol, Beschriftung „Beleg“ darunter, Semantik „Beleg fotografieren“; immer **unten in der Mitte** an derselben Stelle: Übersicht und Belegliste (`centerFloat` über der Navigationsleiste), im Belegformular mittig über „Beleg speichern“ (Beschriftung „Seite“ bzw. „Rückseite?“, mit offener Tastatur ausgeblendet). Auf Übersicht und Belegliste liegen links „Foto“ (Galerie) und rechts „Datei“ (PDF, E-Rechnung, Bild) als kleinere runde Knöpfe (Kreis 56 dp, Symbol, Beschriftung darunter) spiegelgleich neben „Beleg“, je 48 dp Abstand zum Hauptknopf, `CaptureBar` (Entscheidung Auftraggeberin 2026-10-16, 1.4); der Hauptknopf bleibt mittig und am größten. Nebenaktionen („Foto auswählen“) im Formular unverändert kleiner. Zerstörende Aktionen bleiben am Formularende (Regel 3). Widget-Test prüft Kreis ≥ 72 dp und Mitte ± 2 dp auf 360 und 412 dp.
+14. **Schwebende Leisten weichen beim Scrollen aus** (Rückmeldung zu 0.30.0): Die Aufnahmeleiste der Übersicht gleitet beim Scrollen nach unten weg und kommt nach 5 s ohne Scrollen bzw. ganz oben sofort zurück (`ScrollHidingBar`). Nie während ein Finger auf ihr liegt; ausgeblendet keine Tipps; mit Screenreader immer sichtbar. Trefferflächen bleiben unverändert.
+15. **Nebenoptionen statt Pflichtfragen:** Was nur wenige brauchen (z. B. Mithelfer-Gerät koppeln), steht als 48-dp-Textknopf mit „?“ im ersten Schritt – keine zusätzliche Frage für alle.
 
 ## 6. Komponentenkatalog
 
@@ -516,6 +518,7 @@ Auftraggeber sie freigibt, und hier nur per ID verwiesen.
 
 | Version | Datum | Änderung |
 |---|---|---|
+| 1.6 | 2026-10-19 | Abschnitt 5a Regeln 14 und 15: Aufnahmeleiste weicht beim Scrollen aus; Nebenoptionen statt Pflichtfragen (Mithelfer-Koppeln in Schritt 2). Willkommensseite: Titel größer, Funktionszeilen einzeilig auf 360 dp. PDF-Betrachter: Papier immer weiß. |
 | 1.5 | 2026-10-19 | Abschnitt 7: Ersteinrichtung als Schrittfolge (Willkommensseite, Schritte 1–5), Bestätigungen mit einem Häkchen und beschriftetem Knopf; Stammdaten nur noch zum Bearbeiten. |
 | 1.4 | 2026-10-16 | Abschnitt 5a Regel 13: „Foto“ und „Datei“ (56 dp, 48 dp Abstand, spiegelgleich) neben dem Aufnahmeknopf auf Übersicht und Belegliste. |
 | 1.3 | 2026-10-16 | Abschnitt 5a Regel 13: runder Aufnahmeknopf „Beleg“ (≥ 72 dp) unten in der Mitte auf Übersicht, Belegliste und im Belegformular. |

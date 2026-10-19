@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:buchhaltung/app_state.dart';
 import 'package:buchhaltung/data/app_database.dart';
 import 'package:buchhaltung/data/repositories.dart';
+import 'package:buchhaltung/domain/country.dart';
 import 'package:buchhaltung/domain/legal_texts.dart';
 import 'package:buchhaltung/domain/money.dart';
 import 'package:buchhaltung/domain/receipt.dart';
@@ -12,6 +13,7 @@ import 'package:buchhaltung/features/demo/demo_sheet.dart';
 import 'package:buchhaltung/features/licensing/feature_gate.dart';
 import 'package:buchhaltung/main.dart';
 import 'package:buchhaltung/services/demo/demo_dataset.dart';
+import 'package:buchhaltung/services/demo/demo_dataset_de.dart';
 import 'package:buchhaltung/services/demo/demo_mode.dart';
 import 'package:buchhaltung/services/demo/demo_session.dart';
 import 'package:buchhaltung/services/invoice_pdf.dart';
@@ -60,10 +62,11 @@ void main() {
     ),
   );
 
-  Future<Database> demoDb() => DemoSession.open(
+  Future<Database> demoDb({Country country = Country.at}) => DemoSession.open(
     documentsDir: docs,
     today: today,
     factory: databaseFactoryFfi,
+    country: country,
   );
 
   group('Musterdaten', () {
@@ -168,14 +171,19 @@ void main() {
         'google',
       ];
       RegExp word(String b) => RegExp('\\b$b\\b');
-      final rows = await db.query('receipts');
+      final deDb = await demoDb(country: Country.de);
+      final rows = [
+        ...await db.query('receipts'),
+        ...await deDb.query('receipts'),
+      ];
+      await deDb.close();
       for (final r in rows) {
         final text = '${r['counterparty']} ${r['description']}'.toLowerCase();
         for (final b in brands) {
           expect(word(b).hasMatch(text), isFalse, reason: '$b in $text');
         }
       }
-      for (final m in DemoDataset.merchants) {
+      for (final m in [...DemoDataset.merchants, ...DemoDatasetDe.merchants]) {
         for (final b in brands) {
           expect(word(b).hasMatch(m.toLowerCase()), isFalse, reason: m);
         }
@@ -187,6 +195,44 @@ void main() {
       }
       await db.close();
     });
+  });
+
+  group('Musterdaten Deutschland', () {
+    test(
+      'Kleinunternehmerin § 19 UStG, Listen gefüllt, net + vat == gross',
+      () async {
+        final db = await demoDb(country: Country.de);
+        final repos = Repositories(db);
+        final profile = (await repos.company.load())!;
+        expect(profile.companyName, DemoDatasetDe.companyName);
+        expect(profile.country, Country.de);
+        expect(profile.isSmallBusiness, isTrue);
+        expect(await repos.registrations.all(), isEmpty);
+        final receipts = await db.query(
+          'receipts',
+          where: 'invoice_id IS NULL',
+        );
+        expect(receipts.length, DemoDatasetDe.receiptCount);
+        for (final r in receipts) {
+          expect(
+            (r['net_cents'] as int) + (r['vat_cents'] as int),
+            r['gross_cents'],
+          );
+        }
+        expect(await db.query('invoices'), hasLength(greaterThanOrEqualTo(6)));
+        expect(await db.query('offers'), isNotEmpty);
+        expect(await db.query('contracts'), isNotEmpty);
+        expect(await db.query('dunning_notices'), isNotEmpty);
+        final categories = {
+          for (final c in await repos.categories.all()) c.id: c.name,
+        };
+        expect(
+          receipts.map((r) => categories[r['category_id']]),
+          contains('Einkommensteuer-Vorauszahlung'),
+        );
+        await db.close();
+      },
+    );
   });
 
   group('Abschottung', () {
@@ -399,6 +445,88 @@ void main() {
       await tester.pumpWidget(const SizedBox());
     });
 
+    testWidgets('Demo Deutschland: Ampel misst an 25.000 € (§ 19 UStG), '
+        'Listen gefüllt', (tester) async {
+      TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+          .setMockMethodCallHandler(
+            const MethodChannel('plugins.it_nomads.com/flutter_secure_storage'),
+            (call) async => null,
+          );
+      final real = (await tester.runAsync(realDb))!;
+      await tester.runAsync(() async {
+        await real.insert('company_profile', {'id': 1, 'company_name': 'Echt'});
+        await ConsentRepositoryHelper.acceptAll(real);
+      });
+      AppDatabase.instance.overrideDatabaseForTesting(real);
+      final state = AppState(
+        Repositories(real),
+        license: LicenseManager(
+          cache: MemoryLicenseCache(),
+          billing: FakeStoreBilling.new,
+          enabled: false,
+        ),
+      );
+      await tester.runAsync(state.reload);
+      tester.view.physicalSize = const Size(400, 800);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.reset);
+      await tester.pumpWidget(BuchhaltungApp(state: state));
+      await settle(tester);
+      final db = (await tester.runAsync(() => demoDb(country: Country.de)))!;
+      await tester.runAsync(() => state.enterDemo(db, fromSettings: true));
+      await settle(tester);
+      final sb = state.smallBusiness!;
+      expect(sb.nextYearLimit, const Money(2500000));
+      expect(sb.displayLimit, const Money(2500000));
+      expect(sb.limit, const Money(10000000));
+      expect(sb.utilizationPercent, inInclusiveRange(45, 75));
+      expect(find.text('Kleinunternehmergrenze'), findsOneWidget);
+      expect(find.byKey(const Key('small-business-limits')), findsOneWidget);
+      expect(find.textContaining('§ 19 UStG'), findsWidgets);
+      await tester.tap(find.text('Rechnungen').last);
+      await settle(tester);
+      expect(find.textContaining('Jonas Probe'), findsWidgets);
+      expect(find.text('Storno'), findsWidgets);
+      await tester.tap(find.text('Belege').last);
+      await settle(tester);
+      expect(find.textContaining('Laufkundschaft'), findsWidgets);
+      await tester.pumpWidget(const SizedBox());
+    });
+
+    testWidgets('Demo-Start fragt das Land: Deutschland zuerst und '
+        'hervorgehoben, beide 56 dp', (tester) async {
+      tester.view.physicalSize = const Size(360, 740);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.reset);
+      Country? picked;
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Builder(
+            builder: (context) => Scaffold(
+              body: TextButton(
+                onPressed: () async =>
+                    picked = await chooseDemoCountry(context),
+                child: const Text('los'),
+              ),
+            ),
+          ),
+        ),
+      );
+      await tester.tap(find.text('los'));
+      await tester.pumpAndSettle();
+      final de = find.byKey(const Key('demo-country-de'));
+      final at = find.byKey(const Key('demo-country-at'));
+      expect(tester.widget(de), isA<FilledButton>());
+      expect(tester.getTopLeft(de).dy, lessThan(tester.getTopLeft(at).dy));
+      for (final f in [de, at]) {
+        expect(tester.getSize(f).height, greaterThanOrEqualTo(56));
+        expect(tester.getCenter(f).dy, greaterThan(740 / 2));
+      }
+      await tester.tap(de);
+      await tester.pumpAndSettle();
+      expect(picked, Country.de);
+    });
+
     Future<AppState> pumpApp(WidgetTester tester) async {
       // Schlüsselbund gibt es im Test nicht: leer antworten.
       TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
@@ -447,7 +575,9 @@ void main() {
 
       // Gleicher Weg wie der Knopf; echte Datenbankarbeit außerhalb der
       // Test-Uhr.
-      await tester.runAsync(() => startDemo(tester.element(demo)));
+      await tester.runAsync(
+        () => startDemo(tester.element(demo), country: Country.at),
+      );
       await settle(tester);
       expect(state.isDemo, isTrue);
       final banner = find.byKey(const Key('demo-banner'));

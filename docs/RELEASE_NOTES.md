@@ -29,11 +29,37 @@ gebaut, und was war darin geprüft?*
 
 ## Unveröffentlicht
 
-Änderungen seit 0.30.0+43, die noch in keinem Build stecken. Wandern beim
+Änderungen seit 0.31.0+44, die noch in keinem Build stecken. Wandern beim
 nächsten Versionssprung in den neuen Eintrag.
 
 | Art | Änderung | Bezug | Commit |
 |---|---|---|---|
+
+---
+
+## 0.31.0+44 — 2026-10-19
+
+| Feld | Wert |
+|---|---|
+| Art | Testbuild (ungezippte arm64-APK `JeNi-bucht-0.31.0-build-<Nr>.apk`, fester Testschlüssel); **Lizenzprüfung aus** (ohne `LICENSING=true`), alle Funktionen frei |
+| Commit | `dieser Commit` |
+| Branch | `claude/agile-accounting-app-mobile-wa5j3h` |
+| Dokumentstände | Lastenheft 1.84, Spezifikation 1.89, Benutzerhandbuch für 0.31.0, DESIGN_SPEC 1.6 |
+| Datenbankschema | 29 |
+| Prüfung | `flutter analyze` ohne Befund, alle Tests grün (neu `scroll_auto_hide_test.dart`: Ausblenden beim Scrollen, nach 5 s zurück, oben sofort, nicht während eines Tipps, mit Bedienungshilfe immer sichtbar; `pdf_viewer_test.dart`: dunkles Thema mit weißem Papier ohne Filter; `welcome_page_test.dart`: Textbreite jeder Funktionszeile auf 360 und 412 dp; `small_business_monitor_test.dart`: DE 25.000-€-Anzeige und Folgejahreswarnung, AT Grenzenhinweis mit Toleranz; `demo_test.dart`: deutsche Musterfirma, Ampel an 25.000 €, Listen gefüllt, Landeswahl; `setup_wizard_test.dart`: Mithelfer-Option in Schritt 2); Android/iOS-Build nur in der CI |
+| Steuerliche Kennwerte | keine Änderung; neu `spec.demo_de_company`, `spec.demo_de_receipt_count`, `spec.capture_bar_show_after_s` |
+| Offene reale Prüfpunkte | wie 0.30.0+43, neu P-X27, P-S85, P-R61 |
+| Bekannte Grenzen | Spezifikation Abschnitt 11 |
+
+**Änderungen seit 0.30.0+43**
+
+| Art | Änderung | Bezug | Commit |
+|---|---|---|---|
+| Geändert | Willkommensseite: Punkt statt Gedankenstrich, Titel größer, mehr Abstand, Funktionszeilen einzeilig, „Sicherung wiederherstellen“; Mithelfer-Koppeln als Nebenoption in Schritt 2 | FA-1.13, FA-17.2, FA-17.13, L-29.1 | `dieser Commit` |
+| Behoben | PDF-Betrachter im dunklen Modus: Seite auf weißem Papier in Originalfarben | FA-5.48 | `dieser Commit` |
+| Neu | Aufnahmeleiste der Übersicht weicht beim Scrollen aus, nach 5 s zurück | FA-12.1 | `dieser Commit` |
+| Geändert | Kleinunternehmergrenze je Land: DE misst an 25.000 € mit Warnung fürs Folgejahr, Grenzenhinweis DE/AT | FA-4.14, P-S85 | `dieser Commit` |
+| Neu | Demo mit Landeswahl (Deutschland zuerst) und deutscher Musterfirma „Muster Handel“ (§ 19 UStG) | FA-13.14 | `dieser Commit` |
 
 ---
 

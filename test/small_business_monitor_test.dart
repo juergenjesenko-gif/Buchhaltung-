@@ -23,6 +23,14 @@ void main() {
       );
 
   group('Österreich – 55.000 € mit 10 % Toleranz', () {
+    test('eine Grenze für beide Jahre, Hinweis nennt die Toleranz', () {
+      final r = assessAt(20000, previousEuro: 10000);
+      expect(r.nextYearLimit, isNull);
+      expect(r.displayLimit, const Money(5500000));
+      expect(r.limitsNote, contains('§ 6 Abs 1 Z 27 UStG'));
+      expect(r.limitsNote, contains('Toleranz bis 60.500,00 €'));
+    });
+
     test('deutlich unter der Grenze ist unauffällig', () {
       final result = assessAt(20000);
       expect(result.status, SmallBusinessStatus.ok);
@@ -89,10 +97,28 @@ void main() {
   });
 
   group('Deutschland – 25.000 € Vorjahr, 100.000 € laufendes Jahr', () {
-    test('unter beiden Grenzen ist unauffällig', () {
+    test('unter 25.000 € unauffällig, Balken misst an 25.000 €', () {
+      final r = assessDe(15000, previousEuro: 20000);
+      expect(r.status, SmallBusinessStatus.ok);
+      expect(r.nextYearLimit, const Money(2500000));
+      expect(r.displayLimit, const Money(2500000));
+      expect(r.utilizationPercent.round(), 60);
+      expect(r.limitsNote, contains('25.000,00 € Vorjahr'));
+      expect(r.limitsNote, contains('100.000,00 € laufendes Jahr'));
+      expect(r.limitsNote, contains('§ 19 UStG'));
+    });
+
+    test('über 25.000 €: dieses Jahr noch frei, Warnung für nächstes Jahr', () {
+      final r = assessDe(30000, previousEuro: 20000);
+      expect(r.status, SmallBusinessStatus.approaching);
+      expect(r.message, contains('nächsten Jahr'));
+      expect(r.displayLimit, const Money(10000000));
+    });
+
+    test('ab 80 % von 25.000 € Vorwarnung', () {
       expect(
-        assessDe(30000, previousEuro: 20000).status,
-        SmallBusinessStatus.ok,
+        assessDe(20000, previousEuro: 20000).status,
+        SmallBusinessStatus.approaching,
       );
     });
 

@@ -23,6 +23,8 @@ import 'package:buchhaltung/services/contracts/contract_schedule.dart';
 import 'package:buchhaltung/services/receipt_scan/document_scanner.dart';
 import 'package:buchhaltung/services/logo_store.dart';
 import 'package:buchhaltung/services/demo/demo_dataset.dart';
+import 'package:buchhaltung/services/demo/demo_dataset_de.dart';
+import 'package:buchhaltung/widgets/scroll_auto_hide.dart';
 import 'package:buchhaltung/services/demo/demo_mode.dart';
 import 'package:buchhaltung/services/licensing/license_policy.dart';
 import 'package:buchhaltung/services/platform_import/platform_import_plan.dart';
@@ -124,6 +126,18 @@ void main() {
       expect(intValue('spec.demo_receipt_count'), DemoDataset.receiptCount);
       expect(value('spec.demo_watermark'), DemoMode.watermark);
       expect(value('spec.demo_company'), DemoDataset.companyName);
+      expect(value('spec.demo_de_company'), DemoDatasetDe.companyName);
+      expect(
+        intValue('spec.demo_de_receipt_count'),
+        DemoDatasetDe.receiptCount,
+      );
+    });
+
+    test('Aufnahmeleiste der Übersicht (FA-12.1)', () {
+      expect(
+        intValue('spec.capture_bar_show_after_s'),
+        ScrollHideController.defaultShowAfter.inSeconds,
+      );
     });
 
     test('Ersteinrichtung und EU-KU-Nummer (FA-1.13, FA-18.10)', () {

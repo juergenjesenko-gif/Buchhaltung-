@@ -356,7 +356,8 @@ class PairingQrScreen extends StatelessWidget {
           const SizedBox(height: 16),
           const Text(
             '1. Auf dem anderen Handy JeNi bucht installieren und öffnen.\n'
-            '2. „Ich helfe mit – Gerät koppeln“ tippen.\n'
+            '2. „Los geht’s“ und dann „Dieses Gerät ist ein '
+            'Mithelfer-Gerät (koppeln)“ tippen.\n'
             '3. „QR-Code fotografieren“ und diesen Code aufnehmen.',
           ),
           const SizedBox(height: 12),

@@ -95,7 +95,8 @@ void main() {
     expectThumbButton(tester, find.byKey(const Key('welcome-start')), min: 56);
     expectThumbButton(tester, find.byKey(const Key('welcome-demo')), min: 56);
     expectThumbButton(tester, find.byKey(const Key('welcome-restore')));
-    expectThumbButton(tester, find.byKey(const Key('welcome-helper')));
+    expect(find.byKey(const Key('welcome-helper')), findsNothing);
+    expect(find.text('Sicherung wiederherstellen'), findsOneWidget);
     expect(
       tester.getCenter(find.byKey(const Key('welcome-start'))).dy,
       greaterThan(740 * 2 / 3),
@@ -118,6 +119,8 @@ void main() {
 
     // Schritt 2: Pflichtfeld.
     expect(find.text('Schritt 2 von 4'), findsOneWidget);
+    // Mithelfer-Gerät nur als Nebenoption, keine Pflichtfrage.
+    expectThumbButton(tester, find.byKey(const Key('setup-helper')));
     final next = find.byKey(const Key('setup-next'));
     expectThumbButton(tester, next, min: 56);
     expect(find.byKey(const Key('setup-skip')), findsNothing);
@@ -216,6 +219,13 @@ void main() {
   ) async {
     final db = (await tester.runAsync(openDb))!;
     await pump(tester, db);
+    // Seit 0.31.0 in Schritt 2 statt auf der Willkommensseite.
+    expect(find.byKey(const Key('helper-help')), findsNothing);
+    await tester.tap(find.byKey(const Key('welcome-start')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const Key('consent-disclaimer')));
+    await tester.pump();
+    await tapAndWait(tester, find.byKey(const Key('consent-accept')));
     final help = find.byKey(const Key('helper-help'));
     expect(tester.getSize(help).width, greaterThanOrEqualTo(48));
     expect(tester.getSize(help).height, greaterThanOrEqualTo(48));
