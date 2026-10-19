@@ -42,7 +42,7 @@ nächsten Versionssprung in den neuen Eintrag.
 | Feld | Wert |
 |---|---|
 | Art | Testbuild (ungezippte arm64-APK `JeNi-bucht-0.32.0-build-<Nr>.apk`, fester Testschlüssel); **Lizenzprüfung aus** (ohne `LICENSING=true`), alle Funktionen frei – auch E-Rechnung ausstellen |
-| Commit | `dieser Commit` |
+| Commit | `7ed206f` |
 | Branch | `claude/agile-accounting-app-mobile-wa5j3h` |
 | Dokumentstände | Lastenheft 1.86, Spezifikation 1.91, Benutzerhandbuch für 0.32.0, DESIGN_SPEC 1.6 |
 | Datenbankschema | 30 |
@@ -56,11 +56,11 @@ nächsten Versionssprung in den neuen Eintrag.
 | Art | Änderung | Bezug | Commit |
 |---|---|---|---|
 | Neu | Abo-Seite zeigt Test, Einführungspreis des ersten Jahres und Grundpreis aus den Preisphasen des Stores; neue Preise (Lastenheft 5.10); zweiter Instagram-Code `JENIBUCHT20` (20 % aufs Jahresabo im ersten Jahr) | FA-13.16, O-45, O-46, P-R62, P-R63, P-D55 | c5a3ef3 |
-| Neu | E-Rechnung erstellen: jede Rechnung und Stornorechnung als ZUGFeRD-PDF (PDF/A-3b mit `factur-x.xml`, EN 16931); für Behörden XRechnung 3.0 (CII) bzw. ebInterface 6.1 mit „XML senden“; Prüfung der Pflichtangaben mit Hinweis | FA-5.49, L-4.1, L-4.2 | `dieser Commit` |
-| Neu | Kundin: Abschnitt „E-Rechnung“ mit Format, Leitweg-ID/Auftragsreferenz bzw. Käuferreferenz, Lieferantennummer (Schema 30) | FA-5.49, 4.1 | `dieser Commit` |
-| Geändert | Tarif `eInvoiceIssue` Pro (Lastenheft 5.10), Vorschlag Basis an den Auftraggeber | FA-13.2, O-44 | `dieser Commit` |
-| Geändert | Willkommensseite „Rechnungen & E-Rechnungen schreiben“; Store-Texte mit Abschnitt „E-Rechnungen schreiben“ (Store-Texte schon in `c5a3ef3` enthalten) | FA-1.13, P-R64 | `dieser Commit` |
-| Doku | Datenfluss Rechnungsversand (Lastenheft 5.19, PRIVACY, STORE_LISTING); Prüfmappe Steuerberater neu erzeugt | L-19.5 | `dieser Commit` |
+| Neu | E-Rechnung erstellen: jede Rechnung und Stornorechnung als ZUGFeRD-PDF (PDF/A-3b mit `factur-x.xml`, EN 16931); für Behörden XRechnung 3.0 (CII) bzw. ebInterface 6.1 mit „XML senden“; Prüfung der Pflichtangaben mit Hinweis | FA-5.49, L-4.1, L-4.2 | `7ed206f` |
+| Neu | Kundin: Abschnitt „E-Rechnung“ mit Format, Leitweg-ID/Auftragsreferenz bzw. Käuferreferenz, Lieferantennummer (Schema 30) | FA-5.49, 4.1 | `7ed206f` |
+| Geändert | Tarif `eInvoiceIssue` Pro (Lastenheft 5.10), Vorschlag Basis an den Auftraggeber | FA-13.2, O-44 | `7ed206f` |
+| Geändert | Willkommensseite „Rechnungen & E-Rechnungen schreiben“; Store-Texte mit Abschnitt „E-Rechnungen schreiben“ (Store-Texte schon in `c5a3ef3` enthalten) | FA-1.13, P-R64 | `7ed206f` |
+| Doku | Datenfluss Rechnungsversand (Lastenheft 5.19, PRIVACY, STORE_LISTING); Prüfmappe Steuerberater neu erzeugt | L-19.5 | `7ed206f` |
 
 ---
 
