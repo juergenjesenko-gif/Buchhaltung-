@@ -1,6 +1,6 @@
 # Benutzerhandbuch – JeNi bucht
 
-**Für App-Version 0.28.0** · Stand 2026-10-19
+**Für App-Version 0.29.0** · Stand 2026-10-19
 
 > **Testerinnen und Tester, Umstieg auf 0.26.0:** Ab dieser Version hat die App
 > eine neue technische Kennung. Sie wird **neben** der alten App installiert,
@@ -38,6 +38,7 @@ die du in der App siehst, mitgeführt – siehe [`CLAUDE.md`](../CLAUDE.md).
 14. [Was die App nicht kann](#14-was-die-app-nicht-kann)
 15. [Mithelfer-Geräte: Belege von Familie und Team](#15-mithelfer-geräte-belege-von-familie-und-team)
 16. [Mehrere Länder: weitere Steuer-Registrierungen](#16-mehrere-länder-weitere-steuer-registrierungen)
+17. [Abgaben & Rücklagen](#17-abgaben--rücklagen)
 
 ---
 
@@ -1172,6 +1173,21 @@ einen Kommentar an deine Steuerberatung schreiben, dann:
 
 **Leasing** ist keine Anlage: Raten buchst du einfach als Ausgabe.
 
+### Für Kapitalgesellschaft / doppelte Buchführung
+
+Hast du eine GmbH, bucht deine Kanzlei doppelt. Du erfasst trotzdem alle Belege
+in der App. Unter **Export → Anlagen und Jahresabschluss → Für
+Kapitalgesellschaft / doppelte Buchführung (Pro)** bekommst du mit einem Tipp
+eine ZIP-Datei mit:
+
+1. der Saldenliste als PDF,
+2. der Belegliste, dem DATEV-Buchungsstapel und den BMD-Buchungssätzen,
+3. allen Belegbildern im Ordner `Belege` – der Dateiname beginnt mit der
+   Belegnummer, die auch in der Buchung steht.
+
+Schick die Datei deiner Kanzlei. Ob ihr Programm (DATEV, BMD, RZL) sie direkt
+einliest, klärt sie beim ersten Mal.
+
 ### Verträge
 
 Miete, Pacht, Leasing, Versicherung, Darlehen, Dienstbarkeit,
@@ -1760,6 +1776,11 @@ neues Foto hinzufügen.
 
 Damit du nicht darauf wartest:
 
+- **Steuern und Sozialversicherung nur geschätzt.** „Abgaben & Rücklagen“
+  rechnet mit deinem Gewinn allein, ohne andere Einkünfte, Familie oder
+  Freibeträge, die die App nicht kennt. Lohnabgaben (Dienstnehmer) und
+  GmbH-Steuern kommen erst mit „Premium Plus“.
+
 - **Kein PDF-Ansehen in der Demo.** Das Muster-PDF entsteht mit Wasserzeichen,
   lässt sich in der Demo aber weder öffnen noch teilen.
 
@@ -2034,3 +2055,64 @@ Ob du dich in einem Land registrieren musst, welche Besteuerung dort gilt und
 wie die Ware ins Lager gebucht wird (Verbringen), entscheidet deine
 Steuerberatung. Die App rechnet nur mit dem, was du einträgst.
 
+---
+
+## 17. Abgaben & Rücklagen
+
+Damit dich die Nachzahlung nicht überrascht: Die App schätzt, was du für
+Einkommensteuer und Sozialversicherung zurücklegen solltest. **Schätzung –
+ersetzt keine Steuerberatung.**
+
+### Die Karte auf der Übersicht
+
+Unter deinem Ergebnis steht **Rücklage für Steuern & SV** mit einem Betrag pro
+Monat und was je Abgabe noch offen ist. Leg diesen Betrag jeden Monat auf ein
+eigenes Konto. Tipp auf die Karte für die Einzelheiten.
+
+### Der Bildschirm „Abgaben & Rücklagen“
+
+Du findest ihn über die Karte oder unter **Für das Finanzamt → Abgaben &
+Rücklagen**. Er zeigt:
+
+- deinen Gewinn, hochgerechnet aufs ganze Jahr,
+- je Abgabe: geschätzt im Jahr, schon bezahlt, noch offen – tipp eine Zeile
+  für die gesetzliche Grundlage,
+- die nächsten Zahlungstermine.
+
+**Österreich:** SVS-Beiträge (Pension, Kranken, Selbständigenvorsorge, Unfall)
+und Einkommensteuer nach dem Tarif 2026 mit Gewinnfreibetrag. In den ersten drei
+Jahren schreibt die SVS zuerst nur den Mindestbeitrag vor; die App zeigt, was
+später nachgezahlt wird. Bist du Kleinunternehmerin mit wenig Gewinn, weist die
+App auf die mögliche Ausnahme von Kranken- und Pensionsversicherung hin.
+
+**Deutschland:** Einkommensteuer, Solidaritätszuschlag, auf Wunsch
+Kirchensteuer, Gewerbesteuer (nicht für Freiberufler) mit Anrechnung auf die
+Einkommensteuer.
+
+### Deine Angaben
+
+Unten auf dem Bildschirm, alles freiwillig:
+
+1. **ESt-Vorauszahlung je Quartal** – der Betrag aus deinem Bescheid.
+2. Österreich: **Ausnahme von KV/PV beantragt**, wenn die SVS sie genehmigt hat.
+3. Deutschland: **Kranken- und Pflegeversicherung monatlich** laut Bescheid,
+   **Freiberuflich**, **Hebesatz** deiner Gemeinde (sonst 400 %),
+   **Kirchensteuerpflichtig**.
+4. **Angaben speichern** tippen.
+
+### Zahlungen buchen
+
+Buche jede Zahlung wie einen Beleg mit der passenden Kategorie:
+
+| Zahlung | Kategorie | Zählt als Ausgabe? |
+|---|---|---|
+| SVS-Vorschreibung (AT) | Sozialversicherung | ja, Betriebsausgabe |
+| Kranken-/Pflegeversicherung (DE) | Sozialversicherung | nein, privat (Sonderausgabe) |
+| Einkommensteuer-Vorauszahlung | Einkommensteuer-Vorauszahlung | nein, privat |
+| Gewerbesteuer (DE) | Gewerbesteuer | nein, nicht abziehbar |
+
+Die App rechnet private Steuern aus deinem Gewinn wieder heraus. So stimmen
+Übersicht, Saldenliste und Jahresabschluss, und „schon bezahlt“ ist aktuell.
+
+Kommunalsteuer, Dienstgeberbeitrag und Lohnsteuer fallen nur an, wenn du
+Mitarbeiter hast – das kommt später mit „Premium Plus“.

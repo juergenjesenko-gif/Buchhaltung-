@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:typed_data';
 
+import '../levies/levy_estimator.dart';
 import 'package:sqflite/sqflite.dart';
 
 import '../../data/repositories.dart';
@@ -63,7 +64,7 @@ class DemoDataset {
   ];
 
   /// Ungefähre Zahl der Belege (Ausgaben und Einnahmen ohne Rechnungen).
-  static const receiptCount = 25;
+  static const receiptCount = 28;
 
   static Future<void> seed(
     Database db, {
@@ -446,6 +447,32 @@ class DemoDataset {
       payment: PaymentMethod.cash,
       direction: BookingDirection.income,
       image: false,
+    );
+    // Abgaben & Rücklagen (FA-19.x): SVS-Quartalsvorschreibung auf der
+    // Mindestbeitragsgrundlage 2026 (551,10 € × 3: PV 305,86, KV 112,42,
+    // SV 25,30, UV 38,85) und eine ESt-Vorauszahlung laut Bescheid.
+    for (final days in [50, 140]) {
+      await receipt(
+        daysAgo: days,
+        merchant: 'SVS',
+        description: 'SVS-Beitrag Quartal',
+        category: 'Sozialversicherung',
+        parts: [(0, 48243)],
+        payment: PaymentMethod.bank,
+        image: false,
+      );
+    }
+    await receipt(
+      daysAgo: 65,
+      merchant: 'Finanzamt Österreich',
+      description: 'Einkommensteuer-Vorauszahlung',
+      category: 'Einkommensteuer-Vorauszahlung',
+      parts: [(0, 15000)],
+      payment: PaymentMethod.bank,
+      image: false,
+    );
+    await repos.levySettings.save(
+      const LevySettings(incomeTaxPrepaymentQuarter: Money(15000)),
     );
     // Deutsche Registrierung: Lagerleistung in Passau mit 19 % (§ 12 Abs 1
     // UStG DE), Vorsteuer in der deutschen Voranmeldung. Bewusst

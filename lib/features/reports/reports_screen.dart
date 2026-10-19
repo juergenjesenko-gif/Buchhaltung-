@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'dart:typed_data';
 
 import '../../app_state.dart';
 import '../../core/formatting.dart';
@@ -8,6 +9,7 @@ import '../../services/export/exporters.dart';
 import '../../services/licensing/license_policy.dart';
 import '../../services/reports/annual_report.dart';
 import '../../services/reports/report_package.dart';
+import '../../services/receipt_image_store.dart';
 import '../../services/share_service.dart';
 import '../../widgets/adaptive.dart';
 import '../../widgets/common.dart';
@@ -15,7 +17,7 @@ import '../assets/asset_screens.dart';
 import '../help/help_screen.dart';
 import '../licensing/feature_gate.dart';
 
-/// Berichte für die Steuerberatung (FA-15.8 bis FA-15.11): Anlagen,
+/// Berichte für die Steuerberatung (FA-15.8 bis FA-15.12): Anlagen,
 /// Anlagenverzeichnis, Saldenliste, vorläufiger Jahresabschluss.
 class ReportsScreen extends StatefulWidget {
   const ReportsScreen({super.key});
@@ -61,6 +63,7 @@ class _ReportsScreenState extends State<ReportsScreen> {
       reverseChargePermille: state.reverseChargePermille,
       depreciation: state.depreciationRules,
       entertainment: state.entertainmentRules,
+      nonDeductibleKinds: state.nonDeductibleKinds,
     );
     return AnnualReportData(
       profile: profile,
@@ -168,6 +171,78 @@ class _ReportsScreenState extends State<ReportsScreen> {
     });
   }
 
+  /// Paket für Kapitalgesellschaft / doppelte Buchführung (FA-15.12):
+  /// Saldenliste (PDF), Belegliste und Buchungsexport (CSV), Belegkopien.
+  Future<void> _shareDoubleEntryPackage() async {
+    if (!await ensureFeature(context, Feature.annualReports)) return;
+    if (!mounted) return;
+    final state = AppScope.read(context);
+    await _run(() async {
+      final data = await _data();
+      if (data == null) return;
+      final pdf = AnnualReportPdf(data);
+      final repos = state.repositories;
+      final receipts = await repos.receipts.query(from: data.from, to: data.to);
+      final exporter = Exporter(
+        profile: data.profile,
+        receipts: receipts,
+        categories: state.categories,
+        totals: data.totals,
+        period: Period.fiscalYear(
+          data.profile.fiscalYear,
+          _year,
+          data.profile.taxProfile.monthNames,
+        ),
+        comments: await repos.receipts.allComments(),
+        pageCounts: await repos.receipts.pageCounts(),
+        originals: await repos.receipts.documentSummaries(),
+      );
+      final csvs = <String, String>{};
+      for (final f in [
+        ExportFormat.plainCsv,
+        ExportFormat.datev,
+        ExportFormat.bmd,
+      ]) {
+        final r = exporter.build(f);
+        csvs[r.fileName] = r.content;
+      }
+      final files = <String, Uint8List>{};
+      for (final r in receipts) {
+        final id = r.id;
+        if (id == null) continue;
+        final pages = await repos.receipts.pages(id);
+        final paths = pages.isEmpty
+            ? [if (r.imagePath != null) r.imagePath!]
+            : [for (final p in pages) p.imagePath];
+        for (var i = 0; i < paths.length; i++) {
+          final file = await ReceiptImageStore.resolve(paths[i]);
+          if (file == null || !await file.exists()) continue;
+          final ext = paths[i].contains('.') ? paths[i].split('.').last : 'jpg';
+          files[receiptCopyName(id, r.date, i + 1, ext)] = await file
+              .readAsBytes();
+        }
+      }
+      final zip = ReportPackage.zip(
+        pdfs: {
+          pdf.fileName(ReportKind.trialBalance): await pdf.build(
+            ReportKind.trialBalance,
+          ),
+        },
+        csvs: csvs,
+        files: files,
+      );
+      await ShareService.shareZip(
+        fileName:
+            'Buchhaltungspaket_${Fmt.isoDate(data.from)}_'
+            '${Fmt.isoDate(data.to)}.zip',
+        bytes: zip,
+        subject:
+            'Saldenliste, Buchungen und Belege ${data.periodLabel} – '
+            '${data.profile.companyName}',
+      );
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     final profile = AppScope.of(context).profile;
@@ -266,6 +341,20 @@ class _ReportsScreenState extends State<ReportsScreen> {
                         'für die Steuerberatung',
                     enabled: !_busy,
                     onTap: _sharePackage,
+                  ),
+                  _ReportTile(
+                    key: const Key('report-double-entry'),
+                    icon: Icons.business_outlined,
+                    title: proLabel(
+                      context,
+                      Feature.annualReports,
+                      'Für Kapitalgesellschaft / doppelte Buchführung',
+                    ),
+                    subtitle:
+                        'Saldenliste, Buchungsliste (CSV, DATEV, BMD) und '
+                        'Belegkopien als ZIP',
+                    enabled: !_busy,
+                    onTap: _shareDoubleEntryPackage,
                   ),
                 ],
               ),

@@ -120,6 +120,13 @@ void main() {
   ) async {
     await pump(tester, {'country_code': 'AT', 'is_small_business': 1});
     expect(find.byKey(const Key('share-u30')), findsNothing);
+    // Einstieg „Abgaben & Rücklagen“ steht oben (FA-19.2).
+    expect(find.byKey(const Key('open-levies')), findsOneWidget);
+    await tester.scrollUntilVisible(
+      find.textContaining('brauchst du keine U30'),
+      200,
+      scrollable: find.byType(Scrollable).first,
+    );
     expect(find.textContaining('brauchst du keine U30'), findsOneWidget);
   });
 

@@ -1,6 +1,7 @@
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 import 'package:sqflite/sqflite.dart';
+import '../domain/levy_rules.dart' show LevyKind;
 import '../domain/receipt.dart' show ExpenseCategory;
 
 /// Lokale SQLite-Datenbank. Offline-first: es gibt keinen Server, die Daten
@@ -17,7 +18,7 @@ class AppDatabase {
 
   /// Aktuelle Schemaversion. Öffentlich, weil docs/SPECIFICATION.md sie
   /// dokumentiert und test/specification_sync_test.dart beide vergleicht.
-  static const schemaVersion = 28;
+  static const schemaVersion = 29;
 
   Database? _db;
 
@@ -829,6 +830,42 @@ class AppDatabase {
       "ALTER TABLE company_profile ADD COLUMN eu_sme_id TEXT NOT NULL "
           "DEFAULT ''",
     ],
+    // Abgaben & Rücklagen (FA-19.x, Lastenheft 5.31, Auftrag 2026-10-19):
+    // Abgabenkategorien mit Kennung und Angaben der Nutzerin.
+    // Sozialversicherung: AT Betriebsausgabe, DE Sonderausgabe; Einkommen-
+    // steuer privat; Gewerbesteuer nicht abziehbar (`LevyRules`).
+    29: [
+      '''
+      CREATE TABLE levy_settings (
+        key TEXT PRIMARY KEY,
+        value TEXT NOT NULL
+      )
+      ''',
+      '''
+      INSERT INTO categories (name, direction, datev_account, is_system, kind)
+      SELECT 'Sozialversicherung', 'expense', '1800', 1, 'socialInsurance'
+      WHERE EXISTS (SELECT 1 FROM categories)
+        AND NOT EXISTS (SELECT 1 FROM categories WHERE name = 'Sozialversicherung')
+      ''',
+      '''
+      INSERT INTO categories (name, direction, datev_account, is_system, kind)
+      SELECT 'Einkommensteuer-Vorauszahlung', 'expense', '1810', 1, 'incomeTax'
+      WHERE EXISTS (SELECT 1 FROM categories)
+        AND NOT EXISTS (SELECT 1 FROM categories WHERE name = 'Einkommensteuer-Vorauszahlung')
+      ''',
+      '''
+      INSERT INTO categories (name, direction, datev_account, is_system, kind)
+      SELECT 'Gewerbesteuer', 'expense', '4320', 1, 'tradeTax'
+      WHERE EXISTS (SELECT 1 FROM categories)
+        AND NOT EXISTS (SELECT 1 FROM categories WHERE name = 'Gewerbesteuer')
+      ''',
+      "UPDATE categories SET kind = 'socialInsurance' WHERE name = 'Sozialversicherung' "
+          "AND kind IS NULL",
+      "UPDATE categories SET kind = 'incomeTax' WHERE name = 'Einkommensteuer-Vorauszahlung' "
+          "AND kind IS NULL",
+      "UPDATE categories SET kind = 'tradeTax' WHERE name = 'Gewerbesteuer' "
+          "AND kind IS NULL",
+    ],
   };
 
   /// Startkategorien, damit die App nicht mit einer leeren Auswahlliste startet.
@@ -858,6 +895,20 @@ class AppDatabase {
     // FA-2.31. Kontenzuordnung prüft die Kanzlei (P-S66).
     ('Material und Werkzeug', 'expense', '4985'),
     ('Sonstige Ausgaben', 'expense', '4900'),
+    // Abgabenkategorien (Schema 29, FA-19.4), siehe [levyCategories].
+    ('Sozialversicherung', 'expense', '1800'),
+    ('Einkommensteuer-Vorauszahlung', 'expense', '1810'),
+    ('Gewerbesteuer', 'expense', '4320'),
+  ];
+
+  /// Abgabenkategorien (Schema 29, FA-19.4): Name, Konto (SKR03), Kennung.
+  /// SKR03 1800 Privatentnahmen (DE: Kranken-/Pflegeversicherung privat; AT
+  /// auf EKR gemappt), 1810 Privatsteuern, 4320 Gewerbesteuer. Zuordnung
+  /// prüft die Kanzlei (P-S80).
+  static const levyCategories = <(String, String, String)>[
+    ('Sozialversicherung', '1800', LevyKind.socialInsurance),
+    ('Einkommensteuer-Vorauszahlung', '1810', LevyKind.incomeTax),
+    ('Gewerbesteuer', '4320', LevyKind.tradeTax),
   ];
 
   static Future<void> _seedCategories(Database db, int version) async {
@@ -871,6 +922,8 @@ class AppDatabase {
         // Spalte `kind` gibt es erst ab Schema 23 (Tests legen ältere an).
         if (version >= 23 && name == 'Bewirtung')
           'kind': ExpenseCategory.entertainmentKind,
+        for (final (n, _, kind) in levyCategories)
+          if (version >= 29 && name == n) 'kind': kind,
       });
     }
     await batch.commit(noResult: true);

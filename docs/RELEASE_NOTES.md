@@ -29,11 +29,37 @@ gebaut, und was war darin geprüft?*
 
 ## Unveröffentlicht
 
-Änderungen seit 0.28.0+41, die noch in keinem Build stecken. Wandern beim
+Änderungen seit 0.29.0+42, die noch in keinem Build stecken. Wandern beim
 nächsten Versionssprung in den neuen Eintrag.
 
 | Art | Änderung | Bezug | Commit |
 |---|---|---|---|
+
+---
+
+## 0.29.0+42 — 2026-10-19
+
+| Feld | Wert |
+|---|---|
+| Art | Testbuild (ungezippte arm64-APK `JeNi-bucht-0.29.0-build-<Nr>.apk`, fester Testschlüssel); **Lizenzprüfung aus** (ohne `LICENSING=true`), alle Funktionen frei |
+| Commit | `dieser Commit` |
+| Branch | `claude/agile-accounting-app-mobile-wa5j3h` |
+| Dokumentstände | Lastenheft 1.82, Spezifikation 1.87, Benutzerhandbuch für 0.29.0, DESIGN_SPEC 1.5 |
+| Datenbankschema | 29 |
+| Prüfung | `flutter analyze` ohne Befund, alle Tests grün (neu `levy_estimator_test.dart`: Tarif AT 2025/2026 mit Beispiel usp.gv.at, § 32a DE 2025/2026 je Zone und an den Grenzen, SVS Mindest-/Höchstbeitragsgrundlage und KU-Ausnahme, Gewinnfreibetrag, GewSt mit Freibetrag und § 35-Anrechnung, Soli-Freigrenze/Milderung, Kirchensteuer je Land, Termine AT/DE, E/A-Behandlung SVS vs. ESt, Migration 28 → 29; neu `levies_screen_test.dart`: Hinweis Schätzung, Speichern ≥ 56 dp, Schalter ≥ 48 dp; angepasst `tax_office_test.dart`, `specification_sync_test.dart`); Prüfmappen neu erzeugt; Android/iOS-Build nur in der CI |
+| Steuerliche Kennwerte | `spec.schema_version` 29, `spec.seed_category_count` 21, `spec.seed_category_expense_count` 18, `spec.demo_receipt_count` 28, neu `spec.*.income_tax_2025`, `spec.*.income_tax_2026`, `spec.*.profit_allowance`, `spec.*.social_insurance`, `spec.*.social_insurance_business_expense`, `spec.*.surcharges`, `spec.*.trade_tax` |
+| Offene reale Prüfpunkte | wie 0.28.0+41, neu P-S78 bis P-S84, P-R59, P-D50 bis P-D53, P-X25 |
+| Bekannte Grenzen | Spezifikation Abschnitt 11, neu „Abgaben nur geschätzt“ |
+
+**Änderungen seit 0.28.0+41**
+
+| Art | Änderung | Bezug | Commit |
+|---|---|---|---|
+| Neu | „Abgaben & Rücklagen“: Karte „Rücklage für Steuern & SV“ auf der Übersicht, Bildschirm mit Jahresschätzung, bezahlt/offen, nächsten Zahlungen und Angaben; Einstieg aus „Für das Finanzamt“ | FA-19.1, FA-19.2, FA-19.3, FA-19.5, FA-19.6, L-31 | `dieser Commit` |
+| Neu | Abgabenkategorien „Sozialversicherung“, „Einkommensteuer-Vorauszahlung“, „Gewerbesteuer“ (Schema 29); private bzw. nicht abziehbare Abgaben werden dem Gewinn hinzugerechnet | FA-19.4, P-S80 | `dieser Commit` |
+| Neu | Paket „Für Kapitalgesellschaft / doppelte Buchführung“: Saldenliste, Belegliste, DATEV, BMD und Belegkopien als ZIP | FA-15.12, L-33, P-D50 bis P-D53 | `dieser Commit` |
+| Neu | Demo: SVS-Quartalsbeiträge, ESt-Vorauszahlung, Rücklagenkarte | FA-13.14 | `dieser Commit` |
+| Doku | Lastenheft 5.31 bis 5.33, 14a, O-43; Spezifikation 5.15, interne Prüfung 2026-10-19 Abgaben; Prüfmappen | Spezifikation 14 | `dieser Commit` |
 
 ---
 

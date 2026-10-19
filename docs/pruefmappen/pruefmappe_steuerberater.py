@@ -21,7 +21,7 @@ THEMEN = [
     ('Mahnwesen', ['P-S44', 'P-S45']),
     ('Fremdwährung', ['P-S23', 'P-S24', 'P-S26']),
     ('Plattformimporte, Reverse Charge, OSS', ['P-S51', 'P-S52', 'P-S53', 'P-S54', 'P-S55']),
-    ('Mehrere Steuerländer: Amazon-FBA-Lager, weitere USt-Registrierungen', ['P-S68', 'P-S69', 'P-S70', 'P-S71', 'P-S72', 'P-S73', 'P-S74']),
+    ('Mehrere Steuerländer: Amazon-FBA-Lager, weitere USt-Registrierungen', ['P-S68', 'P-S69', 'P-S70', 'P-S71', 'P-S72', 'P-S73', 'P-S74', 'P-S76', 'P-S77']),
     ('Aufbewahrung, GoBD/BAO, Verfahrensdokumentation', ['P-S5', 'P-S63', 'P-S10', 'P-S15', 'P-S16', 'P-S31', 'P-M2', 'P-K4', 'P-L3', 'P-S17', 'P-S65', 'P-S67']),
     ('Export DATEV / BMD', ['P-S48', 'P-S66']),
     ('Meldungen ans Finanzamt: Kennzahlen UVA/UStVA, E1a, Anlage EÜR', ['P-S57', 'P-S58']),
@@ -29,6 +29,8 @@ THEMEN = [
     ('Fristen-Box und Wirtschaftsjahr', ['P-S7', 'P-S33', 'P-S34', 'P-S32']),
     ('Einnahmen-Ausgaben-Rechnung', ['P-S3', 'P-S35', 'P-S18']),
     ('Musterdaten der Demo', ['P-S75']),
+    ('Abgaben & Rücklagen: ESt, SVS, GewSt, Soli, KiSt (Schätzung)', ['P-S78', 'P-S79', 'P-S80', 'P-S81', 'P-S82', 'P-S83']),
+    ('Doppelte Buchführung / Kapitalgesellschaft: Paket für die Kanzlei', ['P-S84']),
     ('Abo-Erlöse des Anbieters (eigene Steuerfragen der Auftraggeberin)', ['P-S11', 'P-S12', 'P-S13', 'P-S14', 'P-S19', 'P-S20', 'P-S21', 'P-S22', 'P-V5']),
 ]
 MIN_JE_PUNKT = 6

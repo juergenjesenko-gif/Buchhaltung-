@@ -699,6 +699,10 @@ class AppState extends ChangeNotifier {
   EntertainmentRules? get entertainmentRules =>
       _profile?.taxProfile.entertainment;
 
+  /// Abgabenkategorien ohne Gewinnminderung (FA-19.4).
+  Set<String> get nonDeductibleKinds =>
+      _profile?.taxProfile.levies.nonDeductibleKinds ?? const {};
+
   bool get inputVatDeductible => !(_profile?.isSmallBusiness ?? false);
 
   int get defaultVatPermille {

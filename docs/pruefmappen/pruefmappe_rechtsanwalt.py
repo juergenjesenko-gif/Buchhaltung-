@@ -12,13 +12,13 @@ from reportlab.platypus import PageBreak  # noqa: E402
 
 TITEL = 'Prüfmappe Rechtsberatung'
 THEMEN = [
-    ('Nutzungsbedingungen (AGB/EULA) und Haftung', ['P-L1', 'P-L2', 'P-L4', 'P-L5', 'P-L6', 'P-L11', 'P-R4', 'P-R11', 'P-R15', 'P-R20', 'P-R24', 'P-V6', 'P-R8']),
+    ('Nutzungsbedingungen (AGB/EULA) und Haftung', ['P-L1', 'P-L2', 'P-L4', 'P-L5', 'P-L6', 'P-L11', 'P-R4', 'P-R11', 'P-R58', 'P-R15', 'P-R20', 'P-R24', 'P-V6', 'P-R8']),
     ('Datenschutzerklärung und Datenflüsse', ['P-R6', 'P-L9', 'P-R14', 'P-R18', 'P-R19', 'P-R35', 'P-R36', 'P-R42', 'P-U4', 'P-L12', 'P-V7', 'P-K3', 'P-L14', 'P-L15', 'P-M3', 'P-M6', 'P-R44', 'P-R46', 'P-R47', 'P-R48']),
     ('Impressum, Anbieterangaben, Menü „Rechtliches“', ['P-R1', 'P-R10', 'P-L7', 'P-L8', 'P-L20', 'P-R45']),
     ('Abo, Test, Promo-Code, Preisangaben (§ 312k, § 309 Nr. 9 BGB)', ['P-R12', 'P-R37', 'P-R57', 'P-R38', 'P-R17', 'P-R2', 'P-L10']),
     ('Werbung, Instagram, Store-Texte, Store-Konten', ['P-R40', 'P-R43', 'P-R13', 'P-R16', 'P-R22', 'P-R23', 'P-R3']),
     ('Rechnungs-, Angebots- und Mahntexte (Sie-Form an Kundinnen)', ['P-R30', 'P-R31', 'P-R32', 'P-R33', 'P-R34', 'P-R39']),
-    ('Abgrenzung Steuerberatung, KI', ['P-R5', 'P-R41', 'P-R25', 'P-R26', 'P-R9', 'P-L16', 'P-L17', 'P-V8']),
+    ('Abgrenzung Steuerberatung, KI', ['P-R5', 'P-R59', 'P-R41', 'P-R25', 'P-R26', 'P-R9', 'P-L16', 'P-L17', 'P-V8']),
     ('Demo mit Musterdaten: Wasserzeichen, erfundene Namen', ['P-R55', 'P-R56']),
     ('Marke und Lizenzen', ['P-R7', 'P-L18', 'P-L19']),
 ]

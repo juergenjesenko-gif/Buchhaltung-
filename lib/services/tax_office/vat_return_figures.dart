@@ -243,6 +243,13 @@ class VatReturnCalculator {
               '(${tax.entertainment.legalRef}), hinzugerechnet',
           amount: totals.entertainmentNonDeductible,
         ),
+      // Einkommensteuer & Co. sind keine Betriebsausgabe (FA-19.4).
+      if (!totals.nonDeductibleLevies.isZero)
+        KennzahlLine(
+          kz: null,
+          label: 'davon Steuern/Abgaben privat, hinzugerechnet',
+          amount: totals.nonDeductibleLevies,
+        ),
       KennzahlLine(
         kz: null,
         label: 'Ergebnis (Gewinn/Verlust)',

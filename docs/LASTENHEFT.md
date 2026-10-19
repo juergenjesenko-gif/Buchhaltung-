@@ -1,6 +1,6 @@
 # Lastenheft – JeNi bucht, Buchhaltungsapp für Österreich und Deutschland
 
-**Dokumentversion:** 1.81 · **Stand:** 2026-10-19 · **Status:** Entwurf zur Abstimmung
+**Dokumentversion:** 1.82 · **Stand:** 2026-10-19 · **Status:** Entwurf zur Abstimmung
 **Auftraggeber:** Jürgen Jesenko (privates Vorhaben) · **Umsetzung:** Claude Code
 
 > Ein Lastenheft beschreibt, **was** das Produkt leisten soll und **warum** — nicht,
@@ -1077,6 +1077,53 @@ Real zu prüfen: Spezifikation 14, P-S68 bis P-S74, P-X22, P-D45.
 | L-30.8 | Weitere EU-Länder (IT, FR, ES, PL, CZ, NL) als reine Konfiguration im `TaxProfile` | SOLL | B |
 | L-30.9 | Innergemeinschaftliches Verbringen (Warenbewegung ins Lager) als eigene Buchung mit Kennzahlen (DE Kz 89/61, AT ZM/U30) | — | entfällt (Entscheidung 2026-10-18, 14a; O-40 geschlossen) |
 
+### 5.31 Abgaben & Rücklagen (Einzelunternehmen)
+
+**Entscheidung des Auftraggebers vom 2026-10-19:** Der Umfang bleibt alles, was
+ein **Einzelunternehmen** braucht, einschließlich der Abgaben ans Finanzamt und
+der Sozialversicherung. Umsetzung 0.29.0: Spezifikation 5.15 (FA-19.1 bis
+FA-19.6). Real zu prüfen: Spezifikation 14, P-S78 bis P-S83, P-R59, P-X25.
+
+| ID | Anforderung | Priorität | Stufe |
+|---|---|---|---|
+| L-31.1 | Karte **„Rücklage für Steuern & SV“** auf der Übersicht mit empfohlener monatlicher Rücklage und Aufschlüsselung | MUSS | B |
+| L-31.2 | Bildschirm **„Abgaben“** (aus Übersicht und „Für das Finanzamt“): Jahresschätzung je Abgabe, bisher bezahlt, offen, Termine | MUSS | B |
+| L-31.3 | AT: SVS (PV, KV, Selbständigenvorsorge, UV) mit Mindest-/Höchstbeitragsgrundlage, Hinzurechnung, vorläufige Beiträge der ersten drei Jahre, Hinweis KU-Ausnahme; Einkommensteuer nach Tarif des Jahres mit Grundfreibetrag; ESt-Vorauszahlungen laut Bescheid | MUSS | B |
+| L-31.4 | DE: Einkommensteuer § 32a, Solidaritätszuschlag, Kirchensteuer optional, Gewerbesteuer mit Freibetrag, Hebesatz und Anrechnung § 35 EStG, Freiberufler ohne GewSt; Kranken-/Pflegeversicherung als Eingabe laut Bescheid (Entscheidung Prüfinstanz Steuerberater, P-S83) | MUSS | B |
+| L-31.5 | Abgabenkategorien; private bzw. nicht abziehbare Abgaben mindern den Gewinn nicht | MUSS | B |
+| L-31.6 | Überall gekennzeichnet „Schätzung – ersetzt keine Steuerberatung“ | MUSS | B |
+| L-31.7 | Kommunalsteuer, DB, DZ bzw. Lohnabgaben nur als Hinweis „fällt nur mit Dienstnehmern an“ | MUSS | B |
+| L-31.8 | Pauschale Betriebsausgaben (AT Basispauschalierung) und investitionsbedingter Gewinnfreibetrag | KANN | C |
+
+### 5.32 Ausbaustufe „Premium Plus“: GmbH und Lohnverrechnung (später)
+
+**Entscheidung des Auftraggebers vom 2026-10-19:** GmbH und Lohnverrechnung
+kommen **später** als eigene Stufe „Premium Plus“. Nur Anforderungsumriss, kein
+Code.
+
+| ID | Anforderung | Priorität | Stufe |
+|---|---|---|---|
+| L-32.1 | Dienstnehmer anlegen, monatliche Abrechnung (Brutto-Netto) | KANN | D |
+| L-32.2 | AT: ÖGK-Beiträge für Dienstnehmer, Dienstgeberbeitrag (DB), Zuschlag (DZ), Kommunalsteuer, Lohnsteuer, Meldungen über ELDA (An-/Abmeldung, mBGM), Lohnzettel L16 | KANN | D |
+| L-32.3 | DE: Lohnsteuer-Anmeldung (ELSTER), Sozialversicherungsmeldungen (DEÜV über sv.net/Lohnprogramm), Beitragsnachweis | KANN | D |
+| L-32.4 | GmbH: Körperschaftsteuer, KESt/Kapitalertragsteuer auf Ausschüttungen, Mindest-KöSt (AT), doppelte Buchführung mit Bilanz (L-9.1) | KANN | D |
+| L-32.5 | Eigener Tarif „Premium Plus“ über Pro; Lohnverrechnung braucht eigene Prüfung durch Personalverrechnung/Steuerberatung und Softwarezertifizierung (ELDA) | KANN | D |
+
+### 5.33 Schnittstellen zu Buchhaltungsprogrammen der Kanzleien
+
+**Entscheidung des Auftraggebers vom 2026-10-19:** GmbH-Nutzerinnen buchen
+Belege in der App und schicken Saldenliste und Belegkopien an die Kanzlei, die
+doppelt bucht. Dafür die Standardformate der Kanzleien unterstützen.
+
+| ID | Anforderung | Priorität | Stufe | Stand |
+|---|---|---|---|---|
+| L-33.1 | DATEV-Buchungsstapel EXTF (Kategorie 21, Version 700) | MUSS | B | vorhanden (8.3), Import P-D50 |
+| L-33.2 | Belegbilder zum DATEV-Stapel als ZIP mit Beleg-ID; DATEV Belegbildtransfer ist online (DATEV-Konto) und offline nicht möglich | MUSS | B | ZIP 0.29.0 (FA-15.12) |
+| L-33.3 | BMD NTCS Buchungsimport (AT) | MUSS | B | vorhanden (8.4), Import P-D51 |
+| L-33.4 | RZL (AT): Importformat prüfen, bis dahin Belegliste/BMD-CSV | SOLL | B | offen P-D52 |
+| L-33.5 | Generische CSV-Belegliste | MUSS | B | vorhanden (8.2) |
+| L-33.6 | Vorgabe **„Für Kapitalgesellschaft / doppelte Buchführung“**: Saldenliste PDF + Buchungsliste + Belegkopien ZIP | MUSS | B | 0.29.0 (FA-15.12), P-S84, P-D53 |
+
 ## 6. Nichtfunktionale Anforderungen
 
 | ID | Anforderung |
@@ -1393,6 +1440,7 @@ Zu entscheiden, bevor die betroffene Anforderung umgesetzt wird:
 | O-37 | **ELSTER-Übermittlungsserver (DE) nach dem Launch:** ERiC gibt es nur für Windows, Linux und macOS, nicht für Android/iOS; direkte UStVA/EÜR-Übermittlung aus der App braucht daher einen Anbieter-Server. Skizze: verwalteter Container (kein eigenes Betriebssystem) bei einem Cloud-Anbieter mit Rechenzentrum in der EU; zustandslos – Meldung kommt verschlüsselt vom Gerät, wird an ELSTER weitergereicht, nichts wird gespeichert (weder Daten noch Zertifikat); grob 10–30 €/Monat. Beim Anbieter verbleiben trotz Cloud: Rolle als Auftragsverarbeiter (AVV mit dem Cloud-Anbieter, Datenschutzerklärung, Store-Angaben, Eintrag in 5.19), ERiC-Updates, Sicherheit des eigenen Codes, Haftung, ELSTER-Herstellerpflichten. Bis dahin: Kennzahlen zum Kopieren in „Mein ELSTER“ (FA-Stand 0.17.0). **Vertagt am 2026-10-16 durch die Auftraggeberin:** erst nach dem Launch und wenn genügend deutsche Nutzerinnen auf der Plattform sind; gemeinsam mit O-32 und der KI-Server-Frage betrachten | nach dem Launch |
 | O-39 | **OAuth für den Mailweg** (L-29.11): Gmail und Microsoft 365/Outlook.com ohne App-Passwort. **To-dos Auftraggeberin:** (1) Google Cloud-Projekt anlegen, OAuth-Zustimmungsbildschirm mit Datenschutzerklärung auf eigener Domain, Bereich `gmail.send` (eingeschränkt) beantragen, OAuth-Verifizierung inkl. Sicherheitsprüfung (CASA) durchlaufen; (2) Azure-App-Registrierung (Microsoft Entra ID, „Konten in beliebigen Organisationen und persönliche Microsoft-Konten“), Berechtigung Graph `Mail.Send` (delegiert), Publisher Verification. Kosten und Pflichten: P-R48. Bis dahin App-Passwort (Gmail, iCloud) bzw. Kennwort | vor Store-Release offen |
 | O-40 | **Innergemeinschaftliches Verbringen** (L-30.9): **geschlossen 2026-10-18** – Entscheidung der Auftraggeberin (14a): Verbringen ins Auslandslager wird nicht in der App gebucht, nur die Verkäufe aus dem Lager; die App warnt in „Für das Finanzamt“, dass DE Kz 89/61 (bzw. AT Kz 070/072/065) die Kanzlei ergänzt (Spezifikation FA-18.4, Grenze 11, P-S68) | erledigt |
+| O-43 | **Tarif „Abgaben & Rücklagen“** (L-31): Vorschlag **Pro** (Rechenhilfe mit Mehrwert, passt zu Saldenliste/Jahresabschluss); derzeit in jedem Abo sichtbar, bis der Auftraggeber entscheidet | offen – Auftraggeber |
 | ~~O-42~~ | **Entschieden am 2026-10-19 (Auftraggeber), ersetzt O-35:** (A) Die Kundin wählt und startet ein Abo (Basis oder Pro, monatlich/jährlich) im Store; **alle vier Produkte** haben ein Einführungsangebot 14 Tage kostenlos, Kündigung in den 14 Tagen kostet nichts. Bei Basis gibt die App in den ersten 14 Tagen des ersten Abos alle Pro-Funktionen frei („Pro inklusive in der Testzeit“), danach Basis, Daten bleiben; Hinweis 3 Tage vorher „Noch X Tage Pro inklusive – danach Basis. Jetzt auf Pro wechseln?“. Pro bleibt Pro. Text: „14 Tage kostenlos testen – mit allen Pro-Funktionen. Danach gilt dein gewähltes Abo (Preis aus Store). Jederzeit vorher im Store kündbar.“ (B) **Demo ohne Abo** mit eigener Muster-Datenbank, nichts speichern, Wasserzeichen „MUSTER – DEMO“, Band „DEMO – Abo wählen, um mit deinen eigenen Daten zu starten“ (L-10.6). (C) „Store-Test nur auf Pro“ entfällt, ein App-eigener Test bleibt verworfen. Umgesetzt in 0.27.0: Spezifikation FA-13.4, FA-13.5, FA-13.14, FA-13.15; Store-Einrichtung `STORE_ANMELDUNG.md` Formular 4 | erledigt |
 | O-41 | **Nächstes Land** (L-30.8): Empfehlung der [Länderanalyse](LAENDERANALYSE.md) vom 2026-10-18 – zuerst **Frankreich als weiteres Steuerland** (Registrierung für ein FBA-Lager, nur `TaxProfile` mit Sätzen, CA3 und Terminen), danach **Niederlande als erstes neues Heimatland** (keine E-Rechnungs- oder Kassenpflicht); Italien trotz größtem Markt erst später wegen SDI-Pflicht (braucht Server bzw. Vermittler). Vor Umsetzung die dort markierten Punkte („vor Umsetzung prüfen“) klären und in Spezifikation 14 aufnehmen | Entscheidung Auftraggeberin |
 | O-38 | **Volle Mehrgeräte-Synchronisierung** (Weg 2 Cloud-Ordner mit Änderungsjournal nach L-19.15 ff. bzw. Weg 3 Anbieter-Server): nach dem Launch bei genügend Nutzerinnen, gemeinsam mit O-32/O-37 zu entscheiden. Bis dahin Mithelfer-Geräte als Einbahn (5.29) | nach dem Launch |
@@ -1458,6 +1506,9 @@ Historie stehen. Die Einzelheiten stehen an der genannten Stelle.
 | 2026-10-19 | Mithelfer: „?“-Erklärung neben „Gerät koppeln“/„Gerät hinzufügen“; „Als Mithelfer-Gerät koppeln“ in den Einstellungen eines Hauptgeräts (nur ohne Belege, mit Bestätigung) | L-29, FA-17.13 |
 | 2026-10-19 | Demo zeigt in jeder Liste Musterdaten; Musterfirma ist Kleinunternehmerin AT (Ampel ≈ 27 %) mit DE-Registrierung; Musterverträge Mietvertrag Lager, Leasing, Dienstvertrag Teilzeitkraft | L-10.6, Spezifikation FA-13.14 |
 | 2026-10-19 | Vertragsarchiv sichtbar: „Belege | Verträge“ und Einstellungen → Verträge; Dienstvertrag mit Datenschutzhinweis, nie KI-Übertragung | L-23, L-23.8, FA-16.9 |
+| 2026-10-19 | Umfang bleibt Einzelunternehmen inkl. Abgaben ans Finanzamt und Sozialversicherung; „Abgaben & Rücklagen“ gebaut (0.29.0), Tarif-Vorschlag Pro offen | 5.31, O-43 |
+| 2026-10-19 | GmbH und Lohnverrechnung (ÖGK für Dienstnehmer, DB, DZ, Kommunalsteuer, Lohnsteuer, ELDA) später als Stufe „Premium Plus“ | 5.32 |
+| 2026-10-19 | GmbH-Nutzerinnen: Belege buchen, Saldenliste und Belegkopien an die Kanzlei; Standardschnittstellen DATEV, BMD, RZL, CSV und Vorgabe „Für Kapitalgesellschaft / doppelte Buchführung“ | 5.33 |
 
 ---
 
@@ -1467,6 +1518,7 @@ Historie stehen. Die Einzelheiten stehen an der genannten Stelle.
 
 | Version | Datum | Änderung |
 |---|---|---|
+| 1.82 | 2026-10-19 | Entscheidungen des Auftraggebers vom 2026-10-19 (14a): 5.31 Abgaben & Rücklagen (Einzelunternehmen, umgesetzt 0.29.0), 5.32 Ausbaustufe „Premium Plus“ (GmbH, Lohnverrechnung; nur Umriss), 5.33 Schnittstellen zu Kanzleiprogrammen (DATEV, BMD, RZL, CSV, Paket doppelte Buchführung); offener Punkt O-43 (Tarif). Keine neue Datenübertragung (5.19 unverändert). |
 | 1.81 | 2026-10-19 | Rückmeldung des Auftraggebers vom 2026-10-19 (14a): geführte Ersteinrichtung, knappere Bestätigungen, EU-KU-Nummer (EX), Belegfeld „Produkt oder Leistung“, Mithelfer-Hilfe und Koppeln aus den Einstellungen (Spezifikation 1.86). |
 | 1.80 | 2026-10-19 | Entscheidungen des Auftraggebers vom 2026-10-19 (14a, O-42 neu und erledigt, ersetzt O-35): Test auf allen vier Produkten mit Pro inklusive (L-10.3, L-22.3 neu gefasst), Demo ohne Abo (L-10.6 neu), L-22.1 um Demo ergänzt; Umsetzungsstand 0.27.0 (10a). Keine neue Datenübertragung (5.19 unverändert: Demo bleibt auf dem Gerät). |
 | 1.79 | 2026-10-19 | O-33 umgesetzt: Bundle-ID/applicationId `at.jenibarb.jenibucht` ab App-Version 0.26.0. Keine neue Datenübertragung (5.19 unverändert). |

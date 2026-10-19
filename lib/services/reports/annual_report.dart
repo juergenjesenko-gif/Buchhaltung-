@@ -1,4 +1,4 @@
-/// Berichte für die Steuerberatung (FA-15.8 bis FA-15.11): Anlagenverzeichnis,
+/// Berichte für die Steuerberatung (FA-15.8 bis FA-15.12): Anlagenverzeichnis,
 /// Saldenliste und vorläufiger Jahresabschluss als PDF.
 ///
 /// [AnnualReportData] wird aus Repositories geladen und hier nur gerechnet
@@ -128,6 +128,13 @@ class AnnualReportData {
           'davon Bewirtung nicht abziehbar '
               '(${profile.taxProfile.entertainment.legalRef})',
           totals.entertainmentNonDeductible,
+        ),
+      // Abgaben ohne Gewinnminderung (FA-19.4): privat bzw. nicht abziehbar.
+      if (!totals.nonDeductibleLevies.isZero)
+        BalanceLine(
+          '',
+          'davon Steuern/Abgaben privat, nicht Betriebsausgabe',
+          totals.nonDeductibleLevies,
         ),
       BalanceLine(
         '',
@@ -328,6 +335,11 @@ class AnnualReportPdf {
           'Hinzurechnung Bewirtung nicht abziehbar '
               '(${data.profile.taxProfile.entertainment.legalRef})',
           Fmt.money(t.entertainmentNonDeductible),
+        ],
+      if (!t.nonDeductibleLevies.isZero)
+        [
+          'Hinzurechnung Steuern/Abgaben privat (FA-19.4)',
+          Fmt.money(t.nonDeductibleLevies),
         ],
       ['Ergebnis (Gewinn/Verlust)', Fmt.signedMoney(t.profit)],
     ];

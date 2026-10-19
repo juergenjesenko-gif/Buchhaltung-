@@ -19,6 +19,8 @@ import 'consent_repository.dart';
 import 'offer_repository.dart';
 import 'vat_check_repository.dart';
 import 'tax_registration_repository.dart';
+import 'levy_settings_repository.dart';
+export 'levy_settings_repository.dart';
 
 export 'tax_registration_repository.dart';
 
@@ -655,9 +657,30 @@ class ReceiptRepository {
     int reverseChargePermille = 0,
     DepreciationRules? depreciation,
     EntertainmentRules? entertainment,
+    Set<String> nonDeductibleKinds = const {},
     RegistrationScope scope = RegistrationScope.all,
   }) async {
     final only = scope.where('r');
+    // Abgaben, die den Gewinn nicht mindern (FA-19.4): Einkommensteuer,
+    // Gewerbesteuer, in DE die Kranken-/Pflegeversicherung. Ohne Steuer
+    // gebucht; Basis wie beim Aufwand (netto bzw. ohne Vorsteuerabzug brutto).
+    var nonDeductibleLevies = const Money.zero();
+    if (nonDeductibleKinds.isNotEmpty) {
+      final marks = List.filled(nonDeductibleKinds.length, '?').join(',');
+      final rows = await _db.rawQuery(
+        '''
+        SELECT SUM(r.net_cents) AS net, SUM(r.gross_cents) AS gross
+        FROM receipts r JOIN categories c ON c.id = r.category_id
+        WHERE c.kind IN ($marks) AND r.direction = 'expense'
+          AND r.date >= ? AND r.date <= ? AND r.cancelled_at IS NULL
+          AND $only
+        ''',
+        [...nonDeductibleKinds, _day(from), _day(to)],
+      );
+      nonDeductibleLevies = Money(
+        (rows.first[inputVatDeductible ? 'net' : 'gross'] as int?) ?? 0,
+      );
+    }
     // Bewirtung (FA-2.60): nicht abziehbarer Teil je Beleg, abziehbarer Teil
     // auf Cent gerundet, Rest nicht abziehbar. Basis ist der Aufwand des
     // Belegs: netto, ohne Vorsteuerabzug brutto. Die Vorsteuer bleibt in
@@ -817,7 +840,30 @@ class ReceiptRepository {
       reverseChargeInputVat: inputVatDeductible ? rcVat : const Money.zero(),
       entertainmentExpense: entertainmentExpense,
       entertainmentNonDeductible: entertainmentNonDeductible,
+      nonDeductibleLevies: nonDeductibleLevies,
     );
+  }
+
+  /// Gebuchte Abgaben je Kategorie-Kennung (`LevyKind`) im Zeitraum, brutto
+  /// (FA-19.3: „bisher bezahlt“).
+  Future<Map<String, Money>> levyPayments({
+    required DateTime from,
+    required DateTime to,
+  }) async {
+    final rows = await _db.rawQuery(
+      '''
+      SELECT c.kind AS kind, SUM(r.gross_cents) AS gross
+      FROM receipts r JOIN categories c ON c.id = r.category_id
+      WHERE c.kind IS NOT NULL AND r.direction = 'expense'
+        AND r.date >= ? AND r.date <= ? AND r.cancelled_at IS NULL
+      GROUP BY c.kind
+      ''',
+      [_day(from), _day(to)],
+    );
+    return {
+      for (final r in rows)
+        r['kind'] as String: Money((r['gross'] as int?) ?? 0),
+    };
   }
 
   /// Umsatz eines Kalenderjahres für die Kleinunternehmergrenze.
@@ -924,7 +970,13 @@ class PeriodTotals {
     this.reverseChargeInputVat = const Money.zero(),
     this.entertainmentExpense = const Money.zero(),
     this.entertainmentNonDeductible = const Money.zero(),
+    this.nonDeductibleLevies = const Money.zero(),
   });
+
+  /// Gebuchte Abgaben, die keine Betriebsausgabe sind (in [expenseNet]
+  /// enthalten, FA-19.4): Einkommensteuer, Gewerbesteuer (DE), Kranken-/
+  /// Pflegeversicherung (DE). Werden dem Ergebnis hinzugerechnet.
+  final Money nonDeductibleLevies;
 
   /// Bewirtungsaufwand im Zeitraum (in [expenseNet] enthalten, FA-2.60).
   final Money entertainmentExpense;
@@ -994,7 +1046,8 @@ class PeriodTotals {
       incomeNet -
       operatingExpense -
       expenseFxDifference +
-      entertainmentNonDeductible;
+      entertainmentNonDeductible +
+      nonDeductibleLevies;
 
   /// Zahllast bzw. Guthaben gegenüber dem Finanzamt.
   Money get vatPayable =>
@@ -1030,6 +1083,7 @@ class PeriodTotals {
       entertainmentExpense: entertainmentExpense + o.entertainmentExpense,
       entertainmentNonDeductible:
           entertainmentNonDeductible + o.entertainmentNonDeductible,
+      nonDeductibleLevies: nonDeductibleLevies + o.nonDeductibleLevies,
     );
   }
 }
@@ -1677,7 +1731,10 @@ class Repositories {
       contracts = ContractRepository(db),
       helpers = HelperRepository(db),
       registrations = TaxRegistrationRepository(db),
+      levySettings = LevySettingsRepository(db),
       audit = AuditLog(db);
+
+  final LevySettingsRepository levySettings;
 
   final CompanyRepository company;
   final CategoryRepository categories;

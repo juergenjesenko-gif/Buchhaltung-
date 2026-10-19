@@ -192,6 +192,11 @@ class Exporter {
     // Werkzeuge und Kleingeräte → EKR 5300 Hilfsstoffaufwand (Material und
     // Werkzeug, FA-2.31); Zuordnung prüft die Kanzlei (P-S66).
     '4985' => '5300',
+    // Abgaben (FA-19.4, P-S80): SVS-Beiträge Unternehmer sind in AT
+    // Betriebsausgabe → Sammelkonto, Kanzlei bucht auf ihr SV-Konto um;
+    // Einkommensteuer → EKR 9600 Privatentnahmen.
+    '1800' => '7800',
+    '1810' => '9600',
     _ => '7800', // Sonstiger Aufwand
   };
 

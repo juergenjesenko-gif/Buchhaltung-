@@ -15,6 +15,7 @@ import '../../widgets/adaptive.dart';
 import '../../widgets/common.dart';
 import '../../widgets/primary_action_bar.dart';
 import '../help/help_screen.dart';
+import '../levies/levies_screen.dart';
 import '../licensing/feature_gate.dart';
 
 /// „Für das Finanzamt“ (FA-14.1 bis FA-14.8): Kennzahlen der Voranmeldung
@@ -90,6 +91,7 @@ class _TaxOfficeScreenState extends State<TaxOfficeScreen> {
           : reg.taxProfile.standardVatPermille,
       depreciation: reg == null ? state.depreciationRules : null,
       entertainment: state.entertainmentRules,
+      nonDeductibleKinds: state.nonDeductibleKinds,
       scope: reg != null
           ? RegistrationScope.of(reg.id!)
           : registrations.isEmpty
@@ -105,6 +107,7 @@ class _TaxOfficeScreenState extends State<TaxOfficeScreen> {
       reverseChargePermille: state.reverseChargePermille,
       depreciation: state.depreciationRules,
       entertainment: state.entertainmentRules,
+      nonDeductibleKinds: state.nonDeductibleKinds,
       scope: registrations.isEmpty
           ? RegistrationScope.all
           : RegistrationScope.home,
@@ -116,6 +119,7 @@ class _TaxOfficeScreenState extends State<TaxOfficeScreen> {
         inputVatDeductible: !r.isSmallBusiness,
         reverseChargePermille: r.taxProfile.standardVatPermille,
         entertainment: state.entertainmentRules,
+        nonDeductibleKinds: state.nonDeductibleKinds,
         scope: RegistrationScope.of(r.id!),
       );
     }
@@ -215,6 +219,21 @@ class _TaxOfficeScreenState extends State<TaxOfficeScreen> {
         child: ListView(
           padding: const EdgeInsets.fromLTRB(16, 12, 16, 32),
           children: [
+            // Abgaben & Rücklagen (FA-19.2): zweiter Einstieg neben der Übersicht.
+            Card(
+              child: ListTile(
+                key: const Key('open-levies'),
+                minVerticalPadding: 12,
+                leading: const Icon(Icons.savings_outlined),
+                title: const Text('Abgaben & Rücklagen'),
+                subtitle: const Text('Einkommensteuer, Sozialversicherung'),
+                trailing: const Icon(Icons.chevron_right),
+                onTap: () => Navigator.of(context).push(
+                  MaterialPageRoute<void>(builder: (_) => const LeviesScreen()),
+                ),
+              ),
+            ),
+            const SizedBox(height: 16),
             SectionCard(
               title: 'Zeitraum',
               child: Column(

@@ -10,6 +10,7 @@ import 'package:buchhaltung/services/backup/auto_backup_service.dart';
 import 'package:buchhaltung/services/backup/backup_retention.dart';
 import 'package:buchhaltung/domain/country.dart';
 import 'package:buchhaltung/domain/deadline_rule.dart';
+import 'package:buchhaltung/domain/levy_rules.dart';
 import 'package:buchhaltung/services/deadline_calculator.dart';
 import 'package:buchhaltung/domain/money.dart';
 import 'package:buchhaltung/domain/offer.dart';
@@ -571,6 +572,59 @@ void main() {
           en.legalRef,
           en.inputVatLegalRef,
         ].join(';'),
+      );
+      // Abgaben & Rücklagen (FA-19.x).
+      final lv = profile.levies;
+      for (final e in lv.incomeTaxByYear.entries) {
+        expect(value('spec.$prefix.income_tax_${e.key}'), switch (e.value) {
+          BracketTariff(:final brackets) =>
+            'stufen:${brackets.map((b) => '${b.$1?.cents ?? 'none'}=${b.$2}').join(',')}',
+          GermanFormulaTariff t =>
+            'formel:${[t.basicAllowance, t.zone2Top, t.zone2Factor, t.zone3Top, t.zone3Factor, t.zone3Constant, t.zone4Top, t.zone4Constant, t.zone5Constant].join(',')}',
+        });
+      }
+      expect(
+        value('spec.$prefix.social_insurance_business_expense'),
+        lv.socialInsuranceIsBusinessExpense ? 'ja' : 'nein',
+      );
+      final pa = lv.profitAllowance;
+      expect(
+        value('spec.$prefix.profit_allowance'),
+        pa == null ? 'none' : '${pa.rateBp};${pa.maxBase.cents}',
+      );
+      final si = lv.socialInsurance;
+      expect(
+        value('spec.$prefix.social_insurance'),
+        si == null
+            ? 'none'
+            : [
+                si.pensionBp,
+                si.healthBp,
+                si.provisionBp,
+                si.accidentMonthly.cents,
+                si.minBaseYear.cents,
+                si.maxBaseYear.cents,
+                si.exemptionTurnoverLimit.cents,
+                si.exemptionIncomeLimit.cents,
+                si.provisionalYears,
+              ].join(';'),
+      );
+      final sur = lv.surcharges;
+      expect(
+        value('spec.$prefix.surcharges'),
+        sur == null
+            ? 'none'
+            : '${sur.soliBp};${sur.soliExemptionTax.cents};${sur.soliPhaseInBp};'
+                  '${sur.churchBpDefault};'
+                  '${sur.churchBpByState.entries.map((e) => '${e.key}=${e.value}').join(',')}',
+      );
+      final tt = lv.tradeTax;
+      expect(
+        value('spec.$prefix.trade_tax'),
+        tt == null
+            ? 'none'
+            : '${tt.allowance.cents};${tt.baseRateBp};'
+                  '${tt.defaultMultiplierPercent};${tt.creditFactorPermille}',
       );
       final ar = profile.annualReturnForm;
       expect(

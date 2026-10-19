@@ -2,6 +2,7 @@ import 'deadline_rule.dart';
 import 'dunning.dart';
 import 'fixed_asset.dart';
 import 'holidays.dart';
+import 'levy_rules.dart';
 import 'money.dart';
 
 /// Unterstützte Länder. Die App bildet Österreich und Deutschland ab; die
@@ -120,7 +121,11 @@ class TaxProfile {
     required this.annualReturnForm,
     required this.depreciation,
     required this.entertainment,
+    required this.levies,
   });
+
+  /// Abgaben & Rücklagen (FA-19.x): Tarife, Sozialversicherung, Zuschläge.
+  final LevyRules levies;
 
   final Country country;
 
@@ -524,6 +529,66 @@ class TaxProfile {
     // aus, deren Entgelte überwiegend (mehr als 50 %) nicht abzugsfähig sind;
     // zur Hälfte abzugsfähige Bewirtung berechtigt zum vollen Vorsteuerabzug
     // (UStR 2000 Rz 1934). Real zu prüfen: P-S46.
+    levies: const LevyRules(
+      // Stufentarif § 33 Abs 1 EStG 1988, Grenzen 2025 und 2026 nach
+      // Progressionsabgeltung § 33 Abs 1a EStG (2026: + 1,7333 %,
+      // Inflationsanpassungsverordnung 2026; usp.gv.at „Tarifstufen“).
+      incomeTaxByYear: {
+        2025: BracketTariff([
+          (Money(1330800), 0),
+          (Money(2161700), 2000),
+          (Money(3583600), 3000),
+          (Money(6916600), 4000),
+          (Money(10307200), 4800),
+          (Money(100000000), 5000),
+          (null, 5500),
+        ]),
+        2026: BracketTariff([
+          (Money(1353900), 0),
+          (Money(2199200), 2000),
+          (Money(3645800), 3000),
+          (Money(7036500), 4000),
+          (Money(10485900), 4800),
+          (Money(100000000), 5000),
+          (null, 5500),
+        ]),
+      },
+      incomeTaxLegalRef: '§ 33 Abs 1 EStG 1988',
+      socialInsuranceIsBusinessExpense: true,
+      // Grundfreibetrag 15 % bis 33.000 € Gewinn (§ 10 Abs 1 Z 1 EStG 1988).
+      profitAllowance: ProfitAllowance(
+        rateBp: 1500,
+        maxBase: Money(3300000),
+        legalRef: '§ 10 Abs 1 Z 1 EStG 1988',
+      ),
+      socialInsurance: SocialInsuranceRules(
+        // PV 18,5 % (§ 27 Abs 1 GSVG), KV 6,8 % (§ 27 Abs 1 Z 2 GSVG),
+        // Selbständigenvorsorge 1,53 % (§ 52 Abs 1 BMSVG).
+        pensionBp: 1850,
+        healthBp: 680,
+        provisionBp: 153,
+        // UV fix 2026: 12,95 €/Monat (§ 74 Abs 1 Z 2 ASVG; WKO-Infoblatt 2026).
+        accidentMonthly: Money(1295),
+        // Mindestbeitragsgrundlage 2026: 551,10 €/Monat (§ 25 Abs 4 GSVG).
+        minBaseYear: Money(661320),
+        // Höchstbeitragsgrundlage 2026: 8.085 €/Monat (§ 25 Abs 5 GSVG,
+        // § 48 GSVG).
+        maxBaseYear: Money(9702000),
+        // Kleinunternehmer-Ausnahme § 4 Abs 1 Z 7 GSVG: Umsatz bis 55.000 €,
+        // Einkünfte bis 12 × Geringfügigkeitsgrenze 2026 (551,10 €).
+        exemptionTurnoverLimit: Money(5500000),
+        exemptionIncomeLimit: Money(661320),
+        // Vorläufige Beitragsgrundlage in den ersten drei Jahren
+        // (§ 25a Abs 1 GSVG).
+        provisionalYears: 3,
+        dueLabel: 'SVS-Beitrag',
+        legalRef: '§§ 25, 25a, 27 GSVG',
+      ),
+      socialInsuranceLabel: 'SVS-Beiträge',
+      payrollHint:
+          'Kommunalsteuer, Dienstgeberbeitrag (DB) und Zuschlag (DZ) '
+          'fallen nur mit Dienstnehmern an.',
+    ),
     entertainment: const EntertainmentRules(
       deductiblePermille: 500,
       inputVatFull: true,
@@ -844,6 +909,60 @@ class TaxProfile {
     // Anlass zu 70 % abziehbar; Nachweis mit Ort, Tag, Teilnehmern, Anlass
     // und Höhe (Satz 2). Vorsteuer voll: § 15 Abs 1a Satz 2 UStG nimmt die
     // Bewirtung von der Kürzung aus. P-S46.
+    levies: const LevyRules(
+      // § 32a Abs 1 EStG, Grundtabelle. 2025 und 2026 nach dem
+      // Steuerfortentwicklungsgesetz (BGBl. 2024 I Nr. 449).
+      incomeTaxByYear: {
+        2025: GermanFormulaTariff(
+          basicAllowance: 12096,
+          zone2Top: 17443,
+          zone2Factor: 93230,
+          zone3Top: 68480,
+          zone3Factor: 17664,
+          zone3Constant: 101513,
+          zone4Top: 277825,
+          zone4Constant: 1091192,
+          zone5Constant: 1924667,
+        ),
+        2026: GermanFormulaTariff(
+          basicAllowance: 12348,
+          zone2Top: 17799,
+          zone2Factor: 91451,
+          zone3Top: 69878,
+          zone3Factor: 17310,
+          zone3Constant: 103487,
+          zone4Top: 277825,
+          zone4Constant: 1113563,
+          zone5Constant: 1947038,
+        ),
+      },
+      incomeTaxLegalRef: '§ 32a Abs 1 EStG',
+      socialInsuranceIsBusinessExpense: false,
+      surcharges: GermanSurcharges(
+        // 5,5 % (§ 4 Satz 1 SolZG 1995); Freigrenze 2026 20.350 € (§ 3 Abs 3
+        // SolZG 1995); Milderungszone 11,9 % (§ 4 Satz 2 SolZG 1995).
+        soliBp: 550,
+        soliExemptionTax: Money(2035000),
+        soliPhaseInBp: 1190,
+        // Kirchensteuer 9 %, in Bayern und Baden-Württemberg 8 %
+        // (KiStG der Länder).
+        churchBpDefault: 900,
+        churchBpByState: {'BY': 800, 'BW': 800},
+      ),
+      tradeTax: TradeTaxRules(
+        // § 11 Abs 1 Satz 3 Nr 1 GewStG: 24.500 €; § 11 Abs 2 GewStG: 3,5 %.
+        allowance: Money(2450000),
+        baseRateBp: 350,
+        // Vorschlag; maßgeblich ist der Hebesatz der Gemeinde (§ 16 GewStG).
+        defaultMultiplierPercent: 400,
+        // § 35 Abs 1 Satz 1 Nr 2 EStG: 4,0-fach.
+        creditFactorPermille: 4000,
+      ),
+      socialInsuranceLabel: 'Kranken- und Pflegeversicherung',
+      payrollHint:
+          'Lohnsteuer und Sozialabgaben für Beschäftigte fallen nur mit '
+          'Arbeitnehmern an.',
+    ),
     entertainment: const EntertainmentRules(
       deductiblePermille: 700,
       inputVatFull: true,

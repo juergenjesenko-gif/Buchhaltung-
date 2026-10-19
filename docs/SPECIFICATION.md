@@ -1,6 +1,6 @@
 # Spezifikation – Buchhaltung
 
-**Dokumentversion:** 1.86 · **App-Version:** 0.28.0 · **Stand:** 2026-10-19
+**Dokumentversion:** 1.87 · **App-Version:** 0.29.0 · **Stand:** 2026-10-19
 **Status:** Testbuild 0.21.0 (Schema 23); Store-Start offen, siehe Abschnitt 11 und 14
 
 > Das **Zielbild** des Produkts steht im [`LASTENHEFT.md`](LASTENHEFT.md); dieses
@@ -307,8 +307,9 @@ Anwendungsdokumentenverzeichnis. Aktuelle Schemaversion: **27**
 | Tabelle | Zweck | Besonderheit |
 |---|---|---|
 | `company_profile` | Firmenstammdaten | Genau eine Zeile, erzwungen durch `CHECK (id = 1)`. Seit Schema 27 `oss_participant` (0/1, FA-18.6). Seit Schema 28 `eu_sme_id` (TEXT, EU-KU-Nummer mit Suffix EX, FA-18.10) |
+| `levy_settings` | Schlüssel/Wert für „Abgaben & Rücklagen“ (FA-19.6): `income_tax_prepayment_quarter` (Cent), `social_insurance_exempt`, `church_tax`, `freelancer` (0/1), `trade_tax_multiplier` (%), `health_insurance_monthly` (Cent) | Schema 29 |
 | `tax_registrations` | Weitere steuerliche Registrierungen (FA-18.2): `country_code`, `vat_id`, `tax_number`, `tax_office`, `scheme` (`standard`/`smallBusiness`/`euSmallBusiness`), `filing_interval` (`monthly`/`quarterly`/`annual`/`none`), `permanent_extension` (0/1), `valid_from`, `valid_to` | Schema 27. Löschen nur ohne Belege, sonst Ende-Datum |
-| `categories` | Buchhaltungskategorien | 18 Startkategorien, `is_system = 1` schützt vor Löschen. Seit Schema 25 „Material und Werkzeug“ (SKR03 4985, bestehende Datenbanken erhalten sie bei der Migration). Seit Schema 23 `kind` (`entertainment` = Bewirtung, FA-2.60; bestehende Datenbanken erhalten „Bewirtung“ bei der Migration) |
+| `categories` | Buchhaltungskategorien | 21 Startkategorien, `is_system = 1` schützt vor Löschen. Seit Schema 25 „Material und Werkzeug“ (SKR03 4985, bestehende Datenbanken erhalten sie bei der Migration). Seit Schema 29 Abgabenkategorien „Sozialversicherung“ (SKR03 1800, `socialInsurance`), „Einkommensteuer-Vorauszahlung“ (1810, `incomeTax`), „Gewerbesteuer“ (4320, `tradeTax`), FA-19.4. Seit Schema 23 `kind` (`entertainment` = Bewirtung, FA-2.60; bestehende Datenbanken erhalten „Bewirtung“ bei der Migration) |
 | `customers` | Rechnungsempfänger | Löschen blockiert, solange Rechnungen bestehen. Seit Schema 13 `is_business` (1 = Unternehmen; bei der Migration 1, wo eine UID eingetragen ist) |
 | `dunning_notices` | Zahlungserinnerungen und Mahnungen: `invoice_id`, `level`, `issued_on`, `new_due_date`, `principal_cents`, `fee_cents`, `fees_total_cents`, `interest_cents`, `interest_rate_bp`, `flat_fee_cents`, `total_cents`, `text`, `pdf_sha256`, `cancelled_at`, `cancel_reason`, `created_at` | Schema 13. Unveränderlich (Trigger); einzig erlaubt: einmaliges Storno mit Begründung |
 | `receipts` | Belege | Index auf `date` und `direction`. Werden nie gelöscht, nur storniert (`cancelled_at`). Seit Schema 11 `invoice_id` (Einnahme aus bezahlter Rechnung, eindeutig je Rechnung und Steuersatz); seit Schema 17 `reverse_charge` (0/1, Steuerschuld des Leistungsempfängers, FA-2.46); seit Schema 23 `entertainment_occasion`, `entertainment_participants` (TEXT, Anlass und Teilnehmer der Bewirtung, FA-2.60) |
@@ -411,7 +412,7 @@ Anwendungsdokumentenverzeichnis. Aktuelle Schemaversion: **27**
 
 ### 4.3 Startkategorien
 
-18 Kategorien, drei für Einnahmen und fünfzehn für Ausgaben (seit 0.21.0 mit „Bewirtung“, FA-2.60; seit 0.23.1 „Material und Werkzeug“, SKR03 4985 Werkzeuge und Kleingeräte / SKR04 6845, BMD-Export EKR 5300, Prüfung P-S66), mit SKR03-Konten.
+21 Kategorien, drei für Einnahmen und achtzehn für Ausgaben (seit 0.29.0 die Abgabenkategorien „Sozialversicherung“, „Einkommensteuer-Vorauszahlung“, „Gewerbesteuer“, FA-19.4; seit 0.21.0 mit „Bewirtung“, FA-2.60; seit 0.23.1 „Material und Werkzeug“, SKR03 4985 Werkzeuge und Kleingeräte / SKR04 6845, BMD-Export EKR 5300, Prüfung P-S66), mit SKR03-Konten.
 Vollständige Liste: `AppDatabase.seedCategories` in `lib/data/app_database.dart`.
 Eigene Kategorien sind ergänzbar und löschbar; die vorgegebenen nicht.
 
@@ -802,6 +803,7 @@ Kenndaten `spec.*.depreciation`.
 | FA-15.8 | **Anlagenverzeichnis (PDF, jedes Abo):** je Jahr alle vorhandenen Güter mit Bezeichnung, Art, Datum, Anschaffungskosten, Nutzungsdauer bzw. GWG/Sammelposten, Buchwert 1.1., AfA, Abgang, Buchwert 31.12., Kommentare und Abgänge (AT § 7 Abs 3 EStG, DE § 4 Abs 3 Satz 5 EStG). In jedem Anspruch, auch für Anlagen aus früherem Pro (FA-13.2) |
 | FA-15.9 | **Saldenliste (PDF, Pro `annualReports`):** Summen je Kategorie und Richtung mit Konto und Belegzahl (ohne Anschaffungsbelege), AfA, Anlagen Buchwert Anfang/Zugänge/Ende, bei Regelbesteuerung Umsatzsteuer, Vorsteuer, Zahllast |
 | FA-15.10 | **Vorläufiger Jahresabschluss (Pro):** PDF mit Einnahmen-Ausgaben-Rechnung (Gliederung E1a bzw. Anlage EÜR), Anlagenverzeichnis, Saldenliste, offenen Posten (nur Information, Zuflussprinzip) und Kommentar; jede Seite trägt „VORLÄUFIG – zur Prüfung und Fertigstellung durch die Steuerberatung“. Geteilt als ZIP mit Belegliste, DATEV- bzw. BMD-Export und Umsatzsteuer-Zusammenfassung |
+| FA-15.12 | **Paket „Für Kapitalgesellschaft / doppelte Buchführung“** (Pro `annualReports`, Entscheidung Auftraggeber 2026-10-19, Lastenheft 14a): ZIP `Buchhaltungspaket_<von>_<bis>.zip` mit Saldenliste (PDF), Belegliste (8.2), DATEV-Buchungsstapel (8.3) und BMD-Buchungssätzen (8.4) unabhängig vom Land sowie allen Belegbildern als `Belege/<Beleg-ID>_<Datum>_<Seite>.<Endung>`; die Beleg-ID steht in DATEV „Belegfeld 1“ und BMD „Belegnummer“. Für GmbH-Nutzerinnen, deren Kanzlei doppelt bucht. Import-Prüfung P-D50 bis P-D53, P-S84 |
 | FA-15.11 | **Berichte-Bildschirm** (Export → „Anlagen und Jahresabschluss“): Zeile Anlagen, Jahr (vorbelegt: letztes abgeschlossenes Wirtschaftsjahr), Kommentarfeld, drei Berichtszeilen ≥ 48 dp |
 
 ### 5.12 Vertragsarchiv
@@ -873,6 +875,27 @@ P-S68).
 | FA-18.9 | **Plattformimport** (FA-2.43 ff.): Abgangsland je Verkauf aus der Spalte `ship-from-country`/`sale-depart-country` u. ä., sonst bei Versand durch Amazon (FBA) das Marktplatzland. Besteht dafür eine am Verkaufstag gültige Registrierung, wird je Monat **eine eigene Sammelbuchung** mit diesem Steuerland gebucht (Normalsatz des Landes bzw. Steuer laut Bericht, steuerfrei bei Kleinunternehmer-/EU-KU-Registrierung), Beschreibung „Amazon März 2026 (DE): n Verkäufe“. Hinweise: „Lager dort angenommen“ (nur Marktplatzland, P-S73) und „Fernverkauf“ (Abgangsland ≠ Bestimmungsland). Gebühren bleiben Heimat (Reverse Charge am Sitz). Ohne Registrierung unverändert mit Pan-EU-Hinweis |
 | FA-18.10 | **EU-KU-Nummer (EX)** (Rückmeldung Auftraggeber 2026-10-19; Art 284 Abs 3 MwStSystRL idF RL (EU) 2020/285, DE § 19a UStG, AT § 6 Abs 1 Z 27 UStG 1994 idF AbgÄG 2024): Im Formular einer Registrierung mit Besteuerung „EU-Kleinunternehmer-Verfahren“ ersetzt das Feld **„EU-KU-Nummer (EX)“** die UID des Landes. Die Nummer vergibt der Heimatstaat, deshalb steht sie **einmal im Firmenprofil** (`company_profile.eu_sme_id`, Schema 28), getrennt von der eigenen UID; die Registrierung speichert keine UID. Formatprüfung offline (`EuSmeIdFormat`): AT `ATU` + 8 Ziffern mit UID-Prüfziffer + `EX`, DE `DE` + 9 Ziffern mit Prüfziffer + `EX` (`spec.eu_sme_id_suffix`), Präfix des Heimatlands, leer erlaubt (P-S76). **Rechnung:** Kleinunternehmer-Rechnung an einen Kunden in einem anderen Land als dem Heimatland zeigt im Kopf „EU-KU-Nr.: …“ neben Steuernummer und UID (`InvoiceTexts.showsEuSmeId`); die Nummer wird mit dem `seller_snapshot` eingefroren (GR-8). Pflicht und Ort der Angabe: P-S77 |
 
+### 5.15 Abgaben & Rücklagen
+
+Code: `lib/domain/levy_rules.dart` (`TaxProfile.levies`), `lib/services/levies/`,
+`lib/data/levy_settings_repository.dart`; Bildschirm
+`features/levies/levies_screen.dart`. Kenndaten `spec.*.income_tax_<Jahr>`,
+`spec.*.profit_allowance`, `spec.*.social_insurance`,
+`spec.*.social_insurance_business_expense`, `spec.*.surcharges`,
+`spec.*.trade_tax`. Nur Einzelunternehmen (Lastenheft 5.31); Lohnabgaben folgen
+mit „Premium Plus“ (Lastenheft 5.32). Alles ist als **„Schätzung – ersetzt keine
+Steuerberatung“** gekennzeichnet (P-R59). Tarif-Vorschlag Pro (Lastenheft O-43,
+Entscheidung offen); derzeit in jedem Abo sichtbar.
+
+| ID | Anforderung |
+|---|---|
+| FA-19.1 | **Karte „Rücklage für Steuern & SV“** auf der Übersicht direkt unter dem Ergebnis, sobald eine Abgabe > 0 geschätzt ist: empfohlene Rücklage pro Monat (offene Jahressumme / restliche Monate inkl. laufendem, auf volle Euro aufgerundet) und „offen“ je Abgabe; ganze Karte tippbar → Bildschirm „Abgaben & Rücklagen“ |
+| FA-19.2 | **Schätzung AT:** Gewinn bis heute (E/A, FA-19.4) plus gebuchte SVS-Beiträge, linear auf 12 Monate hochgerechnet = Beitragsgrundlage (Hinzurechnung § 25 Abs 2 Z 2 GSVG), begrenzt auf Mindest-/Höchstbeitragsgrundlage; PV 18,5 %, KV 6,8 %, Selbständigenvorsorge 1,53 %, UV fix 12,95 €/Monat. Erste drei Jahre ab Gründungsjahr: Hinweis „vorläufig vorgeschrieben … Nachbemessung später“ (§ 25a GSVG). KU-Ausnahme (§ 4 Abs 1 Z 7 GSVG): Hinweis, wenn Umsatz ≤ 55.000 € und Gewinn ≤ 6.613,20 €; Schalter „Ausnahme beantragt“ lässt nur UV. Einkommensteuer: Gewinn − SVS − Grundfreibetrag (15 % bis 33.000 €, § 10 EStG 1988) nach Stufentarif des Jahres (§ 33 EStG 1988, kaufmännisch auf Cent). Hinweis: Kommunalsteuer, DB, DZ nur mit Dienstnehmern |
+| FA-19.3 | **Schätzung DE:** Gewinn hochgerechnet; Gewerbesteuer außer bei Freiberuflerin (Schalter, Vorschlag aus Rechtsform): Gewinn auf 100 € abgerundet − 24.500 € × 3,5 % × Hebesatz (Eingabe, Vorschlag 400 %); zvE = Gewinn − Kranken-/Pflegeversicherung (Monatsbetrag laut Bescheid × 12, P-S83); ESt nach § 32a EStG (Grundtabelle, volle Euro) minus Anrechnung § 35 EStG (4,0 × Messbetrag, höchstens GewSt und ESt); Solidaritätszuschlag mit Freigrenze 20.350 € und Milderungszone 11,9 %; Kirchensteuer optional 8 % (BY, BW) bzw. 9 % nach Bundesland im Profil. Lohnsteuer/Sozialabgaben nur mit Arbeitnehmern (Hinweis) |
+| FA-19.4 | **Abgabenkategorien und E/A:** „Sozialversicherung“, „Einkommensteuer-Vorauszahlung“, „Gewerbesteuer“ (Kennung `categories.kind`). `ReceiptRepository.totals(nonDeductibleKinds:)` rechnet Buchungen der Kategorien aus `LevyRules.nonDeductibleKinds` dem Ergebnis wieder hinzu: Einkommensteuer immer (privat), Gewerbesteuer (§ 4 Abs 5b EStG), DE Kranken-/Pflegeversicherung (Sonderausgabe); AT SVS bleibt Betriebsausgabe. Saldenliste, vorläufiger Abschluss und Kennzahlen zeigen die Hinzurechnung. „Bisher bezahlt“ = Summe der Buchungen je Kennung im Kalenderjahr bis heute |
+| FA-19.5 | **Nächste Zahlungen:** ESt-Vorauszahlung (AT 15.2./15.5./15.8./15.11., DE 10.3./10.6./10.9./10.12.) und SVS-Beitrag (Ende Feb./Mai/Aug./Nov., nur mit SVS-Versicherung) aus `TaxProfile.deadlineRules`, höchstens vier, ESt mit Betrag laut Bescheid; dieselben Termine stehen in der Termin-Box (FA-10.3). Umsatzsteuer-Zahllast des laufenden Quartals (Regelbesteuerung) als eigene Zeile |
+| FA-19.6 | **Angaben:** ESt-Vorauszahlung je Quartal (Bescheid); AT Schalter KU-Ausnahme; DE Monatsbetrag KV/PV, Schalter Freiberuflich, Hebesatz, Schalter Kirchensteuer. Keine Pflichtfelder; „Angaben speichern“ unten volle Breite 56 dp. Einstieg auch aus „Für das Finanzamt“ (oberste Karte) |
+
 ## 6. Zustandsmodelle
 
 ### 6.1 Rechnung
@@ -937,13 +960,14 @@ Kleinunternehmer:
 | Kunde bearbeiten | `features/invoices/customer_edit_screen.dart` | Kundenstammdaten, Schalter „Unternehmen“ (FA-5.24) |
 | Mahnung (Bottom-Sheet) | `features/invoices/dunning_sheet.dart` | Stufe, bisherige Schreiben mit Storno, Frist, Mahnkosten mit Verbraucherhinweis, Zinsen, Pauschale, Vorschau, „erstellen und senden“ (FA-5.21 bis FA-5.23) |
 | Plattformimport | `features/import/platform_import_screen.dart` | Eine Karte je Monat, Hinweise, Amazon-Gebührenrechnung, unten „Übernehmen“ (FA-2.43 bis FA-2.49); geöffnet aus der Hauptnavigation, wenn eine CSV/TSV/TXT geteilt wird |
+| Abgaben & Rücklagen | `features/levies/levies_screen.dart` | Hinweis „Schätzung – ersetzt keine Steuerberatung“, Rücklage pro Monat, Jahresschätzung je Abgabe mit bezahlt/offen und Fundstelle (Tippen), nächste Zahlungen, Angaben mit „Angaben speichern“ unten (FA-19.1 bis FA-19.6); Karte `LevyReserveCard` auf der Übersicht |
 | Datensicherung | `features/backup/backup_screen.dart` | Sicherung erstellen und teilen, wiederherstellen mit Vorschau; automatische Sicherung mit iCloud (iOS, FA-7.16) und Liste zum Wiederherstellen |
 | Wiederherstellungscode | `features/backup/recovery_code_setup_screen.dart` | Druckblatt teilen/drucken, zwei Blöcke abtippen (FA-7.10) |
 | Wunsch oder Idee | `features/settings/feedback_screen.dart` | Art, Titel, Beschreibung mit Diktat, technische Angaben abschaltbar, „Per E-Mail senden“ unten (FA-11.6) |
 | Rechtliches | `features/settings/legal_screen.dart` | Impressum, Datenschutz, Nutzungsbedingungen, keine Steuerberatung, Support, Lizenzen (FA-11.4, FA-11.5) |
 | Export | `features/export/export_screen.dart` | Karte „Für das Finanzamt“, Zeitraum, Vorschau, Format |
 | Verträge | `features/contracts/contract_screens.dart` | Liste mit Art, Partner, nächstem Termin, Rate; „Vertrag ablegen“ mit Seiten, Kurzübersicht (Pro), Fristen, Zahlung, Abgleich, Buchungsvorschlag, Belege verknüpfen, Aufbewahrung, Löschen (FA-16.1 bis FA-16.8) |
-| Anlagen und Jahresabschluss | `features/reports/reports_screen.dart` | Zeile Anlagen, Jahr, Kommentar, Anlagenverzeichnis, Saldenliste (Pro), vorläufiger Jahresabschluss als Paket (Pro) (FA-15.11) |
+| Anlagen und Jahresabschluss | `features/reports/reports_screen.dart` | Zeile Anlagen, Jahr, Kommentar, Anlagenverzeichnis, Saldenliste (Pro), vorläufiger Jahresabschluss als Paket (Pro) (FA-15.12) |
 | Anlagen | `features/assets/asset_screens.dart` | Liste mit Buchwert heute, unten „Anlage ohne Beleg erfassen“; „Investition erfassen“/„Anlage“ mit AfA-Plan, unten „Ausscheiden“ und „Speichern“, Bottom-Sheet Ausscheiden (FA-15.1 bis FA-15.7) |
 | Steuerliche Registrierungen | `features/settings/tax_registration_screen.dart` | Abschnitt in den Stammdaten: Heimat, weitere Länder (Zeilen 56 dp), „Land hinzufügen“ 56 dp mit Länder-Bottom-Sheet (Zeilen 56 dp, „bald“), Formular mit Besteuerung, UID, Steuernummer, Finanzamt-Vorschlag, Zeitraum, Dauerfristverlängerung, Beginn/Ende, „Speichern“ unten 56 dp, „Land entfernen“ in der Gefahrenzone (FA-18.1, FA-18.2) |
 | Für das Finanzamt | `features/tax_office/tax_office_screen.dart` | Steuerland-Chips bei weiteren Registrierungen (FA-18.4), Zeitraum, Kennzahlen der UVA/UStVA zum Kopieren, Schritte und Portal-Link, „U30-Datei teilen“ (Pro, nur AT), Jahreszahlen E1a/Anlage EÜR (FA-14.1 bis FA-14.8) |
@@ -1059,7 +1083,12 @@ und Testupload: P-D35.
 Seite x von y und Erstelldatum). Dateinamen `Anlagenverzeichnis_<von>_<bis>.pdf`,
 `Saldenliste_…pdf`, `Vorlaeufiger_Jahresabschluss_…pdf`; Paket
 `Jahresabschluss_vorlaeufig_<von>_<bis>.zip` mit dem PDF und den CSV-Exporten
-aus 8.2 bis 8.5 (FA-15.10).
+aus 8.2 bis 8.5 (FA-15.10). Paket für doppelte Buchführung
+`Buchhaltungspaket_<von>_<bis>.zip`: Saldenliste, Belegliste, DATEV- und
+BMD-Export, Ordner `Belege/` mit `<Beleg-ID>_<Datum>_<Seite>.<Endung>`
+(FA-15.12). DATEV „Beleglink“ (Feld 20) bleibt leer; DATEV Belegbildtransfer
+ist ein Online-Dienst und offline nicht möglich (P-D50). RZL: kein eigenes
+Format, Import über Belegliste/BMD-CSV zu prüfen (P-D52).
 
 ### 8.9 Belegpaket der Mithelfer-Geräte (`.jenibeleg`)
 
@@ -1253,6 +1282,7 @@ Offen benannt, weil eine Spezifikation, die ihre Lücken verschweigt, wertlos is
 | Grenze | Auswirkung | Geplant |
 |---|---|---|
 | **Scanner nicht auf Gerät erprobt** | ML Kit Document Scanner und VisionKit nur kompiliert (CI); Bedienung, Rückfall ohne Play-Dienste und R8-Regeln am echten Gerät offen (P-D37, P-D38). Die Scanner-Oberfläche stammt vom System; Daumenreichweite dort nicht beeinflussbar (P-X15) | vor Release |
+| **Abgaben nur geschätzt** | Einzelveranlagung ohne andere Einkünfte, lineare Hochrechnung, keine Absetzbeträge, kein investitionsbedingter Gewinnfreibetrag, keine pauschalen Betriebsausgaben, keine GewSt-Hinzurechnungen, KiSt ohne Kappung, KV/PV DE nur als Eingabe; Tarife 2025 und 2026 (spätere Jahre nutzen 2026); keine GmbH- und Lohnabgaben (Premium Plus) | P-S78 bis P-S83 |
 | **EU-KU-Nummer nur offline geprüft** | Format und Prüfziffer (FA-18.10), keine Abfrage bei BZSt oder Finanzamt; die EU-weite Grenze 100.000 € prüft die App nicht (FA-18.7) | P-S76 |
 | **Vertragsarchiv ohne KI** | Kurzübersicht nur als Stichwort-Heuristik auf dem Gerät (FA-16.3), keine Zusammenfassung, keine Steuerhinweise (L-23.5, L-23.7 bis L-23.10, Stufe C); PDF nur über „Teilen“ (keine Dateiauswahl); keine Benachrichtigung, nur Termin-Box; Auskunftsexport je Vertragspartner fehlt | Stufe C |
 | **Anlagen vereinfacht** | AfA-Jahre sind Kalenderjahre, auch bei abweichendem Wirtschaftsjahr; keine Gebäude (AT § 8 EStG, DE § 7 Abs 4 EStG), keine degressive oder Sonder-AfA, keine Investitionsfreibeträge (AT § 11 EStG) und kein Investitionsabzugsbetrag (DE § 7g EStG); keine PKW-Luxustangente (AT 40.000 €); Sammelposten pro Gut statt einheitlich je Jahr; die Saldenliste ordnet Ausgaben nach Kategorie, nicht nach Formularzeile | später, P-S59 |
@@ -1289,7 +1319,7 @@ Offen benannt, weil eine Spezifikation, die ihre Lücken verschweigt, wertlos is
 > Das ist der Mechanismus, der dieses Dokument aktuell hält.
 
 ```properties
-spec.schema_version = 28
+spec.schema_version = 29
 spec.helper_mail_poll_minutes = 60
 spec.helper_mail_send_hours = 24
 spec.helper_mail_retention_days = 90
@@ -1308,9 +1338,9 @@ spec.backup_reminder_days = 30
 spec.auto_backup_min_interval_hours = 24
 spec.auto_backup_keep_daily = 7
 spec.auto_backup_keep_monthly = 12
-spec.seed_category_count = 18
+spec.seed_category_count = 21
 spec.seed_category_income_count = 3
-spec.seed_category_expense_count = 15
+spec.seed_category_expense_count = 18
 spec.warn_threshold_percent = 80
 spec.default_invoice_pattern = RE-{YYYY}-{NNNN}
 spec.default_payment_term_days = 14
@@ -1341,7 +1371,7 @@ spec.license_product_ids = basis_monat,basis_jahr,pro_monat,pro_jahr
 
 # Demo ohne Abo (FA-13.14, O-42)
 spec.demo_company = Muster Handel e.U.
-spec.demo_receipt_count = 25
+spec.demo_receipt_count = 28
 spec.demo_watermark = MUSTER – DEMO
 # Geführte Ersteinrichtung (FA-1.13), EU-KU-Nummer (FA-18.10)
 spec.setup_steps = 5
@@ -1384,6 +1414,14 @@ spec.at.depreciation = halfYear;100000;ak;-;§ 7 Abs 3 EStG;computer=3,software=
 spec.at.deadline_rules = UVA@15+2m | ZM@0+1m | ESt-Vorauszahlung@02-15,05-15,08-15,11-15 | ESt-/USt-Erklärung (FinanzOnline)@+1j06-30 | SVS-Beitrag@02-00,05-00,08-00,11-00~ | OSS-Erklärung@0+1mq= | EU-KU-Meldung@0+1mq=
 spec.at.registration_deadline_rules = UVA@15+2m | USt-Jahreserklärung (U1)@+1j06-30
 spec.at.foreign_tax_offices = DE=Finanzamt Österreich, Dienststelle Graz-Stadt
+# Abgaben & Rücklagen (FA-19.x) – § 33 EStG 1988, § 10 Abs 1 Z 1 EStG 1988, §§ 25, 27 GSVG
+spec.at.income_tax_2025 = stufen:1330800=0,2161700=2000,3583600=3000,6916600=4000,10307200=4800,100000000=5000,none=5500
+spec.at.income_tax_2026 = stufen:1353900=0,2199200=2000,3645800=3000,7036500=4000,10485900=4800,100000000=5000,none=5500
+spec.at.social_insurance_business_expense = ja
+spec.at.profit_allowance = 1500;3300000
+spec.at.social_insurance = 1850;680;153;1295;661320;9702000;5500000;661320;3
+spec.at.surcharges = none
+spec.at.trade_tax = none
 
 # Deutschland – § 19 UStG, § 33 UStDV, § 147 AO
 spec.de.vat_permille = 190,70,0
@@ -1421,6 +1459,14 @@ spec.de.depreciation = monthly;80000;netto;25001-100000;§ 4 Abs 3 Satz 5 EStG;c
 spec.de.deadline_rules = UStVA@10+1m+1x | ZM@25+1m | ESt-Vorauszahlung@03-10,06-10,09-10,12-10 | Steuererklärungen@+1j07-31 | OSS-Erklärung@0+1mq= | EU-KU-Meldung@0+1mq=
 spec.de.registration_deadline_rules = UStVA@10+1m+1x | USt-Jahreserklärung@+1j07-31
 spec.de.foreign_tax_offices = AT=Finanzamt München
+# Abgaben & Rücklagen (FA-19.x) – § 32a EStG, SolZG 1995, KiStG, §§ 11, 16 GewStG, § 35 EStG
+spec.de.income_tax_2025 = formel:12096,17443,93230,68480,17664,101513,277825,1091192,1924667
+spec.de.income_tax_2026 = formel:12348,17799,91451,69878,17310,103487,277825,1113563,1947038
+spec.de.social_insurance_business_expense = nein
+spec.de.profit_allowance = none
+spec.de.social_insurance = none
+spec.de.surcharges = 550;2035000;1190;900;BY=800,BW=800
+spec.de.trade_tax = 2450000;350;400;4000
 ```
 
 Umrechnung: Beträge in Cent. `5500000` Cent = 55.000,00 €.
@@ -1430,6 +1476,17 @@ Zeitraums (0 = Monatsletzter), `+1x` = zusätzlicher Monat bei
 Dauerfristverlängerung, `02-15,…` = feste Tage, `+1j07-31` = Folgejahr,
 `~` = ungefähr, ohne Verschiebung; `=` = genau, ohne Verschiebung auf den
 nächsten Werktag (EU-Fristen, P-S72).
+
+Abgaben (FA-19.x): `income_tax_<Jahr>` = `stufen:` Obergrenze in Cent=Satz in
+Basispunkten (`none` = unbegrenzt) bzw. `formel:` Grundfreibetrag, Grenze Zone 2,
+Faktor Zone 2 (Hundertstel), Grenze Zone 3, Faktor Zone 3, Konstante Zone 3
+(Cent), Grenze Zone 4, Abzug Zone 4 und 5 (Cent) nach § 32a Abs 1 EStG;
+`profit_allowance` = Satz (bp); Höchstgewinn (Cent); `social_insurance` = PV;
+KV; Selbständigenvorsorge (bp); UV je Monat; Mindest- und Höchstbeitragsgrundlage
+je Jahr; KU-Ausnahme Umsatz- und Einkünftegrenze (Cent); Jahre vorläufiger
+Beitragsgrundlage; `surcharges` = Soli (bp); Freigrenze (Cent); Milderung (bp);
+Kirchensteuer Standard (bp); je Land; `trade_tax` = Freibetrag (Cent);
+Messzahl (bp); Hebesatz-Vorschlag (%); Anrechnungsfaktor (Promille).
 
 Bewirtung (`entertainment`, FA-2.60): abziehbarer Anteil in Promille;
 Vorsteuer `voll`; Anlass/Teilnehmer abfragen `ja`/`nein`; Fundstelle
@@ -1441,6 +1498,7 @@ Ertragsteuer; Fundstelle Vorsteuer.
 
 | Version | Datum | App-Version | Änderung |
 |---|---|---|---|
+| 1.87 | 2026-10-19 | 0.29.0 | App-Version 0.29.0 (Testbuild). Abgaben & Rücklagen (Auftrag Auftraggeber 2026-10-19, Lastenheft 5.31, 14a): neuer Abschnitt 5.15 FA-19.1 bis FA-19.6, `TaxProfile.levies` (AT Stufentarif 2025/2026, Grundfreibetrag, GSVG; DE § 32a 2025/2026, Soli, KiSt, GewSt mit § 35), Schätzung `LevyEstimator`, Karte auf der Übersicht, Bildschirm „Abgaben & Rücklagen“ (7), Einstieg in „Für das Finanzamt“; Schema 29 `levy_settings` und Abgabenkategorien (4.1, 4.2), Hinzurechnung nicht abziehbarer Abgaben in der E/A (FA-19.4); Paket „Für Kapitalgesellschaft / doppelte Buchführung“ mit Belegkopien (FA-15.12, 8.8); Grenze „Abgaben nur geschätzt“ (11); Kenndaten `spec.schema_version` 29, `spec.seed_category_count` 21, `spec.seed_category_expense_count` 18, `spec.demo_receipt_count` 28, neu `spec.*.income_tax_<Jahr>`, `profit_allowance`, `social_insurance`, `social_insurance_business_expense`, `surcharges`, `trade_tax` (12). Prüfpunkte P-S78 bis P-S84, P-R59, P-D50 bis P-D53, P-X25, interne Prüfung 2026-10-19 Abgaben (14). Prüfmappen neu erzeugt. Demo: SVS-Quartalsbeiträge, ESt-Vorauszahlung, Rücklagenkarte. |
 | 1.86 | 2026-10-19 | 0.28.0 | App-Version 0.28.0 (Testbuild). Rückmeldung Auftraggeber 2026-10-19 (Lastenheft 14a): geführte Ersteinrichtung mit Willkommensseite und fünf Schritten, Fortsetzen nach dem Schließen (FA-1.13, FA-1.1); Bestätigungen mit einem Häkchen und „Akzeptieren und weiter“ (FA-1.10); Startauswahl ersetzt durch Willkommensseite und Schritt 5 (FA-13.15); EU-KU-Nummer (EX) im Profil, Formular und auf der Rechnung (FA-18.10, FA-18.1), Schema 28 `company_profile.eu_sme_id` (4.1, 4.2); Belegfeld „Produkt oder Leistung“, Exportspalte bleibt (FA-2.5, 8.2); Hilfe zum Mithelfer-Gerät und „Als Mithelfer-Gerät koppeln“ in den Einstellungen (FA-17.13); Bildschirme (7); Grenze „EU-KU-Nummer nur offline geprüft“ (11); Kenndaten `spec.schema_version` 28, `spec.setup_steps`, `spec.eu_sme_id_suffix` (12); Prüfpunkte P-R58, P-S76, P-S77, P-X24, P-D49, interne Prüfung (14). Nachtrag: Demo als Kleinunternehmerin AT mit Ampel ≈ 27 %, Leasing- und Dienstvertrag, Listen laden in der Demo neu (FA-13.14); Vertragsarchiv über „Belege | Verträge“ und Einstellungen, Dienstvertrag mit Datenschutzhinweis (FA-16.9). |
 | 1.85 | 2026-10-19 | 0.27.0 | App-Version 0.27.0 (Testbuild). Entscheidungen Auftraggeber 2026-10-19 (O-42, ersetzt O-35; Lastenheft 14a): Test 14 Tage auf allen vier Produkten, Basis in der Testzeit mit allen Pro-Funktionen (FA-13.4 neu gefasst, `LicensePolicy.proIncludedUntil`, `StoreBilling.trialInfo`, iOS `offerType`, Android Zeitfenster), Abo-Seite und Hinweise neu formuliert (FA-13.5, FA-13.8), `Entitlement.demo` und `Feature.dataExport` (FA-13.1, FA-13.2); Demo ohne Abo mit eigener schreibgeschützter Muster-Datenbank, Wasserzeichen „MUSTER – DEMO“, Teilen/Export/Sicherung gesperrt (FA-13.14), Startauswahl (FA-13.15), Bildschirme (7), Grenzen (11), Kenndaten `spec.demo_company`, `spec.demo_receipt_count`, `spec.demo_watermark` (12), Prüfpunkte P-R55 bis P-R57, P-S75, P-D46 bis P-D48, P-X23, interne Prüfung 2026-10-19 (14). Onboarding: Rechtsform-Auswahl bricht auf 360 dp um statt überzulaufen. Kein Schemawechsel. |
 | 1.84 | 2026-10-19 | 0.26.0 | App-Version 0.26.0 (Testbuild): Bundle-ID/applicationId gewechselt auf `at.jenibarb.jenibucht` (Lastenheft O-33, Freigabe 2026-10-19): Android `applicationId`/`namespace`, Kotlin-Paket, iOS `PRODUCT_BUNDLE_IDENTIFIER` (Runner, RunnerTests), iCloud-Container folgt (`iCloud.at.jenibarb.jenibucht`, P-B13), Dateityp `at.jenibarb.jenibucht.jenibeleg` mit alter Kennung als importiertem Typ (FA-17.4), Hintergrundaufgabe `at.jenibarb.jenibucht.mailsync` (FA-17.12), Play-Paketname in `release.yml`; P-D6 präzisiert. Kanalnamen `buchhaltung/*` unverändert. Keine Kennwertänderung. |
@@ -1614,6 +1672,13 @@ erzeugt `beispiele_erzeugen_test.dart` mit dem PDF-Generator der App.
 | P-S75 | Plausibilität der Demo-Musterdaten (FA-13.14, `lib/services/demo/demo_dataset.dart`): seit 0.28.0 AT-Kleinunternehmerin (Rechnungen ohne USt mit Hinweis § 6 Abs 1 Z 27 UStG 1994, Jahresumsatz ≈ 15.000 €) mit DE-Registrierung (zuvor AT-Regelbesteuerung); Diesel nur mit Vorsteuer, weil Fiskal-LKW (§ 12 Abs 2 Z 2 lit b UStG AT); Bewirtung 10 %/20 % auf einem Beleg mit Anlass und Teilnehmern (50 % ESt, Vorsteuer voll); Versicherung und Bankspesen ohne USt (§ 6 Abs 1 Z 9 lit c, Z 8 UStG AT); Hotel Zürich in CHF ohne Vorsteuer; Lagerleistung DE 19 % statt steuerfreier Raummiete (§ 4 Nr. 12 UStG DE); Laptop 1.199 € netto über der GWG-Grenze, AfA 3 Jahre; Rechnungen nur an inländische Kundschaft (Beratung an eine deutsche GmbH wäre Reverse Charge); Fachbuch 10 % | Vorbefund Steuerberater: nach Korrektur der drei Befunde (Fiskal-LKW, Lagerleistung, Reverse Charge) stimmig; die Demo ist Anschauung, keine Musterbuchhaltung | Store-Start | offen |
 | P-S76 | EU-KU-Nummer (FA-18.10): Aufbau in AT (Finanzamt Österreich: `ATU` + 8 Ziffern + `EX`?) und DE (BZSt: `DE` + 9 Ziffern + `EX`, auch ohne eigene USt-IdNr.?) nach Art 284 Abs 3 MwStSystRL; gilt die Prüfziffer der UID? | Annahme nach Richtlinie und Verwaltungsinformationen aus Fachwissen, keine amtliche Seite abgerufen; Prüfung leer erlaubt, damit eine abweichende Nummer nur warnt, indem sie nicht gespeichert wird | Store-Start | offen |
 | P-S77 | EU-KU-Nummer auf der Rechnung (FA-18.10): Pflicht nach dem Recht des anderen Mitgliedstaats (z. B. DE § 34a UStDV für EU-Kleinunternehmer aus AT; AT § 11 UStG für DE-Unternehmer) und Ort im Kopf; reicht „EU-KU-Nr.“ als Bezeichnung, braucht es zusätzlich einen Befreiungshinweis des Gastlands? | App: Nummer im Kopf bei Kleinunternehmer-Rechnung an Kunden in einem anderen Land, Befreiungshinweis wie bisher aus dem Heimatprofil | Store-Start | offen |
+| P-S78 | Abgaben AT 2026 (FA-19.2): Tarifstufen 13.539/21.992/36.458/70.365/104.859/1 Mio. € (§ 33 Abs 1 EStG 1988, Progressionsabgeltung 2026); SVS: PV 18,5 %, KV 6,8 %, SV 1,53 %, UV 12,95 €/Monat, Mindestbeitragsgrundlage 551,10 €/Monat (6.613,20 €/Jahr), Höchstbeitragsgrundlage 8.085 €/Monat (97.020 €/Jahr); Gewinnfreibetrag nur Grundfreibetrag 15 % bis 33.000 € – amtlich (RIS, SVS-Werte 2026) abgleichen | Tarif hoch (usp.gv.at, BMF, Beispiel 40.000 € → 7.447,20 € im Test); SVS mittel (WKO-Infoblatt 2026, Sekundärquellen, UV 12,95 vs. 12,96 € Rundung) | Release | offen |
+| P-S79 | Abgaben AT: Beitragsgrundlage = Gewinn + gebuchte SVS-Beiträge (Hinzurechnung § 25 Abs 2 Z 2 GSVG) als Näherung für „vorgeschriebene“ Beiträge; vorläufige Beitragsgrundlage in den ersten drei Jahren = Mindestbeitragsgrundlage (§ 25a GSVG), Nachbemessung als Hinweis; KU-Ausnahme § 4 Abs 1 Z 7 GSVG (Umsatz ≤ 55.000 €, Einkünfte ≤ 6.613,20 €) nur als Hinweis/Schalter, weitere Voraussetzungen (Vorversicherungszeiten, Alter) nicht geprüft | Vorbefund Steuerberater: vertretbare Schätzung, gekennzeichnet | Release | offen |
+| P-S80 | Konten der Abgabenkategorien (FA-19.4): Sozialversicherung SKR03 1800 (DE privat) bzw. BMD-Export EKR 7800 Sammelkonto (AT Betriebsausgabe), Einkommensteuer SKR03 1810 / EKR 9600, Gewerbesteuer SKR03 4320; E/A: AT SVS Betriebsausgabe (§ 4 Abs 4 Z 1 lit a EStG 1988), ESt privat (§ 20 Abs 1 Z 6 EStG 1988, § 12 Nr 3 EStG), GewSt nicht abziehbar (§ 4 Abs 5b EStG), DE KV/PV Sonderausgabe (§ 10 Abs 1 Nr 3 EStG) | Vorbefund Steuerberater: Behandlung hoch, Konten mittel | Release | offen |
+| P-S81 | Abgaben DE 2025/2026 (FA-19.3): § 32a EStG-Formeln (2026: GFB 12.348 €, 914,51/1.400; 173,10/2.397/1.034,87; 0,42 − 11.135,63; 0,45 − 19.470,38), Soli-Freigrenze 2026 20.350 € mit 11,9 % Milderung, Kirchensteuer 8 % BY/BW, sonst 9 %, ohne Kappung und ohne Sonderausgabenabzug der KiSt; Grundtabelle (Einzelveranlagung) | Formeln aus Fachwissen (Steuerfortentwicklungsgesetz), Stetigkeit an den Zonengrenzen im Test geprüft; amtliche Quelle nicht abrufbar → mittel | Release | offen |
+| P-S82 | Gewerbesteuer-Schätzung (FA-19.3): Gewinn = Gewerbeertrag ohne Hinzurechnungen/Kürzungen (§§ 8, 9 GewStG), Abrundung auf 100 €, Freibetrag 24.500 €, Messzahl 3,5 %, Hebesatz-Vorschlag 400 %, Anrechnung § 35 EStG 4,0-fach gedeckelt auf tatsächliche GewSt und ESt (Ermäßigungshöchstbetrag vereinfacht) | Vorbefund Steuerberater: für Einzelunternehmen ohne Hinzurechnungen vertretbar | Release | offen |
+| P-S83 | Kranken-/Pflegeversicherung DE (FA-19.3): Entscheidung Prüfinstanz Steuerberater: Monatsbetrag laut Beitragsbescheid eingeben statt schätzen (Zusatzbeitrag je Kasse, Kinderlosenzuschlag, Mindestbemessung, Nachberechnung nach Steuerbescheid); voll als Vorsorgeaufwand vom zvE abgezogen (vereinfachend: ohne 4 %-Kürzung Krankengeld, ohne Höchstbetrag) | Vorbefund: richtungsrichtig, leicht zu günstig | Release | offen |
+| P-S84 | Doppelte Buchführung / Kapitalgesellschaft (FA-15.12): genügt das Paket Saldenliste (PDF) + Belegliste/DATEV/BMD-CSV + Belegkopien mit Beleg-ID im Dateinamen der Kanzlei für die Übernahme? Kategorien als Sachkonten-Vorschlag (SKR03/EKR) | nur Austauschformat, keine Bilanz | Release | offen |
 
 ### Rechtsstand-Überwachung (Validierung, Lastenheft L-20)
 
@@ -1670,6 +1735,7 @@ erzeugt `beispiele_erzeugen_test.dart` mit dem PDF-Generator der App.
 | P-X18 | Einhandtest Diktat (FA-2.61): Mikrofon im Feld Beschreibung/Notiz und im Betrag mit dem Daumen treffen, ohne das Feld daneben zu öffnen; Stopp mit einem Tipp; Vorschlag im Betrag sichtbar, Tastatur verdeckt die Speicherleiste nicht | Widget-Test: Knopf ≥ 48 dp | Release | offen |
 | P-X23 | Einhandtest Demo (FA-13.14, FA-13.15) auf Pixel 10 und iPhone: Startauswahl „Abo wählen – 14 Tage kostenlos“ und „Erst ansehen (Demo)“ mit dem Daumen ohne Fehlgriff (64 dp, 16 dp Abstand); Hinweisblatt „Abo wählen“/„Weiter ansehen“ (56 dp, 12 dp Abstand) unten; das Band oben ist für den Daumen schwer erreichbar – genügt, dass jede gesperrte Aktion das Blatt unten zeigt? | Widget-Test: Knöpfe ≥ 48 dp im unteren Drittel, Abstand ≥ 12 dp, Band ≥ 48 dp (`demo_test.dart`) | Store-Start | offen |
 | P-X24 | Einhandtest Ersteinrichtung (FA-1.13) auf Pixel 10 und iPhone: Willkommensseite bis Schritt 4 nur mit dem Daumen; „Später hinzufügen“ nicht mit „Weiter“ verwechselt (12 dp Abstand); Tastatur verdeckt in Schritt 2 und 3 kein Feld und den Hauptknopf nicht dauerhaft; Zurück-Geste führt einen Schritt zurück | `setup_wizard_test.dart`: Höhen 56/48 dp, Abstand ≥ 12 dp, Daumenzone, Schrittfolge, Überspringen, Fortsetzen | Store-Start | offen |
+| P-X25 | Einhandtest „Abgaben & Rücklagen“ (FA-19.1, FA-19.2) auf Pixel 10 und iPhone: Karte auf der Übersicht mit dem Daumen tippen, Angaben ändern (Tastatur verdeckt nicht das Feld), „Angaben speichern“ unten 56 dp; Schalter ≥ 48 dp | Widget-Test 360 × 740 dp (Speichern ≥ 56 dp, Schalter ≥ 48 dp) | Release | offen |
 
 ### Softwareentwicklung (echte Geräte und Stores)
 
@@ -1815,6 +1881,7 @@ erzeugt `beispiele_erzeugen_test.dart` mit dem PDF-Generator der App.
 | P-R56 | Erfundene Namen der Demo („Muster Handel e.U.“, „Maria Muster“, „Beispiel Bau GmbH“, „Musterfirma Nord GmbH“, „Anna Probe“, Händler wie „Tankstelle Am Ring“, „Baumarkt Huber“, „Gasthaus Zur Linde“, Liste `DemoDataset.merchants`): Kollision mit eingetragenen Firmen (Firmenbuch AT, Handelsregister DE) oder Marken (DPMA, EUIPO, ÖPA) ausschließen; Screenshots der Demo im Store ohne fremde Marken | Vorbefund Rechtsanwalt: Gattungsbegriffe mit Allerweltsnamen, keine Logos, Test prüft bekannte Handelsmarken; eine Namensgleichheit mit einem kleinen echten Betrieb ist nicht ausgeschlossen, Recherche kurz und billig | Store-Einreichung | offen |
 | P-R57 | Test auf Basis und Pro mit „Pro inklusive in der Testzeit“ (FA-13.4, FA-13.5, O-42): Texte auf Abo-Seite, Startauswahl und im Store („14 Tage kostenlos testen – mit allen Pro-Funktionen. Danach gilt dein gewähltes Abo (Preis aus Store). Jederzeit vorher im Store kündbar.“, bei Basis „Nach dem Test gilt der Umfang von Basis.“) ausreichend nach § 5a UWG DE und § 2 Abs 4 / Anhang Z 20 UWG AT („gratis“), § 4 Abs 1 Z 4, 5, 13 FAGG und § 312j Abs 2 BGB (Preis, Laufzeit, Verlängerung vor dem Kauf), § 5 ECG, Apple Guideline 3.1.2 und Google-Play-Richtlinie zu Abos und Tests (Testdauer, Preis danach, Kündigung)? Ist der Hinweis 3 Tage vorher („Noch X Tage Pro inklusive – danach Basis. Jetzt auf Pro wechseln?“) ohne Nennung der Basis-Abbuchung zulässig? | Vorbefund Rechtsanwalt: Kern erfüllt – Dauer, Folgepreis aus dem Store je Karte, automatische Verlängerung, Kündigungsweg und Daten bleiben stehen vor dem Kaufknopf; das Kaufblatt des Stores wiederholt Preis und Testende. Risiko war, dass „mit allen Pro-Funktionen“ beim Basis-Abo den Umfang nach dem Test verschleiert (Irreführung über wesentliche Merkmale) – deshalb der Zusatz auf der Basis-Karte. Apple: ein Einführungsangebot je Gruppe, Wechsel auf Pro in der Testzeit sofort kostenpflichtig – das zeigt das Store-Blatt, ein eigener Satz im Handbuch | Store-Einreichung | offen |
 | P-R58 | Bestätigungen (FA-1.10, L-17.2): genügt für die Nutzungsbedingungen der beschriftete Knopf „Akzeptieren und weiter“ mit Links auf den Volltext und dem Satz „Mit „Akzeptieren und weiter“: Ich akzeptiere die Nutzungsbedingungen und habe die Datenschutzerklärung zur Kenntnis genommen.“ (Einbeziehung § 305 Abs 2 BGB, § 864a ABGB; Datenschutzerklärung als Information Art 13 DSGVO), während „Keine Steuerberatung“ ein eigenes Häkchen behält? | Interne Prüfung: ja, Häkchen nur dort, wo L-17.2 Eigenständigkeit verlangt; Nachweis mit Zeitstempel und Fassung unverändert (`consents`) | Store-Start | offen |
+| P-R59 | Abgabenschätzung (FA-19.x): Abgrenzung zur geschäftsmäßigen Hilfeleistung in Steuersachen (DE §§ 2, 5 StBerG; AT § 2 WTBG 2017, Vorbehaltsaufgaben § 2 Abs 1 WTBG): allgemeine Berechnung aus eigenen Buchungen mit gesetzlichen Tarifen, Kennzeichnung „Schätzung – ersetzt keine Steuerberatung“ auf Karte und Bildschirm, keine Einzelfallberatung, keine Übermittlung; Haftungsausschluss in Nutzungsbedingungen (Verbraucher: § 6 KSchG, §§ 307 ff. BGB – kein Ausschluss grober Fahrlässigkeit) | Vorbefund Rechtsanwalt: Werkzeug wie Steuerrechner (BGH I ZR 113/20 Smartlaw) – mittel; Werbeaussagen im Store ohne „berechnet deine Steuer“ | Store-Start | offen |
 | P-R45 | „Wunsch oder Idee senden“ (FA-11.6): bestätigen, dass eine von der Nutzerin selbst aus ihrer Mail-App gesendete E-Mail mit technischen Angaben für Google Play („Datensicherheit“) und Apple („App-Datenschutz“) nicht als Erheben durch die App gilt; sonst Angaben in STORE_LISTING anpassen | Rechtsanwalt intern: nicht erhoben (wie Teilen/Export), mittel | Release | offen |
 | P-R39 | Angebots-PDF: „Dieses Angebot ist gültig bis <Datum>“ bindet die Unternehmerin bis zu diesem Tag (§ 148 BGB Annahmefrist; AT § 862 ABGB). Reicht das, oder braucht es eine Option „freibleibend“/„unverbindlich“? | Vorbefund Rechtsanwalt: Fristsetzung ist zulässig und schafft Klarheit; „freibleibend“ wäre nur eine Aufforderung zur Angebotsabgabe. Frage, ob Nutzerinnen das wählen können sollen. Mittlere Sicherheit | Release | intern geprüft 2026-10-16 (hoch) |
 | P-R38 | Jahresabo und automatische Verlängerung um ein weiteres Jahr gegenüber deutschen Verbraucherinnen: § 309 Nr. 9 BGB (seit 1.3.2022 stillschweigende Verlängerung nur auf unbestimmte Zeit mit Monatskündigung) – greift das bei Store-Abos, deren Vertragsbedingungen Apple bzw. Google stellen, oder trifft es den Anbieter über die Nutzungsbedingungen 4.3? Ebenso § 312k BGB (P-R12) | Vorbefund Rechtsanwalt: Verkäufer ist der Store, dessen Verlängerungsmechanik gilt; Nutzungsbedingungen 4.3 beschreiben sie nur. Restrisiko, wenn der Anbieter als Vertragspartner der Leistung gilt; Alternative wäre ein Hinweis „Jahresabo jederzeit zum Periodenende kündbar“. Mittlere Sicherheit | Store-Start | offen |
@@ -1859,6 +1926,10 @@ erzeugt `beispiele_erzeugen_test.dart` mit dem PDF-Generator der App.
 | P-D47 | Einführungsangebot je Abogruppe (Apple) und Wechsel in der Testzeit: Basis getestet → Pro ohne zweiten Test; Wechsel Basis → Pro in der Testzeit wird auf beiden Stores sofort zum Pro-Preis abgerechnet (Android `withTimeProration`, Apple Upgrade sofort)? Store-Blatt zeigt den Preis; Rückmeldung in der App „Pro ist aktiv“ | Vorbefund Softwareentwickler: so dokumentiert von Apple (ein Einführungsangebot je Gruppe) und Google (kein zweiter Test nach Wechsel); am Gerät nicht erprobt | Store-Start | offen |
 | P-D48 | Demo am echten Gerät (FA-13.14, FA-13.15): Startauswahl beim ersten Store-Build-Start; Demo öffnet unter 2 s, Band sichtbar, alle Bereiche voll; Speichern, Bezahlt, Storno, Mahnung, Stammdaten → Blatt statt Fehler; Scanner mit Erkennung füllt das Formular, Speichern verwirft, kein Bild in `belege/`; Teilen/Export/Sicherung gesperrt; Abo kaufen → Demo endet, Einrichtung leer, echte Datenbank ohne Musterdaten; Einstellungen → „Demo ansehen“ mit Abo; `PRAGMA query_only` auf Android- und iOS-SQLite wirksam | Widget- und Unit-Tests mit `sqflite_common_ffi` (`test/demo_test.dart`): Abschottung, Schreibschutz, Wasserzeichen je Seite, Teilen gesperrt | Store-Start | offen |
 | P-D49 | Ersteinrichtung am echten Gerät (FA-1.13): App in Schritt 2 (Entwurf) und Schritt 3 aus dem App-Umschalter schließen → Neustart setzt am Schritt fort; Wiederherstellen von der Willkommensseite landet ohne Einrichtung in der Übersicht; Koppeln von der Willkommensseite zeigt den Mithelfer-Start | Test mit echter SQLite-Datenbank im Speicher | Store-Start | offen |
+| P-D50 | DATEV-Import des Buchungsstapels (EXTF 700, Kategorie 21, Formatversion 13) in DATEV Kanzlei-Rechnungswesen bzw. DATEV Unternehmen online mit echter Kanzlei; Beleglink (Feld 20 „Beleglink“) bleibt leer – Belegbilder als ZIP mit Beleg-ID; DATEV Belegbildtransfer ist ein Online-Dienst (DATEV-Konto, Schnittstelle „Belegbilderservice“) und offline nicht möglich | Format im Code, kein echter Import | Release | offen |
+| P-D51 | BMD NTCS: Import der BMD-CSV über den Importassistenten (Buchungsimport) mit echter Kanzlei, Steuercodes und Buchsymbole | kein echter Import | Release | offen |
+| P-D52 | RZL (AT): Import der Belegliste bzw. BMD-CSV über den RZL-Importassistenten (frei zuordenbare Spalten) – eigenes RZL-Format nötig? | nicht gebaut, Format nicht gesichert recherchiert | vor RZL-Export | offen |
+| P-D53 | Paket „Für Kapitalgesellschaft / doppelte Buchführung“ auf echtem Gerät: Größe des ZIP mit vielen Belegbildern (Speicher, Teilen per Mail-Limit), Öffnen am PC | Widget-/Unit-Test ohne Bilder | Release | offen |
 | P-S65 | Belegbilder vom Mithelfer-Gerät (FA-17.3): aufgenommen auf einem fremden Gerät, dort nach dem Senden gelöscht, auf dem Hauptgerät unverändert gespeichert – genügt das den Aufbewahrungs- und Ordnungsvorschriften (§ 132 BAO, § 147 AO, GoBD Rz 136 ff. ersetzendes Scannen) und wie in die Verfahrensdokumentation aufnehmen? | Steuerberater intern: Original (Papier) bleibt beim Betrieb bis zur Entscheidung über ersetzendes Scannen; Bild unverändert übernommen, Herkunft „von ‹Gerät›“ in der Notiz, mittel | Release | offen |
 | P-S67 | Verschlüsselte Kopie der Belege auf dem Mithelfer-Gerät bis zur Aufbewahrungsfrist (Standard 90 Tage) und Belegmails im Postfach der Geschäftsadresse: Teil der Aufbewahrung nach § 132 BAO / § 147 AO oder nur Transport? Muss die Verfahrensdokumentation den Mailweg nennen? | Steuerberater intern: nur Transport, maßgeblich ist der gebuchte Beleg auf dem Hauptgerät (und Papier bis P-S65), Mailweg in der Verfahrensdokumentation nennen, mittel | Release | offen |
 | P-D41 | Gerätetest 0.22.1 (Pixel 10): Scan von Übersicht, Belegliste und im Formular zeigt Seitenbild, „Erneut auslesen“ und Vorbelegung; Sicherungsordner wählen und Sicherung wiederherstellen funktionieren weiter (Request-Codes neu); „Datei“ mit PDF, XRechnung/ZUGFeRD und Bild aus Google Drive und Downloads; iPhone: „Datei“ über die Dateien-App | Widget-Tests mit Fake-Channels, Test auf eindeutige Request-Codes | Release | offen |
@@ -2059,3 +2130,17 @@ oben: P-R58, P-S76, P-S77, P-X24, P-D49.
   und Ausschluss von KI-Übertragung (L-23.8); kein neuer Datenfluss. UX:
   Umschalter 48 dp oben in der Liste, leere Liste scrollbar statt Überlauf
   auf 360 dp.
+
+
+### Ergebnisse der internen Prüfung (2026-10-19) – Abgaben & Rücklagen
+
+| ID | Ergebnis der Prüfinstanz | Quellen | Sicherheit |
+|---|---|---|---|
+| P-S78 | Tarif 2026 bestätigt (Beispiel usp.gv.at 40.000 € → 7.447,20 €). SVS-Werte 2026 aus WKO-Infoblatt und Sekundärquellen übereinstimmend; Unfallversicherung 12,95 €/Monat (155,40 €/Jahr). Gewinnfreibetrag: nur Grundfreibetrag automatisch, investitionsbedingter nicht. | § 33 Abs 1 EStG 1988; usp.gv.at „Tarifstufen“; BMF Steuertarif; WKO Infoblatt Sozialversicherung 2026; §§ 25, 27 GSVG | Tarif hoch, SVS mittel |
+| P-S79 | Hinzurechnung der Beiträge richtig; Abweichung nur, wenn gebucht ≠ vorgeschrieben. Ausnahme § 4 Abs 1 Z 7 GSVG nur auf Antrag, daher Hinweis statt Automatik. | § 25 Abs 2 Z 2, § 25a, § 4 Abs 1 Z 7 GSVG | mittel |
+| P-S80 | AT SVS Betriebsausgabe, ESt privat, DE KV/PV Sonderausgabe, GewSt nicht abziehbar – so umgesetzt (`LevyRules.nonDeductibleKinds`). | § 4 Abs 4 Z 1 lit a, § 20 Abs 1 Z 6 EStG 1988; § 4 Abs 5b, § 10 Abs 1 Nr 3, § 12 Nr 3 EStG | hoch (Konten mittel) |
+| P-S81 | Formeln an den Zonengrenzen stetig; Werte 2025 aus dem Steuerfortentwicklungsgesetz. Kirchensteuer-Kappung und Sonderausgabenabzug weggelassen (Schätzung zu hoch, sichere Seite). | § 32a EStG; §§ 3, 4 SolZG 1995; KiStG der Länder | mittel |
+| P-S82 | Für Einzelunternehmen ohne Mieten/Zinsen-Hinzurechnung vertretbar; Anrechnung höchstens tatsächliche GewSt. | §§ 7, 11, 16 GewStG; § 35 EStG | hoch |
+| P-S83 | Entscheidung: Eingabe des Monatsbetrags laut Bescheid statt Schätzung – eine Schätzung mit Zusatzbeitrag je Kasse und Nachberechnung wäre zu oft falsch. | § 240 SGB V; § 10 Abs 1 Nr 3 EStG | mittel |
+| P-R59 | Allgemeine Rechenhilfe aus eigenen Daten, deutlich gekennzeichnet, ist keine Hilfeleistung in Steuersachen im Einzelfall; keine Erklärung, keine Übermittlung. Store-Texte: „schätzt“, nicht „berechnet verbindlich“. | §§ 2, 5 StBerG; § 2 RDG; BGH I ZR 113/20; § 2 WTBG 2017 | mittel |
+| UX | Karte direkt unter dem Ergebnis, ganze Karte tippbar; Bildschirm mit Speichern unten volle Breite 56 dp, Schalter als ganze Zeile ≥ 48 dp, keine Pflichtfelder, ein Schritt zum Speichern; keine Gefahrenknöpfe. Ohne Befund. | DESIGN_SPEC 5a | hoch |

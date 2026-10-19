@@ -8,6 +8,8 @@ import '../../domain/fiscal_year.dart';
 import '../../domain/money.dart';
 import '../../domain/receipt.dart';
 import '../../services/deadline_calculator.dart';
+import '../../services/levies/levy_estimator.dart';
+import '../../services/levies/levy_overview.dart';
 import '../../services/small_business_monitor.dart';
 import '../../theme.dart';
 import '../../widgets/capture_button.dart';
@@ -17,6 +19,7 @@ import '../onboarding/company_setup_screen.dart';
 import '../receipts/receipt_edit_screen.dart';
 import '../settings/settings_screen.dart';
 import '../help/help_screen.dart';
+import '../levies/levies_screen.dart';
 import '../licensing/license_notice.dart';
 
 /// Kassabuch-Übersicht: das Erste, was der Nutzer sieht.
@@ -36,6 +39,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
   PeriodTotals? _totals;
   List<Receipt> _recent = const [];
   List<_MonthBar> _trend = const [];
+  LevyEstimate? _levies;
   bool _loading = true;
   int? _loadedRevision;
 
@@ -80,12 +84,22 @@ class _DashboardScreenState extends State<DashboardScreen> {
       reverseChargePermille: state.reverseChargePermille,
       depreciation: state.depreciationRules,
       entertainment: state.entertainmentRules,
+      nonDeductibleKinds: state.nonDeductibleKinds,
     );
     final recent = await state.repositories.receipts.query(limit: 5);
     final trend = await _loadTrend(state);
+    final profile = state.profile;
+    final levies = profile == null
+        ? null
+        : (await LevyOverview.load(
+            repos: state.repositories,
+            profile: profile,
+            today: DateTime.now(),
+          )).estimate;
 
     if (!mounted || sequence != _loadSequence) return;
     setState(() {
+      _levies = levies;
       _totals = totals;
       _recent = recent;
       _trend = trend;
@@ -108,6 +122,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
         reverseChargePermille: state.reverseChargePermille,
         depreciation: state.depreciationRules,
         entertainment: state.entertainmentRules,
+        nonDeductibleKinds: state.nonDeductibleKinds,
       );
       bars.add(
         _MonthBar(
@@ -225,6 +240,21 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 inputVatDeductible: state.inputVatDeductible,
               ),
               const SizedBox(height: 16),
+              // Rücklage für Steuern & SV (FA-19.1), direkt unter dem Ergebnis.
+              if (_levies != null && !_levies!.totalYear.isZero) ...[
+                LevyReserveCard(
+                  estimate: _levies!,
+                  onTap: () async {
+                    await Navigator.of(context).push(
+                      MaterialPageRoute<void>(
+                        builder: (_) => const LeviesScreen(),
+                      ),
+                    );
+                    await _load();
+                  },
+                ),
+                const SizedBox(height: 16),
+              ],
               if (!totals.isEmpty) ...[
                 _VatCard(
                   totals: totals,
