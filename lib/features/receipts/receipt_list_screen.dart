@@ -8,6 +8,7 @@ import '../../theme.dart';
 import '../../widgets/adaptive.dart';
 import '../../widgets/capture_button.dart';
 import '../../widgets/common.dart';
+import '../contracts/contract_screens.dart';
 import 'receipt_edit_screen.dart';
 import '../help/help_screen.dart';
 import '../../services/help/help_index.dart';
@@ -31,9 +32,17 @@ class _ReceiptListScreenState extends State<ReceiptListScreen> {
   List<Receipt> _receipts = const [];
   bool _loading = true;
 
+  int? _loadedRevision;
+
+  /// Lebt im `IndexedStack` der Startseite weiter: neu laden, sobald sich
+  /// [AppState.bookingsRevision] ändert – auch beim Wechsel in die Demo und
+  /// zurück (Rückmeldung 2026-10-19: Demo zeigte hier echte bzw. keine Daten).
   @override
-  void initState() {
-    super.initState();
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final revision = AppScope.of(context).bookingsRevision;
+    if (revision == _loadedRevision) return;
+    _loadedRevision = revision;
     WidgetsBinding.instance.addPostFrameCallback((_) => _load());
   }
 
@@ -131,6 +140,41 @@ class _ReceiptListScreenState extends State<ReceiptListScreen> {
       ),
       body: Column(
         children: [
+          // Vertragsarchiv sichtbar machen (Rückmeldung 2026-10-19, FA-16.9).
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
+            child: SizedBox(
+              width: double.infinity,
+              child: SegmentedButton<int>(
+                key: const Key('receipts-contracts-switch'),
+                style: SegmentedButton.styleFrom(
+                  minimumSize: const Size(0, 48),
+                ),
+                showSelectedIcon: false,
+                segments: const [
+                  ButtonSegment(
+                    value: 0,
+                    icon: Icon(Icons.receipt_long_outlined),
+                    label: Text('Belege'),
+                  ),
+                  ButtonSegment(
+                    value: 1,
+                    icon: Icon(Icons.description_outlined),
+                    label: Text('Verträge'),
+                  ),
+                ],
+                selected: const {0},
+                onSelectionChanged: (s) {
+                  if (s.first != 1) return;
+                  Navigator.of(context).push(
+                    MaterialPageRoute<void>(
+                      builder: (_) => const ContractListScreen(),
+                    ),
+                  );
+                },
+              ),
+            ),
+          ),
           Padding(
             padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
             child: TextField(

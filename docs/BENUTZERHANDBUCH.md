@@ -1174,8 +1174,16 @@ einen Kommentar an deine Steuerberatung schreiben, dann:
 
 ### Verträge
 
-Miete, Pacht, Leasing, Versicherung, Darlehen, Dienstbarkeit: Export →
-**Verträge** → **Vertrag ablegen**.
+Miete, Pacht, Leasing, Versicherung, Darlehen, Dienstbarkeit,
+Dienstverträge deiner Mitarbeiter:innen und mehr. Du findest das
+Vertragsarchiv an drei Stellen: im Bereich **Belege** oben der Umschalter
+**Belege | Verträge**, unter **Einstellungen → Verträge** und unter
+**Export → Verträge**. Dort **Vertrag ablegen**.
+
+**Dienstverträge** enthalten Daten deiner Mitarbeiter:innen. Sie bleiben nur
+auf deinem Telefon und in deiner verschlüsselten Sicherung und werden nie an
+eine KI oder an uns übertragen. Leg nur ab, was du für die Buchhaltung
+brauchst.
 
 1. **Seiten scannen** (Dokumentenscanner, mehrere Seiten auf einmal) oder **Aus Galerie**. Ein PDF aus einer
    Mail teilst du einfach an JeNi bucht – oben im Belegformular steht dann
@@ -1347,7 +1355,9 @@ Store-Konto. Du findest alles unter **Einstellungen → Abo**.
 
 ### Demo ansehen
 
-Die Demo zeigt eine **erfundene Musterfirma** („Muster Handel e.U.“ in Wien)
+Die Demo zeigt eine **erfundene Musterfirma** („Muster Handel e.U.“ in Wien,
+Kleinunternehmerin mit Lager in Deutschland – die Umsatzgrenze steht bei
+rund 27 %)
 mit Belegen von Tankstelle, Baumarkt, Gasthaus und Büro, Rechnungen (bezahlt,
 offen, überfällig mit Zahlungserinnerung), Storno, Angeboten, einer Anlage mit
 Abschreibung, Verträgen mit Fristen, Kennzahlen und Jahresabschluss. Alle

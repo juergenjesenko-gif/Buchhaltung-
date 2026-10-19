@@ -1456,6 +1456,8 @@ Historie stehen. Die Einzelheiten stehen an der genannten Stelle.
 | 2026-10-19 | **EU-KU-Nummer (EX)** beim EU-Kleinunternehmer-Verfahren: eigenes Feld, getrennt von der UID, Formatprüfung, auf Rechnungen ins andere Land | L-30, FA-18.10, P-S76, P-S77 |
 | 2026-10-19 | Belegfeld „Beschreibung“ heißt „Produkt oder Leistung“; Exportspalten bleiben unverändert | FA-2.5 |
 | 2026-10-19 | Mithelfer: „?“-Erklärung neben „Gerät koppeln“/„Gerät hinzufügen“; „Als Mithelfer-Gerät koppeln“ in den Einstellungen eines Hauptgeräts (nur ohne Belege, mit Bestätigung) | L-29, FA-17.13 |
+| 2026-10-19 | Demo zeigt in jeder Liste Musterdaten; Musterfirma ist Kleinunternehmerin AT (Ampel ≈ 27 %) mit DE-Registrierung; Musterverträge Mietvertrag Lager, Leasing, Dienstvertrag Teilzeitkraft | L-10.6, Spezifikation FA-13.14 |
+| 2026-10-19 | Vertragsarchiv sichtbar: „Belege | Verträge“ und Einstellungen → Verträge; Dienstvertrag mit Datenschutzhinweis, nie KI-Übertragung | L-23, L-23.8, FA-16.9 |
 
 ---
 

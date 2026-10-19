@@ -10,13 +10,20 @@ enum ContractType {
   easement('Dienstbarkeit'),
   insurance('Versicherung'),
   loan('Darlehen'),
-  service('Dienstvertrag'),
+
+  /// Dienstvertrag (Arbeitsvertrag) z. B. einer Teilzeitkraft: enthält
+  /// Personendaten Beschäftigter – Datenschutzhinweis im Formular, nie Teil
+  /// einer KI-Übertragung (Lastenheft L-23.8).
+  service('Dienstvertrag (Mitarbeiter:in)'),
   work('Werkvertrag'),
   purchase('Kaufvertrag'),
   other('Sonstiger Vertrag');
 
   const ContractType(this.label);
   final String label;
+
+  /// Vertrag mit Personendaten Beschäftigter (L-23.8).
+  bool get hasEmployeeData => this == service;
 
   static ContractType fromName(String? name) =>
       values.firstWhere((t) => t.name == name, orElse: () => other);

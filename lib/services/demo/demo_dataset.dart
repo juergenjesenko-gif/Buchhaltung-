@@ -9,7 +9,6 @@ import '../../domain/company_profile.dart';
 import '../../domain/contract.dart';
 import '../../domain/country.dart';
 import '../../domain/customer.dart';
-import '../../domain/deadline_rule.dart';
 import '../../domain/exchange_rate.dart';
 import '../../domain/fixed_asset.dart';
 import '../../domain/invoice.dart';
@@ -90,7 +89,10 @@ class DemoDataset {
       phone: '+43 1 0000000',
       taxNumber: '00 000/0000',
       vatId: 'ATU00000000',
-      isSmallBusiness: false,
+      // Kleinunternehmerin in AT (§ 6 Abs 1 Z 27 UStG 1994) mit deutscher
+      // Registrierung für das Lager – der eigene Fall des Auftraggebers;
+      // die Grenzwertampel zeigt rund 27 % (Rückmeldung 2026-10-19).
+      isSmallBusiness: true,
       iban: 'AT00 0000 0000 0000 0000',
       bic: 'MUSTATWW',
       bankName: 'Musterbank',
@@ -99,7 +101,6 @@ class DemoDataset {
       foundingYear: now.year - 3,
       fiscalYearConfirmed: true,
       federalState: 'W',
-      vatReturnInterval: VatReturnInterval.quarterly,
       hasTaxAdvisor: true,
       defaultSkontoDays: 7,
       defaultSkontoPermille: 20,
@@ -169,7 +170,7 @@ class DemoDataset {
         name: 'Beratungsstunde',
         unit: 'Std',
         unitPrice: Money(9000),
-        vatPermille: 200,
+        vatPermille: 0,
       ),
     );
     await repos.articles.save(
@@ -177,7 +178,7 @@ class DemoDataset {
         number: 'A-002',
         name: 'Montageset Regal',
         unitPrice: Money(4500),
-        vatPermille: 200,
+        vatPermille: 0,
       ),
     );
     await repos.articles.save(
@@ -185,7 +186,7 @@ class DemoDataset {
         number: 'A-003',
         name: 'Fachbuch Ordnung im Büro',
         unitPrice: Money(2990),
-        vatPermille: 100,
+        vatPermille: 0,
       ),
     );
 
@@ -431,7 +432,7 @@ class DemoDataset {
       merchant: 'Barverkauf',
       description: 'Montageset Regal, Laufkundschaft',
       category: 'Umsatzerlöse',
-      parts: [(200, 5400)],
+      parts: [(0, 5400)],
       payment: PaymentMethod.cash,
       direction: BookingDirection.income,
       image: false,
@@ -441,7 +442,7 @@ class DemoDataset {
       merchant: 'Barverkauf',
       description: 'Fachbuch Ordnung im Büro, 2 Stk',
       category: 'Erlöse ermäßigter Steuersatz',
-      parts: [(100, 5980)],
+      parts: [(0, 5980)],
       payment: PaymentMethod.cash,
       direction: BookingDirection.income,
       image: false,
@@ -551,6 +552,8 @@ class DemoDataset {
           customerId: customerId,
           items: items,
           status: InvoiceStatus.issued,
+          // Ohne Umsatzsteuer, mit Hinweis nach § 6 Abs 1 Z 27 UStG 1994.
+          isSmallBusiness: true,
           sellerSnapshot: jsonEncode(profile.toMap()),
           customerSnapshot: jsonEncode(customers[customerId]!.toMap()),
         ),
@@ -569,7 +572,8 @@ class DemoDataset {
       description: description,
       quantityMilli: quantityMilli,
       unitPrice: Money(unitCents),
-      vatPermille: permille,
+      // Kleinunternehmerin: keine Umsatzsteuer auf eigene Rechnungen.
+      vatPermille: 0,
       unit: unit,
     );
 
@@ -578,7 +582,7 @@ class DemoDataset {
       customerId: bau,
       daysAgo: 58,
       items: [
-        item('Lagerregal Montage', 1000, 120000, 200),
+        item('Lagerregal Montage', 3000, 120000, 200),
         item('Beratungsstunde', 3000, 9000, 200, unit: 'Std'),
       ],
     );
@@ -592,6 +596,12 @@ class DemoDataset {
       ],
     );
     await repos.invoices.markPaid(paid2, ago(22));
+    final paid3 = await invoice(
+      customerId: bau,
+      daysAgo: 120,
+      items: [item('Lagereinrichtung Halle 2', 1000, 750000, 200)],
+    );
+    await repos.invoices.markPaid(paid3, ago(110));
     // Offen, noch nicht fällig. Inländische Kundin: eine Beratung an die
     // deutsche GmbH wäre Reverse Charge (§ 3a Abs 6, § 19 Abs 1 UStG AT) und
     // bekäme keine österreichische USt (Befund Prüfinstanz Steuerberater).
@@ -658,7 +668,7 @@ class DemoDataset {
     await repos.contracts.save(
       Contract(
         type: ContractType.rent,
-        title: 'Mietvertrag Geschäftslokal',
+        title: 'Mietvertrag Lager und Geschäftslokal',
         partner: 'Hausverwaltung Muster',
         startDate: DateTime(now.year - 2, 1, 1),
         // Frist in Kürze, damit die Termin-Box sie zeigt.
@@ -671,6 +681,34 @@ class DemoDataset {
         indexation: 'VPI 2020, jährlich',
         nextIndexDate: now.add(const Duration(days: 40)),
         comment: 'Musterdaten der Demo',
+      ),
+    );
+    await repos.contracts.save(
+      Contract(
+        type: ContractType.leasing,
+        title: 'Leasing Lieferwagen',
+        partner: 'Leasing Beispiel GmbH',
+        startDate: DateTime(now.year - 1, 6, 1),
+        endDate: DateTime(now.year + 3, 5, 31),
+        rate: const Money(38000),
+        rhythm: PaymentRhythm.monthly,
+        vatPermille: 200,
+        comment: 'Musterdaten der Demo',
+      ),
+    );
+    // Dienstvertrag mit erfundener Person (Personendaten Beschäftigter,
+    // L-23.8: nie Teil einer KI-Übertragung).
+    await repos.contracts.save(
+      Contract(
+        type: ContractType.service,
+        title: 'Dienstvertrag Teilzeitkraft Lager',
+        partner: 'Lena Beispiel (erfunden)',
+        startDate: DateTime(now.year, 3, 1),
+        noticeValue: 4,
+        noticeUnit: NoticeUnit.weeks,
+        rate: const Money(98000),
+        rhythm: PaymentRhythm.monthly,
+        comment: '20 Wochenstunden, Musterdaten der Demo',
       ),
     );
     await repos.contracts.save(

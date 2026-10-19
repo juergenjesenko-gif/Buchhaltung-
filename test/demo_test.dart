@@ -73,7 +73,7 @@ void main() {
       final repos = Repositories(db);
       final profile = (await repos.company.load())!;
       expect(profile.companyName, 'Muster Handel e.U.');
-      expect(profile.isSmallBusiness, isFalse, reason: 'Regelbesteuerung');
+      expect(profile.isSmallBusiness, isTrue, reason: 'Kleinunternehmerin AT');
       expect(await repos.consents.missing(), isEmpty);
       expect((await repos.registrations.all()).single.country.code, 'DE');
 
@@ -125,7 +125,7 @@ void main() {
       expect(await db.query('dunning_notices'), hasLength(1));
       expect(await db.query('offers'), hasLength(2));
       expect(await db.query('fixed_assets'), hasLength(1));
-      expect(await db.query('contracts'), hasLength(2));
+      expect(await db.query('contracts'), hasLength(4));
       await db.close();
     });
 
@@ -343,6 +343,61 @@ void main() {
         await tester.pump(const Duration(milliseconds: 50));
       }
     }
+
+    testWidgets('Demo aus den Einstellungen: Belege- und Rechnungsliste, '
+        'Verträge zeigen Musterdaten; Ampel rund 27 %', (tester) async {
+      TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+          .setMockMethodCallHandler(
+            const MethodChannel('plugins.it_nomads.com/flutter_secure_storage'),
+            (call) async => null,
+          );
+      final real = (await tester.runAsync(realDb))!;
+      await tester.runAsync(() async {
+        await real.insert('company_profile', {'id': 1, 'company_name': 'Echt'});
+        await ConsentRepositoryHelper.acceptAll(real);
+      });
+      AppDatabase.instance.overrideDatabaseForTesting(real);
+      final state = AppState(
+        Repositories(real),
+        license: LicenseManager(
+          cache: MemoryLicenseCache(),
+          billing: FakeStoreBilling.new,
+          enabled: false,
+        ),
+      );
+      await tester.runAsync(state.reload);
+      tester.view.physicalSize = const Size(400, 800);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.reset);
+      await tester.pumpWidget(BuchhaltungApp(state: state));
+      await settle(tester);
+      // Belege-Reiter einmal mit echten (leeren) Daten öffnen – genau der
+      // Fall aus der Rückmeldung: die Liste lebte im IndexedStack weiter.
+      await tester.tap(find.text('Belege').last);
+      await settle(tester);
+      final db = (await tester.runAsync(demoDb))!;
+      await tester.runAsync(() => state.enterDemo(db, fromSettings: true));
+      await settle(tester);
+      expect(state.isDemo, isTrue);
+      final sb = state.smallBusiness!;
+      final percent = sb.currentYearTurnover.cents * 100 ~/ sb.limit.cents;
+      expect(percent, inInclusiveRange(20, 35), reason: '$percent %');
+
+      expect(find.textContaining('Laufkundschaft'), findsWidgets);
+      await tester.tap(find.text('Rechnungen').last);
+      await settle(tester);
+      expect(find.textContaining('überfällig'), findsWidgets);
+      expect(find.text('Storno'), findsWidgets);
+      expect(find.textContaining('Anna Probe'), findsWidgets);
+
+      await tester.tap(find.text('Belege').last);
+      await settle(tester);
+      await tester.tap(find.text('Verträge'));
+      await settle(tester);
+      expect(find.textContaining('Dienstvertrag Teilzeitkraft'), findsWidgets);
+      expect(find.textContaining('Leasing Lieferwagen'), findsWidgets);
+      await tester.pumpWidget(const SizedBox());
+    });
 
     Future<AppState> pumpApp(WidgetTester tester) async {
       // Schlüsselbund gibt es im Test nicht: leer antworten.

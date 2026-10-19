@@ -17,6 +17,7 @@ import '../../data/receipt_scan_settings.dart';
 import '../../domain/country.dart';
 import '../../domain/receipt.dart';
 import '../../widgets/common.dart';
+import '../contracts/contract_screens.dart';
 import '../onboarding/company_setup_screen.dart';
 import '../../widgets/adaptive.dart';
 import '../help/help_screen.dart';
@@ -97,6 +98,22 @@ class SettingsScreen extends StatelessWidget {
                     ),
                   ),
                   const _HomeShortcutTile(),
+                  ListTile(
+                    key: const Key('settings-contracts'),
+                    contentPadding: EdgeInsets.zero,
+                    minTileHeight: 56,
+                    leading: const Icon(Icons.description_outlined),
+                    title: const Text('Verträge'),
+                    subtitle: const Text(
+                      'Miete, Pacht, Leasing, Versicherung, Dienstverträge',
+                    ),
+                    trailing: const Icon(Icons.chevron_right),
+                    onTap: () => Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (_) => const ContractListScreen(),
+                      ),
+                    ),
+                  ),
                   ListTile(
                     key: const Key('settings-helper-devices'),
                     contentPadding: EdgeInsets.zero,

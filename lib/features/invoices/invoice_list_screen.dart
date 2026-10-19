@@ -39,9 +39,17 @@ class _InvoiceListScreenState extends State<InvoiceListScreen> {
   Map<int, DunningNotice> _dunning = const {};
   bool _loading = true;
 
+  int? _loadedRevision;
+
+  /// Lebt im `IndexedStack` der Startseite weiter: neu laden, sobald sich
+  /// [AppState.bookingsRevision] ändert – auch beim Wechsel in die Demo und
+  /// zurück (Rückmeldung 2026-10-19: Demo zeigte hier echte bzw. keine Daten).
   @override
-  void initState() {
-    super.initState();
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final revision = AppScope.of(context).bookingsRevision;
+    if (revision == _loadedRevision) return;
+    _loadedRevision = revision;
     WidgetsBinding.instance.addPostFrameCallback((_) => _load());
   }
 
@@ -1025,9 +1033,17 @@ class _CustomerListScreenState extends State<_CustomerListScreen> {
   List<Customer> _customers = const [];
   bool _loading = true;
 
+  int? _loadedRevision;
+
+  /// Lebt im `IndexedStack` der Startseite weiter: neu laden, sobald sich
+  /// [AppState.bookingsRevision] ändert – auch beim Wechsel in die Demo und
+  /// zurück (Rückmeldung 2026-10-19: Demo zeigte hier echte bzw. keine Daten).
   @override
-  void initState() {
-    super.initState();
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final revision = AppScope.of(context).bookingsRevision;
+    if (revision == _loadedRevision) return;
+    _loadedRevision = revision;
     WidgetsBinding.instance.addPostFrameCallback((_) => _load());
   }
 

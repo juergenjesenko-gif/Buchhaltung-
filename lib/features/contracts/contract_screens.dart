@@ -28,6 +28,13 @@ String _amountText(Money m) =>
     '${m.cents ~/ 100},${(m.cents % 100).toString().padLeft(2, '0')}';
 
 /// Vertragsarchiv (FA-16.1): Liste mit nächstem Termin.
+/// Hinweis bei Dienstverträgen (L-23.8, Rückmeldung 2026-10-19).
+const employeeContractHint =
+    'Dienstverträge enthalten Daten deiner Mitarbeiter:innen. Sie bleiben '
+    'nur auf diesem Gerät (und in deiner verschlüsselten Sicherung) und '
+    'werden nie an eine KI oder an den Anbieter übertragen. Lege nur ab, was '
+    'du für die Buchhaltung brauchst.';
+
 class ContractListScreen extends StatefulWidget {
   const ContractListScreen({super.key});
 
@@ -639,6 +646,14 @@ class _ContractEditScreenState extends State<ContractEditScreen> {
                       onChanged: (v) =>
                           setState(() => _c = _c.copyWith(type: v)),
                     ),
+                    if (_c.type.hasEmployeeData) ...[
+                      const SizedBox(height: 8),
+                      const NoticeBanner(
+                        key: Key('contract-employee-hint'),
+                        icon: Icons.shield_outlined,
+                        message: employeeContractHint,
+                      ),
+                    ],
                     TextFormField(
                       controller: _title,
                       decoration: const InputDecoration(

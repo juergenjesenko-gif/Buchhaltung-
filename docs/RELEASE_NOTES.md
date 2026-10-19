@@ -46,7 +46,7 @@ nächsten Versionssprung in den neuen Eintrag.
 | Branch | `claude/agile-accounting-app-mobile-wa5j3h` |
 | Dokumentstände | Lastenheft 1.81, Spezifikation 1.86, Benutzerhandbuch für 0.28.0, DESIGN_SPEC 1.5 |
 | Datenbankschema | 28 |
-| Prüfung | `flutter analyze` ohne Befund, alle Tests grün (neu `setup_wizard_test.dart`: Willkommensseite und Knöpfe 56/48 dp in der Daumenzone, Schritt 1 mit einem Häkchen, Pflichtfeld Schritt 2, „Später hinzufügen“ ≥ 48 dp mit ≥ 12 dp Abstand, Fortsetzen nach dem Schließen, Entwurf, Zurück, „?“-Blatt, EU-KU-Feld im Registrierungsformular, Mithelfer nur ohne Daten; neu `eu_sme_id_test.dart`: Format AT/DE, Rechnungsregel, Einfrieren, Migration 27 → 28; angepasst `demo_test.dart`, `manual_expense_dashboard_test.dart`, `specification_sync_test.dart`); Android/iOS-Build nur in der CI |
+| Prüfung | `flutter analyze` ohne Befund, alle Tests grün (neu `setup_wizard_test.dart`: Willkommensseite und Knöpfe 56/48 dp in der Daumenzone, Schritt 1 mit einem Häkchen, Pflichtfeld Schritt 2, „Später hinzufügen“ ≥ 48 dp mit ≥ 12 dp Abstand, Fortsetzen nach dem Schließen, Entwurf, Zurück, „?“-Blatt, EU-KU-Feld im Registrierungsformular, Mithelfer nur ohne Daten; neu `eu_sme_id_test.dart`: Format AT/DE, Rechnungsregel, Einfrieren, Migration 27 → 28; angepasst `demo_test.dart` (neu: Demo aus den Einstellungen zeigt Belege, Rechnungen, Verträge; Ampel 20–35 %), `manual_expense_dashboard_test.dart`, `specification_sync_test.dart`); Android/iOS-Build nur in der CI |
 | Steuerliche Kennwerte | `spec.schema_version` 28, neu `spec.setup_steps`, `spec.eu_sme_id_suffix` |
 | Offene reale Prüfpunkte | wie 0.27.0+40, neu P-R58, P-S76, P-S77, P-X24, P-D49 |
 | Bekannte Grenzen | Spezifikation Abschnitt 11, neu „EU-KU-Nummer nur offline geprüft“ |
@@ -62,6 +62,9 @@ nächsten Versionssprung in den neuen Eintrag.
 | Geändert | Belegformular: „Beschreibung“ heißt „Produkt oder Leistung“ (Hinweis, Fehlermeldung, Suche); Exportspalte unverändert | FA-2.5, 8.2 | `dieser Commit` |
 | Neu | Mithelfer: „?“-Erklärung neben „Gerät koppeln“/„Gerät hinzufügen“; Einstellungen → „Als Mithelfer-Gerät koppeln“ (nur ohne Belege, mit Bestätigung) | FA-17.13 | `dieser Commit` |
 | Doku | Spezifikation 1.86, Handbuch, DESIGN_SPEC 1.5, Lastenheft 1.81 (14a), interne Prüfung 2026-10-19 | Spezifikation 14 | `dieser Commit` |
+| Behoben | Demo: Belege- und Rechnungsliste zeigten nach „Einstellungen → Demo ansehen“ keine Musterdaten (Listen im Stapel der Startseite luden nicht neu) | FA-13.14 | `nachtrag` |
+| Geändert | Demo-Firma Kleinunternehmerin AT mit Ampel ≈ 27 % und DE-Registrierung; Musterverträge Leasing und Dienstvertrag Teilzeitkraft | FA-13.14, P-S75 | `nachtrag` |
+| Neu | Vertragsarchiv über „Belege | Verträge“ und Einstellungen → Verträge; Dienstvertrag mit Datenschutzhinweis (L-23.8) | FA-16.9 | `nachtrag` |
 
 ---
 
