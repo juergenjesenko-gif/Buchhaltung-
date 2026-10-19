@@ -34,9 +34,9 @@ nächsten Versionssprung in den neuen Eintrag.
 
 | Art | Änderung | Bezug | Commit |
 |---|---|---|---|
-| Geändert | E-Rechnung ausstellen ab Basis (`Feature.eInvoiceIssue`), Zustellen über Teilen-Blatt, Senden mit einem Tipp bleibt Pro | FA-13.2, O-44 | `HASH` |
-| Geändert | Apple: 14 Tage gratis auf allen vier Produkten, Preis fürs erste Jahr nur per Angebotscode `JENIBUCHTSTART`; Abo-Text „14 Tage gratis, danach Grundpreis“ auf iOS getestet | FA-13.16, O-45 | `HASH` |
-| Neu | Pro-Code `JENIBUCHT20PRO` (20 % aufs Pro-Jahresabo), auf Android gleiches Angebots-Tag | FA-13.16, O-46 | `HASH` |
+| Geändert | E-Rechnung ausstellen ab Basis (`Feature.eInvoiceIssue`), Zustellen über Teilen-Blatt, Senden mit einem Tipp bleibt Pro | FA-13.2, O-44 | `69ae0d8` |
+| Geändert | Apple: 14 Tage gratis auf allen vier Produkten, Preis fürs erste Jahr nur per Angebotscode `JENIBUCHTSTART`; Abo-Text „14 Tage gratis, danach Grundpreis“ auf iOS getestet | FA-13.16, O-45 | `69ae0d8` |
+| Neu | Pro-Code `JENIBUCHT20PRO` (20 % aufs Pro-Jahresabo), auf Android gleiches Angebots-Tag | FA-13.16, O-46 | `69ae0d8` |
 
 ---
 
