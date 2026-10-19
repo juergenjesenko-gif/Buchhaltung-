@@ -5,6 +5,7 @@ import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 
 import 'pdf_fonts.dart';
+import 'pdf_watermark.dart';
 
 import '../core/formatting.dart';
 import '../domain/company_profile.dart';
@@ -60,8 +61,11 @@ class DunningPdf {
   Future<Uint8List> build() async {
     final rules = profile.taxProfile.dunning;
     final doc = pw.Document(
-      title: '${notice.title} zu Rechnung ${invoice.number}',
+      title: PdfWatermark.title(
+        '${notice.title} zu Rechnung ${invoice.number}',
+      ),
       author: profile.companyName,
+      keywords: PdfWatermark.keywords(),
     );
     final fonts = await PdfFonts.load();
     final base = fonts.base;
@@ -69,9 +73,13 @@ class DunningPdf {
     final tableRows = rows(notice, rules, business: customer.isBusiness);
     doc.addPage(
       pw.Page(
-        pageFormat: PdfPageFormat.a4,
-        margin: const pw.EdgeInsets.fromLTRB(48, 48, 48, 36),
-        theme: pw.ThemeData.withFont(base: base, bold: bold),
+        // Demo: „MUSTER – DEMO“ auf der Seite (FA-13.14).
+        pageTheme: PdfWatermark.pageTheme(
+          pageFormat: PdfPageFormat.a4,
+          margin: const pw.EdgeInsets.fromLTRB(48, 48, 48, 36),
+          theme: pw.ThemeData.withFont(base: base, bold: bold),
+          font: bold,
+        ),
         build: (context) => pw.Column(
           crossAxisAlignment: pw.CrossAxisAlignment.start,
           children: [

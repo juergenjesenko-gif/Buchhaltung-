@@ -28,6 +28,7 @@ import '../../services/invoice_numbering.dart';
 import '../../services/turnover_basis.dart';
 import '../../widgets/common.dart';
 import '../../widgets/adaptive.dart';
+import '../licensing/feature_gate.dart';
 
 /// Firmenprofil anlegen und bearbeiten.
 ///
@@ -415,6 +416,9 @@ class _CompanySetupScreenState extends State<CompanySetupScreen> {
 
   Future<void> _save() async {
     if (!_formKey.currentState!.validate()) return;
+    // Demo (FA-13.14): nichts speichern.
+    if (!await ensureWritable(context)) return;
+    if (!mounted) return;
     setState(() => _saving = true);
 
     final state = AppScope.read(context);
@@ -609,6 +613,9 @@ class _CompanySetupScreenState extends State<CompanySetupScreen> {
                     ),
                     const SizedBox(height: 12),
                     DropdownButtonFormField<LegalForm>(
+                      // Lange Bezeichnungen umbrechen statt über den Rand
+                      // (360 dp, „Freiberufler / Neue Selbständige“).
+                      isExpanded: true,
                       initialValue: _legalForm,
                       decoration: const InputDecoration(
                         labelText: 'Rechtsform',

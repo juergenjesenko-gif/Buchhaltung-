@@ -6,6 +6,8 @@ import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
 
+import 'demo/demo_mode.dart';
+
 /// Schreibt Exporte in einen temporären Ordner und öffnet den System-Dialog
 /// zum Teilen.
 ///
@@ -22,7 +24,10 @@ class ShareService {
   /// – beim Empfänger kam „Download fehlgeschlagen“ an.
   static bool get _ownChannel => Platform.isAndroid;
 
+  /// In der Demo verlässt nichts das Gerät (FA-13.14): jedes Teilen endet
+  /// beim Hinweisblatt, es entsteht keine Datei.
   static Future<File> _writeTemp(String fileName, List<int> bytes) async {
+    if (DemoMode.active) throw const DemoShareBlocked();
     final dirPath = _ownChannel
         ? (await _channel.invokeMethod<String>('folder'))!
         : (await getTemporaryDirectory()).path;
@@ -61,6 +66,7 @@ class ShareService {
     required String content,
     String? subject,
   }) async {
+    if (DemoMode.blocked()) return;
     // utf8.encode, nicht String.codeUnits: Letzteres liefert UTF-16-Einheiten
     // und zerlegt jeden Umlaut im CSV.
     final file = await _writeTemp(fileName, utf8.encode(content));
@@ -73,6 +79,7 @@ class ShareService {
     required String content,
     String? subject,
   }) async {
+    if (DemoMode.blocked()) return;
     final file = await _writeTemp(fileName, utf8.encode(content));
     await _share(file, 'application/xml', subject: subject);
   }
@@ -83,6 +90,7 @@ class ShareService {
     required List<int> bytes,
     String? subject,
   }) async {
+    if (DemoMode.blocked()) return;
     final file = await _writeTemp(fileName, bytes);
     await _share(file, 'application/zip', subject: subject);
   }
@@ -93,6 +101,7 @@ class ShareService {
     String? subject,
     String? text,
   }) async {
+    if (DemoMode.blocked()) return;
     final file = await _writeTemp(fileName, bytes);
     await _share(file, 'application/pdf', subject: subject, text: text);
   }
@@ -104,6 +113,7 @@ class ShareService {
     required Uint8List bytes,
     required String businessName,
   }) async {
+    if (DemoMode.blocked()) return;
     final file = await _writeTemp(fileName, bytes);
     await _share(
       file,
@@ -112,4 +122,13 @@ class ShareService {
       text: 'Beleg für $businessName – in JeNi bucht öffnen.',
     );
   }
+}
+
+/// Teilen in der Demo verweigert (FA-13.14); die Oberfläche hat das
+/// Hinweisblatt schon gezeigt.
+class DemoShareBlocked implements Exception {
+  const DemoShareBlocked();
+
+  @override
+  String toString() => 'In der Demo wird nichts geteilt.';
 }

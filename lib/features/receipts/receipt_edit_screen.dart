@@ -1051,6 +1051,9 @@ class _ReceiptEditScreenState extends State<ReceiptEditScreen> {
   Future<void> _save() async {
     if (_isCancelled) return;
     if (!_formKey.currentState!.validate()) return;
+    // Demo (FA-13.14): nichts speichern, auch kein Ändern.
+    if (!await ensureWritable(context)) return;
+    if (!mounted) return;
     // Nur-Lese-Modus (L-22.6): neue Belege brauchen ein Abo; Ändern bleibt.
     if (!_isEditing && !await ensureFeature(context, Feature.newBookings)) {
       return;

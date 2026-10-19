@@ -21,11 +21,18 @@ class LicenseNotice extends StatelessWidget {
     if (!license.enabled) return const SizedBox.shrink();
     final downgraded = license.downgradedFrom;
     final trialEnd = license.trialReminder;
+    final basisFallback = trialEnd != null && license.proIncludedUntil != null;
     final message = switch (state.entitlement) {
+      Entitlement.demo => null,
       _ when downgraded != null =>
         'Dein Abo ${downgraded == Tier.pro ? 'Pro' : 'Basis'} ist beendet. '
             'Jetzt: ${state.entitlement.label}. Deine Daten bleiben '
             'vollständig lesbar und exportierbar.',
+      // Basis mit Pro inklusive (O-42): 3 Tage vorher, ein Tipp zu Pro.
+      _ when basisFallback =>
+        'Noch ${license.daysLeft(trialEnd)} '
+            '${license.daysLeft(trialEnd) == 1 ? 'Tag' : 'Tage'} Pro '
+            'inklusive – danach Basis. Jetzt auf Pro wechseln?',
       _ when trialEnd != null =>
         'Dein kostenloser Test endet am ${Fmt.date(trialEnd)}. Danach '
             'läuft Pro zum Store-Preis weiter, außer du kündigst vorher.',
@@ -35,8 +42,7 @@ class LicenseNotice extends StatelessWidget {
       Entitlement.readOnly =>
         'Nur lesen: Ansehen, Exportieren und Sichern gehen weiter. Für neue '
             'Buchungen brauchst du ein Abo.',
-      Entitlement.none =>
-        'Pro ${LicensePolicy.trialDays} Tage kostenlos testen.',
+      Entitlement.none => LicensePolicy.trialTeaser,
       _ => null,
     };
     if (message == null) return const SizedBox.shrink();

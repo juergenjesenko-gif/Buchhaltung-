@@ -4,6 +4,7 @@ import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 
 import 'pdf_fonts.dart';
+import 'pdf_watermark.dart';
 
 import '../core/formatting.dart';
 import '../domain/company_profile.dart';
@@ -69,7 +70,11 @@ class InvoicePdf {
   static const _hairline = PdfColor.fromInt(0xFFD6DEE4);
 
   Future<Uint8List> build() async {
-    final doc = pw.Document(title: _title, author: profile.companyName);
+    final doc = pw.Document(
+      title: PdfWatermark.title(_title),
+      author: profile.companyName,
+      keywords: PdfWatermark.keywords(),
+    );
 
     final fonts = await PdfFonts.load();
     final base = fonts.base;
@@ -77,13 +82,17 @@ class InvoicePdf {
 
     doc.addPage(
       pw.MultiPage(
-        pageFormat: PdfPageFormat.a4,
-        margin: const pw.EdgeInsets.fromLTRB(48, 48, 48, 36),
-        theme: pw.ThemeData.withFont(base: base, bold: bold).copyWith(
-          defaultTextStyle: pw.TextStyle(
-            font: base,
-            fontSize: 10,
-            color: PdfColors.black,
+        // Demo: „MUSTER – DEMO“ auf jeder Seite (FA-13.14).
+        pageTheme: PdfWatermark.pageTheme(
+          pageFormat: PdfPageFormat.a4,
+          margin: const pw.EdgeInsets.fromLTRB(48, 48, 48, 36),
+          font: bold,
+          theme: pw.ThemeData.withFont(base: base, bold: bold).copyWith(
+            defaultTextStyle: pw.TextStyle(
+              font: base,
+              fontSize: 10,
+              color: PdfColors.black,
+            ),
           ),
         ),
         footer: _buildFooter,

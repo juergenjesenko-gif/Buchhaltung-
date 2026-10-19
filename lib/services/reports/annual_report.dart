@@ -20,6 +20,7 @@ import '../../domain/money.dart';
 import '../../domain/receipt.dart';
 import '../assets/depreciation.dart';
 import '../pdf_fonts.dart';
+import '../pdf_watermark.dart';
 
 /// Zeile der Saldenliste.
 class BalanceLine {
@@ -209,14 +210,19 @@ class AnnualReportPdf {
   Future<Uint8List> build(ReportKind kind) async {
     final fonts = await PdfFonts.load();
     final doc = pw.Document(
-      title: kind.title,
+      title: PdfWatermark.title(kind.title),
       author: data.profile.companyName,
+      keywords: PdfWatermark.keywords(),
     );
     doc.addPage(
       pw.MultiPage(
-        pageFormat: PdfPageFormat.a4,
-        theme: fonts.theme,
-        margin: const pw.EdgeInsets.all(36),
+        // Demo: „MUSTER – DEMO“ auf jeder Seite (FA-13.14).
+        pageTheme: PdfWatermark.pageTheme(
+          pageFormat: PdfPageFormat.a4,
+          theme: fonts.theme,
+          margin: const pw.EdgeInsets.all(36),
+          font: fonts.bold,
+        ),
         header: (context) => pw.Column(
           crossAxisAlignment: pw.CrossAxisAlignment.start,
           children: [

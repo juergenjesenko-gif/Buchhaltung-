@@ -1,6 +1,6 @@
 # Benutzerhandbuch – JeNi bucht
 
-**Für App-Version 0.26.0** · Stand 2026-10-19
+**Für App-Version 0.27.0** · Stand 2026-10-19
 
 > **Testerinnen und Tester, Umstieg auf 0.26.0:** Ab dieser Version hat die App
 > eine neue technische Kennung. Sie wird **neben** der alten App installiert,
@@ -60,6 +60,15 @@ Kein Konto, keine Anmeldung, kein Abo. Alles liegt auf deinem Telefon.
 Beim ersten Öffnen bestätigst du zwei Dinge, jedes mit eigenem Häkchen: dass
 die App **keine Steuerberatung** ist, und die **Nutzungsbedingungen und den
 Datenschutz**. Ändern sich diese Texte später wesentlich, fragt die App erneut.
+
+**In der Store-Version ohne Abo** zeigt die App danach zwei große Knöpfe unten:
+
+- **Abo wählen – 14 Tage kostenlos**: öffnet die Abo-Seite. Du wählst Basis
+  oder Pro, monatlich oder jährlich, und startest das Abo im Store. Die ersten
+  14 Tage sind kostenlos, mit allen Pro-Funktionen. Danach geht es mit dem
+  Einrichten deines Unternehmens weiter – leer, ohne Musterdaten.
+- **Erst ansehen (Demo)**: zeigt eine erfundene Musterfirma, siehe
+  [Demo ansehen](#demo-ansehen).
 
 Danach fragt die App nach deinem Unternehmen. Das ist notwendig,
 nicht Neugier: ohne das Land kennt die App deine Steuersätze nicht, und ohne
@@ -1269,9 +1278,19 @@ Store-Konto. Du findest alles unter **Einstellungen → Abo**.
   kommt danach trotzdem das Teilen-Blatt: Dort kannst du das PDF
   **speichern oder drucken** und selbst an die Kundin schicken. So erreicht
   jede Rechnung und Stornorechnung auch mit Basis ihre Empfängerin.
-- **14 Tage kostenlos testen:** Beim ersten Abo kannst du Pro 14 Tage gratis
-  nutzen. Der Test startet im Store und **geht danach in das Abo über**, wenn
-  du nicht vorher kündigst. Drei Tage vor dem Ende erinnert dich die Übersicht.
+- **14 Tage kostenlos testen – mit allen Pro-Funktionen.** Das gilt für jedes
+  Abo, auch für **Basis**: Beim ersten Abo sind die ersten 14 Tage kostenlos,
+  und du kannst in dieser Zeit alles aus Pro nutzen. Danach gilt dein
+  gewähltes Abo zum Preis aus dem Store; mit Basis hast du dann den Umfang von
+  Basis, deine Daten bleiben vollständig. Der Test startet im Store und
+  **geht danach in das Abo über**, wenn du nicht vorher kündigst. Kündigst du
+  in den 14 Tagen, zahlst du nichts.
+- **Drei Tage vor dem Ende** erinnert dich die Übersicht: bei Pro „Dein
+  kostenloser Test endet am …“, bei Basis „Noch 3 Tage Pro inklusive – danach
+  Basis. Jetzt auf Pro wechseln?“. Ein Tipp öffnet die Abo-Seite, ein weiterer
+  wechselt auf Pro. Gut zu wissen: Der kostenlose Test gilt **einmal**. Wer in
+  der Testzeit auf Pro wechselt, zahlt Pro ab sofort; das Kaufblatt des Stores
+  zeigt den Preis.
 - **Promo-Code einlösen** (z. B. aus Instagram): Einstellungen → Abo →
   **Promo-Code einlösen**.
   1. iPhone: Apple öffnet ein Fenster; Code eintippen, bestätigen.
@@ -1290,6 +1309,31 @@ Store-Konto. Du findest alles unter **Einstellungen → Abo**.
 - **Ohne Internet** gilt dein Abo weiter, bis zu 45 Tage ab der letzten
   Bestätigung durch den Store. Nach etwa einem Monat bittet dich die
   Übersicht, die App einmal mit Internet zu öffnen.
+
+### Demo ansehen
+
+Die Demo zeigt eine **erfundene Musterfirma** („Muster Handel e.U.“ in Wien)
+mit Belegen von Tankstelle, Baumarkt, Gasthaus und Büro, Rechnungen (bezahlt,
+offen, überfällig mit Zahlungserinnerung), Storno, Angeboten, einer Anlage mit
+Abschreibung, Verträgen mit Fristen, Kennzahlen und Jahresabschluss. Alle
+Namen und Belegbilder sind erfunden.
+
+- **Öffnen:** beim ersten Start **Erst ansehen (Demo)**, sonst
+  **Einstellungen → Demo ansehen**. Die Demo startet jedes Mal frisch.
+- **Alles ansehen, nichts speichern:** Tippst du auf Speichern, Bezahlt,
+  Stornieren oder Ähnliches, erscheint „In der Demo wird nichts gespeichert.
+  Mit einem Abo wäre das jetzt gebucht.“ mit **Abo wählen** und **Weiter
+  ansehen**.
+- **Ausprobieren:** Beleg fotografieren mit Erkennung geht – das Formular
+  füllt sich, gespeichert wird nichts. Eine Rechnung kannst du zusammenstellen.
+- **PDFs** der Demo tragen auf jeder Seite schräg **MUSTER – DEMO**. Senden,
+  Teilen, Exportieren und Sichern sind in der Demo aus.
+- **Deine echten Daten** sieht die Demo nie, und sie vermischt sich nie mit
+  ihnen. Oben steht immer das Band **DEMO – Abo wählen, um mit deinen
+  eigenen Daten zu starten**; ein Tipp öffnet die Abo-Seite.
+- **Beenden:** Mit einem Abo endet die Demo von selbst und du richtest dein
+  Unternehmen ein. Hast du die Demo über die Einstellungen geöffnet: Band
+  antippen → **Demo beenden**, oder **Einstellungen → Demo beenden**.
 
 **Endet dein Abo, verlierst du nichts.** Endet Pro, arbeitest du mit Basis
 weiter, falls du Basis hast. Endet jedes Abo, wechselt die App in **Nur
@@ -1443,6 +1487,14 @@ deiner Steuerberatung.
 ---
 
 ## 13. Wenn etwas nicht geht
+
+**„In der Demo wird nichts gespeichert. Mit einem Abo wäre das jetzt
+gebucht.“** — du bist in der Demo mit der Musterfirma. Weiter ansehen, oder
+**Abo wählen** und mit deinen eigenen Daten starten. Siehe
+[Demo ansehen](#demo-ansehen).
+
+**„In der Demo wird nichts gesendet, geteilt oder exportiert.“** — ebenso;
+Muster-PDFs verlassen das Gerät nicht.
 
 **„Die Nummer muss mit DE beginnen.“** (bei *Steuerliche Registrierungen*) —
 für ein Land gilt nur dessen UID, also für Deutschland eine USt-IdNr. mit
@@ -1651,6 +1703,9 @@ neues Foto hinzufügen.
 ## 14. Was die App nicht kann
 
 Damit du nicht darauf wartest:
+
+- **Kein PDF-Ansehen in der Demo.** Das Muster-PDF entsteht mit Wasserzeichen,
+  lässt sich in der Demo aber weder öffnen noch teilen.
 
 - **Keine Registrierkasse.** Die App erfüllt die österreichische
   Registrierkassensicherheitsverordnung nicht. Wer mehr als 15.000 € Umsatz und

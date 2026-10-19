@@ -171,6 +171,20 @@ class InAppPurchaseBilling implements StoreBilling {
     return openInBrowser(LicensePolicy.playRedeemUri(code));
   }
 
+  /// Testangaben aus den zuletzt gemeldeten Käufen (O-42): iOS aus der
+  /// StoreKit-2-Transaktion (`offerType`, `originalPurchaseDate`), Android nur
+  /// der Kaufzeitpunkt (`purchaseTime`).
+  @override
+  StoreTrialInfo trialInfo() => StoreTrialInfo.merge([
+    for (final p in _owned.values)
+      if (p is SK2PurchaseDetails || p is AppStorePurchaseDetails)
+        StoreTrialInfo.fromAppleTransactionJson(
+          p.verificationData.localVerificationData,
+        )
+      else
+        StoreTrialInfo.fromAndroidPurchaseTime(p.transactionDate),
+  ]);
+
   @override
   Stream<PurchaseEvent> get events {
     _listen();

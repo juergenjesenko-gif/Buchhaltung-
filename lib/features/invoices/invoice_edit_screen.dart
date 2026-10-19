@@ -315,6 +315,9 @@ class _InvoiceEditScreenState extends State<InvoiceEditScreen> {
       showSnack(context, 'Es fehlt noch: ${errors.join(', ')}');
       return;
     }
+    // Demo (FA-13.14): zusammenstellen ja, speichern nein.
+    if (!await ensureWritable(context)) return;
+    if (!mounted) return;
     // Nur-Lese-Modus (L-22.6): neue und ausgestellte Rechnungen brauchen ein
     // Abo; vorhandene Entwürfe bleiben änderbar.
     if ((issue || widget.existing == null) &&

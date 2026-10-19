@@ -20,19 +20,31 @@ enum Entitlement {
   /// wiederherstellen, aber keine neuen Buchungen (L-7.15, L-22.6).
   readOnly,
   basis,
-  pro;
+  pro,
+
+  /// Demo ohne Abo (FA-13.14, Entscheidung Auftraggeber 2026-10-19, O-42):
+  /// eigene Muster-Datenbank, alles ansehen und ausprobieren (Scanner mit
+  /// Erkennung, Rechnung zusammenstellen), aber nichts speichern, senden,
+  /// teilen, exportieren oder sichern. Gilt nur, solange die Demo läuft;
+  /// echte Daten sieht die Demo nie.
+  demo;
 
   /// Die einzige Stelle, die entscheidet, was ein Anspruch erlaubt.
   bool allows(Feature feature) => switch (feature) {
     Feature.newBookings => this == basis || this == pro,
+    // Ausprobieren in der Demo: Erkennung füllt das Formular, Kurs abrufen
+    // zeigt den Kurs – gespeichert wird nichts (newBookings fehlt).
     Feature.receiptRecognition ||
+    Feature.exchangeRateFetch ||
+    Feature.annualReports => this == pro || this == demo,
+    // Ansehen, Export, Sicherung und Wiederherstellung bleiben ohne Abo
+    // erlaubt (L-10.4, L-22.6); nur die Demo hat keine eigenen Daten.
+    Feature.dataExport => this != demo,
     Feature.dataImport ||
     Feature.taxOfficeSubmission ||
     Feature.pdfSending ||
     Feature.dunningSending ||
     Feature.invoiceLogo ||
-    Feature.exchangeRateFetch ||
-    Feature.annualReports ||
     Feature.assetManagement ||
     Feature.contractSummary ||
     Feature.helperDevices => this == pro,
@@ -43,6 +55,7 @@ enum Entitlement {
     readOnly => 'Nur lesen',
     basis => 'Basis',
     pro => 'Pro',
+    demo => 'Demo',
   };
 }
 
@@ -104,6 +117,11 @@ enum Feature {
   /// brauchen kein eigenes Abo (Vorschlag, Lastenheft 14a). Der Eingang nimmt
   /// bereits gesendete Belege in jedem Anspruch an – nichts geht verloren.
   helperDevices,
+
+  /// Exportieren, Teilen, Sichern und Wiederherstellen (L-22.6). Ohne Abo
+  /// und im Nur-Lese-Modus immer erlaubt; gesperrt nur in der Demo
+  /// (FA-13.14), damit Musterdaten nicht als echte Unterlagen weitergehen.
+  dataExport,
 }
 
 /// Ein Store-Produkt. Die IDs sind in Google Play Console und App Store
@@ -124,10 +142,18 @@ class LicensePolicy {
   /// (RELEASE_PLAYBOOK, P-D30).
   static const enabled = bool.fromEnvironment('LICENSING');
 
-  /// Test über das Einführungsangebot der Stores auf Pro (L-10.3, L-22.3,
-  /// Entscheidung O-4 vom 2026-10-10). Die Stores verwalten den Test; die App
-  /// nennt die Dauer nur auf der Abo-Seite.
+  /// Test über das Einführungsangebot der Stores auf **allen vier**
+  /// Produkten (L-10.3, L-22.3; Entscheidung Auftraggeber 2026-10-19, O-42,
+  /// ersetzt O-35). Die Stores verwalten Test, Berechtigung und Abbuchung;
+  /// in dieser Zeit gibt die App auch beim Basis-Abo alle Pro-Funktionen frei
+  /// („Pro inklusive in der Testzeit“, [proIncludedUntil]). Kündigen in den
+  /// 14 Tagen kostet nichts (Store-Regel des kostenlosen Einführungsangebots).
   static const trialDays = 14;
+
+  /// Werbesatz für Hinweise ohne Abo (O-42; Preis nennt nur die Abo-Seite
+  /// aus dem Store).
+  static const trialTeaser =
+      '$trialDays Tage kostenlos testen – mit allen Pro-Funktionen.';
 
   /// Erinnerung vor Testende (L-10.3: 3 Tage vorher).
   static const trialReminderDays = 3;
@@ -196,16 +222,46 @@ class LicensePolicy {
     return best;
   }
 
-  /// Anspruch aus dem gespeicherten Stand (L-22.5, L-22.6).
+  /// Anspruch aus dem gespeicherten Stand (L-22.5, L-22.6). Basis in der
+  /// Testzeit des ersten Abos zählt als Pro (O-42, [proIncludedUntil]).
   static Entitlement entitlement(LicenseRecord record, DateTime now) {
     final tier = record.tier;
     final checkedAt = record.checkedAt;
     if (tier != null &&
         checkedAt != null &&
         now.difference(checkedAt).inDays < offlineGraceDays) {
-      return tier == Tier.pro ? Entitlement.pro : Entitlement.basis;
+      if (tier == Tier.pro) return Entitlement.pro;
+      return proIncludedUntil(record, now) != null
+          ? Entitlement.pro
+          : Entitlement.basis;
     }
     return record.everSubscribed ? Entitlement.readOnly : Entitlement.none;
+  }
+
+  /// Ende von „Pro inklusive in der Testzeit“ beim Basis-Abo (O-42), solange
+  /// es läuft, sonst `null`.
+  ///
+  /// Testzeit = [trialDays] Tage ab dem ersten Abo dieser Installation bzw.
+  /// dieses Store-Kontos ([LicenseRecord.trialStartedAt]: der früheste
+  /// Kaufzeitpunkt, den der Store je gemeldet hat, im Schlüsselbund bzw.
+  /// Keystore). iOS meldet zusätzlich, ob die Transaktion im
+  /// Einführungsangebot läuft ([LicenseRecord.introOffer], StoreKit 2
+  /// `offerType` introductory); meldet StoreKit „nein“ (z. B. Test schon
+  /// früher verbraucht), gibt es kein Pro inklusive. Android liefert der App
+  /// kein Testkennzeichen: dort gilt nur das Zeitfenster – eine Näherung
+  /// (Spezifikation FA-13.4, Prüfung P-D49).
+  static DateTime? proIncludedUntil(LicenseRecord record, DateTime now) {
+    final start = record.trialStartedAt;
+    if (record.tier != Tier.basis || start == null) return null;
+    if (record.trialIsPromo || record.introOffer == false) return null;
+    final end = start.add(const Duration(days: trialDays));
+    return now.isBefore(end) ? end : null;
+  }
+
+  /// Ganze Tage bis [end], aufgerundet („Noch 3 Tage“).
+  static int daysLeft(DateTime end, DateTime now) {
+    final hours = end.difference(now).inHours;
+    return hours <= 0 ? 0 : (hours + 23) ~/ 24;
   }
 
   /// Seit [offlineWarnDays] ohne Bestätigung: Hinweis vor der Herabstufung.
@@ -218,9 +274,12 @@ class LicensePolicy {
 
   /// Ende des Tests, solange die Erinnerung fällig ist (L-10.3), sonst `null`.
   /// Beim Promo-Code endet die Gratiszeit nach [promoFreeMonths] Monaten.
+  /// Gilt für Pro und – als „danach Basis“ – für Basis mit Pro inklusive.
   static DateTime? trialReminder(LicenseRecord record, DateTime now) {
     final start = record.trialStartedAt;
-    if (start == null || record.tier != Tier.pro) return null;
+    if (start == null || record.tier == null) return null;
+    if (record.introOffer == false && !record.trialIsPromo) return null;
+    if (record.tier == Tier.basis && record.trialIsPromo) return null;
     final end = record.trialIsPromo
         ? DateTime(start.year, start.month + promoFreeMonths, start.day)
         : start.add(const Duration(days: trialDays));
@@ -238,7 +297,13 @@ class LicenseRecord {
     this.trialStartedAt,
     this.downgradedFrom,
     this.trialIsPromo = false,
+    this.introOffer,
   });
+
+  /// iOS: StoreKit 2 meldet die aktive Transaktion als Einführungsangebot
+  /// (`true`) bzw. als regulär bezahlt (`false`); `null` = unbekannt
+  /// (Android liefert kein Kennzeichen, O-42).
+  final bool? introOffer;
 
   /// Gratiszeit aus dem Promo-Code statt aus dem 14-Tage-Test (FA-13.13).
   final bool trialIsPromo;
@@ -252,7 +317,9 @@ class LicenseRecord {
   /// Je ein Abo gehabt – entscheidet zwischen „kein Abo“ und „nur lesen“.
   final bool everSubscribed;
 
-  /// Erster Kauf von Pro ohne früheres Abo: Beginn des Store-Tests.
+  /// Beginn des ersten Abos (Basis oder Pro) dieser Installation bzw. dieses
+  /// Store-Kontos: Beginn der Testzeit (O-42). Bleibt beim frühesten je
+  /// gemeldeten Kaufzeitpunkt; beim Promo-Code der Einlösezeitpunkt.
   final DateTime? trialStartedAt;
 
   /// Stufe vor der letzten Herabstufung, bis die Nutzerin den Hinweis
@@ -266,8 +333,10 @@ class LicenseRecord {
     DateTime? Function()? trialStartedAt,
     Tier? Function()? downgradedFrom,
     bool? trialIsPromo,
+    bool? Function()? introOffer,
   }) => LicenseRecord(
     trialIsPromo: trialIsPromo ?? this.trialIsPromo,
+    introOffer: introOffer == null ? this.introOffer : introOffer(),
     tier: tier == null ? this.tier : tier(),
     checkedAt: checkedAt ?? this.checkedAt,
     everSubscribed: everSubscribed ?? this.everSubscribed,
@@ -286,6 +355,7 @@ class LicenseRecord {
     'trialStartedAt': trialStartedAt?.toIso8601String(),
     'downgradedFrom': downgradedFrom?.name,
     'trialIsPromo': trialIsPromo,
+    'introOffer': introOffer,
   };
 
   static LicenseRecord fromJson(Map<String, Object?> json) {
@@ -299,6 +369,9 @@ class LicenseRecord {
       trialStartedAt: dateOf(json['trialStartedAt']),
       downgradedFrom: tierOf(json['downgradedFrom']),
       trialIsPromo: json['trialIsPromo'] == true,
+      introOffer: json['introOffer'] is bool
+          ? json['introOffer'] as bool
+          : null,
     );
   }
 }

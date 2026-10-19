@@ -21,6 +21,8 @@ import 'package:buchhaltung/services/tax_office/u30_xml.dart';
 import 'package:buchhaltung/services/contracts/contract_schedule.dart';
 import 'package:buchhaltung/services/receipt_scan/document_scanner.dart';
 import 'package:buchhaltung/services/logo_store.dart';
+import 'package:buchhaltung/services/demo/demo_dataset.dart';
+import 'package:buchhaltung/services/demo/demo_mode.dart';
 import 'package:buchhaltung/services/licensing/license_policy.dart';
 import 'package:buchhaltung/services/platform_import/platform_import_plan.dart';
 import 'package:buchhaltung/widgets/primary_action_bar.dart';
@@ -113,6 +115,12 @@ void main() {
         value('spec.license_product_ids'),
         LicensePolicy.products.map((p) => p.id).join(','),
       );
+    });
+
+    test('Demo stimmt (FA-13.14)', () {
+      expect(intValue('spec.demo_receipt_count'), DemoDataset.receiptCount);
+      expect(value('spec.demo_watermark'), DemoMode.watermark);
+      expect(value('spec.demo_company'), DemoDataset.companyName);
     });
 
     test('App-Sperre stimmt', () {

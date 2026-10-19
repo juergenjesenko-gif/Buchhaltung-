@@ -9,6 +9,7 @@ import '../../widgets/adaptive.dart';
 import '../../widgets/common.dart';
 import '../../widgets/danger_zone.dart';
 import '../../widgets/primary_action_bar.dart';
+import '../licensing/feature_gate.dart';
 
 /// Abschnitt „Steuerliche Registrierungen“ in den Stammdaten (FA-18.1):
 /// Heimatland plus „Weitere Länder“ und „Land hinzufügen“.
@@ -206,6 +207,9 @@ class _TaxRegistrationScreenState extends State<TaxRegistrationScreen> {
 
   Future<void> _save() async {
     if (!_form.currentState!.validate()) return;
+    // Demo (FA-13.14): nichts speichern.
+    if (!await ensureWritable(context)) return;
+    if (!mounted) return;
     setState(() => _saving = true);
     final state = AppScope.read(context);
     await state.saveRegistration(

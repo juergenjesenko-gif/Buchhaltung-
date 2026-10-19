@@ -29,11 +29,39 @@ gebaut, und was war darin geprüft?*
 
 ## Unveröffentlicht
 
-Änderungen seit 0.26.0+39, die noch in keinem Build stecken. Wandern beim
+Änderungen seit 0.27.0+40, die noch in keinem Build stecken. Wandern beim
 nächsten Versionssprung in den neuen Eintrag.
 
 | Art | Änderung | Bezug | Commit |
 |---|---|---|---|
+
+---
+
+## 0.27.0+40 — 2026-10-19
+
+| Feld | Wert |
+|---|---|
+| Art | Testbuild (ungezippte arm64-APK `JeNi-bucht-0.27.0-build-<Nr>.apk`, fester Testschlüssel); **Lizenzprüfung aus** (ohne `LICENSING=true`), alle Funktionen frei. Die Demo ist im Testbuild über **Einstellungen → Demo ansehen** erreichbar; Startauswahl und Testzeit-Logik wirken erst im Store-Build |
+| Commit | `dieser Commit` |
+| Branch | `claude/agile-accounting-app-mobile-wa5j3h` |
+| Dokumentstände | Lastenheft 1.80, Spezifikation 1.85, Benutzerhandbuch für 0.27.0, DESIGN_SPEC 1.4 |
+| Datenbankschema | 27 |
+| Prüfung | `flutter analyze` ohne Befund, alle Tests grün (neu `demo_test.dart`: Musterdaten, keine echten Marken, Schreibschutz, echte Datenbank unberührt, Wasserzeichen auf jeder PDF-Seite, Teilen gesperrt, Startauswahl/Band/Blatt ≥ 48 dp in der Daumenzone, Demo endet mit Abo; erweitert `licensing_test.dart`: Anspruchsmatrix, Android-Testfenster inkl. Neuinstallation, iOS-Einführungsangebot mit Fake, Abo-Seite; `specification_sync_test.dart`: `spec.demo_*`); Prüfmappen neu erzeugt; Android/iOS-Build nur in der CI |
+| Steuerliche Kennwerte | neu `spec.demo_company`, `spec.demo_receipt_count`, `spec.demo_watermark` |
+| Offene reale Prüfpunkte | wie 0.26.0+39, neu P-R55, P-R56, P-R57, P-S75, P-D46, P-D47, P-D48, P-X23; P-D30 jetzt mit Test auf allen vier Produkten |
+| Bekannte Grenzen | Spezifikation Abschnitt 11, neu „Testzeit auf Android nur genähert“, „Demo ohne PDF-Vorschau in der App“ |
+
+**Änderungen seit 0.26.0+39**
+
+| Art | Änderung | Bezug | Commit |
+|---|---|---|---|
+| Geändert | Test 14 Tage auf allen vier Produkten; Basis in der Testzeit des ersten Abos mit allen Pro-Funktionen, danach Basis (iOS StoreKit-2-Einführungsangebot, Android Zeitfenster ab Kaufzeitpunkt) – ersetzt „Store-Test nur auf Pro“ | O-42, L-10.3, L-22.3, FA-13.4 | dieser Commit |
+| Geändert | Abo-Seite: „14 Tage kostenlos testen – mit allen Pro-Funktionen. Danach gilt dein gewähltes Abo (‹Preis›). Jederzeit vorher im Store kündbar.“ auf beiden Karten, bei Basis „Nach dem Test gilt der Umfang von Basis.“; Pflichttext neu | FA-13.5, P-R57 | dieser Commit |
+| Neu | Hinweis 3 Tage vorher „Noch X Tage Pro inklusive – danach Basis. Jetzt auf Pro wechseln?“ | FA-13.8, L-10.3 | dieser Commit |
+| Neu | Demo ohne Abo: eigene schreibgeschützte Muster-Datenbank „Muster Handel e.U.“ mit 25 Belegen samt synthetischer Belegbilder, Rechnungen, Mahnung, Storno, Angeboten, Anlage, Verträgen; Speichern/Senden/Export/Sicherung gesperrt mit Hinweisblatt; „MUSTER – DEMO“ auf jeder PDF-Seite; Band oben; Einstellungen → Demo ansehen | O-42, L-10.6, FA-13.14 | dieser Commit |
+| Neu | Startauswahl im Store-Build ohne Abo: „Abo wählen – 14 Tage kostenlos“ / „Erst ansehen (Demo)“ | FA-13.15 | dieser Commit |
+| Behoben | Onboarding: Rechtsform-Auswahl lief auf 360 dp über den Rand | P-X23 | dieser Commit |
+| Doku | STORE_ANMELDUNG Formular 4 (Einführungsangebot auf allen vier Produkten, Apple-Gruppenregel), STORE_LISTING, Lastenheft 14a/O-42, interne Prüfung 2026-10-19, Prüfmappen | O-42, Spezifikation 14 | dieser Commit |
 
 ---
 

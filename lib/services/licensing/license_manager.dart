@@ -56,6 +56,17 @@ class LicenseManager {
   DateTime? get trialReminder =>
       enabled ? LicensePolicy.trialReminder(_record, _clock()) : null;
 
+  /// Basis-Abo mit „Pro inklusive in der Testzeit“ bis zu diesem Zeitpunkt
+  /// (O-42); `null` sonst.
+  DateTime? get proIncludedUntil =>
+      enabled ? LicensePolicy.proIncludedUntil(_record, _clock()) : null;
+
+  /// Ganze Tage bis [end] aus Sicht der Uhr des Managers.
+  int daysLeft(DateTime end) => LicensePolicy.daysLeft(end, _clock());
+
+  /// Aktive Stufe laut Store (für „Basis – Pro inklusive“ auf der Abo-Seite).
+  Tier? get activeTier => enabled ? _record.tier : Tier.pro;
+
   Tier? get downgradedFrom => enabled ? _record.downgradedFrom : null;
 
   /// Aktives Produkt, das ein neuer Kauf ersetzt (Wechsel in der Gruppe).
@@ -105,6 +116,7 @@ class LicenseManager {
           trialIsPromo: true,
         );
       }
+      if (tier != null) _mergeTrial(store.trialInfo());
       await _saveTier(tier);
     } on Object {
       _message = 'Store nicht erreichbar. Dein Abo gilt weiter.';
@@ -176,7 +188,9 @@ class LicenseManager {
         final product = LicensePolicy.product(event.productId ?? '');
         if (product == null) return;
         final now = _clock();
-        final firstTrial = !_record.everSubscribed && product.tier == Tier.pro;
+        // Erstes Abo, gleich welche Stufe: Beginn der Testzeit (O-42).
+        final firstTrial =
+            !_record.everSubscribed && _record.trialStartedAt == null;
         final promo = _promoPending && product.tier == Tier.pro;
         _promoPending = false;
         _activeProductId = product.id;
@@ -188,8 +202,13 @@ class LicenseManager {
           trialIsPromo: firstTrial || promo ? promo : null,
           downgradedFrom: () => null,
         );
+        _mergeTrial(_store?.trialInfo() ?? StoreTrialInfo.none);
         await cache.save(_record);
-        _message = '${product.tier == Tier.pro ? 'Pro' : 'Basis'} ist aktiv.';
+        _message = switch (LicensePolicy.entitlement(_record, now)) {
+          Entitlement.pro when product.tier == Tier.basis =>
+            'Basis ist aktiv – in der Testzeit mit allen Pro-Funktionen.',
+          _ => '${product.tier == Tier.pro ? 'Pro' : 'Basis'} ist aktiv.',
+        };
       case PurchaseEventKind.pending:
         _message =
             'Zahlung ausstehend. Der Store meldet sich, sobald sie '
@@ -200,6 +219,22 @@ class LicenseManager {
         _message = event.message ?? 'Der Kauf ist fehlgeschlagen.';
     }
     _notify();
+  }
+
+  /// Testangaben des Stores übernehmen (O-42): der früheste je gemeldete
+  /// Kaufzeitpunkt bleibt Beginn der Testzeit; iOS-Kennzeichen ersetzt den
+  /// alten Wert. Beim Promo-Code bleibt dessen Einlösezeitpunkt.
+  void _mergeTrial(StoreTrialInfo info) {
+    final at = info.firstPurchaseAt;
+    final start = _record.trialStartedAt;
+    final earlier =
+        !_record.trialIsPromo &&
+        at != null &&
+        (start == null || at.isBefore(start));
+    _record = _record.copyWith(
+      trialStartedAt: earlier ? () => at : null,
+      introOffer: info.introOffer == null ? null : () => info.introOffer,
+    );
   }
 
   Future<void> _saveTier(Tier? tier) async {

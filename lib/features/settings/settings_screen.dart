@@ -1,3 +1,4 @@
+import '../demo/demo_screens.dart';
 import '../licensing/subscription_screen.dart';
 import 'feedback_screen.dart';
 import '../helper/helper_devices_screen.dart';
@@ -206,6 +207,28 @@ class SettingsScreen extends StatelessWidget {
                 onTap: () => Navigator.of(context).push(
                   MaterialPageRoute(builder: (_) => const SubscriptionScreen()),
                 ),
+              ),
+            ),
+            const SizedBox(height: 16),
+            // Demo (FA-13.14): Musterfirma ansehen, auch mit Abo und im
+            // Testbuild; nichts wird gespeichert.
+            Card(
+              child: ListTile(
+                key: const Key('settings-demo'),
+                leading: Icon(
+                  state.isDemo ? Icons.logout : Icons.visibility_outlined,
+                ),
+                title: Text(state.isDemo ? 'Demo beenden' : 'Demo ansehen'),
+                subtitle: Text(
+                  state.isDemo
+                      ? 'Zurück zu deinen eigenen Daten'
+                      : 'Musterfirma ansehen und ausprobieren – nichts wird '
+                            'gespeichert',
+                ),
+                trailing: const Icon(Icons.chevron_right),
+                onTap: () => state.isDemo
+                    ? state.leaveDemo()
+                    : startDemo(context, fromSettings: true),
               ),
             ),
             const SizedBox(height: 16),

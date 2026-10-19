@@ -21,7 +21,33 @@ class AppDatabase {
 
   Database? _db;
 
-  Future<Database> get database async => _db ??= await _open();
+  /// Muster-Datenbank der Demo (FA-13.14); solange gesetzt, liefert
+  /// [database] sie statt der echten Datei. Die echte Datenbank bleibt dabei
+  /// unberührt geöffnet, die Demo sieht sie nie.
+  Database? _demo;
+
+  Future<Database> get database async => _demo ?? (_db ??= await _open());
+
+  /// Zuletzt verlassene Muster-Datenbank. Erst beim nächsten Demo-Start
+  /// geschlossen: Bildschirme, die beim Verlassen noch laden, laufen sonst
+  /// in „database closed“.
+  Database? _retired;
+
+  /// Demo starten: alle Zugriffe über [database] gehen an [demo].
+  Future<void> enterDemo(Database demo) async {
+    final old = _retired;
+    _retired = null;
+    await old?.close();
+    _demo = demo;
+  }
+
+  /// Demo beenden: wieder die echte Datei.
+  void leaveDemo() {
+    if (_demo != null) _retired = _demo;
+    _demo = null;
+  }
+
+  bool get inDemo => _demo != null;
 
   Future<Database> _open() async {
     final dir = await getApplicationDocumentsDirectory();

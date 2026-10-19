@@ -74,6 +74,13 @@ class FakeStoreBilling implements StoreBilling {
     return true;
   }
 
+  /// Testangaben, die der Fake meldet (Android: nur Zeitpunkt; iOS mit
+  /// Kennzeichen des Einführungsangebots).
+  StoreTrialInfo trial = StoreTrialInfo.none;
+
+  @override
+  StoreTrialInfo trialInfo() => trial;
+
   @override
   Stream<PurchaseEvent> get events => _events.stream;
 }

@@ -40,14 +40,18 @@ import 'services/mail/mail_credentials.dart';
 import 'services/mail/mail_server.dart';
 import 'dart:io';
 import 'package:path/path.dart' as p;
+import 'package:sqflite/sqflite.dart' show Database;
+import 'services/demo/demo_mode.dart';
 
 /// Anwendungszustand. Bewusst ein einziger [ChangeNotifier] statt eines
 /// State-Management-Pakets: der Zustand dieser App ist klein und
 /// überschaubar, und jede Abhängigkeit weniger ist eine Abhängigkeit weniger,
 /// die vor einem Store-Release aktualisiert werden muss.
 class AppState extends ChangeNotifier {
-  AppState(this.repositories, {LicenseManager? license})
-    : license =
+  AppState(Repositories repositories, {LicenseManager? license})
+    : _realRepositories = repositories,
+      _repositories = repositories,
+      license =
           license ??
           LicenseManager(
             cache: LicensePolicy.enabled
@@ -55,7 +59,7 @@ class AppState extends ChangeNotifier {
                 : MemoryLicenseCache(),
             billing: InAppPurchaseBilling.new,
           ) {
-    this.license.onChanged = notifyListeners;
+    this.license.onChanged = _onLicenseChanged;
   }
 
   // ---------------------------------------------------------------------
@@ -63,9 +67,87 @@ class AppState extends ChangeNotifier {
 
   final LicenseManager license;
 
-  Entitlement get entitlement => license.entitlement;
+  /// In der Demo immer [Entitlement.demo] (FA-13.14), sonst der Anspruch
+  /// aus dem Store – die einzige Quelle für alle Bildschirme.
+  Entitlement get entitlement => _demo ? Entitlement.demo : license.entitlement;
 
-  bool allows(Feature feature) => license.allows(feature);
+  bool allows(Feature feature) => entitlement.allows(feature);
+
+  void _onLicenseChanged() {
+    // Abo abgeschlossen, während die Demo vom ersten Start aus lief: Demo
+    // verlassen, echte Einrichtung beginnt leer (FA-13.14).
+    if (_demo &&
+        !_demoFromSettings &&
+        license.entitlement.allows(Feature.newBookings)) {
+      leaveDemo();
+      return;
+    }
+    notifyListeners();
+  }
+
+  // ---------------------------------------------------------------------
+  // Demo (FA-13.14, Entscheidung Auftraggeber 2026-10-19, O-42)
+
+  final Repositories _realRepositories;
+  Repositories _repositories;
+  bool _demo = false;
+  bool _demoFromSettings = false;
+  Future<void> Function()? _demoCleanup;
+
+  /// Läuft die Demo mit der Muster-Datenbank?
+  bool get isDemo => _demo;
+
+  /// Demo über Einstellungen geöffnet (mit Abo oder im Testbuild): Banner
+  /// bietet „Demo beenden“ statt „Abo wählen“.
+  bool get demoFromSettings => _demoFromSettings;
+
+  /// Startauswahl beim ersten Start im Store-Build ohne Abo: „Abo wählen –
+  /// 14 Tage kostenlos“ oder „Erst ansehen (Demo)“.
+  bool get showStartChoice =>
+      !_demo &&
+      license.enabled &&
+      needsOnboarding &&
+      !isHelperDevice &&
+      !license.entitlement.allows(Feature.newBookings);
+
+  /// Öffnet die Muster-Datenbank [demoDb] (siehe `DemoSession.open`) und
+  /// zeigt nur noch sie. Die echte Datenbank bleibt unberührt.
+  Future<void> enterDemo(
+    Database demoDb, {
+    bool fromSettings = false,
+    Future<void> Function()? onLeave,
+  }) async {
+    if (_demo) return;
+    _demoCleanup = onLeave;
+    _isLoading = true;
+    notifyListeners();
+    await AppDatabase.instance.enterDemo(demoDb);
+    DemoMode.active = true;
+    _demo = true;
+    _demoFromSettings = fromSettings;
+    _repositories = Repositories(demoDb);
+    await reload();
+  }
+
+  /// Zurück zu den echten Daten.
+  Future<void> leaveDemo() async {
+    if (!_demo) return;
+    _isLoading = true;
+    notifyListeners();
+    _demo = false;
+    _demoFromSettings = false;
+    DemoMode.active = false;
+    _repositories = _realRepositories;
+    AppDatabase.instance.leaveDemo();
+    final cleanup = _demoCleanup;
+    _demoCleanup = null;
+    try {
+      await cleanup?.call();
+    } on Object {
+      // Aufräumen ist Komfort; nie die Rückkehr blockieren.
+    }
+    await reload();
+  }
 
   /// Gespeicherten Stand laden, dann beim Store prüfen (L-22.5).
   Future<void> initLicense() async {
@@ -172,7 +254,9 @@ class AppState extends ChangeNotifier {
     notifyListeners();
   }
 
-  final Repositories repositories;
+  /// Repositories der laufenden Datenbank: echte Daten oder – in der Demo –
+  /// die Muster-Datenbank.
+  Repositories get repositories => _repositories;
 
   late final VatCheckService vatCheckService = VatCheckService(
     repositories.vatChecks,
@@ -209,7 +293,7 @@ class AppState extends ChangeNotifier {
   /// beim Start und bei Rückkehr in die App; Ergebnis und Fehler stehen danach
   /// in den Einstellungen und auf der Übersicht.
   Future<void> runAutoBackupIfDue() async {
-    if (_autoBackupRunning || _profile == null) return;
+    if (_demo || _autoBackupRunning || _profile == null) return;
     _autoBackupRunning = true;
     try {
       final service = await autoBackupService();
@@ -231,7 +315,7 @@ class AppState extends ChangeNotifier {
   /// Hintergrund und blockiert nie die Oberfläche; Fehler bleiben folgenlos.
   Future<void> runVatChecksIfDue() async {
     final profile = _profile;
-    if (profile == null || _vatCheckRunning) return;
+    if (_demo || profile == null || _vatCheckRunning) return;
     if (!profile.vatCheckDue(DateTime.now())) return;
     _vatCheckRunning = true;
     try {
@@ -327,7 +411,7 @@ class AppState extends ChangeNotifier {
   /// Gemeinsamen Ordner prüfen (Start, Rückkehr in die App). Nie auf einem
   /// Mithelfer-Gerät. Fehler bleiben still; der Eingang zeigt den Stand.
   Future<void> syncHelperInbox() async {
-    if (isHelperDevice || needsOnboarding) return;
+    if (_demo || isHelperDevice || needsOnboarding) return;
     try {
       final folder = await inboxFolder();
       if (folder != null) await (await helperInbox()).syncFolder(folder);
@@ -365,7 +449,8 @@ class AppState extends ChangeNotifier {
   Future<MailSyncOutcome?> runMailSync({
     MailTrigger trigger = MailTrigger.appOpen,
   }) async {
-    if (needsOnboarding && !isHelperDevice) return null;
+    // Kein Mailweg in der Demo (FA-13.14).
+    if (_demo || (needsOnboarding && !isHelperDevice)) return null;
     try {
       final outcome = await (await mailSync()).run(trigger);
       lastMailError = outcome.error;
@@ -380,6 +465,7 @@ class AppState extends ChangeNotifier {
   /// Hintergrundauftrag passend zur Rolle planen (stündlich lesen bzw.
   /// täglich senden) oder entfernen.
   Future<void> configureMailBackground() async {
+    if (_demo) return;
     final link = _helperLink;
     String? role;
     if (link != null) {
@@ -414,10 +500,13 @@ class AppState extends ChangeNotifier {
     _inboxCount = (await repositories.helpers.inbox()).length;
     _missingConsents = await repositories.consents.missing();
     _profile = await repositories.company.load();
+    _smallBusiness = null;
+    _deadlines = null;
     _categories = await repositories.categories.all();
     _registrations = await repositories.registrations.all();
     // Vor Schema 11 als bezahlt markierte Rechnungen nachbuchen (L-25.9).
-    await repositories.invoices.bookMissingPayments();
+    // Die Muster-Datenbank ist schreibgeschützt und schon vollständig.
+    if (!_demo) await repositories.invoices.bookMissingPayments();
     if (_profile != null) {
       Fmt.setCountry(_profile!.country);
       await _refreshSmallBusiness();

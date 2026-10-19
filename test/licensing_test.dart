@@ -10,6 +10,7 @@ import 'package:buchhaltung/services/licensing/fake_store_billing.dart';
 import 'package:buchhaltung/services/licensing/license_cache.dart';
 import 'package:buchhaltung/services/licensing/license_manager.dart';
 import 'package:buchhaltung/services/licensing/license_policy.dart';
+import 'package:buchhaltung/services/licensing/store_billing.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:intl/date_symbol_data_local.dart';
@@ -52,8 +53,13 @@ void main() {
           expect(e.allows(feature), isFalse, reason: '$e $feature');
         }
       }
-      // Jede Funktion ist entweder Pro oder ab Basis – keine vergessen.
-      expect(Feature.values.toSet(), {...proOnly, Feature.newBookings});
+      // Jede Funktion ist entweder Pro, ab Basis oder Export – keine
+      // vergessen.
+      expect(Feature.values.toSet(), {
+        ...proOnly,
+        Feature.newBookings,
+        Feature.dataExport,
+      });
       expect(Entitlement.pro.allows(Feature.newBookings), isTrue);
     });
 
@@ -80,6 +86,127 @@ void main() {
         );
       },
     );
+
+    group('Anspruchsmatrix (O-42, FA-13.4, FA-13.14)', () {
+      LicenseRecord sub(Tier tier, {bool? intro, DateTime? start}) =>
+          LicenseRecord(
+            tier: tier,
+            checkedAt: day0,
+            everSubscribed: true,
+            trialStartedAt: start ?? day0,
+            introOffer: intro,
+          );
+
+      test('kein Abo → keine Buchungen, Startauswahl mit Demo', () {
+        final e = LicensePolicy.entitlement(const LicenseRecord(), day0);
+        expect(e, Entitlement.none);
+        expect(e.allows(Feature.newBookings), isFalse);
+        expect(e.allows(Feature.dataExport), isTrue);
+      });
+
+      test('Demo: ansehen und ausprobieren, nichts speichern oder teilen', () {
+        const d = Entitlement.demo;
+        expect(d.allows(Feature.receiptRecognition), isTrue);
+        expect(d.allows(Feature.exchangeRateFetch), isTrue);
+        expect(d.allows(Feature.annualReports), isTrue);
+        for (final f in [
+          Feature.newBookings,
+          Feature.dataExport,
+          Feature.pdfSending,
+          Feature.dunningSending,
+          Feature.helperDevices,
+          Feature.dataImport,
+          Feature.taxOfficeSubmission,
+          Feature.assetManagement,
+          Feature.contractSummary,
+          Feature.invoiceLogo,
+        ]) {
+          expect(d.allows(f), isFalse, reason: '$f');
+        }
+      });
+
+      test('Basis in der Testzeit → Pro, danach Basis, Daten bleiben', () {
+        final r = sub(Tier.basis);
+        final in13 = day0.add(const Duration(days: 13, hours: 23));
+        expect(LicensePolicy.entitlement(r, in13), Entitlement.pro);
+        expect(
+          LicensePolicy.proIncludedUntil(r, in13),
+          day0.add(const Duration(days: 14)),
+        );
+        final after = day0.add(const Duration(days: 14));
+        expect(LicensePolicy.entitlement(r, after), Entitlement.basis);
+        expect(LicensePolicy.proIncludedUntil(r, after), isNull);
+        expect(
+          LicensePolicy.entitlement(r, after).allows(Feature.newBookings),
+          isTrue,
+        );
+      });
+
+      test('Pro bleibt Pro; abgelaufen → nur lesen, Export bleibt', () {
+        final pro = sub(Tier.pro);
+        expect(
+          LicensePolicy.entitlement(pro, day0.add(const Duration(days: 30))),
+          Entitlement.pro,
+        );
+        const expired = LicenseRecord(everSubscribed: true);
+        final e = LicensePolicy.entitlement(expired, day0);
+        expect(e, Entitlement.readOnly);
+        expect(e.allows(Feature.newBookings), isFalse);
+        expect(e.allows(Feature.dataExport), isTrue);
+      });
+
+      test('iOS meldet kein Einführungsangebot → kein Pro inklusive', () {
+        final r = sub(Tier.basis, intro: false);
+        expect(LicensePolicy.entitlement(r, day0), Entitlement.basis);
+        expect(LicensePolicy.trialReminder(r, day0), isNull);
+        final yes = sub(Tier.basis, intro: true);
+        expect(LicensePolicy.entitlement(yes, day0), Entitlement.pro);
+      });
+
+      test('Erinnerung 3 Tage vorher: „Noch X Tage Pro inklusive“', () {
+        final r = sub(Tier.basis);
+        final at = day0.add(const Duration(days: 11, hours: 1));
+        final end = LicensePolicy.trialReminder(r, at);
+        expect(end, day0.add(const Duration(days: 14)));
+        expect(LicensePolicy.daysLeft(end!, at), 3);
+        expect(
+          LicensePolicy.trialReminder(r, day0.add(const Duration(days: 10))),
+          isNull,
+        );
+      });
+    });
+
+    group('Testangaben der Stores (O-42)', () {
+      test('iOS: StoreKit-2-JSON mit offerType 1 = Einführungsangebot', () {
+        final ms = day0.millisecondsSinceEpoch;
+        final intro = StoreTrialInfo.fromAppleTransactionJson(
+          '{"productId":"basis_monat","originalPurchaseDate":$ms,'
+          '"purchaseDate":$ms,"offerType":1,"offerDiscountType":"FREE_TRIAL"}',
+        );
+        expect(intro.introOffer, isTrue);
+        expect(intro.firstPurchaseAt, day0);
+        final paid = StoreTrialInfo.fromAppleTransactionJson(
+          '{"productId":"basis_monat","originalPurchaseDate":$ms}',
+        );
+        expect(paid.introOffer, isFalse);
+        expect(
+          StoreTrialInfo.fromAppleTransactionJson('kaputt').introOffer,
+          isNull,
+        );
+      });
+
+      test('Android: nur Kaufzeitpunkt, frühester gewinnt', () {
+        final a = StoreTrialInfo.fromAndroidPurchaseTime(
+          '${day0.millisecondsSinceEpoch}',
+        );
+        expect(a.introOffer, isNull);
+        expect(a.firstPurchaseAt, day0);
+        final later = StoreTrialInfo(
+          firstPurchaseAt: day0.add(const Duration(days: 3)),
+        );
+        expect(StoreTrialInfo.merge([later, a]).firstPurchaseAt, day0);
+      });
+    });
 
     test('Jede gesperrte Funktion hat eine Begründung', () {
       for (final feature in Feature.values) {
@@ -188,6 +315,66 @@ void main() {
       expect(m.trialReminder, DateTime(2027, 1, 1));
       final json = LicenseRecord.fromJson(m.record.toJson());
       expect(json.trialIsPromo, isTrue);
+    });
+
+    test('Android: Basis kaufen → 14 Tage Pro inklusive ab Kaufzeitpunkt, '
+        'danach Basis', () async {
+      final m = manager();
+      await m.init();
+      await m.refresh();
+      expect(m.entitlement, Entitlement.none);
+      final basis = m.offers!.firstWhere((o) => o.product.id == 'basis_monat');
+      await m.buy(basis);
+      await pumpEventQueue();
+      expect(m.entitlement, Entitlement.pro);
+      expect(m.message, contains('allen Pro-Funktionen'));
+      expect(m.proIncludedUntil, day0.add(const Duration(days: 14)));
+      // Neuinstallation: Keystore leer, Store meldet den alten Kaufzeitpunkt.
+      cache = MemoryLicenseCache();
+      store.trial = StoreTrialInfo(
+        firstPurchaseAt: day0.subtract(const Duration(days: 20)),
+      );
+      final again = manager();
+      await again.init();
+      await again.refresh();
+      expect(again.entitlement, Entitlement.basis);
+      expect(
+        again.record.trialStartedAt,
+        day0.subtract(const Duration(days: 20)),
+      );
+      // Zeitfenster abgelaufen beim ersten Gerät.
+      now = day0.add(const Duration(days: 15));
+      expect(m.entitlement, Entitlement.basis);
+    });
+
+    test(
+      'iOS: Basis mit Einführungsangebot → Pro; Verlängerung → Basis',
+      () async {
+        store.active = {'basis_jahr'};
+        store.trial = StoreTrialInfo(firstPurchaseAt: day0, introOffer: true);
+        final m = manager();
+        await m.refresh();
+        expect(m.entitlement, Entitlement.pro);
+        expect(m.record.introOffer, isTrue);
+        // StoreKit meldet die bezahlte Folgetransaktion ohne offerType.
+        store.trial = StoreTrialInfo(firstPurchaseAt: day0, introOffer: false);
+        now = day0.add(const Duration(days: 2));
+        await m.refresh();
+        expect(m.entitlement, Entitlement.basis);
+        final json = LicenseRecord.fromJson(m.record.toJson());
+        expect(json.introOffer, isFalse);
+      },
+    );
+
+    test('Pro gewählt bleibt Pro über die Testzeit hinaus', () async {
+      final m = manager();
+      await m.refresh();
+      await m.buy(m.offers!.firstWhere((o) => o.product.id == 'pro_jahr'));
+      await pumpEventQueue();
+      now = day0.add(const Duration(days: 40));
+      await m.refresh();
+      expect(m.entitlement, Entitlement.pro);
+      expect(m.proIncludedUntil, isNull);
     });
 
     test('Promo-Code: Einlöse-Links der Stores', () {
@@ -323,7 +510,16 @@ void main() {
     ) async {
       await pump(tester, const SubscriptionScreen(), active: {});
       expect(find.text('24,90 € pro Monat'), findsOneWidget);
-      expect(find.text('14 Tage kostenlos testen'), findsOneWidget);
+      // O-42: Test auf beiden Stufen, Text mit Pro-Funktionen und Folgepreis.
+      expect(find.text('Pro – 14 Tage kostenlos'), findsOneWidget);
+      expect(
+        find.text(
+          '14 Tage kostenlos testen – mit allen Pro-Funktionen. Danach gilt '
+          'dein gewähltes Abo (24,90 € pro Monat). Jederzeit vorher im Store '
+          'kündbar.',
+        ),
+        findsOneWidget,
+      );
       await tester.tap(find.text('Jährlich'));
       await tester.pumpAndSettle();
       expect(find.text('238,90 € pro Jahr'), findsOneWidget);
@@ -341,7 +537,14 @@ void main() {
         final f = find.byKey(Key(key));
         await tester.scrollUntilVisible(f, 100);
         expect(tester.getSize(f).height, greaterThanOrEqualTo(48), reason: key);
+        if (key == 'subscription-buy-basis') {
+          expect(find.text('Basis – 14 Tage kostenlos'), findsOneWidget);
+        }
       }
+      await tester.scrollUntilVisible(
+        find.byKey(const Key('subscription-terms')),
+        -100,
+      );
       expect(
         find.textContaining('verlängert sich automatisch um ein Jahr'),
         findsOneWidget,

@@ -112,6 +112,9 @@ class _DunningSheetState extends State<_DunningSheet> {
   }
 
   Future<void> _create() async {
+    // Demo (FA-13.14): kein Mahnschreiben speichern.
+    if (!await ensureWritable(context)) return;
+    if (!mounted) return;
     setState(() => _busy = true);
     final state = AppScope.read(context);
     final profile = state.profile!;

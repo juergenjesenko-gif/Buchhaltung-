@@ -1,6 +1,6 @@
 # Anmeldung bei Google Play und Apple – Formularvorlage
 
-**Stand:** 2026-10-13 · Schritt 3–6 aus `STORE_READINESS.md`. Feldnamen und Abläufe
+**Stand:** 2026-10-19 · Schritt 3–6 aus `STORE_READINESS.md`. Feldnamen und Abläufe
 sind aus öffentlichen Quellen zusammengestellt, nicht live in den Konsolen geprüft;
 was die Konsole tatsächlich verlangt, kann abweichen (Prüfpunkte P-R22, P-R23 in
 `SPECIFICATION.md` Abschnitt 14).
@@ -153,10 +153,15 @@ P-D30). Tippfehler = Abo wird nicht gefunden.
 
 | Produkt-ID | Tarif | Zeitraum | Preis inkl. USt (Lastenheft 5.10) | Test |
 |---|---|---|---|---|
-| `basis_monat` | Basis | 1 Monat | 14,90 € | – |
-| `basis_jahr` | Basis | 1 Jahr | 142,90 € | – |
+| `basis_monat` | Basis | 1 Monat | 14,90 € | 14 Tage gratis |
+| `basis_jahr` | Basis | 1 Jahr | 142,90 € | 14 Tage gratis |
 | `pro_monat` | Pro | 1 Monat | 24,90 € | 14 Tage gratis |
 | `pro_jahr` | Pro | 1 Jahr | 238,90 € | 14 Tage gratis |
+
+**Test auf allen vier Produkten** (Entscheidung Auftraggeber 2026-10-19,
+Lastenheft O-42, ersetzt „Test nur auf Pro“): Wer Basis wählt, bekommt in den
+14 Tagen trotzdem alle Pro-Funktionen – das schaltet die App frei, im Store ist
+dafür nichts weiter einzurichten. Kündigung in den 14 Tagen kostet nichts.
 
 Rabattpreise (12,90 € / 19,90 €) **nicht** als Standardpreis eintragen, nur
 später als befristetes Angebot (P-R2).
@@ -175,8 +180,13 @@ später als befristetes Angebot (P-R2).
 4. Je Abo einen **Basis-Tarif** anlegen: „Automatische Verlängerung“, Zeitraum
    Monat bzw. Jahr (bei Google: ein Produkt je Zeile der Tabelle, je ein
    Basis-Tarif), Preis für Österreich und Deutschland eintragen, aktivieren.
-5. Bei `pro_monat` und `pro_jahr`: **Angebot hinzufügen** → Berechtigung
-   „Neukunden“ → Phase „Kostenloser Testzeitraum“ 14 Tage → aktivieren.
+5. Bei **allen vier** Abos (`basis_monat`, `basis_jahr`, `pro_monat`,
+   `pro_jahr`) am Basis-Tarif **Angebot hinzufügen**: Angebots-ID
+   `test-14-tage`, Berechtigung **„Neukundenakquisition“ → „Hat noch nie ein
+   Abo gehabt“** (bezogen auf die ganze App, nicht nur dieses Produkt), Phase
+   **„Kostenloser Testzeitraum“ 14 Tage** → aktivieren. Folge: wer schon
+   einmal ein Abo der App hatte, bekommt keinen zweiten Test; die App zeigt
+   Pro inklusive auf Android trotzdem 14 Tage ab dem Kauf (Näherung, P-D46).
 6. Je Basis-Tarif **Kulanzzeitraum** (Grace Period) auf 7 Tage oder mehr
    stellen.
 7. Testkonten eintragen: Play Console → **Einstellungen → Lizenztests** →
@@ -194,7 +204,14 @@ später als befristetes Angebot (P-R2).
 4. Je Abo Preis für Österreich und Deutschland wählen (Preisstufe nächst
    14,90 € usw.), Anzeigename und Beschreibung auf Deutsch, Prüfungs-Screenshot
    der Abo-Seite der App.
-5. Bei beiden Pro-Abos **Einführungsangebot** → „Kostenlos“ → 2 Wochen.
+5. Bei **allen vier** Abos **Einführungsangebot** (Introductory Offer) →
+   Länder Österreich und Deutschland → Art **„Kostenlos“** → Dauer
+   **2 Wochen** → Startdatum heute, ohne Enddatum.
+   **Wichtig (Apple-Regel):** Ein Einführungsangebot gilt **einmal je
+   Abogruppe und Apple-ID**, nicht je Produkt. Wer Basis testet, kann später
+   Pro nicht noch einmal gratis testen, und ein Wechsel auf Pro in der
+   Testzeit wird sofort zum Pro-Preis abgerechnet. Das ist gewollt: Pro ist
+   in der Basis-Testzeit ohnehin enthalten (P-D47).
 6. In der Abogruppe **Kulanzzeitraum für Abrechnung** (Billing Grace Period)
    einschalten.
 7. Sandbox-Testkonto anlegen:

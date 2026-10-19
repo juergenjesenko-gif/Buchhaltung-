@@ -1,0 +1,451 @@
+import 'dart:convert';
+import 'dart:io';
+
+import 'package:buchhaltung/app_state.dart';
+import 'package:buchhaltung/data/app_database.dart';
+import 'package:buchhaltung/data/repositories.dart';
+import 'package:buchhaltung/domain/legal_texts.dart';
+import 'package:buchhaltung/domain/money.dart';
+import 'package:buchhaltung/domain/receipt.dart';
+import 'package:buchhaltung/features/demo/demo_screens.dart';
+import 'package:buchhaltung/features/demo/demo_sheet.dart';
+import 'package:buchhaltung/features/licensing/feature_gate.dart';
+import 'package:buchhaltung/main.dart';
+import 'package:buchhaltung/services/demo/demo_dataset.dart';
+import 'package:buchhaltung/services/demo/demo_mode.dart';
+import 'package:buchhaltung/services/demo/demo_session.dart';
+import 'package:buchhaltung/services/invoice_pdf.dart';
+import 'package:buchhaltung/services/invoice_seller.dart';
+import 'package:buchhaltung/services/licensing/fake_store_billing.dart';
+import 'package:buchhaltung/services/licensing/license_cache.dart';
+import 'package:buchhaltung/services/licensing/license_manager.dart';
+import 'package:buchhaltung/services/licensing/license_policy.dart';
+import 'package:buchhaltung/services/share_service.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_test/flutter_test.dart';
+import 'package:intl/date_symbol_data_local.dart';
+import 'package:sqflite_common_ffi/sqflite_ffi.dart';
+
+/// Demo ohne Abo (FA-13.14, Entscheidung Auftraggeber 2026-10-19, O-42).
+void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
+  final today = DateTime(2026, 10, 19);
+  late Directory docs;
+
+  setUpAll(() async {
+    sqfliteFfiInit();
+    databaseFactory = databaseFactoryFfi;
+    await initializeDateFormatting('de');
+  });
+
+  setUp(() async {
+    docs = await Directory.systemTemp.createTemp('demo_test');
+    demoDocumentsDir = () async => docs;
+  });
+
+  tearDown(() async {
+    DemoMode.active = false;
+    DemoMode.onBlocked = null;
+    AppDatabase.instance.leaveDemo();
+    if (await docs.exists()) await docs.delete(recursive: true);
+  });
+
+  Future<Database> realDb() => databaseFactoryFfi.openDatabase(
+    inMemoryDatabasePath,
+    options: OpenDatabaseOptions(
+      version: AppDatabase.schemaVersion,
+      onCreate: AppDatabase.createSchema,
+      singleInstance: false,
+    ),
+  );
+
+  Future<Database> demoDb() => DemoSession.open(
+    documentsDir: docs,
+    today: today,
+    factory: databaseFactoryFfi,
+  );
+
+  group('Musterdaten', () {
+    test('Firma, Kundschaft, Belege mit Bildern, Rechnungen, Mahnung, '
+        'Storno, Angebote, Anlage, Verträge, zweites Steuerland', () async {
+      final db = await demoDb();
+      final repos = Repositories(db);
+      final profile = (await repos.company.load())!;
+      expect(profile.companyName, 'Muster Handel e.U.');
+      expect(profile.isSmallBusiness, isFalse, reason: 'Regelbesteuerung');
+      expect(await repos.consents.missing(), isEmpty);
+      expect((await repos.registrations.all()).single.country.code, 'DE');
+
+      final receipts = await db.query('receipts', where: 'invoice_id IS NULL');
+      expect(receipts.length, DemoDataset.receiptCount);
+      // Rechnungszahlungen sind als Einnahmen gebucht.
+      expect(
+        (await db.query('receipts', where: 'invoice_id IS NOT NULL')),
+        isNotEmpty,
+      );
+      final categories = {
+        for (final c in await repos.categories.all()) c.id: c.name,
+      };
+      final used = {for (final r in receipts) categories[r['category_id']]};
+      expect(
+        used,
+        containsAll([
+          'Kfz-Kosten',
+          'Material und Werkzeug',
+          'Bewirtung',
+          'Büromaterial',
+          'Reisekosten',
+        ]),
+      );
+      // Mehrere Steuersätze auf einem Beleg und fremde Währung.
+      final lines = await db.rawQuery(
+        'SELECT receipt_id, COUNT(*) AS n FROM receipt_vat_lines '
+        'GROUP BY receipt_id HAVING n > 1',
+      );
+      expect(lines, isNotEmpty);
+      expect(receipts.where((r) => r['currency'] == 'CHF'), hasLength(1));
+      // Jeder Betrag: net + vat == gross (Grundregel 2).
+      for (final r in receipts) {
+        expect(
+          (r['net_cents'] as int) + (r['vat_cents'] as int),
+          r['gross_cents'],
+        );
+      }
+      // Synthetische Belegbilder im eigenen Ordner, gültige PNGs.
+      final images = Directory('${docs.path}/demo_belege').listSync();
+      expect(images.length, greaterThanOrEqualTo(20));
+      final png = (images.first as File).readAsBytesSync();
+      expect(png.sublist(1, 4), utf8.encode('PNG'));
+
+      final invoices = await db.query('invoices');
+      final statuses = invoices.map((i) => i['status']).toList();
+      expect(statuses, containsAll(['paid', 'issued', 'cancelled']));
+      expect(statuses, contains('cancellation'));
+      expect(await db.query('dunning_notices'), hasLength(1));
+      expect(await db.query('offers'), hasLength(2));
+      expect(await db.query('fixed_assets'), hasLength(1));
+      expect(await db.query('contracts'), hasLength(2));
+      await db.close();
+    });
+
+    test('Keine echten Marken, keine echten Fotos (P-R56)', () async {
+      final db = await demoDb();
+      const brands = [
+        'omv',
+        'shell',
+        'bp',
+        'eni',
+        'jet',
+        'aral',
+        'hornbach',
+        'obi',
+        'bauhaus',
+        'lagerhaus',
+        'billa',
+        'spar',
+        'hofer',
+        'lidl',
+        'aldi',
+        'rewe',
+        'libro',
+        'pagro',
+        'mcdonald',
+        'starbucks',
+        'amazon',
+        'mediamarkt',
+        'saturn',
+        'magenta',
+        'telekom',
+        'vodafone',
+        'allianz',
+        'uniqa',
+        'generali',
+        'hilton',
+        'marriott',
+        'ikea',
+        'apple',
+        'google',
+      ];
+      RegExp word(String b) => RegExp('\\b$b\\b');
+      final rows = await db.query('receipts');
+      for (final r in rows) {
+        final text = '${r['counterparty']} ${r['description']}'.toLowerCase();
+        for (final b in brands) {
+          expect(word(b).hasMatch(text), isFalse, reason: '$b in $text');
+        }
+      }
+      for (final m in DemoDataset.merchants) {
+        for (final b in brands) {
+          expect(word(b).hasMatch(m.toLowerCase()), isFalse, reason: m);
+        }
+      }
+      // Kein Bild aus test/fixtures: alle Seiten liegen in demo_belege/.
+      final pages = await db.query('receipt_pages');
+      for (final p in pages) {
+        expect(p['image_path'] as String, startsWith('demo_belege'));
+      }
+      await db.close();
+    });
+  });
+
+  group('Abschottung', () {
+    test('Schreiben auf die Muster-Datenbank scheitert', () async {
+      final db = await demoDb();
+      DemoMode.active = true;
+      Object? error;
+      try {
+        await db.insert('customers', {'name': 'Neu'});
+      } on Object catch (e) {
+        error = e;
+      }
+      expect(error, isNotNull);
+      expect(DemoMode.isWriteBlocked(error!), isTrue);
+      await db.close();
+    });
+
+    test('Echte Datenbank bleibt unberührt, Demo verlassen zeigt sie '
+        'wieder', () async {
+      final real = await realDb();
+      await real.insert('company_profile', {'id': 1, 'company_name': 'Echt'});
+      await ConsentRepositoryHelper.acceptAll(real);
+      AppDatabase.instance.overrideDatabaseForTesting(real);
+      final state = AppState(
+        Repositories(real),
+        license: LicenseManager(
+          cache: MemoryLicenseCache(),
+          billing: FakeStoreBilling.new,
+          enabled: false,
+        ),
+      );
+      await state.reload();
+      expect(state.profile!.companyName, 'Echt');
+
+      var cleaned = false;
+      await state.enterDemo(
+        await demoDb(),
+        onLeave: () async {
+          await DemoSession.clear(docs);
+          cleaned = true;
+        },
+      );
+      expect(state.isDemo, isTrue);
+      expect(state.entitlement, Entitlement.demo);
+      expect(DemoMode.active, isTrue);
+      expect(state.profile!.companyName, 'Muster Handel e.U.');
+      expect(await AppDatabase.instance.database, isNot(same(real)));
+      await expectLater(
+        state.repositories.receipts.save(
+          Receipt(
+            date: today,
+            direction: BookingDirection.expense,
+            description: 'darf nicht',
+            net: const Money(100),
+            vat: const Money(20),
+            gross: const Money(120),
+            vatPermille: 200,
+          ),
+        ),
+        throwsA(isA<Object>()),
+      );
+
+      await state.leaveDemo();
+      expect(state.isDemo, isFalse);
+      expect(DemoMode.active, isFalse);
+      expect(state.profile!.companyName, 'Echt');
+      expect(cleaned, isTrue);
+      expect(Directory('${docs.path}/demo_belege').existsSync(), isFalse);
+      expect(await AppDatabase.instance.database, same(real));
+      expect(await real.query('receipts'), isEmpty);
+      expect(await real.query('customers'), isEmpty);
+      expect(await real.query('invoices'), isEmpty);
+      await real.close();
+    });
+  });
+
+  group('PDF und Teilen', () {
+    Future<Uint8List> demoInvoicePdf() async {
+      final db = await demoDb();
+      final repos = Repositories(db);
+      final invoice = (await repos.invoices.all()).firstWhere(
+        (i) => i.status.isLocked && !i.isCancellation,
+      );
+      final profile = (await repos.company.load())!;
+      final bytes = await InvoicePdf(
+        invoice: invoice,
+        customer: (await repos.customers.byId(invoice.customerId))!,
+        profile: InvoiceSeller.profileFor(invoice, profile),
+      ).build();
+      await db.close();
+      return bytes;
+    }
+
+    /// Seiten und Seiten mit gedrehtem Wasserzeichen (45°-Matrix im
+    /// entpackten Inhaltsstrom) zählen.
+    (int pages, int marked) watermarkCount(Uint8List bytes) {
+      final text = latin1.decode(bytes, allowInvalid: true);
+      final pages = RegExp(r'/Type\s*/Page\b').allMatches(text).length;
+      var marked = 0;
+      for (final m in RegExp(r'stream\r?\n').allMatches(text)) {
+        final end = text.indexOf('endstream', m.end);
+        if (end < 0) continue;
+        try {
+          final s = latin1.decode(
+            zlib.decode(bytes.sublist(m.end, end)),
+            allowInvalid: true,
+          );
+          if (s.contains('0.70711 0.70711 -0.70711 0.70711')) marked++;
+        } on Object {
+          // kein Inhaltsstrom
+        }
+      }
+      return (pages, marked);
+    }
+
+    test('„MUSTER – DEMO“ auf jeder Seite in der Demo, sonst nicht', () async {
+      DemoMode.active = true;
+      final bytes = await demoInvoicePdf();
+      final text = latin1.decode(bytes, allowInvalid: true);
+      expect(text, contains(DemoMode.watermarkKeyword));
+      final (pages, marked) = watermarkCount(bytes);
+      expect(pages, greaterThan(0));
+      expect(marked, pages);
+
+      DemoMode.active = false;
+      final real = await demoInvoicePdf();
+      expect(
+        latin1.decode(real, allowInvalid: true),
+        isNot(contains(DemoMode.watermarkKeyword)),
+      );
+      expect(watermarkCount(real).$2, 0);
+    });
+
+    test('Teilen ist in der Demo gesperrt und meldet das Blatt', () async {
+      DemoMode.active = true;
+      var blocked = 0;
+      DemoMode.onBlocked = () => blocked++;
+      await ShareService.sharePdf(
+        fileName: 'x.pdf',
+        bytes: Uint8List.fromList([1, 2, 3]),
+      );
+      await ShareService.shareCsv(fileName: 'x.csv', content: 'a;b');
+      expect(blocked, 2);
+    });
+  });
+
+  group('Oberfläche (UX, Daumen)', () {
+    /// Laden außerhalb der Test-Uhr abwarten (Datenbank im Hintergrund).
+    Future<void> settle(WidgetTester tester) async {
+      for (var i = 0; i < 6; i++) {
+        await tester.runAsync(
+          () => Future<void>.delayed(const Duration(milliseconds: 80)),
+        );
+        await tester.pump(const Duration(milliseconds: 50));
+      }
+    }
+
+    Future<AppState> pumpApp(WidgetTester tester) async {
+      // Schlüsselbund gibt es im Test nicht: leer antworten.
+      TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+          .setMockMethodCallHandler(
+            const MethodChannel('plugins.it_nomads.com/flutter_secure_storage'),
+            (call) async => null,
+          );
+      final real = (await tester.runAsync(realDb))!;
+      await tester.runAsync(() => ConsentRepositoryHelper.acceptAll(real));
+      AppDatabase.instance.overrideDatabaseForTesting(real);
+      final state = AppState(
+        Repositories(real),
+        license: LicenseManager(
+          cache: MemoryLicenseCache(),
+          billing: FakeStoreBilling.new,
+          enabled: true,
+        ),
+      );
+      await tester.runAsync(state.reload);
+      tester.view.physicalSize = const Size(360, 640);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.reset);
+      installDemoGuards();
+      await tester.pumpWidget(BuchhaltungApp(state: state));
+      await tester.pumpAndSettle();
+      return state;
+    }
+
+    testWidgets('Startauswahl: zwei große Knöpfe unten, Demo startet mit '
+        'Band, Speichern zeigt das Blatt', (tester) async {
+      final state = await pumpApp(tester);
+      expect(state.showStartChoice, isTrue);
+      final subscribe = find.byKey(const Key('start-subscribe'));
+      final demo = find.byKey(const Key('start-demo'));
+      expect(
+        find.text('Abo wählen – ${LicensePolicy.trialDays} Tage kostenlos'),
+        findsOneWidget,
+      );
+      expect(find.text('Erst ansehen (Demo)'), findsOneWidget);
+      for (final f in [subscribe, demo]) {
+        expect(tester.getSize(f).height, greaterThanOrEqualTo(48));
+        // Daumenzone: unteres Drittel des Bildschirms.
+        expect(tester.getCenter(f).dy, greaterThan(640 * 2 / 3));
+      }
+      expect(
+        tester.getTopLeft(demo).dy - tester.getBottomLeft(subscribe).dy,
+        greaterThanOrEqualTo(12),
+      );
+      expect(
+        find.textContaining('Jederzeit vorher im Store kündbar'),
+        findsOneWidget,
+      );
+
+      // Gleicher Weg wie der Knopf; echte Datenbankarbeit außerhalb der
+      // Test-Uhr.
+      await tester.runAsync(() => startDemo(tester.element(demo)));
+      await settle(tester);
+      expect(state.isDemo, isTrue);
+      final banner = find.byKey(const Key('demo-banner'));
+      expect(banner, findsOneWidget);
+      expect(tester.getSize(banner).height, greaterThanOrEqualTo(48));
+      expect(find.text(DemoBanner.text), findsOneWidget);
+
+      // Speichern in der Demo: Blatt statt Buchung.
+      final context = tester.element(find.byType(Scaffold).first);
+      final future = ensureWritable(context);
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 400));
+      expect(find.text(DemoSheet.savedText), findsOneWidget);
+      final sub = find.byKey(const Key('demo-sheet-subscribe'));
+      final stay = find.byKey(const Key('demo-sheet-stay'));
+      expect(tester.getSize(sub).height, greaterThanOrEqualTo(48));
+      expect(tester.getSize(stay).height, greaterThanOrEqualTo(48));
+      await tester.tap(stay);
+      await tester.pump(const Duration(milliseconds: 400));
+      expect(await future, isFalse);
+
+      // Abo abschließen beendet die Demo; Einrichtung beginnt leer.
+      await tester.runAsync(state.license.refresh);
+      await tester.runAsync(
+        () => state.license.buy(
+          state.license.offers!.firstWhere(
+            (o) => o.product.id == 'basis_monat',
+          ),
+        ),
+      );
+      for (var i = 0; i < 20 && state.isDemo; i++) {
+        await tester.runAsync(
+          () => Future<void>.delayed(const Duration(milliseconds: 50)),
+        );
+      }
+      await settle(tester);
+      expect(state.isDemo, isFalse);
+      expect(state.needsOnboarding, isTrue);
+      expect(state.entitlement, Entitlement.pro, reason: 'Pro inklusive');
+      await tester.pumpWidget(const SizedBox());
+    });
+  });
+}
+
+/// Rechtstexte bestätigen, damit die App direkt startet.
+class ConsentRepositoryHelper {
+  static Future<void> acceptAll(Database db) =>
+      Repositories(db).consents.accept(LegalText.all);
+}

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../app_state.dart';
+import '../../core/formatting.dart';
 import '../../domain/legal_texts.dart';
 import '../../services/launcher/open_url.dart';
 import '../../services/licensing/in_app_purchase_billing.dart';
@@ -114,6 +115,7 @@ class _SubscriptionScreenState extends State<SubscriptionScreen>
     final state = AppScope.of(context);
     final license = state.license;
     final entitlement = state.entitlement;
+    final proIncluded = license.proIncludedUntil;
     final offers = license.offers;
     final theme = Theme.of(context);
 
@@ -135,8 +137,21 @@ class _SubscriptionScreenState extends State<SubscriptionScreen>
               child: Text(
                 key: const Key('subscription-status'),
                 switch (entitlement) {
-                  _ when !license.enabled =>
+                  _ when !license.enabled && !state.isDemo =>
                     'Testversion: alle Funktionen frei, keine Lizenzprüfung.',
+                  Entitlement.demo
+                      when license.entitlement.allows(Feature.newBookings) =>
+                    'Du siehst gerade die Demo. Dein Abo '
+                        '${license.entitlement.label} ist aktiv.',
+                  Entitlement.demo =>
+                    'Du siehst gerade die Demo. Mit einem Abo startest du '
+                        'mit deinen eigenen Daten – '
+                        '${LicensePolicy.trialDays} Tage kostenlos mit allen '
+                        'Pro-Funktionen.',
+                  Entitlement.pro when proIncluded != null =>
+                    'Basis ist aktiv – in der Testzeit mit allen '
+                        'Pro-Funktionen bis ${Fmt.date(proIncluded)}. Danach '
+                        'gilt Basis, deine Daten bleiben.',
                   Entitlement.pro => 'Pro ist aktiv.',
                   Entitlement.basis => 'Basis ist aktiv.',
                   Entitlement.readOnly =>
@@ -144,8 +159,7 @@ class _SubscriptionScreenState extends State<SubscriptionScreen>
                         'Wiederherstellen gehen weiter. Für neue Buchungen '
                         'brauchst du ein Abo.',
                   Entitlement.none =>
-                    'Noch kein Abo. Pro kannst du '
-                        '${LicensePolicy.trialDays} Tage kostenlos testen.',
+                    'Noch kein Abo. ${LicensePolicy.trialTeaser}',
                 },
               ),
             ),
@@ -173,7 +187,9 @@ class _SubscriptionScreenState extends State<SubscriptionScreen>
               tier: Tier.pro,
               offer: _offer(offers, Tier.pro),
               busy: license.busy,
-              active: entitlement == Entitlement.pro,
+              active:
+                  license.activeTier == Tier.pro &&
+                  license.entitlement == Entitlement.pro,
               features: const [
                 'Alles aus Basis',
                 'Belegerkennung: Betrag, Datum und Händler aus dem Foto',
@@ -185,7 +201,9 @@ class _SubscriptionScreenState extends State<SubscriptionScreen>
               tier: Tier.basis,
               offer: _offer(offers, Tier.basis),
               busy: license.busy,
-              active: entitlement == Entitlement.basis,
+              active:
+                  license.activeTier == Tier.basis &&
+                  license.entitlement.allows(Feature.newBookings),
               features: const [
                 'Rechnungen, Belege, Kassabuch, Kunden und Artikel',
                 'Übersicht, Kleinunternehmer-Ampel, Steuertermine',
@@ -202,11 +220,13 @@ class _SubscriptionScreenState extends State<SubscriptionScreen>
               'Preise inkl. USt, abgerechnet über Google Play bzw. den App '
               'Store. Das Abo verlängert sich automatisch um $_term, wenn '
               'du es nicht spätestens 24 Stunden vor Ablauf in den '
-              'Abo-Einstellungen des Stores kündigst. Der kostenlose Test von '
-              'Pro (${LicensePolicy.trialDays} Tage, nur beim ersten Abo) geht '
-              'danach in das gewählte Abo zum angezeigten Preis über, wenn du '
-              'nicht vorher kündigst. Kündigen, Widerruf und Erstattung laufen '
-              'über den Store.\n\n'
+              'Abo-Einstellungen des Stores kündigst. Basis und Pro beginnen '
+              'mit ${LicensePolicy.trialDays} Tagen kostenlos (nur beim ersten '
+              'Abo, laut Store). In dieser Zeit hast du auch mit Basis alle '
+              'Pro-Funktionen. Kündigst du in den '
+              '${LicensePolicy.trialDays} Tagen, zahlst du nichts; sonst geht '
+              'der Test in das gewählte Abo zum angezeigten Preis über. '
+              'Kündigen, Widerruf und Erstattung laufen über den Store.\n\n'
               'Deine Daten bleiben immer deine: Ohne Abo kannst du alles '
               'ansehen, drucken, exportieren, sichern und wiederherstellen.',
               style: theme.textTheme.bodySmall,
@@ -266,10 +286,11 @@ class _SubscriptionScreenState extends State<SubscriptionScreen>
               ? 'Preis wird vom Store geladen …'
               : 'Preis im Store nicht verfügbar')
         : '${offer.price} pro $_per';
+    final firstTime = !license.record.everSubscribed;
     final label = active
         ? '$name ist aktiv'
-        : pro && !license.record.everSubscribed
-        ? '${LicensePolicy.trialDays} Tage kostenlos testen'
+        : firstTime
+        ? '$name – ${LicensePolicy.trialDays} Tage kostenlos'
         : '$name wählen';
     return SectionCard(
       title: name,
@@ -281,10 +302,16 @@ class _SubscriptionScreenState extends State<SubscriptionScreen>
             key: Key('subscription-price-${tier.name}'),
             style: Theme.of(context).textTheme.titleMedium,
           ),
-          if (pro && offer != null && !license.record.everSubscribed)
+          if (offer != null && firstTime)
             Text(
-              '${LicensePolicy.trialDays} Tage kostenlos, danach '
-              '${offer.price} pro $_per, jederzeit vorher kündbar.',
+              key: Key('subscription-trial-${tier.name}'),
+              '${LicensePolicy.trialDays} Tage kostenlos testen – mit allen '
+              'Pro-Funktionen. Danach gilt dein gewähltes Abo '
+              '(${offer.price} pro $_per). Jederzeit vorher im Store '
+              'kündbar.'
+              // Befund Prüfinstanz Rechtsanwalt (P-R57): beim Basis-Abo
+              // ausdrücklich sagen, dass Pro nur in der Testzeit gilt.
+              '${pro ? '' : ' Nach dem Test gilt der Umfang von Basis.'}',
             ),
           const SizedBox(height: 8),
           for (final f in features)

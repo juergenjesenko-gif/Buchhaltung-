@@ -28,6 +28,7 @@ THEMEN = [
     ('Anlagen, AfA, Saldenliste, vorläufiger Jahresabschluss', ['P-S64', 'P-S59', 'P-S60', 'P-S61', 'P-S62']),
     ('Fristen-Box und Wirtschaftsjahr', ['P-S7', 'P-S33', 'P-S34', 'P-S32']),
     ('Einnahmen-Ausgaben-Rechnung', ['P-S3', 'P-S35', 'P-S18']),
+    ('Musterdaten der Demo', ['P-S75']),
     ('Abo-Erlöse des Anbieters (eigene Steuerfragen der Auftraggeberin)', ['P-S11', 'P-S12', 'P-S13', 'P-S14', 'P-S19', 'P-S20', 'P-S21', 'P-S22', 'P-V5']),
 ]
 MIN_JE_PUNKT = 6

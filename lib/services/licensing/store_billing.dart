@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'license_policy.dart';
 
 /// Schnittstelle zum Store (Google Play Billing, StoreKit). Nur der
@@ -27,8 +29,72 @@ abstract class StoreBilling {
   /// bzw. die nächste Abfrage.
   Future<bool> redeemCode(String code);
 
+  /// Testangaben zum aktiven Abo nach der letzten Abfrage bzw. dem letzten
+  /// Kauf (O-42): frühester Kaufzeitpunkt und – nur iOS – ob die Transaktion
+  /// im Einführungsangebot läuft.
+  StoreTrialInfo trialInfo();
+
   /// Kauf-Ereignisse aus dem Kaufblatt.
   Stream<PurchaseEvent> get events;
+}
+
+/// Was der Store zum Test des aktiven Abos verrät (O-42, FA-13.4).
+class StoreTrialInfo {
+  const StoreTrialInfo({this.firstPurchaseAt, this.introOffer});
+
+  /// Frühester ursprünglicher Kaufzeitpunkt unter den aktiven Abos
+  /// (Android `purchaseTime`, iOS `originalPurchaseDate`).
+  final DateTime? firstPurchaseAt;
+
+  /// iOS: `true`, wenn StoreKit 2 die Transaktion als Einführungsangebot
+  /// meldet; Android: immer `null` (kein Kennzeichen im Client).
+  final bool? introOffer;
+
+  static const none = StoreTrialInfo();
+
+  /// Liest die JSON-Darstellung einer StoreKit-2-Transaktion
+  /// (`Transaction.jsonRepresentation`, Felder wie im App Store Server API
+  /// `JWSTransactionDecodedPayload`): `originalPurchaseDate` in Millisekunden,
+  /// `offerType` 1 = Einführungsangebot. Unlesbar → [none].
+  static StoreTrialInfo fromAppleTransactionJson(String json) {
+    try {
+      final map = (jsonDecode(json) as Map).cast<String, Object?>();
+      final original = map['originalPurchaseDate'] ?? map['purchaseDate'];
+      final offerType = map['offerType'];
+      return StoreTrialInfo(
+        firstPurchaseAt: original is num
+            ? DateTime.fromMillisecondsSinceEpoch(original.round())
+            : null,
+        introOffer: offerType is num ? offerType == 1 : false,
+      );
+    } on Object {
+      return none;
+    }
+  }
+
+  /// Zeitstempel in Millisekunden als Text (`PurchaseDetails.transactionDate`,
+  /// Android `purchaseTime`); Android meldet kein Testkennzeichen.
+  static StoreTrialInfo fromAndroidPurchaseTime(String? millis) {
+    final ms = int.tryParse(millis ?? '');
+    return StoreTrialInfo(
+      firstPurchaseAt: ms == null
+          ? null
+          : DateTime.fromMillisecondsSinceEpoch(ms),
+    );
+  }
+
+  /// Fasst mehrere aktive Abos zusammen: frühester Zeitpunkt; im
+  /// Einführungsangebot, sobald eines darin läuft.
+  static StoreTrialInfo merge(Iterable<StoreTrialInfo> infos) {
+    DateTime? first;
+    bool? intro;
+    for (final i in infos) {
+      final at = i.firstPurchaseAt;
+      if (at != null && (first == null || at.isBefore(first))) first = at;
+      if (i.introOffer != null) intro = (intro ?? false) || i.introOffer!;
+    }
+    return StoreTrialInfo(firstPurchaseAt: first, introOffer: intro);
+  }
 }
 
 /// Ein kaufbares Angebot, Preis als vom Store formatierter Text inkl. USt.

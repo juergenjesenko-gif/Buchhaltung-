@@ -3,6 +3,8 @@ import 'dart:io';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 
+import 'demo/demo_mode.dart';
+
 /// Legt Belegfotos im Dokumentenverzeichnis der App ab.
 ///
 /// Gespeichert wird nur der *relative* Pfad. Unter iOS ändert sich der absolute
@@ -11,7 +13,12 @@ import 'package:path_provider/path_provider.dart';
 class ReceiptImageStore {
   const ReceiptImageStore._();
 
-  static const _folder = 'belege';
+  /// In der Demo landen Fotos im eigenen Ordner `demo_belege/` (FA-13.14):
+  /// nie bei den echten Belegen, nie in einer Sicherung, bei jedem
+  /// Demo-Start geleert.
+  static String get _folder => DemoMode.active ? demoFolder : 'belege';
+
+  static const demoFolder = 'demo_belege';
   static int _seq = 0;
 
   static Future<Directory> _dir() async {

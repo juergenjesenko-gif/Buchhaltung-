@@ -202,6 +202,10 @@ class _InvoiceListScreenState extends State<InvoiceListScreen> {
   Future<void> _setStatus(Invoice invoice, InvoiceStatus status) async {
     final id = invoice.id;
     if (id == null) return;
+    // Demo (FA-13.14): nichts speichern.
+    if (!await ensureWritable(context)) return;
+    if (!mounted) return;
+
     final state = AppScope.read(context);
     if (status == InvoiceStatus.paid) {
       final answer = await _askPayment(invoice);
@@ -227,6 +231,9 @@ class _InvoiceListScreenState extends State<InvoiceListScreen> {
     final state = AppScope.read(context);
     final profile = state.profile;
     if (id == null || profile == null) return;
+    // Demo (FA-13.14): nichts speichern.
+    if (!await ensureWritable(context)) return;
+    if (!mounted) return;
     final answer = await _askCancellation(invoice, correct: correct);
     if (answer == null || !mounted) return;
     final stornoId = await state.repositories.invoices.cancelWithInvoice(

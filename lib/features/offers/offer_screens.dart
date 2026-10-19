@@ -204,6 +204,9 @@ class _OfferEditScreenState extends State<OfferEditScreen> {
       showSnack(context, 'Es fehlt noch: ${errors.join(', ')}');
       return false;
     }
+    // Demo (FA-13.14): nichts speichern.
+    if (!await ensureWritable(context)) return false;
+    if (!mounted) return false;
     // Neue Angebote ab Basis (Lastenheft 5.10); vorhandene bleiben änderbar.
     if (_offer?.id == null &&
         !await ensureFeature(context, Feature.newBookings)) {

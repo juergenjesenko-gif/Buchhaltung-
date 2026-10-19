@@ -11,6 +11,7 @@ import '../../domain/country.dart';
 import '../../domain/customer.dart';
 import '../../widgets/common.dart';
 import '../../widgets/adaptive.dart';
+import '../licensing/feature_gate.dart';
 
 /// Kunde anlegen oder bearbeiten.
 class CustomerEditScreen extends StatefulWidget {
@@ -77,6 +78,9 @@ class _CustomerEditScreenState extends State<CustomerEditScreen> {
 
   Future<void> _save() async {
     if (!_formKey.currentState!.validate()) return;
+    // Demo (FA-13.14): nichts speichern.
+    if (!await ensureWritable(context)) return;
+    if (!mounted) return;
     setState(() => _saving = true);
 
     final customer = Customer(

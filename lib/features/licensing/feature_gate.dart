@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import '../../app_state.dart';
 import '../../services/licensing/license_policy.dart';
 import '../../services/share_service.dart';
+import '../demo/demo_sheet.dart';
 import 'subscription_screen.dart';
 
 /// Einzige Stelle, an der die Oberfläche eine gesperrte Funktion behandelt
@@ -13,6 +14,12 @@ import 'subscription_screen.dart';
 Future<bool> ensureFeature(BuildContext context, Feature feature) async {
   final state = AppScope.read(context);
   if (state.allows(feature)) return true;
+  // Demo (FA-13.14): statt der Abo-Seite das Hinweisblatt „In der Demo wird
+  // nichts gespeichert“ mit „Abo wählen“.
+  if (state.isDemo) {
+    await showDemoSheet(context, feature: feature);
+    return false;
+  }
   await Navigator.of(context).push(
     MaterialPageRoute<void>(
       builder: (_) => SubscriptionScreen(reason: featureReason(feature)),
@@ -21,7 +28,18 @@ Future<bool> ensureFeature(BuildContext context, Feature feature) async {
   return state.allows(feature);
 }
 
+/// Ändern bestehender Daten (Belege, Rechnungen, Stammdaten). Ohne Abo
+/// erlaubt (L-22.6: Ändern bleibt), nur in der Demo nicht (FA-13.14).
+Future<bool> ensureWritable(BuildContext context) async {
+  final state = AppScope.read(context);
+  if (!state.isDemo) return true;
+  await showDemoSheet(context);
+  return false;
+}
+
 String featureReason(Feature feature) => switch (feature) {
+  Feature.dataExport =>
+    'In der Demo wird nichts exportiert, geteilt oder gesichert.',
   Feature.newBookings =>
     'Neue Buchungen brauchen ein Abo. Deine bisherigen Daten kannst du '
         'jederzeit ansehen, exportieren und sichern.',
@@ -82,5 +100,7 @@ Future<void> sendPdfGated(
     );
     return;
   }
+  // Demo: das Hinweisblatt kam schon, nichts verlässt das Gerät (FA-13.14).
+  if (!context.mounted || AppScope.read(context).isDemo) return;
   await ShareService.sharePdf(fileName: fileName, bytes: bytes);
 }

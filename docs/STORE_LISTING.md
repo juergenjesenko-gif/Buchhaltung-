@@ -85,12 +85,20 @@ Anlagenverzeichnis, Saldenliste und vorläufiger Jahresabschluss, Verträge
 auslesen, Mithelfer-Geräte koppeln.
 
 14 TAGE KOSTENLOS TESTEN
-Pro 14 Tage kostenlos, danach 24,90 € pro Monat, jederzeit vorher kündbar
-oder auf Basis wechselbar. Abo Basis 14,90 € oder
-Pro 24,90 € im Monat, Jahresabo mit 20 % Rabatt; Endpreise inkl. USt. Der
-Test startet im Store und geht nach 14 Tagen in das Abo über, wenn du nicht
-vorher in den Store-Einstellungen kündigst. Ohne Abo bleiben deine Daten auf
-dem Gerät lesbar und exportierbar.
+14 Tage kostenlos testen – mit allen Pro-Funktionen, auch wenn du Basis
+wählst. Danach gilt dein gewähltes Abo: Basis 14,90 € oder Pro 24,90 € im
+Monat, Jahresabo mit 20 % Rabatt; Endpreise inkl. USt. Mit Basis gilt nach
+dem Test der Umfang von Basis. Der Test startet im Store und geht nach 14
+Tagen in das Abo über, wenn du nicht vorher in den Store-Einstellungen
+kündigst; jederzeit vorher im Store kündbar, dann zahlst du nichts. Der
+kostenlose Test gilt einmal, beim ersten Abo.
+
+ERST ANSEHEN
+Ohne Abo zeigt die Demo eine erfundene Musterfirma mit Belegen, Rechnungen,
+Mahnung, Anlage und Jahresabschluss. In der Demo wird nichts gespeichert;
+Muster-PDFs tragen das Wasserzeichen „MUSTER – DEMO“.
+
+Ohne Abo bleiben deine Daten auf dem Gerät lesbar und exportierbar.
 
 Hinweis: Diese App unterstützt bei der Buchhaltung, ist aber keine
 Steuerberatung und keine Registrierkasse nach RKSV.
@@ -257,10 +265,14 @@ Vor jeder Änderung von Store-Text, Screenshots oder Produktseite prüfen
 - Vergleiche mit namentlich genannten Mitbewerbern ohne Prüfung nach § 6 UWG
 - „Finanzamt", „ELSTER", „FinanzOnline" als Teil des App-Namens
 
-Abo-Ankündigung (Entscheidung Auftraggeberin 2026-10-15): „14 Tage kostenlos
-testen“ in Kurz- und Langbeschreibung, in der Langbeschreibung immer mit dem
-Folgepreis und dem Hinweis, dass der Test ohne Kündigung in das Abo übergeht
-(Store-Test, Spezifikation FA-13.4, P-R37); keine Streichpreise, keine Rabattpreise „statt“. Preise vor dem
+Abo-Ankündigung (Entscheidung Auftraggeberin 2026-10-15, Test auf allen
+vier Produkten seit Entscheidung Auftraggeber 2026-10-19, Lastenheft O-42):
+„14 Tage kostenlos testen“ in Kurz- und Langbeschreibung, in der
+Langbeschreibung immer mit dem Folgepreis, dem Hinweis „mit allen
+Pro-Funktionen“ samt „Mit Basis gilt nach dem Test der Umfang von Basis“ und
+dem Hinweis, dass der Test ohne Kündigung in das Abo übergeht (Store-Test,
+Spezifikation FA-13.4, P-R37, P-R57). Screenshots aus der Demo zeigen nur
+erfundene Namen (P-R56); keine Streichpreise, keine Rabattpreise „statt“. Preise vor dem
 Store-Start mit Lastenheft 5.10 und den im Store hinterlegten Preisen abgleichen
 (P-R13). Google Play untersagt Preis- und Werbeangaben im App-Namen und Symbol;
 deshalb steht die Ankündigung nur in den Beschreibungen.

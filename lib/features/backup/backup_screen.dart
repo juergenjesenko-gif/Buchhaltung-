@@ -19,6 +19,7 @@ import '../../services/backup/backup_service.dart';
 import '../../services/backup/platform_backup_target.dart';
 import '../../widgets/common.dart';
 import '../../widgets/adaptive.dart';
+import '../demo/demo_screens.dart';
 import 'recovery_code_setup_screen.dart';
 
 /// Datensicherung erstellen und wiederherstellen (Lastenheft L-7).
@@ -147,6 +148,10 @@ class _BackupScreenState extends State<BackupScreen> {
 
   @override
   Widget build(BuildContext context) {
+    // Demo (FA-13.14): keine Sicherung, keine Wiederherstellung.
+    if (AppScope.of(context).isDemo) {
+      return const DemoUnavailable(title: 'Datensicherung');
+    }
     final profile = AppScope.of(context).profile;
     final last = profile?.lastBackupAt;
     return Scaffold(
