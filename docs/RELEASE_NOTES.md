@@ -42,7 +42,7 @@ nächsten Versionssprung in den neuen Eintrag.
 | Feld | Wert |
 |---|---|
 | Art | Testbuild (ungezippte arm64-APK `JeNi-bucht-0.27.0-build-<Nr>.apk`, fester Testschlüssel); **Lizenzprüfung aus** (ohne `LICENSING=true`), alle Funktionen frei. Die Demo ist im Testbuild über **Einstellungen → Demo ansehen** erreichbar; Startauswahl und Testzeit-Logik wirken erst im Store-Build |
-| Commit | `dieser Commit` |
+| Commit | `67a7601` |
 | Branch | `claude/agile-accounting-app-mobile-wa5j3h` |
 | Dokumentstände | Lastenheft 1.80, Spezifikation 1.85, Benutzerhandbuch für 0.27.0, DESIGN_SPEC 1.4 |
 | Datenbankschema | 27 |
@@ -55,13 +55,13 @@ nächsten Versionssprung in den neuen Eintrag.
 
 | Art | Änderung | Bezug | Commit |
 |---|---|---|---|
-| Geändert | Test 14 Tage auf allen vier Produkten; Basis in der Testzeit des ersten Abos mit allen Pro-Funktionen, danach Basis (iOS StoreKit-2-Einführungsangebot, Android Zeitfenster ab Kaufzeitpunkt) – ersetzt „Store-Test nur auf Pro“ | O-42, L-10.3, L-22.3, FA-13.4 | dieser Commit |
-| Geändert | Abo-Seite: „14 Tage kostenlos testen – mit allen Pro-Funktionen. Danach gilt dein gewähltes Abo (‹Preis›). Jederzeit vorher im Store kündbar.“ auf beiden Karten, bei Basis „Nach dem Test gilt der Umfang von Basis.“; Pflichttext neu | FA-13.5, P-R57 | dieser Commit |
-| Neu | Hinweis 3 Tage vorher „Noch X Tage Pro inklusive – danach Basis. Jetzt auf Pro wechseln?“ | FA-13.8, L-10.3 | dieser Commit |
-| Neu | Demo ohne Abo: eigene schreibgeschützte Muster-Datenbank „Muster Handel e.U.“ mit 25 Belegen samt synthetischer Belegbilder, Rechnungen, Mahnung, Storno, Angeboten, Anlage, Verträgen; Speichern/Senden/Export/Sicherung gesperrt mit Hinweisblatt; „MUSTER – DEMO“ auf jeder PDF-Seite; Band oben; Einstellungen → Demo ansehen | O-42, L-10.6, FA-13.14 | dieser Commit |
-| Neu | Startauswahl im Store-Build ohne Abo: „Abo wählen – 14 Tage kostenlos“ / „Erst ansehen (Demo)“ | FA-13.15 | dieser Commit |
-| Behoben | Onboarding: Rechtsform-Auswahl lief auf 360 dp über den Rand | P-X23 | dieser Commit |
-| Doku | STORE_ANMELDUNG Formular 4 (Einführungsangebot auf allen vier Produkten, Apple-Gruppenregel), STORE_LISTING, Lastenheft 14a/O-42, interne Prüfung 2026-10-19, Prüfmappen | O-42, Spezifikation 14 | dieser Commit |
+| Geändert | Test 14 Tage auf allen vier Produkten; Basis in der Testzeit des ersten Abos mit allen Pro-Funktionen, danach Basis (iOS StoreKit-2-Einführungsangebot, Android Zeitfenster ab Kaufzeitpunkt) – ersetzt „Store-Test nur auf Pro“ | O-42, L-10.3, L-22.3, FA-13.4 | `67a7601` |
+| Geändert | Abo-Seite: „14 Tage kostenlos testen – mit allen Pro-Funktionen. Danach gilt dein gewähltes Abo (‹Preis›). Jederzeit vorher im Store kündbar.“ auf beiden Karten, bei Basis „Nach dem Test gilt der Umfang von Basis.“; Pflichttext neu | FA-13.5, P-R57 | `67a7601` |
+| Neu | Hinweis 3 Tage vorher „Noch X Tage Pro inklusive – danach Basis. Jetzt auf Pro wechseln?“ | FA-13.8, L-10.3 | `67a7601` |
+| Neu | Demo ohne Abo: eigene schreibgeschützte Muster-Datenbank „Muster Handel e.U.“ mit 25 Belegen samt synthetischer Belegbilder, Rechnungen, Mahnung, Storno, Angeboten, Anlage, Verträgen; Speichern/Senden/Export/Sicherung gesperrt mit Hinweisblatt; „MUSTER – DEMO“ auf jeder PDF-Seite; Band oben; Einstellungen → Demo ansehen | O-42, L-10.6, FA-13.14 | `67a7601` |
+| Neu | Startauswahl im Store-Build ohne Abo: „Abo wählen – 14 Tage kostenlos“ / „Erst ansehen (Demo)“ | FA-13.15 | `67a7601` |
+| Behoben | Onboarding: Rechtsform-Auswahl lief auf 360 dp über den Rand | P-X23 | `67a7601` |
+| Doku | STORE_ANMELDUNG Formular 4 (Einführungsangebot auf allen vier Produkten, Apple-Gruppenregel), STORE_LISTING, Lastenheft 14a/O-42, interne Prüfung 2026-10-19, Prüfmappen | O-42, Spezifikation 14 | `67a7601` |
 
 ---
 
