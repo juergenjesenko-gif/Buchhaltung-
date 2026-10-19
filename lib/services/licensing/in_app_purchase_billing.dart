@@ -5,14 +5,17 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:in_app_purchase/in_app_purchase.dart';
 import 'package:in_app_purchase_android/billing_client_wrappers.dart'
-    show ReplacementMode;
+    show PricingPhaseWrapper, RecurrenceMode, ReplacementMode;
 import 'package:in_app_purchase_android/in_app_purchase_android.dart';
 import 'package:in_app_purchase_storekit/in_app_purchase_storekit.dart';
+import 'package:in_app_purchase_storekit/store_kit_wrappers.dart'
+    show SKProductDiscountPaymentMode, SKSubscriptionPeriodUnit;
 
 import '../launcher/open_url.dart';
 
 import 'license_cache.dart';
 import 'license_policy.dart';
+import 'offer_text.dart';
 import 'store_billing.dart';
 
 /// Adapter auf das Paket `in_app_purchase` (Google Play Billing, StoreKit 2;
@@ -81,29 +84,48 @@ class InAppPurchaseBilling implements StoreBilling {
     final response = await _iap.queryProductDetails(LicensePolicy.productIds);
     if (response.error != null || response.productDetails.isEmpty) return null;
     final offers = <String, StoreOffer>{};
+    final scores = <String, int>{};
     for (final details in response.productDetails) {
       final product = LicensePolicy.product(details.id);
       if (product == null) continue;
       var price = details.price;
-      var preferTrial = false;
+      var phases = const <OfferPhase>[];
+      var score = 0;
       if (details is GooglePlayProductDetails) {
-        // Google liefert je Angebot einen Eintrag; der wiederkehrende Preis
-        // ist die letzte Preisphase, ein Test die kostenlose erste.
+        // Google liefert je Angebot einen Eintrag (nur die, für die das
+        // Konto berechtigt ist; vom Entwickler bestimmte immer). Der
+        // wiederkehrende Preis ist die letzte Preisphase.
         final index = details.subscriptionIndex;
         final offer = index == null
             ? null
             : details.productDetails.subscriptionOfferDetails?[index];
-        if (offer != null && offer.pricingPhases.isNotEmpty) {
-          price = offer.pricingPhases.last.formattedPrice;
-          preferTrial = offer.pricingPhases.first.priceAmountMicros == 0;
+        if (offer != null) {
+          final tagged = offer.offerTags.contains(
+            DiscountPromo.androidOfferTag,
+          );
+          if (tagged && !_discountUnlocked) continue;
+          if (offer.pricingPhases.isNotEmpty) {
+            price = offer.pricingPhases.last.formattedPrice;
+            phases = [for (final ph in offer.pricingPhases) ?_googlePhase(ph)];
+            if (phases.length != offer.pricingPhases.length) phases = const [];
+            // Freigeschalteter Rabatt vor Test vor mehr Phasen vor Grundpreis.
+            score =
+                (tagged ? 100 : 0) +
+                (offer.pricingPhases.first.priceAmountMicros == 0 ? 10 : 0) +
+                offer.pricingPhases.length;
+          }
         }
+      } else if (details is AppStoreProductDetails) {
+        phases = _applePhases(details);
       }
-      final known = offers[product.id];
-      if (known == null || preferTrial) {
+      final known = scores[product.id];
+      if (known == null || score > known) {
+        scores[product.id] = score;
         offers[product.id] = StoreOffer(
           product: product,
           price: price,
           handle: details,
+          phases: phases,
         );
         _handles[product.id] = details;
       }
@@ -159,9 +181,79 @@ class InAppPurchaseBilling implements StoreBilling {
     await _iap.buyNonConsumable(purchaseParam: param);
   }
 
+  /// Nach Eingabe von [DiscountPromo.code] zeigt Android das Rabattangebot
+  /// (nur für diesen App-Start).
+  bool _discountUnlocked = false;
+
+  static OfferPhase? _googlePhase(PricingPhaseWrapper p) {
+    final period = OfferPhase.parseIso(p.billingPeriod);
+    if (period == null) return null;
+    return OfferPhase(
+      price: p.formattedPrice,
+      free: p.priceAmountMicros == 0,
+      unit: period.unit,
+      periodCount: period.count,
+      cycles: p.recurrenceMode == RecurrenceMode.infiniteRecurring
+          ? 0
+          : (p.billingCycleCount < 1 ? 1 : p.billingCycleCount),
+    );
+  }
+
+  /// StoreKit 1 meldet höchstens ein Einführungsangebot (`introductoryPrice`)
+  /// und den Grundpreis. Apple zeigt es nur berechtigten Konten im Kaufblatt;
+  /// die App kann die Berechtigung ohne Server nicht prüfen, deshalb nennt
+  /// der Text es „für Neukundinnen“ nicht – das Kaufblatt hat das letzte Wort.
+  static List<OfferPhase> _applePhases(AppStoreProductDetails d) {
+    final sub = d.skProduct.subscriptionPeriod;
+    if (sub == null) return const [];
+    final base = OfferPhase(
+      price: d.price,
+      free: false,
+      unit: _appleUnit(sub.unit),
+      periodCount: sub.numberOfUnits,
+    );
+    final intro = d.skProduct.introductoryPrice;
+    if (intro == null) return [base];
+    final mode = intro.paymentMode;
+    final free = mode == SKProductDiscountPaymentMode.freeTrail;
+    final upFront = mode == SKProductDiscountPaymentMode.payUpFront;
+    final p = intro.subscriptionPeriod;
+    return [
+      OfferPhase(
+        price: free
+            ? ''
+            : OfferText.decimalPrice(
+                intro.price,
+                intro.priceLocale.currencySymbol,
+              ),
+        free: free,
+        unit: _appleUnit(p.unit),
+        // Pay up front: ein Preis für numberOfPeriods Zeiträume.
+        periodCount: upFront
+            ? p.numberOfUnits * intro.numberOfPeriods
+            : p.numberOfUnits,
+        cycles: upFront ? 1 : intro.numberOfPeriods,
+        upFront: upFront,
+      ),
+      base,
+    ];
+  }
+
+  static PeriodUnit _appleUnit(SKSubscriptionPeriodUnit u) => switch (u) {
+    SKSubscriptionPeriodUnit.day => PeriodUnit.day,
+    SKSubscriptionPeriodUnit.week => PeriodUnit.week,
+    SKSubscriptionPeriodUnit.month => PeriodUnit.month,
+    SKSubscriptionPeriodUnit.year => PeriodUnit.year,
+  };
+
   @override
   Future<bool> redeemCode(String code) async {
     _listen();
+    if (defaultTargetPlatform != TargetPlatform.iOS &&
+        DiscountPromo.matches(code)) {
+      _discountUnlocked = true;
+      return (await loadOffers()) != null;
+    }
     if (defaultTargetPlatform == TargetPlatform.iOS) {
       await _iap
           .getPlatformAddition<InAppPurchaseStoreKitPlatformAddition>()

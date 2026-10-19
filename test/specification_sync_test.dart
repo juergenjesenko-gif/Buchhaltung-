@@ -26,6 +26,7 @@ import 'package:buchhaltung/services/demo/demo_dataset.dart';
 import 'package:buchhaltung/services/demo/demo_dataset_de.dart';
 import 'package:buchhaltung/widgets/scroll_auto_hide.dart';
 import 'package:buchhaltung/services/demo/demo_mode.dart';
+import 'package:buchhaltung/services/licensing/offer_text.dart';
 import 'package:buchhaltung/services/licensing/license_policy.dart';
 import 'package:buchhaltung/services/platform_import/platform_import_plan.dart';
 import 'package:buchhaltung/widgets/primary_action_bar.dart';
@@ -100,6 +101,11 @@ void main() {
     test('Lizenz und Abo stimmen (L-10.3, L-22.2, L-22.5)', () {
       expect(intValue('spec.license_trial_days'), LicensePolicy.trialDays);
       expect(value('spec.license_promo_code'), LicensePolicy.promoCode);
+      expect(value('spec.license_promo_code_discount'), DiscountPromo.code);
+      expect(
+        intValue('spec.license_promo_discount_percent'),
+        DiscountPromo.percent,
+      );
       expect(
         intValue('spec.license_promo_free_months'),
         LicensePolicy.promoFreeMonths,

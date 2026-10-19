@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'license_policy.dart';
+import 'offer_text.dart';
 
 /// Schnittstelle zum Store (Google Play Billing, StoreKit). Nur der
 /// [LicenseManager] spricht mit ihr; Oberfläche und Funktionen nie (L-22.1).
@@ -99,12 +100,21 @@ class StoreTrialInfo {
 
 /// Ein kaufbares Angebot, Preis als vom Store formatierter Text inkl. USt.
 class StoreOffer {
-  const StoreOffer({required this.product, required this.price, this.handle});
+  const StoreOffer({
+    required this.product,
+    required this.price,
+    this.handle,
+    this.phases = const [],
+  });
 
   final LicenseProduct product;
 
   /// Wiederkehrender Preis je Zeitraum, z. B. „14,90 €“.
   final String price;
+
+  /// Preisphasen aus dem Store (Test, Einführungspreis, Grundpreis;
+  /// FA-13.15). Leer, wenn der Store keine meldet.
+  final List<OfferPhase> phases;
 
   /// Store-eigenes Objekt für den Kauf; nur der Adapter kennt den Typ.
   final Object? handle;

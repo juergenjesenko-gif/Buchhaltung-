@@ -1,3 +1,4 @@
+import '../../services/licensing/offer_text.dart';
 import 'package:flutter/material.dart';
 
 import '../../app_state.dart';
@@ -285,7 +286,9 @@ class _SubscriptionScreenState extends State<SubscriptionScreen>
         ? (busy
               ? 'Preis wird vom Store geladen …'
               : 'Preis im Store nicht verfügbar')
-        : '${offer.price} pro $_per';
+        // FA-13.15: Phasen aus dem Store (Test, Einführungspreis, Grundpreis).
+        : OfferText.priceLine(offer.phases, '${offer.price} pro $_per');
+    final summary = offer == null ? null : OfferText.summary(offer.phases);
     final firstTime = !license.record.everSubscribed;
     final label = active
         ? '$name ist aktiv'
@@ -302,7 +305,13 @@ class _SubscriptionScreenState extends State<SubscriptionScreen>
             key: Key('subscription-price-${tier.name}'),
             style: Theme.of(context).textTheme.titleMedium,
           ),
-          if (offer != null && firstTime)
+          if (summary != null)
+            Text(
+              key: Key('subscription-phases-${tier.name}'),
+              '$summary'
+              '${pro || !firstTime ? '' : ' In den ersten ${LicensePolicy.trialDays} Tagen mit allen Pro-Funktionen, danach Umfang von Basis.'}',
+            )
+          else if (offer != null && firstTime)
             Text(
               key: Key('subscription-trial-${tier.name}'),
               '${LicensePolicy.trialDays} Tage kostenlos testen – mit allen '

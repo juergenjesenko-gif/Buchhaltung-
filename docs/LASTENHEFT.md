@@ -1,6 +1,6 @@
 # Lastenheft – JeNi bucht, Buchhaltungsapp für Österreich und Deutschland
 
-**Dokumentversion:** 1.84 · **Stand:** 2026-10-19 · **Status:** Entwurf zur Abstimmung
+**Dokumentversion:** 1.85 · **Stand:** 2026-10-19 · **Status:** Entwurf zur Abstimmung
 **Auftraggeber:** Jürgen Jesenko (privates Vorhaben) · **Umsetzung:** Claude Code
 
 > Ein Lastenheft beschreibt, **was** das Produkt leisten soll und **warum** — nicht,
@@ -356,12 +356,20 @@ ordentliche Buchhaltung braucht; Pro ist Komfort und Wachstum.
 | Export an die Steuerberatung | Shop-Anbindung (L-12), Marketing-Modul (L-14) |
 | Datensicherung, Spracheingabe | Cloud-Synchronisierung über mehrere Geräte (S-8) |
 
-**Preise (entschieden am 2026-10-10, O-3),** inklusive Umsatzsteuer:
+**Preise (entschieden am 2026-10-19 durch den Auftraggeber, ersetzt O-3 und die
+offene Preisfrage),** inklusive Umsatzsteuer, gleich in Österreich und
+Deutschland:
 
-| Tarif | Listenpreis/Monat | Rabattpreis/Monat | Jahresabo (20 % auf den Listenpreis) |
-|---|---|---|---|
-| Basis | 14,90 € | 12,90 € | 143,04 € rechnerisch, Store-Preisstufe ≈ 142,90 € |
-| Pro | 24,90 € | 19,90 € | 239,04 € rechnerisch, Store-Preisstufe ≈ 238,90 € |
+| Tarif | Erstes Jahr (Einführungspreis) | Ab dem zweiten Jahr (Grundpreis) |
+|---|---|---|
+| Basis | 6,90 €/Monat oder 69 €/Jahr | 12,90 €/Monat oder 129 €/Jahr |
+| Pro | 12,90 €/Monat oder 129 €/Jahr | 17,90 €/Monat oder 179 €/Jahr |
+
+Dazu am Anfang 14 Tage gratis (O-42, Basis mit Pro inklusive), soweit der
+Store beides zugleich zulässt (Apple: O-45). Instagram: `JENIBUCHT2M`
+(2 Monate gratis) und `JENIBUCHT20` (20 % auf das Jahresabo im ersten Jahr:
+Basis 55,20 €, Pro 103,20 €; O-46). Die App zeigt die Preise nur so, wie der
+Store sie meldet (Spezifikation FA-13.16).
 
 Rabatte laufen über die Angebotsmechanik der Stores (Einführungs- und
 Aktionsangebote). Ein Rabattpreis darf **nur beworben werden, wenn der
@@ -672,7 +680,7 @@ Jede Übertragung vom Gerät weg, auch die unscheinbaren:
 | Foto-Zweitablage (L-2.11) | Fotobibliothek, ggf. deren Cloud | Belegfotos | Einschalten | ja | A |
 | UID-Prüfung auf Tippen (L-1.3) | EU-Kommission (VIES), direkt vom Gerät | UID, eigene UID als Anfragende, IP-Adresse | Tippen auf „Jetzt prüfen“ | je Vorgang | vorhanden |
 | UID-Prüfung automatisch (L-1.3, L-1.4) | EU-Kommission (VIES), direkt vom Gerät | wie oben, für eigene UID und Kunden mit Rechnung in den letzten 12 Monaten; vor jeder Rechnung an Kunden mit UID | wöchentlich beim Öffnen der App | **ja**, Schalter, standardmäßig aus | vorhanden |
-| Rechnungsversand (L-15.1) | Mail-App des Nutzers | PDF | Tippen auf Senden | je Vorgang | A |
+| Rechnungsversand (L-15.1, L-4.1, Spezifikation FA-5.49) | Mail-App bzw. Teilen-Ziel des Nutzers (z. B. Rechnungsportal der Behörde, Upload macht die Nutzerin selbst) | PDF, ab 0.32.0 als ZUGFeRD-PDF mit eingebetteter E-Rechnung (CII-XML mit denselben Rechnungsdaten); für Behörden statt des PDF die XRechnung- bzw. ebInterface-XML (zusätzlich Leitweg-ID/Auftragsreferenz, Lieferantennummer, E-Mail und Telefon des Absenders) | Tippen auf Senden bzw. „XML senden“ | je Vorgang | A (XML ab 0.32.0) |
 | Abo-Kauf und Abo-Abfrage (L-10.1, L-22.5) | Apple bzw. Google über die Store-Schnittstelle des Geräts (Google Play Billing, StoreKit) | Produktkennungen; beim Einlösen eines Promo-Codes der Code selbst (iOS im Einlöseblatt von Apple, Android als Adresse `play.google.com/redeem?code=…`); Store-Konto, Zahlung und Kaufbeleg verarbeitet der Store selbst. Am Gerät nur Stufe, Bestätigungszeitpunkt, Testbeginn (Schlüsselbund) | Kauf bzw. „Kauf wiederherstellen“; Abfrage beim Start der App | Kauf je Vorgang; Abfrage nein, technisch notwendig für den Anspruch, offengelegt. Prüfung P-R37 | vorhanden (nur Store-Build mit `LICENSING=true`) |
 | Berichte teilen (Spezifikation FA-15.8 bis FA-15.10, FA-16.8) | vom Nutzer gewählt (Teilen-Dialog), z. B. Steuerberatung | Anlagenverzeichnis, Saldenliste, vorläufiger Jahresabschluss mit Belegliste, Buchungsexport und Vertragsliste (ZIP); Vertragsseiten und erkannter Text bleiben auf dem Gerät | Tippen auf den Bericht | je Vorgang | vorhanden (0.18.0) |
 | U30-Datei teilen (L-6.5, Spezifikation FA-14.4) | vom Nutzer gewählt (Teilen-Dialog); Upload in FinanzOnline macht die Nutzerin selbst | Kennzahlen der Voranmeldung, Steuernummer (FASTNR), Zeitraum | Tippen auf „U30-Datei teilen“ | je Vorgang | vorhanden (0.17.0) |
@@ -1407,7 +1415,7 @@ Zu entscheiden, bevor die betroffene Anforderung umgesetzt wird:
 |---|---|---|
 | ~~O-1~~ | **Erledigt am 2026-10-10:** auch in Österreich darf der Vorjahresumsatz 55.000 € nicht überschritten haben, ohne Toleranz; vom Auftraggeber bestätigt, im Code umgesetzt (Spezifikation 1.4). Schriftliche Bestätigung der Steuerberatung zu Brutto/Netto und ausgenommenen Umsätzen bleibt empfohlen | erledigt |
 | ~~O-2~~ | **Entschieden am 2026-10-15:** Produkt- und App-Name **„JeNi bucht“** (genau diese Schreibweise), nach Markenrecherche ohne Befund (O-25). Frühere Arbeitstitel „Jenny Bar“ und „Jenni bucht“ entfallen. Die technische Kennung (Bundle-ID/applicationId) bleibt vorerst `at.jesenko.buchhaltung`, siehe O-33 | erledigt |
-| ~~O-3~~ | **Entschieden am 2026-10-10:** Basis 14,90 € (Rabatt 12,90 €), Pro 24,90 € (Rabatt 19,90 €), Jahresabo mit 20 % Rabatt; Details in Abschnitt 5.10 | erledigt |
+| ~~O-3~~ | **Überholt am 2026-10-19 durch die neuen Preise (5.10, 14a).** Bisher entschieden am 2026-10-10: Basis 14,90 € (Rabatt 12,90 €), Pro 24,90 € (Rabatt 19,90 €), Jahresabo mit 20 % Rabatt; Details in Abschnitt 5.10 | erledigt |
 | ~~O-22~~ | **Entschieden am 2026-10-09:** (a) UVA-Übermittlung in den Buchhaltungstarif, Stufe B (L-6.5); (b) Start mit Datei-Import der Kontoauszüge, Live-Anbindung später als Opt-in (L-18); (c) Angebote aufgenommen, Stufe A (L-3.13 ff.) | erledigt |
 | ~~O-4~~ | **Entschieden am 2026-10-10:** 14 Tage gratis alles, danach Basis, optional Pro; Funktionsschnitt in Abschnitt 5.10 | erledigt |
 | ~~O-5~~ | **Entschieden am 2026-10-09:** Entwicklung fortlaufend ohne feste Wochenstunden; Planung nach Stufen, nicht nach Kalenderdaten | erledigt |
@@ -1442,6 +1450,8 @@ Zu entscheiden, bevor die betroffene Anforderung umgesetzt wird:
 | O-40 | **Innergemeinschaftliches Verbringen** (L-30.9): **geschlossen 2026-10-18** – Entscheidung der Auftraggeberin (14a): Verbringen ins Auslandslager wird nicht in der App gebucht, nur die Verkäufe aus dem Lager; die App warnt in „Für das Finanzamt“, dass DE Kz 89/61 (bzw. AT Kz 070/072/065) die Kanzlei ergänzt (Spezifikation FA-18.4, Grenze 11, P-S68) | erledigt |
 | O-43 | **Tarif „Abgaben & Rücklagen“** (L-31): **Pro** (Rechenhilfe mit Mehrwert, passt zu Saldenliste/Jahresabschluss); Buchungen in Abgabenkategorien bleiben in jedem Anspruch normale Buchungen | entschieden 2026-10-19 – umgesetzt 0.30.0 |
 | ~~O-42~~ | **Entschieden am 2026-10-19 (Auftraggeber), ersetzt O-35:** (A) Die Kundin wählt und startet ein Abo (Basis oder Pro, monatlich/jährlich) im Store; **alle vier Produkte** haben ein Einführungsangebot 14 Tage kostenlos, Kündigung in den 14 Tagen kostet nichts. Bei Basis gibt die App in den ersten 14 Tagen des ersten Abos alle Pro-Funktionen frei („Pro inklusive in der Testzeit“), danach Basis, Daten bleiben; Hinweis 3 Tage vorher „Noch X Tage Pro inklusive – danach Basis. Jetzt auf Pro wechseln?“. Pro bleibt Pro. Text: „14 Tage kostenlos testen – mit allen Pro-Funktionen. Danach gilt dein gewähltes Abo (Preis aus Store). Jederzeit vorher im Store kündbar.“ (B) **Demo ohne Abo** mit eigener Muster-Datenbank, nichts speichern, Wasserzeichen „MUSTER – DEMO“, Band „DEMO – Abo wählen, um mit deinen eigenen Daten zu starten“ (L-10.6). (C) „Store-Test nur auf Pro“ entfällt, ein App-eigener Test bleibt verworfen. Umgesetzt in 0.27.0: Spezifikation FA-13.4, FA-13.5, FA-13.14, FA-13.15; Store-Einrichtung `STORE_ANMELDUNG.md` Formular 4 | erledigt |
+| O-45 | **Apple: Test und Einführungspreis zugleich geht nicht.** Apple erlaubt je Abogruppe und Apple-ID **ein** Einführungsangebot (Kostenlos, Pay as you go oder Pay up front). Varianten: **(A)** Einführung = 14 Tage gratis, Grundpreis sofort danach – iPhone-Kundinnen zahlen im ersten Jahr den vollen Preis, der Einführungspreis nur per Code; **(B, Empfehlung)** Einführung = erstes Jahr zum Einführungspreis (Monat: Pay as you go 12 × 6,90 € bzw. 12,90 €; Jahr: Pay up front 1 Jahr 69 € bzw. 129 €), **kein** 14-Tage-Test auf dem iPhone, Gratiszeit nur über `JENIBUCHT2M`; Kundin kündigt jederzeit, zahlt aber ab dem ersten Tag; **(C)** Grundpreis = Einführungspreis, nach einem Jahr Preiserhöhung – braucht Zustimmung jeder Kundin (Apple, L-22.9), +87 %, viele Abos enden: abgeraten. Android kann Test **und** Einführungspreis in einem Angebot | Entscheidung Auftraggeber |
+| O-46 | **20-%-Code:** Name `JENIBUCHT20` (Vorschlag) und ob er **parallel** zu `JENIBUCHT2M` läuft (Vorschlag: ja, je Kampagne ein Code, beide nur für Neukundinnen). Android: Google-Promo-Codes geben nur Gratisphasen; der Rabatt läuft als vom Entwickler bestimmtes Angebot, das die App nach Eingabe des Codes zeigt – ohne Server nicht geheim (P-R63). Alternative: 20 % nur auf dem iPhone | Entscheidung Auftraggeber |
 | O-41 | **Nächstes Land** (L-30.8): Empfehlung der [Länderanalyse](LAENDERANALYSE.md) vom 2026-10-18 – zuerst **Frankreich als weiteres Steuerland** (Registrierung für ein FBA-Lager, nur `TaxProfile` mit Sätzen, CA3 und Terminen), danach **Niederlande als erstes neues Heimatland** (keine E-Rechnungs- oder Kassenpflicht); Italien trotz größtem Markt erst später wegen SDI-Pflicht (braucht Server bzw. Vermittler). Vor Umsetzung die dort markierten Punkte („vor Umsetzung prüfen“) klären und in Spezifikation 14 aufnehmen | Entscheidung Auftraggeberin |
 | O-38 | **Volle Mehrgeräte-Synchronisierung** (Weg 2 Cloud-Ordner mit Änderungsjournal nach L-19.15 ff. bzw. Weg 3 Anbieter-Server): nach dem Launch bei genügend Nutzerinnen, gemeinsam mit O-32/O-37 zu entscheiden. Bis dahin Mithelfer-Geräte als Einbahn (5.29) | nach dem Launch |
 | O-20 | Welche Vorsoftware-Formate sind beim Import vorrangig zu unterstützen? Richtet sich nach dem, womit die ersten Nutzer tatsächlich kommen | Stufe B |
@@ -1510,6 +1520,7 @@ Historie stehen. Die Einzelheiten stehen an der genannten Stelle.
 | 2026-10-19 | GmbH und Lohnverrechnung (ÖGK für Dienstnehmer, DB, DZ, Kommunalsteuer, Lohnsteuer, ELDA) später als Stufe „Premium Plus“ | 5.32 |
 | 2026-10-19 | GmbH-Nutzerinnen: Belege buchen, Saldenliste und Belegkopien an die Kanzlei; Standardschnittstellen DATEV, BMD, RZL, CSV und Vorgabe „Für Kapitalgesellschaft / doppelte Buchführung“ | 5.33 |
 | 2026-10-19 | „Abgaben & Rücklagen“ nur Pro; ohne Pro Hinweis „(Pro)“ zur Abo-Seite, Basis in der Testzeit mit Pro inklusive, Demo zeigt es; Abgabenbuchungen bleiben in jedem Abo normale Buchungen | O-43, FA-19.1 |
+| 2026-10-19 | **Preise inkl. USt, AT/DE gleich:** erstes Jahr Basis 6,90 €/Monat oder 69 €/Jahr, Pro 12,90 €/Monat oder 129 €/Jahr; ab dem zweiten Jahr Basis 12,90 €/Monat oder 129 €/Jahr, Pro 17,90 €/Monat oder 179 €/Jahr; dazu 14 Tage Test; Instagram „2 Monate gratis“ oder „20 % aufs Jahresabo im ersten Jahr“ | 5.10, O-3, O-45, O-46, Spez. FA-13.16 |
 | 2026-10-19 | RZL-Export jetzt nicht; zurückgestellt | L-33.4, P-D52 |
 | 2026-10-19 | PDF-Betrachter in der App: jedes erzeugte PDF und PDF-Anhänge vor dem Senden/Drucken ansehen; Drucken über den Systemdialog in jedem Abo, Senden wie bisher Pro | FA-5.48, FA-13.11 |
 | 2026-10-19 | Willkommensseite: Unterzeile „… nach den Regeln, die auch Profis anwenden“ (statt „mit der Qualität von Profis“, UWG) und vier Funktionszeilen | FA-1.13, P-R60 |
@@ -1522,6 +1533,7 @@ Historie stehen. Die Einzelheiten stehen an der genannten Stelle.
 
 | Version | Datum | Änderung |
 |---|---|---|
+| 1.85 | 2026-10-19 | Neue Preise (5.10, 14a): Einführungspreis erstes Jahr, Grundpreis ab dem zweiten Jahr; O-3 überholt; neue offene Punkte O-45 (Apple: Test oder Einführungspreis), O-46 (20-%-Code) |
 | 1.84 | 2026-10-19 | Rückmeldung zu 0.30.0: Mithelfer-Koppeln als Nebenoption in Schritt 2 der Ersteinrichtung statt auf der Willkommensseite (L-29.1). |
 | 1.83 | 2026-10-19 | Entscheidungen des Auftraggebers vom 2026-10-19 (14a): O-43 entschieden (Pro), RZL-Export zurückgestellt (L-33.4), PDF-Betrachter, Willkommensseite |
 | 1.82 | 2026-10-19 | Entscheidungen des Auftraggebers vom 2026-10-19 (14a): 5.31 Abgaben & Rücklagen (Einzelunternehmen, umgesetzt 0.29.0), 5.32 Ausbaustufe „Premium Plus“ (GmbH, Lohnverrechnung; nur Umriss), 5.33 Schnittstellen zu Kanzleiprogrammen (DATEV, BMD, RZL, CSV, Paket doppelte Buchführung); offener Punkt O-43 (Tarif). Keine neue Datenübertragung (5.19 unverändert). |

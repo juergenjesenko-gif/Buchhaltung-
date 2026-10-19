@@ -1395,7 +1395,13 @@ Store-Konto. Du findest alles unter **Einstellungen → Abo**.
      Monate gratis; danach läuft das Abo zum angezeigten Preis weiter, wenn du
      nicht vorher kündigst. Die Übersicht erinnert dich drei Tage vorher.
 - **Preise** zeigt die Abo-Seite so, wie der Store sie meldet, inklusive
-  Umsatzsteuer, monatlich oder jährlich.
+  Umsatzsteuer, monatlich oder jährlich – mit allen Stufen, z. B. „14 Tage
+  gratis, dann 6,90 €/Monat im ersten Jahr, danach 12,90 €/Monat“. Was im
+  Store für dich gilt (Test, Einführungspreis), entscheidet der Store; das
+  Kaufblatt zeigt es vor dem Bestätigen noch einmal.
+- **Code für 20 % aufs Jahresabo** (z. B. `JENIBUCHT20` aus Instagram): unter
+  **Promo-Code einlösen** eingeben. Auf Android erscheint danach das
+  Rabattangebot auf der Abo-Seite, auf dem iPhone löst Apple den Code ein.
 - **Kündigen:** Tippe auf **Abo verwalten oder kündigen** – das öffnet die
   Abo-Einstellungen von Google Play bzw. Apple. Kündige spätestens 24 Stunden
   vor Ablauf.

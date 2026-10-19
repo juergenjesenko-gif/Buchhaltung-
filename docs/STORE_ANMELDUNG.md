@@ -151,20 +151,22 @@ unter „Trader-Status“ (EU, DSA) „Händler“ mit denselben öffentlichen A
 Die App erwartet genau diese **Produkt-IDs** (Spezifikation FA-13.3, Prüfpunkt
 P-D30). Tippfehler = Abo wird nicht gefunden.
 
-| Produkt-ID | Tarif | Zeitraum | Preis inkl. USt (Lastenheft 5.10) | Test |
-|---|---|---|---|---|
-| `basis_monat` | Basis | 1 Monat | 14,90 € | 14 Tage gratis |
-| `basis_jahr` | Basis | 1 Jahr | 142,90 € | 14 Tage gratis |
-| `pro_monat` | Pro | 1 Monat | 24,90 € | 14 Tage gratis |
-| `pro_jahr` | Pro | 1 Jahr | 238,90 € | 14 Tage gratis |
+| Produkt-ID | Tarif | Zeitraum | Grundpreis (Basis-Tarif) | Erstes Jahr (Angebot) | Test |
+|---|---|---|---|---|---|
+| `basis_monat` | Basis | 1 Monat | 12,90 € | 12 × 6,90 € | 14 Tage gratis |
+| `basis_jahr` | Basis | 1 Jahr | 129 € | 1 × 69 € | 14 Tage gratis |
+| `pro_monat` | Pro | 1 Monat | 17,90 € | 12 × 12,90 € | 14 Tage gratis |
+| `pro_jahr` | Pro | 1 Jahr | 179 € | 1 × 129 € | 14 Tage gratis |
 
-**Test auf allen vier Produkten** (Entscheidung Auftraggeber 2026-10-19,
-Lastenheft O-42, ersetzt „Test nur auf Pro“): Wer Basis wählt, bekommt in den
-14 Tagen trotzdem alle Pro-Funktionen – das schaltet die App frei, im Store ist
-dafür nichts weiter einzurichten. Kündigung in den 14 Tagen kostet nichts.
+Preise inkl. USt, Österreich und Deutschland gleich (Entscheidung Auftraggeber
+2026-10-19, Lastenheft 5.10). **Grundpreis** ist der Preis ab dem zweiten Jahr;
+der Preis des ersten Jahres ist **immer ein Angebot**, nie der Grundpreis
+(sonst wäre die spätere Erhöhung eine Preiserhöhung mit Zustimmungspflicht,
+L-22.9). Die App liest alle Stufen aus dem Store (Spezifikation FA-13.16) –
+im Code steht kein Preis.
 
-Rabattpreise (12,90 € / 19,90 €) **nicht** als Standardpreis eintragen, nur
-später als befristetes Angebot (P-R2).
+**Test auf allen vier Produkten** (O-42): Wer Basis wählt, bekommt in den
+14 Tagen trotzdem alle Pro-Funktionen – das schaltet die App frei.
 
 ### Google Play
 
@@ -177,16 +179,23 @@ später als befristetes Angebot (P-R2).
    Interner Test.
 3. App → **Monetarisieren → Abos** → „Abo erstellen“: Produkt-ID wie oben,
    Name „JeNi bucht Basis“ bzw. „JeNi bucht Pro“.
-4. Je Abo einen **Basis-Tarif** anlegen: „Automatische Verlängerung“, Zeitraum
-   Monat bzw. Jahr (bei Google: ein Produkt je Zeile der Tabelle, je ein
-   Basis-Tarif), Preis für Österreich und Deutschland eintragen, aktivieren.
-5. Bei **allen vier** Abos (`basis_monat`, `basis_jahr`, `pro_monat`,
-   `pro_jahr`) am Basis-Tarif **Angebot hinzufügen**: Angebots-ID
-   `test-14-tage`, Berechtigung **„Neukundenakquisition“ → „Hat noch nie ein
-   Abo gehabt“** (bezogen auf die ganze App, nicht nur dieses Produkt), Phase
-   **„Kostenloser Testzeitraum“ 14 Tage** → aktivieren. Folge: wer schon
-   einmal ein Abo der App hatte, bekommt keinen zweiten Test; die App zeigt
-   Pro inklusive auf Android trotzdem 14 Tage ab dem Kauf (Näherung, P-D46).
+4. Je Abo **einen Basis-Tarif** anlegen (ein Abo je Zeile der Tabelle, also
+   vier Abos mit je einem Basis-Tarif): Basis-Tarif-ID `monat` bzw. `jahr`,
+   „Automatische Verlängerung“, Abrechnungszeitraum 1 Monat bzw. 1 Jahr,
+   **Preise festlegen** → Österreich und Deutschland → **Grundpreis** aus der
+   Tabelle (12,90 € / 129 € / 17,90 € / 179 €) → aktivieren.
+5. Bei **allen vier** Abos am Basis-Tarif **Angebot hinzufügen**
+   (ein Angebot mit zwei Phasen):
+   1. Angebots-ID `erstes-jahr`, Berechtigung **„Neukundenakquisition“ →
+      „Hat noch nie ein Abo gehabt“** (bezogen auf die ganze App).
+   2. **Phase hinzufügen → Kostenloser Testzeitraum**, Dauer **14 Tage**.
+   3. **Phase hinzufügen → Einführungspreis → Wiederholt**: Monatsabo
+      Abrechnungszeitraum 1 Monat, **12 Zeiträume**, Preis 6,90 € (Basis)
+      bzw. 12,90 € (Pro); Jahresabo **Einmalzahlung** bzw. 1 Zeitraum
+      1 Jahr, Preis 69 € bzw. 129 €. Preise für AT und DE prüfen.
+   4. Kein Tag nötig → **Aktivieren**.
+   Danach gilt automatisch der Grundpreis. Wer schon einmal ein Abo der App
+   hatte, sieht nur den Grundpreis (Google meldet das Angebot dann nicht).
 6. Je Basis-Tarif **Kulanzzeitraum** (Grace Period) auf 7 Tage oder mehr
    stellen.
 7. Testkonten eintragen: Play Console → **Einstellungen → Lizenztests** →
@@ -201,17 +210,21 @@ später als befristetes Angebot (P-R2).
 3. In dieser **einen** Gruppe die vier Abos mit den Produkt-IDs oben anlegen;
    Rangfolge: Pro (Stufe 1) über Basis (Stufe 2) – dann wechselt Apple ohne
    Doppelabo.
-4. Je Abo Preis für Österreich und Deutschland wählen (Preisstufe nächst
-   14,90 € usw.), Anzeigename und Beschreibung auf Deutsch, Prüfungs-Screenshot
+4. Je Abo **Grundpreis** für Österreich und Deutschland wählen (12,90 € /
+   129 € / 17,90 € / 179 €), Anzeigename und Beschreibung auf Deutsch, Prüfungs-Screenshot
    der Abo-Seite der App.
-5. Bei **allen vier** Abos **Einführungsangebot** (Introductory Offer) →
-   Länder Österreich und Deutschland → Art **„Kostenlos“** → Dauer
-   **2 Wochen** → Startdatum heute, ohne Enddatum.
-   **Wichtig (Apple-Regel):** Ein Einführungsangebot gilt **einmal je
-   Abogruppe und Apple-ID**, nicht je Produkt. Wer Basis testet, kann später
-   Pro nicht noch einmal gratis testen, und ein Wechsel auf Pro in der
-   Testzeit wird sofort zum Pro-Preis abgerechnet. Das ist gewollt: Pro ist
-   in der Basis-Testzeit ohnehin enthalten (P-D47).
+5. **Einführungsangebot** je Abo nach der Entscheidung zu Lastenheft
+   **O-45**. Apple erlaubt **ein** Einführungsangebot je Abogruppe und
+   Apple-ID – 14 Tage gratis **und** Einführungspreis zugleich gehen nicht.
+   - **Variante B (Empfehlung): erstes Jahr günstiger, kein Test.**
+     Einführungsangebot → Länder AT und DE → `basis_monat`/`pro_monat`:
+     **„Pay as you go“**, Dauer 1 Monat, **12 Zeiträume**, 6,90 € bzw.
+     12,90 €; `basis_jahr`/`pro_jahr`: **„Pay up front“**, Dauer **1 Jahr**,
+     69 € bzw. 129 €. Startdatum heute, ohne Enddatum.
+   - **Variante A: 14 Tage gratis, dann Grundpreis.** Einführungsangebot
+     **„Kostenlos“**, Dauer **2 Wochen** auf allen vier Abos.
+   Wer Basis eingeführt bekommen hat, bekommt für Pro kein zweites
+   Einführungsangebot (P-D47).
 6. In der Abogruppe **Kulanzzeitraum für Abrechnung** (Billing Grace Period)
    einschalten.
 7. Sandbox-Testkonto anlegen:
@@ -253,6 +266,42 @@ sind angelegt und aktiv.
    – in `STORE_LISTING.md` eintragen.
 5. Mit dem Sandbox-Konto einlösen: App → Abo → **Promo-Code einlösen**
    (P-D32).
+
+### Promo-Code „JENIBUCHT20“ (20 % aufs Jahresabo im ersten Jahr)
+
+Vorschlag zu Lastenheft **O-46**; erst anlegen, wenn der Auftraggeber Name und
+Parallelbetrieb bestätigt hat. Ergebnis: Basis 55,20 €, Pro 103,20 € für das
+erste Jahr, danach 129 € bzw. 179 €.
+
+**Google Play** (Google-Promo-Codes geben nur Gratisphasen, deshalb ein
+Angebot, das die App nach Eingabe des Codes zeigt – Spezifikation FA-13.16):
+
+1. [Play Console](https://play.google.com/console/developers) → App →
+   **Monetarisieren → Abos** → `basis_jahr` öffnen → Basis-Tarif `jahr` →
+   **Angebot hinzufügen**.
+2. Angebots-ID `jenibucht20`, Berechtigung **„Vom Entwickler festgelegt“**.
+3. **Phase hinzufügen → Einführungspreis → Einmalzahlung**, Dauer 1 Jahr,
+   Preis **55,20 €** (AT und DE).
+4. **Angebots-Tags → `jenibucht20`** eintragen (genau so, klein) →
+   **Aktivieren**.
+5. Dasselbe bei `pro_jahr` mit **103,20 €**.
+6. Testen: App → Abo → **Promo-Code einlösen** → `JENIBUCHT20` → beim
+   Jahresabo steht „55,20 € im ersten Jahr, danach 129 €/Jahr“ (P-D55).
+
+**Apple App Store**
+
+1. [App Store Connect → Apps](https://appstoreconnect.apple.com/apps) → App →
+   **Monetarisierung → Abonnements** → `basis_jahr` öffnen.
+2. **Angebotscodes** → „Angebotscode erstellen“: Name „Instagram 20 %“,
+   Berechtigung **Neue Abonnenten**, Angebot **Pay up front**, Dauer
+   **1 Jahr**, Preis **55,20 €** (AT, DE).
+3. Bei „Bestehendes Einführungsangebot“ **Nein** wählen (Code zuerst, danach
+   Grundpreis).
+4. **Benutzerdefinierter Code** → `JENIBUCHT20`, Anzahl Einlösungen,
+   Ablaufdatum der Kampagne → erstellen.
+5. Bei `pro_jahr` dasselbe mit **103,20 €** – Apple erlaubt einen
+   benutzerdefinierten Code nur für **ein** Angebot; dort z. B.
+   `JENIBUCHT20PRO` oder nur Basis bewerben (O-46).
 
 ### iCloud-Container für die Sicherung (ab App-Version 0.16.0)
 

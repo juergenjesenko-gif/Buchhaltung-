@@ -15,7 +15,7 @@ ersten Einreichung mit `tool/release/bundle_id_wechsel.sh`
 ## Kurzbeschreibung (Google Play, max. 80 Zeichen)
 
 ```
-Belege scannen, Rechnungen schreiben, Fristen im Blick. 14 Tage gratis testen.
+Belege scannen, Rechnungen & E-Rechnungen schreiben. 14 Tage gratis testen.
 ```
 
 ## Untertitel (App Store, max. 30 Zeichen)
@@ -63,6 +63,11 @@ am häufigsten fehlt. Kleinunternehmer bekommen automatisch den vorgeschriebenen
 Hinweistext statt einer Umsatzsteuerzeile. Rabatt, Skonto und Versandkosten,
 Zahlungserinnerung und Mahnung. Als PDF direkt aus der App verschicken.
 
+E-RECHNUNGEN SCHREIBEN
+Jede Rechnung als ZUGFeRD-PDF (EN 16931): ein PDF zum Lesen mit der
+E-Rechnung darin. Für Behörden XRechnung (Deutschland, mit Leitweg-ID) oder
+ebInterface (Österreich, e-Rechnung.gv.at) als XML. Stornos als Gutschrift.
+
 ÜBERGABE AN DIE KANZLEI
 Belegliste als CSV, DATEV-Buchungsstapel für Deutschland, BMD-Format für
 Österreich, dazu eine Umsatzsteuer-Zusammenfassung mit allen
@@ -79,7 +84,8 @@ Basis: Belege, Rechnungen, Storno, Mahnungen erstellen, Kassabuch, Kunden,
 Übersicht, Kleinunternehmer-Ampel, Vertragsarchiv, Export, Sicherung, PDF
 ansehen, speichern und drucken.
 Pro zusätzlich: Belegerkennung per Kamera, Import aus Amazon, PayPal, Shopify,
-Stripe und E-Rechnungen, PDF und Mahnungen mit einem Tipp senden, Logo auf
+Stripe und E-Rechnungen, E-Rechnungen ausstellen (ZUGFeRD, XRechnung,
+ebInterface), PDF und Mahnungen mit einem Tipp senden, Logo auf
 Rechnungen, Wechselkurs abrufen, Anlagen mit Abschreibung und
 Anlagenverzeichnis, Saldenliste und vorläufiger Jahresabschluss, Abgaben &
 Rücklagen (Schätzung für Steuern und SV), Verträge auslesen, Mithelfer-Geräte
@@ -87,8 +93,10 @@ koppeln.
 
 14 TAGE KOSTENLOS TESTEN
 14 Tage kostenlos testen – mit allen Pro-Funktionen, auch wenn du Basis
-wählst. Danach gilt dein gewähltes Abo: Basis 14,90 € oder Pro 24,90 € im
-Monat, Jahresabo mit 20 % Rabatt; Endpreise inkl. USt. Mit Basis gilt nach
+wählst. Danach gilt dein gewähltes Abo: im ersten Jahr Basis 6,90 € oder Pro
+12,90 € im Monat (Jahresabo 69 € bzw. 129 €), ab dem zweiten Jahr Basis
+12,90 € oder Pro 17,90 € im Monat (Jahresabo 129 € bzw. 179 €); Endpreise
+inkl. USt. Mit Basis gilt nach
 dem Test der Umfang von Basis. Der Test startet im Store und geht nach 14
 Tagen in das Abo über, wenn du nicht vorher in den Store-Einstellungen
 kündigst; jederzeit vorher im Store kündbar, dann zahlst du nichts. Der
@@ -177,6 +185,10 @@ oder Apple Privacy Label, da keine Daten aus der App erhoben werden; P-R18). Goo
 Safety: „Finanzinformationen – andere“, geteilt mit Dritten, verschlüsselt
 übertragen, für die App-Funktion, vom Nutzer ausgelöst. Apple: „Sonstige
 Finanzinfos“, nicht verknüpft, App-Funktionalität (Prüfpunkt P-U4).
+**E-Rechnung (ab 0.32.0):** ZUGFeRD-PDF bzw. XRechnung/ebInterface-XML gehen
+nur über das Teilen-Blatt an ein Ziel, das die Nutzerin wählt – wie das
+Rechnungs-PDF; kein Server des Anbieters, keine neue Angabe in Data Safety
+oder Privacy Label (vom Nutzer ausgelöstes Teilen).
 **Belegerkennung (nur Android):** die eingebundene Bibliothek Google ML Kit
 (Text- und Barcode-Erkennung, gebündelt)
 sendet Nutzungs- und Diagnosedaten an Google (keine Fotos, kein Text). Google
@@ -296,12 +308,51 @@ Prüfpunkt P-R40):
 
 > 2 Monate JeNi bucht Pro gratis – mit dem Code JENIBUCHT2M. Für neue
 > Abonnentinnen und Abonnenten. Danach verlängert sich das Abo automatisch zu
-> 24,90 € pro Monat bzw. 238,90 € pro Jahr (inkl. USt), bis du kündigst.
+> 12,90 € pro Monat im ersten Jahr, danach 17,90 € pro Monat (Jahresabo
+> 129 € im ersten Jahr, danach 179 €; inkl. USt), bis du kündigst.
 > Kündigen oder auf Basis wechseln geht jederzeit vorher kostenlos in den
 > Abo-Einstellungen von Google Play bzw. App Store. Einlösen: Link in der Bio.
 > Keine Steuerberatung.
 
 - Preise vor jeder Kampagne mit den im Store hinterlegten Preisen abgleichen.
+
+### Preise (Entscheidung Auftraggeber 2026-10-19, Lastenheft 5.10)
+
+| Tarif | Erstes Jahr | Ab dem zweiten Jahr |
+|---|---|---|
+| Basis | 6,90 €/Monat · 69 €/Jahr | 12,90 €/Monat · 129 €/Jahr |
+| Pro | 12,90 €/Monat · 129 €/Jahr | 17,90 €/Monat · 179 €/Jahr |
+
+Alle Preise inkl. USt, Österreich und Deutschland gleich. Solange Apple keinen
+14-Tage-Test hat (Lastenheft O-45, Variante B), in Texten für beide Stores
+„14 Tage gratis (Android)“ bzw. den Test weglassen (P-R62).
+
+### Instagram-Werbetext: 20 % aufs Jahresabo (Code `JENIBUCHT20`, O-46)
+
+> 20 % auf dein erstes Jahr JeNi bucht – mit dem Code JENIBUCHT20: Basis
+> 55,20 € statt 69 € oder Pro 103,20 € statt 129 € für das erste Jahr
+> (Jahresabo, inkl. USt). Für neue Abonnentinnen und Abonnenten. Ab dem
+> zweiten Jahr verlängert sich das Abo automatisch zu 129 € (Basis) bzw.
+> 179 € (Pro) im Jahr, bis du kündigst. Kündigen geht jederzeit in den
+> Abo-Einstellungen von Google Play bzw. App Store. Code in der App unter
+> Abo → Promo-Code einlösen. Keine Steuerberatung.
+
+„statt 69 €“ nur, weil 69 € der tatsächlich verlangte Einführungspreis ist
+(P-R63); keinen „statt“-Preis über dem Store-Preis nennen.
+
+### Instagram-Werbetext: 2 Monate gratis (Code `JENIBUCHT2M`)
+
+> 2 Monate JeNi bucht Pro gratis testen – mit dem Code JENIBUCHT2M. Für neue
+> Abonnentinnen und Abonnenten. Danach 12,90 € pro Monat bzw. 129 € im Jahr
+> (inkl. USt), ab dem zweiten Jahr 17,90 € bzw. 179 €; das Abo verlängert
+> sich automatisch, bis du kündigst. Vorher kostenlos kündbar in den
+> Abo-Einstellungen von Google Play bzw. App Store. Einlösen: Link in der Bio.
+> Keine Steuerberatung.
+
+Folgepreis nach dem Code am Gerät prüfen (P-D55): Apple rechnet nach einem
+Angebotscode ohne Einführungsangebot zum Grundpreis ab, wenn beim Code
+„Einführungsangebot zuerst“ nicht gewählt ist – dann im Text „danach 17,90 €
+pro Monat“ schreiben.
 - Postet jemand anderes gegen Geld oder Gegenleistung (Influencerin):
   „Werbung“ bzw. „Anzeige“ am Anfang des Beitrags und Instagram-Kennzeichnung
   „Bezahlte Partnerschaft“.
