@@ -34,7 +34,7 @@ nächsten Versionssprung in den neuen Eintrag.
 
 | Art | Änderung | Bezug | Commit |
 |---|---|---|---|
-| Neu | Abo-Seite zeigt Test, Einführungspreis des ersten Jahres und Grundpreis aus den Preisphasen des Stores; neue Preise (Lastenheft 5.10); zweiter Instagram-Code `JENIBUCHT20` (20 % aufs Jahresabo im ersten Jahr) | FA-13.16, O-45, O-46, P-R62, P-R63, P-D55 | wird nachgetragen |
+| Neu | Abo-Seite zeigt Test, Einführungspreis des ersten Jahres und Grundpreis aus den Preisphasen des Stores; neue Preise (Lastenheft 5.10); zweiter Instagram-Code `JENIBUCHT20` (20 % aufs Jahresabo im ersten Jahr) | FA-13.16, O-45, O-46, P-R62, P-R63, P-D55 | c5a3ef3 |
 
 ---
 
