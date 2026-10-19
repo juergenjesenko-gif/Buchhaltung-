@@ -42,7 +42,7 @@ nächsten Versionssprung in den neuen Eintrag.
 | Feld | Wert |
 |---|---|
 | Art | Testbuild (ungezippte arm64-APK `JeNi-bucht-0.30.0-build-<Nr>.apk`, fester Testschlüssel); **Lizenzprüfung aus** (ohne `LICENSING=true`), alle Funktionen frei |
-| Commit | `dieser Commit` |
+| Commit | `f12ac05` |
 | Branch | `claude/agile-accounting-app-mobile-wa5j3h` |
 | Dokumentstände | Lastenheft 1.83, Spezifikation 1.88, Benutzerhandbuch für 0.30.0, DESIGN_SPEC 1.5 |
 | Datenbankschema | 29 |
@@ -55,11 +55,11 @@ nächsten Versionssprung in den neuen Eintrag.
 
 | Art | Änderung | Bezug | Commit |
 |---|---|---|---|
-| Neu | PDF-Betrachter (Paket `printing`): jedes erzeugte PDF und PDF-Anhänge eines Belegs zuerst ansehen; wischen, zoomen, Seitenanzeige; Schließen, Drucken (frei), Senden (Pro wie bisher); Demo gesperrt mit Hinweis | FA-5.48, FA-13.11, FA-13.14 | `dieser Commit` |
-| Geändert | „PDF senden“ heißt „Ansehen“ bzw. „PDF ansehen“ (Rechnungsliste, Rechnungsformular, Storno-Hinweis, Angebot, Mahnung, Berichte); Angebot gilt erst nach „Senden“ als gesendet | FA-5.46, FA-5.48 | `dieser Commit` |
-| Geändert | „Abgaben & Rücklagen“ nur Pro; ohne Pro Hinweiszeile „(Pro)“ zur Abo-Seite auf der Übersicht und in „Für das Finanzamt“ | O-43, FA-13.2, FA-19.1 | `dieser Commit` |
-| Geändert | Willkommensseite: Unterzeile und vier Funktionszeilen; Store-Kurzbeschreibung angepasst | FA-1.13, P-R60 | `dieser Commit` |
-| Doku | RZL-Export zurückgestellt (L-33.4, P-D52); Lastenheft 14a; interne Prüfung 2026-10-19 PDF-Betrachter | Spezifikation 14 | `dieser Commit` |
+| Neu | PDF-Betrachter (Paket `printing`): jedes erzeugte PDF und PDF-Anhänge eines Belegs zuerst ansehen; wischen, zoomen, Seitenanzeige; Schließen, Drucken (frei), Senden (Pro wie bisher); Demo gesperrt mit Hinweis | FA-5.48, FA-13.11, FA-13.14 | `f12ac05` |
+| Geändert | „PDF senden“ heißt „Ansehen“ bzw. „PDF ansehen“ (Rechnungsliste, Rechnungsformular, Storno-Hinweis, Angebot, Mahnung, Berichte); Angebot gilt erst nach „Senden“ als gesendet | FA-5.46, FA-5.48 | `f12ac05` |
+| Geändert | „Abgaben & Rücklagen“ nur Pro; ohne Pro Hinweiszeile „(Pro)“ zur Abo-Seite auf der Übersicht und in „Für das Finanzamt“ | O-43, FA-13.2, FA-19.1 | `f12ac05` |
+| Geändert | Willkommensseite: Unterzeile und vier Funktionszeilen; Store-Kurzbeschreibung angepasst | FA-1.13, P-R60 | `f12ac05` |
+| Doku | RZL-Export zurückgestellt (L-33.4, P-D52); Lastenheft 14a; interne Prüfung 2026-10-19 PDF-Betrachter | Spezifikation 14 | `f12ac05` |
 
 ---
 
