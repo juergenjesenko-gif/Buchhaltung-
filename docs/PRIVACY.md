@@ -120,7 +120,11 @@ Zutun in eine Cloud gelangen.
 Nur in diesen Fällen, die du auslöst oder einschaltest:
 
 - **Rechnung als PDF teilen** – du wählst im Systemdialog selbst das Ziel
-  (E-Mail, Messenger, Cloud-Ordner)
+  (E-Mail, Messenger, Cloud-Ordner). Das PDF enthält ab Version 0.32.0 die
+  E-Rechnung (ZUGFeRD) als eingebettete XML-Datei mit denselben
+  Rechnungsdaten; für Behörden teilst du stattdessen die XRechnung- bzw.
+  ebInterface-Datei (dazu Leitweg-ID bzw. Auftragsreferenz und
+  Lieferantennummer). Es geht nichts an den Anbieter.
 - **Export für die Steuerberatung** – gleiches Prinzip
 - **Berichte für die Steuerberatung** (Anlagenverzeichnis, Saldenliste,
   vorläufiger Jahresabschluss als PDF oder ZIP) – gleiches Prinzip

@@ -1,6 +1,6 @@
 # Benutzerhandbuch – JeNi bucht
 
-**Für App-Version 0.31.0** · Stand 2026-10-19
+**Für App-Version 0.32.0** · Stand 2026-10-19
 
 > **Testerinnen und Tester, Umstieg auf 0.26.0:** Ab dieser Version hat die App
 > eine neue technische Kennung. Sie wird **neben** der alten App installiert,
@@ -909,6 +909,33 @@ Senden zeigen den Demo-Hinweis.
 Die Seite steht immer auf **weißem Papier** in den Originalfarben – auch
 wenn dein Telefon auf dunkel gestellt ist.
 
+### E-Rechnung (ZUGFeRD, XRechnung, ebInterface)
+
+Du musst nichts tun: **jede Rechnung ist eine E-Rechnung.** Beim Ansehen
+steckt in deinem PDF die E-Rechnung nach EN 16931 (**ZUGFeRD**) – deine
+Kundin liest das PDF, ihr Buchhaltungsprogramm die Daten. Unten im
+Betrachter steht dann „Mit E-Rechnung (ZUGFeRD)“. Auch Stornorechnungen
+gehen so (als Gutschrift).
+
+**Rechnung an eine Behörde?** Einmal bei der Kundin einstellen:
+
+1. **Kunden** → Kundin öffnen.
+2. Unter **E-Rechnung** tippen: **XRechnung** (Behörde in Deutschland) oder
+   **ebInterface** (Bundesdienststelle in Österreich).
+3. **Leitweg-ID** bzw. **Auftragsreferenz** eintragen (steht in der
+   Bestellung), bei ebInterface auch **Deine Lieferantennummer**.
+4. **Speichern**.
+
+Beim Ansehen der Rechnung heißt der Knopf dann **XML senden**: er teilt die
+XML-Datei, die du im Rechnungsportal hochlädst (Deutschland z. B. ZRE oder
+OZG-RE, Österreich e-Rechnung.gv.at im USP). **Drucken** druckt weiter das
+PDF.
+
+Fehlt etwas, das die E-Rechnung braucht, steht im Betrachter z. B. „Ohne
+XRechnung – es fehlt: Leitweg-ID der Kundin“. Ergänze es in den Stammdaten
+oder bei der Kundin und schau die Rechnung noch einmal an. E-Rechnungen
+ausstellen gehört zu **Pro**; ohne Pro bleibt es beim normalen PDF.
+
 ### Rechnung versenden
 
 Direkt nach dem Ausstellen mit **PDF ansehen** unten im Formular, dann
@@ -1619,6 +1646,11 @@ per E-Mail*) — trag die E-Mail in den Stammdaten ein oder setze das Häkchen
 **Andere E-Mail-Adresse für den Empfang von Belegen** und schreib dort eine
 Adresse hin.
 
+**„Ohne XRechnung – es fehlt: …“** bzw. **„Ohne ZUGFeRD-PDF – es fehlt: …“**
+(im PDF-Betrachter) — die E-Rechnung braucht diese Angaben. Ergänze sie in
+den **Stammdaten** oder bei der **Kundin** und öffne die Rechnung noch einmal
+mit **Ansehen**. Siehe [E-Rechnung](#e-rechnung-zugferd-xrechnung-ebinterface).
+
 **„Anmeldung am Postfach abgelehnt …“** bzw. **„Anmeldung beim Mailserver
 abgelehnt …“** — Kennwort oder App-Passwort stimmt nicht. Bei Gmail und
 iCloud geht nur ein App-Passwort (Anleitung im Formular). Nichts geht
@@ -1837,10 +1869,10 @@ Damit du nicht darauf wartest:
   Registrierkassensicherheitsverordnung nicht. Wer mehr als 15.000 € Umsatz und
   7.500 € Barumsätze im Jahr hat, braucht zusätzlich eine
   registrierkassenpflichtige Lösung.
-- **E-Rechnungen nur empfangen.** Eingehende E-Rechnungen (XRechnung,
-  ZUGFeRD, ebInterface) übernimmt die App. Deine eigenen Rechnungen sind ein
-  PDF, keine strukturierte E-Rechnung. Für Geschäftskunden in Deutschland wird
-  das mittelfristig wichtig.
+- **E-Rechnung: noch nicht alles.** XRechnung schreibt die App in der
+  CII-Form (Behörden nehmen beide Formen an), eine Bestellnummer je
+  Rechnung gibt es noch nicht (nur die Käuferreferenz bei der Kundin), und
+  hochladen ins Rechnungsportal machst du selbst.
 - **Storno nur für die ganze Rechnung.** Einzelne Positionen oder einen
   Teilbetrag zurücknehmen geht noch nicht; nimm dafür **Korrigieren**.
 - **E-Mail ohne Google- oder Microsoft-Anmeldung.** Gmail und iCloud gehen

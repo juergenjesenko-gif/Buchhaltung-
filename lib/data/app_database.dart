@@ -18,7 +18,7 @@ class AppDatabase {
 
   /// Aktuelle Schemaversion. Öffentlich, weil docs/SPECIFICATION.md sie
   /// dokumentiert und test/specification_sync_test.dart beide vergleicht.
-  static const schemaVersion = 29;
+  static const schemaVersion = 30;
 
   Database? _db;
 
@@ -865,6 +865,16 @@ class AppDatabase {
           "AND kind IS NULL",
       "UPDATE categories SET kind = 'tradeTax' WHERE name = 'Gewerbesteuer' "
           "AND kind IS NULL",
+    ],
+    // E-Rechnung erstellen (FA-5.49, Entscheidung Auftraggeber 2026-10-19):
+    // Leitweg-ID/Käuferreferenz, Lieferantennummer und Format je Kundin.
+    30: [
+      "ALTER TABLE customers ADD COLUMN buyer_reference TEXT NOT NULL "
+          "DEFAULT ''",
+      "ALTER TABLE customers ADD COLUMN e_invoice_format TEXT NOT NULL "
+          "DEFAULT 'zugferd'",
+      "ALTER TABLE customers ADD COLUMN supplier_number TEXT NOT NULL "
+          "DEFAULT ''",
     ],
   };
 

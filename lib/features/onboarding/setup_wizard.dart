@@ -57,7 +57,7 @@ class SetupWizard extends StatefulWidget {
   /// eine Zeile (Rückmeldung Auftraggeber zu 0.30.0).
   static const welcomePoints = [
     (Icons.document_scanner_outlined, 'Belege scannen und auslesen'),
-    (Icons.receipt_long_outlined, 'Rechnungen stellen, E-Rechnung lesen'),
+    (Icons.receipt_long_outlined, 'Rechnungen & E-Rechnungen schreiben'),
     (Icons.event_note_outlined, 'Verträge und Fristen im Blick'),
     (Icons.table_chart_outlined, 'Saldenliste und Jahresübersicht'),
   ];

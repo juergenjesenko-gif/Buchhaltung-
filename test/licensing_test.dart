@@ -43,6 +43,7 @@ void main() {
         Feature.contractSummary,
         Feature.assetManagement,
         Feature.helperDevices,
+        Feature.eInvoiceIssue,
       ];
       for (final feature in proOnly) {
         expect(Entitlement.pro.allows(feature), isTrue, reason: '$feature');

@@ -1,7 +1,10 @@
 import 'dart:typed_data';
 
 import 'package:pdf/pdf.dart';
+import 'package:flutter/services.dart' show rootBundle;
 import 'package:pdf/widgets.dart' as pw;
+
+import 'e_invoice/e_invoice_writer.dart';
 
 import 'pdf_fonts.dart';
 import 'pdf_watermark.dart';
@@ -29,7 +32,20 @@ class InvoicePdf {
     required this.profile,
     this.logo,
     this.offerValidUntil,
+    this.facturX,
   });
+
+  /// CII-XML der E-Rechnung (FA-5.49). Gesetzt → das PDF wird eine
+  /// PDF/A-3b mit eingebetteter `factur-x.xml` (ZUGFeRD 2.x / Factur-X,
+  /// Profil EN 16931), Beziehung `Alternative`, XMP-Metadaten und
+  /// sRGB-Ausgabeabsicht.
+  final String? facturX;
+
+  /// Farbprofil der PDF/A-Ausgabeabsicht.
+  static const iccAsset = 'assets/icc/sRGB2014.icc';
+
+  /// Producer im Info-Wörterbuch des pdf-Pakets; XMP muss gleich lauten.
+  static const _pdfProducer = 'https://github.com/DavBfr/dart_pdf';
 
   /// PDF eines Angebots (L-3.17): trägt sichtbar „Angebot“, nie „Rechnung“,
   /// und statt Zahlungsangaben die Gültigkeit. Texte in Sie-Form (L-3.31).
@@ -70,11 +86,50 @@ class InvoicePdf {
   static const _hairline = PdfColor.fromInt(0xFFD6DEE4);
 
   Future<Uint8List> build() async {
-    final doc = pw.Document(
-      title: PdfWatermark.title(_title),
-      author: profile.companyName,
-      keywords: PdfWatermark.keywords(),
-    );
+    final xml = facturX;
+    final title = PdfWatermark.title(_title);
+    final keywords = PdfWatermark.keywords();
+    final doc = xml == null
+        ? pw.Document(
+            title: title,
+            author: profile.companyName,
+            keywords: keywords,
+          )
+        : pw.Document(
+            title: title,
+            author: profile.companyName,
+            creator: 'JeNi bucht',
+            subject: _title,
+            keywords: keywords ?? 'Rechnung, E-Rechnung, ZUGFeRD',
+            // Factur-X 1.0 / ZUGFeRD 2.x: XMP-Erweiterung `fx`.
+            metadata: PdfaRdf(
+              title: title,
+              author: profile.companyName,
+              creator: 'JeNi bucht',
+              subject: _title,
+              keywords: keywords ?? 'Rechnung, E-Rechnung, ZUGFeRD',
+              producer: _pdfProducer,
+              invoiceRdf: PdfaFacturxRdf().create(
+                filename: EInvoiceWriter.zugferdFileName,
+                namespace:
+                    'urn:factur-x:pdfa:CrossIndustryDocument:invoice:1p0#',
+                conformanceLevel: 'EN 16931',
+                version: '1.0',
+              ),
+            ).create(),
+          );
+    if (xml != null) {
+      final icc = await rootBundle.load(iccAsset);
+      PdfaColorProfile(doc.document, icc.buffer.asUint8List());
+      PdfaAttachedFiles(doc.document, [
+        PdfaAttachedFile(
+          name: EInvoiceWriter.zugferdFileName,
+          data: xml,
+          subType: '/text/xml',
+          afRelationship: '/Alternative',
+        ),
+      ]);
+    }
 
     final fonts = await PdfFonts.load();
     final base = fonts.base;

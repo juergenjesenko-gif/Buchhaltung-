@@ -4,6 +4,7 @@ import 'package:buchhaltung/app_state.dart';
 import 'package:buchhaltung/data/app_database.dart';
 import 'package:buchhaltung/data/repositories.dart';
 import 'package:buchhaltung/features/pdf_viewer/pdf_viewer_screen.dart';
+import 'package:buchhaltung/services/e_invoice/e_invoice_output.dart';
 import 'package:buchhaltung/services/demo/demo_mode.dart';
 import 'package:buchhaltung/services/licensing/fake_store_billing.dart';
 import 'package:buchhaltung/services/licensing/license_cache.dart';
@@ -50,6 +51,8 @@ void main() {
     WidgetTester tester, {
     bool demo = false,
     bool dark = false,
+    String? notice,
+    XmlAttachment? xml,
   }) async {
     final db = (await tester.runAsync(openDb))!;
     final state = AppState(
@@ -82,6 +85,8 @@ void main() {
             bytes: Uint8List.fromList([1, 2, 3]),
             sendFeature: Feature.pdfSending,
             rasterizer: twoPages,
+            notice: notice,
+            xml: xml,
             printer: (_, name) async => printed.add(name),
           ),
         ),
@@ -116,6 +121,23 @@ void main() {
     await tester.pumpAndSettle();
     expect(printed, ['Rechnung_1.pdf']);
     expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('E-Rechnung: Hinweiszeile, „XML senden“ für Behörden', (
+    tester,
+  ) async {
+    await pump(
+      tester,
+      notice: 'Mit E-Rechnung (ZUGFeRD)',
+      xml: const XmlAttachment(fileName: 'XRechnung_1.xml', content: '<x/>'),
+    );
+    expect(find.byKey(const Key('pdf-notice')), findsOneWidget);
+    expect(find.text('XML senden'), findsOneWidget);
+    final send = find.descendant(
+      of: find.byKey(const Key('pdf-send')),
+      matching: find.byWidgetPredicate((w) => w is ButtonStyleButton),
+    );
+    expect(tester.getSize(send).height, greaterThanOrEqualTo(56));
   });
 
   testWidgets('Dunkler Modus: Seite auf weißem Papier, keine Farbfilter', (

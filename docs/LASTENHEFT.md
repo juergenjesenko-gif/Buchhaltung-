@@ -1,6 +1,6 @@
 # Lastenheft – JeNi bucht, Buchhaltungsapp für Österreich und Deutschland
 
-**Dokumentversion:** 1.85 · **Stand:** 2026-10-19 · **Status:** Entwurf zur Abstimmung
+**Dokumentversion:** 1.86 · **Stand:** 2026-10-19 · **Status:** Entwurf zur Abstimmung
 **Auftraggeber:** Jürgen Jesenko (privates Vorhaben) · **Umsetzung:** Claude Code
 
 > Ein Lastenheft beschreibt, **was** das Produkt leisten soll und **warum** — nicht,
@@ -256,8 +256,8 @@ Priorität: **MUSS** = ohne das kein Release · **SOLL** = wichtig, verhandelbar
 
 | ID | Anforderung | Prio | Stufe |
 |---|---|---|---|
-| L-4.1 | Ausgangsrechnungen als **XRechnung** und **ZUGFeRD** (Deutschland, EN 16931) erzeugen | MUSS | B |
-| L-4.2 | Ausgangsrechnungen als **ebInterface** (Österreich) erzeugen | MUSS | B |
+| L-4.1 | Ausgangsrechnungen als **XRechnung** und **ZUGFeRD** (Deutschland, EN 16931) erzeugen – umgesetzt 0.32.0 (Spezifikation FA-5.49; XRechnung in CII-Syntax) | MUSS | B |
+| L-4.2 | Ausgangsrechnungen als **ebInterface** (Österreich) erzeugen – umgesetzt 0.32.0 (ebInterface 6.1, Spezifikation FA-5.49) | MUSS | B |
 | L-4.3 | Eingehende strukturierte E-Rechnungen einlesen und als Beleg übernehmen; in Deutschland seit 2025 **Empfangspflicht für alle Unternehmen, auch Kleinunternehmer** — daher Basis-Tarif | MUSS | A |
 | L-4.4 | Das Produkt erklärt dem Nutzer, wann er welches Format braucht — die Pflichten sind gestaffelt und schwer zu durchschauen | MUSS | B |
 | L-4.5 | Versand über Peppol | KANN | C |
@@ -1449,6 +1449,7 @@ Zu entscheiden, bevor die betroffene Anforderung umgesetzt wird:
 | O-39 | **OAuth für den Mailweg** (L-29.11): Gmail und Microsoft 365/Outlook.com ohne App-Passwort. **To-dos Auftraggeberin:** (1) Google Cloud-Projekt anlegen, OAuth-Zustimmungsbildschirm mit Datenschutzerklärung auf eigener Domain, Bereich `gmail.send` (eingeschränkt) beantragen, OAuth-Verifizierung inkl. Sicherheitsprüfung (CASA) durchlaufen; (2) Azure-App-Registrierung (Microsoft Entra ID, „Konten in beliebigen Organisationen und persönliche Microsoft-Konten“), Berechtigung Graph `Mail.Send` (delegiert), Publisher Verification. Kosten und Pflichten: P-R48. Bis dahin App-Passwort (Gmail, iCloud) bzw. Kennwort | vor Store-Release offen |
 | O-40 | **Innergemeinschaftliches Verbringen** (L-30.9): **geschlossen 2026-10-18** – Entscheidung der Auftraggeberin (14a): Verbringen ins Auslandslager wird nicht in der App gebucht, nur die Verkäufe aus dem Lager; die App warnt in „Für das Finanzamt“, dass DE Kz 89/61 (bzw. AT Kz 070/072/065) die Kanzlei ergänzt (Spezifikation FA-18.4, Grenze 11, P-S68) | erledigt |
 | O-43 | **Tarif „Abgaben & Rücklagen“** (L-31): **Pro** (Rechenhilfe mit Mehrwert, passt zu Saldenliste/Jahresabschluss); Buchungen in Abgabenkategorien bleiben in jedem Anspruch normale Buchungen | entschieden 2026-10-19 – umgesetzt 0.30.0 |
+| O-44 | **E-Rechnung ausstellen: Basis statt Pro?** Umgesetzt nach 5.10 als Pro (`Feature.eInvoiceIssue`). **Vorschlag:** ab Basis, weil das Ausstellen in Deutschland ab 2028 für alle Regelbesteuerten Pflicht wird (ab 2027 bei Vorjahresumsatz über 800.000 €) und Basis „alles für eine ordentliche Buchhaltung“ sein soll; Pro behält „mit einem Tipp senden“. Änderung im Code: eine Zeile | offen – Entscheidung Auftraggeber |
 | ~~O-42~~ | **Entschieden am 2026-10-19 (Auftraggeber), ersetzt O-35:** (A) Die Kundin wählt und startet ein Abo (Basis oder Pro, monatlich/jährlich) im Store; **alle vier Produkte** haben ein Einführungsangebot 14 Tage kostenlos, Kündigung in den 14 Tagen kostet nichts. Bei Basis gibt die App in den ersten 14 Tagen des ersten Abos alle Pro-Funktionen frei („Pro inklusive in der Testzeit“), danach Basis, Daten bleiben; Hinweis 3 Tage vorher „Noch X Tage Pro inklusive – danach Basis. Jetzt auf Pro wechseln?“. Pro bleibt Pro. Text: „14 Tage kostenlos testen – mit allen Pro-Funktionen. Danach gilt dein gewähltes Abo (Preis aus Store). Jederzeit vorher im Store kündbar.“ (B) **Demo ohne Abo** mit eigener Muster-Datenbank, nichts speichern, Wasserzeichen „MUSTER – DEMO“, Band „DEMO – Abo wählen, um mit deinen eigenen Daten zu starten“ (L-10.6). (C) „Store-Test nur auf Pro“ entfällt, ein App-eigener Test bleibt verworfen. Umgesetzt in 0.27.0: Spezifikation FA-13.4, FA-13.5, FA-13.14, FA-13.15; Store-Einrichtung `STORE_ANMELDUNG.md` Formular 4 | erledigt |
 | O-45 | **Apple: Test und Einführungspreis zugleich geht nicht.** Apple erlaubt je Abogruppe und Apple-ID **ein** Einführungsangebot (Kostenlos, Pay as you go oder Pay up front). Varianten: **(A)** Einführung = 14 Tage gratis, Grundpreis sofort danach – iPhone-Kundinnen zahlen im ersten Jahr den vollen Preis, der Einführungspreis nur per Code; **(B, Empfehlung)** Einführung = erstes Jahr zum Einführungspreis (Monat: Pay as you go 12 × 6,90 € bzw. 12,90 €; Jahr: Pay up front 1 Jahr 69 € bzw. 129 €), **kein** 14-Tage-Test auf dem iPhone, Gratiszeit nur über `JENIBUCHT2M`; Kundin kündigt jederzeit, zahlt aber ab dem ersten Tag; **(C)** Grundpreis = Einführungspreis, nach einem Jahr Preiserhöhung – braucht Zustimmung jeder Kundin (Apple, L-22.9), +87 %, viele Abos enden: abgeraten. Android kann Test **und** Einführungspreis in einem Angebot | Entscheidung Auftraggeber |
 | O-46 | **20-%-Code:** Name `JENIBUCHT20` (Vorschlag) und ob er **parallel** zu `JENIBUCHT2M` läuft (Vorschlag: ja, je Kampagne ein Code, beide nur für Neukundinnen). Android: Google-Promo-Codes geben nur Gratisphasen; der Rabatt läuft als vom Entwickler bestimmtes Angebot, das die App nach Eingabe des Codes zeigt – ohne Server nicht geheim (P-R63). Alternative: 20 % nur auf dem iPhone | Entscheidung Auftraggeber |
@@ -1533,6 +1534,7 @@ Historie stehen. Die Einzelheiten stehen an der genannten Stelle.
 
 | Version | Datum | Änderung |
 |---|---|---|
+| 1.86 | 2026-10-19 | E-Rechnung erstellen umgesetzt (L-4.1, L-4.2, 0.32.0); Datenfluss „Rechnungsversand“ um ZUGFeRD-PDF und XML ergänzt (5.19); neu O-44 (Tarif für E-Rechnung ausstellen). |
 | 1.85 | 2026-10-19 | Neue Preise (5.10, 14a): Einführungspreis erstes Jahr, Grundpreis ab dem zweiten Jahr; O-3 überholt; neue offene Punkte O-45 (Apple: Test oder Einführungspreis), O-46 (20-%-Code) |
 | 1.84 | 2026-10-19 | Rückmeldung zu 0.30.0: Mithelfer-Koppeln als Nebenoption in Schritt 2 der Ersteinrichtung statt auf der Willkommensseite (L-29.1). |
 | 1.83 | 2026-10-19 | Entscheidungen des Auftraggebers vom 2026-10-19 (14a): O-43 entschieden (Pro), RZL-Export zurückgestellt (L-33.4), PDF-Betrachter, Willkommensseite |

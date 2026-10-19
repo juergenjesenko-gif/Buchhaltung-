@@ -37,6 +37,9 @@ class _CustomerEditScreenState extends State<CustomerEditScreen> {
   bool _businessTouched = false;
   final _email = TextEditingController();
   final _note = TextEditingController();
+  final _buyerReference = TextEditingController();
+  final _supplierNumber = TextEditingController();
+  EInvoiceFormat _eInvoiceFormat = EInvoiceFormat.zugferd;
 
   Country _country = Country.at;
   bool _saving = false;
@@ -57,6 +60,9 @@ class _CustomerEditScreenState extends State<CustomerEditScreen> {
     _email.text = existing.email;
     _note.text = existing.note;
     _country = existing.country;
+    _buyerReference.text = existing.buyerReference;
+    _supplierNumber.text = existing.supplierNumber;
+    _eInvoiceFormat = existing.eInvoiceFormat;
   }
 
   @override
@@ -70,6 +76,8 @@ class _CustomerEditScreenState extends State<CustomerEditScreen> {
       _vatId,
       _email,
       _note,
+      _buyerReference,
+      _supplierNumber,
     ]) {
       controller.dispose();
     }
@@ -95,6 +103,9 @@ class _CustomerEditScreenState extends State<CustomerEditScreen> {
       email: _email.text.trim(),
       note: _note.text.trim(),
       isBusiness: _isBusiness,
+      buyerReference: _buyerReference.text.trim(),
+      supplierNumber: _supplierNumber.text.trim(),
+      eInvoiceFormat: _eInvoiceFormat,
     );
 
     final state = AppScope.read(context);
@@ -126,6 +137,78 @@ class _CustomerEditScreenState extends State<CustomerEditScreen> {
       return;
     }
     Navigator.of(context).pop();
+  }
+
+  /// E-Rechnung (FA-5.49): Standard ZUGFeRD-PDF ohne weitere Angaben;
+  /// Behörden wählen XRechnung bzw. ebInterface, dann erscheint das Feld
+  /// für Leitweg-ID bzw. Auftragsreferenz (UX: ganze Zeile 56 dp tippbar,
+  /// keine Pflichtfelder für den Normalfall).
+  Widget _eInvoiceSection(BuildContext context) {
+    final format = _eInvoiceFormat;
+    return SectionCard(
+      title: 'E-Rechnung',
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          RadioGroup<EInvoiceFormat>(
+            groupValue: format,
+            onChanged: (v) =>
+                setState(() => _eInvoiceFormat = v ?? EInvoiceFormat.zugferd),
+            child: Column(
+              children: [
+                for (final f in EInvoiceFormat.values)
+                  RadioListTile<EInvoiceFormat>(
+                    key: Key('customer-einvoice-${f.name}'),
+                    contentPadding: EdgeInsets.zero,
+                    value: f,
+                    title: Text(f.label),
+                    subtitle: Text(f.hint),
+                  ),
+              ],
+            ),
+          ),
+          if (format.isXml) ...[
+            const SizedBox(height: 8),
+            TextFormField(
+              key: const Key('customer-buyer-reference'),
+              controller: _buyerReference,
+              decoration: InputDecoration(
+                labelText: format == EInvoiceFormat.xrechnung
+                    ? 'Leitweg-ID'
+                    : 'Auftragsreferenz',
+                helperText: format == EInvoiceFormat.xrechnung
+                    ? 'Steht in der Bestellung der Behörde, z. B. '
+                          '04011000-12345-67'
+                    : 'Bestellnummer bzw. Auftragsreferenz der Dienststelle',
+                helperMaxLines: 2,
+              ),
+            ),
+          ],
+          if (format == EInvoiceFormat.ebInterface) ...[
+            const SizedBox(height: 12),
+            TextFormField(
+              key: const Key('customer-supplier-number'),
+              controller: _supplierNumber,
+              decoration: const InputDecoration(
+                labelText: 'Deine Lieferantennummer',
+                helperText: 'Vom Bund bei der Registrierung im USP vergeben',
+              ),
+            ),
+          ],
+          if (!format.isXml) ...[
+            const SizedBox(height: 8),
+            TextFormField(
+              key: const Key('customer-buyer-reference'),
+              controller: _buyerReference,
+              decoration: const InputDecoration(
+                labelText: 'Käuferreferenz (optional)',
+                helperText: 'Nur wenn die Kundin eine verlangt',
+              ),
+            ),
+          ],
+        ],
+      ),
+    );
   }
 
   @override
@@ -267,6 +350,8 @@ class _CustomerEditScreenState extends State<CustomerEditScreen> {
                   ],
                 ),
               ),
+              const SizedBox(height: 16),
+              _eInvoiceSection(context),
               if (widget.existing != null)
                 DangerZone(
                   buttonKey: const Key('customer-delete'),

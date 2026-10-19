@@ -82,7 +82,8 @@ void main() {
       }
       expect(find.textContaining('Ich habe schon Daten'), findsNothing);
       expect(find.textContaining('Gerät koppeln'), findsNothing);
-      expect(find.textContaining('E-Rechnung schreiben'), findsNothing);
+      // Seit 0.32.0 gebaut und getestet (FA-5.49, UWG P-R61).
+      expect(find.text('Rechnungen & E-Rechnungen schreiben'), findsOne);
       final scrollable = tester.state<ScrollableState>(
         find.byType(Scrollable).first,
       );

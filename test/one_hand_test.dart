@@ -232,4 +232,38 @@ void main() {
     expect(find.text('Löschen'), findsWidgets);
     expect(confirm.style?.backgroundColor, isNotNull);
   });
+
+  testWidgets('Kundin: E-Rechnung-Format als ganze Zeilen, Leitweg-ID erst '
+      'bei XRechnung, Lieferantennummer nur bei ebInterface (FA-5.49)', (
+    tester,
+  ) async {
+    const size = Size(360, 740);
+    await pump(
+      tester,
+      const CustomerEditScreen(existing: Customer(id: 1, name: 'Stadt')),
+      size,
+    );
+    final xr = find.byKey(const Key('customer-einvoice-xrechnung'));
+    await tester.scrollUntilVisible(
+      xr,
+      200,
+      scrollable: find.byType(Scrollable).first,
+    );
+    await tester.pumpAndSettle();
+    for (final f in EInvoiceFormat.values) {
+      final tile = find.byKey(Key('customer-einvoice-${f.name}'));
+      expect(tester.getSize(tile).height, greaterThanOrEqualTo(56));
+    }
+    expect(find.text('Leitweg-ID'), findsNothing);
+    expect(find.text('Käuferreferenz (optional)'), findsOneWidget);
+    await tester.tap(xr);
+    await tester.pumpAndSettle();
+    expect(find.text('Leitweg-ID'), findsOneWidget);
+    expect(find.byKey(const Key('customer-supplier-number')), findsNothing);
+    final ebi = find.byKey(const Key('customer-einvoice-ebInterface'));
+    await tester.tap(ebi);
+    await tester.pumpAndSettle();
+    expect(find.text('Auftragsreferenz'), findsOneWidget);
+    expect(find.byKey(const Key('customer-supplier-number')), findsOneWidget);
+  });
 }

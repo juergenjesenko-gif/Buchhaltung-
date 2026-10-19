@@ -48,7 +48,8 @@ enum Entitlement {
     Feature.invoiceLogo ||
     Feature.assetManagement ||
     Feature.contractSummary ||
-    Feature.helperDevices => this == pro,
+    Feature.helperDevices ||
+    Feature.eInvoiceIssue => this == pro,
   };
 
   String get label => switch (this) {
@@ -123,6 +124,12 @@ enum Feature {
   /// Auftraggeber 2026-10-19, O-43: nur Pro, in der Demo sichtbar). Buchungen
   /// in Abgabenkategorien bleiben in jedem Anspruch normale Buchungen.
   levyReserve,
+
+  /// E-Rechnung ausstellen (FA-5.49): ZUGFeRD-PDF, XRechnung, ebInterface.
+  /// Pro nach Lastenheft 5.10 (Tarifschnitt O-4). Vorschlag an den
+  /// Auftraggeber, das ab Basis freizugeben (O-44, Pflicht zum Ausstellen
+  /// in DE ab 2027/2028): eine Zeile in [Entitlement.allows].
+  eInvoiceIssue,
 
   /// Exportieren, Teilen, Sichern und Wiederherstellen (L-22.6). Ohne Abo
   /// und im Nur-Lese-Modus immer erlaubt; gesperrt nur in der Demo

@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:printing/printing.dart';
 
 import '../../app_state.dart';
+import '../../services/e_invoice/e_invoice_output.dart';
 import '../../services/licensing/license_policy.dart';
 import '../../services/share_service.dart';
 import '../demo/demo_sheet.dart';
@@ -43,6 +44,8 @@ Future<bool> openPdfViewer(
   Feature? sendFeature,
   String? subject,
   String? text,
+  String? notice,
+  XmlAttachment? xml,
 }) async {
   final sent = await Navigator.of(context).push<bool>(
     MaterialPageRoute(
@@ -53,6 +56,8 @@ Future<bool> openPdfViewer(
         sendFeature: sendFeature,
         subject: subject,
         text: text,
+        notice: notice,
+        xml: xml,
       ),
     ),
   );
@@ -71,6 +76,8 @@ class PdfViewerScreen extends StatefulWidget {
     this.sendFeature,
     this.subject,
     this.text,
+    this.notice,
+    this.xml,
     this.rasterizer = rasterPdfPages,
     this.printer = printPdfWithSystemDialog,
   });
@@ -84,6 +91,12 @@ class PdfViewerScreen extends StatefulWidget {
   final Feature? sendFeature;
   final String? subject;
   final String? text;
+
+  /// Hinweiszeile über der Leiste, z. B. „Mit E-Rechnung (ZUGFeRD)“.
+  final String? notice;
+
+  /// Gesetzt: „XML senden“ schickt diese Datei statt des PDF (Behörden).
+  final XmlAttachment? xml;
   final PdfRasterizer rasterizer;
   final PdfPrinter printer;
 
@@ -130,6 +143,17 @@ class _PdfViewerScreenState extends State<PdfViewerScreen> {
       await showDemoSheet(context, feature: Feature.dataExport);
       return;
     }
+    final xml = widget.xml;
+    if (xml != null) {
+      if (!await ensureFeature(context, Feature.eInvoiceIssue)) return;
+      await ShareService.shareXml(
+        fileName: xml.fileName,
+        content: xml.content,
+        subject: widget.subject ?? widget.title,
+      );
+      if (mounted) Navigator.of(context).pop(true);
+      return;
+    }
     final feature = widget.sendFeature;
     if (feature == null) {
       await ShareService.sharePdf(
@@ -164,7 +188,9 @@ class _PdfViewerScreenState extends State<PdfViewerScreen> {
     final state = AppScope.of(context);
     final demo = state.isDemo;
     final feature = widget.sendFeature;
-    final sendLabel = feature == null
+    final sendLabel = widget.xml != null
+        ? 'XML senden'
+        : feature == null
         ? 'Senden'
         : proLabel(context, feature, 'Senden');
     final theme = Theme.of(context);
@@ -239,6 +265,15 @@ class _PdfViewerScreenState extends State<PdfViewerScreen> {
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
+                if (widget.notice != null && !demo)
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 6),
+                    child: Text(
+                      widget.notice!,
+                      key: const Key('pdf-notice'),
+                      style: theme.textTheme.bodySmall,
+                    ),
+                  ),
                 if (demo)
                   Padding(
                     padding: const EdgeInsets.only(bottom: 6),

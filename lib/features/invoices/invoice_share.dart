@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 
 import '../../app_state.dart';
 import '../../domain/invoice.dart';
+import '../../services/e_invoice/e_invoice_output.dart';
+import '../../services/e_invoice/e_invoice_writer.dart';
 import '../../services/invoice_logo.dart';
 import '../../services/invoice_pdf.dart';
 import '../../services/invoice_seller.dart';
@@ -31,12 +33,20 @@ Future<void> shareInvoicePdf(BuildContext context, Invoice invoice) async {
         logoAllowed: state.allows(Feature.invoiceLogo),
       ),
     );
+    // Gestellte Rechnungen mit den eingefrorenen Absenderangaben (GR-8).
+    final seller = InvoiceSeller.profileFor(invoice, profile);
+    final eInvoice = EInvoiceOutput.prepare(
+      input: EInvoiceInput(invoice: invoice, seller: seller, buyer: customer),
+      format: customer.eInvoiceFormat,
+      allowed: state.allows(Feature.eInvoiceIssue),
+      demo: state.isDemo,
+    );
     final bytes = await InvoicePdf(
       invoice: invoice,
       customer: customer,
-      // Gestellte Rechnungen mit den eingefrorenen Absenderangaben (GR-8).
-      profile: InvoiceSeller.profileFor(invoice, profile),
+      profile: seller,
       logo: logo,
+      facturX: eInvoice.facturX,
     ).build();
     final safeNumber = invoice.number.replaceAll(
       RegExp(r'[^A-Za-z0-9\-_]'),
@@ -63,6 +73,8 @@ Future<void> shareInvoicePdf(BuildContext context, Invoice invoice) async {
               invoice.cancelsNumber,
             )
           : InvoiceTexts.shareInvoice(invoice.number),
+      notice: eInvoice.notice,
+      xml: eInvoice.xml,
     );
   } on Exception catch (error) {
     if (context.mounted) {

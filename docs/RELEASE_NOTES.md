@@ -29,12 +29,38 @@ gebaut, und was war darin geprüft?*
 
 ## Unveröffentlicht
 
-Änderungen seit 0.31.0+44, die noch in keinem Build stecken. Wandern beim
+Änderungen seit 0.32.0+45, die noch in keinem Build stecken. Wandern beim
 nächsten Versionssprung in den neuen Eintrag.
 
 | Art | Änderung | Bezug | Commit |
 |---|---|---|---|
+
+---
+
+## 0.32.0+45 — 2026-10-19
+
+| Feld | Wert |
+|---|---|
+| Art | Testbuild (ungezippte arm64-APK `JeNi-bucht-0.32.0-build-<Nr>.apk`, fester Testschlüssel); **Lizenzprüfung aus** (ohne `LICENSING=true`), alle Funktionen frei – auch E-Rechnung ausstellen |
+| Commit | `dieser Commit` |
+| Branch | `claude/agile-accounting-app-mobile-wa5j3h` |
+| Dokumentstände | Lastenheft 1.86, Spezifikation 1.91, Benutzerhandbuch für 0.32.0, DESIGN_SPEC 1.6 |
+| Datenbankschema | 30 |
+| Prüfung | `flutter analyze` ohne Befund, alle Tests grün (neu `e_invoice_writer_test.dart`: CII für ZUGFeRD und XRechnung sowie ebInterface 6.1 je Fall XSD-gültig über `xmllint` mit Factur-X-1.09-EN-16931- und ebInterface-6.1-Schema, Rundreise über `EInvoiceParser` mit gleichen Summen je Satz – Kleinunternehmer DE, Regelbesteuerung 19/7 % mit Positions- und Gesamtrabatt, Versand, Skonto, Storno als 381 (Regel und KU), AT 20/10 % –, ZUGFeRD-PDF mit eingebetteter `factur-x.xml`, Pflichtangaben je Format, Migration 29 → 30; `pdf_viewer_test.dart`: Hinweiszeile und „XML senden“; `one_hand_test.dart`: Kundin E-Rechnung 56 dp; `welcome_page_test.dart`: „Rechnungen & E-Rechnungen schreiben“ einzeilig). Intern zusätzlich Mustang 2.26 (veraPDF PDF/A-3b, EN-16931- und XRechnung-3.0-Schematron): alle Muster gültig. Android/iOS-Build nur in der CI |
+| Steuerliche Kennwerte | `spec.schema_version` 30, neu `spec.einvoice_guideline_en16931`, `spec.einvoice_guideline_xrechnung`, `spec.einvoice_zugferd_file`, `spec.einvoice_ebinterface_namespace`; aus FA-13.16 `spec.license_promo_code_discount`, `spec.license_promo_discount_percent` |
+| Offene reale Prüfpunkte | wie 0.31.0+44, neu P-S86, P-S87, P-R62, P-R63, P-R64, P-D55, P-D56, P-X28; Entscheidung O-44 (Tarif E-Rechnung) offen |
+| Bekannte Grenzen | Spezifikation Abschnitt 11, neu „E-Rechnung: Grenzen beim Ausstellen“ statt „E-Rechnung nur im Empfang“ |
+
+**Änderungen seit 0.31.0+44**
+
+| Art | Änderung | Bezug | Commit |
+|---|---|---|---|
 | Neu | Abo-Seite zeigt Test, Einführungspreis des ersten Jahres und Grundpreis aus den Preisphasen des Stores; neue Preise (Lastenheft 5.10); zweiter Instagram-Code `JENIBUCHT20` (20 % aufs Jahresabo im ersten Jahr) | FA-13.16, O-45, O-46, P-R62, P-R63, P-D55 | c5a3ef3 |
+| Neu | E-Rechnung erstellen: jede Rechnung und Stornorechnung als ZUGFeRD-PDF (PDF/A-3b mit `factur-x.xml`, EN 16931); für Behörden XRechnung 3.0 (CII) bzw. ebInterface 6.1 mit „XML senden“; Prüfung der Pflichtangaben mit Hinweis | FA-5.49, L-4.1, L-4.2 | `dieser Commit` |
+| Neu | Kundin: Abschnitt „E-Rechnung“ mit Format, Leitweg-ID/Auftragsreferenz bzw. Käuferreferenz, Lieferantennummer (Schema 30) | FA-5.49, 4.1 | `dieser Commit` |
+| Geändert | Tarif `eInvoiceIssue` Pro (Lastenheft 5.10), Vorschlag Basis an den Auftraggeber | FA-13.2, O-44 | `dieser Commit` |
+| Geändert | Willkommensseite „Rechnungen & E-Rechnungen schreiben“; Store-Texte mit Abschnitt „E-Rechnungen schreiben“ (Store-Texte schon in `c5a3ef3` enthalten) | FA-1.13, P-R64 | `dieser Commit` |
+| Doku | Datenfluss Rechnungsversand (Lastenheft 5.19, PRIVACY, STORE_LISTING); Prüfmappe Steuerberater neu erzeugt | L-19.5 | `dieser Commit` |
 
 ---
 

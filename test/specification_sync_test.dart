@@ -25,6 +25,7 @@ import 'package:buchhaltung/services/logo_store.dart';
 import 'package:buchhaltung/services/demo/demo_dataset.dart';
 import 'package:buchhaltung/services/demo/demo_dataset_de.dart';
 import 'package:buchhaltung/widgets/scroll_auto_hide.dart';
+import 'package:buchhaltung/services/e_invoice/e_invoice_writer.dart';
 import 'package:buchhaltung/services/demo/demo_mode.dart';
 import 'package:buchhaltung/services/licensing/offer_text.dart';
 import 'package:buchhaltung/services/licensing/license_policy.dart';
@@ -136,6 +137,25 @@ void main() {
       expect(
         intValue('spec.demo_de_receipt_count'),
         DemoDatasetDe.receiptCount,
+      );
+    });
+
+    test('E-Rechnung erstellen (FA-5.49)', () {
+      expect(
+        value('spec.einvoice_guideline_en16931'),
+        EInvoiceWriter.guidelineEn16931,
+      );
+      expect(
+        value('spec.einvoice_guideline_xrechnung'),
+        EInvoiceWriter.guidelineXRechnung,
+      );
+      expect(
+        value('spec.einvoice_zugferd_file'),
+        EInvoiceWriter.zugferdFileName,
+      );
+      expect(
+        value('spec.einvoice_ebinterface_namespace'),
+        EInvoiceWriter.ebInterfaceNamespace,
       );
     });
 
