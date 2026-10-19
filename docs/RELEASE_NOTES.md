@@ -42,7 +42,7 @@ nächsten Versionssprung in den neuen Eintrag.
 | Feld | Wert |
 |---|---|
 | Art | Testbuild (ungezippte arm64-APK `JeNi-bucht-0.26.0-build-<Nr>.apk`, fester Testschlüssel); **Lizenzprüfung aus** (ohne `LICENSING=true`), alle Funktionen frei. **Neue Kennung `at.jenibarb.jenibucht`: wird neben der alten App installiert und startet leer.** Testerinnen: in der alten App Sicherung erstellen (Datei nach Google Drive/iCloud Drive/Dateien), in der neuen App wiederherstellen, danach alte App löschen (Benutzerhandbuch, Kopf) |
-| Commit | `dieser Commit` |
+| Commit | `b7cf875` |
 | Branch | `claude/agile-accounting-app-mobile-wa5j3h` |
 | Dokumentstände | Lastenheft 1.79, Spezifikation 1.84, Benutzerhandbuch für 0.26.0, DESIGN_SPEC 1.4 |
 | Datenbankschema | 27 |
@@ -55,10 +55,10 @@ nächsten Versionssprung in den neuen Eintrag.
 
 | Art | Änderung | Bezug | Commit |
 |---|---|---|---|
-| Geändert | Bundle-ID/applicationId `at.jenibarb.jenibucht` (Android, iOS inkl. RunnerTests, iCloud-Container, Dateityp `.jenibeleg` mit alter Kennung als Alias, Hintergrundaufgabe `mailsync`, Play-Upload, CI-Emulatortest) | O-33, P-D6, P-B13 | dieser Commit |
-| Neu | „Für das Finanzamt“ warnt bei jeder weiteren Registrierung, dass das Verbringen ins Lager fehlt (DE Kz 89/61, AT Kz 070/072/065) – Entscheidung 2026-10-18, Verbringen nicht in der App | FA-18.4, P-S68, O-40 | dieser Commit |
-| Behoben | OSS-Erklärung und EU-KU-Meldung wurden auf den nächsten Werktag verschoben; EU-Recht kennt keine Verschiebung, Termin jetzt genau | FA-18.6, P-S72 | dieser Commit |
-| Doku | Interne Prüfung P-S68 bis P-S74 und P-R5, Prüfmappen neu; Länderanalyse (`docs/LAENDERANALYSE.md`, `docs/Laenderanalyse.pdf`), Lastenheft O-41 | Spezifikation 14, O-41 | dieser Commit |
+| Geändert | Bundle-ID/applicationId `at.jenibarb.jenibucht` (Android, iOS inkl. RunnerTests, iCloud-Container, Dateityp `.jenibeleg` mit alter Kennung als Alias, Hintergrundaufgabe `mailsync`, Play-Upload, CI-Emulatortest) | O-33, P-D6, P-B13 | `b7cf875` |
+| Neu | „Für das Finanzamt“ warnt bei jeder weiteren Registrierung, dass das Verbringen ins Lager fehlt (DE Kz 89/61, AT Kz 070/072/065) – Entscheidung 2026-10-18, Verbringen nicht in der App | FA-18.4, P-S68, O-40 | `b7cf875` |
+| Behoben | OSS-Erklärung und EU-KU-Meldung wurden auf den nächsten Werktag verschoben; EU-Recht kennt keine Verschiebung, Termin jetzt genau | FA-18.6, P-S72 | `b7cf875` |
+| Doku | Interne Prüfung P-S68 bis P-S74 und P-R5, Prüfmappen neu; Länderanalyse (`docs/LAENDERANALYSE.md`, `docs/Laenderanalyse.pdf`), Lastenheft O-41 | Spezifikation 14, O-41 | `b7cf875` |
 
 ---
 
