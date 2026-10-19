@@ -42,7 +42,7 @@ nächsten Versionssprung in den neuen Eintrag.
 | Feld | Wert |
 |---|---|
 | Art | Testbuild (ungezippte arm64-APK `JeNi-bucht-0.29.0-build-<Nr>.apk`, fester Testschlüssel); **Lizenzprüfung aus** (ohne `LICENSING=true`), alle Funktionen frei |
-| Commit | `dieser Commit` |
+| Commit | `1c8007f` |
 | Branch | `claude/agile-accounting-app-mobile-wa5j3h` |
 | Dokumentstände | Lastenheft 1.82, Spezifikation 1.87, Benutzerhandbuch für 0.29.0, DESIGN_SPEC 1.5 |
 | Datenbankschema | 29 |
@@ -55,11 +55,11 @@ nächsten Versionssprung in den neuen Eintrag.
 
 | Art | Änderung | Bezug | Commit |
 |---|---|---|---|
-| Neu | „Abgaben & Rücklagen“: Karte „Rücklage für Steuern & SV“ auf der Übersicht, Bildschirm mit Jahresschätzung, bezahlt/offen, nächsten Zahlungen und Angaben; Einstieg aus „Für das Finanzamt“ | FA-19.1, FA-19.2, FA-19.3, FA-19.5, FA-19.6, L-31 | `dieser Commit` |
-| Neu | Abgabenkategorien „Sozialversicherung“, „Einkommensteuer-Vorauszahlung“, „Gewerbesteuer“ (Schema 29); private bzw. nicht abziehbare Abgaben werden dem Gewinn hinzugerechnet | FA-19.4, P-S80 | `dieser Commit` |
-| Neu | Paket „Für Kapitalgesellschaft / doppelte Buchführung“: Saldenliste, Belegliste, DATEV, BMD und Belegkopien als ZIP | FA-15.12, L-33, P-D50 bis P-D53 | `dieser Commit` |
-| Neu | Demo: SVS-Quartalsbeiträge, ESt-Vorauszahlung, Rücklagenkarte | FA-13.14 | `dieser Commit` |
-| Doku | Lastenheft 5.31 bis 5.33, 14a, O-43; Spezifikation 5.15, interne Prüfung 2026-10-19 Abgaben; Prüfmappen | Spezifikation 14 | `dieser Commit` |
+| Neu | „Abgaben & Rücklagen“: Karte „Rücklage für Steuern & SV“ auf der Übersicht, Bildschirm mit Jahresschätzung, bezahlt/offen, nächsten Zahlungen und Angaben; Einstieg aus „Für das Finanzamt“ | FA-19.1, FA-19.2, FA-19.3, FA-19.5, FA-19.6, L-31 | `1c8007f` |
+| Neu | Abgabenkategorien „Sozialversicherung“, „Einkommensteuer-Vorauszahlung“, „Gewerbesteuer“ (Schema 29); private bzw. nicht abziehbare Abgaben werden dem Gewinn hinzugerechnet | FA-19.4, P-S80 | `1c8007f` |
+| Neu | Paket „Für Kapitalgesellschaft / doppelte Buchführung“: Saldenliste, Belegliste, DATEV, BMD und Belegkopien als ZIP | FA-15.12, L-33, P-D50 bis P-D53 | `1c8007f` |
+| Neu | Demo: SVS-Quartalsbeiträge, ESt-Vorauszahlung, Rücklagenkarte | FA-13.14 | `1c8007f` |
+| Doku | Lastenheft 5.31 bis 5.33, 14a, O-43; Spezifikation 5.15, interne Prüfung 2026-10-19 Abgaben; Prüfmappen | Spezifikation 14 | `1c8007f` |
 
 ---
 
