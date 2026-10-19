@@ -34,7 +34,7 @@ Future<void> showDemoSheet(BuildContext context, {Feature? feature}) async {
   }
 }
 
-/// Abo-Seite öffnen (aus Banner, Blatt, Startauswahl).
+/// Abo-Seite öffnen (aus Banner, Blatt, Ersteinrichtung Schritt 5).
 Future<void> openPaywall(BuildContext context) => Navigator.of(
   context,
 ).push(MaterialPageRoute<void>(builder: (_) => const SubscriptionScreen()));

@@ -1896,14 +1896,18 @@ class _ReceiptEditScreenState extends State<ReceiptEditScreen> {
                           ),
                           suffixIconConstraints: const BoxConstraints(),
 
-                          labelText: 'Beschreibung',
-                          hintText: 'z. B. Bürostuhl, Tankrechnung',
+                          // „Produkt oder Leistung“ (Rückmeldung
+                          // 2026-10-19); Spalte im Export bleibt
+                          // „Beschreibung“ (Spezifikation 8).
+                          labelText: 'Produkt oder Leistung',
+                          hintText: 'z. B. Bürostuhl, Tanken, Beratung',
                           helperText: _checkHint('description'),
                         ),
                         textCapitalization: TextCapitalization.sentences,
                         validator: (value) => (value ?? '').trim().isEmpty
-                            ? 'Eine Beschreibung ist Pflicht – ohne sie ist der Beleg '
-                                  'später nicht nachvollziehbar'
+                            ? 'Bitte gib Produkt oder Leistung an – ohne '
+                                  'sie ist der Beleg später nicht '
+                                  'nachvollziehbar'
                             : null,
                       ),
                       const SizedBox(height: 12),

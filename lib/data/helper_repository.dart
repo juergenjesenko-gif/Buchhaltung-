@@ -263,6 +263,15 @@ class HelperRepository {
 
   // ------------------------------------------------------------ Mithelfer
 
+  /// Belege, Rechnungen oder Angebote vorhanden? (FA-17.13)
+  Future<bool> hasBookkeepingData() async {
+    for (final table in const ['receipts', 'invoices']) {
+      final rows = await db.rawQuery('SELECT 1 FROM $table LIMIT 1');
+      if (rows.isNotEmpty) return true;
+    }
+    return false;
+  }
+
   Future<String?> setting(String key) async {
     final rows = await db.query(
       'helper_settings',

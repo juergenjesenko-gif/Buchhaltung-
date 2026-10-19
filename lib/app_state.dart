@@ -101,15 +101,6 @@ class AppState extends ChangeNotifier {
   /// bietet „Demo beenden“ statt „Abo wählen“.
   bool get demoFromSettings => _demoFromSettings;
 
-  /// Startauswahl beim ersten Start im Store-Build ohne Abo: „Abo wählen –
-  /// 14 Tage kostenlos“ oder „Erst ansehen (Demo)“.
-  bool get showStartChoice =>
-      !_demo &&
-      license.enabled &&
-      needsOnboarding &&
-      !isHelperDevice &&
-      !license.entitlement.allows(Feature.newBookings);
-
   /// Öffnet die Muster-Datenbank [demoDb] (siehe `DemoSession.open`) und
   /// zeigt nur noch sie. Die echte Datenbank bleibt unberührt.
   Future<void> enterDemo(
@@ -497,6 +488,9 @@ class AppState extends ChangeNotifier {
     // Nach Wiederherstellung einer Sicherung sind alle Belege neu.
     _bookingsRevision++;
     _helperLink = await repositories.helpers.link();
+    _setupStep = _demo
+        ? null
+        : int.tryParse(await repositories.helpers.setting(setupStepKey) ?? '');
     _inboxCount = (await repositories.helpers.inbox()).length;
     _missingConsents = await repositories.consents.missing();
     _profile = await repositories.company.load();
@@ -514,6 +508,46 @@ class AppState extends ChangeNotifier {
     _isLoading = false;
     notifyListeners();
   }
+
+  // ---------------------------------------------------------------------
+  // Geführte Ersteinrichtung (FA-1.10, Rückmeldung Auftraggeber 2026-10-19)
+
+  /// Schlüssel in `helper_settings`: Schritt der Ersteinrichtung, an dem die
+  /// App nach dem Schließen weitermacht. Fehlt er, ist die Einrichtung
+  /// abgeschlossen bzw. (ohne Profil) noch nicht über Schritt 2 hinaus.
+  static const setupStepKey = 'setup_step';
+
+  /// Entwurf der Pflichtangaben aus Schritt 2 als JSON, bevor das Profil
+  /// gespeichert ist.
+  static const setupDraftKey = 'setup_draft';
+
+  int? _setupStep;
+
+  /// Gespeicherter Schritt der Ersteinrichtung (3 bis 5) nach dem
+  /// Speichern des Profils; `null` = fertig oder Profil noch nicht angelegt.
+  int? get setupStep => _setupStep;
+
+  /// Zeigt die App die Ersteinrichtung? Ohne Profil immer, danach bis zum
+  /// letzten Schritt.
+  bool get inFirstRunSetup =>
+      !_demo && !isHelperDevice && (needsOnboarding || _setupStep != null);
+
+  Future<void> setSetupStep(int? step) async {
+    await repositories.helpers.setSetting(setupStepKey, step?.toString());
+    _setupStep = step;
+    notifyListeners();
+  }
+
+  Future<String?> loadSetupDraft() =>
+      repositories.helpers.setting(setupDraftKey);
+
+  Future<void> saveSetupDraft(String? json) =>
+      repositories.helpers.setSetting(setupDraftKey, json);
+
+  /// Hat diese Installation schon Buchhaltungsdaten? Dann darf sie nicht
+  /// zum Mithelfer-Gerät werden (FA-17.13).
+  Future<bool> hasBookkeepingData() =>
+      repositories.helpers.hasBookkeepingData();
 
   Future<void> saveProfile(CompanyProfile profile) async {
     await repositories.company.save(profile);

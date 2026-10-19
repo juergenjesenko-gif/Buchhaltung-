@@ -136,7 +136,7 @@ class _ReceiptListScreenState extends State<ReceiptListScreen> {
             child: TextField(
               controller: _searchController,
               decoration: InputDecoration(
-                hintText: 'Beschreibung, Partner oder Notiz suchen',
+                hintText: 'Produkt, Partner oder Notiz suchen',
                 prefixIcon: const Icon(Icons.search),
                 suffixIcon: _searchController.text.isEmpty
                     ? null

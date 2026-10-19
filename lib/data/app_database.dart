@@ -17,7 +17,7 @@ class AppDatabase {
 
   /// Aktuelle Schemaversion. Öffentlich, weil docs/SPECIFICATION.md sie
   /// dokumentiert und test/specification_sync_test.dart beide vergleicht.
-  static const schemaVersion = 27;
+  static const schemaVersion = 28;
 
   Database? _db;
 
@@ -822,6 +822,12 @@ class AppDatabase {
           'ON receipts(tax_registration_id)',
       'ALTER TABLE company_profile ADD COLUMN oss_participant INTEGER '
           'NOT NULL DEFAULT 0',
+    ],
+    // EU-KU-Nummer mit Suffix „EX“ (FA-18.10, Art 284 Abs 3 MwStSystRL),
+    // getrennt von der UID gespeichert.
+    28: [
+      "ALTER TABLE company_profile ADD COLUMN eu_sme_id TEXT NOT NULL "
+          "DEFAULT ''",
     ],
   };
 

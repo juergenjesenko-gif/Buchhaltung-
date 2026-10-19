@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'helper_help_sheet.dart';
 
 import '../../app_state.dart';
 import '../../core/formatting.dart';
@@ -134,7 +135,10 @@ class _HelperDevicesScreenState extends State<HelperDevicesScreen> {
   Widget build(BuildContext context) {
     final state = AppScope.of(context);
     return Scaffold(
-      appBar: AppBar(title: const Text('Mithelfer-Geräte')),
+      appBar: AppBar(
+        title: const Text('Mithelfer-Geräte'),
+        actions: const [HelperHelpButton()],
+      ),
       body: ListView(
         padding: const EdgeInsets.fromLTRB(16, 8, 16, 96),
         children: [
@@ -272,9 +276,16 @@ class _AddDeviceSheetState extends State<_AddDeviceSheet> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Text(
-              'Gerät hinzufügen',
-              style: Theme.of(context).textTheme.titleLarge,
+            Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    'Gerät hinzufügen',
+                    style: Theme.of(context).textTheme.titleLarge,
+                  ),
+                ),
+                const HelperHelpButton(),
+              ],
             ),
             const SizedBox(height: 12),
             TextField(

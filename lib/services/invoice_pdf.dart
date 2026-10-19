@@ -253,6 +253,8 @@ class InvoicePdf {
                 _metaRow(tax.taxNumberLabel, profile.taxNumber),
               if (profile.vatId.isNotEmpty)
                 _metaRow(tax.vatIdLabel, profile.vatId),
+              if (InvoiceTexts.showsEuSmeId(profile, invoice, customer))
+                _metaRow(InvoiceTexts.euSmeIdLabel, profile.euSmeId),
             ],
           ),
         ),

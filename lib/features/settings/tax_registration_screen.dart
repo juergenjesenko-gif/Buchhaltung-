@@ -4,6 +4,7 @@ import '../../app_state.dart';
 import '../../core/formatting.dart';
 import '../../domain/country.dart';
 import '../../domain/tax_registration.dart';
+import '../../services/vat_id/eu_sme_id_format.dart';
 import '../../services/vat_id/vat_id_format.dart';
 import '../../widgets/adaptive.dart';
 import '../../widgets/common.dart';
@@ -157,6 +158,17 @@ class TaxRegistrationScreen extends StatefulWidget {
 class _TaxRegistrationScreenState extends State<TaxRegistrationScreen> {
   final _form = GlobalKey<FormState>();
   late final _vatId = TextEditingController(text: widget.registration.vatId);
+
+  /// EU-KU-Nummer (FA-18.10): gehört zum Unternehmen, nicht zum Land, und
+  /// steht deshalb im Firmenprofil getrennt von der UID.
+  final _euSmeId = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    _euSmeId.text = AppScope.read(context).profile?.euSmeId ?? '';
+  }
+
   late final _taxNumber = TextEditingController(
     text: widget.registration.taxNumber,
   );
@@ -175,6 +187,7 @@ class _TaxRegistrationScreenState extends State<TaxRegistrationScreen> {
   @override
   void dispose() {
     _vatId.dispose();
+    _euSmeId.dispose();
     _taxNumber.dispose();
     _taxOffice.dispose();
     super.dispose();
@@ -212,9 +225,16 @@ class _TaxRegistrationScreenState extends State<TaxRegistrationScreen> {
     if (!mounted) return;
     setState(() => _saving = true);
     final state = AppScope.read(context);
+    final eu = _scheme == VatScheme.euSmallBusiness;
+    final profile = state.profile;
+    final euSmeId = EuSmeIdFormat.normalize(_euSmeId.text.trim());
+    if (eu && profile != null && profile.euSmeId != euSmeId) {
+      await state.saveProfile(profile.copyWith(euSmeId: euSmeId));
+    }
     await state.saveRegistration(
       widget.registration.copyWith(
-        vatId: VatIdFormat.normalize(_vatId.text.trim()),
+        // Im EU-KU-Verfahren gibt es im anderen Land keine eigene UID.
+        vatId: eu ? '' : VatIdFormat.normalize(_vatId.text.trim()),
         taxNumber: _taxNumber.text.trim(),
         taxOffice: _taxOffice.text.trim(),
         scheme: _scheme,
@@ -302,16 +322,33 @@ class _TaxRegistrationScreenState extends State<TaxRegistrationScreen> {
                 style: Theme.of(context).textTheme.bodySmall,
               ),
               const SizedBox(height: 14),
-              TextFormField(
-                key: const Key('registration-vat-id'),
-                controller: _vatId,
-                textCapitalization: TextCapitalization.characters,
-                decoration: InputDecoration(
-                  labelText: tax.vatIdLabel,
-                  hintText: tax.vatIdExample,
+              if (_scheme == VatScheme.euSmallBusiness)
+                TextFormField(
+                  key: const Key('registration-eu-sme-id'),
+                  controller: _euSmeId,
+                  textCapitalization: TextCapitalization.characters,
+                  decoration: InputDecoration(
+                    labelText: 'EU-KU-Nummer (EX)',
+                    hintText: EuSmeIdFormat.example(home),
+                    helperText:
+                        'Vergibt dein Finanzamt in ${home.label}. Getrennt '
+                        'von deiner UID; erscheint auf Rechnungen an Kunden '
+                        'in ${_country.label}.',
+                    helperMaxLines: 3,
+                  ),
+                  validator: (v) => EuSmeIdFormat.check(v ?? '', home: home),
+                )
+              else
+                TextFormField(
+                  key: const Key('registration-vat-id'),
+                  controller: _vatId,
+                  textCapitalization: TextCapitalization.characters,
+                  decoration: InputDecoration(
+                    labelText: tax.vatIdLabel,
+                    hintText: tax.vatIdExample,
+                  ),
+                  validator: _validateVatId,
                 ),
-                validator: _validateVatId,
-              ),
               const SizedBox(height: 14),
               TextFormField(
                 controller: _taxNumber,

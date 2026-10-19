@@ -26,6 +26,8 @@ import 'package:buchhaltung/services/demo/demo_mode.dart';
 import 'package:buchhaltung/services/licensing/license_policy.dart';
 import 'package:buchhaltung/services/platform_import/platform_import_plan.dart';
 import 'package:buchhaltung/widgets/primary_action_bar.dart';
+import 'package:buchhaltung/features/onboarding/setup_wizard.dart';
+import 'package:buchhaltung/services/vat_id/eu_sme_id_format.dart';
 import 'package:flutter/material.dart' show kMinInteractiveDimension;
 import 'package:flutter_test/flutter_test.dart';
 
@@ -121,6 +123,11 @@ void main() {
       expect(intValue('spec.demo_receipt_count'), DemoDataset.receiptCount);
       expect(value('spec.demo_watermark'), DemoMode.watermark);
       expect(value('spec.demo_company'), DemoDataset.companyName);
+    });
+
+    test('Ersteinrichtung und EU-KU-Nummer (FA-1.13, FA-18.10)', () {
+      expect(intValue('spec.setup_steps'), SetupWizard.steps);
+      expect(value('spec.eu_sme_id_suffix'), EuSmeIdFormat.suffix);
     });
 
     test('App-Sperre stimmt', () {

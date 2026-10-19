@@ -1,6 +1,6 @@
 # Lastenheft – JeNi bucht, Buchhaltungsapp für Österreich und Deutschland
 
-**Dokumentversion:** 1.80 · **Stand:** 2026-10-19 · **Status:** Entwurf zur Abstimmung
+**Dokumentversion:** 1.81 · **Stand:** 2026-10-19 · **Status:** Entwurf zur Abstimmung
 **Auftraggeber:** Jürgen Jesenko (privates Vorhaben) · **Umsetzung:** Claude Code
 
 > Ein Lastenheft beschreibt, **was** das Produkt leisten soll und **warum** — nicht,
@@ -1287,6 +1287,7 @@ Anforderungen sind offen.
 | 0.14.0 | Lizenz und Abo: Tarife Basis/Pro über die Stores (L-10.1, L-10.2, L-22.2), Test über das Einführungsangebot der Stores mit Erinnerung 3 Tage vorher (L-10.3, L-22.3), Daten ohne Abo lesbar und exportierbar (L-10.4, L-7.15, L-22.6), Offline-Gültigkeit 45 Tage (L-10.5, L-22.5), Lizenzmanager (L-22.1), Abo-Seite, Kauf wiederherstellen, Abo verwalten (L-22.7, L-22.8). **Offen:** eigene Signaturprüfung der Kaufbelege (L-22.4, heute durch die Store-Bibliotheken), Verschleierung (L-22.11), Promocodes (L-22.26) | 5.9, FA-13.1 bis FA-13.10 |
 | 0.15.0 | Angebote mit eigenem Nummernkreis, Status, PDF und Umwandlung in die Rechnung (L-3.13 bis L-3.17); Artikel ohne Lager, Auswahl und Vorschläge in Rechnung und Angebot (L-11.1, L-11.2, L-11.5, L-11.6, L-11.9, L-11.11) | FA-5.40 bis FA-5.47 |
 | 0.27.0 | Test auf allen vier Produkten mit „Pro inklusive in der Testzeit“ (L-10.3, L-22.3), Demo ohne Abo mit Startauswahl (L-10.6) | FA-13.4, FA-13.14, FA-13.15 |
+| 0.28.0 | Geführte Ersteinrichtung mit Willkommensseite und Schritten (L-17.1, L-17.2), EU-KU-Nummer (L-30), Mithelfer-Hilfe und Koppeln aus den Einstellungen (L-29) | FA-1.13, FA-1.10, FA-13.15, FA-18.10, FA-17.13, FA-2.5 |
 | 0.13.0 | Stornorechnung mit eigener Nummer und „Korrigieren“ (L-3.7; L-3.18 für die vollständige Erstattung, Teilerstattung offen), Menü „Rechtliches“ (L-22.18), Wiederherstellungscode als Druckblatt mit QR-Code und Bestätigung durch zwei Blöcke (L-22.21, L-22.22) | GR-14, FA-5.31 bis FA-5.33, FA-11.4, FA-11.5, FA-7.10 |
 
 Außerdem umgesetzt ohne eigene L-ID: Tablet- und Querformat-Layout
@@ -1450,6 +1451,11 @@ Historie stehen. Die Einzelheiten stehen an der genannten Stelle.
 | 2026-10-19 | **Test 14 Tage auf allen vier Abo-Produkten**; Basis in der Testzeit mit allen Pro-Funktionen, danach Basis; Hinweis 3 Tage vorher mit einem Tipp zu Pro | O-42, L-10.3, L-22.3 |
 | 2026-10-19 | **Demo ohne Abo** mit eigener Muster-Datenbank, nichts speichern, Wasserzeichen auf PDFs, Teilen und Export gesperrt; Startauswahl „Abo wählen“ / „Erst ansehen (Demo)“ | O-42, L-10.6 |
 | 2026-10-19 | „Store-Test nur auf Pro“ entfällt; App-eigener Test bleibt verworfen | O-42 (ersetzt O-35) |
+| 2026-10-19 | **Geführte Ersteinrichtung**: Willkommensseite mit Logo (austauschbare Datei), „Los geht's“, „Erst ansehen (Demo)“, Sicherung wiederherstellen, Gerät koppeln; Schritte Bestätigungen – Unternehmen (Pflicht) – Zusatzdaten – Extras – Abo (im Testbuild ohne); Fortschritt, Zurück, „Später hinzufügen“, Fortsetzen nach dem Schließen; Startauswahl entfällt | L-17.1, L-17.2, Spezifikation FA-1.13, FA-13.15 |
+| 2026-10-19 | Bestätigungen so knapp wie rechtlich zulässig (Prüfinstanz Rechtsanwalt): Häkchen „Keine Steuerberatung“ plus Knopf „Akzeptieren und weiter“ für Nutzungsbedingungen/Datenschutz | L-17.2, FA-1.10, P-R58 |
+| 2026-10-19 | **EU-KU-Nummer (EX)** beim EU-Kleinunternehmer-Verfahren: eigenes Feld, getrennt von der UID, Formatprüfung, auf Rechnungen ins andere Land | L-30, FA-18.10, P-S76, P-S77 |
+| 2026-10-19 | Belegfeld „Beschreibung“ heißt „Produkt oder Leistung“; Exportspalten bleiben unverändert | FA-2.5 |
+| 2026-10-19 | Mithelfer: „?“-Erklärung neben „Gerät koppeln“/„Gerät hinzufügen“; „Als Mithelfer-Gerät koppeln“ in den Einstellungen eines Hauptgeräts (nur ohne Belege, mit Bestätigung) | L-29, FA-17.13 |
 
 ---
 
@@ -1459,6 +1465,7 @@ Historie stehen. Die Einzelheiten stehen an der genannten Stelle.
 
 | Version | Datum | Änderung |
 |---|---|---|
+| 1.81 | 2026-10-19 | Rückmeldung des Auftraggebers vom 2026-10-19 (14a): geführte Ersteinrichtung, knappere Bestätigungen, EU-KU-Nummer (EX), Belegfeld „Produkt oder Leistung“, Mithelfer-Hilfe und Koppeln aus den Einstellungen (Spezifikation 1.86). |
 | 1.80 | 2026-10-19 | Entscheidungen des Auftraggebers vom 2026-10-19 (14a, O-42 neu und erledigt, ersetzt O-35): Test auf allen vier Produkten mit Pro inklusive (L-10.3, L-22.3 neu gefasst), Demo ohne Abo (L-10.6 neu), L-22.1 um Demo ergänzt; Umsetzungsstand 0.27.0 (10a). Keine neue Datenübertragung (5.19 unverändert: Demo bleibt auf dem Gerät). |
 | 1.79 | 2026-10-19 | O-33 umgesetzt: Bundle-ID/applicationId `at.jenibarb.jenibucht` ab App-Version 0.26.0. Keine neue Datenübertragung (5.19 unverändert). |
 | 1.78 | 2026-10-18 | Entscheidungen 14a vom 2026-10-18 (Verbringen nicht in der App, Rechnungen im Heimatland, Registrierung nur für die UID); O-40 geschlossen, L-30.9 entfällt; neuer offener Punkt O-41 nächstes Land mit Verweis auf die [Länderanalyse](LAENDERANALYSE.md). Keine neue Datenübertragung (5.19 unverändert). |

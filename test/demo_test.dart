@@ -372,29 +372,22 @@ void main() {
       return state;
     }
 
-    testWidgets('Startauswahl: zwei große Knöpfe unten, Demo startet mit '
-        'Band, Speichern zeigt das Blatt', (tester) async {
+    testWidgets('Willkommensseite: Los geht\'s und Demo groß unten, Demo '
+        'startet mit Band, Speichern zeigt das Blatt', (tester) async {
       final state = await pumpApp(tester);
-      expect(state.showStartChoice, isTrue);
-      final subscribe = find.byKey(const Key('start-subscribe'));
-      final demo = find.byKey(const Key('start-demo'));
-      expect(
-        find.text('Abo wählen – ${LicensePolicy.trialDays} Tage kostenlos'),
-        findsOneWidget,
-      );
+      expect(state.inFirstRunSetup, isTrue);
+      final subscribe = find.byKey(const Key('welcome-start'));
+      final demo = find.byKey(const Key('welcome-demo'));
+      expect(find.text('Willkommen bei JeNi bucht'), findsOneWidget);
       expect(find.text('Erst ansehen (Demo)'), findsOneWidget);
       for (final f in [subscribe, demo]) {
-        expect(tester.getSize(f).height, greaterThanOrEqualTo(48));
+        expect(tester.getSize(f).height, greaterThanOrEqualTo(56));
         // Daumenzone: unteres Drittel des Bildschirms.
         expect(tester.getCenter(f).dy, greaterThan(640 * 2 / 3));
       }
       expect(
-        tester.getTopLeft(demo).dy - tester.getBottomLeft(subscribe).dy,
+        tester.getTopLeft(subscribe).dy - tester.getBottomLeft(demo).dy,
         greaterThanOrEqualTo(12),
-      );
-      expect(
-        find.textContaining('Jederzeit vorher im Store kündbar'),
-        findsOneWidget,
       );
 
       // Gleicher Weg wie der Knopf; echte Datenbankarbeit außerhalb der

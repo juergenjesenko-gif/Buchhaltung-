@@ -29,11 +29,39 @@ gebaut, und was war darin geprüft?*
 
 ## Unveröffentlicht
 
-Änderungen seit 0.27.0+40, die noch in keinem Build stecken. Wandern beim
+Änderungen seit 0.28.0+41, die noch in keinem Build stecken. Wandern beim
 nächsten Versionssprung in den neuen Eintrag.
 
 | Art | Änderung | Bezug | Commit |
 |---|---|---|---|
+
+---
+
+## 0.28.0+41 — 2026-10-19
+
+| Feld | Wert |
+|---|---|
+| Art | Testbuild (ungezippte arm64-APK `JeNi-bucht-0.28.0-build-<Nr>.apk`, fester Testschlüssel); **Lizenzprüfung aus** (ohne `LICENSING=true`), alle Funktionen frei. Ersteinrichtung im Testbuild mit vier Schritten (Abo-Schritt entfällt); vorhandene Installationen sehen sie nicht |
+| Commit | `dieser Commit` |
+| Branch | `claude/agile-accounting-app-mobile-wa5j3h` |
+| Dokumentstände | Lastenheft 1.81, Spezifikation 1.86, Benutzerhandbuch für 0.28.0, DESIGN_SPEC 1.5 |
+| Datenbankschema | 28 |
+| Prüfung | `flutter analyze` ohne Befund, alle Tests grün (neu `setup_wizard_test.dart`: Willkommensseite und Knöpfe 56/48 dp in der Daumenzone, Schritt 1 mit einem Häkchen, Pflichtfeld Schritt 2, „Später hinzufügen“ ≥ 48 dp mit ≥ 12 dp Abstand, Fortsetzen nach dem Schließen, Entwurf, Zurück, „?“-Blatt, EU-KU-Feld im Registrierungsformular, Mithelfer nur ohne Daten; neu `eu_sme_id_test.dart`: Format AT/DE, Rechnungsregel, Einfrieren, Migration 27 → 28; angepasst `demo_test.dart`, `manual_expense_dashboard_test.dart`, `specification_sync_test.dart`); Android/iOS-Build nur in der CI |
+| Steuerliche Kennwerte | `spec.schema_version` 28, neu `spec.setup_steps`, `spec.eu_sme_id_suffix` |
+| Offene reale Prüfpunkte | wie 0.27.0+40, neu P-R58, P-S76, P-S77, P-X24, P-D49 |
+| Bekannte Grenzen | Spezifikation Abschnitt 11, neu „EU-KU-Nummer nur offline geprüft“ |
+
+**Änderungen seit 0.27.0+40**
+
+| Art | Änderung | Bezug | Commit |
+|---|---|---|---|
+| Neu | Geführte Ersteinrichtung: Willkommensseite (Logo als eine austauschbare Datei, „Los geht's“, „Erst ansehen (Demo)“, „Ich habe schon Daten – Sicherung wiederherstellen“, „Ich helfe mit – Gerät koppeln“), Schritte Bestätigungen – Dein Unternehmen – Zusatzdaten – Extras – Abo, Fortschritt, Zurück, „Später hinzufügen“, Fortsetzen nach dem Schließen | FA-1.13, FA-1.1 | `dieser Commit` |
+| Geändert | Bestätigungen: Häkchen „Keine Steuerberatung“ plus „Akzeptieren und weiter“ mit Links auf Nutzungsbedingungen und Datenschutzerklärung (zwei Tipps statt drei) | FA-1.10, L-17.2, P-R58 | `dieser Commit` |
+| Geändert | Startauswahl des Store-Builds ersetzt durch Willkommensseite und Schritt 5 „Abo wählen“ | FA-13.15 | `dieser Commit` |
+| Neu | EU-KU-Nummer (EX) im Registrierungsformular beim EU-Kleinunternehmer-Verfahren, Formatprüfung, im Profil getrennt von der UID (Schema 28), auf Kleinunternehmer-Rechnungen an Kunden im anderen Land | FA-18.10, P-S76, P-S77 | `dieser Commit` |
+| Geändert | Belegformular: „Beschreibung“ heißt „Produkt oder Leistung“ (Hinweis, Fehlermeldung, Suche); Exportspalte unverändert | FA-2.5, 8.2 | `dieser Commit` |
+| Neu | Mithelfer: „?“-Erklärung neben „Gerät koppeln“/„Gerät hinzufügen“; Einstellungen → „Als Mithelfer-Gerät koppeln“ (nur ohne Belege, mit Bestätigung) | FA-17.13 | `dieser Commit` |
+| Doku | Spezifikation 1.86, Handbuch, DESIGN_SPEC 1.5, Lastenheft 1.81 (14a), interne Prüfung 2026-10-19 | Spezifikation 14 | `dieser Commit` |
 
 ---
 

@@ -61,7 +61,7 @@ void main() {
   }
 
   /// Erfasst eine Ausgabe über das Formular wie auf dem Gerät: Betrag,
-  /// Steuersatz, Beschreibung, „Beleg speichern“.
+  /// Steuersatz, Produkt oder Leistung, „Beleg speichern“.
   Future<void> bookExpense(WidgetTester tester, String rateLabel) async {
     tester
         .state<NavigatorState>(find.byType(Navigator))
@@ -74,7 +74,7 @@ void main() {
     await settle(tester);
     await tester.enterText(find.byType(TextFormField).first, '12,00');
     await tester.enterText(
-      find.widgetWithText(TextFormField, 'Beschreibung'),
+      find.widgetWithText(TextFormField, 'Produkt oder Leistung'),
       'Büromaterial',
     );
     await settle(tester);
@@ -142,7 +142,7 @@ void main() {
     await settle(tester);
     await tester.enterText(find.byType(TextFormField).first, '47,40');
     await tester.enterText(
-      find.widgetWithText(TextFormField, 'Beschreibung'),
+      find.widgetWithText(TextFormField, 'Produkt oder Leistung'),
       'Geschäftsessen',
     );
     await settle(tester);

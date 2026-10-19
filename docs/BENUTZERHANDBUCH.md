@@ -1,6 +1,6 @@
 # Benutzerhandbuch – JeNi bucht
 
-**Für App-Version 0.27.0** · Stand 2026-10-19
+**Für App-Version 0.28.0** · Stand 2026-10-19
 
 > **Testerinnen und Tester, Umstieg auf 0.26.0:** Ab dieser Version hat die App
 > eine neue technische Kennung. Sie wird **neben** der alten App installiert,
@@ -57,27 +57,56 @@ Kein Konto, keine Anmeldung, kein Abo. Alles liegt auf deinem Telefon.
 
 ## 2. Der erste Start
 
-Beim ersten Öffnen bestätigst du zwei Dinge, jedes mit eigenem Häkchen: dass
-die App **keine Steuerberatung** ist, und die **Nutzungsbedingungen und den
-Datenschutz**. Ändern sich diese Texte später wesentlich, fragt die App erneut.
+Beim ersten Öffnen führt dich die App in wenigen Schritten durch die
+Einrichtung. Oben siehst du, wo du stehst („Schritt 2 von 5“), mit dem Pfeil
+oben links (oder der Zurück-Geste) gehst du einen Schritt zurück. Schließt du
+die App mittendrin, geht es beim nächsten Öffnen an derselben Stelle weiter.
 
-**In der Store-Version ohne Abo** zeigt die App danach zwei große Knöpfe unten:
+**Willkommensseite** – unten zwei große Knöpfe:
 
-- **Abo wählen – 14 Tage kostenlos**: öffnet die Abo-Seite. Du wählst Basis
-  oder Pro, monatlich oder jährlich, und startest das Abo im Store. Die ersten
-  14 Tage sind kostenlos, mit allen Pro-Funktionen. Danach geht es mit dem
-  Einrichten deines Unternehmens weiter – leer, ohne Musterdaten.
-- **Erst ansehen (Demo)**: zeigt eine erfundene Musterfirma, siehe
+- **Los geht's** – startet die Einrichtung.
+- **Erst ansehen (Demo)** – zeigt eine erfundene Musterfirma, siehe
   [Demo ansehen](#demo-ansehen).
 
-Danach fragt die App nach deinem Unternehmen. Das ist notwendig,
-nicht Neugier: ohne das Land kennt die App deine Steuersätze nicht, und ohne
-Anschrift kann sie keine gültige Rechnung erzeugen.
+Darüber zwei weitere Wege:
+
+- **Ich habe schon Daten – Sicherung wiederherstellen** – für ein neues
+  Telefon (siehe [Abschnitt 11](#auf-einem-neuen-telefon-weitermachen)).
+- **Ich helfe mit – Gerät koppeln** – für das Handy einer Mithelferin
+  (siehe [Abschnitt 15](#15-mithelfer-geräte-belege-von-familie-und-team));
+  das **?** daneben erklärt kurz, was das ist.
+
+**Schritt 1 – Bestätigungen.** Setz das Häkchen, dass die App **keine
+Steuerberatung** ist, und tippe **Akzeptieren und weiter** – damit nimmst du
+die **Nutzungsbedingungen** an und hast die **Datenschutzerklärung** zur
+Kenntnis genommen. Beide Texte kannst du über die Links davor lesen. Ändern
+sich die Texte später wesentlich, fragt die App erneut.
+
+**Schritt 2 – Dein Unternehmen (Pflicht).** Land, Name oder Firma,
+Inhaber:in, Rechtsform, Anschrift und Besteuerung (Kleinunternehmer oder
+Regelbesteuerung). Das ist notwendig, nicht Neugier: ohne das Land kennt die
+App deine Steuersätze nicht, und ohne Anschrift kann sie keine gültige
+Rechnung erzeugen.
+
+**Schritt 3 – Zusatzdaten (optional).** UID-Nummer bzw. USt-IdNr.,
+Steuernummer, Firmenbuch bzw. Handelsregister, E-Mail, Telefon und
+Bankverbindung für deine Rechnungen. Nicht zur Hand? **Später hinzufügen**.
+
+**Schritt 4 – Extras (optional).** Logo, Datensicherung mit
+Wiederherstellungscode und weitere Länder (z. B. Amazon-Lager in Deutschland
+oder EU-Kleinunternehmer-Verfahren). Jedes davon kannst du überspringen.
+
+**Schritt 5 – Abo wählen** (nur in der Store-Version ohne Abo).
+**Abo wählen – 14 Tage kostenlos** öffnet die Abo-Seite: Basis oder Pro,
+monatlich oder jährlich; die ersten 14 Tage sind kostenlos, mit allen
+Pro-Funktionen. **Später entscheiden** beendet die Einrichtung ohne Abo.
+
+Danach änderst du alles wie gewohnt unter **Einstellungen → Stammdaten**.
 
 ### Was du eintragen solltest
 
 **Unternehmen**
-- **Firmenname** – Pflicht. So, wie er auf deinen Rechnungen stehen soll.
+- **Name oder Firma** (in den Stammdaten „Firmenname“) – Pflicht. So, wie er auf deinen Rechnungen stehen soll.
 - **Inhaber:in** – falls der Firmenname nicht dein Name ist
 - **Land** – Österreich oder Deutschland. Bestimmt Steuersätze, die Bezeichnung
   „UID-Nummer" bzw. „USt-IdNr." und die Gesetzesverweise auf deinen Rechnungen.
@@ -251,7 +280,7 @@ Das ist die Funktion, die du täglich nutzt. Sie ist auf Geschwindigkeit gebaut.
    **Seite löschen**. Ist die Rückseite
    beschrieben, fotografiere sie mit – bei nur einer Seite erinnert dich der
    runde Knopf mit der Beschriftung **Rückseite?** daran.
-5. **Beschreibung** eintragen – Pflichtfeld. „Bürostuhl" ist gut, „Rechnung"
+5. **Produkt oder Leistung** eintragen – Pflichtfeld. „Bürostuhl" ist gut, „Rechnung"
    nützt dir in zwei Jahren nichts.
 6. Optional: Datum (mit **Heute** / **Gestern** ein Tipp), Lieferant bzw. Kunde, Kategorie, Zahlungsart, Notiz und
    ein **Kommentar** (siehe unten)
@@ -619,7 +648,7 @@ den du eingetippt hast.
 ### Belege wiederfinden
 
 Im Bereich **Belege**:
-- **Suchfeld** durchsucht Beschreibung, Geschäftspartner und Notiz
+- **Suchfeld** durchsucht Produkt oder Leistung, Geschäftspartner und Notiz
 - **Alle / Einnahmen / Ausgaben** filtert
 - **Jahr** wählst du mit dem ersten Chip in der Filterzeile; die Chips brechen
   auf schmalen Telefonen in eine zweite Zeile um
@@ -1201,6 +1230,12 @@ deine Kanzlei ordnet den Stapel beim Import selbst zu.
 aus; dann rechnet die App mit dem Monatskurs. Nur einschalten, wenn dir das
 Finanzamt den Tageskurs genehmigt hat.
 
+**Mithelfer-Geräte** – Belege von Familie oder Team sammeln
+([Abschnitt 15](#15-mithelfer-geräte-belege-von-familie-und-team)).
+**Als Mithelfer-Gerät koppeln** macht dieses Handy selbst zum Mithelfer –
+nur, wenn hier noch keine Belege oder Rechnungen gespeichert sind, und erst
+nach einer Rückfrage.
+
 **Kategorien** – Kategorien ansehen, eigene anlegen und löschen. Die
 vorgegebenen 17 Kategorien tragen ein Schlosssymbol und bleiben erhalten. Beim
 Anlegen kannst du eine Kontonummer für den Export mitgeben.
@@ -1664,8 +1699,19 @@ keinen Umsatz gab.
 Jahreszahl ab 1900 bis zum laufenden Jahr; leer lassen, wenn du nicht dieses
 Jahr gegründet hast und es nicht angeben willst.
 
-**„Eine Beschreibung ist Pflicht"** – ohne Bezeichnung ist der Beleg später nicht
-nachvollziehbar. Ein Wort genügt.
+**„Bitte gib Produkt oder Leistung an …"** – ohne Bezeichnung ist der Beleg
+später nicht nachvollziehbar. Ein Wort genügt. (Im Export heißt die Spalte
+weiterhin „Beschreibung“.)
+
+**„Die EU-KU-Nummer endet auf EX …"** (bei *Steuerliche Registrierungen*,
+EU-Kleinunternehmer-Verfahren) — die Nummer hat den Aufbau deiner UID mit
+angehängtem „EX“, z. B. ATU12345675EX bzw. DE123456789EX.
+
+**„Die EU-KU-Nummer vergibt Österreich …"** — die Nummer kommt immer aus
+deinem Heimatland, also mit „ATU“ bzw. „DE“ am Anfang.
+
+**„Nicht auf diesem Gerät"** (bei *Als Mithelfer-Gerät koppeln*) — auf diesem
+Handy sind schon Belege oder Rechnungen. Koppel ein anderes Handy.
 
 **„Die Prüfziffer der UID stimmt nicht – bitte Tippfehler prüfen"** – die
 Nummer hat das richtige Muster, aber eine Ziffer ist vermutlich vertippt.
@@ -1796,8 +1842,16 @@ bei jedem Öffnen nach. Dein Kennwort bleibt nur auf deinem Handy.
 3. **QR-Code zeigen** tippen. Der Code trägt deine Empfangsadresse, aber nie
    ein Kennwort.
 4. Auf dem anderen Handy JeNi bucht installieren, öffnen und
-   **Ich helfe mit – Gerät koppeln** tippen.
+   **Ich helfe mit – Gerät koppeln** tippen. Ist die App dort schon als
+   eigenes Hauptgerät eingerichtet, aber ohne Belege: **Einstellungen → Als
+   Mithelfer-Gerät koppeln** und bestätigen.
 5. **QR-Code fotografieren** und den Code auf deinem Bildschirm aufnehmen.
+
+**Was ist ein Mithelfer-Gerät?** Tippe auf das **?** neben „Gerät
+koppeln“ bzw. „Gerät hinzufügen“: Ein Mithelfer-Gerät fotografiert nur Belege
+und sendet sie dir; es bucht nichts und sieht deine Buchhaltung nicht. Jeder
+Beleg reist verschlüsselt, den Schlüssel tauschen die Geräte nur über den
+QR-Code aus. Gesendet wird aus dem eigenen Postfach der Mithelferin.
 
 Der Code ist der Schlüssel zu deinem Eingang: zeig ihn nur dem Handy, das du
 koppeln willst, und schick ihn nicht als Foto herum.
@@ -1909,6 +1963,17 @@ USt-IdNr. und gibst dort Voranmeldungen ab. Die App führt beides getrennt.
 
 Andere Länder wie Italien oder Frankreich stehen schon in der Liste mit
 „bald“.
+
+### EU-Kleinunternehmer-Verfahren: die EU-KU-Nummer
+
+Nutzt du seit 2025 das **EU-Kleinunternehmer-Verfahren** (steuerfrei auch im
+anderen Land), wähl beim Land als Besteuerung **EU-Kleinunternehmer-Verfahren**.
+Statt einer UID fragt die App dann die **EU-KU-Nummer (EX)** – die Nummer, die
+dir dein Finanzamt zu Hause dafür gibt, z. B. **ATU12345675EX** bzw.
+**DE123456789EX**. Sie steht einmal in deinem Profil, getrennt von deiner UID,
+und erscheint im Kopf jeder Kleinunternehmer-Rechnung an Kunden im anderen
+Land als „EU-KU-Nr.“. Die App prüft nur das Format; ob die Angabe so reicht,
+klärst du mit deiner Kanzlei.
 
 ### Steuerland beim Beleg
 

@@ -1,10 +1,29 @@
 import '../core/formatting.dart';
+import '../domain/company_profile.dart';
+import '../domain/customer.dart';
 import '../domain/invoice.dart';
 
 /// Textbausteine der Rechnung zu Rabatt, Skonto und AGB (L-3.21 bis L-3.25).
 /// An einer Stelle, damit PDF, Formular und Tests denselben Wortlaut nutzen.
 class InvoiceTexts {
   const InvoiceTexts._();
+
+  /// Bezeichnung der EU-KU-Nummer auf der Rechnung (FA-18.10).
+  static const euSmeIdLabel = 'EU-KU-Nr.';
+
+  /// EU-KU-Nummer auf der Rechnung (FA-18.10): bei steuerfreier
+  /// Kleinunternehmer-Rechnung an einen Kunden in einem anderen
+  /// Mitgliedstaat, wenn eine EU-KU-Nummer eingetragen ist (Art 284 Abs 3,
+  /// Art 220a/226b MwStSystRL; DE § 34a UStDV, AT § 11 Abs 1 Z 3 UStG 1994
+  /// sinngemäß). Pflicht und Ort: P-S77.
+  static bool showsEuSmeId(
+    CompanyProfile profile,
+    Invoice invoice,
+    Customer customer,
+  ) =>
+      profile.euSmeId.trim().isNotEmpty &&
+      invoice.isSmallBusiness &&
+      customer.country != profile.country;
 
   // ---------------------------------------------------------------------------
   // Anrede in Kundendokumenten (Rechnung, Mahnung, Begleittext beim Senden).

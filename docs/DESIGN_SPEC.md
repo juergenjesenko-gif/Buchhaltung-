@@ -1,6 +1,6 @@
 # Designspezifikation
 
-**Version 1.4 · Stand 2026-10-16 · Produktname „JeNi bucht“**
+**Version 1.5 · Stand 2026-10-19 · Produktname „JeNi bucht“**
 
 Zweck: Grundlage, gegen die eine KI (oder ein Mensch) **mehrere unterschiedliche
 Designvarianten** entwickeln kann, die alle fachlich und rechtlich korrekt
@@ -290,8 +290,9 @@ darf anordnen und gewichten, aber **nichts weglassen**.
 
 | Bildschirm | Pflichtinhalte | Hauptaktion |
 |---|---|---|
-| Bestätigungen (`consent_screen`) | Hinweis „keine Steuerberatung“, Nutzungsbedingungen, Datenschutz – **je eigenes Häkchen**, Texte vollständig erreichbar, nichts vorausgewählt | Weiter (erst nach allen Häkchen aktiv, mit Erklärung warum) |
-| Onboarding / Stammdaten (`company_setup_screen`) | Land AT/DE, Firmenname, Anschrift, Kleinunternehmer ja/nein, UID/Steuernummer, Firmenlogo (optional), Eröffnungswerte | Speichern; Schritte einzeln, Fortschritt sichtbar |
+| Ersteinrichtung (`setup_wizard`) | Willkommensseite mit Logo (`assets/brand/logo.png`, austauschbar), Titel, Versprechen, „Los geht's“, „Erst ansehen (Demo)“, Wiederherstellen, Gerät koppeln mit „?“; Schritte mit „Schritt n von 5“ und Balken, Zurück, „Später hinzufügen“ (48 dp, 12 dp über dem Hauptknopf) | Hauptknopf unten volle Breite 56 dp |
+| Bestätigungen (`consent_screen`) | Hinweis „keine Steuerberatung“ mit **eigenem Häkchen**, nichts vorausgewählt; Nutzungsbedingungen und Datenschutz mit Links auf die Volltexte und Annahme über den beschrifteten Knopf (Prüfinstanz Rechtsanwalt 2026-10-19) | Akzeptieren und weiter (56 dp) |
+| Stammdaten (`company_setup_screen`) | Land AT/DE, Firmenname, Anschrift, Kleinunternehmer ja/nein, UID/Steuernummer, Firmenlogo (optional), Eröffnungswerte | Speichern; Schritte einzeln, Fortschritt sichtbar |
 | Sperrbildschirm (`lock_screen`) | Entsperren per Gerätesicherung | Entsperren |
 | Übersicht (`dashboard_screen`) | Kassabuch/Saldo, Umsatzsteuer des Zeitraums, **Grenzwertampel mit allen 5 Zuständen**, Verlauf, Stand der letzten geprüften Sicherung (L-7.9), Zahnrad zu Einstellungen | Aufnahmeleiste „Foto“ – „Beleg“ – „Datei“ (5a Regel 13) |
 | Belegliste (`receipt_list_screen`) | Suche, Filter (inkl. „Storniert“), Einnahme/Ausgabe unterscheidbar, Datum, Betrag | Aufnahmeleiste „Foto“ – „Beleg“ – „Datei“ (5a Regel 13) |
@@ -515,6 +516,7 @@ Auftraggeber sie freigibt, und hier nur per ID verwiesen.
 
 | Version | Datum | Änderung |
 |---|---|---|
+| 1.5 | 2026-10-19 | Abschnitt 7: Ersteinrichtung als Schrittfolge (Willkommensseite, Schritte 1–5), Bestätigungen mit einem Häkchen und beschriftetem Knopf; Stammdaten nur noch zum Bearbeiten. |
 | 1.4 | 2026-10-16 | Abschnitt 5a Regel 13: „Foto“ und „Datei“ (56 dp, 48 dp Abstand, spiegelgleich) neben dem Aufnahmeknopf auf Übersicht und Belegliste. |
 | 1.3 | 2026-10-16 | Abschnitt 5a Regel 13: runder Aufnahmeknopf „Beleg“ (≥ 72 dp) unten in der Mitte auf Übersicht, Belegliste und im Belegformular. |
 | 1.2 | 2026-10-14 | Abschnitt 5a Einhandbedienung: Prüfregel der UX-Instanz, keine Händigkeits-Einstellung, zentrierter Hauptknopf. |

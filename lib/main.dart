@@ -12,8 +12,8 @@ import 'features/demo/demo_screens.dart';
 import 'features/demo/demo_sheet.dart';
 import 'features/home/home_shell.dart';
 import 'features/helper/helper_home_screen.dart';
-import 'features/onboarding/company_setup_screen.dart';
 import 'features/onboarding/consent_screen.dart';
+import 'features/onboarding/setup_wizard.dart';
 import 'services/demo/demo_mode.dart';
 import 'services/helper/helper_mail_platform.dart';
 import 'theme.dart';
@@ -125,16 +125,15 @@ class _Root extends StatelessWidget {
     if (state.isLoading) {
       return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
-    if (state.missingConsents.isNotEmpty) {
+    // Ersteinrichtung (FA-1.13) holt die Bestätigungen selbst ein; danach
+    // fragt dieser Bildschirm nur geänderte Fassungen erneut ab (L-17.4).
+    final firstRun = state.inFirstRunSetup;
+    if (state.missingConsents.isNotEmpty && !firstRun) {
       return ConsentScreen(texts: state.missingConsents);
     }
     // Mithelfer-Gerät (FA-17.2): nur Erfassung, keine Bücher.
     if (state.isHelperDevice) return const HelperHomeScreen();
-    // Store-Build ohne Abo (FA-13.14): Abo wählen oder erst die Demo.
-    if (state.showStartChoice) return const StartChoiceScreen();
-    if (state.needsOnboarding) {
-      return const CompanySetupScreen(isOnboarding: true);
-    }
+    if (firstRun) return const SetupWizard();
     return const HomeShell();
   }
 }

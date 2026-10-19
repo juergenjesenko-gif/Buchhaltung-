@@ -4,6 +4,7 @@ import 'feedback_screen.dart';
 import '../helper/helper_devices_screen.dart';
 import 'legal_screen.dart';
 import 'package:flutter/material.dart';
+import '../helper/helper_help_sheet.dart';
 
 import '../../services/launcher/platform_home_shortcut.dart';
 import '../../core/formatting.dart';
@@ -113,6 +114,20 @@ class SettingsScreen extends StatelessWidget {
                         builder: (_) => const HelperDevicesScreen(),
                       ),
                     ),
+                  ),
+                  // Hauptinstallation zum Mithelfer machen (FA-17.13): nur
+                  // ohne Buchhaltungsdaten und nach Bestätigung.
+                  ListTile(
+                    key: const Key('settings-become-helper'),
+                    contentPadding: EdgeInsets.zero,
+                    minTileHeight: 56,
+                    leading: const Icon(Icons.qr_code_scanner),
+                    title: const Text('Als Mithelfer-Gerät koppeln'),
+                    subtitle: const Text(
+                      'Nur auf einem Gerät ohne eigene Belege',
+                    ),
+                    trailing: const HelperHelpButton(),
+                    onTap: () => becomeHelperDevice(context),
                   ),
                   ListTile(
                     contentPadding: EdgeInsets.zero,

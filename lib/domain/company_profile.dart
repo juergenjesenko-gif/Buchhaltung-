@@ -18,6 +18,7 @@ class CompanyProfile {
     this.website = '',
     this.taxNumber = '',
     this.vatId = '',
+    this.euSmeId = '',
     this.isSmallBusiness = true,
     this.iban = '',
     this.bic = '',
@@ -121,6 +122,12 @@ class CompanyProfile {
 
   /// UID-Nummer (AT) bzw. USt-IdNr. (DE). Bei Kleinunternehmern oft leer.
   final String vatId;
+
+  /// EU-KU-Nummer (Suffix „EX“) für das EU-Kleinunternehmer-Verfahren
+  /// (Art 284 Abs 3 MwStSystRL idF RL (EU) 2020/285; DE § 19a UStG, AT § 6
+  /// Abs 1 Z 27 UStG 1994 idF AbgÄG 2024). Vergibt der Heimatstaat; getrennt
+  /// von der UID, weil beide nebeneinander bestehen können. Format: P-S76.
+  final String euSmeId;
 
   /// Nimmt das Unternehmen die Kleinunternehmerregelung in Anspruch?
   /// Wenn ja, wird auf Rechnungen keine Umsatzsteuer ausgewiesen und der
@@ -237,6 +244,7 @@ class CompanyProfile {
     String? website,
     String? taxNumber,
     String? vatId,
+    String? euSmeId,
     bool? isSmallBusiness,
     String? iban,
     String? bic,
@@ -285,6 +293,7 @@ class CompanyProfile {
       website: website ?? this.website,
       taxNumber: taxNumber ?? this.taxNumber,
       vatId: vatId ?? this.vatId,
+      euSmeId: euSmeId ?? this.euSmeId,
       isSmallBusiness: isSmallBusiness ?? this.isSmallBusiness,
       iban: iban ?? this.iban,
       bic: bic ?? this.bic,
@@ -338,6 +347,7 @@ class CompanyProfile {
     'website': website,
     'tax_number': taxNumber,
     'vat_id': vatId,
+    'eu_sme_id': euSmeId,
     'is_small_business': isSmallBusiness ? 1 : 0,
     'iban': iban,
     'bic': bic,
@@ -389,6 +399,7 @@ class CompanyProfile {
     website: map['website'] as String? ?? '',
     taxNumber: map['tax_number'] as String? ?? '',
     vatId: map['vat_id'] as String? ?? '',
+    euSmeId: map['eu_sme_id'] as String? ?? '',
     isSmallBusiness: (map['is_small_business'] as int? ?? 1) == 1,
     iban: map['iban'] as String? ?? '',
     bic: map['bic'] as String? ?? '',

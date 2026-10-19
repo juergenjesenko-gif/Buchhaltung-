@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'helper_help_sheet.dart';
 
 import '../../app_state.dart';
 import '../../data/helper_repository.dart';
@@ -100,7 +101,10 @@ class _HelperPairScreenState extends State<HelperPairScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Ich helfe mit')),
+      appBar: AppBar(
+        title: const Text('Ich helfe mit'),
+        actions: const [HelperHelpButton()],
+      ),
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [

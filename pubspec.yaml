@@ -4,7 +4,7 @@ publish_to: "none"
 
 # version: <Store-Versionsname>+<Buildnummer>
 # Die Buildnummer wird in CI aus der Run-Nummer gesetzt, siehe docs/RELEASE_PLAYBOOK.md
-version: 0.27.0+40
+version: 0.28.0+41
 
 environment:
   sdk: ^3.10.0
@@ -81,3 +81,6 @@ flutter:
     - assets/fonts/WorkSans-Regular.ttf
     - assets/fonts/WorkSans-Bold.ttf
     - assets/fonts/OFL.txt
+    # Logo der Willkommensseite (FA-1.10): eine austauschbare Datei,
+    # Platzhalter = Icon-Entwurf 1, docs/design/icon-entwuerfe.
+    - assets/brand/logo.png
