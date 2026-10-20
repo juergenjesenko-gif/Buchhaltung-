@@ -142,15 +142,15 @@ jobs:
           AUTH="-allowProvisioningUpdates -authenticationKeyPath $KEY_PATH -authenticationKeyID $ASC_KEY_ID -authenticationKeyIssuerID $ASC_ISSUER_ID"
           # --no-codesign: Flutters eigene Zertifikatsprüfung überspringen; signiert
           # wird danach von xcodebuild mit dem API-Schlüssel (Cloud-Signierung).
-          # Archiv direkt mit Verteilungsidentität: ein Entwicklungsprofil bräuchte
-          # ein registriertes Gerät, das CI nicht hat.
+          # Archiv unsigniert; signiert wird erst beim Export per Cloud-Signierung
+          # mit Verteilungsprofil. Ein Entwicklungsprofil bräuchte ein
+          # registriertes Gerät, das CI nicht hat.
           flutter build ios $BUILD_ARGS --config-only --no-codesign
           xcodebuild -workspace ios/Runner.xcworkspace -scheme Runner \
             -configuration Release -destination 'generic/platform=iOS' \
             -archivePath build/ios/Runner.xcarchive \
-            DEVELOPMENT_TEAM="$APPLE_TEAM_ID" CODE_SIGN_STYLE=Automatic \
-            CODE_SIGN_IDENTITY="Apple Distribution" \
-            $AUTH archive
+            DEVELOPMENT_TEAM="$APPLE_TEAM_ID" CODE_SIGNING_ALLOWED=NO \
+            archive
           sed "s/DEIN_TEAM_ID/$APPLE_TEAM_ID/" ios/ExportOptions.plist > "$RUNNER_TEMP/ExportOptions.plist"
           xcodebuild -exportArchive -archivePath build/ios/Runner.xcarchive \
             -exportOptionsPlist "$RUNNER_TEMP/ExportOptions.plist" \
