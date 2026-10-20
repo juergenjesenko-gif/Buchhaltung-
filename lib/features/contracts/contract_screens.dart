@@ -561,26 +561,31 @@ class _ContractEditScreenState extends State<ContractEditScreen> {
                   children: [
                     if (_c.originalPath != null || _original != null)
                       const Text('Originaldatei (PDF) gespeichert.'),
-                    Wrap(
-                      spacing: 8,
-                      runSpacing: 8,
+                    // Zwei gleich breite Knöpfe, darunter der dritte über die
+                    // volle Breite: bündig an beiden Rändern.
+                    Row(
                       children: [
-                        OutlinedButton.icon(
-                          key: const Key('contract-photo'),
-                          style: OutlinedButton.styleFrom(
-                            minimumSize: const Size(0, 48),
+                        Expanded(
+                          child: OutlinedButton.icon(
+                            key: const Key('contract-photo'),
+                            style: OutlinedButton.styleFrom(
+                              minimumSize: const Size(0, 48),
+                            ),
+                            onPressed: () => _addPhoto(ImageSource.camera),
+                            icon: const Icon(Icons.photo_camera_outlined),
+                            label: const Text('Scannen'),
                           ),
-                          onPressed: () => _addPhoto(ImageSource.camera),
-                          icon: const Icon(Icons.photo_camera_outlined),
-                          label: const Text('Seiten scannen'),
                         ),
-                        OutlinedButton.icon(
-                          style: OutlinedButton.styleFrom(
-                            minimumSize: const Size(0, 48),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: OutlinedButton.icon(
+                            style: OutlinedButton.styleFrom(
+                              minimumSize: const Size(0, 48),
+                            ),
+                            onPressed: () => _addPhoto(ImageSource.gallery),
+                            icon: const Icon(Icons.photo_library_outlined),
+                            label: const Text('Galerie'),
                           ),
-                          onPressed: () => _addPhoto(ImageSource.gallery),
-                          icon: const Icon(Icons.photo_library_outlined),
-                          label: const Text('Aus Galerie'),
                         ),
                       ],
                     ),

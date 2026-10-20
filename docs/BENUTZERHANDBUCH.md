@@ -1,6 +1,6 @@
 # Benutzerhandbuch – JeNi bucht
 
-**Für App-Version 0.35.0** · Stand 2026-10-20
+**Für App-Version 0.36.0** · Stand 2026-10-20
 
 Welche Version du hast, steht ganz unten in den **Einstellungen**, etwa „Version 0.35.0 (16)“; die Zahl in Klammern ist die Buildnummer.
 
@@ -218,7 +218,7 @@ App-Version. Es wird nichts angehängt; du schreibst und schickst selbst.
 
 **Auf dem Tablet oder im Querformat** stehen die vier Bereiche nicht unten,
 sondern als Leiste am linken Rand. Ist der Bildschirm breit genug (etwa ein
-Tablet quer), siehst du bei Belegen, Rechnungen und Kunden links die Liste und
+Tablet quer, nicht das Handy quer), siehst du bei Belegen, Rechnungen und Kunden links die Liste und
 rechts den geöffneten Eintrag; nach dem Speichern bleibt die Liste stehen und
 zeigt die Änderung. Eingabeformulare werden auf großen Bildschirmen nicht über
 die ganze Breite gezogen, damit sie gut lesbar bleiben. Die App lässt sich in
@@ -1267,7 +1267,7 @@ auf deinem Telefon und in deiner verschlüsselten Sicherung und werden nie an
 eine KI oder an uns übertragen. Leg nur ab, was du für die Buchhaltung
 brauchst.
 
-1. **Seiten scannen** (Dokumentenscanner, mehrere Seiten auf einmal) oder **Aus Galerie**. Ein PDF aus einer
+1. **Scannen** (Dokumentenscanner, mehrere Seiten auf einmal) oder **Galerie**. Ein PDF aus einer
    Mail teilst du einfach an JeNi bucht – oben im Belegformular steht dann
    „Ist das ein Vertrag?“; ein Tipp legt ihn ins Vertragsarchiv.
 2. Art, Bezeichnung, Partner, Beginn, Ende, Kündigungsfrist, Rate eintragen.

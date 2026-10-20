@@ -29,11 +29,34 @@ gebaut, und was war darin geprüft?*
 
 ## Unveröffentlicht
 
-Änderungen seit 0.35.0+48, die noch in keinem Build stecken. Wandern beim
+Änderungen seit 0.36.0+49, die noch in keinem Build stecken. Wandern beim
 nächsten Versionssprung in den neuen Eintrag.
 
 | Art | Änderung | Bezug | Commit |
 |---|---|---|---|
+
+---
+
+## 0.36.0+49 — 2026-10-20
+
+| Feld | Wert |
+|---|---|
+| Art | Interner Test (TestFlight, Google Play interner Track) über `release.yml`; Buildnummer = Laufnummer der CI; **Lizenzprüfung aus**, alle Funktionen frei |
+| Commit | `XXXXXXX` |
+| Branch | `claude/agile-accounting-app-mobile-wa5j3h` |
+| Dokumentstände | Lastenheft 1.89, Spezifikation 1.97, REGELPFLEGE 2026-10-20, Benutzerhandbuch für 0.36.0, DESIGN_SPEC 1.7 |
+| Datenbankschema | 31 |
+| Prüfung | `flutter analyze` ohne Befund, alle Tests grün (neu: Telefon quer 915 × 412 ohne Liste-Detail); Android/iOS-Build nur in der CI |
+| Steuerliche Kennwerte | unverändert; neu `spec.window_compact_max_height_dp` = 480 |
+| Offene reale Prüfpunkte | P-D19 (Querformat am Gerät), P-D58 |
+| Bekannte Grenzen | unverändert (Spezifikation 11) |
+
+**Änderungen seit 0.35.0+48**
+
+| Art | Änderung | Bezug | Commit |
+|---|---|---|---|
+| Behoben | Telefon quer: keine drei schmalen Spalten mehr, schmale Navigationsleiste und Inhalt über die volle Breite | FA-9.1 | `XXXXXXX` |
+| Behoben | Vertrag ablegen: „Scannen“ und „Galerie“ gleich breit und bündig mit „Text erkennen“ | FA-19 | `XXXXXXX` |
 
 ---
 

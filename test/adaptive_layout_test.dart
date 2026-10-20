@@ -17,6 +17,15 @@ void main() {
     expect(WindowSizeClass.fromWidth(600), WindowSizeClass.medium);
     expect(WindowSizeClass.fromWidth(839.9), WindowSizeClass.medium);
     expect(WindowSizeClass.fromWidth(840), WindowSizeClass.expanded);
+    // Telefon quer: breit, aber niedrig – höchstens medium.
+    expect(
+      WindowSizeClass.fromSize(const Size(915, 412)),
+      WindowSizeClass.medium,
+    );
+    expect(
+      WindowSizeClass.fromSize(const Size(1280, 800)),
+      WindowSizeClass.expanded,
+    );
     expect(WindowSizeClass.fromWidth(1366), WindowSizeClass.expanded);
   });
 

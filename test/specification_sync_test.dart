@@ -212,6 +212,10 @@ void main() {
         WindowSizeClass.expandedMinWidth.toInt(),
       );
       expect(
+        intValue('spec.window_compact_max_height_dp'),
+        WindowSizeClass.compactMaxHeight.toInt(),
+      );
+      expect(
         intValue('spec.max_content_width_dp'),
         WindowSizeClass.maxContentWidth.toInt(),
       );

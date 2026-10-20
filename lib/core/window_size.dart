@@ -29,6 +29,12 @@ enum WindowSizeClass {
   /// „ca. 640 dp, lesbare Zeilenlänge“).
   static const double maxContentWidth = 640;
 
+  /// Fensterhöhe in dp, unter der die Höhe „compact“ ist (Material 3:
+  /// Telefon quer). Dann gibt es höchstens medium – keine ausgeklappte
+  /// Navigation und kein Liste-Detail, sonst zerfällt der Bildschirm in
+  /// drei schmale Spalten (Gerätetest 2026-10-20).
+  static const double compactMaxHeight = 480;
+
   static WindowSizeClass fromWidth(double width) {
     if (width >= expandedMinWidth) return expanded;
     if (width >= mediumMinWidth) return medium;
@@ -38,7 +44,14 @@ enum WindowSizeClass {
   /// Klasse des aktuellen Fensters (nicht des Bildschirms: im geteilten
   /// Bildschirm zählt die Fensterbreite).
   static WindowSizeClass of(BuildContext context) =>
-      fromWidth(MediaQuery.sizeOf(context).width);
+      fromSize(MediaQuery.sizeOf(context));
+
+  /// Wie [fromWidth], bei niedriger Höhe aber höchstens medium.
+  static WindowSizeClass fromSize(Size size) {
+    final byWidth = fromWidth(size.width);
+    if (byWidth == expanded && size.height < compactMaxHeight) return medium;
+    return byWidth;
+  }
 
   bool get isCompact => this == compact;
   bool get isExpanded => this == expanded;
