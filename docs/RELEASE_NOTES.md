@@ -34,9 +34,9 @@ nächsten Versionssprung in den neuen Eintrag.
 
 | Art | Änderung | Bezug | Commit |
 |---|---|---|---|
-| Geändert | Sicherung von Hand mit 8-stelligem Zahlencode statt Kennwort | FA-7.2 | `XXXXXXX` |
-| Geändert | Automatische Sicherung: Abtippen von zwei Blöcken entfällt | FA-7.10 | `XXXXXXX` |
-| Geändert | Release-Builds ohne Lizenzprüfung, außer mit Eingabe `abo` (Tester sehen Pro) | FA-13.10 | `XXXXXXX` |
+| Geändert | Sicherung von Hand mit 8-stelligem Zahlencode statt Kennwort | FA-7.2 | `4233656` |
+| Geändert | Automatische Sicherung: Abtippen von zwei Blöcken entfällt | FA-7.10 | `4233656` |
+| Geändert | Release-Builds ohne Lizenzprüfung, außer mit Eingabe `abo` (Tester sehen Pro) | FA-13.10 | `4233656` |
 | Behoben | Tastatur schließt bei Tippen neben ein Eingabefeld (iOS-Ziffernblock ohne Fertig-Taste) | SPEC 7 | `5fefe06` |
 | Geändert | Ersteinrichtung: Umsatz des laufenden Jahres optional (leer = 0, Hinweis zum Nachbuchen) | FA-1.8 | `03ff86e` |
 | Geändert | Willkommensseite: Titel über dem Logo, mehr Abstand vor den Funktionszeilen | FA-1.13 | `03ff86e` |
