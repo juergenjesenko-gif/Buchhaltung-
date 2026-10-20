@@ -123,7 +123,15 @@ class TaxProfile {
     required this.entertainment,
     required this.mixedUse,
     required this.levies,
+    required this.rulesAsOf,
+    required this.rulesValidUntil,
   });
+
+  /// Regelstand (FA-21.1, docs/REGELPFLEGE.md): Stichtag der eingebauten
+  /// Steuerwerte und letzter Tag, für den sie gelten. Wird mit jedem
+  /// Jahrespaket erhöht, erst wenn alle Werte geprüft sind.
+  final DateTime rulesAsOf;
+  final DateTime rulesValidUntil;
 
   /// Gemischt genutzte Ausgaben mit Buchungsregel (FA-20.x). P-S88.
   final MixedUseRules mixedUse;
@@ -609,6 +617,9 @@ class TaxProfile {
     // für das Unternehmen ausgeführt (§ 12 Abs 2 Z 1 lit a UStG 1994).
     // PKW-Vorsteuer ist unabhängig davon ausgeschlossen (§ 12 Abs 2 Z 2
     // lit b UStG 1994, außer emissionsfrei); das regelt die Kategorie. P-S88.
+    // Regelstand (FA-21.1): Werte 2026 geprüft, docs/REGELPFLEGE.md.
+    rulesAsOf: DateTime(2026, 1, 1),
+    rulesValidUntil: DateTime(2026, 12, 31),
     mixedUse: const MixedUseRules(
       minBusinessPermilleForInputVat: 100,
       legalRef: '§ 4 Abs 1 und § 20 Abs 1 Z 1 EStG 1988',
@@ -992,6 +1003,9 @@ class TaxProfile {
     // unter 10 % unternehmerischer Nutzung kein Vorsteuerabzug (§ 15 Abs 1
     // Satz 2 UStG). Volle Zuordnung mit Wertabgabe (§ 3 Abs 9a UStG) bildet
     // die App nicht ab (P-S88).
+    // Regelstand (FA-21.1): Werte 2026 geprüft, docs/REGELPFLEGE.md.
+    rulesAsOf: DateTime(2026, 1, 1),
+    rulesValidUntil: DateTime(2026, 12, 31),
     mixedUse: const MixedUseRules(
       minBusinessPermilleForInputVat: 100,
       legalRef: '§ 4 Abs 4, § 12 Nr. 1 EStG',

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../services/rules_freshness.dart';
 import '../../app_state.dart';
 import '../../core/formatting.dart';
 import '../../domain/company_profile.dart';
@@ -112,6 +113,23 @@ class _LeviesScreenState extends State<LeviesScreen> {
                         '${LevyEstimator.disclaimer}. Hochgerechnet '
                         'aus deinen bisherigen Buchungen dieses Jahres.',
                   ),
+                  // Regelstand abgelaufen (FA-21.3).
+                  if (profile != null &&
+                      RulesFreshness.estimateNote(
+                            profile.taxProfile,
+                            DateTime.now().year,
+                          ) !=
+                          null) ...[
+                    const SizedBox(height: 8),
+                    NoticeBanner(
+                      key: const Key('levy-rules-outdated'),
+                      icon: Icons.update,
+                      message: RulesFreshness.estimateNote(
+                        profile.taxProfile,
+                        DateTime.now().year,
+                      )!,
+                    ),
+                  ],
                   const SizedBox(height: 16),
                   SectionCard(
                     title: 'Rücklage',

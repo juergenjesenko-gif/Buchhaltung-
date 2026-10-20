@@ -617,6 +617,13 @@ void main() {
           en.inputVatLegalRef,
         ].join(';'),
       );
+      // Regelstand (FA-21.1, docs/REGELPFLEGE.md).
+      String day(DateTime d) => d.toIso8601String().substring(0, 10);
+      expect(value('spec.$prefix.rules_as_of'), day(profile.rulesAsOf));
+      expect(
+        value('spec.$prefix.rules_valid_until'),
+        day(profile.rulesValidUntil),
+      );
       // Buchungsregeln (FA-20.3).
       final mu = profile.mixedUse;
       expect(

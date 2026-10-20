@@ -1,6 +1,6 @@
 # Spezifikation – Buchhaltung
 
-**Dokumentversion:** 1.94 · **App-Version:** 0.34.0 · **Stand:** 2026-10-20
+**Dokumentversion:** 1.95 · **App-Version:** 0.34.0 · **Stand:** 2026-10-20
 **Status:** Testbuild 0.21.0 (Schema 23); Store-Start offen, siehe Abschnitt 11 und 14
 
 > Das **Zielbild** des Produkts steht im [`LASTENHEFT.md`](LASTENHEFT.md); dieses
@@ -942,6 +942,21 @@ ersetzt keine individuelle Beratung“** (P-R65).
 | FA-20.7 | **Demo:** je eine Musterregel PKW 30 % (Fahrtenbuch, Autowerkstatt Muster) und Büro 15 % (12 m² von 80 m², Energie Muster) mit je einem Beleg (AT und DE) |
 | FA-20.8 | **KI-Chat (nicht gebaut, Lastenheft L-21 Stufe C):** Chat in der Hilfe über einen eigenen Server-Proxy zu Anthropic (Schlüssel nie in der App), Einwilligung, AVV, US-Transfer, keine Art.-9-Daten; erklärt Regeln, stellt Fragen und **schlägt** eine Buchungsregel und Aufgaben (z. B. Grundriss hochladen, Büro markieren, m² eingeben) **vor**, die die Nutzerin bestätigt; dokumentiert mit Gesprächsauszug. Positionierung: Eingangsinformation für die Steuerberatung, „bereitet das Gespräch mit der Steuerberatung vor und spart Zeit“ (P-R66) |
 
+### 5.17 Regelstand und Aktualisieren-Hinweis
+
+Entscheidung Auftraggeber 2026-10-20 (Lastenheft 14a). Code
+`lib/services/rules_freshness.dart`, Werte `TaxProfile.rulesAsOf`,
+`TaxProfile.rulesValidUntil`; Pflegeprozess und Checkliste aller Werte mit
+amtlicher Quelle, Veröffentlichungszeitpunkt, Codestelle und `spec.*`-Schlüssel
+in [`REGELPFLEGE.md`](REGELPFLEGE.md) (Grundlage der wöchentlichen
+Recherche-Routine). Offline, kein Server.
+
+| ID | Anforderung |
+|---|---|
+| FA-21.1 | **Regelstand je Land** im `TaxProfile` (AT, DE: Stand 01.01.2026, gültig bis 31.12.2026); Einstellungen zeigen „Steuerregeln: Stand 01.01.2026, gültig für 2026 (AT/DE)“ (gleiche Stände von Heimat und Registrierungen zusammengefasst) |
+| FA-21.2 | **Hinweis auf der Übersicht:** ist heute nach `rulesValidUntil` eines aktiven Profils (Heimat oder Registrierung), ein Band „Für <Jahr> gibt es neue Steuerwerte – bitte App aktualisieren.“ (einmal, nicht blockierend, ganze Fläche tippbar ≥ 48 dp) → Store-Seite (Android `https://play.google.com/store/apps/details?id=at.jenibarb.jenibucht`, iOS Platzhalter bis zur App-Store-ID, P-D57) |
+| FA-21.3 | **Rechnen läuft weiter:** Abgaben & Rücklagen und Kennzahlen eines Jahres nach dem Regelstand nutzen die letzten Werte und zeigen „Werte von <Jahr> – Schätzung unsicher“ |
+
 ## 6. Zustandsmodelle
 
 ### 6.1 Rechnung
@@ -1482,6 +1497,8 @@ spec.at.reverse_charge_kz = -,057,066
 spec.at.vat_return_kz = U30;000;200=022,130=006,100=029,49=124;016;060;095;cent;u30Xml
 spec.at.annual_return_kz = E1a;9040;9040;-;-
 spec.at.entertainment = 500;voll;nein;§ 20 Abs 1 Z 3 EStG;§ 12 Abs 2 Z 2 lit a UStG 1994
+spec.at.rules_as_of = 2026-01-01
+spec.at.rules_valid_until = 2026-12-31
 spec.at.mixed_use = 100;§ 4 Abs 1 und § 20 Abs 1 Z 1 EStG 1988;§ 12 Abs 2 Z 1 lit a UStG 1994
 spec.at.depreciation = halfYear;100000;ak;-;§ 7 Abs 3 EStG;computer=3,software=3,furniture=10,car=8min8,tools=5,other=5
 spec.at.deadline_rules = UVA@15+2m | ZM@0+1m | ESt-Vorauszahlung@02-15,05-15,08-15,11-15 | ESt-/USt-Erklärung (FinanzOnline)@+1j06-30 | SVS-Beitrag@02-00,05-00,08-00,11-00~ | OSS-Erklärung@0+1mq= | EU-KU-Meldung@0+1mq=
@@ -1528,6 +1545,8 @@ spec.de.reverse_charge_kz = 46,47,67
 spec.de.vat_return_kz = UStVA;-;190=81,70=86;-;66;83;euro;none
 spec.de.annual_return_kz = Anlage EÜR;112;111;140;185
 spec.de.entertainment = 700;voll;ja;§ 4 Abs 5 Satz 1 Nr. 2 EStG;§ 15 Abs 1a Satz 2 UStG
+spec.de.rules_as_of = 2026-01-01
+spec.de.rules_valid_until = 2026-12-31
 spec.de.mixed_use = 100;§ 4 Abs 4, § 12 Nr. 1 EStG;§ 15 Abs 1 Satz 2, Abs 4 UStG
 spec.de.depreciation = monthly;80000;netto;25001-100000;§ 4 Abs 3 Satz 5 EStG;computer=1,software=1,furniture=13,car=6,tools=5,other=5
 spec.de.deadline_rules = UStVA@10+1m+1x | ZM@25+1m | ESt-Vorauszahlung@03-10,06-10,09-10,12-10 | Steuererklärungen@+1j07-31 | OSS-Erklärung@0+1mq= | EU-KU-Meldung@0+1mq=
@@ -1566,6 +1585,9 @@ Bewirtung (`entertainment`, FA-2.60): abziehbarer Anteil in Promille;
 Vorsteuer `voll`; Anlass/Teilnehmer abfragen `ja`/`nein`; Fundstelle
 Ertragsteuer; Fundstelle Vorsteuer.
 
+Regelstand (`rules_as_of`, `rules_valid_until`, FA-21.1): Stichtag und letzter
+Gültigkeitstag der eingebauten Werte; Pflege nach `docs/REGELPFLEGE.md`.
+
 Gemischte Nutzung (`mixed_use`, FA-20.3): Mindestanteil betrieblich für den
 Vorsteuerabzug in Promille; Fundstelle Privatanteil; Fundstelle Vorsteuer.
 
@@ -1575,6 +1597,7 @@ Vorsteuerabzug in Promille; Fundstelle Privatanteil; Fundstelle Vorsteuer.
 
 | Version | Datum | App-Version | Änderung |
 |---|---|---|---|
+| 1.95 | 2026-10-20 | 0.34.0 | Entscheidungen Auftraggeber 2026-10-20: Buchungsregeln Pro entschieden (O-47); Regelstand je Land (neu 5.17, FA-21.1 bis FA-21.3), Aktualisieren-Hinweis auf der Übersicht, Kennzeichnung „Werte von <Jahr> – Schätzung unsicher“; neue Pflegedatei `REGELPFLEGE.md`. Kenndaten neu `spec.*.rules_as_of`, `spec.*.rules_valid_until` (12). Prüfpunkte P-D57, P-X30 (14). Kein Schemawechsel. |
 | 1.94 | 2026-10-20 | 0.34.0 | App-Version 0.34.0 (Testbuild). Buchungsregeln (Entscheidung Auftraggeber 2026-10-20, Lastenheft 14a): neuer Abschnitt 5.16 FA-20.1 bis FA-20.8, GR-17 (3), Schema 31 mit `booking_rules`, `booking_rule_attachments`, `booking_rule_log`, `booking_rule_exclusions` (4.1), Wirkung auf Gewinn und Vorsteuer (`PeriodTotals.rulePrivatePart`, `ruleInputVatRemoved`, `ruleVatAsExpense`), Karte an der Buchung mit Ausnahme, Abschnitt „Buchungsregeln und Angaben für die Steuerberatung“ in Saldenliste/Jahresabschluss und Paket (8.8), Bildschirme (7), Hilfeartikel mit „Regel anlegen“, Demo-Musterregeln (`spec.demo_receipt_count` 30, `spec.demo_de_receipt_count` 17); Tarif Pro (O-47); KI-Chat als Lastenheft Stufe C beschrieben, nicht gebaut (FA-20.8). Kenndaten `spec.schema_version` 31, neu `spec.*.mixed_use` (12). Prüfpunkte P-S88 bis P-S90, P-R65, P-R66, P-X29, interne Prüfung 2026-10-20 Buchungsregeln (14). Prüfmappen neu erzeugt. |
 | 1.93 | 2026-10-19 | 0.33.0 | Endgültiges Logo (Lastenheft 14a): FA-1.13 Willkommensseite mit Hauptlogo hell/dunkel; App-Symbol (Android klassisch, adaptiv, Android-13-Monochrom; iOS-Satz; Startbildschirm Hellblau bzw. Marineblau im Dunkelmodus) aus Vektor-Rekonstruktion; Farbschema Seed Marineblau #0B3A67, Primärfarbe hell exakt Marineblau, Container Hellblau #EAF2FF. P-R63 um den neuen Werbetext ohne „statt“-Preis ergänzt. Prüfinstanzen: UX (Logo 280 dp, Dunkelmodus helle Linien statt Karte, passt auf 360 × 740 ohne Scrollen), Softwareentwickler (Symbolgrößen, sichere Zone, iOS 1024 ohne Alpha), Rechtsanwalt (Werbetext ohne Vergleichspreis, Nutzungsrechte Logo), Steuerberater (nicht betroffen). Kein Schemawechsel. |
 | 1.92 | 2026-10-19 | 0.32.0 | Entscheidungen Auftraggeber 2026-10-19 (Lastenheft 14a): O-44 E-Rechnung ausstellen ab Basis (FA-13.2, Zustellung in Basis über Teilen-Blatt, Senden mit einem Tipp bleibt Pro); O-45 Apple Variante A plus Codes (14 Tage gratis auf iOS, Preis erstes Jahr nur per Angebotscode `JENIBUCHTSTART`), O-46 Pro-Code `JENIBUCHT20PRO` parallel (FA-13.16, Kenndatum `spec.license_promo_code_discount_pro`). Prüfinstanzen: Steuerberater (Pflicht § 27 Abs. 38 UStG, ohne Befund), Rechtsanwalt (Preisangabe iOS ohne Jahrespreis, P-R62/P-R63 bleiben), Softwareentwickler (Store-Mechanik, ohne Befund), UX (keine neue Bedienung). Kein Schemawechsel. |
@@ -1829,6 +1852,7 @@ erzeugt `beispiele_erzeugen_test.dart` mit dem PDF-Generator der App.
 | P-X26 | Einhandtest PDF-Betrachter (FA-5.48) auf Pixel 10 und iPhone: Rechnung ansehen, mit dem Daumen wischen und zoomen, Drucken/Senden/Schließen unten 56 dp ohne Fehltipp; Demo: Wasserzeichen lesbar, Demo-Blatt bei Drucken/Senden; Willkommensseite (FA-1.13) ohne Scrollen auf 360 × 740 dp mit Systemschrift und großer Schrift | Widget-Test mit Ersatzbild und Work Sans 360 × 740 / 412 × 915 dp | Release | offen |
 | P-X27 | Einhandtest Rückmeldung 0.30.0 auf Pixel 10 und iPhone: Übersicht scrollen – Aufnahmeleiste gleitet weg, kommt nach 5 s und ganz oben sofort zurück, kein Verschwinden während eines Tipps, TalkBack/VoiceOver: Leiste bleibt (FA-12.1); PDF im dunklen Modus mit weißem Papier und Originalfarben (FA-5.48); Willkommensseite jede Funktionszeile einzeilig mit Systemschrift (FA-1.13); „Dieses Gerät ist ein Mithelfer-Gerät (koppeln)“ in Schritt 2 gut erreichbar, kein Fehltipp; Demo-Landeswahl mit einem Tipp (FA-13.14) | Widget-Tests `scroll_auto_hide_test.dart`, `pdf_viewer_test.dart`, `welcome_page_test.dart` (Textbreite gemessen), `demo_test.dart` | Release | offen |
 | P-X29 | Einhandtest Buchungsregeln (FA-20.x) auf Pixel 10 und iPhone: Hilfeartikel PKW → „Regel anlegen“ → km ändern (Tastatur verdeckt das Anteilsfeld nicht) → Speichern; Foto Grundriss anhängen mit Notiz; Beleg Kfz-Kosten öffnen, Karte „Regel: PKW 30 % betrieblich“ tippen, Schalter „Diese Buchung ausnehmen“ mit dem Daumen; Kategorie-Chips 48 dp | Widget- und Einheitentests `booking_rules_test.dart` | Release | offen |
+| P-X30 | Regelstand (FA-21.x) auf Pixel 10 und iPhone: Gerätedatum auf 2.1.2027 stellen, Band „Für 2027 gibt es neue Steuerwerte …“ erscheint einmal, Tippen öffnet die Store-Seite (Play Store-App bzw. App Store), Übersicht bleibt bedienbar; Abgaben zeigen „Werte von 2026 – Schätzung unsicher“ | `rules_freshness_test.dart` | Release | offen |
 | P-X28 | Einhandtest E-Rechnung (FA-5.49) auf Pixel 10 und iPhone: Kundin auf XRechnung stellen (ganze Zeile 56 dp, Leitweg-ID-Feld erscheint, Tastatur verdeckt nichts), Rechnung ansehen, Hinweiszeile lesbar, „XML senden“ öffnet das Teilen-Blatt mit `XRechnung_<Nr>.xml`; ZUGFeRD-PDF per Mail an sich selbst, in einem E-Rechnungs-Viewer (z. B. Mustang, ELSTER-Viewer, e-Rechnung.gv.at-Prüfung) öffnen | Widget-Tests `one_hand_test.dart`, `pdf_viewer_test.dart` | Release | offen |
 
 ### Softwareentwicklung (echte Geräte und Stores)
@@ -2033,6 +2057,7 @@ erzeugt `beispiele_erzeugen_test.dart` mit dem PDF-Generator der App.
 | P-D53 | Paket „Für Kapitalgesellschaft / doppelte Buchführung“ auf echtem Gerät: Größe des ZIP mit vielen Belegbildern (Speicher, Teilen per Mail-Limit), Öffnen am PC | Widget-/Unit-Test ohne Bilder | Release | offen |
 | P-D54 | Paket `printing` 5.15 im Release-Build: Android mit R8 (Rasterung über `PdfRenderer`, Druck über Print Framework; keine eigene Keep-Regel nötig, Plugin-Klasse über den Plugin-Registrant), iOS-Pods-Build (Podspec ab iOS 8, App ab iOS 15; PDFKit/UIPrintInteractionController); Drucken auf echtem Drucker und „Als PDF speichern“, mehrseitige Rechnung, Speicher bei 10 Seiten | nur Unit-/Widget-Test; CI baut | Release | offen |
 | P-D55 | Store-Phasen am Gerät (FA-13.16): iPhone (O-45) Sandbox sieht „14 Tage gratis, danach 12,90 €/Monat“ ohne Jahrespreis, `JENIBUCHTSTART` im Einlöseblatt gibt 6,90 €/Monat für 12 Monate, `JENIBUCHT20PRO` 103,20 € fürs erste Pro-Jahr; Android Testkonto sieht „14 Tage gratis, dann 6,90 €/Monat im ersten Jahr, danach 12,90 €/Monat“ für `basis_monat`, Jahresabo „69 €/Jahr im ersten Jahr, danach 129 €/Jahr“; ein Konto mit früherem Abo sieht nur den Grundpreis; `JENIBUCHT20` im Promo-Feld zeigt das Rabattangebot und kauft es; ob ein Google-Promo-Code (`JENIBUCHT2M`) auf einem Angebot mit Gratis- **und** Rabattphase die Rabattphase behält (Google ersetzt nur die Testdauer?); iOS: Einführungsangebot laut gewählter Variante O-45 erscheint auf der Abo-Seite und im Kaufblatt, Angebotscode `JENIBUCHT20` (Pay up front 1 Jahr) | Text mit Unit-Test, Store-Werte nur am Gerät | vor Store-Start | offen |
+| P-D57 | App-Store-ID für den Aktualisieren-Hinweis (FA-21.2, `RulesFreshness.iosStoreUrl`) nach der Freigabe eintragen; Android-Link öffnet die Play-Store-App statt des Browsers? | Platzhalter `id0000000000` | Store-Start iOS | offen |
 | P-D56 | E-Rechnung-Validierung (FA-5.49): KoSIT-Validator mit XRechnung-3.0-Konfiguration und Mustang/veraPDF in der CI (heute nur intern mit Mustang 2.26 geprüft, Tests prüfen XSD und Rundreise); ebInterface 6.1 gegen die Geschäftsregeln von e-Rechnung.gv.at (Upload-Test im USP); ZUGFeRD-PDF aus dem Release-Build (echte Schrift, Logo) erneut mit veraPDF | nur intern | Release | offen |
 | P-S65 | Belegbilder vom Mithelfer-Gerät (FA-17.3): aufgenommen auf einem fremden Gerät, dort nach dem Senden gelöscht, auf dem Hauptgerät unverändert gespeichert – genügt das den Aufbewahrungs- und Ordnungsvorschriften (§ 132 BAO, § 147 AO, GoBD Rz 136 ff. ersetzendes Scannen) und wie in die Verfahrensdokumentation aufnehmen? | Steuerberater intern: Original (Papier) bleibt beim Betrieb bis zur Entscheidung über ersetzendes Scannen; Bild unverändert übernommen, Herkunft „von ‹Gerät›“ in der Notiz, mittel | Release | offen |
 | P-S67 | Verschlüsselte Kopie der Belege auf dem Mithelfer-Gerät bis zur Aufbewahrungsfrist (Standard 90 Tage) und Belegmails im Postfach der Geschäftsadresse: Teil der Aufbewahrung nach § 132 BAO / § 147 AO oder nur Transport? Muss die Verfahrensdokumentation den Mailweg nennen? | Steuerberater intern: nur Transport, maßgeblich ist der gebuchte Beleg auf dem Hauptgerät (und Papier bis P-S65), Mailweg in der Verfahrensdokumentation nennen, mittel | Release | offen |

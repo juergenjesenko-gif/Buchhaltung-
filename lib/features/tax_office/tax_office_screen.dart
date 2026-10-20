@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../services/rules_freshness.dart';
 import 'package:flutter/services.dart';
 
 import '../../app_state.dart';
@@ -411,6 +412,15 @@ class _TaxOfficeScreenState extends State<TaxOfficeScreen> {
                 ],
                 const SizedBox(height: 16),
                 _StepsCard(form: form),
+              ],
+              // Regelstand abgelaufen (FA-21.3).
+              if (RulesFreshness.estimateNote(tax, _year) != null) ...[
+                const SizedBox(height: 16),
+                NoticeBanner(
+                  key: const Key('tax-office-rules-outdated'),
+                  icon: Icons.update,
+                  message: RulesFreshness.estimateNote(tax, _year)!,
+                ),
               ],
               const SizedBox(height: 16),
               SectionCard(

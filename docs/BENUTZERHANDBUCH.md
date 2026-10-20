@@ -1297,6 +1297,10 @@ deine Kanzlei ordnet den Stapel beim Import selbst zu.
 
 Übersicht → Zahnrad.
 
+**Steuerregeln** – in den Stammdaten steht, welchen Stand die eingebauten
+Steuerwerte haben, z. B. „Steuerregeln: Stand 01.01.2026, gültig für 2026
+(AT/DE)“. **Buchungsregeln** – Privatanteile, siehe Kapitel 18.
+
 **Stammdaten** – dein Firmenprofil ändern. Unten im Abschnitt
 **Wirtschaftsjahr und Termine**:
 
@@ -1631,6 +1635,13 @@ deiner Steuerberatung.
 ---
 
 ## 13. Wenn etwas nicht geht
+
+**„Für 2027 gibt es neue Steuerwerte – bitte App aktualisieren.“** — die
+eingebauten Steuerwerte (Tarife, Grenzen, Beiträge) gelten bis Jahresende;
+für das neue Jahr bringt ein App-Update die neuen Werte. Tippen öffnet die
+Store-Seite. Bis dahin rechnet die App mit den Werten des Vorjahres weiter und
+schreibt bei Abgaben und Kennzahlen „Werte von 2026 – Schätzung unsicher“.
+Welchen Stand die App hat, steht in den Einstellungen unter **Steuerregeln**.
 
 **„In der Demo wird nichts gespeichert. Mit einem Abo wäre das jetzt
 gebucht.“** — du bist in der Demo mit der Musterfirma. Weiter ansehen, oder

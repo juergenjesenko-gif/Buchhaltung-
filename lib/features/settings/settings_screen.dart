@@ -3,6 +3,7 @@ import '../licensing/subscription_screen.dart';
 import 'feedback_screen.dart';
 import '../helper/helper_devices_screen.dart';
 import 'legal_screen.dart';
+import '../../services/rules_freshness.dart';
 import '../booking_rules/booking_rules_screen.dart';
 import 'package:flutter/material.dart';
 import '../helper/helper_help_sheet.dart';
@@ -172,6 +173,19 @@ class SettingsScreen extends StatelessWidget {
                       ),
                     ),
                   ),
+                  // Regelstand (FA-21.1).
+                  if (profile != null)
+                    ListTile(
+                      key: const Key('settings-rules-status'),
+                      contentPadding: EdgeInsets.zero,
+                      leading: const Icon(Icons.verified_outlined),
+                      title: Text(
+                        RulesFreshness.settingsLine([
+                          profile.taxProfile,
+                          for (final r in state.registrations) r.taxProfile,
+                        ]),
+                      ),
+                    ),
                   const _HomeShortcutTile(),
                 ],
               ),

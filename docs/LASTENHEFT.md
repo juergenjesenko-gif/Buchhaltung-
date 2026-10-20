@@ -1537,6 +1537,7 @@ Historie stehen. Die Einzelheiten stehen an der genannten Stelle.
 | 2026-10-20 | **Buchungsregeln jetzt bauen** (0.34.0): manuelle Regeln für gemischt genutzte Ausgaben (Privatanteil / betrieblicher Anteil, Geltungsbereich, Anteil in Promille, Grundlage mit Zahlen, Gültigkeit, Begründung, Anhänge, Verlauf), Wirkung auf E/A und Vorsteuer, Ausnahme je Buchung, Abschnitt im Bericht, Hilfeartikel PKW und Büro mit „Regel anlegen“, Demo-Musterregeln | Spez. 5.16, FA-20.1–20.7 |
 | 2026-10-20 | **KI-Chat** als Stufe C zu L-21: schlägt Regel und Aufgaben vor, Nutzerin bestätigt; Eingangsinformation für die Steuerberatung, Wortlaut „bereitet das Gespräch vor und spart Zeit“ | L-21.13, FA-20.8, P-R66 |
 | 2026-10-20 | Buchungsregeln Tarif **Pro** | O-47 |
+| 2026-10-20 | **Regelstand:** jedes Länderprofil trägt Stand und Gültigkeit (AT/DE 01.01.–31.12.2026); Einstellungen zeigen ihn; nach Ablauf offline Hinweis „Für <Jahr> gibt es neue Steuerwerte – bitte App aktualisieren.“ mit Store-Link, Rechnen läuft mit „Werte von <Jahr> – Schätzung unsicher“ weiter; Checkliste `REGELPFLEGE.md` für die wöchentliche Recherche-Routine | Spez. 5.17, FA-21.1–21.3 |
 
 ---
 
@@ -1546,7 +1547,7 @@ Historie stehen. Die Einzelheiten stehen an der genannten Stelle.
 
 | Version | Datum | Änderung |
 |---|---|---|
-| 1.89 | 2026-10-20 | Entscheidungen Auftraggeber 2026-10-20 (14a): Buchungsregeln gebaut (Spez. 5.16), KI-Chat als L-21.13 (Stufe C), O-47 Buchungsregeln Pro. |
+| 1.89 | 2026-10-20 | Entscheidungen Auftraggeber 2026-10-20 (14a): Buchungsregeln gebaut (Spez. 5.16), KI-Chat als L-21.13 (Stufe C), O-47 Buchungsregeln Pro, Regelstand mit Aktualisieren-Hinweis und `REGELPFLEGE.md` (Spez. 5.17). |
 | 1.88 | 2026-10-19 | 14a: Logo endgültig (DESIGN_SPEC 10a), Instagram-Text zum 20-%-Code ohne „statt“-Preis. |
 | 1.87 | 2026-10-19 | Entscheidungen Auftraggeber 2026-10-19 (14a): O-44 (E-Rechnung ausstellen ab Basis), O-45 (Apple Variante A plus Codes), O-46 (Pro-Code `JENIBUCHT20PRO`, parallel) erledigt. |
 | 1.86 | 2026-10-19 | E-Rechnung erstellen umgesetzt (L-4.1, L-4.2, 0.32.0); Datenfluss „Rechnungsversand“ um ZUGFeRD-PDF und XML ergänzt (5.19); neu O-44 (Tarif für E-Rechnung ausstellen). |

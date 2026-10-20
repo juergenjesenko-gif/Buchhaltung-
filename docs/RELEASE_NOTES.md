@@ -44,11 +44,11 @@ nächsten Versionssprung in den neuen Eintrag.
 | Art | Testbuild (ungezippte arm64-APK `JeNi-bucht-0.34.0-build-<Nr>.apk`, fester Testschlüssel); **Lizenzprüfung aus** (ohne `LICENSING=true`), alle Funktionen frei |
 | Commit | `HASH` |
 | Branch | `claude/agile-accounting-app-mobile-wa5j3h` |
-| Dokumentstände | Lastenheft 1.89, Spezifikation 1.94, Benutzerhandbuch für 0.34.0, DESIGN_SPEC 1.7 |
+| Dokumentstände | Lastenheft 1.89, Spezifikation 1.95, REGELPFLEGE 2026-10-20, Benutzerhandbuch für 0.34.0, DESIGN_SPEC 1.7 |
 | Datenbankschema | 31 |
-| Prüfung | `flutter analyze` ohne Befund, alle Tests grün (neu `booking_rules_test.dart`: Anteil aus km/m², Rundung exakt, Vorsteuer AT/DE/KU, 10-%-Grenze, Geltungsbereich, Gültigkeit, Ausnahme, Verlauf unveränderlich, Bericht/CSV/PDF). Android/iOS-Build nur in der CI |
-| Steuerliche Kennwerte | neu `spec.at.mixed_use`, `spec.de.mixed_use` (10 % Mindestnutzung für Vorsteuer) |
-| Offene reale Prüfpunkte | neu P-S88, P-S89, P-S90, P-R65, P-R66, P-X29 |
+| Prüfung | `flutter analyze` ohne Befund, alle Tests grün (neu `booking_rules_test.dart`: Anteil aus km/m², Rundung exakt, Vorsteuer AT/DE/KU, 10-%-Grenze, Geltungsbereich, Gültigkeit, Ausnahme, Verlauf unveränderlich, Bericht/CSV/PDF; `rules_freshness_test.dart`: Ablauf, Hinweistext, Schätzungsvermerk, Einstellungszeile). Android/iOS-Build nur in der CI |
+| Steuerliche Kennwerte | neu `spec.at.mixed_use`, `spec.de.mixed_use` (10 % Mindestnutzung für Vorsteuer), `spec.*.rules_as_of` 2026-01-01, `spec.*.rules_valid_until` 2026-12-31 |
+| Offene reale Prüfpunkte | neu P-S88, P-S89, P-S90, P-R65, P-R66, P-X29, P-X30, P-D57 |
 | Bekannte Grenzen | neu „Buchungsregeln nur als Kostenaufteilung“ (Spezifikation 11) |
 
 **Änderungen seit 0.33.0+46**
@@ -62,6 +62,8 @@ nächsten Versionssprung in den neuen Eintrag.
 | Neu | Abschnitt „Buchungsregeln und Angaben für die Steuerberatung“ in Saldenliste, Jahresabschluss, Paket (`Buchungsregeln.csv`, Anhänge) | FA-20.5 | `HASH` |
 | Neu | Hilfeartikel „Privat-PKW teilweise betrieblich“ und „Büro in der eigenen Wohnung“ mit „Regel anlegen“; Demo-Musterregeln | FA-20.6, FA-20.7 | `HASH` |
 | Doku | KI-Chat als Stufe C (L-21.13), Tarif Pro (O-47) | FA-20.8 | `HASH` |
+| Neu | Regelstand je Land in den Einstellungen; Hinweis „Für <Jahr> gibt es neue Steuerwerte – bitte App aktualisieren.“ mit Store-Link; „Werte von <Jahr> – Schätzung unsicher“ bei Abgaben und Kennzahlen | FA-21.1–FA-21.3 | `HASH2` |
+| Doku | `docs/REGELPFLEGE.md`: Checkliste aller Steuerwerte mit Quelle, Termin, Codestelle, `spec.*` | FA-21.1 | `HASH2` |
 
 ---
 

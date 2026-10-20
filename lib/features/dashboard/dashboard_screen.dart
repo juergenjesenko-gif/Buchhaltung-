@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../../services/rules_freshness.dart';
+import '../../services/launcher/open_url.dart';
 import '../../app_state.dart';
 import '../../core/formatting.dart';
 import '../../data/repositories.dart';
@@ -213,6 +215,29 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 const SizedBox(height: 16),
               ],
 
+              // Regelstand abgelaufen (FA-21.2): ein Hinweis, nicht
+              // blockierend; Tippen öffnet die Store-Seite.
+              if (profile != null &&
+                  RulesFreshness.outdatedYear([
+                        profile.taxProfile,
+                        for (final r in state.registrations) r.taxProfile,
+                      ], DateTime.now()) !=
+                      null) ...[
+                NoticeBanner(
+                  key: const Key('rules-outdated-banner'),
+                  icon: Icons.system_update_outlined,
+                  color: AppTheme.warning,
+                  message: RulesFreshness.bannerText(DateTime.now().year),
+                  onTap: () => openInBrowser(
+                    Uri.parse(
+                      Theme.of(context).platform == TargetPlatform.iOS
+                          ? RulesFreshness.iosStoreUrl
+                          : RulesFreshness.androidStoreUrl,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 16),
+              ],
               if (state.autoBackupError != null) ...[
                 NoticeBanner(
                   icon: Icons.cloud_off_outlined,
