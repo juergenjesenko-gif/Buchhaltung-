@@ -34,6 +34,7 @@ nächsten Versionssprung in den neuen Eintrag.
 
 | Art | Änderung | Bezug | Commit |
 |---|---|---|---|
+| Behoben | Tastatur schließt bei Tippen neben ein Eingabefeld (iOS-Ziffernblock ohne Fertig-Taste) | SPEC 7 | `XXXXXXX` |
 | Geändert | Ersteinrichtung: Umsatz des laufenden Jahres optional (leer = 0, Hinweis zum Nachbuchen) | FA-1.8 | `03ff86e` |
 | Geändert | Willkommensseite: Titel über dem Logo, mehr Abstand vor den Funktionszeilen | FA-1.13 | `03ff86e` |
 | Behoben | Release-Workflow iOS: Archiv unsigniert, Signierung beim Export | RELEASE_PLAYBOOK | `44b7a30` |

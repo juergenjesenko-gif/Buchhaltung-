@@ -106,8 +106,14 @@ class BuchhaltungApp extends StatelessWidget {
         locale: const Locale('de'),
         navigatorKey: appNavigatorKey,
         home: const _Root(),
-        builder: (context, child) => AppLockGate(
-          child: DemoFrame(navigator: appNavigatorKey, child: child!),
+        // Tippen neben ein Eingabefeld schließt die Tastatur: Der iOS-
+        // Ziffernblock hat keine Fertig-Taste (Gerätetest 2026-10-20).
+        builder: (context, child) => GestureDetector(
+          behavior: HitTestBehavior.translucent,
+          onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
+          child: AppLockGate(
+            child: DemoFrame(navigator: appNavigatorKey, child: child!),
+          ),
         ),
       ),
     );

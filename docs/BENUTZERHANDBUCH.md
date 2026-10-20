@@ -155,6 +155,8 @@ hattest du da noch keinen Umsatz, trag ausdrücklich **0** ein. Den Umsatz
 dieses Jahres kannst du leer lassen: Buch dann die Belege seit 1. Jänner
 nach, damit Umsatz und Grenze stimmen.
 
+**Tastatur ausblenden:** Tipp einfach auf eine freie Stelle neben dem Feld.
+
 **Rechnungen**
 - **Muster der Rechnungsnummer** – Standard ist `RE-{YYYY}-{NNNN}`, das ergibt
   `RE-2026-0001`. Mehr dazu in [Abschnitt 7](#7-rechnungen-schreiben).
