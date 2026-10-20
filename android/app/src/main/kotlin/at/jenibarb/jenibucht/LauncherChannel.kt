@@ -70,10 +70,17 @@ class LauncherChannel(private val context: Context, messenger: BinaryMessenger) 
                         result.success(false)
                     }
                 }
-                "appVersion" ->
-                    result.success(
-                        context.packageManager.getPackageInfo(context.packageName, 0).versionName
-                    )
+                // Version mit Buildnummer, z. B. „0.35.0 (16)“: Nachverfolgbarkeit.
+                "appVersion" -> {
+                    val info = context.packageManager.getPackageInfo(context.packageName, 0)
+                    val build = if (android.os.Build.VERSION.SDK_INT >= 28) {
+                        info.longVersionCode
+                    } else {
+                        @Suppress("DEPRECATION")
+                        info.versionCode.toLong()
+                    }
+                    result.success("${info.versionName} ($build)")
+                }
                 // Wunsch senden (FA-11.6): nur Systemversion und Modell, keine Kennung.
                 "deviceInfo" ->
                     result.success(

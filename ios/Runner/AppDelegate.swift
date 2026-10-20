@@ -67,7 +67,11 @@ import workmanager_apple
       launcher?.setMethodCallHandler { call, result in
         switch call.method {
         case "appVersion":
-          result(Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String)
+          // Version mit Buildnummer, z. B. „0.35.0 (16)“: Nachverfolgbarkeit.
+          let info = Bundle.main.infoDictionary
+          let short = info?["CFBundleShortVersionString"] as? String ?? "?"
+          let build = info?["CFBundleVersion"] as? String ?? "?"
+          result("\(short) (\(build))")
         case "deviceInfo":
           // Wunsch senden (FA-11.6): nur Systemversion und Modellkennung.
           var sys = utsname()

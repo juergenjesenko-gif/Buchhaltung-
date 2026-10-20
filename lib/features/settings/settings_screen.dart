@@ -3,6 +3,7 @@ import '../licensing/subscription_screen.dart';
 import 'feedback_screen.dart';
 import '../helper/helper_devices_screen.dart';
 import 'legal_screen.dart';
+import '../../services/help/support_mail.dart';
 import '../../services/rules_freshness.dart';
 import '../booking_rules/booking_rules_screen.dart';
 import 'package:flutter/material.dart';
@@ -337,6 +338,7 @@ class SettingsScreen extends StatelessWidget {
                 ),
               ),
             ),
+            const _AppVersionLine(),
           ],
         ),
       ),
@@ -361,6 +363,32 @@ class SettingsScreen extends StatelessWidget {
           Expanded(flex: 2, child: Text(value, textAlign: TextAlign.right)),
         ],
       ),
+    );
+  }
+}
+
+/// „JeNi bucht · Version 0.35.0 (16)“ am Ende der Einstellungen
+/// (Nachverfolgbarkeit, FA-11.8). Ohne Plattform (Tests) unsichtbar.
+class _AppVersionLine extends StatelessWidget {
+  const _AppVersionLine();
+
+  @override
+  Widget build(BuildContext context) {
+    return FutureBuilder<String?>(
+      future: const SupportMailLauncher().appVersion(),
+      builder: (context, snapshot) {
+        final version = snapshot.data;
+        if (version == null) return const SizedBox.shrink();
+        return Padding(
+          padding: const EdgeInsets.only(top: 16),
+          child: Text(
+            'JeNi bucht · Version $version',
+            key: const Key('settings-app-version'),
+            textAlign: TextAlign.center,
+            style: Theme.of(context).textTheme.bodySmall,
+          ),
+        );
+      },
     );
   }
 }

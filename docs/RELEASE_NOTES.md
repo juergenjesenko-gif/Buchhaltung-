@@ -29,11 +29,33 @@ gebaut, und was war darin geprüft?*
 
 ## Unveröffentlicht
 
-Änderungen seit 0.34.0+47, die noch in keinem Build stecken. Wandern beim
+Änderungen seit 0.35.0+48, die noch in keinem Build stecken. Wandern beim
 nächsten Versionssprung in den neuen Eintrag.
 
 | Art | Änderung | Bezug | Commit |
 |---|---|---|---|
+
+---
+
+## 0.35.0+48 — 2026-10-20
+
+| Feld | Wert |
+|---|---|
+| Art | Interner Test (TestFlight, Google Play interner Track) über `release.yml`; Buildnummer = Laufnummer der CI; **Lizenzprüfung aus** (ohne Eingabe `abo`), alle Funktionen frei |
+| Commit | `XXXXXXX` |
+| Branch | `claude/agile-accounting-app-mobile-wa5j3h` |
+| Dokumentstände | Lastenheft 1.89, Spezifikation 1.96, REGELPFLEGE 2026-10-20, Benutzerhandbuch für 0.35.0, DESIGN_SPEC 1.7 |
+| Datenbankschema | 31 |
+| Prüfung | `flutter analyze` ohne Befund, alle Tests grün; Android/iOS-Build nur in der CI |
+| Steuerliche Kennwerte | unverändert |
+| Offene reale Prüfpunkte | neu P-D58 |
+| Bekannte Grenzen | unverändert (Spezifikation 11) |
+
+**Änderungen seit 0.34.0+47**
+
+| Art | Änderung | Bezug | Commit |
+|---|---|---|---|
+| Neu | Versionsanzeige mit Buildnummer am Ende der Einstellungen und in Support-Mails | FA-11.8 | `XXXXXXX` |
 | Geändert | Sicherung von Hand mit 8-stelligem Zahlencode statt Kennwort | FA-7.2 | `4233656` |
 | Geändert | Automatische Sicherung: Abtippen von zwei Blöcken entfällt | FA-7.10 | `4233656` |
 | Geändert | Release-Builds ohne Lizenzprüfung, außer mit Eingabe `abo` (Tester sehen Pro) | FA-13.10 | `4233656` |
