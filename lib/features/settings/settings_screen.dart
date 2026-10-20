@@ -97,7 +97,6 @@ class SettingsScreen extends StatelessWidget {
                       ),
                     ),
                   ),
-                  const _HomeShortcutTile(),
                   ListTile(
                     key: const Key('settings-contracts'),
                     contentPadding: EdgeInsets.zero,
@@ -158,6 +157,7 @@ class SettingsScreen extends StatelessWidget {
                       ),
                     ),
                   ),
+                  const _HomeShortcutTile(),
                 ],
               ),
             ),

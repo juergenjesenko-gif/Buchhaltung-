@@ -34,6 +34,7 @@ nächsten Versionssprung in den neuen Eintrag.
 
 | Art | Änderung | Bezug | Commit |
 |---|---|---|---|
+| Geändert | Einstellungen: „Symbol auf Startbildschirm legen“ an das Ende der Stammdaten-Liste | FA-1.19 | folgt |
 | Geändert | Rechnungs-, Storno- und Mahnungs-PDF in Markenfarbe Marineblau #0B3A67 statt #1B4965 | DESIGN_SPEC 9 | `b5ebe1f` |
 
 ---
