@@ -34,6 +34,7 @@ nächsten Versionssprung in den neuen Eintrag.
 
 | Art | Änderung | Bezug | Commit |
 |---|---|---|---|
+| Behoben | Release-Workflow iOS: Konfiguration mit --no-codesign, Signierung allein über xcodebuild und App-Store-Connect-Schlüssel | RELEASE_PLAYBOOK | folgt |
 
 ---
 
