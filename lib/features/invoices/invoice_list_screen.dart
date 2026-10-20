@@ -564,12 +564,7 @@ class _InvoiceListScreenState extends State<InvoiceListScreen> {
           ),
         ],
       ),
-      body: Column(
-        children: [
-          _CatalogShortcuts(onReturn: _load),
-          Expanded(child: _body()),
-        ],
-      ),
+      body: _body(),
       // Zentriert und beschriftet, mit beiden Daumen erreichbar
       // (DESIGN_SPEC 5a, Regel 1 und 9).
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
@@ -587,78 +582,98 @@ class _InvoiceListScreenState extends State<InvoiceListScreen> {
     return _loading
         ? const Center(child: CircularProgressIndicator())
         : _invoices.isEmpty
-        ? EmptyState(
-            icon: Icons.description_outlined,
-            title: 'Keine Rechnungen',
-            message:
-                'Schreibe deine erste Rechnung – die Pflichtangaben '
-                'prüft die App für dich mit.',
-            action: FilledButton.icon(
-              onPressed: () => _openEditor(),
-              icon: const Icon(Icons.add),
-              label: const Text('Rechnung schreiben'),
-            ),
+        ? Column(
+            children: [
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
+                child: _CatalogShortcuts(onReturn: _load),
+              ),
+              Expanded(child: _empty()),
+            ],
           )
+        // Angebote/Artikel scrollen mit, quer bliebe sonst kaum Platz
+        // (Gerätetest 2026-10-20, FA-9.6).
         : RefreshIndicator(
             onRefresh: _load,
             child: ListView(
-              padding: const EdgeInsets.fromLTRB(16, 12, 16, 96),
+              padding: const EdgeInsets.fromLTRB(16, 8, 16, 96),
               children: [
-                if (!_openAmount.isZero) ...[
-                  SectionCard(
-                    title: 'Offen',
-                    child: LabeledValue(
-                      label: 'Gestellt und noch nicht bezahlt',
-                      value: Fmt.money(_openAmount),
-                      emphasize: true,
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                ],
-                if (_overdue.isNotEmpty) ...[
-                  NoticeBanner(
-                    key: const Key('overdueBanner'),
-                    icon: Icons.notification_important_outlined,
-                    color: AppTheme.expense,
-                    message: _overdue.length == 1
-                        ? '1 Rechnung überfällig – mahnen?'
-                        : '${_overdue.length} Rechnungen überfällig – mahnen?',
-                    onTap: () => _remind(_overdue.first),
-                  ),
-                  const SizedBox(height: 16),
-                ],
-                for (final invoice in _invoices)
-                  Padding(
-                    padding: const EdgeInsets.only(bottom: 10),
-                    child: _InvoiceTile(
-                      invoice: invoice,
-                      customer: _customers[invoice.customerId],
-                      onTap: () => _openEditor(invoice),
-                      onShare: () => _sharePdf(invoice),
-                      onMarkPaid: invoice.status == InvoiceStatus.issued
-                          ? () => _setStatus(invoice, InvoiceStatus.paid)
-                          : null,
-                      dunning: _dunning[invoice.id],
-                      overdue: _needsReminder(invoice),
-                      onDunningHistory: () => _showDunningHistory(invoice),
-                      onRemind: _needsReminder(invoice)
-                          ? () => _remind(invoice)
-                          : null,
-                      onCancel: invoice.status.canBeCancelled
-                          ? () => _cancelInvoice(invoice)
-                          : null,
-                      onCorrect: invoice.status.canBeCancelled
-                          ? () => _cancelInvoice(invoice, correct: true)
-                          : null,
-                      relatedNumber: _relatedNumber(invoice),
-                      onDelete: invoice.status == InvoiceStatus.draft
-                          ? () => _deleteDraft(invoice)
-                          : null,
-                    ),
-                  ),
+                _CatalogShortcuts(onReturn: _load),
+                const SizedBox(height: 12),
+                ..._listItems(),
               ],
             ),
           );
+  }
+
+  Widget _empty() {
+    return EmptyState(
+      icon: Icons.description_outlined,
+      title: 'Keine Rechnungen',
+      message:
+          'Schreibe deine erste Rechnung – die Pflichtangaben '
+          'prüft die App für dich mit.',
+      action: FilledButton.icon(
+        onPressed: () => _openEditor(),
+        icon: const Icon(Icons.add),
+        label: const Text('Rechnung schreiben'),
+      ),
+    );
+  }
+
+  List<Widget> _listItems() {
+    return [
+      if (!_openAmount.isZero) ...[
+        SectionCard(
+          title: 'Offen',
+          child: LabeledValue(
+            label: 'Gestellt und noch nicht bezahlt',
+            value: Fmt.money(_openAmount),
+            emphasize: true,
+          ),
+        ),
+        const SizedBox(height: 16),
+      ],
+      if (_overdue.isNotEmpty) ...[
+        NoticeBanner(
+          key: const Key('overdueBanner'),
+          icon: Icons.notification_important_outlined,
+          color: AppTheme.expense,
+          message: _overdue.length == 1
+              ? '1 Rechnung überfällig – mahnen?'
+              : '${_overdue.length} Rechnungen überfällig – mahnen?',
+          onTap: () => _remind(_overdue.first),
+        ),
+        const SizedBox(height: 16),
+      ],
+      for (final invoice in _invoices)
+        Padding(
+          padding: const EdgeInsets.only(bottom: 10),
+          child: _InvoiceTile(
+            invoice: invoice,
+            customer: _customers[invoice.customerId],
+            onTap: () => _openEditor(invoice),
+            onShare: () => _sharePdf(invoice),
+            onMarkPaid: invoice.status == InvoiceStatus.issued
+                ? () => _setStatus(invoice, InvoiceStatus.paid)
+                : null,
+            dunning: _dunning[invoice.id],
+            overdue: _needsReminder(invoice),
+            onDunningHistory: () => _showDunningHistory(invoice),
+            onRemind: _needsReminder(invoice) ? () => _remind(invoice) : null,
+            onCancel: invoice.status.canBeCancelled
+                ? () => _cancelInvoice(invoice)
+                : null,
+            onCorrect: invoice.status.canBeCancelled
+                ? () => _cancelInvoice(invoice, correct: true)
+                : null,
+            relatedNumber: _relatedNumber(invoice),
+            onDelete: invoice.status == InvoiceStatus.draft
+                ? () => _deleteDraft(invoice)
+                : null,
+          ),
+        ),
+    ];
   }
 }
 
@@ -678,7 +693,7 @@ class _CatalogShortcuts extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Padding(
-    padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
+    padding: EdgeInsets.zero,
     child: Row(
       children: [
         Expanded(

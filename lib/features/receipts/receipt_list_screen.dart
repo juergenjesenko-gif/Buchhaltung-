@@ -138,192 +138,206 @@ class _ReceiptListScreenState extends State<ReceiptListScreen> {
         title: const Text('Belege'),
         actions: [const HelpButton(context: HelpTopic.receipts)],
       ),
-      body: Column(
-        children: [
-          // Vertragsarchiv sichtbar machen (Rückmeldung 2026-10-19, FA-16.9).
-          Padding(
-            padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
-            child: SizedBox(
-              width: double.infinity,
-              child: SegmentedButton<int>(
-                key: const Key('receipts-contracts-switch'),
-                style: SegmentedButton.styleFrom(
-                  minimumSize: const Size(0, 48),
-                ),
-                showSelectedIcon: false,
-                segments: const [
-                  ButtonSegment(
-                    value: 0,
-                    icon: Icon(Icons.receipt_long_outlined),
-                    label: Text('Belege'),
-                  ),
-                  ButtonSegment(
-                    value: 1,
-                    icon: Icon(Icons.description_outlined),
-                    label: Text('Verträge'),
-                  ),
-                ],
-                selected: const {0},
-                onSelectionChanged: (s) {
-                  if (s.first != 1) return;
-                  Navigator.of(context).push(
-                    MaterialPageRoute<void>(
-                      builder: (_) => const ContractListScreen(),
-                    ),
-                  );
-                },
-              ),
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
-            child: TextField(
-              controller: _searchController,
-              decoration: InputDecoration(
-                hintText: 'Produkt, Partner oder Notiz suchen',
-                prefixIcon: const Icon(Icons.search),
-                suffixIcon: _searchController.text.isEmpty
-                    ? null
-                    : IconButton(
-                        icon: const Icon(Icons.clear),
-                        onPressed: () {
-                          _searchController.clear();
-                          _load();
-                        },
-                      ),
-              ),
-              onChanged: (_) => setState(() {}),
-              onSubmitted: (_) => _load(),
-            ),
-          ),
-          const SizedBox(height: 10),
-          // Umbrechen statt seitlich scrollen; das Jahr steht mit in der
-          // Reihe statt oben in der AppBar (DESIGN_SPEC 5a, Regel 4 und 7).
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: Wrap(
-              spacing: 8,
-              runSpacing: 8,
-              children: [
-                ActionChip(
-                  key: const Key('receipt-year'),
-                  avatar: const Icon(Icons.calendar_today_outlined, size: 18),
-                  label: Text('$_year'),
-                  onPressed: () => _pickYear(years),
-                ),
-                for (final entry in <(String, BookingDirection?)>[
-                  ('Alle', null),
-                  ('Einnahmen', BookingDirection.income),
-                  ('Ausgaben', BookingDirection.expense),
-                ])
-                  Padding(
-                    padding: EdgeInsets.zero,
-                    child: ChoiceChip(
-                      label: Text(entry.$1),
-                      selected: _filter == entry.$2,
-                      onSelected: (_) {
-                        setState(() => _filter = entry.$2);
-                        _load();
-                      },
-                    ),
-                  ),
-                FilterChip(
-                  label: const Text('Storniert'),
-                  selected: _showCancelled,
-                  onSelected: (value) {
-                    setState(() => _showCancelled = value);
-                    _load();
-                  },
-                ),
-              ],
-            ),
-          ),
-          if (_receipts.isNotEmpty)
-            Padding(
-              padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
-              child: Row(
+      // Kopf (Umschalter, Suche, Filter, Summe) scrollt mit der Liste: quer
+      // bliebe sonst kaum Platz für Belege (Gerätetest 2026-10-20, FA-9.6).
+      body: _loading
+          ? const Center(child: CircularProgressIndicator())
+          : RefreshIndicator(
+              onRefresh: _load,
+              child: ListView(
+                padding: const EdgeInsets.only(bottom: 96),
                 children: [
-                  Text(
-                    '${_receipts.length} ${_receipts.length == 1 ? 'Beleg' : 'Belege'}',
-                    style: Theme.of(context).textTheme.bodySmall,
-                  ),
-                  const Spacer(),
-                  Text(
-                    'Saldo ${Fmt.signedMoney(_visibleBalance)}',
-                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      fontWeight: FontWeight.w600,
-                      color: AppTheme.amountColor(
-                        !_visibleBalance.isNegative,
-                        context,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          const SizedBox(height: 4),
-          Expanded(
-            child: _loading
-                ? const Center(child: CircularProgressIndicator())
-                : _receipts.isEmpty
-                ? EmptyState(
-                    icon: Icons.receipt_long_outlined,
-                    title: 'Keine Belege',
-                    message: _searchController.text.isEmpty
-                        ? 'Erfasse deinen ersten Beleg – Foto machen, Betrag '
-                              'eintippen, fertig.'
-                        : 'Zu dieser Suche gibt es keine Treffer.',
-                    action: FilledButton.icon(
-                      onPressed: () => _open(null),
-                      icon: const Icon(Icons.add),
-                      label: const Text('Beleg erfassen'),
-                    ),
-                  )
-                : RefreshIndicator(
-                    onRefresh: _load,
-                    child: ListView(
-                      padding: const EdgeInsets.fromLTRB(16, 8, 16, 96),
-                      children: [
-                        for (final group in _grouped.entries) ...[
-                          Padding(
-                            padding: const EdgeInsets.fromLTRB(4, 12, 4, 6),
-                            child: Text(
-                              group.key,
-                              style: Theme.of(context).textTheme.labelLarge
-                                  ?.copyWith(
-                                    color: Theme.of(
-                                      context,
-                                    ).colorScheme.primary,
-                                  ),
-                            ),
+                  // Vertragsarchiv sichtbar machen (Rückmeldung 2026-10-19, FA-16.9).
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
+                    child: SizedBox(
+                      width: double.infinity,
+                      child: SegmentedButton<int>(
+                        key: const Key('receipts-contracts-switch'),
+                        style: SegmentedButton.styleFrom(
+                          minimumSize: const Size(0, 48),
+                        ),
+                        showSelectedIcon: false,
+                        segments: const [
+                          ButtonSegment(
+                            value: 0,
+                            icon: Icon(Icons.receipt_long_outlined),
+                            label: Text('Belege'),
                           ),
-                          Card(
-                            child: Column(
-                              children: [
-                                for (
-                                  var i = 0;
-                                  i < group.value.length;
-                                  i++
-                                ) ...[
-                                  if (i > 0) const Divider(height: 1),
-                                  _ReceiptTile(
-                                    receipt: group.value[i],
-                                    categoryName: state
-                                        .categoryById(group.value[i].categoryId)
-                                        ?.name,
-                                    onTap: () => _open(group.value[i]),
-                                  ),
-                                ],
-                              ],
-                            ),
+                          ButtonSegment(
+                            value: 1,
+                            icon: Icon(Icons.description_outlined),
+                            label: Text('Verträge'),
                           ),
                         ],
+                        selected: const {0},
+                        onSelectionChanged: (s) {
+                          if (s.first != 1) return;
+                          Navigator.of(context).push(
+                            MaterialPageRoute<void>(
+                              builder: (_) => const ContractListScreen(),
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
+                    child: TextField(
+                      controller: _searchController,
+                      decoration: InputDecoration(
+                        hintText: 'Produkt, Partner oder Notiz suchen',
+                        prefixIcon: const Icon(Icons.search),
+                        suffixIcon: _searchController.text.isEmpty
+                            ? null
+                            : IconButton(
+                                icon: const Icon(Icons.clear),
+                                onPressed: () {
+                                  _searchController.clear();
+                                  _load();
+                                },
+                              ),
+                      ),
+                      onChanged: (_) => setState(() {}),
+                      onSubmitted: (_) => _load(),
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                  // Umbrechen statt seitlich scrollen; das Jahr steht mit in der
+                  // Reihe statt oben in der AppBar (DESIGN_SPEC 5a, Regel 4 und 7).
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    child: Wrap(
+                      spacing: 8,
+                      runSpacing: 8,
+                      children: [
+                        ActionChip(
+                          key: const Key('receipt-year'),
+                          avatar: const Icon(
+                            Icons.calendar_today_outlined,
+                            size: 18,
+                          ),
+                          label: Text('$_year'),
+                          onPressed: () => _pickYear(years),
+                        ),
+                        for (final entry in <(String, BookingDirection?)>[
+                          ('Alle', null),
+                          ('Einnahmen', BookingDirection.income),
+                          ('Ausgaben', BookingDirection.expense),
+                        ])
+                          Padding(
+                            padding: EdgeInsets.zero,
+                            child: ChoiceChip(
+                              label: Text(entry.$1),
+                              selected: _filter == entry.$2,
+                              onSelected: (_) {
+                                setState(() => _filter = entry.$2);
+                                _load();
+                              },
+                            ),
+                          ),
+                        FilterChip(
+                          label: const Text('Storniert'),
+                          selected: _showCancelled,
+                          onSelected: (value) {
+                            setState(() => _showCancelled = value);
+                            _load();
+                          },
+                        ),
                       ],
                     ),
                   ),
-          ),
-        ],
-      ),
+                  if (_receipts.isNotEmpty)
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
+                      child: Row(
+                        children: [
+                          Text(
+                            '${_receipts.length} ${_receipts.length == 1 ? 'Beleg' : 'Belege'}',
+                            style: Theme.of(context).textTheme.bodySmall,
+                          ),
+                          const Spacer(),
+                          Text(
+                            'Saldo ${Fmt.signedMoney(_visibleBalance)}',
+                            style: Theme.of(context).textTheme.bodySmall
+                                ?.copyWith(
+                                  fontWeight: FontWeight.w600,
+                                  color: AppTheme.amountColor(
+                                    !_visibleBalance.isNegative,
+                                    context,
+                                  ),
+                                ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  const SizedBox(height: 4),
+                  if (_receipts.isEmpty)
+                    Padding(
+                      padding: const EdgeInsets.only(top: 32),
+                      child: EmptyState(
+                        icon: Icons.receipt_long_outlined,
+                        title: 'Keine Belege',
+                        message: _searchController.text.isEmpty
+                            ? 'Erfasse deinen ersten Beleg – Foto machen, Betrag '
+                                  'eintippen, fertig.'
+                            : 'Zu dieser Suche gibt es keine Treffer.',
+                        action: FilledButton.icon(
+                          onPressed: () => _open(null),
+                          icon: const Icon(Icons.add),
+                          label: const Text('Beleg erfassen'),
+                        ),
+                      ),
+                    )
+                  else
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          for (final group in _grouped.entries) ...[
+                            Padding(
+                              padding: const EdgeInsets.fromLTRB(4, 12, 4, 6),
+                              child: Text(
+                                group.key,
+                                style: Theme.of(context).textTheme.labelLarge
+                                    ?.copyWith(
+                                      color: Theme.of(
+                                        context,
+                                      ).colorScheme.primary,
+                                    ),
+                              ),
+                            ),
+                            Card(
+                              child: Column(
+                                children: [
+                                  for (
+                                    var i = 0;
+                                    i < group.value.length;
+                                    i++
+                                  ) ...[
+                                    if (i > 0) const Divider(height: 1),
+                                    _ReceiptTile(
+                                      receipt: group.value[i],
+                                      categoryName: state
+                                          .categoryById(
+                                            group.value[i].categoryId,
+                                          )
+                                          ?.name,
+                                      onTap: () => _open(group.value[i]),
+                                    ),
+                                  ],
+                                ],
+                              ),
+                            ),
+                          ],
+                        ],
+                      ),
+                    ),
+                ],
+              ),
+            ),
       // Runder Aufnahmeknopf unten in der Mitte, an derselben Stelle wie
       // auf der Übersicht (DESIGN_SPEC 5a, Regel 1, 9 und 13).
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,

@@ -29,11 +29,33 @@ gebaut, und was war darin geprüft?*
 
 ## Unveröffentlicht
 
-Änderungen seit 0.36.0+49, die noch in keinem Build stecken. Wandern beim
+Änderungen seit 0.37.0+50, die noch in keinem Build stecken. Wandern beim
 nächsten Versionssprung in den neuen Eintrag.
 
 | Art | Änderung | Bezug | Commit |
 |---|---|---|---|
+
+---
+
+## 0.37.0+50 — 2026-10-20
+
+| Feld | Wert |
+|---|---|
+| Art | Interner Test (TestFlight, Google Play interner Track) über `release.yml` und Test-APK aus `ci.yml`; **Lizenzprüfung aus**, alle Funktionen frei |
+| Commit | `XXXXXXX` |
+| Branch | `claude/agile-accounting-app-mobile-wa5j3h` |
+| Dokumentstände | Lastenheft 1.89, Spezifikation 1.98, REGELPFLEGE 2026-10-20, Benutzerhandbuch für 0.37.0, DESIGN_SPEC 1.7 |
+| Datenbankschema | 31 |
+| Prüfung | `flutter analyze` ohne Befund, alle Tests grün; Android/iOS-Build nur in der CI |
+| Steuerliche Kennwerte | unverändert |
+| Offene reale Prüfpunkte | P-D19, P-D58 |
+| Bekannte Grenzen | unverändert (Spezifikation 11) |
+
+**Änderungen seit 0.36.0+49**
+
+| Art | Änderung | Bezug | Commit |
+|---|---|---|---|
+| Geändert | Beleg- und Rechnungsliste: Kopf (Suche, Filter, Angebote/Artikel) scrollt mit der Liste | FA-9.6 | `XXXXXXX` |
 
 ---
 

@@ -1,6 +1,6 @@
 # Spezifikation – Buchhaltung
 
-**Dokumentversion:** 1.97 · **App-Version:** 0.36.0 · **Stand:** 2026-10-20
+**Dokumentversion:** 1.98 · **App-Version:** 0.37.0 · **Stand:** 2026-10-20
 **Status:** Testbuild 0.21.0 (Schema 23); Store-Start offen, siehe Abschnitt 11 und 14
 
 > Das **Zielbild** des Produkts steht im [`LASTENHEFT.md`](LASTENHEFT.md); dieses
@@ -721,6 +721,7 @@ Umsetzung von DESIGN_SPEC Abschnitt 5. Schwellen nur in
 | FA-9.3 | **Liste-Detail** ab expanded für Belege, Rechnungen und Kunden: Liste links (2/5), Bearbeitung rechts (3/5) in einem eigenen Navigator; Speichern schließt den Detailbereich und aktualisiert die Liste. Auf compact und medium wie bisher eigene Seite. Medium quer (z. B. Telefon quer) bleibt einspaltig, weil zwei Spalten unter 840 dp das Formular zu schmal machen |
 | FA-9.4 | Formulare und Lesebereiche (Beleg, Rechnung, Kunde, Stammdaten, Bestätigungen, Einstellungen, App-Sperre, Datensicherung, Export) höchstens 640 dp breit, zentriert (`spec.max_content_width_dp`, DESIGN_SPEC D-5). **Grundsatz (Auftraggeber 2026-10-20):** Was nicht über die ganze Breite geht, steht immer horizontal zentriert – nie linksbündig mit leerem Rand rechts; nur über `ReadableWidth`, nie mit eigener Breitenbegrenzung. Sperrbildschirm höchstens 360 dp, zentriert und scrollbar; Dialoge nach Material 3 höchstens 560 dp |
 | FA-9.5 | Hoch- und Querformat ohne Sperre: Android ohne `screenOrientation`, iOS iPhone hoch und quer, iPad alle vier Ausrichtungen. **Kein `UIRequiresFullScreen`**: die App unterstützt Split View und Slide Over auf dem iPad; Apple verlangt dafür alle vier iPad-Ausrichtungen. Gerätetest: P-D19, P-D20 |
+| FA-9.6 | **Kopf scrollt mit** (seit 0.37.0, Gerätetest 2026-10-20): In den Listen Belege (Umschalter Belege/Verträge, Suche, Filter, Anzahl und Saldo) und Rechnungen (Angebote/Artikel, Offen, Überfällig) ist der Kopf Teil der Liste und scrollt mit; quer bliebe sonst kaum Platz für Einträge |
 
 ### 5.7a Einhandbedienung
 
@@ -1600,6 +1601,7 @@ Vorsteuerabzug in Promille; Fundstelle Privatanteil; Fundstelle Vorsteuer.
 
 | Version | Datum | App-Version | Änderung |
 |---|---|---|---|
+| 1.98 | 2026-10-20 | 0.37.0 | App-Version 0.37.0. FA-9.6 neu: Kopf der Beleg- und Rechnungsliste scrollt mit. Prüfinstanz UX (quer mehr Platz, Filter mit einem Wisch nach oben wieder erreichbar). |
 | 1.97 | 2026-10-20 | 0.36.0 | App-Version 0.36.0. FA-9.4 Grundsatz „nicht volle Breite = zentriert“. FA-9.1: Telefon quer (Höhe < 480 dp) höchstens medium, kein Dreispalten-Layout; Kennwert `spec.window_compact_max_height_dp` (12). Vertrag ablegen: „Scannen“ und „Galerie“ gleich breit, darunter „Text erkennen“ volle Breite. Prüfinstanzen: UX (Daumenreichweite quer, 48 dp), Softwareentwickler (Material-3-Höhenklasse). |
 | 1.96 | 2026-10-20 | 0.35.0 | App-Version 0.35.0; Versionsanzeige mit Buildnummer am Ende der Einstellungen und in Support-Mails (FA-11.8). FA-7.2 Zahlencode 8 Ziffern statt Kennwort; FA-7.10 ohne Abtippen von Blöcken; FA-13.10 Release-Builds nur mit Eingabe `abo` mit Lizenzprüfung; P-D58. Tastatur schließt bei Tippen neben ein Eingabefeld (alle Bildschirme, iOS-Ziffernblock ohne Fertig-Taste, Abschnitt 7). FA-1.8: Umsatz des laufenden Jahres vor Erfassungsbeginn optional (leer = 0, Hinweis zum Nachbuchen); FA-1.13: Willkommensseite Titel über dem Logo, mehr Abstand vor den Funktionszeilen. Prüfinstanzen: UX (weniger Pflichtfelder, passt auf 360 × 740), Steuerberater (Grenze stimmt erst nach Nachbuchen, Hinweis genügt), Softwareentwickler (kein Schemawechsel). |
 | 1.95 | 2026-10-20 | 0.34.0 | Entscheidungen Auftraggeber 2026-10-20: Buchungsregeln Pro entschieden (O-47); Regelstand je Land (neu 5.17, FA-21.1 bis FA-21.3), Aktualisieren-Hinweis auf der Übersicht, Kennzeichnung „Werte von <Jahr> – Schätzung unsicher“; neue Pflegedatei `REGELPFLEGE.md`. Kenndaten neu `spec.*.rules_as_of`, `spec.*.rules_valid_until` (12). Prüfpunkte P-D57, P-X30 (14). Kein Schemawechsel. |

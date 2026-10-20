@@ -1,6 +1,6 @@
 # Benutzerhandbuch – JeNi bucht
 
-**Für App-Version 0.36.0** · Stand 2026-10-20
+**Für App-Version 0.37.0** · Stand 2026-10-20
 
 Welche Version du hast, steht ganz unten in den **Einstellungen**, etwa „Version 0.35.0 (16)“; die Zahl in Klammern ist die Buildnummer.
 
@@ -222,7 +222,7 @@ Tablet quer, nicht das Handy quer), siehst du bei Belegen, Rechnungen und Kunden
 rechts den geöffneten Eintrag; nach dem Speichern bleibt die Liste stehen und
 zeigt die Änderung. Eingabeformulare werden auf großen Bildschirmen nicht über
 die ganze Breite gezogen, damit sie gut lesbar bleiben. Die App lässt sich in
-jeder Richtung halten und auf dem iPad bzw. Android-Tablet neben einer anderen
+jeder Richtung halten. In Belegen und Rechnungen scrollen Suche und Filter mit der Liste nach oben weg; ein Wisch nach unten holt sie zurück. Die App lässt sich auf dem iPad bzw. Android-Tablet neben einer anderen
 App nutzen.
 
 > **Tipp:** Speichere, bevor du das Tablet drehst oder die Fenstergröße
