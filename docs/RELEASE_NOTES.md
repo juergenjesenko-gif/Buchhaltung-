@@ -34,6 +34,9 @@ nächsten Versionssprung in den neuen Eintrag.
 
 | Art | Änderung | Bezug | Commit |
 |---|---|---|---|
+| Geändert | Ersteinrichtung: Umsatz des laufenden Jahres optional (leer = 0, Hinweis zum Nachbuchen) | FA-1.8 | `XXXXXXX` |
+| Geändert | Willkommensseite: Titel über dem Logo, mehr Abstand vor den Funktionszeilen | FA-1.13 | `XXXXXXX` |
+| Behoben | Release-Workflow iOS: Archiv unsigniert, Signierung beim Export | RELEASE_PLAYBOOK | `44b7a30` |
 | Behoben | Release-Workflow iOS: Archiv mit Verteilungsidentität (kein registriertes Gerät nötig) | RELEASE_PLAYBOOK | `8b2db6e` |
 | Behoben | Release-Workflow iOS: Konfiguration mit --no-codesign, Signierung allein über xcodebuild und App-Store-Connect-Schlüssel | RELEASE_PLAYBOOK | `fb644a7` |
 

@@ -150,9 +150,10 @@ Grenze von **25.000 €** statt 100.000 €.
 **Umsatz vor Nutzung der App** — nur bei aktiver Kleinunternehmerregelung. Die
 App kennt deine Umsätze erst ab dem Tag, an dem du sie einrichtest. Für die
 Umsatzgrenze braucht sie aber auch das Vorjahr und — wenn du mitten im Jahr
-startest — den Umsatz dieses Jahres bis dahin. Beides sind Pflichtfelder.
-Hattest du noch keinen Umsatz, trag ausdrücklich **0** ein: ein leeres Feld
-heißt für die App „unbekannt", nicht „null".
+startest — den Umsatz dieses Jahres bis dahin. Das Vorjahr ist Pflicht;
+hattest du da noch keinen Umsatz, trag ausdrücklich **0** ein. Den Umsatz
+dieses Jahres kannst du leer lassen: Buch dann die Belege seit 1. Jänner
+nach, damit Umsatz und Grenze stimmen.
 
 **Rechnungen**
 - **Muster der Rechnungsnummer** – Standard ist `RE-{YYYY}-{NNNN}`, das ergibt
@@ -1816,8 +1817,7 @@ Ziffern, Komma, Punkt und ein Minus.
 **„Bitte positiv eingeben und oben Einnahme/Ausgabe wählen"** – die Richtung
 steuert das Vorzeichen, nicht ein Minus im Betrag.
 
-**„Bitte angeben – 0, wenn es keinen Umsatz gab"** — beim Umsatz vor Nutzung
-der App. Ein leeres Feld ist für die App „unbekannt"; trag 0 ein, wenn es
+**„Bitte angeben – 0, wenn es keinen Umsatz gab"** — beim Umsatz des Vorjahres. Ein leeres Feld ist für die App „unbekannt"; trag 0 ein, wenn es
 keinen Umsatz gab.
 
 **„Bitte ein Jahr bis … eingeben"** — beim Gründungsjahr. Erlaubt ist eine

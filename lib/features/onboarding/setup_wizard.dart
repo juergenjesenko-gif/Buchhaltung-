@@ -337,6 +337,9 @@ class _SetupWizardState extends State<SetupWizard> {
     return null;
   }
 
+  String? _validateOptionalOpening(String? value) =>
+      (value ?? '').trim().isEmpty ? null : _validateOpening(value);
+
   Future<void> _saveCompany() async {
     if (!_companyForm.currentState!.validate()) return;
     setState(() => _busy = true);
@@ -365,7 +368,9 @@ class _SetupWizardState extends State<SetupWizard> {
       if (_smallBusiness && _asksPrevious)
         _year - 1: Money.tryParse(_t('openingPrevious')),
       if (_smallBusiness && _asksCurrent)
-        _year: Money.tryParse(_t('openingCurrent')),
+        // Leer heißt hier 0 (Entscheidung Auftraggeber 2026-10-20): Viele
+        // kennen den Umsatz nicht und buchen die Belege seit 1. Jänner nach.
+        _year: Money.tryParse(_t('openingCurrent')) ?? const Money.zero(),
     };
     // Erst den Schritt merken, dann speichern: so bleibt die Einrichtung
     // sichtbar, sobald das Profil existiert.
@@ -603,6 +608,12 @@ class _SetupWizardState extends State<SetupWizard> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
+                        Text(
+                          'Willkommen bei JeNi bucht',
+                          textAlign: TextAlign.center,
+                          style: theme.textTheme.headlineMedium,
+                        ),
+                        const SizedBox(height: 24),
                         Center(
                           child: Image.asset(
                             theme.brightness == Brightness.dark
@@ -617,12 +628,6 @@ class _SetupWizardState extends State<SetupWizard> {
                           ),
                         ),
                         const SizedBox(height: 24),
-                        Text(
-                          'Willkommen bei JeNi bucht',
-                          textAlign: TextAlign.center,
-                          style: theme.textTheme.headlineMedium,
-                        ),
-                        const SizedBox(height: 20),
                         // Wortlaut geprüft (UWG § 2 AT / § 5 DE): kein
                         // unbelegbares Qualitätsversprechen („Qualität von
                         // Profis“), nur nachprüfbare Arbeitsweise.
@@ -632,7 +637,7 @@ class _SetupWizardState extends State<SetupWizard> {
                           textAlign: TextAlign.center,
                           style: theme.textTheme.bodyLarge,
                         ),
-                        const SizedBox(height: 32),
+                        const SizedBox(height: 40),
                         for (final (icon, text) in SetupWizard.welcomePoints)
                           Padding(
                             padding: const EdgeInsets.symmetric(vertical: 5),
@@ -925,9 +930,15 @@ class _SetupWizardState extends State<SetupWizard> {
                   MoneyField(
                     key: const Key('setup-opening-current'),
                     controller: _f['openingCurrent']!,
-                    label:
-                        'Umsatz $_year vor dem ${Fmt.date(_trackingStart)} *',
-                    validator: _validateOpening,
+                    label: 'Umsatz $_year vor dem ${Fmt.date(_trackingStart)}',
+                    validator: _validateOptionalOpening,
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    'Kannst du leer lassen. Buch dann die Belege seit '
+                    '1.1.$_year nach, damit Umsatz und Grenze stimmen.',
+                    key: const Key('setup-opening-current-hint'),
+                    style: theme.textTheme.bodySmall,
                   ),
                 ],
               ],
