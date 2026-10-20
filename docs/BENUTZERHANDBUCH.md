@@ -1516,10 +1516,10 @@ die Aufbewahrungspflicht (7 Jahre in Österreich, 8 Jahre in Deutschland) gilt
 trotzdem. Deshalb:
 
 1. **Einstellungen → Datensicherung → Sicherung erstellen**
-2. Ein **Kennwort** festlegen, mindestens 10 Zeichen, zweimal eingeben.
-   **Schreib es dir auf.** Ohne Kennwort lässt sich die Sicherung nicht öffnen,
-   und niemand kann es zurücksetzen – auch wir nicht.
-3. Tippfehler im Kennwort? Mit dem **Auge-Symbol** am Feldrand machst du es
+2. Einen **Zahlencode aus 8 Ziffern** festlegen, zweimal eingeben.
+   **Schreib ihn dir auf.** Ohne Code lässt sich die Sicherung nicht öffnen,
+   und niemand kann ihn zurücksetzen – auch wir nicht.
+3. Tippfehler? Mit dem **Auge-Symbol** am Feldrand machst du den Code
    sichtbar.
 4. Im Teilen-Dialog einen Ort **außerhalb deines Telefons** wählen: iCloud
    Drive, Google Drive, „Auf Dateien speichern", eine E-Mail an dich selbst.
@@ -1548,9 +1548,7 @@ in Google Drive, auf dem iPhone direkt in dein iCloud Drive. Das ist
    deinem Handy**. Die App zeigt den Code sonst nirgends an und behält keine
    Kopie. Ohne ihn kann niemand eine automatische Sicherung auf einem anderen
    Gerät öffnen, auch du nicht.
-4. Zur Kontrolle fragt die App nach zwei Blöcken vom Druckblatt, zum Beispiel
-   „Block 3“ und „Block 9“. Tippe sie ab (groß oder klein ist egal) und dann
-   **Code ist aufbewahrt**.
+4. Tippe auf **Code ist aufbewahrt**.
 
 Danach sichert die App nach jeder Änderung höchstens einmal am Tag, wenn du sie
 öffnest. Jede Sicherung wird nach dem Speichern zur Probe wieder geöffnet; erst
@@ -1742,10 +1740,6 @@ Kanzlei.
 das Feld *Grund* ist leer. Tippe einen der Vorschläge an oder schreib einen
 kurzen Grund; er steht auf der Stornorechnung.
 
-**„Beide Blöcke müssen stimmen.“** — beim Einrichten der automatischen
-Sicherung passt ein abgetippter Block nicht zum Druckblatt. Achte auf die
-Blocknummer; 0 und O, 1 und I, 8 und B darfst du verwechseln. Hast du das
-Druckblatt nicht mehr, tippe auf **Druckblatt noch einmal teilen**.
 
 **„Bitte eine E-Mail-Adresse wie name@beispiel.at eingeben"** — im Profil oder
 beim Kunden steht eine E-Mail-Adresse ohne @ oder ohne Domain (z. B. `.at`).
@@ -1791,8 +1785,8 @@ Datensicherung auf „Ordner ändern" tippen.
 **„Kein Sicherungsschlüssel auf diesem Gerät"** — die automatische Sicherung
 neu einrichten; du bekommst einen neuen Wiederherstellungscode.
 
-**„Mindestens 10 Zeichen"** / **„Die Kennwörter stimmen nicht überein"** — beim
-Kennwort der Datensicherung.
+**„Genau 8 Ziffern"** / **„Die Codes stimmen nicht überein"** — beim
+Zahlencode der Datensicherung.
 
 **„6 bis 8 Ziffern"**, **„Nicht nur dieselbe Ziffer"**, **„Keine einfache
 Zahlenfolge"**, **„Stimmt nicht überein"** — beim Festlegen der PIN der

@@ -46,8 +46,11 @@ class BackupCrypto {
   static const _keyMode = 1;
   static const _headerLength = 4 + 1 + 4 + 4 + 1 + 16 + 12;
 
-  /// Mindestlänge des Kennworts.
-  static const minPassphraseLength = 10;
+  /// Länge des Zahlencodes für die Sicherung von Hand (Entscheidung
+  /// Auftraggeber 2026-10-20: 8 Ziffern statt Kennwort, vorerst ohne
+  /// Geräteschlüssel; offline durchprobierbar, P-D58). Ältere Sicherungen mit
+  /// Kennwort bleiben lesbar.
+  static const codeLength = 8;
 
   Future<Uint8List> encrypt(List<int> plain, String passphrase) async {
     final random = Random.secure();

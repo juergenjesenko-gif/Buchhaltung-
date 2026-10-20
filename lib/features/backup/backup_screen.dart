@@ -244,31 +244,35 @@ class _NewPassphraseDialogState extends State<_NewPassphraseDialog> {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      title: const Text('Kennwort für die Sicherung'),
+      title: const Text('Zahlencode für die Sicherung'),
       content: Form(
         key: _form,
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             const Text(
-              'Schreib dir das Kennwort auf und bewahre es sicher auf. '
-              'Ohne Kennwort lässt sich die Sicherung nicht öffnen – '
-              'niemand kann es zurücksetzen.',
+              'Wähle 8 Ziffern und schreib sie dir auf. Ohne Code lässt '
+              'sich die Sicherung nicht öffnen – niemand kann ihn '
+              'zurücksetzen.',
             ),
             const SizedBox(height: 12),
             PasswordField(
               controller: _first,
-              label: 'Kennwort',
+              label: 'Zahlencode (${BackupCrypto.codeLength} Ziffern)',
+              digitsOnly: true,
               validator: (value) =>
-                  (value ?? '').length < BackupCrypto.minPassphraseLength
-                  ? 'Mindestens ${BackupCrypto.minPassphraseLength} Zeichen'
-                  : null,
+                  RegExp(
+                    '^[0-9]{${BackupCrypto.codeLength}}\$',
+                  ).hasMatch(value ?? '')
+                  ? null
+                  : 'Genau ${BackupCrypto.codeLength} Ziffern',
             ),
             PasswordField(
               controller: _second,
-              label: 'Kennwort wiederholen',
+              label: 'Zahlencode wiederholen',
+              digitsOnly: true,
               validator: (value) => value != _first.text
-                  ? 'Die Kennwörter stimmen nicht überein'
+                  ? 'Die Codes stimmen nicht überein'
                   : null,
             ),
           ],
@@ -311,11 +315,11 @@ class _PassphraseDialogState extends State<_PassphraseDialog> {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      title: const Text('Kennwort der Sicherung'),
+      title: const Text('Code der Sicherung'),
       content: PasswordField(
         controller: _controller,
         autofocus: true,
-        label: 'Kennwort oder Wiederherstellungscode',
+        label: 'Zahlencode, Kennwort oder Wiederherstellungscode',
         helperText: 'Automatische Sicherungen öffnest du mit dem Code',
       ),
       actions: [

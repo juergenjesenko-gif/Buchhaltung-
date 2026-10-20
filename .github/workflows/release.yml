@@ -12,6 +12,11 @@ on:
         default: internal
         type: choice
         options: [internal, alpha, beta, production]
+      abo:
+        description: "Lizenzprüfung (Abo) ein – aus = Testbuild, alle Funktionen frei"
+        required: false
+        default: false
+        type: boolean
       version:
         description: "Versionsname, z. B. 0.2.0 (leer = aus pubspec.yaml)"
         required: false
@@ -65,8 +70,10 @@ jobs:
       # zurückgehen. github.run_number ist monoton und übersteht Reruns.
       - name: App Bundle bauen
         run: |
-          # Store-Build: Lizenzprüfung ein (Spezifikation FA-13.10).
-          ARGS="--release --build-number=${{ github.run_number }} --dart-define=LICENSING=true"
+          # Lizenzprüfung nur mit Eingabe abo (FA-13.10); Testbuilds für
+          # TestFlight und internen Test ohne Abo, alle Funktionen frei
+          # (Entscheidung Auftraggeber 2026-10-20).
+          ARGS="--release --build-number=${{ github.run_number }} --dart-define=LICENSING=${{ inputs.abo && 'true' || 'false' }}"
           if [ -n "${{ inputs.version }}" ]; then
             ARGS="$ARGS --build-name=${{ inputs.version }}"
           fi
@@ -118,8 +125,10 @@ jobs:
 
       - name: Build-Argumente
         run: |
-          # Store-Build: Lizenzprüfung ein (Spezifikation FA-13.10).
-          ARGS="--release --build-number=${{ github.run_number }} --dart-define=LICENSING=true"
+          # Lizenzprüfung nur mit Eingabe abo (FA-13.10); Testbuilds für
+          # TestFlight und internen Test ohne Abo, alle Funktionen frei
+          # (Entscheidung Auftraggeber 2026-10-20).
+          ARGS="--release --build-number=${{ github.run_number }} --dart-define=LICENSING=${{ inputs.abo && 'true' || 'false' }}"
           if [ -n "${{ inputs.version }}" ]; then
             ARGS="$ARGS --build-name=${{ inputs.version }}"
           fi

@@ -93,28 +93,7 @@ void main() {
     await tester.pumpAndSettle();
     expect(shared, 1);
 
-    final label = tester
-        .widget<TextField>(find.byKey(const Key('recoveryBlockA')))
-        .decoration!
-        .labelText!;
-    final labelB = tester
-        .widget<TextField>(find.byKey(const Key('recoveryBlockB')))
-        .decoration!
-        .labelText!;
-    final parts = code.split('-');
-    int n(String l) => int.parse(l.split(' ').last);
-    await tester.enterText(find.byKey(const Key('recoveryBlockA')), 'ZZZZ');
-    await tester.enterText(
-      find.byKey(const Key('recoveryBlockB')),
-      parts[n(labelB) - 1],
-    );
-    await tester.pump();
-    expect(tester.widget<ButtonStyleButton>(confirm).onPressed, isNull);
-    await tester.enterText(
-      find.byKey(const Key('recoveryBlockA')),
-      parts[n(label) - 1].toLowerCase(),
-    );
-    await tester.pump();
+    expect(find.byKey(const Key('recoveryBlockA')), findsNothing);
     await tester.tap(confirm);
     await tester.pumpAndSettle();
     expect(result, isTrue);
