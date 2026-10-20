@@ -42,7 +42,7 @@ nächsten Versionssprung in den neuen Eintrag.
 | Feld | Wert |
 |---|---|
 | Art | Testbuild (ungezippte arm64-APK `JeNi-bucht-0.34.0-build-<Nr>.apk`, fester Testschlüssel); **Lizenzprüfung aus** (ohne `LICENSING=true`), alle Funktionen frei |
-| Commit | `HASH` |
+| Commit | `48ee0d0` |
 | Branch | `claude/agile-accounting-app-mobile-wa5j3h` |
 | Dokumentstände | Lastenheft 1.89, Spezifikation 1.95, REGELPFLEGE 2026-10-20, Benutzerhandbuch für 0.34.0, DESIGN_SPEC 1.7 |
 | Datenbankschema | 31 |
@@ -57,13 +57,13 @@ nächsten Versionssprung in den neuen Eintrag.
 |---|---|---|---|
 | Geändert | Einstellungen: „Symbol auf Startbildschirm legen“ an das Ende der Stammdaten-Liste | FA-1.19 | `5c487ef` |
 | Geändert | Rechnungs-, Storno- und Mahnungs-PDF in Markenfarbe Marineblau #0B3A67 statt #1B4965 | DESIGN_SPEC 9 | `b5ebe1f` |
-| Neu | Buchungsregeln (Privatanteil / betrieblicher Anteil, Fahrtenbuch/Fläche, Gültigkeit, Begründung, Anhänge, Verlauf), Schema 31 | FA-20.1, FA-20.2 | `HASH` |
-| Neu | Wirkung auf Gewinn und Vorsteuer, Karte „Regel: … betrieblich“ an der Buchung mit Ausnahme | FA-20.3, FA-20.4 | `HASH` |
-| Neu | Abschnitt „Buchungsregeln und Angaben für die Steuerberatung“ in Saldenliste, Jahresabschluss, Paket (`Buchungsregeln.csv`, Anhänge) | FA-20.5 | `HASH` |
-| Neu | Hilfeartikel „Privat-PKW teilweise betrieblich“ und „Büro in der eigenen Wohnung“ mit „Regel anlegen“; Demo-Musterregeln | FA-20.6, FA-20.7 | `HASH` |
-| Doku | KI-Chat als Stufe C (L-21.13), Tarif Pro (O-47) | FA-20.8 | `HASH` |
-| Neu | Regelstand je Land in den Einstellungen; Hinweis „Für <Jahr> gibt es neue Steuerwerte – bitte App aktualisieren.“ mit Store-Link; „Werte von <Jahr> – Schätzung unsicher“ bei Abgaben und Kennzahlen | FA-21.1–FA-21.3 | `HASH2` |
-| Doku | `docs/REGELPFLEGE.md`: Checkliste aller Steuerwerte mit Quelle, Termin, Codestelle, `spec.*` | FA-21.1 | `HASH2` |
+| Neu | Buchungsregeln (Privatanteil / betrieblicher Anteil, Fahrtenbuch/Fläche, Gültigkeit, Begründung, Anhänge, Verlauf), Schema 31 | FA-20.1, FA-20.2 | `091e639` |
+| Neu | Wirkung auf Gewinn und Vorsteuer, Karte „Regel: … betrieblich“ an der Buchung mit Ausnahme | FA-20.3, FA-20.4 | `091e639` |
+| Neu | Abschnitt „Buchungsregeln und Angaben für die Steuerberatung“ in Saldenliste, Jahresabschluss, Paket (`Buchungsregeln.csv`, Anhänge) | FA-20.5 | `091e639` |
+| Neu | Hilfeartikel „Privat-PKW teilweise betrieblich“ und „Büro in der eigenen Wohnung“ mit „Regel anlegen“; Demo-Musterregeln | FA-20.6, FA-20.7 | `091e639` |
+| Doku | KI-Chat als Stufe C (L-21.13), Tarif Pro (O-47) | FA-20.8 | `091e639` |
+| Neu | Regelstand je Land in den Einstellungen; Hinweis „Für <Jahr> gibt es neue Steuerwerte – bitte App aktualisieren.“ mit Store-Link; „Werte von <Jahr> – Schätzung unsicher“ bei Abgaben und Kennzahlen | FA-21.1–FA-21.3 | `48ee0d0` |
+| Doku | `docs/REGELPFLEGE.md`: Checkliste aller Steuerwerte mit Quelle, Termin, Codestelle, `spec.*` | FA-21.1 | `48ee0d0` |
 
 ---
 
