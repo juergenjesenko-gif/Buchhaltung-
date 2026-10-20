@@ -3,6 +3,7 @@ import '../licensing/subscription_screen.dart';
 import 'feedback_screen.dart';
 import '../helper/helper_devices_screen.dart';
 import 'legal_screen.dart';
+import '../booking_rules/booking_rules_screen.dart';
 import 'package:flutter/material.dart';
 import '../helper/helper_help_sheet.dart';
 
@@ -154,6 +155,20 @@ class SettingsScreen extends StatelessWidget {
                     onTap: () => Navigator.of(context).push(
                       MaterialPageRoute(
                         builder: (_) => const _CategoryScreen(),
+                      ),
+                    ),
+                  ),
+                  ListTile(
+                    key: const Key('settings-booking-rules'),
+                    contentPadding: EdgeInsets.zero,
+                    minTileHeight: 56,
+                    leading: const Icon(Icons.rule),
+                    title: const Text('Buchungsregeln'),
+                    subtitle: const Text('Privatanteile, z. B. PKW oder Büro'),
+                    trailing: const Icon(Icons.chevron_right),
+                    onTap: () => Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (_) => const BookingRulesScreen(),
                       ),
                     ),
                   ),

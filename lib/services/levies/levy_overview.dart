@@ -45,6 +45,7 @@ class LevyOverview {
       inputVatDeductible: inputVat,
       depreciation: tax.depreciation,
       entertainment: tax.entertainment,
+      mixedUse: tax.mixedUse,
       nonDeductibleKinds: rules.nonDeductibleKinds,
     );
     final quarter = Period.quarter(today.year, (today.month - 1) ~/ 3 + 1);

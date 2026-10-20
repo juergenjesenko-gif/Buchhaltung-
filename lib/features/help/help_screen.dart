@@ -4,6 +4,10 @@ import 'package:flutter/services.dart';
 import '../../services/help/help_index.dart';
 import '../../services/help/support_mail.dart';
 import '../../widgets/adaptive.dart';
+import '../../app_state.dart';
+import '../../services/booking_rule_templates.dart';
+import '../../widgets/primary_action_bar.dart';
+import '../booking_rules/booking_rules_screen.dart';
 
 /// Asset-Pfad des Handbuchs. Das Handbuch selbst ist das Asset (pubspec.yaml),
 /// es gibt keine Kopie.
@@ -218,6 +222,24 @@ class HelpSectionScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Scaffold(
     appBar: AppBar(title: Text(section.chapter)),
+    // Hilfeartikel mit Vorlage (FA-20.6): ein Tipp füllt die Regel vor.
+    bottomNavigationBar: switch (templateForHelpTitle(section.title)) {
+      null => null,
+      final t => PrimaryActionBar(
+        primary: PrimaryActionBar.filled(
+          key: const Key('help-create-rule'),
+          label: 'Regel anlegen',
+          icon: Icons.rule,
+          onPressed: () => openBookingRule(
+            context,
+            template: t.build(
+              AppScope.read(context).categories,
+              DateTime.now(),
+            ),
+          ),
+        ),
+      ),
+    },
     body: ReadableWidth(
       child: SelectionArea(
         child: ListView(

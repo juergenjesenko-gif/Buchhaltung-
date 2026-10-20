@@ -18,6 +18,7 @@ THEMEN = [
     ('Umsatzsteuer: Sätze, Vorsteuer, Kassenbelege', ['P-S4', 'P-S28', 'P-S27', 'P-S29', 'P-S30', 'P-S46', 'P-S49', 'P-S50', 'P-S42']),
     ('Rechnungspflichtangaben', ['P-S9', 'P-U3', 'P-U2', 'P-S6', 'P-S40', 'P-S41', 'P-S43', 'P-M1']),
     ('E-Rechnung ausstellen (ZUGFeRD, XRechnung, ebInterface)', ['P-S86', 'P-S87']),
+    ('Buchungsregeln: Privatanteil PKW und Büro', ['P-S88', 'P-S89', 'P-S90']),
     ('Storno und Rechnungskorrektur', ['P-S56']),
     ('Mahnwesen', ['P-S44', 'P-S45']),
     ('Fremdwährung', ['P-S23', 'P-S24', 'P-S26']),

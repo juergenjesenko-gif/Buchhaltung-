@@ -9,7 +9,7 @@ import 'data/repositories.dart';
 import 'domain/company_profile.dart';
 import 'domain/legal_texts.dart';
 import 'domain/money.dart';
-import 'domain/country.dart' show EntertainmentRules;
+import 'domain/country.dart' show EntertainmentRules, MixedUseRules;
 import 'domain/receipt.dart';
 import 'domain/tax_registration.dart';
 import 'services/deadline_calculator.dart';
@@ -698,6 +698,9 @@ class AppState extends ChangeNotifier {
   /// Abzugsbeschränkung Bewirtung des Landes (FA-2.60).
   EntertainmentRules? get entertainmentRules =>
       _profile?.taxProfile.entertainment;
+
+  /// Gemischte Nutzung mit Buchungsregeln (FA-20.3).
+  MixedUseRules? get mixedUseRules => _profile?.taxProfile.mixedUse;
 
   /// Abgabenkategorien ohne Gewinnminderung (FA-19.4).
   Set<String> get nonDeductibleKinds =>

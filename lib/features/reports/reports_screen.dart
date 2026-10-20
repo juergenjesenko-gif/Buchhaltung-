@@ -9,6 +9,7 @@ import '../../services/export/exporters.dart';
 import '../../services/licensing/license_policy.dart';
 import '../../services/reports/annual_report.dart';
 import '../../services/reports/report_package.dart';
+import '../../services/reports/booking_rule_report.dart';
 import '../../services/receipt_image_store.dart';
 import '../../services/share_service.dart';
 import '../../widgets/adaptive.dart';
@@ -64,6 +65,7 @@ class _ReportsScreenState extends State<ReportsScreen> {
       reverseChargePermille: state.reverseChargePermille,
       depreciation: state.depreciationRules,
       entertainment: state.entertainmentRules,
+      mixedUse: state.mixedUseRules,
       nonDeductibleKinds: state.nonDeductibleKinds,
     );
     return AnnualReportData(
@@ -81,6 +83,15 @@ class _ReportsScreenState extends State<ReportsScreen> {
       assets: await repos.assets.all(),
       openInvoices: await repos.invoices.all(status: InvoiceStatus.issued),
       comment: _comment.text,
+      bookingRules: await repos.bookingRules.report(
+        from: period.from,
+        to: period.to,
+        inputVatDeductible: state.inputVatDeductible,
+        rules: profile.taxProfile.mixedUse,
+        categoryName: (id) =>
+            state.categories.where((c) => c.id == id).firstOrNull?.name ??
+            '#$id',
+      ),
     );
   }
 
@@ -156,7 +167,21 @@ class _ReportsScreenState extends State<ReportsScreen> {
       if (contracts.isNotEmpty) {
         csvs[ContractCsv.fileName] = ContractCsv.build(contracts);
       }
+      // Buchungsregeln samt Anhängen (FA-20.5).
+      final ruleFiles = <String, Uint8List>{};
+      if (data.bookingRules.isNotEmpty) {
+        csvs['Buchungsregeln.csv'] = bookingRulesCsv(data.bookingRules);
+        for (final e in data.bookingRules) {
+          for (final a in e.attachments) {
+            final f = await ReceiptImageStore.resolve(a.filePath);
+            if (f == null) continue;
+            ruleFiles['Buchungsregeln/${e.rule.id}_${a.id}_${a.fileName}'] =
+                await f.readAsBytes();
+          }
+        }
+      }
       final zip = ReportPackage.zip(
+        files: ruleFiles,
         pdfs: {
           pdf.fileName(ReportKind.preliminary): await pdf.build(
             ReportKind.preliminary,

@@ -5,6 +5,7 @@ import '../levies/levy_estimator.dart';
 import 'package:sqflite/sqflite.dart';
 
 import '../../data/repositories.dart';
+import '../../domain/booking_rule.dart';
 import '../../domain/article.dart';
 import '../../domain/company_profile.dart';
 import '../../domain/contract.dart';
@@ -65,7 +66,7 @@ class DemoDataset {
   ];
 
   /// Ungefähre Zahl der Belege (Ausgaben und Einnahmen ohne Rechnungen).
-  static const receiptCount = 28;
+  static const receiptCount = 30;
 
   /// Musterfirma für [country] anlegen (Auswahl „Deutschland“ /
   /// „Österreich“ beim Demo-Start, Rückmeldung zu 0.30.0).
@@ -295,6 +296,49 @@ class DemoDataset {
       description: 'Diesel Kastenwagen (Fiskal-LKW), Scheibenreiniger',
       category: 'Kfz-Kosten',
       parts: [(200, 7890)],
+    );
+    // Buchungsregeln (FA-20.x, Auftrag 2026-10-20): Privat-PKW zu 30 %
+    // betrieblich laut Fahrtenbuch und Büro 12 m² von 80 m² Wohnung.
+    await receipt(
+      daysAgo: 12,
+      merchant: 'Autowerkstatt Muster',
+      description: 'Service Privat-PKW',
+      category: 'Kfz-Kosten',
+      parts: [(200, 42000)],
+    );
+    await receipt(
+      daysAgo: 20,
+      merchant: 'Energie Muster',
+      description: 'Strom Wohnung (mit Büro)',
+      category: 'Miete & Betriebskosten',
+      parts: [(200, 9600)],
+      payment: PaymentMethod.bank,
+    );
+    await repos.bookingRules.save(
+      BookingRule(
+        name: 'PKW',
+        categoryIds: {categories['Kfz-Kosten']!},
+        supplier: 'Autowerkstatt Muster',
+        businessPermille: 300,
+        basis: BookingRuleBasis.logbook,
+        basisPartMilli: 3000 * 1000,
+        basisTotalMilli: 10000 * 1000,
+        validFrom: DateTime(now.year - 1, 1, 1),
+        comment: 'Privat-PKW, betriebliche Fahrten laut Fahrtenbuch.',
+      ),
+    );
+    await repos.bookingRules.save(
+      BookingRule(
+        name: 'Büro',
+        categoryIds: {categories['Miete & Betriebskosten']!},
+        supplier: 'Energie Muster',
+        businessPermille: 150,
+        basis: BookingRuleBasis.area,
+        basisPartMilli: 12 * 1000,
+        basisTotalMilli: 80 * 1000,
+        validFrom: DateTime(now.year - 1, 1, 1),
+        comment: 'Abgeschlossener Büroraum, ausschließlich betrieblich.',
+      ),
     );
     await receipt(
       daysAgo: 6,

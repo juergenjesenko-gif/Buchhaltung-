@@ -1,6 +1,6 @@
 # Lastenheft – JeNi bucht, Buchhaltungsapp für Österreich und Deutschland
 
-**Dokumentversion:** 1.88 · **Stand:** 2026-10-19 · **Status:** Entwurf zur Abstimmung
+**Dokumentversion:** 1.89 · **Stand:** 2026-10-20 · **Status:** Entwurf zur Abstimmung
 **Auftraggeber:** Jürgen Jesenko (privates Vorhaben) · **Umsetzung:** Claude Code
 
 > Ein Lastenheft beschreibt, **was** das Produkt leisten soll und **warum** — nicht,
@@ -835,6 +835,7 @@ daher, **welche Daten** die KI erreichen:
 | L-21.10 | **Buchhaltungsdaten und Belege** (Daten Dritter, auch besonders schützenswerte wie Arztrechnungen) | **Nein.** Bevorzugt Erkennung auf dem Gerät. Falls doch ein Sprachmodell nötig wird: eigene Route mit EU-Verarbeitung (Claude über Google Vertex AI „eu" oder AWS Bedrock EU) nach Datenschutz-Folgenabschätzung, oder Anthropic API nur mit vereinbarter Null-Speicherung (Zero Data Retention), Transfer-Folgenabschätzung und ausdrücklicher Information der Nutzerin | MUSS | — |
 | L-21.11 | **Belegerkennung per KI** liefert nur einen Vorschlag; gebucht wird erst nach Bestätigung durch die Nutzerin. Das Original bleibt unverändert auf dem Gerät; je Beleg werden Modell, Vorschlag und bestätigter Wert protokolliert (GoBD, § 131 BAO); Verfahrensdokumentation beschreibt den KI-Schritt | MUSS | — |
 | L-21.12 | Die Regel, welche Kategorie welche Route nimmt, ist **im Backend technisch erzwungen**, nicht nur dokumentiert | MUSS | C |
+| L-21.13 | **KI-Chat in der Hilfe** (Entscheidung Auftraggeber 2026-10-20, erweitert Stufe C): Chat über den eigenen Server-Proxy zu Anthropic (Schlüssel nie in der App, L-21.2), Opt-in-Einwilligung mit Nennung von Anthropic und USA, Auftragsverarbeitungsvertrag, keine Daten nach Art. 9 DSGVO. Der Chat erklärt Regeln, stellt Fragen und **schlägt** eine Buchungsregel (Spezifikation FA-20.x) und Aufgaben **vor** (z. B. Grundriss hochladen, Büro markieren, m² eingeben); erst die Nutzerin bestätigt; Regel mit Gesprächsauszug dokumentiert. Beispiele: Privat-PKW teilweise betrieblich, Büro in der Wohnung. Positionierung: **Eingangsinformation für die Steuerberatung** – „bereitet das Gespräch mit der Steuerberatung vor und spart Zeit“, ersetzt keine individuelle Beratung (Rechtsanwalt-Instanz, P-R66; nicht „ersetzt ein Gespräch“). Datenfluss vor Bau in 5.19, PRIVACY und STORE_LISTING | SOLL | C |
 
 #### Betrieb rund um die Uhr (24/7)
 
@@ -1456,6 +1457,7 @@ Zu entscheiden, bevor die betroffene Anforderung umgesetzt wird:
 | ~~O-42~~ | **Entschieden am 2026-10-19 (Auftraggeber), ersetzt O-35:** (A) Die Kundin wählt und startet ein Abo (Basis oder Pro, monatlich/jährlich) im Store; **alle vier Produkte** haben ein Einführungsangebot 14 Tage kostenlos, Kündigung in den 14 Tagen kostet nichts. Bei Basis gibt die App in den ersten 14 Tagen des ersten Abos alle Pro-Funktionen frei („Pro inklusive in der Testzeit“), danach Basis, Daten bleiben; Hinweis 3 Tage vorher „Noch X Tage Pro inklusive – danach Basis. Jetzt auf Pro wechseln?“. Pro bleibt Pro. Text: „14 Tage kostenlos testen – mit allen Pro-Funktionen. Danach gilt dein gewähltes Abo (Preis aus Store). Jederzeit vorher im Store kündbar.“ (B) **Demo ohne Abo** mit eigener Muster-Datenbank, nichts speichern, Wasserzeichen „MUSTER – DEMO“, Band „DEMO – Abo wählen, um mit deinen eigenen Daten zu starten“ (L-10.6). (C) „Store-Test nur auf Pro“ entfällt, ein App-eigener Test bleibt verworfen. Umgesetzt in 0.27.0: Spezifikation FA-13.4, FA-13.5, FA-13.14, FA-13.15; Store-Einrichtung `STORE_ANMELDUNG.md` Formular 4 | erledigt |
 | ~~O-45~~ | **Entschieden am 2026-10-19 (Auftraggeber): Variante A plus Codes.** Apple-Einführungsangebot 14 Tage gratis auf allen vier Produkten (wie Android), danach Grundpreis; kein automatischer Preis fürs erste Jahr auf iOS, nur per Angebotscode: `JENIBUCHTSTART` (Einführungspreis erstes Jahr, je Produkt ein Code), `JENIBUCHT2M`, `JENIBUCHT20`/`JENIBUCHT20PRO`. Android behält das mehrphasige Angebot (14 Tage gratis → erstes Jahr → Grundpreis). „14 Tage kostenlos testen“ gilt in beiden Stores. Spezifikation FA-13.16, `STORE_ANMELDUNG.md` Formular 4 | erledigt |
 | ~~O-46~~ | **Entschieden am 2026-10-19 (Auftraggeber):** `JENIBUCHT20` läuft parallel zu `JENIBUCHT2M`; Instagram bewirbt den Pro-Code `JENIBUCHT20PRO` (Apple: eigener Code auf `pro_jahr`, Android: derselbe Code schaltet das Tag `jenibucht20` frei). Nicht geheimer Android-Code akzeptiert; rechtliche Prüfung P-R63 bleibt offen | erledigt |
+| ~~O-47~~ | **Entschieden am 2026-10-20 (Auftraggeber):** Buchungsregeln anlegen und ändern ist **Pro** (`Feature.bookingRules`); bestehende Regeln wirken in jedem Abo weiter; Demo zeigt zwei Musterregeln. Spezifikation 5.16 | erledigt |
 | O-41 | **Nächstes Land** (L-30.8): Empfehlung der [Länderanalyse](LAENDERANALYSE.md) vom 2026-10-18 – zuerst **Frankreich als weiteres Steuerland** (Registrierung für ein FBA-Lager, nur `TaxProfile` mit Sätzen, CA3 und Terminen), danach **Niederlande als erstes neues Heimatland** (keine E-Rechnungs- oder Kassenpflicht); Italien trotz größtem Markt erst später wegen SDI-Pflicht (braucht Server bzw. Vermittler). Vor Umsetzung die dort markierten Punkte („vor Umsetzung prüfen“) klären und in Spezifikation 14 aufnehmen | Entscheidung Auftraggeberin |
 | O-38 | **Volle Mehrgeräte-Synchronisierung** (Weg 2 Cloud-Ordner mit Änderungsjournal nach L-19.15 ff. bzw. Weg 3 Anbieter-Server): nach dem Launch bei genügend Nutzerinnen, gemeinsam mit O-32/O-37 zu entscheiden. Bis dahin Mithelfer-Geräte als Einbahn (5.29) | nach dem Launch |
 | O-20 | Welche Vorsoftware-Formate sind beim Import vorrangig zu unterstützen? Richtet sich nach dem, womit die ersten Nutzer tatsächlich kommen | Stufe B |
@@ -1532,6 +1534,9 @@ Historie stehen. Die Einzelheiten stehen an der genannten Stelle.
 | 2026-10-19 | `JENIBUCHT20` parallel zu `JENIBUCHT2M`; Instagram bewirbt `JENIBUCHT20PRO`; nicht geheimer Android-Code akzeptiert (P-R63 bleibt beim Anwalt) | 5.10, O-46 |
 | 2026-10-19 | PDF-Betrachter in der App: jedes erzeugte PDF und PDF-Anhänge vor dem Senden/Drucken ansehen; Drucken über den Systemdialog in jedem Abo, Senden wie bisher Pro | FA-5.48, FA-13.11 |
 | 2026-10-19 | Willkommensseite: Unterzeile „… nach den Regeln, die auch Profis anwenden“ (statt „mit der Qualität von Profis“, UWG) und vier Funktionszeilen | FA-1.13, P-R60 |
+| 2026-10-20 | **Buchungsregeln jetzt bauen** (0.34.0): manuelle Regeln für gemischt genutzte Ausgaben (Privatanteil / betrieblicher Anteil, Geltungsbereich, Anteil in Promille, Grundlage mit Zahlen, Gültigkeit, Begründung, Anhänge, Verlauf), Wirkung auf E/A und Vorsteuer, Ausnahme je Buchung, Abschnitt im Bericht, Hilfeartikel PKW und Büro mit „Regel anlegen“, Demo-Musterregeln | Spez. 5.16, FA-20.1–20.7 |
+| 2026-10-20 | **KI-Chat** als Stufe C zu L-21: schlägt Regel und Aufgaben vor, Nutzerin bestätigt; Eingangsinformation für die Steuerberatung, Wortlaut „bereitet das Gespräch vor und spart Zeit“ | L-21.13, FA-20.8, P-R66 |
+| 2026-10-20 | Buchungsregeln Tarif **Pro** | O-47 |
 
 ---
 
@@ -1541,6 +1546,7 @@ Historie stehen. Die Einzelheiten stehen an der genannten Stelle.
 
 | Version | Datum | Änderung |
 |---|---|---|
+| 1.89 | 2026-10-20 | Entscheidungen Auftraggeber 2026-10-20 (14a): Buchungsregeln gebaut (Spez. 5.16), KI-Chat als L-21.13 (Stufe C), O-47 Buchungsregeln Pro. |
 | 1.88 | 2026-10-19 | 14a: Logo endgültig (DESIGN_SPEC 10a), Instagram-Text zum 20-%-Code ohne „statt“-Preis. |
 | 1.87 | 2026-10-19 | Entscheidungen Auftraggeber 2026-10-19 (14a): O-44 (E-Rechnung ausstellen ab Basis), O-45 (Apple Variante A plus Codes), O-46 (Pro-Code `JENIBUCHT20PRO`, parallel) erledigt. |
 | 1.86 | 2026-10-19 | E-Rechnung erstellen umgesetzt (L-4.1, L-4.2, 0.32.0); Datenfluss „Rechnungsversand“ um ZUGFeRD-PDF und XML ergänzt (5.19); neu O-44 (Tarif für E-Rechnung ausstellen). |

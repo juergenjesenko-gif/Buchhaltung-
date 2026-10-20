@@ -51,6 +51,7 @@ enum Entitlement {
     Feature.invoiceLogo ||
     Feature.assetManagement ||
     Feature.contractSummary ||
+    Feature.bookingRules ||
     Feature.helperDevices => this == pro,
   };
 
@@ -126,6 +127,11 @@ enum Feature {
   /// Auftraggeber 2026-10-19, O-43: nur Pro, in der Demo sichtbar). Buchungen
   /// in Abgabenkategorien bleiben in jedem Anspruch normale Buchungen.
   levyReserve,
+
+  /// Buchungsregeln anlegen und ändern (FA-20.1; Vorschlag Pro, O-47 offen).
+  /// Bestehende Regeln wirken in jedem Anspruch weiter, sonst stimmt der
+  /// Gewinn nicht (wie die AfA, L-22.6); die Demo zeigt Musterregeln.
+  bookingRules,
 
   /// E-Rechnung ausstellen (FA-5.49): ZUGFeRD-PDF, XRechnung, ebInterface.
   /// Ab Basis (Entscheidung Auftraggeber 2026-10-19, O-44): Pflicht zum

@@ -29,13 +29,39 @@ gebaut, und was war darin geprüft?*
 
 ## Unveröffentlicht
 
-Änderungen seit 0.33.0+46, die noch in keinem Build stecken. Wandern beim
+Änderungen seit 0.34.0+47, die noch in keinem Build stecken. Wandern beim
 nächsten Versionssprung in den neuen Eintrag.
+
+| Art | Änderung | Bezug | Commit |
+|---|---|---|---|
+
+---
+
+## 0.34.0+47 — 2026-10-20
+
+| Feld | Wert |
+|---|---|
+| Art | Testbuild (ungezippte arm64-APK `JeNi-bucht-0.34.0-build-<Nr>.apk`, fester Testschlüssel); **Lizenzprüfung aus** (ohne `LICENSING=true`), alle Funktionen frei |
+| Commit | `HASH` |
+| Branch | `claude/agile-accounting-app-mobile-wa5j3h` |
+| Dokumentstände | Lastenheft 1.89, Spezifikation 1.94, Benutzerhandbuch für 0.34.0, DESIGN_SPEC 1.7 |
+| Datenbankschema | 31 |
+| Prüfung | `flutter analyze` ohne Befund, alle Tests grün (neu `booking_rules_test.dart`: Anteil aus km/m², Rundung exakt, Vorsteuer AT/DE/KU, 10-%-Grenze, Geltungsbereich, Gültigkeit, Ausnahme, Verlauf unveränderlich, Bericht/CSV/PDF). Android/iOS-Build nur in der CI |
+| Steuerliche Kennwerte | neu `spec.at.mixed_use`, `spec.de.mixed_use` (10 % Mindestnutzung für Vorsteuer) |
+| Offene reale Prüfpunkte | neu P-S88, P-S89, P-S90, P-R65, P-R66, P-X29 |
+| Bekannte Grenzen | neu „Buchungsregeln nur als Kostenaufteilung“ (Spezifikation 11) |
+
+**Änderungen seit 0.33.0+46**
 
 | Art | Änderung | Bezug | Commit |
 |---|---|---|---|
 | Geändert | Einstellungen: „Symbol auf Startbildschirm legen“ an das Ende der Stammdaten-Liste | FA-1.19 | `5c487ef` |
 | Geändert | Rechnungs-, Storno- und Mahnungs-PDF in Markenfarbe Marineblau #0B3A67 statt #1B4965 | DESIGN_SPEC 9 | `b5ebe1f` |
+| Neu | Buchungsregeln (Privatanteil / betrieblicher Anteil, Fahrtenbuch/Fläche, Gültigkeit, Begründung, Anhänge, Verlauf), Schema 31 | FA-20.1, FA-20.2 | `HASH` |
+| Neu | Wirkung auf Gewinn und Vorsteuer, Karte „Regel: … betrieblich“ an der Buchung mit Ausnahme | FA-20.3, FA-20.4 | `HASH` |
+| Neu | Abschnitt „Buchungsregeln und Angaben für die Steuerberatung“ in Saldenliste, Jahresabschluss, Paket (`Buchungsregeln.csv`, Anhänge) | FA-20.5 | `HASH` |
+| Neu | Hilfeartikel „Privat-PKW teilweise betrieblich“ und „Büro in der eigenen Wohnung“ mit „Regel anlegen“; Demo-Musterregeln | FA-20.6, FA-20.7 | `HASH` |
+| Doku | KI-Chat als Stufe C (L-21.13), Tarif Pro (O-47) | FA-20.8 | `HASH` |
 
 ---
 

@@ -42,6 +42,7 @@ void main() {
         Feature.levyReserve,
         Feature.contractSummary,
         Feature.assetManagement,
+        Feature.bookingRules,
         Feature.helperDevices,
       ];
       for (final feature in proOnly) {

@@ -91,6 +91,7 @@ class _TaxOfficeScreenState extends State<TaxOfficeScreen> {
           : reg.taxProfile.standardVatPermille,
       depreciation: reg == null ? state.depreciationRules : null,
       entertainment: state.entertainmentRules,
+      mixedUse: state.mixedUseRules,
       nonDeductibleKinds: state.nonDeductibleKinds,
       scope: reg != null
           ? RegistrationScope.of(reg.id!)
@@ -107,6 +108,7 @@ class _TaxOfficeScreenState extends State<TaxOfficeScreen> {
       reverseChargePermille: state.reverseChargePermille,
       depreciation: state.depreciationRules,
       entertainment: state.entertainmentRules,
+      mixedUse: state.mixedUseRules,
       nonDeductibleKinds: state.nonDeductibleKinds,
       scope: registrations.isEmpty
           ? RegistrationScope.all
@@ -119,6 +121,7 @@ class _TaxOfficeScreenState extends State<TaxOfficeScreen> {
         inputVatDeductible: !r.isSmallBusiness,
         reverseChargePermille: r.taxProfile.standardVatPermille,
         entertainment: state.entertainmentRules,
+        mixedUse: state.mixedUseRules,
         nonDeductibleKinds: state.nonDeductibleKinds,
         scope: RegistrationScope.of(r.id!),
       );

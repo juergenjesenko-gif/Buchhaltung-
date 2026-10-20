@@ -617,6 +617,16 @@ void main() {
           en.inputVatLegalRef,
         ].join(';'),
       );
+      // Buchungsregeln (FA-20.3).
+      final mu = profile.mixedUse;
+      expect(
+        value('spec.$prefix.mixed_use'),
+        [
+          mu.minBusinessPermilleForInputVat,
+          mu.legalRef,
+          mu.inputVatLegalRef,
+        ].join(';'),
+      );
       // Abgaben & Rücklagen (FA-19.x).
       final lv = profile.levies;
       for (final e in lv.incomeTaxByYear.entries) {

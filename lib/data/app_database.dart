@@ -18,7 +18,7 @@ class AppDatabase {
 
   /// Aktuelle Schemaversion. Öffentlich, weil docs/SPECIFICATION.md sie
   /// dokumentiert und test/specification_sync_test.dart beide vergleicht.
-  static const schemaVersion = 30;
+  static const schemaVersion = 31;
 
   Database? _db;
 
@@ -875,6 +875,74 @@ class AppDatabase {
           "DEFAULT 'zugferd'",
       "ALTER TABLE customers ADD COLUMN supplier_number TEXT NOT NULL "
           "DEFAULT ''",
+    ],
+    // Buchungsregeln (FA-20.x, Entscheidung Auftraggeber 2026-10-20):
+    // betrieblicher Anteil gemischt genutzter Ausgaben. Anhänge, Verlauf
+    // und Ausnahmen; Anhänge und Verlauf sind nur anhängbar (wie Beleg-
+    // kommentare, GoBD Rz. 58 ff., § 131 BAO). Regeln werden nicht gelöscht,
+    // nur mit „Gültig bis“ beendet.
+    31: [
+      '''
+      CREATE TABLE booking_rules (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        name TEXT NOT NULL,
+        rule_type TEXT NOT NULL,
+        category_ids TEXT NOT NULL DEFAULT '',
+        supplier TEXT NOT NULL DEFAULT '',
+        registration TEXT NOT NULL DEFAULT 'all',
+        registration_id INTEGER REFERENCES tax_registrations(id),
+        business_permille INTEGER NOT NULL
+          CHECK (business_permille BETWEEN 0 AND 1000),
+        basis TEXT NOT NULL,
+        basis_part_milli INTEGER,
+        basis_total_milli INTEGER,
+        valid_from TEXT NOT NULL,
+        valid_to TEXT,
+        comment TEXT NOT NULL,
+        created_at TEXT NOT NULL,
+        updated_at TEXT NOT NULL
+      )
+      ''',
+      '''
+      CREATE TABLE booking_rule_attachments (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        rule_id INTEGER NOT NULL REFERENCES booking_rules(id),
+        file_path TEXT NOT NULL,
+        file_name TEXT NOT NULL,
+        note TEXT NOT NULL DEFAULT '',
+        created_at TEXT NOT NULL
+      )
+      ''',
+      '''
+      CREATE TRIGGER booking_rule_attachments_no_update
+      BEFORE UPDATE ON booking_rule_attachments
+      BEGIN
+        SELECT RAISE(ABORT, 'Anhänge von Buchungsregeln sind unveränderlich');
+      END
+      ''',
+      '''
+      CREATE TABLE booking_rule_log (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        rule_id INTEGER NOT NULL REFERENCES booking_rules(id),
+        text TEXT NOT NULL,
+        created_at TEXT NOT NULL
+      )
+      ''',
+      '''
+      CREATE TRIGGER booking_rule_log_no_update
+      BEFORE UPDATE ON booking_rule_log
+      BEGIN
+        SELECT RAISE(ABORT, 'Der Verlauf einer Buchungsregel ist unveränderlich');
+      END
+      ''',
+      '''
+      CREATE TABLE booking_rule_exclusions (
+        rule_id INTEGER NOT NULL REFERENCES booking_rules(id),
+        receipt_id INTEGER NOT NULL REFERENCES receipts(id),
+        created_at TEXT NOT NULL,
+        PRIMARY KEY (rule_id, receipt_id)
+      )
+      ''',
     ],
   };
 

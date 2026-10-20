@@ -52,6 +52,8 @@ import '../assets/asset_screens.dart';
 import '../../services/assets/depreciation.dart';
 import '../contracts/contract_screens.dart';
 import '../help/help_screen.dart';
+import '../booking_rules/booking_rule_strip.dart';
+import '../../domain/booking_rule.dart' show BookingFacts;
 import '../../services/help/help_index.dart';
 
 /// Beleg erfassen oder bearbeiten.
@@ -1982,6 +1984,18 @@ class _ReceiptEditScreenState extends State<ReceiptEditScreen> {
                         onChanged: (value) =>
                             setState(() => _categoryId = value),
                       ),
+                      // Buchungsregel (FA-20.4): Anteil mit Tipp zur Regel.
+                      if (!isIncome)
+                        BookingRuleStrip(
+                          facts: BookingFacts(
+                            date: _date,
+                            isExpense: true,
+                            categoryId: _categoryId,
+                            counterparty: _counterpartyController.text,
+                            taxRegistrationId: _registrationId,
+                          ),
+                          receiptId: widget.existing?.id,
+                        ),
                       // Bewirtung (FA-2.60): Hinweis zur Abzugsbeschränkung;
                       // in DE Anlass und Teilnehmer als Vorschlagsfelder,
                       // nie Pflicht (Leitprinzip).

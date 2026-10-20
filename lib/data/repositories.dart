@@ -20,6 +20,7 @@ import 'offer_repository.dart';
 import 'vat_check_repository.dart';
 import 'tax_registration_repository.dart';
 import 'levy_settings_repository.dart';
+import 'booking_rule_repository.dart';
 export 'levy_settings_repository.dart';
 
 export 'tax_registration_repository.dart';
@@ -657,10 +658,21 @@ class ReceiptRepository {
     int reverseChargePermille = 0,
     DepreciationRules? depreciation,
     EntertainmentRules? entertainment,
+    MixedUseRules? mixedUse,
     Set<String> nonDeductibleKinds = const {},
     RegistrationScope scope = RegistrationScope.all,
   }) async {
     final only = scope.where('r');
+    // Buchungsregeln (FA-20.3): Privatanteil gemischt genutzter Ausgaben.
+    final rules = mixedUse == null
+        ? null
+        : await BookingRuleRepository(_db).evaluate(
+            from: from,
+            to: to,
+            inputVatDeductible: inputVatDeductible,
+            rules: mixedUse,
+            where: only,
+          );
     // Abgaben, die den Gewinn nicht mindern (FA-19.4): Einkommensteuer,
     // Gewerbesteuer, in DE die Kranken-/Pflegeversicherung. Ohne Steuer
     // gebucht; Basis wie beim Aufwand (netto bzw. ohne Vorsteuerabzug brutto).
@@ -784,8 +796,11 @@ class ReceiptRepository {
         expenseNet += net;
         expenseVat += vat;
         expenseGross += gross;
+        final cut =
+            rules?.inputVatRemovedByRate[permille] ?? const Money.zero();
+        expenseVat -= cut;
         expenseVatByRate[permille] =
-            (expenseVatByRate[permille] ?? const Money.zero()) + vat;
+            (expenseVatByRate[permille] ?? const Money.zero()) + vat - cut;
       } else {
         expenseNet += gross;
         expenseGross += gross;
@@ -841,6 +856,9 @@ class ReceiptRepository {
       entertainmentExpense: entertainmentExpense,
       entertainmentNonDeductible: entertainmentNonDeductible,
       nonDeductibleLevies: nonDeductibleLevies,
+      rulePrivatePart: rules?.privatePart ?? const Money.zero(),
+      ruleInputVatRemoved: rules?.inputVatRemoved ?? const Money.zero(),
+      ruleVatAsExpense: rules?.vatAsExpense ?? const Money.zero(),
     );
   }
 
@@ -971,7 +989,21 @@ class PeriodTotals {
     this.entertainmentExpense = const Money.zero(),
     this.entertainmentNonDeductible = const Money.zero(),
     this.nonDeductibleLevies = const Money.zero(),
+    this.rulePrivatePart = const Money.zero(),
+    this.ruleInputVatRemoved = const Money.zero(),
+    this.ruleVatAsExpense = const Money.zero(),
   });
+
+  /// Privatanteil aus Buchungsregeln (FA-20.3): in [expenseNet] enthalten,
+  /// keine Betriebsausgabe; wird dem Ergebnis hinzugerechnet.
+  final Money rulePrivatePart;
+
+  /// Nicht abziehbare Vorsteuer aus Buchungsregeln; bereits aus
+  /// [expenseVat] und [inputVatByRate] herausgerechnet.
+  final Money ruleInputVatRemoved;
+
+  /// Davon betrieblicher Teil unter der Mindestnutzung: Aufwand.
+  final Money ruleVatAsExpense;
 
   /// Gebuchte Abgaben, die keine Betriebsausgabe sind (in [expenseNet]
   /// enthalten, FA-19.4): Einkommensteuer, Gewerbesteuer (DE), Kranken-/
@@ -1047,7 +1079,9 @@ class PeriodTotals {
       operatingExpense -
       expenseFxDifference +
       entertainmentNonDeductible +
-      nonDeductibleLevies;
+      nonDeductibleLevies +
+      rulePrivatePart -
+      ruleVatAsExpense;
 
   /// Zahllast bzw. Guthaben gegenüber dem Finanzamt.
   Money get vatPayable =>
@@ -1084,6 +1118,9 @@ class PeriodTotals {
       entertainmentNonDeductible:
           entertainmentNonDeductible + o.entertainmentNonDeductible,
       nonDeductibleLevies: nonDeductibleLevies + o.nonDeductibleLevies,
+      rulePrivatePart: rulePrivatePart + o.rulePrivatePart,
+      ruleInputVatRemoved: ruleInputVatRemoved + o.ruleInputVatRemoved,
+      ruleVatAsExpense: ruleVatAsExpense + o.ruleVatAsExpense,
     );
   }
 }
@@ -1732,9 +1769,11 @@ class Repositories {
       helpers = HelperRepository(db),
       registrations = TaxRegistrationRepository(db),
       levySettings = LevySettingsRepository(db),
+      bookingRules = BookingRuleRepository(db),
       audit = AuditLog(db);
 
   final LevySettingsRepository levySettings;
+  final BookingRuleRepository bookingRules;
 
   final CompanyRepository company;
   final CategoryRepository categories;

@@ -75,6 +75,9 @@ String featureReason(Feature feature) => switch (feature) {
   Feature.levyReserve =>
     'Abgaben & Rücklagen gibt es mit Pro. Deine Buchungen für Steuern und '
         'Sozialversicherung bleiben in jedem Abo ganz normale Buchungen.',
+  Feature.bookingRules =>
+    'Buchungsregeln anlegen und ändern gibt es mit Pro. Bestehende Regeln '
+        'wirken in jedem Abo weiter.',
   Feature.assetManagement =>
     'Anlagen anlegen, ändern und ausscheiden gibt es mit Pro. Erfasste '
         'Anlagen, ihre AfA und das Anlagenverzeichnis bleiben in jedem Abo.',

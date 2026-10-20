@@ -121,8 +121,12 @@ class TaxProfile {
     required this.annualReturnForm,
     required this.depreciation,
     required this.entertainment,
+    required this.mixedUse,
     required this.levies,
   });
+
+  /// Gemischt genutzte Ausgaben mit Buchungsregel (FA-20.x). P-S88.
+  final MixedUseRules mixedUse;
 
   /// Abgaben & Rücklagen (FA-19.x): Tarife, Sozialversicherung, Zuschläge.
   final LevyRules levies;
@@ -600,6 +604,16 @@ class TaxProfile {
           'Werbung dient (z. B. Geschäftsessen mit Kunden). Die Vorsteuer '
           'ist voll abziehbar.',
     ),
+    // Gemischte Nutzung (FA-20.3): Vorsteuer nur im Ausmaß der
+    // unternehmerischen Nutzung; unter 10 % gilt der Gegenstand nicht als
+    // für das Unternehmen ausgeführt (§ 12 Abs 2 Z 1 lit a UStG 1994).
+    // PKW-Vorsteuer ist unabhängig davon ausgeschlossen (§ 12 Abs 2 Z 2
+    // lit b UStG 1994, außer emissionsfrei); das regelt die Kategorie. P-S88.
+    mixedUse: const MixedUseRules(
+      minBusinessPermilleForInputVat: 100,
+      legalRef: '§ 4 Abs 1 und § 20 Abs 1 Z 1 EStG 1988',
+      inputVatLegalRef: '§ 12 Abs 2 Z 1 lit a UStG 1994',
+    ),
     // Beilage E1a, Einnahmen-Ausgaben-Rechnung: Kz 9040 Erlöse
     // (Betriebseinnahmen), auch für Kleinunternehmer. P-S58.
     annualReturnForm: const AnnualReturnForm(
@@ -974,6 +988,15 @@ class TaxProfile {
           'Das Finanzamt verlangt Anlass und Teilnehmer auf dem Beleg – '
           'trag sie hier ein, solange du dich erinnerst.',
     ),
+    // Gemischte Nutzung (FA-20.3): Vorsteuer anteilig nach Aufteilung;
+    // unter 10 % unternehmerischer Nutzung kein Vorsteuerabzug (§ 15 Abs 1
+    // Satz 2 UStG). Volle Zuordnung mit Wertabgabe (§ 3 Abs 9a UStG) bildet
+    // die App nicht ab (P-S88).
+    mixedUse: const MixedUseRules(
+      minBusinessPermilleForInputVat: 100,
+      legalRef: '§ 4 Abs 4, § 12 Nr. 1 EStG',
+      inputVatLegalRef: '§ 15 Abs 1 Satz 2, Abs 4 UStG',
+    ),
     // Anlage EÜR: Kz 111 Betriebseinnahmen als umsatzsteuerlicher
     // Kleinunternehmer, Kz 112 umsatzsteuerpflichtige Betriebseinnahmen,
     // Kz 140 vereinnahmte Umsatzsteuer, Kz 185 gezahlte Vorsteuer. P-S58.
@@ -1094,6 +1117,23 @@ class EntertainmentRules {
 
   /// Hinweis im Belegformular.
   final String hint;
+}
+
+/// Gemischt genutzte Ausgaben mit Buchungsregel (FA-20.3, P-S88).
+///
+/// Die App rechnet vorsichtig: Aufwand und Vorsteuer zählen nur im
+/// betrieblichen Anteil. Unter [minBusinessPermilleForInputVat] gibt es keine
+/// Vorsteuer, der betriebliche Anteil der Steuer wird dann Aufwand.
+class MixedUseRules {
+  const MixedUseRules({
+    required this.minBusinessPermilleForInputVat,
+    required this.legalRef,
+    required this.inputVatLegalRef,
+  });
+
+  final int minBusinessPermilleForInputVat;
+  final String legalRef;
+  final String inputVatLegalRef;
 }
 
 /// Kennzahlen der Voranmeldung für die Steuerschuld des Leistungsempfängers.

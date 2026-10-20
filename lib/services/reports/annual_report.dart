@@ -21,6 +21,8 @@ import '../../domain/receipt.dart';
 import '../assets/depreciation.dart';
 import '../pdf_fonts.dart';
 import '../pdf_watermark.dart';
+import 'booking_rule_report.dart';
+import '../../domain/booking_rule.dart' show formatPermille;
 
 /// Zeile der Saldenliste.
 class BalanceLine {
@@ -53,7 +55,11 @@ class AnnualReportData {
     required this.assets,
     required this.openInvoices,
     this.comment = '',
+    this.bookingRules = const [],
   });
+
+  /// Buchungsregeln mit Summen des Zeitraums (FA-20.5).
+  final List<BookingRuleReportEntry> bookingRules;
 
   final CompanyProfile profile;
   final String periodLabel;
@@ -135,6 +141,14 @@ class AnnualReportData {
           '',
           'davon Steuern/Abgaben privat, nicht Betriebsausgabe',
           totals.nonDeductibleLevies,
+        ),
+      // Buchungsregeln (FA-20.3): Privatanteil, in den Kategorien
+      // enthalten und dem Ergebnis hinzugerechnet.
+      if (!totals.rulePrivatePart.isZero)
+        BalanceLine(
+          '',
+          'davon Privatanteile laut Buchungsregeln',
+          totals.rulePrivatePart,
         ),
       BalanceLine(
         '',
@@ -279,11 +293,12 @@ class AnnualReportPdf {
           ],
           ...switch (kind) {
             ReportKind.assetRegister => _assetRegister(),
-            ReportKind.trialBalance => _trialBalance(),
+            ReportKind.trialBalance => [..._trialBalance(), ..._bookingRules()],
             ReportKind.preliminary => [
               ..._incomeStatement(),
               ..._assetRegister(),
               ..._trialBalance(),
+              ..._bookingRules(),
               ..._openItems(),
             ],
           },
@@ -340,6 +355,16 @@ class AnnualReportPdf {
         [
           'Hinzurechnung Steuern/Abgaben privat (FA-19.4)',
           Fmt.money(t.nonDeductibleLevies),
+        ],
+      if (!t.rulePrivatePart.isZero)
+        [
+          'Hinzurechnung Privatanteile laut Buchungsregeln (FA-20.3)',
+          Fmt.money(t.rulePrivatePart),
+        ],
+      if (!t.ruleVatAsExpense.isZero)
+        [
+          'Nicht abziehbare Vorsteuer als Aufwand (Buchungsregeln)',
+          Fmt.money(t.ruleVatAsExpense),
         ],
       ['Ergebnis (Gewinn/Verlust)', Fmt.signedMoney(t.profit)],
     ];
@@ -446,6 +471,59 @@ class AnnualReportPdf {
       pw.Text(
         'Einnahmen-Ausgaben-Rechnung: Salden sind Summen der Zahlungen im '
         'Zeitraum; Anfangs- und Endbestände nur beim Anlagevermögen.',
+        style: const pw.TextStyle(fontSize: 8),
+      ),
+    ];
+  }
+
+  /// „Buchungsregeln und Angaben für die Steuerberatung“ (FA-20.5).
+  List<pw.Widget> _bookingRules() {
+    final entries = data.bookingRules;
+    if (entries.isEmpty) return const [];
+    return [
+      _heading('Buchungsregeln und Angaben für die Steuerberatung'),
+      _table(
+        [
+          'Regel',
+          'Betrieblich',
+          'Buchungen',
+          'Aufwand',
+          'betrieblich',
+          'Privatanteil',
+          if (!data.smallBusiness) 'VSt nicht abz.',
+        ],
+        [
+          for (final e in entries)
+            [
+              e.rule.name,
+              formatPermille(e.rule.businessPermille),
+              e.sums.excludedCount == 0
+                  ? '${e.sums.count}'
+                  : '${e.sums.count} (+${e.sums.excludedCount} ausgen.)',
+              Fmt.money(e.sums.base),
+              Fmt.money(e.sums.business),
+              Fmt.money(e.sums.privatePart),
+              if (!data.smallBusiness) Fmt.money(e.sums.inputVatRemoved),
+            ],
+        ],
+        right: {1, 2, 3, 4, 5, 6},
+      ),
+      for (final e in entries)
+        pw.Bullet(
+          text: [
+            e.rule.name,
+            '${e.rule.type.label}, ${e.validity}',
+            'Geltungsbereich: ${e.scopeLabel}',
+            'Grundlage: ${e.basisText}',
+            'Begründung: ${e.rule.comment}',
+            'Anhänge: ${e.attachmentText}',
+          ].join(' – '),
+          style: const pw.TextStyle(fontSize: 8),
+        ),
+      pw.Text(
+        '$bookingRuleDisclaimer Vorsteuer anteilig '
+        '(${data.profile.taxProfile.mixedUse.inputVatLegalRef}); '
+        'Privatanteil ${data.profile.taxProfile.mixedUse.legalRef}.',
         style: const pw.TextStyle(fontSize: 8),
       ),
     ];

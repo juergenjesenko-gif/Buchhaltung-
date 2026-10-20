@@ -96,6 +96,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
       reverseChargePermille: state.reverseChargePermille,
       depreciation: state.depreciationRules,
       entertainment: state.entertainmentRules,
+      mixedUse: state.mixedUseRules,
       nonDeductibleKinds: state.nonDeductibleKinds,
     );
     final recent = await state.repositories.receipts.query(limit: 5);
@@ -134,6 +135,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
         reverseChargePermille: state.reverseChargePermille,
         depreciation: state.depreciationRules,
         entertainment: state.entertainmentRules,
+        mixedUse: state.mixedUseRules,
         nonDeductibleKinds: state.nonDeductibleKinds,
       );
       bars.add(

@@ -1,6 +1,6 @@
 # Benutzerhandbuch – JeNi bucht
 
-**Für App-Version 0.33.0** · Stand 2026-10-19
+**Für App-Version 0.34.0** · Stand 2026-10-20
 
 > **Testerinnen und Tester, Umstieg auf 0.26.0:** Ab dieser Version hat die App
 > eine neue technische Kennung. Sie wird **neben** der alten App installiert,
@@ -39,6 +39,7 @@ die du in der App siehst, mitgeführt – siehe [`CLAUDE.md`](../CLAUDE.md).
 15. [Mithelfer-Geräte: Belege von Familie und Team](#15-mithelfer-geräte-belege-von-familie-und-team)
 16. [Mehrere Länder: weitere Steuer-Registrierungen](#16-mehrere-länder-weitere-steuer-registrierungen)
 17. [Abgaben & Rücklagen](#17-abgaben--rücklagen)
+18. [Buchungsregeln: Privatanteile bei PKW und Büro](#18-buchungsregeln-privatanteile-bei-pkw-und-büro)
 
 ---
 
@@ -1863,6 +1864,11 @@ neues Foto hinzufügen.
 
 Damit du nicht darauf wartest:
 
+- **Keine 1-%-Regelung und kein Kilometergeld automatisch.** Buchungsregeln
+  teilen Kosten nach Anteil (Fahrtenbuch, Fläche). Die pauschale Versteuerung
+  der Privatnutzung (DE), Kilometergeld oder Homeoffice-Pauschalen rechnet die
+  App nicht; die Hilfeartikel in Kapitel 18 erklären sie.
+
 - **Steuern und Sozialversicherung nur geschätzt.** „Abgaben & Rücklagen“
   rechnet mit deinem Gewinn allein, ohne andere Einkünfte, Familie oder
   Freibeträge, die die App nicht kennt. Lohnabgaben (Dienstnehmer) und
@@ -2205,3 +2211,117 @@ Die App rechnet private Steuern aus deinem Gewinn wieder heraus. So stimmen
 
 Kommunalsteuer, Dienstgeberbeitrag und Lohnsteuer fallen nur an, wenn du
 Mitarbeiter hast – das kommt später mit „Premium Plus“.
+
+## 18. Buchungsregeln: Privatanteile bei PKW und Büro
+
+Manche Ausgaben nutzt du teils für den Betrieb, teils privat – zum Beispiel
+das eigene Auto oder die Wohnung, in der dein Büro liegt. Mit einer
+**Buchungsregel** legst du einmal fest, welcher Anteil betrieblich ist. Danach
+buchst du jeden Beleg wie immer; die App zählt in deinen Zahlen nur den
+betrieblichen Anteil, der Rest steht als **Privatanteil** daneben.
+
+> **Grundlage für die Steuerberatung – ersetzt keine individuelle Beratung.**
+> Die App rechnet mit dem Anteil, den du festlegst. Ob er passt, klärt deine
+> Steuerberatung; die Angaben dazu bekommt sie fertig im Bericht.
+
+### Eine Regel anlegen
+
+1. **Einstellungen → Buchungsregeln → Regel anlegen** (oder im Hilfeartikel
+   unten auf **Regel anlegen** – dann ist alles vorausgefüllt)
+2. **Name**, z. B. „PKW“
+3. **Grundlage** wählen: *Fahrtenbuch* (km betrieblich und gesamt), *Fläche*
+   (m² Büro und gesamt) – der Anteil wird ausgerechnet –, *Schätzung* oder
+   *Sonstige*
+4. **Kategorien** antippen (z. B. Kfz-Kosten), wahlweise nur ein
+   **Lieferant**
+5. **Gültig ab** (und wenn nötig **bis**)
+6. **Begründung** schreiben – das liest deine Steuerberatung
+7. **Speichern**. Danach **Foto** oder **Datei** anhängen: Fahrtenbuch,
+   Grundriss mit markiertem Büro, Mietvertrag. Eine Notiz dazu hilft.
+
+Ändern ist jederzeit möglich; jede Änderung steht mit Datum im **Verlauf**.
+Eine Regel wird nicht gelöscht, sondern mit „Gültig bis“ beendet – so
+bleiben frühere Jahre richtig. Buchungsregeln anlegen und ändern gibt es mit
+**Pro**; bestehende Regeln wirken in jedem Abo weiter.
+
+### An der Buchung
+
+Fällt ein Beleg unter eine Regel, zeigt das Belegformular **„Regel: PKW 30 %
+betrieblich“**. Tippen öffnet die Regel. Mit **„Diese Buchung ausnehmen“**
+zählt ein einzelner Beleg voll – zum Beispiel eine Reparatur nach einer reinen
+Betriebsfahrt.
+
+### Was sich an deinen Zahlen ändert
+
+- **Gewinn:** der Privatanteil zählt nicht als Ausgabe.
+- **Vorsteuer** (nur wenn du nicht Kleinunternehmer bist): nur der betriebliche
+  Anteil. Unter 10 % betrieblicher Nutzung gibt es gar keine Vorsteuer
+  (AT § 12 Abs 2 Z 1 lit a UStG 1994, DE § 15 Abs 1 Satz 2 UStG).
+- **Kleinunternehmer:** die App teilt den Bruttobetrag auf.
+- **Kassabuch** und Belegliste zeigen weiter den ganzen bezahlten Betrag.
+- **Saldenliste und vorläufiger Jahresabschluss** haben den Abschnitt
+  „Buchungsregeln und Angaben für die Steuerberatung“: jede Regel mit
+  Grundlage, Zahlen, Begründung, Anhängen und den Summen. Das Paket für die
+  Steuerberatung enthält zusätzlich `Buchungsregeln.csv` und die Anhänge.
+
+### Privat-PKW teilweise betrieblich
+
+**Beispiel:** Du fährst im Jahr 10.000 km, davon 3.000 km betrieblich laut
+Fahrtenbuch → Regel „PKW“, 30 % betrieblich, Kategorie Kfz-Kosten.
+
+**Österreich**
+
+- Überwiegt die betriebliche Nutzung (über 50 %), gehört das Auto zum
+  Betrieb; alle Kosten werden gebucht und der **Privatanteil** laut Fahrtenbuch
+  herausgerechnet – genau das macht die Regel.
+- Bleibt das Auto privat, kannst du statt der Kosten das **Kilometergeld**
+  für betriebliche Fahrten ansetzen (0,50 €/km seit 2025, § 26 Z 4 EStG 1988
+  sinngemäß). Dann keine Regel, sondern Kilometergeld buchen.
+- **Vorsteuer** gibt es für PKW grundsätzlich nicht (§ 12 Abs 2 Z 2 lit b
+  UStG 1994), außer bei Elektroautos (emissionsfrei). Erfasse PKW-Belege
+  deshalb ohne Vorsteuer.
+- Kosten über 40.000 € Anschaffung sind nur anteilig angemessen
+  (Luxustangente, PKW-Angemessenheitsverordnung).
+- **Fahrtenbuch** ist der beste Nachweis – hänge es an die Regel.
+
+**Deutschland**
+
+- Die **1-%-Regelung** (§ 6 Abs 1 Nr. 4 Satz 2 EStG) gibt es nur, wenn das
+  Auto zu mehr als 50 % betrieblich genutzt wird. Die App bildet sie nicht ab;
+  mit **Fahrtenbuch** (Satz 3) ist die Regel mit dem echten Anteil der
+  richtige Weg.
+- Bei 10 bis 50 % betrieblicher Nutzung: **Kostenaufteilung** nach Fahrtenbuch
+  – die Regel. Gehört das Auto privat, alternativ 0,30 €/km für betriebliche
+  Fahrten.
+- **Elektro- und Hybridfahrzeuge** haben bei der 1-%-Regelung ermäßigte Werte
+  (0,25 % bzw. 0,5 %, § 6 Abs 1 Nr. 4 Satz 2 Nr. 3 EStG) – mit der
+  Steuerberatung klären.
+- **Vorsteuer** anteilig nach Nutzung (§ 15 Abs 4 UStG), unter 10 % keine.
+
+Fundstellen zur Kontrolle: Prüfpunkt P-S89 in der Spezifikation.
+
+### Büro in der eigenen Wohnung
+
+**Beispiel:** Wohnung 80 m², Büro 12 m² → Regel „Büro“, Grundlage Fläche,
+15 % betrieblich, Kategorie Miete & Betriebskosten. Grundriss fotografieren,
+Büro markieren, anhängen.
+
+**Österreich**
+
+- Ein **Arbeitszimmer im Wohnungsverband** zählt nur, wenn es (fast)
+  ausschließlich betrieblich genutzt wird **und** der Mittelpunkt deiner
+  gesamten betrieblichen Tätigkeit ist (§ 20 Abs 1 Z 2 lit d EStG 1988).
+- Sonst gibt es die **Arbeitsplatzpauschale**: 1.200 € im Jahr, wenn du keine
+  andere Arbeitsstätte hast, bzw. 300 € (§ 4 Abs 4 Z 8 EStG 1988). Dann keine
+  Regel, die Pauschale klärt deine Steuerberatung.
+
+**Deutschland**
+
+- **Häusliches Arbeitszimmer** als Mittelpunkt der gesamten Tätigkeit:
+  tatsächliche Kosten nach Fläche (die Regel) oder Jahrespauschale 1.260 €
+  (§ 4 Abs 5 Satz 1 Nr. 6b EStG).
+- Sonst **Homeoffice-Pauschale**: 6 € je Tag, höchstens 1.260 € im Jahr
+  (§ 4 Abs 5 Satz 1 Nr. 6c EStG). Dann keine Regel.
+
+Fundstellen zur Kontrolle: Prüfpunkt P-S90 in der Spezifikation.
+
