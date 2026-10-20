@@ -42,7 +42,7 @@ nächsten Versionssprung in den neuen Eintrag.
 | Feld | Wert |
 |---|---|
 | Art | Interner Test (TestFlight, Google Play interner Track) über `release.yml`; Buildnummer = Laufnummer der CI; **Lizenzprüfung aus** (ohne Eingabe `abo`), alle Funktionen frei |
-| Commit | `XXXXXXX` |
+| Commit | `511dd71` |
 | Branch | `claude/agile-accounting-app-mobile-wa5j3h` |
 | Dokumentstände | Lastenheft 1.89, Spezifikation 1.96, REGELPFLEGE 2026-10-20, Benutzerhandbuch für 0.35.0, DESIGN_SPEC 1.7 |
 | Datenbankschema | 31 |
@@ -55,7 +55,7 @@ nächsten Versionssprung in den neuen Eintrag.
 
 | Art | Änderung | Bezug | Commit |
 |---|---|---|---|
-| Neu | Versionsanzeige mit Buildnummer am Ende der Einstellungen und in Support-Mails | FA-11.8 | `XXXXXXX` |
+| Neu | Versionsanzeige mit Buildnummer am Ende der Einstellungen und in Support-Mails | FA-11.8 | `511dd71` |
 | Geändert | Sicherung von Hand mit 8-stelligem Zahlencode statt Kennwort | FA-7.2 | `4233656` |
 | Geändert | Automatische Sicherung: Abtippen von zwei Blöcken entfällt | FA-7.10 | `4233656` |
 | Geändert | Release-Builds ohne Lizenzprüfung, außer mit Eingabe `abo` (Tester sehen Pro) | FA-13.10 | `4233656` |
