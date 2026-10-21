@@ -67,9 +67,87 @@ class ContractTextExtractor {
     caseSensitive: false,
   );
   static final _period = RegExp(
-    r'(\d{1,3})\s*(Tag|Tage|Tagen|Woche|Wochen|Monat|Monate|Monaten|Jahr|Jahre|Jahren)\b',
+    r'\(?(\d{1,3})\)?\s*(?:\(\w+\)\s*)?(Tag|Tage|Tagen|Woche|Wochen|Monat|Monate|Monaten|Jahr|Jahre|Jahren|days?|weeks?|months?|years?)\b',
     caseSensitive: false,
   );
+
+  // Englische Verträge (Gerätetest 2026-10-21, Lizenzvertrag): ISO-Datum,
+  // „1 January 2026“, „January 1, 2026“ und Beträge „EUR 1,000.00“.
+  static final _isoDate = RegExp(r'\b(\d{4})-(\d{2})-(\d{2})\b');
+  static const _months = [
+    'january',
+    'february',
+    'march',
+    'april',
+    'may',
+    'june',
+    'july',
+    'august',
+    'september',
+    'october',
+    'november',
+    'december',
+  ];
+  static final _dayMonth = RegExp(
+    r'\b(\d{1,2})(?:st|nd|rd|th)?\s+(?:of\s+)?([A-Za-z]{3,9})\.?,?\s+(\d{4})\b',
+  );
+  static final _monthDay = RegExp(
+    r'\b([A-Za-z]{3,9})\.?\s+(\d{1,2})(?:st|nd|rd|th)?,?\s+(\d{4})\b',
+  );
+  static final _amountEn = RegExp(
+    r'(?:€|EUR)\s?(\d{1,3}(?:,\d{3})*\.\d{2})\b',
+    caseSensitive: false,
+  );
+
+  static int? _month(String word) {
+    final w = word.toLowerCase();
+    if (w.length < 3) return null;
+    for (var i = 0; i < _months.length; i++) {
+      if (_months[i].startsWith(w) || w == _months[i]) return i + 1;
+    }
+    return null;
+  }
+
+  static bool _any(String text, List<String> words) => words.any(text.contains);
+
+  /// Alle Datumsangaben einer Zeile mit Originaltext.
+  static List<(DateTime, String)> _dates(String text) {
+    final out = <(DateTime, String)>[];
+    void add(int y, int m, int d, String raw) {
+      if (m < 1 || m > 12 || d < 1 || d > 31) return;
+      out.add((DateTime(y, m, d), raw));
+    }
+
+    for (final d in _date.allMatches(text)) {
+      add(
+        int.parse(d.group(3)!),
+        int.parse(d.group(2)!),
+        int.parse(d.group(1)!),
+        d.group(0)!,
+      );
+    }
+    for (final d in _isoDate.allMatches(text)) {
+      add(
+        int.parse(d.group(1)!),
+        int.parse(d.group(2)!),
+        int.parse(d.group(3)!),
+        d.group(0)!,
+      );
+    }
+    for (final d in _dayMonth.allMatches(text)) {
+      final m = _month(d.group(2)!);
+      if (m != null) {
+        add(int.parse(d.group(3)!), m, int.parse(d.group(1)!), d.group(0)!);
+      }
+    }
+    for (final d in _monthDay.allMatches(text)) {
+      final m = _month(d.group(1)!);
+      if (m != null) {
+        add(int.parse(d.group(3)!), m, int.parse(d.group(2)!), d.group(0)!);
+      }
+    }
+    return out;
+  }
 
   static List<ContractHint> extract(String ocrText) {
     final out = <ContractHint>[];
@@ -103,45 +181,56 @@ class ContractTextExtractor {
         unit: unit,
       );
 
-      for (final d in _date.allMatches(text)) {
-        final day = int.parse(d.group(1)!);
-        final month = int.parse(d.group(2)!);
-        final year = int.parse(d.group(3)!);
-        if (month < 1 || month > 12 || day < 1 || day > 31) continue;
-        final date = DateTime(year, month, day);
+      for (final (date, raw) in _dates(text)) {
         final field =
-            lower.contains('beginn') ||
-                lower.contains('ab dem') ||
-                lower.contains('wirksam ab') ||
-                lower.contains('mietbeginn')
+            _any(lower, [
+              'beginn',
+              'ab dem',
+              'wirksam ab',
+              'mietbeginn',
+              'effective',
+              'commence',
+              'start date',
+            ])
             ? ContractField.startDate
-            : lower.contains('endet') ||
-                  lower.contains('bis zum') ||
-                  lower.contains('ablauf') ||
-                  lower.contains('vertragsende')
+            : _any(lower, [
+                'endet',
+                'bis zum',
+                'ablauf',
+                'vertragsende',
+                'expire',
+                'expiry',
+                'expiration',
+                'end date',
+              ])
             ? ContractField.endDate
             : ContractField.date;
-        out.add(hint(field, d.group(0)!, date: date));
+        out.add(hint(field, raw, date: date));
       }
 
       final period = _period.firstMatch(text);
       if (period != null) {
         final n = int.parse(period.group(1)!);
         final word = period.group(2)!.toLowerCase();
-        final unit = word.startsWith('tag')
+        final unit = word.startsWith('tag') || word.startsWith('day')
             ? 'days'
-            : word.startsWith('woche')
+            : word.startsWith('woche') || word.startsWith('week')
             ? 'weeks'
-            : word.startsWith('monat')
+            : word.startsWith('monat') || word.startsWith('month')
             ? 'months'
             : 'years';
-        if (lower.contains('kündigung')) {
+        if (_any(lower, ['kündigung', 'notice', 'terminat'])) {
           out.add(
             hint(ContractField.notice, period.group(0)!, number: n, unit: unit),
           );
-        } else if (lower.contains('laufzeit') ||
-            lower.contains('dauer') ||
-            lower.contains('abgeschlossen für')) {
+        } else if (_any(lower, [
+          'laufzeit',
+          'dauer',
+          'abgeschlossen für',
+          'term',
+          'duration',
+          'period of',
+        ])) {
           out.add(
             hint(
               ContractField.duration,
@@ -153,22 +242,41 @@ class ContractTextExtractor {
         }
       }
 
-      if (lower.contains('miete') ||
-          lower.contains('rate') ||
-          lower.contains('prämie') ||
-          lower.contains('entgelt') ||
-          lower.contains('pacht') ||
-          lower.contains('zins') ||
-          lower.contains('monatlich') ||
-          lower.contains('betrag')) {
-        final a = _amount.firstMatch(text);
-        if (a != null) {
-          final money = Money.tryParse(a.group(1) ?? a.group(2)!);
-          if (money != null && money.cents > 0) {
-            out.add(
-              hint(ContractField.rate, a.group(0)!.trim(), amount: money),
-            );
-          }
+      if (_any(lower, [
+        'miete',
+        'rate',
+        'prämie',
+        'entgelt',
+        'pacht',
+        'zins',
+        'monatlich',
+        'betrag',
+        'fee',
+        'royalt',
+        'rent',
+        'payment',
+        'price',
+        'amount',
+        'monthly',
+        'annual',
+      ])) {
+        final en = _amountEn.firstMatch(text);
+        final a = en == null ? _amount.firstMatch(text) : null;
+        // Englisch „1,000.00“ → „1000,00“ für Money.tryParse.
+        final digits = en != null
+            ? en.group(1)!.replaceAll(',', '').replaceAll('.', ',')
+            : a == null
+            ? null
+            : (a.group(1) ?? a.group(2)!);
+        final money = digits == null ? null : Money.tryParse(digits);
+        if (money != null && money.cents > 0) {
+          out.add(
+            hint(
+              ContractField.rate,
+              (en ?? a)!.group(0)!.trim(),
+              amount: money,
+            ),
+          );
         }
       }
 
@@ -176,7 +284,10 @@ class ContractTextExtractor {
           lower.contains('verbraucherpreisindex') ||
           lower.contains('vpi') ||
           lower.contains('indexanpassung') ||
-          lower.contains('indexiert')) {
+          lower.contains('indexiert') ||
+          lower.contains('consumer price index') ||
+          lower.contains('indexation') ||
+          lower.contains('inflation')) {
         out.add(hint(ContractField.indexation, excerpt));
       }
     }

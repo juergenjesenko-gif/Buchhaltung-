@@ -1,5 +1,6 @@
 import '../../domain/contract.dart';
 import '../export/csv.dart';
+import 'contract_schedule.dart';
 
 /// Vertragsliste als CSV für das Paket an die Steuerberatung (L-23.11).
 /// Seiten und Originale stecken in der Sicherung.
@@ -19,6 +20,7 @@ class ContractCsv {
         'Beginn',
         'Ende',
         'Kündigungsfrist',
+        'Kündigen bis',
         'Rate brutto',
         'Rhythmus',
         'Wertsicherung',
@@ -34,6 +36,7 @@ class ContractCsv {
         d(c.startDate),
         d(c.endDate),
         c.noticeValue == null ? '' : '${c.noticeValue} ${c.noticeUnit.label}',
+        d(ContractSchedule.noticeDeadline(c)),
         csvAmount(c.rate.cents),
         c.rhythm.label,
         c.indexation,
