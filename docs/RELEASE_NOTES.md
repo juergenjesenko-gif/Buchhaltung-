@@ -42,7 +42,7 @@ nächsten Versionssprung in den neuen Eintrag.
 | Feld | Wert |
 |---|---|
 | Art | Interner Test (TestFlight, Google Play interner Track) über `release.yml` und Test-APK aus `ci.yml`; **Lizenzprüfung aus**, alle Funktionen frei |
-| Commit | `XXXXXXX` |
+| Commit | `5a27ad2` |
 | Branch | `claude/agile-accounting-app-mobile-wa5j3h` |
 | Dokumentstände | Lastenheft 1.89, Spezifikation 2.01, REGELPFLEGE 2026-10-20, Benutzerhandbuch für 0.38.1, DESIGN_SPEC 1.7 |
 | Datenbankschema | 31 |
@@ -55,7 +55,7 @@ nächsten Versionssprung in den neuen Eintrag.
 
 | Art | Änderung | Bezug | Commit |
 |---|---|---|---|
-| Geändert | Demo heißt „Mein Unternehmen“ (DE) bzw. „Mein Unternehmen e.U.“ (AT) | FA-13.14 | `XXXXXXX` |
+| Geändert | Demo heißt „Mein Unternehmen“ (DE) bzw. „Mein Unternehmen e.U.“ (AT) | FA-13.14 | `5a27ad2` |
 
 ---
 
