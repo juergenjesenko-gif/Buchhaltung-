@@ -54,8 +54,14 @@ Funktion ein.
 
 **Hinweis für dich als Unternehmerin:** Für die Daten deiner Kundinnen und
 Kunden giltst du als Verantwortliche. Rechtsgrundlage ist in der Regel die
+<!-- nur AT -->
 Vertragserfüllung und die steuerliche Aufbewahrungspflicht (Art. 6 Abs 1 lit b
-und c DSGVO; § 132 BAO, § 147 AO).
+und c DSGVO; § 132 BAO).
+<!-- /nur -->
+<!-- nur DE -->
+Vertragserfüllung und die steuerliche Aufbewahrungspflicht (Art. 6 Abs 1 lit b
+und c DSGVO; § 147 AO).
+<!-- /nur -->
 
 ## 5. Wann Daten dein Gerät verlassen
 
@@ -121,14 +127,28 @@ einer Einwilligung mit Wirkung für die Zukunft. Zu Daten auf deinem Gerät
 können wir keine Auskunft geben, weil wir sie nicht haben – du hast dort selbst
 vollen Zugriff, Export und Löschung. Wende dich an office@jenibarb.com.
 
+<!-- nur AT -->
 Beschwerde: Österreichische Datenschutzbehörde, Barichgasse 40–42, 1030 Wien,
-www.dsb.gv.at – oder die Aufsichtsbehörde deines Wohnorts bzw. Arbeitsplatzes.
+www.dsb.gv.at.
+<!-- /nur -->
+<!-- nur DE -->
+Beschwerde: bei der Datenschutz-Aufsichtsbehörde deines Wohnorts bzw.
+Arbeitsplatzes (Art. 77 DSGVO) oder bei der für uns zuständigen
+Österreichischen Datenschutzbehörde, Barichgasse 40–42, 1030 Wien,
+www.dsb.gv.at.
+<!-- /nur -->
 
 ## 11. Speicherdauer auf deinem Gerät
 
 Bis du die Daten löschst oder die App deinstallierst (dann unwiderruflich).
-Beachte deine Aufbewahrungspflicht (Österreich 7 Jahre, § 132 BAO;
-Deutschland bis zu 8 bzw. 10 Jahre, § 147 AO) und sichere regelmäßig.
+<!-- nur AT -->
+Beachte deine Aufbewahrungspflicht (7 Jahre, § 132 BAO) und sichere
+regelmäßig.
+<!-- /nur -->
+<!-- nur DE -->
+Beachte deine Aufbewahrungspflicht (bis zu 8 bzw. 10 Jahre, § 147 AO) und
+sichere regelmäßig.
+<!-- /nur -->
 
 ## 12. Keine automatisierten Entscheidungen
 
