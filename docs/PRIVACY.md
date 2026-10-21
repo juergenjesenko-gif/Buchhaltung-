@@ -125,7 +125,7 @@ Nur in diesen Fällen, die du auslöst oder einschaltest:
   Rechnungsdaten; für Behörden teilst du stattdessen die XRechnung- bzw.
   ebInterface-Datei (dazu Leitweg-ID bzw. Auftragsreferenz und
   Lieferantennummer). Es geht nichts an den Anbieter.
-- **Export für die Steuerberatung** – gleiches Prinzip
+- **Export für die Steuerberatung** (auch als ZIP mit Belegfotos, Rechnungen und Vertragsseiten) – gleiches Prinzip
 - **Berichte für die Steuerberatung** (Anlagenverzeichnis, Saldenliste,
   vorläufiger Jahresabschluss als PDF oder ZIP) – gleiches Prinzip
 - **U30-Datei für FinanzOnline** (Österreich) – gleiches Prinzip; die Datei

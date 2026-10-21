@@ -666,7 +666,7 @@ Jede Übertragung vom Gerät weg, auch die unscheinbaren:
 
 | Datenfluss | Empfänger | Was | Ausgelöst durch | Opt-in | Stufe |
 |---|---|---|---|---|---|
-| Rechnung/Export teilen | vom Nutzer gewählt | PDF, CSV | Tippen auf Teilen | je Vorgang | vorhanden |
+| Rechnung/Export teilen | vom Nutzer gewählt | PDF, CSV, ZIP (Belege & Rechnungen eines Zeitraums mit Fotos, ab 0.38.0; Verträge mit Seiten) | Tippen auf Teilen | je Vorgang | vorhanden |
 | Sicherung von Hand (L-7.1) | vom Nutzer gewählt (Teilen-Dialog) | mit Kennwort verschlüsselte Vollsicherung samt Fotos | Tippen auf „Sicherung erstellen“ | je Vorgang | vorhanden |
 | Sicherung automatisch (L-7.2, L-7.6 ff.) | einmal gewählter Ordner, z. B. iCloud Drive oder Google Drive; Upload durch das Betriebssystem bzw. den Dokumentanbieter | mit Schlüssel verschlüsselte Vollsicherung samt Fotos | nach jeder Änderung höchstens täglich, beim Öffnen der App | **ja**, standardmäßig aus | vorhanden |
 | iCloud-Sicherung, nur iOS (L-7.17 bis L-7.20) | Apple (iCloud Drive der Nutzerin, App-eigener Container „JeNi bucht“); Apple ist aus Sicht der Nutzerin Auftragsverarbeiter, Server auch außerhalb der EU | mit Schlüssel verschlüsselte Vollsicherung samt Fotos; Apple sieht nur Dateiname, Größe, Zeitpunkt; Schlüssel nie im iCloud-Schlüsselbund (L-19.27) | nach jeder Änderung höchstens täglich, beim Öffnen der App | **ja**, standardmäßig aus; Ziel bei „Einrichten“, wenn iCloud verfügbar | vorhanden (0.16.0) |

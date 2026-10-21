@@ -29,11 +29,42 @@ gebaut, und was war darin geprüft?*
 
 ## Unveröffentlicht
 
-Änderungen seit 0.37.1+51, die noch in keinem Build stecken. Wandern beim
+Änderungen seit 0.38.0+52, die noch in keinem Build stecken. Wandern beim
 nächsten Versionssprung in den neuen Eintrag.
 
 | Art | Änderung | Bezug | Commit |
 |---|---|---|---|
+
+---
+
+## 0.38.0+52 — 2026-10-21
+
+| Feld | Wert |
+|---|---|
+| Art | Interner Test (TestFlight, Google Play interner Track) über `release.yml` und Test-APK aus `ci.yml`; **Lizenzprüfung aus**, alle Funktionen frei |
+| Commit | `XXXXXXX` |
+| Branch | `claude/agile-accounting-app-mobile-wa5j3h` |
+| Dokumentstände | Lastenheft 1.89 (Datenfluss 5.19 ergänzt), Spezifikation 2.00, REGELPFLEGE 2026-10-20, Benutzerhandbuch für 0.38.0, DESIGN_SPEC 1.7 |
+| Datenbankschema | 31 |
+| Prüfung | `flutter analyze` ohne Befund, alle Tests grün (965, neu u. a. `receipt_view_test`, `contract_ocr_test`, `document_package_test`, DE-Demo an sechs Stichtagen); Android/iOS-Build nur in der CI |
+| Steuerliche Kennwerte | unverändert |
+| Offene reale Prüfpunkte | P-D19, P-D58; Menü-Overlay und Vertrags-Texterkennung am Gerät |
+| Bekannte Grenzen | unverändert (Spezifikation 11) |
+
+**Änderungen seit 0.37.1+51**
+
+| Art | Änderung | Bezug | Commit |
+|---|---|---|---|
+| Geändert | Zeitraum- und Belegfilter in einer wischbaren Zeile, kurze Namen | FA-9.7 | `XXXXXXX` |
+| Geändert | Menü (drei Striche) öffnet Einstellungen als Seitenmenü | FA-9.8 | `XXXXXXX` |
+| Neu | Beleg-Leseansicht mit „Bearbeiten“ | FA-9.9 | `XXXXXXX` |
+| Neu | Verträge: Seitenvorschau, Original-PDF öffnen, „Erkannter Text“ | FA-16 | `XXXXXXX` |
+| Behoben | Vertrags-Kurzübersicht leer bei englischen Verträgen, ohne Meldung | FA-16 | `XXXXXXX` |
+| Behoben | Vertragsformular: Beschriftungen überlappten (12 dp Abstand) | FA-16 | `XXXXXXX` |
+| Behoben | Export → Verträge öffnete das Formular statt eines Exports | SPEC 7 | `XXXXXXX` |
+| Neu | Belege & Rechnungen eines Zeitraums als ZIP | SPEC 8.9 | `XXXXXXX` |
+| Behoben | Sicherungs-Banner verschwand erst nach Neustart | FA-7 | `XXXXXXX` |
+| Geändert | DE-Demo positiv, Grenze 63.000 € von 100.000 € | FA-13.14 | `XXXXXXX` |
 
 ---
 

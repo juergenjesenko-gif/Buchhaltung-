@@ -1,6 +1,6 @@
 # Spezifikation – Buchhaltung
 
-**Dokumentversion:** 1.99 · **App-Version:** 0.37.1 · **Stand:** 2026-10-20
+**Dokumentversion:** 2.00 · **App-Version:** 0.38.0 · **Stand:** 2026-10-20
 **Status:** Testbuild 0.21.0 (Schema 23); Store-Start offen, siehe Abschnitt 11 und 14
 
 > Das **Zielbild** des Produkts steht im [`LASTENHEFT.md`](LASTENHEFT.md); dieses
@@ -722,6 +722,9 @@ Umsetzung von DESIGN_SPEC Abschnitt 5. Schwellen nur in
 | FA-9.4 | Formulare und Lesebereiche (Beleg, Rechnung, Kunde, Stammdaten, Bestätigungen, Einstellungen, App-Sperre, Datensicherung, Export) höchstens 640 dp breit, zentriert (`spec.max_content_width_dp`, DESIGN_SPEC D-5). **Grundsatz (Auftraggeber 2026-10-20):** Was nicht über die ganze Breite geht, steht immer horizontal zentriert – nie linksbündig mit leerem Rand rechts; nur über `ReadableWidth`, nie mit eigener Breitenbegrenzung. Sperrbildschirm höchstens 360 dp, zentriert und scrollbar; Dialoge nach Material 3 höchstens 560 dp |
 | FA-9.5 | Hoch- und Querformat ohne Sperre: Android ohne `screenOrientation`, iOS iPhone hoch und quer, iPad alle vier Ausrichtungen. **Kein `UIRequiresFullScreen`**: die App unterstützt Split View und Slide Over auf dem iPad; Apple verlangt dafür alle vier iPad-Ausrichtungen. Gerätetest: P-D19, P-D20 |
 | FA-9.6 | **Kopf scrollt mit** (seit 0.37.0, Gerätetest 2026-10-20): In den Listen Belege (Umschalter Belege/Verträge, Suche, Filter, Anzahl und Saldo) und Rechnungen (Angebote/Artikel, Offen, Überfällig) ist der Kopf Teil der Liste und scrollt mit; quer bliebe sonst kaum Platz für Einträge |
+| FA-9.7 | **Filterzeilen einzeilig** (seit 0.38.0, Rückmeldung Auftraggeberin 2026-10-21): Zeitraum-Chips der Übersicht „Monat · Vormonat · Quartal · Jahr · Vorjahr“ (abweichendes Wirtschaftsjahr „WJ 26/27“) und Filter der Belegliste (Jahr, Alle, Einnahmen, Ausgaben, Storniert) in einer horizontal wischbaren Zeile, optisch kompakt, Tippfläche ≥ 48 dp |
+| FA-9.8 | **Menü als Overlay** (seit 0.38.0): Übersicht oben rechts Menüsymbol (drei Striche) statt Zahnrad; öffnet die Einstellungen als scrollbares Seitenmenü von rechts (85 % der Breite, höchstens 420 dp, `SettingsDrawer`), Inhalt identisch mit `SettingsScreen` (`SettingsContent`); Unterseiten schließen zuerst das Menü |
+| FA-9.9 | **Beleg-Leseansicht** (seit 0.38.0): Antippen eines vorhandenen Belegs öffnet `ReceiptViewScreen` (Seiten/Dateien ansehen, Betrag, Partner, Datum, Kategorie, Zahlungsart, Steuer je Satz, Notiz, Storno-Hinweis); Hauptknopf „Bearbeiten“ unten öffnet das Formular. Neue Belege und Aufnahme öffnen direkt das Formular |
 
 ### 5.7a Einhandbedienung
 
@@ -1030,7 +1033,9 @@ Kleinunternehmer:
 | Wiederherstellungscode | `features/backup/recovery_code_setup_screen.dart` | Druckblatt teilen/drucken, dann „Code ist aufbewahrt“ (FA-7.10) |
 | Wunsch oder Idee | `features/settings/feedback_screen.dart` | Art, Titel, Beschreibung mit Diktat, technische Angaben abschaltbar, „Per E-Mail senden“ unten (FA-11.6) |
 | Rechtliches | `features/settings/legal_screen.dart` | Impressum, Datenschutz, Nutzungsbedingungen, keine Steuerberatung, Support, Lizenzen (FA-11.4, FA-11.5) |
-| Export | `features/export/export_screen.dart` | Karte „Für das Finanzamt“, Zeitraum, Vorschau, Format |
+| Export | `features/export/export_screen.dart` | Karte „Für das Finanzamt“, Zeitraum, Vorschau, Format; Kachel „Verträge“ öffnet Blatt mit „Alle Verträge als ZIP“, „Vertragsliste mit Fristen (CSV)“, „Verträge ansehen“; Kachel „Belege & Rechnungen als ZIP“ (8.9) |
+| Beleg ansehen | `features/receipts/receipt_view_screen.dart` | Leseansicht mit „Bearbeiten“ (FA-9.9) |
+| Belege & Rechnungen als ZIP | `features/export/document_zip_screen.dart` | Monat/Quartal/Jahr/Von–bis, „ZIP teilen“ (8.9) |
 | Verträge | `features/contracts/contract_screens.dart` | Liste mit Art, Partner, nächstem Termin, Rate; „Vertrag ablegen“ mit Seiten, Kurzübersicht (Pro), Fristen, Zahlung, Abgleich, Buchungsvorschlag, Belege verknüpfen, Aufbewahrung, Löschen (FA-16.1 bis FA-16.8) |
 | Anlagen und Jahresabschluss | `features/reports/reports_screen.dart` | Zeile Anlagen, Jahr, Kommentar, Anlagenverzeichnis, Saldenliste (Pro), vorläufiger Jahresabschluss als Paket (Pro) (FA-15.12) |
 | Anlagen | `features/assets/asset_screens.dart` | Liste mit Buchwert heute, unten „Anlage ohne Beleg erfassen“; „Investition erfassen“/„Anlage“ mit AfA-Plan, unten „Ausscheiden“ und „Speichern“, Bottom-Sheet Ausscheiden (FA-15.1 bis FA-15.7) |
@@ -1204,6 +1209,17 @@ Beide Zuordnungen sind **Vorschläge**. Die Kontonummer je Kategorie ist in den
 Einstellungen überschreibbar.
 
 ---
+
+### 8.9 Belege & Rechnungen als ZIP (seit 0.38.0)
+
+`DocumentPackage` (`lib/services/export/document_package.dart`): Zeitraum
+Monat, Quartal, Jahr (Standard laufendes Jahr) oder von–bis. Inhalt
+`Belege/<Datum>_<Partner>_<Betrag>EUR[_S<n>|_Original].<ext>` (Belegseiten und
+Dateien), `Rechnungen/<Datum>_<Nummer>_<Kunde>_<Betrag>EUR.pdf` (gestellte
+Rechnungen aus eingefrorenen Stammdaten, `buildInvoicePdf`), dazu `Belege.csv`
+und `Rechnungen.csv`. Ohne Entwürfe und stornierte Belege. Weitergabe nur über
+den Teilen-Dialog; im Demo-Modus gesperrt. Verträge: `Vertraege_….zip` mit
+Vertragsliste (CSV, neue Spalte „Kündigen bis“), Seiten und PDFs.
 
 ## 9. Nichtfunktionale Anforderungen
 
@@ -1601,6 +1617,7 @@ Vorsteuerabzug in Promille; Fundstelle Privatanteil; Fundstelle Vorsteuer.
 
 | Version | Datum | App-Version | Änderung |
 |---|---|---|---|
+| 2.00 | 2026-10-21 | 0.38.0 | App-Version 0.38.0 (Rückmeldung Auftraggeberin 2026-10-21): FA-9.7 Filterzeilen einzeilig, FA-9.8 Menü als Overlay, FA-9.9 Beleg-Leseansicht; Verträge: Seitenvorschau und Original-PDF, Texterkennung je Seite mit Meldung und „Erkannter Text“, Kurzübersicht auch englisch, 12 dp Feldabstand; Export: Verträge-Blatt und 8.9 ZIP-Export; Banner „Automatische Sicherung fehlgeschlagen“ verschwindet sofort nach erfolgreicher Sicherung; DE-Demo positiv (Vorjahr 22.000 €, laufendes Jahr 63.000 € von 100.000 €, eine offene Rechnung, keine Mahnung). Prüfinstanzen: UX (eine Zeile wischbar, 48 dp, Bearbeiten unten), Softwareentwickler (kein Schemawechsel, kein neues Paket), Rechtsanwalt (ZIP nur über Teilen-Dialog, Datenfluss 5.19 ergänzt), Steuerberater (DE-Demo: über 25.000 € zeigt die Grenze korrekt den Hinweis auf Regelbesteuerung im Folgejahr). |
 | 1.99 | 2026-10-21 | 0.37.1 | App-Version 0.37.1: Rechnungs-/Angebots-PDF, Kopfangaben mit 96 pt breiter, einzeiliger Beschriftung und 8 pt Abstand zum Wert („Rechnungsnummer“ brach um). Prüfinstanz Steuerberater: Pflichtangaben unverändert. |
 | 1.98 | 2026-10-20 | 0.37.0 | App-Version 0.37.0. FA-9.6 neu: Kopf der Beleg- und Rechnungsliste scrollt mit. Prüfinstanz UX (quer mehr Platz, Filter mit einem Wisch nach oben wieder erreichbar). |
 | 1.97 | 2026-10-20 | 0.36.0 | App-Version 0.36.0. FA-9.4 Grundsatz „nicht volle Breite = zentriert“. FA-9.1: Telefon quer (Höhe < 480 dp) höchstens medium, kein Dreispalten-Layout; Kennwert `spec.window_compact_max_height_dp` (12). Vertrag ablegen: „Scannen“ und „Galerie“ gleich breit, darunter „Text erkennen“ volle Breite. Prüfinstanzen: UX (Daumenreichweite quer, 48 dp), Softwareentwickler (Material-3-Höhenklasse). |

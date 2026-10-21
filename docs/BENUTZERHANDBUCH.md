@@ -1,6 +1,6 @@
 # Benutzerhandbuch – JeNi bucht
 
-**Für App-Version 0.37.1** · Stand 2026-10-20
+**Für App-Version 0.38.0** · Stand 2026-10-20
 
 Welche Version du hast, steht ganz unten in den **Einstellungen**, etwa „Version 0.35.0 (16)“; die Zahl in Klammern ist die Buildnummer.
 
@@ -184,7 +184,7 @@ App zeigt dir deine Zahllast gegenüber dem Finanzamt.
 > du ausgewiesen hast, schuldest du dem Finanzamt, auch wenn du sie nie
 > einnehmen durftest.
 
-Du kannst die Angaben jederzeit ändern: **Übersicht → Zahnrad → Stammdaten**.
+Du kannst die Angaben jederzeit ändern: **Übersicht → Menü (☰) → Stammdaten**.
 Bereits gestellte Rechnungen bleiben davon unberührt.
 
 ---
@@ -200,7 +200,7 @@ Unten in der App findest du vier Bereiche:
 | Dokument | **Rechnungen** | Rechnungen schreiben, versenden, Status pflegen |
 | Teilen | **Export** | Daten für die Steuerberatung |
 
-Die **Einstellungen** erreichst du über das Zahnrad rechts oben in der Übersicht.
+Die **Einstellungen** erreichst du über das Menü (drei Striche) rechts oben in der Übersicht. Sie öffnen sich als Seitenmenü von rechts; wisch darin nach oben und unten.
 
 ### Hilfe in der App
 
@@ -660,8 +660,8 @@ den du eingetippt hast.
 Im Bereich **Belege**:
 - **Suchfeld** durchsucht Produkt oder Leistung, Geschäftspartner und Notiz
 - **Alle / Einnahmen / Ausgaben** filtert
-- **Jahr** wählst du mit dem ersten Chip in der Filterzeile; die Chips brechen
-  auf schmalen Telefonen in eine zweite Zeile um
+- **Jahr** wählst du mit dem ersten Chip in der Filterzeile; die Zeile lässt
+  sich seitlich wischen, wenn nicht alle Chips auf den Bildschirm passen
 - Die Liste ist nach Monaten gruppiert, unter der Filterzeile steht der Saldo
   deiner aktuellen Auswahl
 
@@ -673,7 +673,7 @@ und lesen und ihnen Kommentare anhängen, aber nicht mehr ändern.
 
 ### Beleg ändern oder stornieren
 
-Beleg antippen, ändern, speichern. Einen falschen Beleg stornierst du ganz
+Beleg antippen: Zuerst siehst du ihn in Ruhe an – Foto, Betrag, Steuer, Notiz. Unten tippst du auf **Bearbeiten**, änderst und speicherst. Einen falschen Beleg stornierst du ganz
 unten im Formular im rot umrandeten Bereich **Beleg stornieren** – weit weg vom
 Speichern-Knopf; die App fragt nach. Genauso löschst du einen Kunden unten im
 Kundenformular. Der Beleg verschwindet aus
@@ -692,8 +692,8 @@ protokolliert – das dient der Nachvollziehbarkeit deiner Buchhaltung.
 
 Die **Übersicht** zeigt dir für einen wählbaren Zeitraum:
 
-**Zeitraum wählen:** dieser Monat, letzter Monat, dieses Quartal, dieses Jahr,
-letztes Jahr. Quartal ist dabei, weil die Umsatzsteuervoranmeldung bei kleineren
+**Zeitraum wählen:** Monat, Vormonat, Quartal, Jahr, Vorjahr – in einer Zeile,
+die du seitlich wischen kannst. Quartal ist dabei, weil die Umsatzsteuervoranmeldung bei kleineren
 Umsätzen quartalsweise abzugeben ist. „Jahr“ ist dein Wirtschaftsjahr; hast du
 in den Stammdaten einen anderen ersten Monat als Jänner gewählt, heißen die
 Knöpfe „Dieses WJ (2027)“ und „Letztes WJ (2026)“.
@@ -1155,6 +1155,14 @@ Bereich **Export**.
    wäre die Datei leer – der Export ist dann gesperrt.
 4. **Format** antippen → Teilen-Dialog
 
+**Belege & Rechnungen als ZIP:** Auf der Export-Seite die Kachel
+**Belege & Rechnungen als ZIP** antippen, Monat, Quartal, Jahr oder von–bis
+wählen und **ZIP teilen**. Die Datei enthält alle Belegfotos und -PDFs mit
+sprechenden Namen (Datum, Partner, Betrag), die Rechnungs-PDFs und je eine
+Übersicht als CSV – ideal für die Steuerberatung, ohne Umweg über die Cloud.
+Unter **Verträge** bekommst du alle Verträge samt Seiten als ZIP oder die
+Vertragsliste mit Fristen.
+
 ### Die Formate
 
 | Format | Wann |
@@ -1275,7 +1283,10 @@ brauchst.
 
 Mit Pro liest **Text erkennen und Kurzübersicht** den Vertrag auf deinem
 Telefon und zeigt gefundene Daten, Beträge und Fristen mit **Seite und Zeile**.
-Ein Tipp übernimmt den Wert. Das ist nur ein Auszug aus deinem Vertrag, keine
+Ein Tipp übernimmt den Wert. Auch englische Verträge werden erkannt. Danach
+meldet die App, wie viele Zeilen sie gelesen hat; den ganzen Text siehst du
+unter **Erkannter Text**. Gescannte Seiten erscheinen als Vorschaubilder –
+antippen zeigt sie groß, **Original-PDF öffnen** das hochgeladene PDF. Das ist nur ein Auszug aus deinem Vertrag, keine
 rechtliche Prüfung – im Zweifel gilt der Vertragstext.
 
 Die Übersicht erinnert in der Termin-Box an **Kündigen bis**, **Vertragsende**
@@ -1300,7 +1311,7 @@ deine Kanzlei ordnet den Stapel beim Import selbst zu.
 
 ## 10. Einstellungen
 
-Übersicht → Zahnrad.
+Übersicht → Menü (☰).
 
 **Steuerregeln** – in den Stammdaten steht, welchen Stand die eingebauten
 Steuerwerte haben, z. B. „Steuerregeln: Stand 01.01.2026, gültig für 2026
