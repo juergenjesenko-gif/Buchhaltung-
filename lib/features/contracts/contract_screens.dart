@@ -274,15 +274,10 @@ class _ContractEditScreenState extends State<ContractEditScreen> {
 
   void _showPage(int index) {
     final pages = _allPages;
-    final file = _pageFiles[pages[index]];
-    if (file == null) {
-      showSnack(context, 'Seite ${index + 1} wurde nicht gefunden.');
-      return;
-    }
     showPageImageDialog(
       context,
-      file: file,
-      caption: 'Seite ${index + 1} von ${pages.length}',
+      files: [for (final p in pages) _pageFiles[p]],
+      initialIndex: index,
     );
   }
 

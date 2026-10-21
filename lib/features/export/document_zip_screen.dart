@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 
 import '../../app_state.dart';
 import '../../core/formatting.dart';
+import '../../domain/contract.dart';
 import '../../domain/invoice.dart';
 import '../../services/contracts/contract_csv.dart';
 import '../../services/export/document_package.dart';
@@ -291,6 +292,14 @@ Future<void> showContractExportSheet(BuildContext context) async {
             onTap: () => Navigator.pop(ctx, 'zip'),
           ),
           ListTile(
+            key: const Key('contracts-export-select'),
+            minVerticalPadding: 12,
+            leading: const Icon(Icons.checklist_outlined),
+            title: const Text('Verträge auswählen und als ZIP'),
+            subtitle: const Text('Nur die angehakten Verträge'),
+            onTap: () => Navigator.pop(ctx, 'select'),
+          ),
+          ListTile(
             key: const Key('contracts-export-csv'),
             minVerticalPadding: 12,
             leading: const Icon(Icons.table_view_outlined),
@@ -318,10 +327,19 @@ Future<void> showContractExportSheet(BuildContext context) async {
   }
   final state = AppScope.read(context);
   try {
-    final contracts = await state.repositories.contracts.all();
+    var contracts = await state.repositories.contracts.all();
     if (contracts.isEmpty) {
       if (context.mounted) showSnack(context, 'Noch keine Verträge abgelegt.');
       return;
+    }
+    if (action == 'select') {
+      if (!context.mounted) return;
+      final chosen = await _pickContracts(context, contracts);
+      if (chosen == null || chosen.isEmpty) return;
+      contracts = [
+        for (var i = 0; i < contracts.length; i++)
+          if (chosen.contains(i)) contracts[i],
+      ];
     }
     final company = state.profile?.companyName ?? '';
     if (action == 'csv') {
@@ -348,3 +366,80 @@ Future<void> showContractExportSheet(BuildContext context) async {
     if (context.mounted) showSnack(context, 'Export fehlgeschlagen: $error');
   }
 }
+
+/// Auswahl der Verträge für den ZIP-Export (Rückmeldung 2026-10-21):
+/// Liste zum Anhaken, Knopf unten in der Daumenzone. Liefert die Indizes.
+Future<Set<int>?> _pickContracts(
+  BuildContext context,
+  List<Contract> contracts,
+) => showModalBottomSheet<Set<int>>(
+  context: context,
+  isScrollControlled: true,
+  showDragHandle: true,
+  builder: (ctx) {
+    final selected = <int>{};
+    return StatefulBuilder(
+      builder: (ctx, setState) => SafeArea(
+        child: ConstrainedBox(
+          constraints: BoxConstraints(
+            maxHeight: MediaQuery.sizeOf(ctx).height * 0.85,
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+                child: Text(
+                  'Verträge auswählen',
+                  style: Theme.of(ctx).textTheme.titleMedium,
+                ),
+              ),
+              Flexible(
+                child: ListView(
+                  shrinkWrap: true,
+                  children: [
+                    for (var i = 0; i < contracts.length; i++)
+                      CheckboxListTile(
+                        key: Key('contract-pick-$i'),
+                        value: selected.contains(i),
+                        title: Text(
+                          contracts[i].title.isEmpty
+                              ? contracts[i].type.label
+                              : contracts[i].title,
+                        ),
+                        subtitle: contracts[i].partner.isEmpty
+                            ? null
+                            : Text(contracts[i].partner),
+                        onChanged: (v) => setState(
+                          () =>
+                              v == true ? selected.add(i) : selected.remove(i),
+                        ),
+                      ),
+                  ],
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+                child: FilledButton.icon(
+                  key: const Key('contract-pick-confirm'),
+                  style: FilledButton.styleFrom(
+                    minimumSize: const Size.fromHeight(56),
+                  ),
+                  onPressed: selected.isEmpty
+                      ? null
+                      : () => Navigator.pop(ctx, selected),
+                  icon: const Icon(Icons.folder_zip_outlined),
+                  label: Text(
+                    selected.isEmpty
+                        ? 'Verträge anhaken'
+                        : '${selected.length} als ZIP teilen',
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  },
+);

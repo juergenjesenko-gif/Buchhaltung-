@@ -2,6 +2,8 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 
+import '../../widgets/page_image_dialog.dart';
+
 import '../../app_state.dart';
 import '../../core/formatting.dart';
 import '../../domain/receipt.dart';
@@ -81,31 +83,7 @@ class _ReceiptViewScreenState extends State<ReceiptViewScreen> {
   }
 
   void _showPage(int index) {
-    showDialog<void>(
-      context: context,
-      builder: (context) => Dialog(
-        insetPadding: const EdgeInsets.all(12),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Padding(
-              padding: const EdgeInsets.all(8),
-              child: Text('Seite ${index + 1} von ${_pages.length}'),
-            ),
-            Flexible(
-              child: InteractiveViewer(
-                maxScale: 5,
-                child: Image.file(_pages[index], fit: BoxFit.contain),
-              ),
-            ),
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(),
-              child: const Text('Schließen'),
-            ),
-          ],
-        ),
-      ),
-    );
+    showPageImageDialog(context, files: _pages, initialIndex: index);
   }
 
   Future<void> _viewDocument(ReceiptDocument doc) async {

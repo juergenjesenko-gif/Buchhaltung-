@@ -1,6 +1,6 @@
 # Spezifikation – Buchhaltung
 
-**Dokumentversion:** 2.01 · **App-Version:** 0.38.1 · **Stand:** 2026-10-20
+**Dokumentversion:** 2.02 · **App-Version:** 0.38.2 · **Stand:** 2026-10-20
 **Status:** Testbuild 0.21.0 (Schema 23); Store-Start offen, siehe Abschnitt 11 und 14
 
 > Das **Zielbild** des Produkts steht im [`LASTENHEFT.md`](LASTENHEFT.md); dieses
@@ -724,6 +724,7 @@ Umsetzung von DESIGN_SPEC Abschnitt 5. Schwellen nur in
 | FA-9.6 | **Kopf scrollt mit** (seit 0.37.0, Gerätetest 2026-10-20): In den Listen Belege (Umschalter Belege/Verträge, Suche, Filter, Anzahl und Saldo) und Rechnungen (Angebote/Artikel, Offen, Überfällig) ist der Kopf Teil der Liste und scrollt mit; quer bliebe sonst kaum Platz für Einträge |
 | FA-9.7 | **Filterzeilen einzeilig** (seit 0.38.0, Rückmeldung Auftraggeberin 2026-10-21): Zeitraum-Chips der Übersicht „Monat · Vormonat · Quartal · Jahr · Vorjahr“ (abweichendes Wirtschaftsjahr „WJ 26/27“) und Filter der Belegliste (Jahr, Alle, Einnahmen, Ausgaben, Storniert) in einer horizontal wischbaren Zeile, optisch kompakt, Tippfläche ≥ 48 dp |
 | FA-9.8 | **Menü als Overlay** (seit 0.38.0): Übersicht oben rechts Menüsymbol (drei Striche) statt Zahnrad; öffnet die Einstellungen als scrollbares Seitenmenü von rechts (85 % der Breite, höchstens 420 dp, `SettingsDrawer`), Inhalt identisch mit `SettingsScreen` (`SettingsContent`); Unterseiten schließen zuerst das Menü |
+| FA-9.10 | **Seiten durchblättern** (seit 0.38.2, Rückmeldung 2026-10-21): Belegseiten und Vertragsscans öffnen bildschirmfüllend in einem gemeinsamen Betrachter (`showPageImageDialog`), seitlich wischen oder Pfeile ‹ › blättern, je Seite Pinch-Zoom, „Seite n von m“, „Schließen“ unten (48 dp) |
 | FA-9.9 | **Beleg-Leseansicht** (seit 0.38.0): Antippen eines vorhandenen Belegs öffnet `ReceiptViewScreen` (Seiten/Dateien ansehen, Betrag, Partner, Datum, Kategorie, Zahlungsart, Steuer je Satz, Notiz, Storno-Hinweis); Hauptknopf „Bearbeiten“ unten öffnet das Formular. Neue Belege und Aufnahme öffnen direkt das Formular |
 
 ### 5.7a Einhandbedienung
@@ -1033,7 +1034,7 @@ Kleinunternehmer:
 | Wiederherstellungscode | `features/backup/recovery_code_setup_screen.dart` | Druckblatt teilen/drucken, dann „Code ist aufbewahrt“ (FA-7.10) |
 | Wunsch oder Idee | `features/settings/feedback_screen.dart` | Art, Titel, Beschreibung mit Diktat, technische Angaben abschaltbar, „Per E-Mail senden“ unten (FA-11.6) |
 | Rechtliches | `features/settings/legal_screen.dart` | Impressum, Datenschutz, Nutzungsbedingungen, keine Steuerberatung, Support, Lizenzen (FA-11.4, FA-11.5) |
-| Export | `features/export/export_screen.dart` | Karte „Für das Finanzamt“, Zeitraum, Vorschau, Format; Kachel „Verträge“ öffnet Blatt mit „Alle Verträge als ZIP“, „Vertragsliste mit Fristen (CSV)“, „Verträge ansehen“; Kachel „Belege & Rechnungen als ZIP“ (8.9) |
+| Export | `features/export/export_screen.dart` | Karte „Für das Finanzamt“, Zeitraum, Vorschau, Format; Kachel „Verträge“ öffnet Blatt mit „Alle Verträge als ZIP“, „Verträge auswählen und als ZIP“ (seit 0.38.2: Liste zum Anhaken, Knopf unten „n als ZIP teilen“, 56 dp), „Vertragsliste mit Fristen (CSV)“, „Verträge ansehen“; Kachel „Belege & Rechnungen als ZIP“ (8.9) |
 | Beleg ansehen | `features/receipts/receipt_view_screen.dart` | Leseansicht mit „Bearbeiten“ (FA-9.9) |
 | Belege & Rechnungen als ZIP | `features/export/document_zip_screen.dart` | Monat/Quartal/Jahr/Von–bis, „ZIP teilen“ (8.9) |
 | Verträge | `features/contracts/contract_screens.dart` | Liste mit Art, Partner, nächstem Termin, Rate; „Vertrag ablegen“ mit Seiten, Kurzübersicht (Pro), Fristen, Zahlung, Abgleich, Buchungsvorschlag, Belege verknüpfen, Aufbewahrung, Löschen (FA-16.1 bis FA-16.8) |
@@ -1617,6 +1618,7 @@ Vorsteuerabzug in Promille; Fundstelle Privatanteil; Fundstelle Vorsteuer.
 
 | Version | Datum | App-Version | Änderung |
 |---|---|---|---|
+| 2.02 | 2026-10-21 | 0.38.2 | App-Version 0.38.2: FA-9.10 Seiten durchblättern (Belege, Verträge); Export → Verträge mit Auswahl einzelner Verträge (Abschnitt 7). Prüfinstanz UX (Wischen und Pfeile, Knopf unten 56 dp). |
 | 2.01 | 2026-10-21 | 0.38.1 | App-Version 0.38.1: DE-Demo heißt „Mein Unternehmen“ (`spec.demo_de_company`), AT-Demo „Mein Unternehmen e.U.“ (`spec.demo_company`; Rechtsform je Land, Entscheidung Auftraggeberin 2026-10-21), FA-13.14 an die Werte aus 0.38.0 angepasst. Prüfinstanz Steuerberater: § 19 Abs 1 UStG (ab 2025) – Vorjahr ≤ 25.000 € **und** laufendes Jahr ≤ 100.000 € gelten in **jedem** Jahr, nicht nur im ersten; im Gründungsjahr gilt 25.000 € für das laufende Jahr. Der Hinweis bei 63.000 € bleibt deshalb (kein Ausblenden). |
 | 2.00 | 2026-10-21 | 0.38.0 | App-Version 0.38.0 (Rückmeldung Auftraggeberin 2026-10-21): FA-9.7 Filterzeilen einzeilig, FA-9.8 Menü als Overlay, FA-9.9 Beleg-Leseansicht; Verträge: Seitenvorschau und Original-PDF, Texterkennung je Seite mit Meldung und „Erkannter Text“, Kurzübersicht auch englisch, 12 dp Feldabstand; Export: Verträge-Blatt und 8.9 ZIP-Export; Banner „Automatische Sicherung fehlgeschlagen“ verschwindet sofort nach erfolgreicher Sicherung; DE-Demo positiv (Vorjahr 22.000 €, laufendes Jahr 63.000 € von 100.000 €, eine offene Rechnung, keine Mahnung). Prüfinstanzen: UX (eine Zeile wischbar, 48 dp, Bearbeiten unten), Softwareentwickler (kein Schemawechsel, kein neues Paket), Rechtsanwalt (ZIP nur über Teilen-Dialog, Datenfluss 5.19 ergänzt), Steuerberater (DE-Demo: über 25.000 € zeigt die Grenze korrekt den Hinweis auf Regelbesteuerung im Folgejahr). |
 | 1.99 | 2026-10-21 | 0.37.1 | App-Version 0.37.1: Rechnungs-/Angebots-PDF, Kopfangaben mit 96 pt breiter, einzeiliger Beschriftung und 8 pt Abstand zum Wert („Rechnungsnummer“ brach um). Prüfinstanz Steuerberater: Pflichtangaben unverändert. |

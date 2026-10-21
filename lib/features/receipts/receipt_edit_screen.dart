@@ -1002,12 +1002,10 @@ class _ReceiptEditScreenState extends State<ReceiptEditScreen> {
   }
 
   void _showPage(int index) {
-    final file = _pageFiles[_pages[index]];
-    if (file == null) return;
     showPageImageDialog(
       context,
-      file: file,
-      caption: 'Seite ${index + 1} von ${_pages.length}',
+      files: [for (final p in _pages) _pageFiles[p]],
+      initialIndex: index,
     );
   }
 

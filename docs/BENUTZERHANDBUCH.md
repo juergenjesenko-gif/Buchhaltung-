@@ -1,6 +1,6 @@
 # Benutzerhandbuch – JeNi bucht
 
-**Für App-Version 0.38.1** · Stand 2026-10-20
+**Für App-Version 0.38.2** · Stand 2026-10-20
 
 Welche Version du hast, steht ganz unten in den **Einstellungen**, etwa „Version 0.35.0 (16)“; die Zahl in Klammern ist die Buildnummer.
 
@@ -1160,8 +1160,9 @@ Bereich **Export**.
 wählen und **ZIP teilen**. Die Datei enthält alle Belegfotos und -PDFs mit
 sprechenden Namen (Datum, Partner, Betrag), die Rechnungs-PDFs und je eine
 Übersicht als CSV – ideal für die Steuerberatung, ohne Umweg über die Cloud.
-Unter **Verträge** bekommst du alle Verträge samt Seiten als ZIP oder die
-Vertragsliste mit Fristen.
+Unter **Verträge** bekommst du alle Verträge samt Seiten als ZIP, nur die
+angehakten (**Verträge auswählen und als ZIP**) oder die Vertragsliste mit
+Fristen.
 
 ### Die Formate
 
@@ -1286,7 +1287,7 @@ Telefon und zeigt gefundene Daten, Beträge und Fristen mit **Seite und Zeile**.
 Ein Tipp übernimmt den Wert. Auch englische Verträge werden erkannt. Danach
 meldet die App, wie viele Zeilen sie gelesen hat; den ganzen Text siehst du
 unter **Erkannter Text**. Gescannte Seiten erscheinen als Vorschaubilder –
-antippen zeigt sie groß, **Original-PDF öffnen** das hochgeladene PDF. Das ist nur ein Auszug aus deinem Vertrag, keine
+antippen zeigt sie groß; seitlich wischen blättert durch alle Seiten, **Original-PDF öffnen** das hochgeladene PDF. Das ist nur ein Auszug aus deinem Vertrag, keine
 rechtliche Prüfung – im Zweifel gilt der Vertragstext.
 
 Die Übersicht erinnert in der Termin-Box an **Kündigen bis**, **Vertragsende**
