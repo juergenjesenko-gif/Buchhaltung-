@@ -10,6 +10,7 @@ import '../../widgets/capture_button.dart';
 import '../../widgets/common.dart';
 import '../contracts/contract_screens.dart';
 import 'receipt_edit_screen.dart';
+import 'receipt_view_screen.dart';
 import '../help/help_screen.dart';
 import '../../services/help/help_index.dart';
 
@@ -87,10 +88,10 @@ class _ReceiptListScreenState extends State<ReceiptListScreen> {
   Future<void> _open(Receipt? receipt) async {
     final changed = await ListDetail.open<bool>(
       context,
-      (_) => ReceiptEditScreen(
-        direction: receipt?.direction ?? BookingDirection.expense,
-        existing: receipt,
-      ),
+      // Vorhandener Beleg: zuerst lesen, „Bearbeiten“ öffnet das Formular.
+      (_) => receipt == null
+          ? const ReceiptEditScreen(direction: BookingDirection.expense)
+          : ReceiptViewScreen(receipt: receipt),
     );
     if (changed == true) await _load();
   }
