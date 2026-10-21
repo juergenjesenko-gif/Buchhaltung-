@@ -11,7 +11,8 @@
 1.2 Die App ist ein Werkzeug für Einzelunternehmen und Kleinunternehmen in
 Österreich und Deutschland. Nutzt du sie für dein Unternehmen, bist du
 **Unternehmerin**. Nutzt du sie überwiegend privat, bist du
-**Verbraucherin**. Wo die Regeln unterschiedlich sind, steht das dabei.
+**Verbraucherin**. Wo die Regeln in Österreich und Deutschland
+unterschiedlich sind, zeigt die App die Fassung für dein Land.
 Zwingende Rechte von Verbraucherinnen bleiben in jedem Fall unberührt.
 
 ## 2. Vertrag und Vertragspartner
@@ -34,9 +35,16 @@ zu nutzen, die dir gehören oder die du kontrollierst, im Rahmen der Regeln des
 jeweiligen Stores (bei Apple: Nutzungsregeln der Apple Media Services Terms,
 einschließlich Familienfreigabe, soweit freigegeben).
 
+<!-- nur AT -->
 3.2 Nicht erlaubt: die App weiterverkaufen, vermieten, verändern, dekompilieren
-(außer soweit das Gesetz es erlaubt, § 40e UrhG, § 69e UrhG-DE), Schutz- oder
+(außer soweit das Gesetz es erlaubt, § 40e UrhG), Schutz- oder
 Lizenzprüfungen umgehen.
+<!-- /nur -->
+<!-- nur DE -->
+3.2 Nicht erlaubt: die App weiterverkaufen, vermieten, verändern, dekompilieren
+(außer soweit das Gesetz es erlaubt, § 69e UrhG), Schutz- oder
+Lizenzprüfungen umgehen.
+<!-- /nur -->
 
 ## 4. Tarife, Test und Abo
 
@@ -96,18 +104,36 @@ datenschutzrechtlich verantwortlich.
 
 ## 8. Gewährleistung
 
+<!-- nur AT -->
 8.1 **Verbraucherinnen** haben die gesetzlichen Gewährleistungsrechte für
-digitale Leistungen (Österreich: Verbrauchergewährleistungsgesetz – VGG;
-Deutschland: §§ 327 ff. BGB). Dazu gehört, dass wir dir während der Laufzeit
+digitale Leistungen nach dem Verbrauchergewährleistungsgesetz (VGG). Dazu
+gehört, dass wir dir während der Laufzeit
 deines Abos die nötigen Aktualisierungen, insbesondere Sicherheits-Updates,
 bereitstellen. Diese Rechte werden nicht eingeschränkt.
+<!-- /nur -->
+<!-- nur DE -->
+8.1 **Verbraucherinnen** haben die gesetzlichen Gewährleistungsrechte für
+digitale Produkte nach §§ 327 ff. BGB. Dazu gehört, dass wir dir während der Laufzeit
+deines Abos die nötigen Aktualisierungen, insbesondere Sicherheits-Updates,
+bereitstellen. Diese Rechte werden nicht eingeschränkt.
+<!-- /nur -->
 
+<!-- nur AT -->
 8.2 **Unternehmerinnen:** Wir stellen die App in dem Zustand bereit, der der
 Beschreibung in der App und im Store entspricht. Mängel beheben wir in
 angemessener Frist durch ein Update. Mängel sind uns unverzüglich, spätestens
-innerhalb von {{14}} Tagen nach Entdeckung mitzuteilen (§ 377 UGB/HGB
+innerhalb von {{14}} Tagen nach Entdeckung mitzuteilen (§ 377 UGB
 sinngemäß). Weitergehende Gewährleistung ist ausgeschlossen, soweit gesetzlich
 zulässig.
+<!-- /nur -->
+<!-- nur DE -->
+8.2 **Unternehmerinnen:** Wir stellen die App in dem Zustand bereit, der der
+Beschreibung in der App und im Store entspricht. Mängel beheben wir in
+angemessener Frist durch ein Update. Mängel sind uns unverzüglich, spätestens
+innerhalb von {{14}} Tagen nach Entdeckung mitzuteilen (§ 377 HGB
+sinngemäß). Weitergehende Gewährleistung ist ausgeschlossen, soweit gesetzlich
+zulässig.
+<!-- /nur -->
 
 8.3 **Apple:** Hat die App einen Mangel, kannst du Apple benachrichtigen;
 Apple erstattet dann gegebenenfalls den Kaufpreis. Darüber hinaus hat Apple,
@@ -120,15 +146,24 @@ weiteren Ansprüche wegen Mängeln richten sich gegen uns.
 Personenschäden (Verletzung von Leben, Körper, Gesundheit) und nach dem
 Produkthaftungsgesetz.
 
+<!-- nur AT -->
 9.2 Bei **leichter Fahrlässigkeit** haften wir
-- gegenüber **Verbraucherinnen in Österreich** nach dem Gesetz; ausgeschlossen
-  ist die Haftung nur für leicht fahrlässig verursachte Sachschäden, soweit
+- gegenüber **Verbraucherinnen** nach dem Gesetz; ausgeschlossen ist die
+  Haftung nur für leicht fahrlässig verursachte Sachschäden, soweit
   § 6 Abs 1 Z 9 KSchG das zulässt;
-- in **Deutschland** und gegenüber **Unternehmerinnen** nur bei Verletzung
-  einer wesentlichen Vertragspflicht (einer Pflicht, deren Erfüllung die
-  Nutzung erst ermöglicht und auf die du vertrauen darfst – z. B. richtige
-  Berechnung der Umsatzsteuer aus deinen Eingaben), beschränkt auf den
-  vertragstypisch vorhersehbaren Schaden.
+- gegenüber **Unternehmerinnen** nur bei Verletzung einer wesentlichen
+  Vertragspflicht (einer Pflicht, deren Erfüllung die Nutzung erst ermöglicht
+  und auf die du vertrauen darfst – z. B. richtige Berechnung der
+  Umsatzsteuer aus deinen Eingaben), beschränkt auf den vertragstypisch
+  vorhersehbaren Schaden.
+<!-- /nur -->
+<!-- nur DE -->
+9.2 Bei **leichter Fahrlässigkeit** haften wir – gegenüber Verbraucherinnen
+und Unternehmerinnen – nur bei Verletzung einer wesentlichen Vertragspflicht
+(einer Pflicht, deren Erfüllung die Nutzung erst ermöglicht und auf die du
+vertrauen darfst – z. B. richtige Berechnung der Umsatzsteuer aus deinen
+Eingaben), beschränkt auf den vertragstypisch vorhersehbaren Schaden.
+<!-- /nur -->
 
 9.3 **Gegenüber Unternehmerinnen** ist die Haftung für leichte Fahrlässigkeit
 zusätzlich je Schadensfall auf die von dir in den letzten 12 Monaten für die
@@ -181,9 +216,16 @@ Verweisungsnormen. **Für Verbraucherinnen** gilt das nur, soweit dadurch nicht
 der Schutz zwingender Bestimmungen des Staates entzogen wird, in dem sie ihren
 gewöhnlichen Aufenthalt haben (Art. 6 Abs 2 Rom-I-VO).
 
+<!-- nur AT -->
 13.2 **Gerichtsstand für Unternehmerinnen** ist das für Klagenfurt sachlich
 zuständige Gericht. **Verbraucherinnen** können an ihrem Wohnsitz klagen und
 dürfen nur dort verklagt werden (§ 14 KSchG; Art. 18 EuGVVO).
+<!-- /nur -->
+<!-- nur DE -->
+13.2 **Gerichtsstand für Unternehmerinnen** ist das für Klagenfurt sachlich
+zuständige Gericht. **Verbraucherinnen** können an ihrem Wohnsitz klagen und
+dürfen nur dort verklagt werden (Art. 18 EuGVVO).
+<!-- /nur -->
 
 13.3 Zur Verbraucherschlichtung siehe Impressum.
 

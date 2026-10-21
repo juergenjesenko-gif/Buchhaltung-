@@ -1,3 +1,5 @@
+import 'country.dart';
+
 /// Texte, die die Nutzerin bei der ersten Einrichtung bestätigt (Lastenheft
 /// L-17.1 bis L-17.4, L-17.12). Jede wesentliche Änderung bekommt eine neue
 /// [version]; die App holt die Bestätigung dann erneut ein.
@@ -93,5 +95,59 @@ enum LegalDocument {
       out.add(line);
     }
     return out.join('\n').trim();
+  }
+
+  /// Markierungen für Länder-Abschnitte in `docs/legal/*.md`. HTML-Kommentare,
+  /// damit die Datei als Markdown lesbar bleibt.
+  static final _open = RegExp(r'^\s*<!--\s*nur\s+(AT|DE)\s*-->\s*$');
+  static final _close = RegExp(r'^\s*<!--\s*/nur\s*-->\s*$');
+
+  /// Filtert den Text nach Land (Rückmeldung Tester: nur die Normen des
+  /// eigenen Landes zeigen). Abschnitte des anderen Landes fallen weg, die
+  /// Markierungen selbst werden entfernt. Ohne [country] (noch kein Profil,
+  /// etwa in der Ersteinrichtung) bleiben alle Abschnitte stehen.
+  ///
+  /// Markierungen stehen je auf einer eigenen Zeile und dürfen nicht
+  /// verschachtelt werden. Ist die Struktur fehlerhaft (verschachtelt,
+  /// unbalanciert), wird nichts weggelassen: lieber zu viel Text als still
+  /// verschluckter Vertragstext. Prüfbar über [countryMarkupValid].
+  static String forCountry(String markdown, Country? country) {
+    if (!countryMarkupValid(markdown)) return markdown;
+    final out = <String>[];
+    String? section;
+    for (final line in markdown.split('\n')) {
+      final open = _open.firstMatch(line);
+      if (open != null) {
+        section = open.group(1);
+        continue;
+      }
+      if (_close.hasMatch(line)) {
+        section = null;
+        continue;
+      }
+      if (section == null || country == null || section == country.code) {
+        out.add(line);
+      }
+    }
+    return out.join('\n').replaceAll(RegExp(r'\n{3,}'), '\n\n');
+  }
+
+  /// `true`, wenn jede Länder-Markierung geschlossen und keine verschachtelt
+  /// ist.
+  static bool countryMarkupValid(String markdown) {
+    var inside = false;
+    for (final line in markdown.split('\n')) {
+      if (_open.hasMatch(line)) {
+        if (inside) return false;
+        inside = true;
+      } else if (_close.hasMatch(line)) {
+        if (!inside) return false;
+        inside = false;
+      } else if (line.contains('<!--') && line.contains('nur')) {
+        // Tippfehler in einer Markierung (z. B. „nur CH“) nicht übergehen.
+        return false;
+      }
+    }
+    return !inside;
   }
 }

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+import '../../app_state.dart';
+import '../../domain/country.dart';
 import '../../domain/legal_texts.dart';
 import '../../services/help/support_mail.dart';
 import '../../widgets/adaptive.dart';
@@ -94,15 +96,26 @@ class LegalScreen extends StatelessWidget {
 
 /// Ein Rechtstext aus `docs/legal/`, mit dem Markdown-Darsteller der Hilfe.
 class LegalDocumentScreen extends StatelessWidget {
-  const LegalDocumentScreen({super.key, required this.document, this.bundle});
+  const LegalDocumentScreen({
+    super.key,
+    required this.document,
+    this.bundle,
+    this.country,
+  });
 
   final LegalDocument document;
+
+  /// Land für die Länder-Abschnitte; ohne Angabe das Land des Profils, ohne
+  /// Profil (Ersteinrichtung) alle Abschnitte.
+  final Country? country;
 
   /// Für Tests austauschbar.
   final AssetBundle? bundle;
 
   @override
   Widget build(BuildContext context) {
+    final scope = context.dependOnInheritedWidgetOfExactType<AppScope>();
+    final shownCountry = country ?? scope?.notifier?.profile?.country;
     return Scaffold(
       appBar: AppBar(title: Text(document.title)),
       body: FutureBuilder<String>(
@@ -128,7 +141,10 @@ class LegalDocumentScreen extends StatelessWidget {
                   ],
                   ...markdownBlocks(
                     context,
-                    LegalDocument.body(snapshot.data!),
+                    LegalDocument.forCountry(
+                      LegalDocument.body(snapshot.data!),
+                      shownCountry,
+                    ),
                   ),
                 ],
               ),
