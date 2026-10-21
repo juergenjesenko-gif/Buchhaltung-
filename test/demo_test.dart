@@ -5,6 +5,7 @@ import 'package:buchhaltung/app_state.dart';
 import 'package:buchhaltung/data/app_database.dart';
 import 'package:buchhaltung/data/repositories.dart';
 import 'package:buchhaltung/domain/country.dart';
+import 'package:buchhaltung/domain/invoice.dart';
 import 'package:buchhaltung/domain/legal_texts.dart';
 import 'package:buchhaltung/domain/money.dart';
 import 'package:buchhaltung/domain/receipt.dart';
@@ -23,6 +24,8 @@ import 'package:buchhaltung/services/licensing/license_cache.dart';
 import 'package:buchhaltung/services/licensing/license_manager.dart';
 import 'package:buchhaltung/services/licensing/license_policy.dart';
 import 'package:buchhaltung/services/share_service.dart';
+import 'package:buchhaltung/services/small_business_monitor.dart';
+import 'package:buchhaltung/services/turnover_basis.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -222,7 +225,16 @@ void main() {
         expect(await db.query('invoices'), hasLength(greaterThanOrEqualTo(6)));
         expect(await db.query('offers'), isNotEmpty);
         expect(await db.query('contracts'), isNotEmpty);
-        expect(await db.query('dunning_notices'), isNotEmpty);
+        // Store-Screenshots: keine Mahnung, höchstens eine offene Rechnung.
+        expect(await db.query('dunning_notices'), isEmpty);
+        expect(
+          await db.query(
+            'invoices',
+            where: 'status = ?',
+            whereArgs: [InvoiceStatus.issued.name],
+          ),
+          hasLength(lessThanOrEqualTo(1)),
+        );
         final categories = {
           for (final c in await repos.categories.all()) c.id: c.name,
         };
@@ -233,6 +245,66 @@ void main() {
         await db.close();
       },
     );
+
+    // Store-Screenshots: Ergebnis grün, Grenze bei rund 63 % – an jedem Tag.
+    for (final day in [
+      DateTime(2026, 1, 1),
+      DateTime(2026, 1, 15),
+      DateTime(2026, 3, 1),
+      DateTime(2026, 6, 30),
+      DateTime(2026, 10, 21),
+      DateTime(2026, 12, 31),
+    ]) {
+      test('Positives Bild und 60–66 % der Grenze am '
+          '${day.day}.${day.month}.', () async {
+        final db = await DemoSession.open(
+          documentsDir: docs,
+          today: day,
+          factory: databaseFactoryFfi,
+          country: Country.de,
+        );
+        final repos = Repositories(db);
+        final profile = (await repos.company.load())!;
+        final quarterStart = DateTime(day.year, (day.month - 1) ~/ 3 * 3 + 1);
+        for (final from in [
+          DateTime(day.year, day.month),
+          quarterStart,
+          DateTime(day.year),
+        ]) {
+          final t = await repos.receipts.totals(from: from, to: day);
+          expect(
+            t.incomeGross.cents,
+            greaterThan(t.expenseGross.cents * 2),
+            reason: 'ab $from',
+          );
+        }
+        Future<YearTurnover> year(int y) async => TurnoverBasis.forYear(
+          year: y,
+          fromReceipts: await repos.receipts.turnoverForYear(
+            y,
+            includeVat: profile.taxProfile.turnoverIncludesVat,
+          ),
+          opening: await repos.openingTurnover.forYear(y),
+          trackingStart: profile.trackingStart,
+        );
+        final current = await year(day.year);
+        final previous = await year(day.year - 1);
+        expect(current.amount, DemoDatasetDe.currentYearTurnover);
+        expect(previous.amount, DemoDatasetDe.previousYearTurnover);
+        final assessment = SmallBusinessMonitor.assess(
+          taxProfile: profile.taxProfile,
+          isSmallBusiness: profile.isSmallBusiness,
+          currentYearTurnover: current.amount,
+          previousYearTurnover: previous.isComplete ? previous.amount : null,
+          currentYearComplete: current.isComplete,
+          isFoundingYear: profile.isFoundingYear(day.year),
+        );
+        expect(assessment.status, isNot(SmallBusinessStatus.exceeded));
+        expect(assessment.displayLimit, const Money(10000000));
+        expect(assessment.utilizationPercent, inInclusiveRange(60, 66));
+        await db.close();
+      });
+    }
   });
 
   group('Abschottung', () {
@@ -445,7 +517,7 @@ void main() {
       await tester.pumpWidget(const SizedBox());
     });
 
-    testWidgets('Demo Deutschland: Ampel misst an 25.000 € (§ 19 UStG), '
+    testWidgets('Demo Deutschland: Ampel misst an 100.000 € (§ 19 UStG), '
         'Listen gefüllt', (tester) async {
       TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
           .setMockMethodCallHandler(
@@ -477,19 +549,18 @@ void main() {
       await settle(tester);
       final sb = state.smallBusiness!;
       expect(sb.nextYearLimit, const Money(2500000));
-      expect(sb.displayLimit, const Money(2500000));
+      expect(sb.displayLimit, const Money(10000000));
       expect(sb.limit, const Money(10000000));
-      expect(sb.utilizationPercent, inInclusiveRange(45, 75));
+      expect(sb.utilizationPercent, inInclusiveRange(60, 66));
       expect(find.text('Kleinunternehmergrenze'), findsOneWidget);
       expect(find.byKey(const Key('small-business-limits')), findsOneWidget);
       expect(find.textContaining('§ 19 UStG'), findsWidgets);
       await tester.tap(find.text('Rechnungen').last);
       await settle(tester);
-      expect(find.textContaining('Jonas Probe'), findsWidgets);
-      expect(find.text('Storno'), findsWidgets);
+      expect(find.textContaining('Bäckerei Sonnenkorn'), findsWidgets);
       await tester.tap(find.text('Belege').last);
       await settle(tester);
-      expect(find.textContaining('Laufkundschaft'), findsWidgets);
+      expect(find.textContaining('Passfotos'), findsWidgets);
       await tester.pumpWidget(const SizedBox());
     });
 
