@@ -1,0 +1,40 @@
+# Store-Screenshots aus der deutschen Demo (P-D34), ohne Emulator.
+# Ergebnis: ein Artefakt „store-screenshots“ (ZIP) mit allen Größen.
+name: Store-Screenshots
+
+on:
+  workflow_dispatch:
+
+env:
+  FLUTTER_VERSION: "3.47.0"
+
+jobs:
+  screenshots:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: stable
+          cache: true
+
+      - name: PDF-Rasterung (pdftoppm) und SQLite
+        run: sudo apt-get update && sudo apt-get install -y poppler-utils libsqlite3-dev
+
+      - name: Abhängigkeiten
+        run: flutter pub get
+
+      - name: Screenshots erzeugen
+        env:
+          SCREENSHOTS: "1"
+        run: flutter test --tags screenshots test/screenshots/store_screenshots_test.dart
+
+      - name: Als ein ZIP hochladen
+        uses: actions/upload-artifact@v4
+        with:
+          name: store-screenshots
+          path: build/screenshots/
+          if-no-files-found: error
+          retention-days: 30
