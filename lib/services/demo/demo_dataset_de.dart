@@ -14,7 +14,6 @@ import '../../domain/legal_texts.dart';
 import '../../domain/money.dart';
 import '../../domain/offer.dart';
 import '../../domain/receipt.dart';
-import '../dunning_service.dart';
 import '../invoice_numbering.dart';
 import '../levies/levy_estimator.dart';
 import '../receipt_vat_split.dart';
@@ -22,16 +21,33 @@ import '../vat_calculator.dart';
 import 'demo_dataset.dart';
 import 'demo_receipt_image.dart';
 
-/// Deutsche Musterfirma der Demo (Rückmeldung Auftraggeber zu 0.30.0).
+/// Deutsche Musterfirma der Demo (Rückmeldung Auftraggeber zu 0.30.0,
+/// Store-Screenshots 2026-10-21).
 ///
 /// Alles erfunden: „Muster Handel“, Einzelunternehmen in Musterstadt (Bayern),
-/// **Kleinunternehmerin nach § 19 UStG** (Fassung ab 2025) mit rund
-/// 15.000 € Umsatz im laufenden Jahr – die Grenzwertampel misst an der
-/// 25.000-€-Vorjahresgrenze und zeigt rund 60 %. Gewinnermittlung EÜR
-/// (§ 4 Abs 3 EStG), Gewerbesteuer in „Abgaben & Rücklagen“ (Freibetrag
-/// 24.500 €, § 11 Abs 1 GewStG), deutsche Fristen aus dem `TaxProfile`.
-/// Steuersätze der Eingangsbelege: 19 % und 7 % (§ 12 UStG DE); als
-/// Kleinunternehmerin ohne Vorsteuerabzug (§ 19 Abs 1 Satz 4 UStG).
+/// Grafikdesign, Fotografie und Coaching. **Kleinunternehmerin nach § 19
+/// UStG** (Fassung ab 2025): Vorjahresumsatz 22.000 € (unter 25.000 €,
+/// § 19 Abs 1 Satz 1 UStG), laufendes Jahr genau 63.000 € – die
+/// Grenzwertanzeige steht damit bei 63 % der 100.000-€-Grenze des laufenden
+/// Jahres. Einnahmen übersteigen die Ausgaben im Monat, im Quartal und im Jahr
+/// deutlich; alle Rechnungen bis auf eine noch nicht fällige sind bezahlt,
+/// keine Mahnung.
+///
+/// Datumslogik, damit das an jedem Tag des Jahres stimmt:
+/// - Die Erfassung beginnt am 1. Jänner des laufenden Jahres; der
+///   Vorjahresumsatz steht als Eröffnungswert (22.000 €) in der Datenbank.
+/// - Alle Buchungen liegen im laufenden Jahr. Ein Abstand von bis zu 150
+///   Tagen wird gestaucht, wenn seit Neujahr weniger Tage vergangen sind
+///   (`past`); im Jänner rücken die Buchungen also zusammen, die Summe bleibt
+///   63.000 €.
+/// - Buchungen „des Monats“ (`thisMonth`) liegen nie vor dem Monatsersten.
+///   Allein die Monatseinnahmen (6.250 €) übersteigen alle Ausgaben des
+///   Datensatzes (rund 1.700 €), daher ist jeder Zeitraum klar positiv.
+///
+/// Gewinnermittlung EÜR (§ 4 Abs 3 EStG), Gewerbesteuer in „Abgaben &
+/// Rücklagen“ (Freibetrag 24.500 €, § 11 Abs 1 GewStG), deutsche Fristen aus
+/// dem `TaxProfile`. Steuersätze der Eingangsbelege: 19 % und 7 % (§ 12 UStG
+/// DE); als Kleinunternehmerin ohne Vorsteuerabzug (§ 19 Abs 1 Satz 4 UStG).
 /// Händler, Personen und Nummern sind Platzhalter (P-R56).
 class DemoDatasetDe {
   DemoDatasetDe._();
@@ -41,12 +57,12 @@ class DemoDatasetDe {
   /// Erfundene Händler; der Markentest prüft sie mit (P-R56).
   static const merchants = [
     'Tankstelle Am Ring',
-    'Baumarkt Huber',
+    'Fotofachhandel Blende 8',
     'Gasthaus Zur Linde',
     'Bürowelt Mustermann',
     'Druckerei Feder & Co',
     'Netz & Telefon Muster',
-    'Wareneinkauf Muster GmbH',
+    'Fotolabor Silberkorn',
     'Bank Muster',
     'Krankenkasse Muster',
     'Hausverwaltung Muster',
@@ -55,6 +71,14 @@ class DemoDatasetDe {
   /// Belege ohne Rechnungszahlungen.
   static const receiptCount = 17;
 
+  /// Umsatz des Vorjahres (Eröffnungswert), unter 25.000 € (§ 19 Abs 1
+  /// Satz 1 UStG), damit die Kleinunternehmerregelung gilt.
+  static const previousYearTurnover = Money(2200000);
+
+  /// Umsatz des laufenden Jahres: 63 % der 100.000-€-Grenze
+  /// (§ 19 Abs 1 Satz 1 UStG, Fassung ab 2025).
+  static const currentYearTurnover = Money(6300000);
+
   static Future<void> seed(
     Database db, {
     required DateTime today,
@@ -62,7 +86,19 @@ class DemoDatasetDe {
   }) async {
     final repos = Repositories(db);
     final now = DateTime(today.year, today.month, today.day);
-    DateTime ago(int days) => now.subtract(Duration(days: days));
+    // Kalendertage statt Stunden: robust gegen die Zeitumstellung.
+    DateTime ago(int days) => DateTime(now.year, now.month, now.day - days);
+    // Stauchung in das laufende Jahr (siehe Klassenkommentar).
+    final sinceNewYear = DateTime.utc(
+      now.year,
+      now.month,
+      now.day,
+    ).difference(DateTime.utc(now.year)).inDays;
+    DateTime past(int days) =>
+        ago(sinceNewYear >= 150 ? days : days * sinceNewYear ~/ 150);
+    // Nie vor dem Monatsersten.
+    DateTime thisMonth(int days) =>
+        ago(days < now.day - 1 ? days : now.day - 1);
 
     await repos.consents.accept(LegalText.all, now: now);
 
@@ -73,7 +109,7 @@ class DemoDatasetDe {
       street: 'Musterweg 7',
       postalCode: '80000',
       city: 'Musterstadt',
-      email: 'post@muster-handel.example',
+      email: 'studio@muster-handel.example',
       phone: '+49 89 0000000',
       taxNumber: '000/000/00000',
       // Kleinunternehmerin nach § 19 UStG: keine USt-IdNr nötig.
@@ -82,7 +118,7 @@ class DemoDatasetDe {
       bic: 'MUSTDEMM',
       bankName: 'Musterbank',
       invoiceNumberPattern: InvoiceNumbering.defaultPattern,
-      trackingStart: DateTime(now.year - 1, 1, 1),
+      trackingStart: DateTime(now.year, 1, 1),
       foundingYear: now.year - 3,
       fiscalYearConfirmed: true,
       federalState: 'BY',
@@ -90,19 +126,20 @@ class DemoDatasetDe {
       defaultSkontoPermille: 20,
     );
     await repos.company.save(profile);
+    await repos.openingTurnover.save(now.year - 1, previousYearTurnover);
 
     final categories = {
       for (final c in await repos.categories.all()) c.name: c.id!,
     };
 
-    final kita = await repos.customers.save(
+    final bakery = await repos.customers.save(
       const Customer(
-        name: 'Beispiel Werkstatt GmbH',
-        contactPerson: 'Frau Beispiel',
-        street: 'Industriestraße 12',
+        name: 'Bäckerei Sonnenkorn GmbH',
+        contactPerson: 'Frau Korn',
+        street: 'Mühlenstraße 12',
         postalCode: '90000',
         city: 'Beispielhausen',
-        email: 'einkauf@beispiel-werkstatt.example',
+        email: 'marketing@sonnenkorn.example',
         isBusiness: true,
       ),
     );
@@ -116,31 +153,31 @@ class DemoDatasetDe {
       ),
     );
     final customers = {
-      kita: await repos.customers.byId(kita),
+      bakery: await repos.customers.byId(bakery),
       jonas: await repos.customers.byId(jonas),
     };
 
     await repos.articles.save(
       const Article(
         number: 'A-001',
-        name: 'Beratungsstunde',
+        name: 'Designstunde',
         unit: 'Std',
-        unitPrice: Money(8000),
+        unitPrice: Money(8500),
         vatPermille: 0,
       ),
     );
     await repos.articles.save(
       const Article(
         number: 'A-002',
-        name: 'Montageset Regal',
-        unitPrice: Money(4500),
+        name: 'Fotoshooting halbtags',
+        unitPrice: Money(45000),
         vatPermille: 0,
       ),
     );
 
     var imageNo = 0;
     Future<int> receipt({
-      required int daysAgo,
+      required DateTime date,
       required String merchant,
       required String description,
       required String category,
@@ -180,7 +217,7 @@ class DemoDatasetDe {
       }
       return repos.receipts.save(
         Receipt(
-          date: ago(daysAgo),
+          date: date,
           direction: direction,
           description: description,
           counterparty: merchant,
@@ -198,30 +235,30 @@ class DemoDatasetDe {
     }
 
     await receipt(
-      daysAgo: 3,
+      date: thisMonth(3),
       merchant: 'Tankstelle Am Ring',
-      description: 'Diesel Lieferwagen 40,2 l',
+      description: 'Benzin 38,4 l',
       category: 'Kfz-Kosten',
       parts: [(190, 7036)],
     );
     await receipt(
-      daysAgo: 31,
+      date: past(31),
       merchant: 'Tankstelle Am Ring',
-      description: 'Diesel Lieferwagen 37,9 l',
+      description: 'Benzin 36,1 l',
       category: 'Kfz-Kosten',
       parts: [(190, 6633)],
     );
     // Buchungsregeln (FA-20.x, Auftrag 2026-10-20): Privat-PKW zu 30 %
     // betrieblich laut Fahrtenbuch und Büro 12 m² von 80 m² Wohnung.
     await receipt(
-      daysAgo: 12,
+      date: past(12),
       merchant: 'Autowerkstatt Muster',
       description: 'Service Privat-PKW',
       category: 'Kfz-Kosten',
-      parts: [(190, 42000)],
+      parts: [(190, 28000)],
     );
     await receipt(
-      daysAgo: 20,
+      date: past(20),
       merchant: 'Energie Muster',
       description: 'Strom Wohnung (mit Büro)',
       category: 'Miete & Betriebskosten',
@@ -255,22 +292,22 @@ class DemoDatasetDe {
       ),
     );
     await receipt(
-      daysAgo: 8,
-      merchant: 'Baumarkt Huber',
-      description: 'Schrauben, Dübel, Kabelbinder',
+      date: thisMonth(8),
+      merchant: 'Fotofachhandel Blende 8',
+      description: 'Speicherkarten 2 Stk',
       category: 'Material und Werkzeug',
-      parts: [(190, 2847)],
+      parts: [(190, 7998)],
     );
     // Bewirtung: in Deutschland 19 % auf Speisen und Getränke im Lokal.
     await receipt(
-      daysAgo: 12,
+      date: past(12),
       merchant: 'Gasthaus Zur Linde',
-      description: 'Geschäftsessen Beispiel Werkstatt',
+      description: 'Geschäftsessen Bäckerei Sonnenkorn',
       category: 'Bewirtung',
       parts: [(190, 7420)],
     );
     await receipt(
-      daysAgo: 15,
+      date: past(15),
       merchant: 'Bürowelt Mustermann',
       description: 'Druckerpapier und Ordner',
       category: 'Büromaterial',
@@ -279,23 +316,23 @@ class DemoDatasetDe {
     );
     // Fachbuch: ermäßigter Satz 7 % (§ 12 Abs 2 Nr 1 UStG DE, Anlage 2).
     await receipt(
-      daysAgo: 44,
+      date: past(44),
       merchant: 'Bürowelt Mustermann',
-      description: 'Fachbuch Buchführung, Notizblöcke',
+      description: 'Fachbuch Typografie, Skizzenblöcke',
       category: 'Büromaterial',
       parts: [(70, 2490), (190, 1190)],
     );
     await receipt(
-      daysAgo: 20,
+      date: past(20),
       merchant: 'Druckerei Feder & Co',
-      description: 'Visitenkarten und Flyer',
+      description: 'Visitenkarten und Mappen',
       category: 'Werbung & Marketing',
       parts: [(190, 11900)],
       payment: PaymentMethod.bank,
     );
     for (final days in [18, 48]) {
       await receipt(
-        daysAgo: days,
+        date: past(days),
         merchant: 'Netz & Telefon Muster',
         description: 'Mobilfunk und Internet',
         category: 'Telefon & Internet',
@@ -304,15 +341,15 @@ class DemoDatasetDe {
       );
     }
     await receipt(
-      daysAgo: 52,
-      merchant: 'Wareneinkauf Muster GmbH',
-      description: 'Regalböden 10 Stk',
+      date: past(52),
+      merchant: 'Fotolabor Silberkorn',
+      description: 'Fineart-Abzüge Kundenauftrag',
       category: 'Wareneinkauf',
-      parts: [(190, 47600)],
+      parts: [(190, 18900)],
       payment: PaymentMethod.bank,
     );
     await receipt(
-      daysAgo: 22,
+      date: past(22),
       merchant: 'Bank Muster',
       description: 'Kontoführung',
       category: 'Bankspesen',
@@ -320,23 +357,23 @@ class DemoDatasetDe {
       payment: PaymentMethod.bank,
       image: false,
     );
-    // Barverkäufe ohne Rechnung; als Kleinunternehmerin ohne USt.
+    // Einnahmen ohne Rechnung; als Kleinunternehmerin ohne USt.
     await receipt(
-      daysAgo: 5,
-      merchant: 'Barverkauf',
-      description: 'Montageset Regal, Laufkundschaft',
+      date: thisMonth(5),
+      merchant: 'Barzahlung',
+      description: 'Passfotos und Bewerbungsfotos',
       category: 'Umsatzerlöse',
-      parts: [(0, 9000)],
+      parts: [(0, 45000)],
       payment: PaymentMethod.cash,
       direction: BookingDirection.income,
       image: false,
     );
     await receipt(
-      daysAgo: 36,
-      merchant: 'Barverkauf',
-      description: 'Montagesets Regal, Markttag',
+      date: past(36),
+      merchant: 'Barzahlung',
+      description: 'Porträtshooting Familie',
       category: 'Umsatzerlöse',
-      parts: [(0, 58500)],
+      parts: [(0, 120000)],
       payment: PaymentMethod.cash,
       direction: BookingDirection.income,
       image: false,
@@ -344,7 +381,7 @@ class DemoDatasetDe {
     // Abgaben & Rücklagen: Krankenversicherung (Sonderausgabe) und
     // ESt-Vorauszahlung laut Bescheid (§ 37 EStG, Quartalsende).
     await receipt(
-      daysAgo: 25,
+      date: past(25),
       merchant: 'Krankenkasse Muster',
       description: 'Kranken- und Pflegeversicherung',
       category: 'Sozialversicherung',
@@ -353,7 +390,7 @@ class DemoDatasetDe {
       image: false,
     );
     await receipt(
-      daysAgo: 60,
+      date: past(60),
       merchant: 'Finanzamt Musterstadt',
       description: 'Einkommensteuer-Vorauszahlung',
       category: 'Einkommensteuer-Vorauszahlung',
@@ -377,11 +414,10 @@ class DemoDatasetDe {
     );
     Future<int> invoice({
       required int customerId,
-      required int daysAgo,
+      required DateTime issued,
       required List<InvoiceItem> items,
       int termDays = 14,
     }) {
-      final issued = ago(daysAgo);
       return repos.invoices.save(
         Invoice(
           number: '',
@@ -414,88 +450,75 @@ class DemoDatasetDe {
       unit: unit,
     );
 
-    // Bezahlt: zusammen mit den Barverkäufen rund 15.000 € Umsatz.
-    final paid0 = await invoice(
-      customerId: kita,
-      daysAgo: 130,
-      items: [item('Lagereinrichtung Halle', 1000, 450000)],
-    );
-    await repos.invoices.markPaid(paid0, ago(120));
-    final paid1 = await invoice(
-      customerId: kita,
-      daysAgo: 95,
-      items: [item('Lagerregal Montage', 3000, 110000)],
-    );
-    await repos.invoices.markPaid(paid1, ago(85));
-    final paid2 = await invoice(
-      customerId: kita,
-      daysAgo: 57,
+    // Bezahlt: zusammen mit den Barzahlungen (1.650 €) genau 63.000 € im
+    // laufenden Jahr, siehe [currentYearTurnover].
+    final paidInvoices = [
+      (bakery, 140, 130, [item('Corporate Design komplett', 1000, 1450000)]),
+      (bakery, 115, 105, [item('Imagefotos Filialen', 1000, 980000)]),
+      (
+        bakery,
+        90,
+        80,
+        [
+          item('Website-Gestaltung', 1000, 1070000),
+          item('Designstunde', 20000, 8500, unit: 'Std'),
+        ],
+      ),
+      (jonas, 60, 52, [item('Coaching-Paket Selbstständigkeit', 1000, 865000)]),
+      (bakery, 35, 27, [item('Produktkatalog Gestaltung', 1000, 1020000)]),
+    ];
+    for (final (customer, issuedDays, paidDays, items) in paidInvoices) {
+      final id = await invoice(
+        customerId: customer,
+        issued: past(issuedDays),
+        items: items,
+      );
+      await repos.invoices.markPaid(id, past(paidDays));
+    }
+    final paidThisMonth = await invoice(
+      customerId: bakery,
+      issued: thisMonth(3),
       items: [
-        item('Regalsystem Werkstatt', 1000, 380000),
-        item('Beratungsstunde', 10000, 8000, unit: 'Std'),
+        item('Fotoshooting halbtags', 2000, 45000),
+        item('Bildbearbeitung und Bildrechte', 1000, 490000),
       ],
     );
-    await repos.invoices.markPaid(paid2, ago(49));
-    final paid3 = await invoice(
-      customerId: jonas,
-      daysAgo: 27,
-      items: [item('Montageset Regal', 4000, 4500)],
-    );
-    await repos.invoices.markPaid(paid3, ago(20));
-    // Offen, noch nicht fällig.
+    await repos.invoices.markPaid(paidThisMonth, thisMonth(1));
+    // Offen, noch nicht fällig – die einzige offene Rechnung, keine Mahnung.
     await invoice(
-      customerId: kita,
-      daysAgo: 4,
-      items: [item('Beratungsstunde', 6000, 8000, unit: 'Std')],
+      customerId: bakery,
+      issued: thisMonth(2),
+      items: [item('Designstunde', 16000, 8500, unit: 'Std')],
       termDays: 30,
     );
-    // Überfällig mit Zahlungserinnerung.
-    final overdue = await invoice(
-      customerId: jonas,
-      daysAgo: 40,
-      items: [item('Wandregal mit Montage', 1000, 68000)],
-    );
-    final overdueInvoice = await repos.invoices.byId(overdue);
-    final draft = DunningService.compose(
-      invoice: overdueInvoice!,
-      previous: const [],
-      rules: profile.taxProfile.dunning,
-      business: false,
-      issuedOn: ago(12),
-      newDueDate: ago(2),
-      fee: const Money.zero(),
-      withInterest: false,
-      withFlatFee: false,
-    );
-    await repos.dunning.insert(draft.notice);
     // Storno mit Stornorechnung.
     final wrong = await invoice(
       customerId: jonas,
-      daysAgo: 16,
-      items: [item('Montageset Regal', 6000, 4500)],
+      issued: past(16),
+      items: [item('Fotoshooting halbtags', 2000, 45000)],
     );
     await repos.invoices.cancelWithInvoice(
       wrong,
       reason: 'Falsche Menge berechnet',
-      date: ago(15),
-      assignNumber: (s) => number(s, ago(15)),
+      date: past(15),
+      assignNumber: (s) => number(s, past(15)),
     );
 
     await repos.offers.save(
       Offer(
         number: 'AN-${now.year}-0001',
-        issueDate: ago(6),
-        validUntil: ago(6).add(const Duration(days: 30)),
-        customerId: kita,
+        issueDate: thisMonth(6),
+        validUntil: thisMonth(6).add(const Duration(days: 30)),
+        customerId: bakery,
         status: OfferStatus.sent,
-        items: [item('Lagerregal Montage', 2000, 110000)],
+        items: [item('Logo-Relaunch', 1000, 240000)],
       ),
     );
 
     await repos.contracts.save(
       Contract(
         type: ContractType.rent,
-        title: 'Mietvertrag Lagerraum',
+        title: 'Mietvertrag Atelier',
         partner: 'Hausverwaltung Muster',
         startDate: DateTime(now.year - 2, 1, 1),
         endDate: now.add(const Duration(days: 80)),
