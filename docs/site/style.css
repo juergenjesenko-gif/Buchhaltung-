@@ -1,0 +1,29 @@
+:root{--bg:#fdfcfa;--fg:#1d1d1b;--muted:#5b5b57;--line:#d9d6cf;--accent:#0f5c4c;--mark:#ffe08a;--card:#f3f1ec}
+@media (prefers-color-scheme:dark){:root{--bg:#141413;--fg:#ecebe6;--muted:#b0aea6;--line:#3a3935;--accent:#6fd1b8;--mark:#7a5c00;--card:#1f1e1c}}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--fg);font:1.0625rem/1.6 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+header,main,footer{max-width:46rem;margin:0 auto;padding:0 16px}
+header{padding-top:16px;border-bottom:1px solid var(--line)}
+.marke{font-weight:700;font-size:1.25rem;margin:0 0 8px}
+nav{display:flex;flex-wrap:wrap;gap:4px 8px;padding-bottom:8px}
+nav a{display:inline-flex;align-items:center;min-height:48px;padding:0 12px;border-radius:8px;color:var(--accent);text-decoration:none;font-weight:600}
+nav a[aria-current=page]{background:var(--card);color:var(--fg)}
+a{color:var(--accent);overflow-wrap:anywhere}
+a:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+h1{font-size:1.6rem;line-height:1.25;margin:24px 0 12px}
+h2{font-size:1.25rem;margin:28px 0 8px}
+h3,h4{font-size:1.05rem;margin:20px 0 6px}
+.hinweis{border-left:4px solid var(--accent);background:var(--card);padding:4px 16px;margin:16px 0}
+mark.offen{background:var(--mark);color:inherit;padding:0 4px;border-radius:4px;font-weight:600}
+.laender{display:grid;gap:12px;margin:12px 0}
+@media (min-width:640px){.laender{grid-template-columns:1fr 1fr}}
+.land{border:1px solid var(--line);border-radius:8px;padding:4px 16px}
+.land-titel{font-weight:700;margin:8px 0 0}
+.tabelle{overflow-x:auto;margin:12px 0}
+table{border-collapse:collapse;width:100%;font-size:.95rem}
+th,td{border:1px solid var(--line);padding:8px;text-align:left;vertical-align:top}
+th{background:var(--card)}
+code{font-size:.9em;overflow-wrap:anywhere}
+footer{border-top:1px solid var(--line);margin-top:32px;padding-bottom:24px;color:var(--muted);font-size:.9rem}
+.skip{position:absolute;left:-9999px}.skip:focus{left:16px;top:8px;background:var(--bg);padding:8px}

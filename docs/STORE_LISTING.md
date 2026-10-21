@@ -24,94 +24,109 @@ Belege scannen, Rechnungen & E-Rechnungen schreiben. 14 Tage gratis testen.
 Belege, Rechnungen, Export
 ```
 
-## Vollständige Beschreibung
+## Werbetext (App Store, max. 170 Zeichen)
+
+Änderbar ohne neue Prüfung durch Apple; keine Preise, die sich ändern könnten.
+
+```
+Belege scannen, Rechnungen und E-Rechnungen schreiben, an die Kanzlei übergeben. Für Österreich und Deutschland. Deine Daten bleiben auf dem Gerät.
+```
+
+## Vollständige Beschreibung (max. 4000 Zeichen, beide Stores)
+
+Abgeglichen mit App-Version 0.39.1 am 2026-10-21 (neu: Beleg-Leseansicht
+FA-9.9, ZIP-Paket 8.9, Vertragsarchiv FA-16.x, Hilfe FA-11.x; gekürzt von
+4.200 auf 3.737 Zeichen). Preis fürs erste Jahr mit dem Zusatz „auf
+Android bzw. mit Code im App Store“ (O-45, P-R62).
 
 ```
 JeNi bucht: Buchhaltung für Einzelunternehmer und Kleinunternehmer in Österreich und
 Deutschland. Ohne Konto beim Anbieter, deine Daten bleiben auf dem Gerät.
 
 BELEGE STATT SCHUHKARTON
-Beleg abfotografieren – Betrag, Datum, Steuersatz und Händler schlägt die App
-vor, auch aus dem QR-Code der Registrierkasse. Mehrere Steuersätze auf einem
-Beleg, Belege in fremder Währung, PDF- und E-Rechnungen (XRechnung, ZUGFeRD,
-ebInterface) per Teilen übernehmen. Alles bleibt durchsuchbar, nach Monaten
-geordnet.
+Beleg scannen – Betrag, Datum, Steuersatz und Händler schlägt die App vor, auch
+aus dem QR-Code der Registrierkasse. Mehrere Steuersätze auf einem Beleg,
+fremde Währung, PDF- und E-Rechnungen (XRechnung, ZUGFeRD, ebInterface) per
+Teilen übernehmen. Antippen zeigt den Beleg zum Lesen, bearbeiten mit einem
+Tipp. Nach Monaten geordnet und durchsuchbar.
 
-VERKÄUFE AUF PLATTFORMEN
-Monatsberichte von Amazon, PayPal, Shopify und Stripe teilen – die App fasst
-Verkäufe, Gebühren und Auszahlungen je Monat zusammen.
+RECHNUNGEN UND E-RECHNUNGEN
+Kunden einmal anlegen, Positionen erfassen, fertig. Die App prüft die
+Pflichtangaben nach § 11 UStG bzw. § 14 UStG mit, auch das Leistungsdatum.
+Kleinunternehmer bekommen automatisch den vorgeschriebenen Hinweistext.
+Rabatt, Skonto, Versandkosten, Zahlungserinnerung und Mahnung, Storno als
+Gutschrift. Jede Rechnung als ZUGFeRD-PDF (EN 16931), für Behörden XRechnung
+(mit Leitweg-ID) oder ebInterface (e-Rechnung.gv.at).
 
-BELEGE VON DER GANZEN FAMILIE
-Mithelfer-Geräte per QR-Code koppeln: Partnerin, Kinder oder Team
-fotografieren Belege mit ihrem Handy, die App schickt sie einmal am Tag
-verschlüsselt per E-Mail in deinen Eingang – von selbst. Du übernimmst mit
-einem Tipp. Mithelfer brauchen kein eigenes Abo.
+VERTRÄGE UND FRISTEN
+Miete, Leasing, Versicherung: Verträge ablegen, Kündigungsfristen und Raten im
+Blick, Rate als Ausgabe vorschlagen lassen.
 
 DEINE ZAHLEN JEDERZEIT
 Einnahmen, Ausgaben und Ergebnis für Monat, Quartal oder Jahr. Umsatzsteuer je
-Satz, Vorsteuer und die daraus folgende Zahllast auf einen Blick.
-
-KLEINUNTERNEHMERGRENZE IM AUGE
-Die App kennt die unterschiedlichen Regeln in Österreich (55.000 € mit
-10-%-Toleranz) und Deutschland (25.000 € Vorjahr, 100.000 € laufendes Jahr) und
-warnt rechtzeitig, bevor es eng wird.
-
-RECHNUNGEN, DIE HALTEN
-Kunden einmal anlegen, Positionen erfassen, fertig. Die App prüft die
-Pflichtangaben nach § 11 UStG bzw. § 14 UStG mit – auch das Leistungsdatum, das
-am häufigsten fehlt. Kleinunternehmer bekommen automatisch den vorgeschriebenen
-Hinweistext statt einer Umsatzsteuerzeile. Rabatt, Skonto und Versandkosten,
-Zahlungserinnerung und Mahnung. Als PDF direkt aus der App verschicken.
-
-E-RECHNUNGEN SCHREIBEN
-Jede Rechnung als ZUGFeRD-PDF (EN 16931): ein PDF zum Lesen mit der
-E-Rechnung darin. Für Behörden XRechnung (Deutschland, mit Leitweg-ID) oder
-ebInterface (Österreich, e-Rechnung.gv.at) als XML. Stornos als Gutschrift.
+Satz, Vorsteuer und Zahllast auf einen Blick. Die Kleinunternehmergrenze für
+Österreich (55.000 € mit Toleranz) und Deutschland (25.000 € Vorjahr,
+100.000 € laufendes Jahr) im Auge, mit Hinweis, bevor es eng wird.
 
 ÜBERGABE AN DIE KANZLEI
-Belegliste als CSV, DATEV-Buchungsstapel für Deutschland, BMD-Format für
-Österreich, dazu eine Umsatzsteuer-Zusammenfassung mit allen
-Bemessungsgrundlagen. Zeitraum wählen, Vorschau prüfen, teilen.
+Belegliste als CSV, DATEV-Buchungsstapel, BMD-Format, Umsatzsteuer-
+Zusammenfassung, dazu alle Belege und Rechnungen eines Zeitraums als ZIP.
+Zeitraum wählen, Vorschau prüfen, teilen.
+
+BELEGE VON DER GANZEN FAMILIE
+Mithelfer-Geräte per QR-Code koppeln: Familie oder Team fotografieren Belege,
+die App schickt sie verschlüsselt in deinen Eingang. Mithelfer brauchen kein
+eigenes Abo.
+
+HILFE IN DER APP
+Fragezeichen antippen: Hilfe nach Themen, offline durchsuchbar.
 
 DEINE DATEN BLEIBEN DEINE
-Alles liegt auf deinem Gerät. Kein Server, kein Nutzerkonto, keine Werbung, keine
-Analyse. Daten verlassen das Telefon nur, wenn du selbst teilst, sicherst, eine
-UID-Nummer prüfen lässt, einen Wechselkurs abrufst oder eine Rechnung über
-einen QR-Link lädst. App-Sperre mit PIN oder Fingerabdruck.
+Kein Server, kein Nutzerkonto, keine Werbung, keine Analyse. Daten verlassen
+das Telefon nur, wenn du selbst teilst oder sicherst, eine UID-Nummer prüfen
+lässt, einen Wechselkurs abrufst oder eine Rechnung über einen QR-Link lädst.
+Verschlüsselte Sicherung, App-Sperre mit PIN oder Fingerabdruck.
 
 BASIS UND PRO
-Basis: Belege, Rechnungen, E-Rechnungen ausstellen (ZUGFeRD, XRechnung,
-ebInterface), Storno, Mahnungen erstellen, Kassabuch, Kunden,
-Übersicht, Kleinunternehmer-Ampel, Vertragsarchiv, Export, Sicherung, PDF
-ansehen, speichern, teilen und drucken.
-Pro zusätzlich: Belegerkennung per Kamera, Import aus Amazon, PayPal, Shopify,
-Stripe und E-Rechnungen, PDF und Mahnungen mit einem Tipp senden, Logo auf
-Rechnungen, Wechselkurs abrufen, Anlagen mit Abschreibung und
-Anlagenverzeichnis, Saldenliste und vorläufiger Jahresabschluss, Abgaben &
-Rücklagen (Schätzung für Steuern und SV), Verträge auslesen, Mithelfer-Geräte
-koppeln.
+Basis: Belege, Rechnungen und E-Rechnungen ausstellen, Storno, Mahnungen
+erstellen, Kassabuch, Kunden, Übersicht, Kleinunternehmer-Ampel,
+Vertragsarchiv, Export, ZIP-Paket, Sicherung, PDF ansehen, speichern, teilen
+und drucken.
+Pro zusätzlich: Belegerkennung, Import aus Amazon, PayPal, Shopify, Stripe und
+E-Rechnungen, PDF und Mahnungen mit einem Tipp senden, Logo auf Rechnungen,
+Wechselkurs abrufen, Anlagen mit Abschreibung, Saldenliste und vorläufiger
+Jahresabschluss, Abgaben & Rücklagen (Schätzung), Verträge auslesen,
+Mithelfer-Geräte.
 
 14 TAGE KOSTENLOS TESTEN
 14 Tage kostenlos testen – mit allen Pro-Funktionen, auch wenn du Basis
-wählst. Danach gilt dein gewähltes Abo: im ersten Jahr Basis 6,90 € oder Pro
-12,90 € im Monat (Jahresabo 69 € bzw. 129 €), ab dem zweiten Jahr Basis
-12,90 € oder Pro 17,90 € im Monat (Jahresabo 129 € bzw. 179 €); Endpreise
-inkl. USt. Mit Basis gilt nach
-dem Test der Umfang von Basis. Der Test startet im Store und geht nach 14
-Tagen in das Abo über, wenn du nicht vorher in den Store-Einstellungen
-kündigst; jederzeit vorher im Store kündbar, dann zahlst du nichts. Der
-kostenlose Test gilt einmal, beim ersten Abo.
+wählst. Mit Basis gilt nach dem Test der Umfang von Basis. Danach Basis
+12,90 € oder Pro 17,90 € im Monat (Jahresabo 129 € bzw. 179 €); im ersten
+Jahr auf Android bzw. mit Code im App Store Basis 6,90 € oder Pro 12,90 € im
+Monat (Jahresabo 69 € bzw. 129 €). Endpreise inkl. USt. Der Test geht nach 14
+Tagen in das Abo über, wenn du nicht vorher im Store kündigst; dann zahlst du
+nichts. Der Test gilt einmal, beim ersten Abo. Das Abo verlängert sich
+automatisch und ist jederzeit im Store kündbar.
 
 ERST ANSEHEN
-Ohne Abo zeigt die Demo eine erfundene Musterfirma mit Belegen, Rechnungen,
-Mahnung, Anlage und Jahresabschluss. In der Demo wird nichts gespeichert;
-Muster-PDFs tragen das Wasserzeichen „MUSTER – DEMO“.
+Ohne Abo zeigt die Demo eine erfundene Musterfirma. In der Demo wird nichts
+gespeichert; Muster-PDFs tragen das Wasserzeichen „MUSTER – DEMO“. Ohne Abo
+bleiben deine Daten auf dem Gerät lesbar und exportierbar.
 
-Ohne Abo bleiben deine Daten auf dem Gerät lesbar und exportierbar.
-
-Hinweis: Diese App unterstützt bei der Buchhaltung, ist aber keine
-Steuerberatung und keine Registrierkasse nach RKSV.
+Keine Steuerberatung – ersetzt keine steuerliche Beratung. Keine Registrierkasse
+nach RKSV.
 ```
+
+### Zeichenlimits (geprüft 2026-10-21)
+
+| Feld | Limit | Text | Länge |
+|---|---|---|---|
+| App-Name (Play und Apple) | 30 | JeNi bucht | 10 |
+| Kurzbeschreibung (Play) | 80 | siehe oben | 75 |
+| Untertitel (Apple) | 30 | Belege, Rechnungen, Export | 26 |
+| Werbetext (Apple) | 170 | siehe oben | 147 |
+| Suchbegriffe (Apple) | 100 | siehe unten | 81 |
+| Beschreibung (beide) | 4000 | siehe oben | 3.737 |
 
 ## Kategorie
 
