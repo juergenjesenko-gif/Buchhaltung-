@@ -1,6 +1,6 @@
 # Benutzerhandbuch – JeNi bucht
 
-**Für App-Version 0.38.3** · Stand 2026-10-20
+**Für App-Version 0.39.0** · Stand 2026-10-20
 
 Welche Version du hast, steht ganz unten in den **Einstellungen**, etwa „Version 0.35.0 (16)“; die Zahl in Klammern ist die Buildnummer.
 
@@ -205,7 +205,9 @@ Die **Einstellungen** erreichst du über das Menü (drei Striche) rechts oben in
 ### Hilfe in der App
 
 Rechts oben auf jedem Hauptbildschirm und im Beleg- und Rechnungsformular
-findest du ein **Fragezeichen**. Es öffnet die Hilfe: Tippe in das Feld
+findest du ein **Fragezeichen**. Es öffnet die Hilfe beim passenden Kapitel;
+ohne Bezug siehst du zuerst alle Kapitel als Liste. Ein Tipp öffnet ein
+Kapitel, darin klappst du die einzelnen Abschnitte auf. Oder tippe in das Feld
 **„Frag mich etwas …“** ein paar Wörter, etwa *Beleg löschen*, *Rückseite*
 oder *Kleinunternehmergrenze*. Die App sucht in diesem Handbuch – ohne
 Internet – und zeigt passende Abschnitte mit einem kurzen Auszug. Ein Tipp
@@ -1392,7 +1394,7 @@ wiederherstellen" mit Kennwort bzw. Wiederherstellungscode. Was nach der
 letzten Sicherung erfasst wurde, ist dabei verloren.
 
 **Rechtliches** – Impressum, Datenschutzerklärung und Nutzungsbedingungen zum
-Nachlesen, auch ohne Internet; dazu der Hinweis „Keine Steuerberatung“, die
+Nachlesen, jeweils mit den Gesetzen deines Landes (Österreich oder Deutschland), auch ohne Internet; dazu der Hinweis „Keine Steuerberatung“, die
 Support-Adresse (öffnet deine Mail-App) und die Open-Source-Lizenzen. In
 dieser Testversion stehen die Rechtstexte noch als **Entwurf** gekennzeichnet.
 

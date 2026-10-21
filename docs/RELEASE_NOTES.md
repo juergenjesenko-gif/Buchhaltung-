@@ -29,11 +29,33 @@ gebaut, und was war darin geprüft?*
 
 ## Unveröffentlicht
 
-Änderungen seit 0.38.3+55, die noch in keinem Build stecken. Wandern beim
+Änderungen seit 0.39.0+56, die noch in keinem Build stecken. Wandern beim
 nächsten Versionssprung in den neuen Eintrag.
 
 | Art | Änderung | Bezug | Commit |
 |---|---|---|---|
+
+---
+
+## 0.39.0+56 — 2026-10-21
+
+| Feld | Wert |
+|---|---|
+| Art | Interner Test (TestFlight, Google Play interner Track) über `release.yml` und Test-APK aus `ci.yml`; **Lizenzprüfung aus**, alle Funktionen frei |
+| Commit | `XXXXXXX` |
+| Branch | `claude/agile-accounting-app-mobile-wa5j3h` |
+| Dokumentstände | Lastenheft 1.89, Spezifikation 2.04, REGELPFLEGE 2026-10-20, Benutzerhandbuch für 0.39.0, DESIGN_SPEC 1.7, Rechtstexte mit Länderabschnitten |
+| Datenbankschema | 31 |
+| Prüfung | `flutter analyze` ohne Befund, alle Tests grün (985, neu `legal_country_filter_test`, Hilfe-Gliederung); Android/iOS-Build nur in der CI |
+| Steuerliche Kennwerte | unverändert |
+| Offene reale Prüfpunkte | neu P-R67; P-D19, P-D58 |
+| Bekannte Grenzen | unverändert (Spezifikation 11) |
+
+**Änderungen seit 0.38.3+55**
+
+| Art | Änderung | Bezug | Commit |
+|---|---|---|---|
+| Geändert | Rechtstexte zeigen nur die Gesetze des eigenen Landes | FA-11.10 | `XXXXXXX` |
 | Geändert | Hilfe: zuerst Kapitelübersicht, Kapitel mit aufklappbaren Abschnitten, „?“ springt ins passende Kapitel | FA-11 | `d455765` |
 | Behoben | Tastatur bleibt nach abgebrochener Datei-/Fotoauswahl nicht stehen; Betragsfeld nur bei Eingabe von Hand automatisch aktiv | SPEC 7 | `9aa3a4f` |
 
