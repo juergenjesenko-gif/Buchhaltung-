@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 
 import '../pdf_viewer/pdf_viewer_screen.dart';
+import '../../widgets/page_image_dialog.dart';
 import '../../widgets/dictation_button.dart';
 import '../../widgets/danger_zone.dart';
 import 'package:flutter/services.dart';
@@ -1003,30 +1004,10 @@ class _ReceiptEditScreenState extends State<ReceiptEditScreen> {
   void _showPage(int index) {
     final file = _pageFiles[_pages[index]];
     if (file == null) return;
-    showDialog<void>(
-      context: context,
-      builder: (context) => Dialog(
-        insetPadding: const EdgeInsets.all(12),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Padding(
-              padding: const EdgeInsets.all(8),
-              child: Text('Seite ${index + 1} von ${_pages.length}'),
-            ),
-            Flexible(
-              child: InteractiveViewer(
-                maxScale: 5,
-                child: Image.file(file, fit: BoxFit.contain),
-              ),
-            ),
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(),
-              child: const Text('Schließen'),
-            ),
-          ],
-        ),
-      ),
+    showPageImageDialog(
+      context,
+      file: file,
+      caption: 'Seite ${index + 1} von ${_pages.length}',
     );
   }
 

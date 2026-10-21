@@ -195,6 +195,15 @@ void main() {
           greaterThanOrEqualTo(48),
         );
       }
+      // 12 dp zwischen den Feldern (Gerätetest 2026-10-21): keine
+      // Beschriftung überlappt das Feld darüber.
+      final title = tester.getRect(
+        find.widgetWithText(TextFormField, 'Bezeichnung'),
+      );
+      final partner = tester.getRect(
+        find.widgetWithText(TextFormField, 'Vertragspartner'),
+      );
+      expect(partner.top - title.bottom, greaterThanOrEqualTo(12));
       expect(tester.takeException(), isNull);
     });
   });

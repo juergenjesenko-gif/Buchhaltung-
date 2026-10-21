@@ -9,8 +9,8 @@ import '../../services/share_service.dart';
 import '../../widgets/common.dart';
 import '../../widgets/adaptive.dart';
 import '../help/help_screen.dart';
-import '../contracts/contract_screens.dart';
 import '../reports/reports_screen.dart';
+import 'document_zip_screen.dart';
 import '../tax_office/tax_office_screen.dart';
 
 /// Export an die Steuerberatung.
@@ -179,10 +179,25 @@ class _ExportScreenState extends State<ExportScreen> {
                 subtitle: const Text(
                   'Miete, Pacht, Leasing, Versicherung – mit Fristen',
                 ),
+                // Export vorhandener Verträge, kein neues Vertragsformular
+                // (Gerätetest 2026-10-21).
+                trailing: const Icon(Icons.ios_share),
+                onTap: () => showContractExportSheet(context),
+              ),
+            ),
+            Card(
+              child: ListTile(
+                key: const Key('open-document-zip'),
+                minVerticalPadding: 12,
+                leading: const Icon(Icons.folder_zip_outlined),
+                title: const Text('Belege & Rechnungen als ZIP'),
+                subtitle: const Text(
+                  'Fotos, PDFs und CSV-Übersicht für einen Zeitraum',
+                ),
                 trailing: const Icon(Icons.chevron_right),
                 onTap: () => Navigator.of(context).push(
                   MaterialPageRoute<void>(
-                    builder: (_) => const ContractListScreen(),
+                    builder: (_) => const DocumentZipScreen(),
                   ),
                 ),
               ),
