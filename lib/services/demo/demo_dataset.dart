@@ -31,7 +31,7 @@ typedef DemoImageWriter = Future<String> Function(String name, Uint8List png);
 
 /// Musterdaten der Demo (FA-13.14, Entscheidung Auftraggeber 2026-10-19).
 ///
-/// Alles erfunden: Firma „Muster Handel e.U.“ (Wien, Regelbesteuerung, dazu
+/// Alles erfunden: Firma „Mein Unternehmen e.U.“ (Wien, Regelbesteuerung, dazu
 /// eine Registrierung in Deutschland), Kundschaft, Artikel, Händler
 /// („Tankstelle Am Ring“, „Baumarkt Huber“ …) – keine echten Marken, keine
 /// echten Personen (P-R56). UID, Steuernummer und IBAN sind sichtbar
@@ -42,7 +42,7 @@ typedef DemoImageWriter = Future<String> Function(String name, Uint8List png);
 class DemoDataset {
   DemoDataset._();
 
-  static const companyName = 'Muster Handel e.U.';
+  static const companyName = 'Mein Unternehmen e.U.';
 
   /// Erfundene Händler der Belege; Test prüft, dass keine echte Marke dabei
   /// ist (P-R56).

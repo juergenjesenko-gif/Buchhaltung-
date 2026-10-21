@@ -78,7 +78,7 @@ void main() {
       final db = await demoDb();
       final repos = Repositories(db);
       final profile = (await repos.company.load())!;
-      expect(profile.companyName, 'Muster Handel e.U.');
+      expect(profile.companyName, 'Mein Unternehmen e.U.');
       expect(profile.isSmallBusiness, isTrue, reason: 'Kleinunternehmerin AT');
       expect(await repos.consents.missing(), isEmpty);
       expect((await repos.registrations.all()).single.country.code, 'DE');
@@ -350,7 +350,7 @@ void main() {
       expect(state.isDemo, isTrue);
       expect(state.entitlement, Entitlement.demo);
       expect(DemoMode.active, isTrue);
-      expect(state.profile!.companyName, 'Muster Handel e.U.');
+      expect(state.profile!.companyName, 'Mein Unternehmen e.U.');
       expect(await AppDatabase.instance.database, isNot(same(real)));
       await expectLater(
         state.repositories.receipts.save(

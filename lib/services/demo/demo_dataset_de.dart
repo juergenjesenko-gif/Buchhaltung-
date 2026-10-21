@@ -24,7 +24,7 @@ import 'demo_receipt_image.dart';
 /// Deutsche Musterfirma der Demo (Rückmeldung Auftraggeber zu 0.30.0,
 /// Store-Screenshots 2026-10-21).
 ///
-/// Alles erfunden: „Muster Handel“, Einzelunternehmen in Musterstadt (Bayern),
+/// Alles erfunden: „Mein Unternehmen“, Einzelunternehmen in Musterstadt (Bayern),
 /// Grafikdesign, Fotografie und Coaching. **Kleinunternehmerin nach § 19
 /// UStG** (Fassung ab 2025): Vorjahresumsatz 22.000 € (unter 25.000 €,
 /// § 19 Abs 1 Satz 1 UStG), laufendes Jahr genau 63.000 € – die
@@ -52,7 +52,7 @@ import 'demo_receipt_image.dart';
 class DemoDatasetDe {
   DemoDatasetDe._();
 
-  static const companyName = 'Muster Handel';
+  static const companyName = 'Mein Unternehmen';
 
   /// Erfundene Händler; der Markentest prüft sie mit (P-R56).
   static const merchants = [

@@ -1,6 +1,6 @@
 # Benutzerhandbuch – JeNi bucht
 
-**Für App-Version 0.38.0** · Stand 2026-10-20
+**Für App-Version 0.38.1** · Stand 2026-10-20
 
 Welche Version du hast, steht ganz unten in den **Einstellungen**, etwa „Version 0.35.0 (16)“; die Zahl in Klammern ist die Buildnummer.
 
@@ -1468,13 +1468,13 @@ Store-Konto. Du findest alles unter **Einstellungen → Abo**.
 ### Demo ansehen
 
 Zuerst wählst du das Land: **Deutschland** (oben, hervorgehoben) oder
-**Österreich**. Die deutsche Musterfirma „Muster Handel“ (Musterstadt) ist
+**Österreich**. Die deutsche Musterfirma „Mein Unternehmen“ (Musterstadt) ist
 Kleinunternehmerin nach § 19 UStG mit rund 14.500 € Umsatz – der Balken
 misst an 25.000 € –, mit EÜR, Belegen mit 19 % und 7 %, Rechnungen, Storno,
 Angebot, Mietvertrag, Gewerbesteuer in „Abgaben & Rücklagen“ und deutschen
 Fristen.
 
-Die österreichische Demo zeigt eine **erfundene Musterfirma** („Muster Handel e.U.“ in Wien,
+Die österreichische Demo zeigt eine **erfundene Musterfirma** („Mein Unternehmen e.U.“ in Wien,
 Kleinunternehmerin mit Lager in Deutschland – die Umsatzgrenze steht bei
 rund 27 %)
 mit Belegen von Tankstelle, Baumarkt, Gasthaus und Büro, Rechnungen (bezahlt,
