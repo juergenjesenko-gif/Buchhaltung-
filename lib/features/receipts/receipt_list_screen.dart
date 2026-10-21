@@ -205,13 +205,13 @@ class _ReceiptListScreenState extends State<ReceiptListScreen> {
                     ),
                   ),
                   const SizedBox(height: 10),
-                  // Umbrechen statt seitlich scrollen; das Jahr steht mit in der
-                  // Reihe statt oben in der AppBar (DESIGN_SPEC 5a, Regel 4 und 7).
-                  Padding(
+                  // Eine Zeile, seitlich scrollbar; das Jahr steht mit in der
+                  // Reihe statt oben in der AppBar (Gerätetest: kein Umbruch).
+                  SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
                     padding: const EdgeInsets.symmetric(horizontal: 16),
                     child: Wrap(
-                      spacing: 8,
-                      runSpacing: 8,
+                      spacing: 6,
                       children: [
                         ActionChip(
                           key: const Key('receipt-year'),
@@ -219,6 +219,8 @@ class _ReceiptListScreenState extends State<ReceiptListScreen> {
                             Icons.calendar_today_outlined,
                             size: 18,
                           ),
+                          visualDensity: VisualDensity.compact,
+                          materialTapTargetSize: MaterialTapTargetSize.padded,
                           label: Text('$_year'),
                           onPressed: () => _pickYear(years),
                         ),
@@ -230,6 +232,9 @@ class _ReceiptListScreenState extends State<ReceiptListScreen> {
                           Padding(
                             padding: EdgeInsets.zero,
                             child: ChoiceChip(
+                              visualDensity: VisualDensity.compact,
+                              materialTapTargetSize:
+                                  MaterialTapTargetSize.padded,
                               label: Text(entry.$1),
                               selected: _filter == entry.$2,
                               onSelected: (_) {
@@ -239,6 +244,8 @@ class _ReceiptListScreenState extends State<ReceiptListScreen> {
                             ),
                           ),
                         FilterChip(
+                          visualDensity: VisualDensity.compact,
+                          materialTapTargetSize: MaterialTapTargetSize.padded,
                           label: const Text('Storniert'),
                           selected: _showCancelled,
                           onSelected: (value) {
