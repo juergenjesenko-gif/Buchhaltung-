@@ -1,6 +1,6 @@
 # Benutzerhandbuch – JeNi bucht
 
-**Für App-Version 0.38.2** · Stand 2026-10-20
+**Für App-Version 0.38.3** · Stand 2026-10-20
 
 Welche Version du hast, steht ganz unten in den **Einstellungen**, etwa „Version 0.35.0 (16)“; die Zahl in Klammern ist die Buildnummer.
 
@@ -741,7 +741,10 @@ Nach unten ziehen aktualisiert die Ansicht.
 ## 6. Die Kleinunternehmergrenze
 
 Wenn du die Kleinunternehmerregelung nutzt, zeigt die Übersicht eine Ampel mit
-deinem Jahresumsatz. Die Regeln sind in Österreich und Deutschland verschieden,
+deinem Jahresumsatz. Bei Regelbesteuerung siehst du nur deinen Umsatz des
+laufenden Jahres, ohne Grenze. Wichtig: Die Rechtsform (z. B. GmbH) schaltet die
+Regelung nicht ab – auch eine GmbH kann Kleinunternehmerin sein. Entscheidend ist
+der Schalter **Kleinunternehmer** in den Stammdaten. Die Regeln sind in Österreich und Deutschland verschieden,
 und die App kennt beide.
 
 ### Österreich

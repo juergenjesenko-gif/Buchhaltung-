@@ -119,6 +119,22 @@ void main() {
     await tester.runAsync(db.close);
   });
 
+  testWidgets('Regelbesteuert: Umsatz ohne Kleinunternehmergrenze', (
+    tester,
+  ) async {
+    final (_, db) = await pump(tester, smallBusiness: false);
+    expect(find.byKey(const Key('turnover-regular')), findsOneWidget);
+    expect(find.text('Kleinunternehmergrenze'), findsNothing);
+    await tester.runAsync(db.close);
+  });
+
+  testWidgets('Kleinunternehmer: Karte mit Grenze', (tester) async {
+    final (_, db) = await pump(tester, smallBusiness: true);
+    expect(find.text('Kleinunternehmergrenze'), findsOneWidget);
+    expect(find.byKey(const Key('turnover-regular')), findsNothing);
+    await tester.runAsync(db.close);
+  });
+
   testWidgets('Termine stehen am Ende der Übersicht', (tester) async {
     final (_, db) = await pump(tester, smallBusiness: false);
     final recent = tester.getRect(find.text('Letzte Belege'));

@@ -261,10 +261,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 const SizedBox(height: 16),
               ],
 
-              if (state.smallBusiness != null &&
-                  state.smallBusiness!.status !=
-                      SmallBusinessStatus.notApplicable) ...[
-                _SmallBusinessCard(assessment: state.smallBusiness!),
+              if (state.smallBusiness != null) ...[
+                // Regelbesteuerung: Umsatz ja, Grenze nein (Rückmeldung
+                // 2026-10-21) – eine Kleinunternehmergrenze gibt es dort nicht.
+                state.smallBusiness!.status == SmallBusinessStatus.notApplicable
+                    ? _TurnoverCard(assessment: state.smallBusiness!)
+                    : _SmallBusinessCard(assessment: state.smallBusiness!),
                 const SizedBox(height: 16),
               ],
 
@@ -693,6 +695,28 @@ class _VatCard extends StatelessWidget {
             valueColor: AppTheme.amountColor(payable.isNegative, context),
           ),
         ],
+      ),
+    );
+  }
+}
+
+/// Umsatz des laufenden Jahres bei Regelbesteuerung – ohne Grenze und
+/// ohne Balken.
+class _TurnoverCard extends StatelessWidget {
+  const _TurnoverCard({required this.assessment});
+
+  final SmallBusinessAssessment assessment;
+
+  @override
+  Widget build(BuildContext context) {
+    return SectionCard(
+      title: 'Umsatz ${DateTime.now().year}',
+      child: Text(
+        Fmt.money(assessment.currentYearTurnover),
+        key: const Key('turnover-regular'),
+        style: Theme.of(
+          context,
+        ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700),
       ),
     );
   }
