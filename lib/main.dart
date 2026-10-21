@@ -152,9 +152,14 @@ class DemoFrame extends StatelessWidget {
   final GlobalKey<NavigatorState> navigator;
   final Widget child;
 
+  /// Nur für die Store-Screenshots (P-D34): Band ausblenden. In der App
+  /// immer `true`.
+  @visibleForTesting
+  static bool showBanner = true;
+
   @override
   Widget build(BuildContext context) {
-    if (!AppScope.of(context).isDemo) return child;
+    if (!AppScope.of(context).isDemo || !showBanner) return child;
     return Column(
       children: [
         DemoBanner(navigator: navigator),
