@@ -700,8 +700,8 @@ class _VatCard extends StatelessWidget {
   }
 }
 
-/// Umsatz des laufenden Jahres bei Regelbesteuerung – ohne Grenze und
-/// ohne Balken.
+/// Umsatz des laufenden Jahres bei Regelbesteuerung: Balken am Vorjahr
+/// gemessen, ohne Grenze (FA-4.15, Rückmeldung 2026-10-21).
 class _TurnoverCard extends StatelessWidget {
   const _TurnoverCard({required this.assessment});
 
@@ -709,14 +709,58 @@ class _TurnoverCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    final year = DateTime.now().year;
+    final percent = assessment.previousYearPercent;
+    final previous = assessment.previousYearTurnover;
     return SectionCard(
-      title: 'Umsatz ${DateTime.now().year}',
-      child: Text(
-        Fmt.money(assessment.currentYearTurnover),
-        key: const Key('turnover-regular'),
-        style: Theme.of(
-          context,
-        ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700),
+      title: 'Umsatz $year',
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Expanded(
+                child: Text(
+                  Fmt.money(assessment.currentYearTurnover),
+                  key: const Key('turnover-regular'),
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+              ),
+              if (percent != null)
+                Text(
+                  '${percent.toStringAsFixed(0)} %',
+                  style: TextStyle(
+                    color: scheme.primary,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+            ],
+          ),
+          if (percent != null && previous != null) ...[
+            const SizedBox(height: 12),
+            ClipRRect(
+              borderRadius: BorderRadius.circular(4),
+              child: LinearProgressIndicator(
+                key: const Key('turnover-bar'),
+                value: (percent / 100).clamp(0.0, 1.0),
+                minHeight: 8,
+                backgroundColor: scheme.surfaceContainerHighest,
+                valueColor: AlwaysStoppedAnimation(scheme.primary),
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'im Vergleich zum Vorjahr (${year - 1}: '
+              '${Fmt.money(previous)})',
+              style: Theme.of(
+                context,
+              ).textTheme.bodySmall?.copyWith(color: scheme.onSurfaceVariant),
+            ),
+          ],
+        ],
       ),
     );
   }

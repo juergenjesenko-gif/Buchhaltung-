@@ -30,7 +30,21 @@ class SmallBusinessAssessment {
     required this.message,
     this.nextYearLimit,
     this.limitsNote = '',
+    this.previousYearTurnover,
   });
+
+  /// Vorjahresumsatz, `null` wenn unbekannt. Bei Regelbesteuerung Maßstab
+  /// des Umsatzbalkens statt einer Grenze (FA-4.15).
+  final Money? previousYearTurnover;
+
+  /// Umsatz des laufenden Jahres in Prozent des Vorjahres, `null` ohne
+  /// Vorjahr. Gedeckelt bei 999 für die Anzeige.
+  double? get previousYearPercent {
+    final prev = previousYearTurnover;
+    if (prev == null || prev.cents <= 0) return null;
+    final value = currentYearTurnover.cents / prev.cents * 100;
+    return value > 999 ? 999 : value;
+  }
 
   final SmallBusinessStatus status;
   final Money currentYearTurnover;
@@ -134,7 +148,16 @@ class SmallBusinessMonitor {
         : '${taxProfile.smallBusinessLegalRef}: ${_euro(previousLimit)} '
               'Vorjahr · ${_euro(taxProfile.currentYearTurnoverLimit)} '
               'laufendes Jahr';
-    if (base.status == SmallBusinessStatus.notApplicable) return base;
+    if (base.status == SmallBusinessStatus.notApplicable) {
+      return SmallBusinessAssessment(
+        status: base.status,
+        currentYearTurnover: base.currentYearTurnover,
+        limit: base.limit,
+        headroom: base.headroom,
+        message: base.message,
+        previousYearTurnover: previousYearTurnover,
+      );
+    }
     var status = base.status;
     var message = base.message;
     if (next != null &&

@@ -283,4 +283,24 @@ void main() {
       );
     });
   });
+
+  test('Regelbesteuerung: Umsatz am Vorjahr gemessen, ohne Grenze', () {
+    final a = SmallBusinessMonitor.assess(
+      taxProfile: TaxProfile.germany,
+      isSmallBusiness: false,
+      currentYearTurnover: const Money(6300000),
+      previousYearTurnover: const Money(9000000),
+      currentYearComplete: true,
+    );
+    expect(a.status, SmallBusinessStatus.notApplicable);
+    expect(a.previousYearPercent, 70);
+    final ohne = SmallBusinessMonitor.assess(
+      taxProfile: TaxProfile.germany,
+      isSmallBusiness: false,
+      currentYearTurnover: const Money(6300000),
+      previousYearTurnover: null,
+      currentYearComplete: true,
+    );
+    expect(ohne.previousYearPercent, isNull);
+  });
 }

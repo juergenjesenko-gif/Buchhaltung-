@@ -1,6 +1,6 @@
 # Spezifikation – Buchhaltung
 
-**Dokumentversion:** 2.04 · **App-Version:** 0.39.0 · **Stand:** 2026-10-20
+**Dokumentversion:** 2.05 · **App-Version:** 0.39.1 · **Stand:** 2026-10-20
 **Status:** Testbuild 0.21.0 (Schema 23); Store-Start offen, siehe Abschnitt 11 und 14
 
 > Das **Zielbild** des Produkts steht im [`LASTENHEFT.md`](LASTENHEFT.md); dieses
@@ -554,7 +554,7 @@ prüft `InvoiceRequirements` (FA-1.4).
 | FA-4.12 | Der Status *Angaben fehlen* führt in der Übersicht direkt zur Ergänzung in den Stammdaten |
 | FA-4.13 | **Gründungsjahr:** Ist das laufende Jahr das Gründungsjahr, gibt es keine Vorjahresprüfung und keinen Vorjahres-Eröffnungswert; Deutschland prüft gegen 25.000 € statt 100.000 € (`spec.de.founding_year_limit_cents`, § 19 Abs 1 UStG) |
 | FA-4.14 | **Anzeige je Land** (seit 0.31.0): Kennt das Land eine eigene Vorjahresgrenze unter der laufenden (DE: 25.000 € / 100.000 €, § 19 Abs 1 UStG), misst der Balken an 25.000 €, solange der Umsatz darunter liegt (`SmallBusinessAssessment.displayLimit`, `nextYearLimit`), danach an 100.000 €. Über 25.000 € Status *Grenze naht* mit „In diesem Jahr bleibt die Regelung bis 100.000 €, ab dem nächsten Jahr gilt die Regelbesteuerung“; ab 80 % von 25.000 € Vorwarnung. Unter dem Balken die Grenzen des Landes (`limitsNote`): DE „§ 19 UStG: 25.000 € Vorjahr · 100.000 € laufendes Jahr“ (Gründungsjahr: 25.000 €), AT „§ 6 Abs 1 Z 27 UStG: 55.000 € im Vorjahr und im laufenden Jahr, Toleranz bis 60.500 €“ (P-S85) | 
-| FA-4.15 | **Regelbesteuerung ohne Grenze** (seit 0.38.3, Rückmeldung 2026-10-21): Ist die Kleinunternehmerregelung aus, zeigt die Übersicht statt der Grenzwertampel nur die Karte „Umsatz <Jahr>“ mit dem Umsatz des laufenden Jahres – ohne Grenze, Balken und Prozent. Die Rechtsform allein (z. B. GmbH) schaltet die Regelung nicht ab: auch eine GmbH kann Kleinunternehmerin sein (§ 6 Abs 1 Z 27 UStG 1994, § 19 UStG); maßgeblich ist der Schalter „Kleinunternehmer“ in den Stammdaten |
+| FA-4.15 | **Regelbesteuerung ohne Grenze** (seit 0.38.3, Rückmeldung 2026-10-21): Ist die Kleinunternehmerregelung aus, zeigt die Übersicht statt der Grenzwertampel die Karte „Umsatz <Jahr>“ mit dem Umsatz des laufenden Jahres – ohne Grenze; seit 0.39.1 mit Balken und Prozent **im Vergleich zum Vorjahr** („im Vergleich zum Vorjahr (<Jahr>: <Betrag>)“, `previousYearPercent`, gedeckelt 999 %), ohne bekanntes Vorjahr nur der Betrag. Die Rechtsform allein (z. B. GmbH) schaltet die Regelung nicht ab: auch eine GmbH kann Kleinunternehmerin sein (§ 6 Abs 1 Z 27 UStG 1994, § 19 UStG); maßgeblich ist der Schalter „Kleinunternehmer“ in den Stammdaten |
 
 > **Erledigt in Dokumentversion 1.4: Vorjahresgrenze Österreich (O-1).** Auch
 > in Österreich darf der Vorjahresumsatz 55.000 € nicht überschritten haben
@@ -1621,6 +1621,7 @@ Vorsteuerabzug in Promille; Fundstelle Privatanteil; Fundstelle Vorsteuer.
 
 | Version | Datum | App-Version | Änderung |
 |---|---|---|---|
+| 2.05 | 2026-10-21 | 0.39.1 | App-Version 0.39.1: FA-4.15 Umsatzbalken bei Regelbesteuerung am Vorjahr gemessen (Rückmeldung Auftraggeber). |
 | 2.04 | 2026-10-21 | 0.39.0 | App-Version 0.39.0 (Rückmeldung erster Tester): FA-11.9 Hilfe gegliedert, FA-11.10 Rechtstexte je Land mit P-R67; Tastatur nach abgebrochener Datei-/Fotoauswahl (Betragsfeld nur bei Eingabe von Hand automatisch aktiv, Tastatur vor jeder Auswahl schließen, Abschnitt 7). Prüfinstanzen: Rechtsanwalt (Aufteilung ohne neue Rechtsfolge, offene Fragen P-R67), UX (Kapitelliste 56 dp, aufklappbar), Softwareentwickler (Markierungsprüfung, Tests). |
 | 2.03 | 2026-10-21 | 0.38.3 | App-Version 0.38.3: FA-4.15 Regelbesteuerung zeigt Umsatz ohne Kleinunternehmergrenze. Prüfinstanz Steuerberater: Rechtsform bestimmt die Regelung nicht, nur der Schalter. |
 | 2.02 | 2026-10-21 | 0.38.2 | App-Version 0.38.2: FA-9.10 Seiten durchblättern (Belege, Verträge); Export → Verträge mit Auswahl einzelner Verträge (Abschnitt 7). Prüfinstanz UX (Wischen und Pfeile, Knopf unten 56 dp). |
