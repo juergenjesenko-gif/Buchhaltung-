@@ -42,7 +42,7 @@ nächsten Versionssprung in den neuen Eintrag.
 | Feld | Wert |
 |---|---|
 | Art | Interner Test (TestFlight, Google Play interner Track) über `release.yml` und Test-APK aus `ci.yml`; **Lizenzprüfung aus**, alle Funktionen frei |
-| Commit | `XXXXXXX` |
+| Commit | `1eb699f` |
 | Branch | `claude/agile-accounting-app-mobile-wa5j3h` |
 | Dokumentstände | Lastenheft 1.89, Spezifikation 2.03, REGELPFLEGE 2026-10-20, Benutzerhandbuch für 0.38.3, DESIGN_SPEC 1.7 |
 | Datenbankschema | 31 |
@@ -55,7 +55,7 @@ nächsten Versionssprung in den neuen Eintrag.
 
 | Art | Änderung | Bezug | Commit |
 |---|---|---|---|
-| Geändert | Regelbesteuerung: Übersicht zeigt Umsatz ohne Kleinunternehmergrenze | FA-4.15 | `XXXXXXX` |
+| Geändert | Regelbesteuerung: Übersicht zeigt Umsatz ohne Kleinunternehmergrenze | FA-4.15 | `1eb699f` |
 
 ---
 
