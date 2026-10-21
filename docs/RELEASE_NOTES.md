@@ -42,7 +42,7 @@ nächsten Versionssprung in den neuen Eintrag.
 | Feld | Wert |
 |---|---|
 | Art | Interner Test (TestFlight, Google Play interner Track) über `release.yml` und Test-APK aus `ci.yml`; **Lizenzprüfung aus**, alle Funktionen frei |
-| Commit | `XXXXXXX` |
+| Commit | `bcee9e5` |
 | Branch | `claude/agile-accounting-app-mobile-wa5j3h` |
 | Dokumentstände | Lastenheft 1.89, Spezifikation 2.04, REGELPFLEGE 2026-10-20, Benutzerhandbuch für 0.39.0, DESIGN_SPEC 1.7, Rechtstexte mit Länderabschnitten |
 | Datenbankschema | 31 |
@@ -55,7 +55,7 @@ nächsten Versionssprung in den neuen Eintrag.
 
 | Art | Änderung | Bezug | Commit |
 |---|---|---|---|
-| Geändert | Rechtstexte zeigen nur die Gesetze des eigenen Landes | FA-11.10 | `XXXXXXX` |
+| Geändert | Rechtstexte zeigen nur die Gesetze des eigenen Landes | FA-11.10 | `bcee9e5` |
 | Geändert | Hilfe: zuerst Kapitelübersicht, Kapitel mit aufklappbaren Abschnitten, „?“ springt ins passende Kapitel | FA-11 | `d455765` |
 | Behoben | Tastatur bleibt nach abgebrochener Datei-/Fotoauswahl nicht stehen; Betragsfeld nur bei Eingabe von Hand automatisch aktiv | SPEC 7 | `9aa3a4f` |
 
