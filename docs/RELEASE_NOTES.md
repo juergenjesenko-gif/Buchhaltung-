@@ -34,6 +34,7 @@ nächsten Versionssprung in den neuen Eintrag.
 
 | Art | Änderung | Bezug | Commit |
 |---|---|---|---|
+| Behoben | Tastatur bleibt nach abgebrochener Datei-/Fotoauswahl nicht stehen; Betragsfeld nur bei Eingabe von Hand automatisch aktiv | SPEC 7 | `9aa3a4f` |
 
 ---
 
