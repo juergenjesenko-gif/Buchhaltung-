@@ -1,6 +1,6 @@
 # Spezifikation – Buchhaltung
 
-**Dokumentversion:** 1.98 · **App-Version:** 0.37.0 · **Stand:** 2026-10-20
+**Dokumentversion:** 1.99 · **App-Version:** 0.37.1 · **Stand:** 2026-10-20
 **Status:** Testbuild 0.21.0 (Schema 23); Store-Start offen, siehe Abschnitt 11 und 14
 
 > Das **Zielbild** des Produkts steht im [`LASTENHEFT.md`](LASTENHEFT.md); dieses
@@ -1601,6 +1601,7 @@ Vorsteuerabzug in Promille; Fundstelle Privatanteil; Fundstelle Vorsteuer.
 
 | Version | Datum | App-Version | Änderung |
 |---|---|---|---|
+| 1.99 | 2026-10-21 | 0.37.1 | App-Version 0.37.1: Rechnungs-/Angebots-PDF, Kopfangaben mit 96 pt breiter, einzeiliger Beschriftung und 8 pt Abstand zum Wert („Rechnungsnummer“ brach um). Prüfinstanz Steuerberater: Pflichtangaben unverändert. |
 | 1.98 | 2026-10-20 | 0.37.0 | App-Version 0.37.0. FA-9.6 neu: Kopf der Beleg- und Rechnungsliste scrollt mit. Prüfinstanz UX (quer mehr Platz, Filter mit einem Wisch nach oben wieder erreichbar). |
 | 1.97 | 2026-10-20 | 0.36.0 | App-Version 0.36.0. FA-9.4 Grundsatz „nicht volle Breite = zentriert“. FA-9.1: Telefon quer (Höhe < 480 dp) höchstens medium, kein Dreispalten-Layout; Kennwert `spec.window_compact_max_height_dp` (12). Vertrag ablegen: „Scannen“ und „Galerie“ gleich breit, darunter „Text erkennen“ volle Breite. Prüfinstanzen: UX (Daumenreichweite quer, 48 dp), Softwareentwickler (Material-3-Höhenklasse). |
 | 1.96 | 2026-10-20 | 0.35.0 | App-Version 0.35.0; Versionsanzeige mit Buildnummer am Ende der Einstellungen und in Support-Mails (FA-11.8). FA-7.2 Zahlencode 8 Ziffern statt Kennwort; FA-7.10 ohne Abtippen von Blöcken; FA-13.10 Release-Builds nur mit Eingabe `abo` mit Lizenzprüfung; P-D58. Tastatur schließt bei Tippen neben ein Eingabefeld (alle Bildschirme, iOS-Ziffernblock ohne Fertig-Taste, Abschnitt 7). FA-1.8: Umsatz des laufenden Jahres vor Erfassungsbeginn optional (leer = 0, Hinweis zum Nachbuchen); FA-1.13: Willkommensseite Titel über dem Logo, mehr Abstand vor den Funktionszeilen. Prüfinstanzen: UX (weniger Pflichtfelder, passt auf 360 × 740), Steuerberater (Grenze stimmt erst nach Nachbuchen, Hinweis genügt), Softwareentwickler (kein Schemawechsel). |

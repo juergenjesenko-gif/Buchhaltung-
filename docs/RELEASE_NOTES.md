@@ -29,11 +29,33 @@ gebaut, und was war darin geprüft?*
 
 ## Unveröffentlicht
 
-Änderungen seit 0.37.0+50, die noch in keinem Build stecken. Wandern beim
+Änderungen seit 0.37.1+51, die noch in keinem Build stecken. Wandern beim
 nächsten Versionssprung in den neuen Eintrag.
 
 | Art | Änderung | Bezug | Commit |
 |---|---|---|---|
+
+---
+
+## 0.37.1+51 — 2026-10-21
+
+| Feld | Wert |
+|---|---|
+| Art | Interner Test (TestFlight, Google Play interner Track) über `release.yml` und Test-APK aus `ci.yml`; **Lizenzprüfung aus**, alle Funktionen frei |
+| Commit | `XXXXXXX` |
+| Branch | `claude/agile-accounting-app-mobile-wa5j3h` |
+| Dokumentstände | Lastenheft 1.89, Spezifikation 1.99, REGELPFLEGE 2026-10-20, Benutzerhandbuch für 0.37.1, DESIGN_SPEC 1.7 |
+| Datenbankschema | 31 |
+| Prüfung | `flutter analyze` ohne Befund, alle Tests grün; Android/iOS-Build nur in der CI |
+| Steuerliche Kennwerte | unverändert |
+| Offene reale Prüfpunkte | P-D19, P-D58 |
+| Bekannte Grenzen | unverändert (Spezifikation 11) |
+
+**Änderungen seit 0.37.0+50**
+
+| Art | Änderung | Bezug | Commit |
+|---|---|---|---|
+| Behoben | Rechnungs-PDF: „Rechnungsnummer“ ohne Zeilenumbruch, Abstand zur Nummer | DESIGN_SPEC 9 | `XXXXXXX` |
 
 ---
 

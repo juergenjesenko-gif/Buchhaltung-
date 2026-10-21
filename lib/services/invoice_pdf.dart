@@ -323,13 +323,17 @@ class InvoicePdf {
       child: pw.Row(
         crossAxisAlignment: pw.CrossAxisAlignment.start,
         children: [
+          // Breit genug für „Rechnungsnummer“ ohne Umbruch, dazu ein fester
+          // Abstand zum Wert (Gerätetest 2026-10-21).
           pw.SizedBox(
-            width: 82,
+            width: 96,
             child: pw.Text(
               label,
+              maxLines: 1,
               style: const pw.TextStyle(fontSize: 9, color: _muted),
             ),
           ),
+          pw.SizedBox(width: 8),
           pw.Expanded(
             child: pw.Text(
               value,
