@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:buchhaltung/features/help/help_screen.dart';
 import 'package:buchhaltung/services/help/help_index.dart';
+import 'package:buchhaltung/services/help/help_outline.dart';
 import 'package:buchhaltung/services/help/support_mail.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -134,5 +135,99 @@ void main() {
     await tester.enterText(find.byType(TextField), 'xylophonquartett');
     await tester.pumpAndSettle();
     expect(find.text('E-Mail an den Support'), findsOneWidget);
+  });
+
+  group('Gliederung', () {
+    const md = """# Titel
+
+## Inhalt
+
+1. Belege
+
+## 1. Belege erfassen
+
+Einleitung.
+
+### Foto
+
+Fotografieren.
+
+### Stornieren
+
+Stornieren.
+
+## 2. Rechnungen schreiben
+
+Rechnungstext.
+""";
+    final outline = helpOutline(parseManual(md));
+
+    test('Kapitel ohne Inhalt, mit Einleitung und Abschnitten', () {
+      expect(outline.map((c) => c.title), [
+        'Belege erfassen',
+        'Rechnungen schreiben',
+      ]);
+      expect(outline.first.intro!.body, 'Einleitung.');
+      expect(outline.first.sections.map((s) => s.title), [
+        'Foto',
+        'Stornieren',
+      ]);
+      expect(outline.last.sections, isEmpty);
+    });
+
+    test('Thema springt ins passende Kapitel', () {
+      expect(
+        chapterForTopic(outline, HelpTopic.receipts)!.title,
+        'Belege erfassen',
+      );
+      expect(
+        chapterForTopic(outline, HelpTopic.invoices)!.title,
+        'Rechnungen schreiben',
+      );
+      expect(chapterForTopic(outline, HelpTopic.general), isNull);
+      expect(chapterForTopic(outline, null), isNull);
+    });
+
+    test('echtes Handbuch: Kapitel 4 gefunden, kein Inhalt', () {
+      final real = helpOutline(index.sections);
+      expect(real.map((c) => c.title), contains('Belege erfassen'));
+      expect(real.map((c) => c.title), isNot(contains('Inhalt')));
+      expect(
+        chapterForTopic(real, HelpTopic.receipts)!.title,
+        'Belege erfassen',
+      );
+    });
+  });
+
+  testWidgets('Übersicht zeigt Kapitel, Antippen nur dieses Kapitel', (
+    tester,
+  ) async {
+    await tester.pumpWidget(MaterialApp(home: HelpScreen(manual: manual)));
+    await tester.pumpAndSettle();
+    expect(find.text('Belege erfassen'), findsOneWidget);
+    expect(find.text('Inhalt'), findsNothing);
+    await tester.tap(find.text('Belege erfassen'));
+    await tester.pumpAndSettle();
+    expect(find.byType(HelpChapterScreen), findsOneWidget);
+    expect(find.byType(ExpansionTile), findsWidgets);
+    expect(find.text('Rechnungen schreiben'), findsNothing);
+  });
+
+  testWidgets('Hilfe-Knopf mit Thema springt direkt ins Kapitel', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      MaterialApp(
+        home: HelpScreen(manual: manual, context: HelpTopic.invoices),
+      ),
+    );
+    await tester.pumpAndSettle();
+    final screen = tester.widget<HelpChapterScreen>(
+      find.byType(HelpChapterScreen),
+    );
+    expect(screen.chapter.title, 'Rechnungen schreiben');
+    await tester.pageBack();
+    await tester.pumpAndSettle();
+    expect(find.text('Belege erfassen'), findsOneWidget);
   });
 }

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import '../../services/help/help_index.dart';
+import '../../services/help/help_outline.dart';
 import '../../services/help/support_mail.dart';
 import '../../widgets/adaptive.dart';
 import '../../app_state.dart';
@@ -69,7 +70,21 @@ class _HelpScreenState extends State<HelpScreen> {
         await rootBundle.loadString(manualAsset),
       );
     }
-    if (mounted) setState(() => _index = index);
+    if (!mounted) return;
+    setState(() => _index = index);
+    // Hilfe-Knopf mit Thema: direkt ins passende Kapitel, zurück führt in
+    // die Übersicht.
+    final chapter = chapterForTopic(
+      helpOutline(index.sections),
+      widget.context,
+    );
+    if (chapter == null) return;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      Navigator.of(context).push(
+        MaterialPageRoute(builder: (_) => HelpChapterScreen(chapter: chapter)),
+      );
+    });
   }
 
   @override
@@ -111,11 +126,13 @@ class _HelpScreenState extends State<HelpScreen> {
   @override
   Widget build(BuildContext context) {
     final index = _index;
-    final hits = index?.search(_query.text, context: widget.context) ?? [];
     final noQuery = _query.text.trim().isEmpty;
-    final shown = noQuery && hits.isEmpty
-        ? [for (final s in index?.sections ?? <HelpSection>[]) HelpHit(s, 0)]
-        : hits;
+    final hits = noQuery
+        ? <HelpHit>[]
+        : index?.search(_query.text, context: widget.context) ?? [];
+    final outline = index == null
+        ? <HelpChapter>[]
+        : helpOutline(index.sections);
     return Scaffold(
       appBar: AppBar(title: const Text('Hilfe')),
       body: ReadableWidth(
@@ -141,12 +158,29 @@ class _HelpScreenState extends State<HelpScreen> {
             Expanded(
               child: index == null
                   ? const Center(child: CircularProgressIndicator())
-                  : shown.isEmpty
+                  : noQuery
+                  ? ListView(
+                      padding: const EdgeInsets.only(bottom: 24),
+                      children: [
+                        for (final c in outline)
+                          ListTile(
+                            minTileHeight: 56,
+                            title: Text(c.title),
+                            trailing: const Icon(Icons.chevron_right),
+                            onTap: () => Navigator.of(context).push(
+                              MaterialPageRoute(
+                                builder: (_) => HelpChapterScreen(chapter: c),
+                              ),
+                            ),
+                          ),
+                      ],
+                    )
+                  : hits.isEmpty
                   ? _NoHit(onMail: _mailSupport)
                   : ListView(
                       padding: const EdgeInsets.only(bottom: 24),
                       children: [
-                        for (final hit in shown)
+                        for (final hit in hits)
                           ListTile(
                             title: Text(hit.section.title),
                             subtitle: Text(
@@ -162,15 +196,14 @@ class _HelpScreenState extends State<HelpScreen> {
                               ),
                             ),
                           ),
-                        if (!noQuery)
-                          Padding(
-                            padding: const EdgeInsets.all(16),
-                            child: TextButton.icon(
-                              icon: const Icon(Icons.mail_outline),
-                              label: const Text('Nicht dabei? Support fragen'),
-                              onPressed: _mailSupport,
-                            ),
+                        Padding(
+                          padding: const EdgeInsets.all(16),
+                          child: TextButton.icon(
+                            icon: const Icon(Icons.mail_outline),
+                            label: const Text('Nicht dabei? Support fragen'),
+                            onPressed: _mailSupport,
                           ),
+                        ),
                       ],
                     ),
             ),
@@ -209,6 +242,61 @@ class _NoHit extends StatelessWidget {
         ),
       ),
     ],
+  );
+}
+
+/// Ein Handbuchkapitel: Einleitung, darunter die Abschnitte zum Aufklappen
+/// (ganze Zeile tippbar, mindestens 56 dp hoch).
+class HelpChapterScreen extends StatelessWidget {
+  const HelpChapterScreen({super.key, required this.chapter});
+  final HelpChapter chapter;
+
+  @override
+  Widget build(BuildContext context) => Scaffold(
+    appBar: AppBar(title: Text(chapter.title)),
+    body: ReadableWidth(
+      child: SelectionArea(
+        child: ListView(
+          padding: const EdgeInsets.only(top: 8, bottom: 32),
+          children: [
+            if (chapter.intro != null)
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: markdownBlocks(context, chapter.intro!.body),
+                ),
+              ),
+            for (final s in chapter.sections)
+              ExpansionTile(
+                title: Text(s.title),
+                childrenPadding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+                expandedCrossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  ...markdownBlocks(context, s.body),
+                  // Hilfeartikel mit Vorlage (FA-20.6).
+                  if (templateForHelpTitle(s.title) case final t?)
+                    FilledButton.icon(
+                      key: Key('help-create-rule-${s.title}'),
+                      style: FilledButton.styleFrom(
+                        minimumSize: const Size(48, 48),
+                      ),
+                      icon: const Icon(Icons.rule),
+                      label: const Text('Regel anlegen'),
+                      onPressed: () => openBookingRule(
+                        context,
+                        template: t.build(
+                          AppScope.read(context).categories,
+                          DateTime.now(),
+                        ),
+                      ),
+                    ),
+                ],
+              ),
+          ],
+        ),
+      ),
+    ),
   );
 }
 
