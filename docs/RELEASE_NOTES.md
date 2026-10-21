@@ -34,6 +34,7 @@ nächsten Versionssprung in den neuen Eintrag.
 
 | Art | Änderung | Bezug | Commit |
 |---|---|---|---|
+| Geändert | Hilfe: zuerst Kapitelübersicht, Kapitel mit aufklappbaren Abschnitten, „?“ springt ins passende Kapitel | FA-11 | `d455765` |
 | Behoben | Tastatur bleibt nach abgebrochener Datei-/Fotoauswahl nicht stehen; Betragsfeld nur bei Eingabe von Hand automatisch aktiv | SPEC 7 | `9aa3a4f` |
 
 ---
