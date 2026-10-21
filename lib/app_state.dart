@@ -261,6 +261,23 @@ class AppState extends ChangeNotifier {
   /// angezeigt, damit kein Fehlschlag unbemerkt bleibt (L-7.9).
   String? get autoBackupError => _autoBackupError;
 
+  /// Ergebnis einer von Hand ausgelösten automatischen Sicherung (Einrichten,
+  /// „Jetzt sichern“) übernehmen, damit das Banner der Übersicht sofort
+  /// verschwindet oder erscheint – nicht erst nach einem Neustart.
+  void reportAutoBackupOutcome(AutoBackupOutcome? outcome) {
+    if (outcome == null || !outcome.ran) return;
+    if (_autoBackupError == outcome.error) return;
+    _autoBackupError = outcome.error;
+    notifyListeners();
+  }
+
+  /// Automatische Sicherung ausgeschaltet: ein alter Fehler ist erledigt.
+  void clearAutoBackupError() {
+    if (_autoBackupError == null) return;
+    _autoBackupError = null;
+    notifyListeners();
+  }
+
   /// Dienst der automatischen Sicherung für den gewählten Ordner; `null`,
   /// solange keiner gewählt ist.
   Future<AutoBackupService?> autoBackupService() async {

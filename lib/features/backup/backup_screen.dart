@@ -483,8 +483,10 @@ class _AutoBackupSectionState extends State<_AutoBackupSection> {
         label: picked.label,
       );
       if (!mounted) return;
-      final service = await AppScope.read(context).autoBackupService();
+      final state = AppScope.read(context);
+      final service = await state.autoBackupService();
       final outcome = await service?.run();
+      state.reportAutoBackupOutcome(outcome);
       if (mounted) {
         showSnack(
           context,
@@ -500,8 +502,10 @@ class _AutoBackupSectionState extends State<_AutoBackupSection> {
   Future<void> _runNow() async {
     setState(() => _busy = true);
     try {
-      final service = await AppScope.read(context).autoBackupService();
+      final state = AppScope.read(context);
+      final service = await state.autoBackupService();
       final outcome = await service?.run();
+      state.reportAutoBackupOutcome(outcome);
       if (mounted) {
         showSnack(
           context,
@@ -601,6 +605,7 @@ class _AutoBackupSectionState extends State<_AutoBackupSection> {
     if (sure != true) return;
     await const SecureBackupKeyStore().delete();
     await AutoBackupSettings.disable(await AppDatabase.instance.database);
+    if (mounted) AppScope.read(context).clearAutoBackupError();
     await _load();
   }
 

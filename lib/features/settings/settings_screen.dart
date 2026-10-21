@@ -31,317 +31,333 @@ class SettingsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final state = AppScope.of(context);
-    final profile = state.profile;
-    final tax = profile?.taxProfile;
-
     return Scaffold(
       appBar: AppBar(
         title: const Text('Einstellungen'),
         actions: const [HelpButton()],
       ),
-      body: ReadableWidth(
-        child: ListView(
-          padding: const EdgeInsets.fromLTRB(16, 12, 16, 32),
-          children: [
-            SectionCard(
-              title: 'Stammdaten',
-              padding: const EdgeInsets.fromLTRB(16, 16, 8, 8),
-              child: Column(
-                children: [
-                  ListTile(
-                    contentPadding: EdgeInsets.zero,
-                    leading: const Icon(Icons.business_outlined),
-                    title: Text(profile?.companyName ?? 'Nicht gesetzt'),
-                    subtitle: Text(
-                      [
-                        profile?.country.label,
-                        profile?.isSmallBusiness == true
-                            ? 'Kleinunternehmer'
-                            : 'Regelbesteuerung',
-                        if (state.registrations.isNotEmpty)
-                          '+ ${state.registrations.map((r) => r.country.code).join(', ')}',
-                      ].whereType<String>().join(' · '),
-                    ),
-                    trailing: const Icon(Icons.chevron_right),
-                    onTap: () => Navigator.of(context).push(
-                      MaterialPageRoute(
-                        builder: (_) => const CompanySetupScreen(),
-                      ),
-                    ),
-                  ),
-                  ListTile(
-                    contentPadding: EdgeInsets.zero,
-                    leading: const Icon(Icons.backup_outlined),
-                    title: const Text('Datensicherung'),
-                    subtitle: Text(
-                      profile?.lastBackupAt == null
-                          ? 'Noch keine Sicherung'
-                          : 'Letzte Sicherung: ${Fmt.date(profile!.lastBackupAt!)}',
-                    ),
-                    trailing: const Icon(Icons.chevron_right),
-                    onTap: () => Navigator.of(context).push(
-                      MaterialPageRoute(builder: (_) => const BackupScreen()),
-                    ),
-                  ),
-                  ListTile(
-                    contentPadding: EdgeInsets.zero,
-                    leading: const Icon(Icons.lock_outline),
-                    title: const Text('App-Sperre'),
-                    subtitle: Text(
-                      state.lockEnabled
-                          ? 'Ein – PIN, optional Fingerabdruck/Face ID'
-                          : 'Aus',
-                    ),
-                    trailing: const Icon(Icons.chevron_right),
-                    onTap: () => Navigator.of(context).push(
-                      MaterialPageRoute(
-                        builder: (_) => const AppLockSettingsScreen(),
-                      ),
-                    ),
-                  ),
-                  ListTile(
-                    key: const Key('settings-contracts'),
-                    contentPadding: EdgeInsets.zero,
-                    minTileHeight: 56,
-                    leading: const Icon(Icons.description_outlined),
-                    title: const Text('Verträge'),
-                    subtitle: const Text(
-                      'Miete, Pacht, Leasing, Versicherung, Dienstverträge',
-                    ),
-                    trailing: const Icon(Icons.chevron_right),
-                    onTap: () => Navigator.of(context).push(
-                      MaterialPageRoute(
-                        builder: (_) => const ContractListScreen(),
-                      ),
-                    ),
-                  ),
-                  ListTile(
-                    key: const Key('settings-helper-devices'),
-                    contentPadding: EdgeInsets.zero,
-                    minTileHeight: 56,
-                    leading: const Icon(Icons.phonelink_outlined),
-                    title: const Text('Mithelfer-Geräte'),
-                    subtitle: Text(
-                      state.inboxCount > 0
-                          ? 'Eingang: ${state.inboxCount} Belege'
-                          : 'Belege von Familie oder Team sammeln',
-                    ),
-                    trailing: const Icon(Icons.chevron_right),
-                    onTap: () => Navigator.of(context).push(
-                      MaterialPageRoute(
-                        builder: (_) => const HelperDevicesScreen(),
-                      ),
-                    ),
-                  ),
-                  // Hauptinstallation zum Mithelfer machen (FA-17.13): nur
-                  // ohne Buchhaltungsdaten und nach Bestätigung.
-                  ListTile(
-                    key: const Key('settings-become-helper'),
-                    contentPadding: EdgeInsets.zero,
-                    minTileHeight: 56,
-                    leading: const Icon(Icons.qr_code_scanner),
-                    title: const Text('Als Mithelfer-Gerät koppeln'),
-                    subtitle: const Text(
-                      'Nur auf einem Gerät ohne eigene Belege',
-                    ),
-                    trailing: const HelperHelpButton(),
-                    onTap: () => becomeHelperDevice(context),
-                  ),
-                  ListTile(
-                    contentPadding: EdgeInsets.zero,
-                    leading: const Icon(Icons.category_outlined),
-                    title: const Text('Kategorien'),
-                    subtitle: Text('${state.categories.length} Kategorien'),
-                    trailing: const Icon(Icons.chevron_right),
-                    onTap: () => Navigator.of(context).push(
-                      MaterialPageRoute(
-                        builder: (_) => const _CategoryScreen(),
-                      ),
-                    ),
-                  ),
-                  ListTile(
-                    key: const Key('settings-booking-rules'),
-                    contentPadding: EdgeInsets.zero,
-                    minTileHeight: 56,
-                    leading: const Icon(Icons.rule),
-                    title: const Text('Buchungsregeln'),
-                    subtitle: const Text('Privatanteile, z. B. PKW oder Büro'),
-                    trailing: const Icon(Icons.chevron_right),
-                    onTap: () => Navigator.of(context).push(
-                      MaterialPageRoute(
-                        builder: (_) => const BookingRulesScreen(),
-                      ),
-                    ),
-                  ),
-                  // Regelstand (FA-21.1).
-                  if (profile != null)
-                    ListTile(
-                      key: const Key('settings-rules-status'),
-                      contentPadding: EdgeInsets.zero,
-                      leading: const Icon(Icons.verified_outlined),
-                      title: Text(
-                        RulesFreshness.settingsLine([
-                          profile.taxProfile,
-                          for (final r in state.registrations) r.taxProfile,
-                        ]),
-                      ),
-                    ),
-                  const _HomeShortcutTile(),
-                ],
-              ),
-            ),
-            const SizedBox(height: 16),
+      body: const ReadableWidth(child: SettingsContent()),
+    );
+  }
+}
 
-            if (tax != null)
-              SectionCard(
-                title: 'Rechtlicher Rahmen (${profile!.country.label})',
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    _bullet(
-                      context,
-                      'Umsatzsteuersätze',
-                      tax.vatRates.map((r) => r.display).join(', '),
-                    ),
-                    _bullet(
-                      context,
-                      tax.smallBusinessLabel,
-                      tax.smallBusinessLegalRef,
-                    ),
-                    _bullet(
-                      context,
-                      'Pflichtangaben Rechnung',
-                      tax.invoiceLegalRef,
-                    ),
-                    _bullet(
-                      context,
-                      'Aufbewahrungsfrist',
-                      '${tax.retentionYears} Jahre',
-                    ),
-                  ],
-                ),
-              ),
-            const SizedBox(height: 16),
+/// Inhalt der Einstellungen, gemeinsam genutzt von [SettingsScreen] und dem
+/// Seitenmenü der Übersicht ([SettingsDrawer]).
+class SettingsContent extends StatelessWidget {
+  const SettingsContent({super.key, this.inDrawer = false});
 
-            const SectionCard(
-              title: 'Belege auslesen',
-              child: _ReceiptScanSwitch(),
-            ),
-            const SizedBox(height: 16),
+  /// Im Seitenmenü: vor dem Öffnen einer Unterseite das Menü schließen.
+  final bool inDrawer;
 
-            const SectionCard(title: 'Fremdwährung', child: _FxDailySwitch()),
-            const SizedBox(height: 16),
+  void _push(BuildContext context, Route<void> route) {
+    final navigator = Navigator.of(context);
+    if (inDrawer) Scaffold.maybeOf(context)?.closeEndDrawer();
+    navigator.push(route);
+  }
 
-            const SectionCard(
-              title: 'Daten und Sicherung',
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Alle Daten liegen auf diesem Gerät. Es gibt keinen Server des '
-                    'Anbieters. Sichern kannst du verschlüsselt in deinen eigenen '
-                    'Cloud-Ordner – von Hand oder automatisch.',
-                  ),
-                  SizedBox(height: 10),
-                  NoticeBanner(
-                    icon: Icons.backup_outlined,
-                    message:
-                        'Exportiere regelmäßig über den Bereich "Export". '
-                        'Geht das Gerät verloren, sind die Belege sonst weg.',
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 16),
+  @override
+  Widget build(BuildContext context) {
+    final state = AppScope.of(context);
+    final profile = state.profile;
+    final tax = profile?.taxProfile;
 
-            Card(
-              child: ListTile(
-                key: const Key('settings-subscription'),
-                leading: const Icon(Icons.workspace_premium_outlined),
-                title: const Text('Abo'),
+    return ListView(
+      padding: const EdgeInsets.fromLTRB(16, 12, 16, 32),
+      children: [
+        SectionCard(
+          title: 'Stammdaten',
+          padding: const EdgeInsets.fromLTRB(16, 16, 8, 8),
+          child: Column(
+            children: [
+              ListTile(
+                contentPadding: EdgeInsets.zero,
+                leading: const Icon(Icons.business_outlined),
+                title: Text(profile?.companyName ?? 'Nicht gesetzt'),
                 subtitle: Text(
-                  state.license.enabled
-                      ? state.entitlement.label
-                      : 'Testversion – alle Funktionen frei',
+                  [
+                    profile?.country.label,
+                    profile?.isSmallBusiness == true
+                        ? 'Kleinunternehmer'
+                        : 'Regelbesteuerung',
+                    if (state.registrations.isNotEmpty)
+                      '+ ${state.registrations.map((r) => r.country.code).join(', ')}',
+                  ].whereType<String>().join(' · '),
                 ),
                 trailing: const Icon(Icons.chevron_right),
-                onTap: () => Navigator.of(context).push(
-                  MaterialPageRoute(builder: (_) => const SubscriptionScreen()),
-                ),
-              ),
-            ),
-            const SizedBox(height: 16),
-            // Demo (FA-13.14): Musterfirma ansehen, auch mit Abo und im
-            // Testbuild; nichts wird gespeichert.
-            Card(
-              child: ListTile(
-                key: const Key('settings-demo'),
-                leading: Icon(
-                  state.isDemo ? Icons.logout : Icons.visibility_outlined,
-                ),
-                title: Text(state.isDemo ? 'Demo beenden' : 'Demo ansehen'),
-                subtitle: Text(
-                  state.isDemo
-                      ? 'Zurück zu deinen eigenen Daten'
-                      : 'Musterfirma ansehen und ausprobieren – nichts wird '
-                            'gespeichert',
-                ),
-                trailing: const Icon(Icons.chevron_right),
-                onTap: () => state.isDemo
-                    ? state.leaveDemo()
-                    : startDemo(context, fromSettings: true),
-              ),
-            ),
-            const SizedBox(height: 16),
-            Card(
-              child: ListTile(
-                key: const Key('settings-feedback'),
-                leading: const Icon(Icons.lightbulb_outline),
-                title: const Text('Wunsch oder Idee senden'),
-                subtitle: const Text(
-                  'Erweiterungswunsch an das JeNi-bucht-Team',
-                ),
-                trailing: const Icon(Icons.chevron_right),
-                onTap: () => Navigator.of(context).push(
-                  MaterialPageRoute(builder: (_) => const FeedbackScreen()),
-                ),
-              ),
-            ),
-            const SizedBox(height: 16),
-            Card(
-              child: ListTile(
-                key: const Key('settings-legal'),
-                leading: const Icon(Icons.gavel_outlined),
-                title: const Text('Rechtliches'),
-                subtitle: const Text(
-                  'Impressum, Datenschutz, Nutzungsbedingungen, Lizenzen',
-                ),
-                trailing: const Icon(Icons.chevron_right),
-                onTap: () => Navigator.of(
+                onTap: () => _push(
                   context,
-                ).push(MaterialPageRoute(builder: (_) => const LegalScreen())),
-              ),
-            ),
-            const SizedBox(height: 16),
-
-            SectionCard(
-              title: 'Wichtiger Hinweis',
-              child: Text(
-                'Diese App unterstützt bei der Belegerfassung und beim Schreiben von '
-                'Rechnungen. Sie ist keine Steuerberatung und keine Registrierkasse '
-                'im Sinne der Registrierkassensicherheitsverordnung. Für die '
-                'Richtigkeit deiner Buchhaltung und deiner Steuererklärungen bist du '
-                'selbst verantwortlich.',
-                style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  MaterialPageRoute(builder: (_) => const CompanySetupScreen()),
                 ),
               ),
-            ),
-            const _AppVersionLine(),
-          ],
+              ListTile(
+                contentPadding: EdgeInsets.zero,
+                leading: const Icon(Icons.backup_outlined),
+                title: const Text('Datensicherung'),
+                subtitle: Text(
+                  profile?.lastBackupAt == null
+                      ? 'Noch keine Sicherung'
+                      : 'Letzte Sicherung: ${Fmt.date(profile!.lastBackupAt!)}',
+                ),
+                trailing: const Icon(Icons.chevron_right),
+                onTap: () => _push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const BackupScreen()),
+                ),
+              ),
+              ListTile(
+                contentPadding: EdgeInsets.zero,
+                leading: const Icon(Icons.lock_outline),
+                title: const Text('App-Sperre'),
+                subtitle: Text(
+                  state.lockEnabled
+                      ? 'Ein – PIN, optional Fingerabdruck/Face ID'
+                      : 'Aus',
+                ),
+                trailing: const Icon(Icons.chevron_right),
+                onTap: () => _push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => const AppLockSettingsScreen(),
+                  ),
+                ),
+              ),
+              ListTile(
+                key: const Key('settings-contracts'),
+                contentPadding: EdgeInsets.zero,
+                minTileHeight: 56,
+                leading: const Icon(Icons.description_outlined),
+                title: const Text('Verträge'),
+                subtitle: const Text(
+                  'Miete, Pacht, Leasing, Versicherung, Dienstverträge',
+                ),
+                trailing: const Icon(Icons.chevron_right),
+                onTap: () => _push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const ContractListScreen()),
+                ),
+              ),
+              ListTile(
+                key: const Key('settings-helper-devices'),
+                contentPadding: EdgeInsets.zero,
+                minTileHeight: 56,
+                leading: const Icon(Icons.phonelink_outlined),
+                title: const Text('Mithelfer-Geräte'),
+                subtitle: Text(
+                  state.inboxCount > 0
+                      ? 'Eingang: ${state.inboxCount} Belege'
+                      : 'Belege von Familie oder Team sammeln',
+                ),
+                trailing: const Icon(Icons.chevron_right),
+                onTap: () => _push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => const HelperDevicesScreen(),
+                  ),
+                ),
+              ),
+              // Hauptinstallation zum Mithelfer machen (FA-17.13): nur
+              // ohne Buchhaltungsdaten und nach Bestätigung.
+              ListTile(
+                key: const Key('settings-become-helper'),
+                contentPadding: EdgeInsets.zero,
+                minTileHeight: 56,
+                leading: const Icon(Icons.qr_code_scanner),
+                title: const Text('Als Mithelfer-Gerät koppeln'),
+                subtitle: const Text('Nur auf einem Gerät ohne eigene Belege'),
+                trailing: const HelperHelpButton(),
+                onTap: () => becomeHelperDevice(context),
+              ),
+              ListTile(
+                contentPadding: EdgeInsets.zero,
+                leading: const Icon(Icons.category_outlined),
+                title: const Text('Kategorien'),
+                subtitle: Text('${state.categories.length} Kategorien'),
+                trailing: const Icon(Icons.chevron_right),
+                onTap: () => _push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const _CategoryScreen()),
+                ),
+              ),
+              ListTile(
+                key: const Key('settings-booking-rules'),
+                contentPadding: EdgeInsets.zero,
+                minTileHeight: 56,
+                leading: const Icon(Icons.rule),
+                title: const Text('Buchungsregeln'),
+                subtitle: const Text('Privatanteile, z. B. PKW oder Büro'),
+                trailing: const Icon(Icons.chevron_right),
+                onTap: () => _push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const BookingRulesScreen()),
+                ),
+              ),
+              // Regelstand (FA-21.1).
+              if (profile != null)
+                ListTile(
+                  key: const Key('settings-rules-status'),
+                  contentPadding: EdgeInsets.zero,
+                  leading: const Icon(Icons.verified_outlined),
+                  title: Text(
+                    RulesFreshness.settingsLine([
+                      profile.taxProfile,
+                      for (final r in state.registrations) r.taxProfile,
+                    ]),
+                  ),
+                ),
+              const _HomeShortcutTile(),
+            ],
+          ),
         ),
-      ),
+        const SizedBox(height: 16),
+
+        if (tax != null)
+          SectionCard(
+            title: 'Rechtlicher Rahmen (${profile!.country.label})',
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _bullet(
+                  context,
+                  'Umsatzsteuersätze',
+                  tax.vatRates.map((r) => r.display).join(', '),
+                ),
+                _bullet(
+                  context,
+                  tax.smallBusinessLabel,
+                  tax.smallBusinessLegalRef,
+                ),
+                _bullet(
+                  context,
+                  'Pflichtangaben Rechnung',
+                  tax.invoiceLegalRef,
+                ),
+                _bullet(
+                  context,
+                  'Aufbewahrungsfrist',
+                  '${tax.retentionYears} Jahre',
+                ),
+              ],
+            ),
+          ),
+        const SizedBox(height: 16),
+
+        const SectionCard(
+          title: 'Belege auslesen',
+          child: _ReceiptScanSwitch(),
+        ),
+        const SizedBox(height: 16),
+
+        const SectionCard(title: 'Fremdwährung', child: _FxDailySwitch()),
+        const SizedBox(height: 16),
+
+        const SectionCard(
+          title: 'Daten und Sicherung',
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Alle Daten liegen auf diesem Gerät. Es gibt keinen Server des '
+                'Anbieters. Sichern kannst du verschlüsselt in deinen eigenen '
+                'Cloud-Ordner – von Hand oder automatisch.',
+              ),
+              SizedBox(height: 10),
+              NoticeBanner(
+                icon: Icons.backup_outlined,
+                message:
+                    'Exportiere regelmäßig über den Bereich "Export". '
+                    'Geht das Gerät verloren, sind die Belege sonst weg.',
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 16),
+
+        Card(
+          child: ListTile(
+            key: const Key('settings-subscription'),
+            leading: const Icon(Icons.workspace_premium_outlined),
+            title: const Text('Abo'),
+            subtitle: Text(
+              state.license.enabled
+                  ? state.entitlement.label
+                  : 'Testversion – alle Funktionen frei',
+            ),
+            trailing: const Icon(Icons.chevron_right),
+            onTap: () => _push(
+              context,
+              MaterialPageRoute(builder: (_) => const SubscriptionScreen()),
+            ),
+          ),
+        ),
+        const SizedBox(height: 16),
+        // Demo (FA-13.14): Musterfirma ansehen, auch mit Abo und im
+        // Testbuild; nichts wird gespeichert.
+        Card(
+          child: ListTile(
+            key: const Key('settings-demo'),
+            leading: Icon(
+              state.isDemo ? Icons.logout : Icons.visibility_outlined,
+            ),
+            title: Text(state.isDemo ? 'Demo beenden' : 'Demo ansehen'),
+            subtitle: Text(
+              state.isDemo
+                  ? 'Zurück zu deinen eigenen Daten'
+                  : 'Musterfirma ansehen und ausprobieren – nichts wird '
+                        'gespeichert',
+            ),
+            trailing: const Icon(Icons.chevron_right),
+            onTap: () => state.isDemo
+                ? state.leaveDemo()
+                : startDemo(context, fromSettings: true),
+          ),
+        ),
+        const SizedBox(height: 16),
+        Card(
+          child: ListTile(
+            key: const Key('settings-feedback'),
+            leading: const Icon(Icons.lightbulb_outline),
+            title: const Text('Wunsch oder Idee senden'),
+            subtitle: const Text('Erweiterungswunsch an das JeNi-bucht-Team'),
+            trailing: const Icon(Icons.chevron_right),
+            onTap: () => _push(
+              context,
+              MaterialPageRoute(builder: (_) => const FeedbackScreen()),
+            ),
+          ),
+        ),
+        const SizedBox(height: 16),
+        Card(
+          child: ListTile(
+            key: const Key('settings-legal'),
+            leading: const Icon(Icons.gavel_outlined),
+            title: const Text('Rechtliches'),
+            subtitle: const Text(
+              'Impressum, Datenschutz, Nutzungsbedingungen, Lizenzen',
+            ),
+            trailing: const Icon(Icons.chevron_right),
+            onTap: () => _push(
+              context,
+              MaterialPageRoute(builder: (_) => const LegalScreen()),
+            ),
+          ),
+        ),
+        const SizedBox(height: 16),
+
+        SectionCard(
+          title: 'Wichtiger Hinweis',
+          child: Text(
+            'Diese App unterstützt bei der Belegerfassung und beim Schreiben von '
+            'Rechnungen. Sie ist keine Steuerberatung und keine Registrierkasse '
+            'im Sinne der Registrierkassensicherheitsverordnung. Für die '
+            'Richtigkeit deiner Buchhaltung und deiner Steuererklärungen bist du '
+            'selbst verantwortlich.',
+            style: Theme.of(context).textTheme.bodySmall?.copyWith(
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
+            ),
+          ),
+        ),
+        const _AppVersionLine(),
+      ],
     );
   }
 
@@ -662,6 +678,47 @@ class _HomeShortcutTileState extends State<_HomeShortcutTile> {
       title: const Text('Symbol auf Startbildschirm legen'),
       subtitle: const Text('Android fragt zur Bestätigung nach'),
       onTap: homeShortcutService.requestPin,
+    );
+  }
+}
+
+/// Einstellungen als Overlay von rechts (Seitenmenü der Übersicht):
+/// 85 % der Bildschirmbreite, höchstens 420 dp, scrollbar.
+class SettingsDrawer extends StatelessWidget {
+  const SettingsDrawer({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final width = MediaQuery.sizeOf(context).width * 0.85;
+    return Drawer(
+      key: const Key('settings-drawer'),
+      width: width > 420 ? 420 : width,
+      child: SafeArea(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 8, 4, 0),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      'Einstellungen',
+                      style: Theme.of(context).textTheme.titleLarge,
+                    ),
+                  ),
+                  IconButton(
+                    tooltip: 'Schließen',
+                    icon: const Icon(Icons.close),
+                    onPressed: () => Navigator.of(context).pop(),
+                  ),
+                ],
+              ),
+            ),
+            const Expanded(child: SettingsContent(inDrawer: true)),
+          ],
+        ),
+      ),
     );
   }
 }

@@ -176,15 +176,17 @@ class _DashboardScreenState extends State<DashboardScreen> {
         title: Text(profile?.companyName ?? 'Übersicht'),
         actions: [
           const HelpButton(),
-          IconButton(
-            tooltip: 'Einstellungen',
-            icon: const Icon(Icons.settings_outlined),
-            onPressed: () => Navigator.of(
-              context,
-            ).push(MaterialPageRoute(builder: (_) => const SettingsScreen())),
+          // Menüsymbol öffnet die Einstellungen als Overlay von rechts.
+          Builder(
+            builder: (context) => IconButton(
+              tooltip: 'Einstellungen',
+              icon: const Icon(Icons.menu),
+              onPressed: () => Scaffold.of(context).openEndDrawer(),
+            ),
           ),
         ],
       ),
+      endDrawer: const SettingsDrawer(),
       body: NotificationListener<ScrollNotification>(
         onNotification: _barVisibility.handle,
         child: RefreshIndicator(
@@ -378,30 +380,34 @@ class _DashboardScreenState extends State<DashboardScreen> {
   }
 
   Widget _rangeSelector() {
-    // Umbrechen statt seitlich scrollen (DESIGN_SPEC 5a, Regel 7).
-    return Wrap(
-      spacing: 8,
-      runSpacing: 8,
-      children: [
-        for (final range in _Range.values)
-          Padding(
-            padding: EdgeInsets.zero,
-            child: ChoiceChip(
-              label: Text(
-                range.labelFor(
-                  AppScope.of(context).profile?.fiscalYear ??
-                      const FiscalYear(1),
-                  DateTime.now(),
+    // Eine Zeile, seitlich scrollbar; kompakte Chips mit dennoch 48 dp
+    // Tippfläche (Gerätetest: Chips zu groß, Umbruch störte).
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      child: Row(
+        children: [
+          for (final range in _Range.values)
+            Padding(
+              padding: const EdgeInsets.only(right: 6),
+              child: ChoiceChip(
+                visualDensity: VisualDensity.compact,
+                materialTapTargetSize: MaterialTapTargetSize.padded,
+                label: Text(
+                  range.labelFor(
+                    AppScope.of(context).profile?.fiscalYear ??
+                        const FiscalYear(1),
+                    DateTime.now(),
+                  ),
                 ),
+                selected: _range == range,
+                onSelected: (_) {
+                  setState(() => _range = range);
+                  _load();
+                },
               ),
-              selected: _range == range,
-              onSelected: (_) {
-                setState(() => _range = range);
-                _load();
-              },
             ),
-          ),
-      ],
+        ],
+      ),
     );
   }
 
@@ -484,16 +490,16 @@ class _DashboardScreenState extends State<DashboardScreen> {
 /// Auswahlmöglichkeiten für den Zeitraum. Quartal ist dabei, weil die
 /// Umsatzsteuervoranmeldung bei kleinen Umsätzen quartalsweise abzugeben ist.
 enum _Range {
-  currentMonth('Dieser Monat'),
-  lastMonth('Letzter Monat'),
-  currentQuarter('Dieses Quartal'),
-  currentYear('Dieses Jahr'),
-  lastYear('Letztes Jahr');
+  currentMonth('Monat'),
+  lastMonth('Vormonat'),
+  currentQuarter('Quartal'),
+  currentYear('Jahr'),
+  lastYear('Vorjahr');
 
   const _Range(this.label);
   final String label;
 
-  /// „Dieses Jahr“ und „Letztes Jahr“ folgen dem Wirtschaftsjahr der
+  /// „Jahr“ und „Vorjahr“ folgen dem Wirtschaftsjahr der
   /// Gewinnermittlung (L-24.5); Monat und Quartal bleiben Kalenderzeiträume.
   Period toPeriod(DateTime now, FiscalYear fy, List<String> monthNames) =>
       switch (this) {
@@ -514,9 +520,9 @@ enum _Range {
   /// Beschriftung des Chips; beim abweichenden Wirtschaftsjahr „WJ 2027“.
   String labelFor(FiscalYear fy, DateTime now) => switch (this) {
     _Range.currentYear when !fy.isCalendarYear =>
-      'Dieses WJ (${fy.shortLabel(fy.yearOf(now)).substring(3)})',
+      'WJ ${fy.shortLabel(fy.yearOf(now)).substring(3)}',
     _Range.lastYear when !fy.isCalendarYear =>
-      'Letztes WJ (${fy.shortLabel(fy.yearOf(now) - 1).substring(3)})',
+      'WJ ${fy.shortLabel(fy.yearOf(now) - 1).substring(3)}',
     _ => label,
   };
 }
