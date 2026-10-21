@@ -42,7 +42,7 @@ nächsten Versionssprung in den neuen Eintrag.
 | Feld | Wert |
 |---|---|
 | Art | Interner Test (TestFlight, Google Play interner Track) über `release.yml` und Test-APK aus `ci.yml`; **Lizenzprüfung aus**, alle Funktionen frei |
-| Commit | `XXXXXXX` |
+| Commit | `af85c2a` |
 | Branch | `claude/agile-accounting-app-mobile-wa5j3h` |
 | Dokumentstände | Lastenheft 1.89, Spezifikation 1.99, REGELPFLEGE 2026-10-20, Benutzerhandbuch für 0.37.1, DESIGN_SPEC 1.7 |
 | Datenbankschema | 31 |
@@ -55,7 +55,7 @@ nächsten Versionssprung in den neuen Eintrag.
 
 | Art | Änderung | Bezug | Commit |
 |---|---|---|---|
-| Behoben | Rechnungs-PDF: „Rechnungsnummer“ ohne Zeilenumbruch, Abstand zur Nummer | DESIGN_SPEC 9 | `XXXXXXX` |
+| Behoben | Rechnungs-PDF: „Rechnungsnummer“ ohne Zeilenumbruch, Abstand zur Nummer | DESIGN_SPEC 9 | `af85c2a` |
 
 ---
 
