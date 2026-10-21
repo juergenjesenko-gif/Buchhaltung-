@@ -672,6 +672,9 @@ class _ReceiptEditScreenState extends State<ReceiptEditScreen> {
 
   /// Nimmt eine weitere Seite auf und hängt sie hinten an.
   Future<void> _addPage(ImageSource source) async {
+    // Tastatur vor der Auswahl schließen; sonst kehrt sie nach Abbrechen
+    // zurück (Rückmeldung Tester 2026-10-21).
+    FocusManager.instance.primaryFocus?.unfocus();
     // Dokumentenscanner des Systems zuerst (FA-2.51): entzerrt, mehrere
     // Seiten. Ohne Scanner automatisch die Kamera, ohne Rückfrage.
     // Gescannte Seiten laufen durch dieselbe Erkennung wie Kamerafotos.
@@ -743,6 +746,7 @@ class _ReceiptEditScreenState extends State<ReceiptEditScreen> {
         return;
     }
     if (mounted && _pages.isEmpty && _documents.isEmpty) {
+      FocusManager.instance.primaryFocus?.unfocus();
       Navigator.of(context).maybePop();
     }
   }
@@ -750,6 +754,9 @@ class _ReceiptEditScreenState extends State<ReceiptEditScreen> {
   /// Knopf „Datei“ (Aufnahmeleiste): gewählte Dateien laufen denselben Weg
   /// wie geteilte Dateien – Seitenbilder, Originaldatei, Auslesen.
   Future<void> _pickFiles() async {
+    // Tastatur vor der Auswahl schließen; sonst kehrt sie nach Abbrechen
+    // zurück (Rückmeldung Tester 2026-10-21).
+    FocusManager.instance.primaryFocus?.unfocus();
     try {
       final files = await const DocumentPicker().pick();
       if (!mounted || files.isEmpty) return;
@@ -1729,7 +1736,11 @@ class _ReceiptEditScreenState extends State<ReceiptEditScreen> {
                           label: _recognized.contains('gross')
                               ? 'Bruttobetrag – erkannt, bitte prüfen'
                               : 'Bruttobetrag (wie auf dem Beleg)',
-                          autofocus: !_isEditing,
+                          // Nur bei Eingabe von Hand: bei Foto/Galerie/Datei würde die
+                          // Tastatur über der Auswahl stehen und nach Abbrechen
+                          // bleiben (Rückmeldung Tester 2026-10-21).
+                          autofocus:
+                              !_isEditing && widget.start == ReceiptStart.none,
                           onChanged: (_) => _totalChanged(),
                           validator: (value) {
                             final money = Money.tryParse(value ?? '');

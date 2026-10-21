@@ -323,6 +323,9 @@ class _ContractEditScreenState extends State<ContractEditScreen> {
   );
 
   Future<void> _addPhoto(ImageSource source) async {
+    // Tastatur vor der Auswahl schließen; sonst kehrt sie nach Abbrechen
+    // zurück (Rückmeldung Tester 2026-10-21).
+    FocusManager.instance.primaryFocus?.unfocus();
     // Dokumentenscanner zuerst (FA-2.51), sonst automatisch die Kamera.
     if (source == ImageSource.camera) {
       final outcome = await ScanIntake.run(
