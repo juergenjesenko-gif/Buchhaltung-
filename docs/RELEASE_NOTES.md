@@ -34,7 +34,7 @@ nächsten Versionssprung in den neuen Eintrag.
 
 | Art | Änderung | Bezug | Commit |
 |---|---|---|---|
-| Behoben | Belegerkennung: Absturz bei Belegen ohne erkannten Steuersatz (Folgefehler aus FA-2.63, CI rot) | FA-2.63 | `XXXXXXX` |
+| Behoben | Belegerkennung: Absturz bei Belegen ohne erkannten Steuersatz (Folgefehler aus FA-2.63, CI rot) | FA-2.63 | `1ff5b75` |
 | Geändert | Rechtstexte: keine Verbraucherschlichtung (Impressum), E-Mail-Anbieter Google/Gmail (Datenschutz) | P-L8, P-L9, P-R69 | `0eeb233` |
 | Geändert | Impressum (auch in der App unter „Rechtliches“): Sitz, Gewerbe und Fachgruppe UBIT Kärnten (Platzhalter bis zur Anmeldung des IT-Gewerbes), Abschnitt „KI-Inhalte“, OS-Hinweis gestrichen; Website: Produktseite als Startseite, Support unter `support.html` | P-R70, P-R71, P-R73, P-L7 | `5f73dd5` |
 | Behoben | Belegerkennung: Rabatt- und Gutscheinzeilen mit Prozent („10.00% Einmalig Rabatt“) wurden als zweiter Steuersatz gelesen | FA-2.63 | `371d4a7` |
