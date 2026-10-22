@@ -7,21 +7,25 @@ import 'dart:ui' as ui;
 import 'package:buchhaltung/app_state.dart';
 import 'package:buchhaltung/data/app_database.dart';
 import 'package:buchhaltung/data/repositories.dart';
+import 'package:buchhaltung/core/formatting.dart';
 import 'package:buchhaltung/domain/country.dart';
 import 'package:buchhaltung/domain/invoice.dart';
 import 'package:buchhaltung/domain/legal_texts.dart';
+import 'package:buchhaltung/domain/receipt.dart';
 import 'package:buchhaltung/features/contracts/contract_screens.dart';
 import 'package:buchhaltung/features/demo/demo_screens.dart';
 import 'package:buchhaltung/features/invoices/invoice_share.dart';
 import 'package:buchhaltung/features/licensing/subscription_screen.dart';
 import 'package:buchhaltung/features/pdf_viewer/pdf_viewer_screen.dart';
-import 'package:buchhaltung/features/receipts/receipt_view_screen.dart';
+import 'package:buchhaltung/features/receipts/receipt_edit_screen.dart';
 import 'package:buchhaltung/main.dart';
 import 'package:buchhaltung/services/demo/demo_mode.dart';
+import 'package:buchhaltung/services/demo/demo_receipt_image.dart';
 import 'package:buchhaltung/services/demo/demo_session.dart';
 import 'package:buchhaltung/services/licensing/fake_store_billing.dart';
 import 'package:buchhaltung/services/licensing/license_cache.dart';
 import 'package:buchhaltung/services/licensing/license_manager.dart';
+import 'package:buchhaltung/services/receipt_image_store.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
@@ -134,6 +138,25 @@ void main() {
           country: Country.de,
         ),
       ))!;
+      // Bildschirmfotos ohne Sicherungshinweis: Sicherung „heute“ erledigt.
+      await tester.runAsync(() async {
+        await db.execute('PRAGMA query_only = OFF');
+        await db.update('company_profile', {
+          'last_backup_at': DateTime.now().toIso8601String(),
+        });
+        await db.execute('PRAGMA query_only = ON');
+      });
+      Map<String, Object?>? ocrResult;
+      // Belegerkennung ohne Gerät: der Kanal liefert den Text des Demo-Belegs.
+      TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+          .setMockMethodCallHandler(
+            const MethodChannel('buchhaltung/receipt_text'),
+            (call) async => switch (call.method) {
+              'isAvailable' => true,
+              'recognize' => ocrResult,
+              _ => null,
+            },
+          );
       await tester.runAsync(() => state.enterDemo(db, fromSettings: true));
       await _settle(tester);
 
@@ -158,17 +181,29 @@ void main() {
       final navigator = appNavigatorKey.currentState!;
       final repos = state.repositories;
 
-      // 1 Übersicht
+      // 1 Übersicht, ans Ende gescrollt: unter der Aufnahmeleiste liegt
+      // nur der Abstand, kein Betrag.
+      await _scrollToEnd(tester, find.text('Kleinunternehmergrenze'));
       await shot('1_uebersicht');
 
-      // 2 Beleg mit Foto (Leseansicht)
+      // 2 Beleg frisch fotografiert, Felder „erkannt – bitte prüfen“
       final receipts = (await tester.runAsync(() => repos.receipts.query()))!;
       final withImage = receipts.firstWhere((r) => r.hasImage);
+      ocrResult = _ocrFor(withImage);
+      final photo = (await tester.runAsync(
+        () => ReceiptImageStore.resolve(withImage.imagePath),
+      ))!;
       navigator.push(
         MaterialPageRoute<void>(
-          builder: (_) => ReceiptViewScreen(receipt: withImage),
+          builder: (_) => ReceiptEditScreen(
+            direction: BookingDirection.expense,
+            sharedFiles: [photo],
+          ),
         ),
       );
+      await _settle(tester);
+      // Hinweis „Beleg ausgelesen“ abwarten.
+      await tester.pump(const Duration(seconds: 6));
       await shot('2_beleg');
       navigator.pop();
       await _settle(tester);
@@ -205,15 +240,32 @@ void main() {
 
       // 4 Belegliste
       await tester.tap(find.text('Belege').last);
+      await _settle(tester);
+      // Tablet (Liste und Detail nebeneinander): einen Beleg zeigen.
+      if (find.textContaining('Wähle links').evaluate().isNotEmpty) {
+        await tester.tap(find.text(withImage.description).first);
+        await _settle(tester);
+      }
+      await _scrollToEnd(tester, find.text('Oktober 2026').first);
       await shot('4_belegliste');
 
       // 5 Export
       await tester.tap(find.text('Export').last);
       await shot('5_export');
 
-      // 6 Verträge
+      // 6 Vertrag mit Seitenvorschau (Demo-Verträge haben kein Dokument)
+      final contract = (await tester.runAsync(
+        () => repos.contracts.all(),
+      ))!.first;
+      final page = p.join(ReceiptImageStore.demoFolder, 'vertrag_seite1.png');
+      await tester.runAsync(
+        () => File(p.join(docs.path, page)).writeAsBytes(_contractPage()),
+      );
       navigator.push(
-        MaterialPageRoute<void>(builder: (_) => const ContractListScreen()),
+        MaterialPageRoute<void>(
+          builder: (_) =>
+              ContractEditScreen(contract: contract.copyWith(pages: [page])),
+        ),
       );
       await shot('6_vertraege');
       navigator.pop();
@@ -234,12 +286,65 @@ void main() {
   }
 }
 
+/// Antwort des Texterkennungs-Kanals: der Text des Demo-Belegs [r].
+Map<String, Object?> _ocrFor(Receipt r) {
+  final gross = Fmt.amount(r.gross);
+  final vat = Fmt.amount(r.vat);
+  final rows = [
+    r.counterparty,
+    'Datum ${Fmt.date(r.date)}',
+    '${r.description} $gross',
+    'SUMME EUR $gross',
+    'MwSt ${r.vatPermille ~/ 10}% $vat',
+  ];
+  return {
+    'engine': 'screenshot',
+    'engineVersion': '1',
+    'codes': <String>[],
+    'lines': [
+      for (var i = 0; i < rows.length; i++)
+        {'text': rows[i], 'left': 16, 'top': 14 + i * 24, 'height': 16},
+    ],
+  };
+}
+
+/// Erste Vertragsseite als Musterbild.
+Uint8List _contractPage() => DemoReceiptImage.render(
+  title: 'Mietvertrag Atelier',
+  lines: const [
+    ('Vermieter: Hausverwaltung Muster', ''),
+    ('Mieter: Musterunternehmen', ''),
+    ('Mietbeginn 01.01.2024', ''),
+    ('Kuendigungsfrist 3 Monate', ''),
+    ('Miete monatlich', '450,00'),
+    ('Nebenkosten', 'inkl.'),
+  ],
+  total: '450,00 EUR',
+  footer: 'MUSTERVERTRAG - DEMO',
+);
+
 class _Target {
   const _Target(this.store, this.size, this.ratio);
 
   final String store;
   final Size size;
   final double ratio;
+}
+
+/// Liste mit [inside] ans Ende scrollen; die Aufnahmeleiste, die dabei
+/// ausweicht, ist nach 5 s zurück.
+Future<void> _scrollToEnd(WidgetTester tester, Finder inside) async {
+  final scrollable = tester.state<ScrollableState>(
+    find.ancestor(of: inside, matching: find.byType(Scrollable)).first,
+  );
+  // Lange Listen kennen ihr Ende erst nach dem Aufbau: bis es feststeht.
+  for (var i = 0; i < 10; i++) {
+    final end = scrollable.position.maxScrollExtent;
+    scrollable.position.jumpTo(end);
+    await tester.pump();
+    if (scrollable.position.maxScrollExtent == end) break;
+  }
+  await tester.pump(const Duration(seconds: 6));
 }
 
 /// Laden außerhalb der Test-Uhr abwarten (Datenbank, Bilder).

@@ -34,6 +34,7 @@ nächsten Versionssprung in den neuen Eintrag.
 
 | Art | Änderung | Bezug | Commit |
 |---|---|---|---|
+| Behoben | Belegformular: Auswahl „Umsatzsteuersatz“ kürzt lange Bezeichnungen statt rechts überzulaufen (schmale Handys, ~411 dp, beim Erzeugen der Store-Screenshots aufgefallen) | SPEC 7 | dieser Commit |
 
 ---
 

@@ -1770,6 +1770,9 @@ class _ReceiptEditScreenState extends State<ReceiptEditScreen> {
                         DropdownButtonFormField<int>(
                           key: ValueKey('vat$_vatPermille'),
                           initialValue: _vatPermille,
+                          // Lange Bezeichnungen kürzen statt überlaufen
+                          // (schmale Handys, ~411 dp).
+                          isExpanded: true,
                           decoration: const InputDecoration(
                             labelText: 'Umsatzsteuersatz',
                           ),
@@ -1780,7 +1783,10 @@ class _ReceiptEditScreenState extends State<ReceiptEditScreen> {
                             ))
                               DropdownMenuItem(
                                 value: rate.permille,
-                                child: Text('${rate.display} – ${rate.label}'),
+                                child: Text(
+                                  '${rate.display} – ${rate.label}',
+                                  overflow: TextOverflow.ellipsis,
+                                ),
                               ),
                           ],
                           onChanged: (value) =>
