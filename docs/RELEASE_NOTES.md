@@ -34,7 +34,7 @@ nächsten Versionssprung in den neuen Eintrag.
 
 | Art | Änderung | Bezug | Commit |
 |---|---|---|---|
-| Geändert | Rechtstexte: keine Verbraucherschlichtung (Impressum), E-Mail-Anbieter Google/Gmail (Datenschutz) | P-L8, P-L9, P-R69 | `XXXXXXX` |
+| Geändert | Rechtstexte: keine Verbraucherschlichtung (Impressum), E-Mail-Anbieter Google/Gmail (Datenschutz) | P-L8, P-L9, P-R69 | `0eeb233` |
 
 ---
 
