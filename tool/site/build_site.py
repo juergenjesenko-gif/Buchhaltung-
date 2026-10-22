@@ -207,6 +207,8 @@ def page(file: str, title: str, body: str) -> str:
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="index, follow">
 <title>{title} · JeNi bucht</title>
+<meta name="description" content="{title} von JeNi bucht, der Buchhaltungs-App für Selbstständige in Österreich und Deutschland.">
+<link rel="canonical" href="https://jenibucht.com/{file}">
 <link rel="icon" href="favicon.ico" sizes="any">
 <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
 <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
@@ -307,6 +309,19 @@ def main() -> int:
         src = (LEGAL / md).read_text(encoding="utf-8")
         (OUT / file).write_text(page(file, title, convert(src, md)), encoding="utf-8")
     (OUT / ".nojekyll").write_text("", encoding="utf-8")
+    # Suchmaschinen: robots.txt und Sitemap mit allen Seiten.
+    seiten = ["", "support.html"] + [f for f, _, _ in PAGES]
+    (OUT / "robots.txt").write_text(
+        "User-agent: *\nAllow: /\nSitemap: https://jenibucht.com/sitemap.xml\n",
+        encoding="utf-8",
+    )
+    (OUT / "sitemap.xml").write_text(
+        '<?xml version="1.0" encoding="UTF-8"?>\n'
+        '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
+        + "".join(f"  <url><loc>https://jenibucht.com/{f}</loc></url>\n" for f in seiten)
+        + "</urlset>\n",
+        encoding="utf-8",
+    )
     if placeholders:
         print(f"{len(placeholders)} offene Platzhalter (sichtbar markiert):")
         for src, name in placeholders:
