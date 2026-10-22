@@ -108,12 +108,13 @@ betroffen sind, nach Ablauf der Aufbewahrungsfrist (§ 132 BAO: 7 Jahre).
 ## 8. Produktseite jenibucht.com
 
 Ohne Cookies, ohne Tracking, ohne eingebundene Schriften oder Skripte Dritter.
-Der Hosting-Anbieter {{HOSTER}} verarbeitet beim Aufruf technisch die
-IP-Adresse, Zeit, aufgerufene Seite und Browserangaben in Server-Protokollen
+Der Hosting-Anbieter helloly GmbH, Rainerstraße 25, 4020 Linz, Österreich
+(Server in Österreich) verarbeitet beim Aufruf technisch die IP-Adresse,
+Zeit, aufgerufene Seite und Browserangaben in Server-Protokollen
 (Art. 6 Abs 1 lit f DSGVO; Interesse: sicherer Betrieb). Speicherdauer:
-{{TAGE}} Tage. Auftragsverarbeitungsvertrag mit dem Hoster besteht.
-{{Bei Hosting außerhalb der EU, z. B. GitHub Pages: Übermittlung in die USA
-auf Grundlage des EU-US Data Privacy Framework (Art. 45 DSGVO) angeben.}}
+höchstens 30 Tage, danach werden die Protokolle gelöscht oder anonymisiert.
+Auftragsverarbeitungsvertrag mit dem Hoster besteht. Eine Übermittlung in
+Länder außerhalb der EU findet dabei nicht statt.
 
 ## 9. Künstliche Intelligenz
 

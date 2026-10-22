@@ -14,7 +14,7 @@
 
 `Spirits by JeNiBarb e.U. (Inhaber: Jürgen Jesenko) Sankt Leonhard bei Siebenbrünn 96, 9587 Arnoldstein, Österreich ATU81604346 FN 643550 y, Landesgericht Klagenfurt +43 660 3124252
 office@jenibarb.com {{GEWERBE}} Bezirkshauptmannschaft Villach-Land Kärnten
-{{FACHGRUPPE}} {{HOSTER}} {{TAGE}} {{EMAIL_PROVIDER}} Arnoldstein
+{{FACHGRUPPE}} {{EMAIL_PROVIDER}} Arnoldstein
 Klagenfurt {{BETRAG}} {{14}}`
 
 ## Stand des Codes, auf dem die Texte beruhen (2026-10-12)

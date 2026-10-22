@@ -1,6 +1,6 @@
 # Launch – Google Play und App Store
 
-**Stand:** 2026-10-22 · App 0.39.1 · Spezifikation 2.08 · Märkte: Österreich, Deutschland
+**Stand:** 2026-10-22 · App 0.39.1 · Spezifikation 2.09 · Märkte: Österreich, Deutschland
 
 Ein Dokument, von oben nach unten abarbeiten. Prüfinstanzen Softwareentwickler,
 Rechtsanwalt, Steuerberater und UX haben die Schritte am 2026-10-21 gemeinsam
@@ -26,7 +26,7 @@ Details zu den Abo-Produkten: `STORE_ANMELDUNG.md` Formular 4. Texte:
 
 | # | Punkt | Ampel | Wer | Verweis |
 |---|---|---|---|---|
-| 1 | **Platzhalter `{{…}}` in den Rechtstexten**: Gewerbe und Landesgremium Handel laut GISA (Impressum, P-R70), Schlichtung ja/nein (Impressum), `{{HOSTER}}`, `{{TAGE}}`, `{{EMAIL_PROVIDER}}` (Datenschutz), `{{BETRAG}}`, Rügefrist `{{14}}` (Nutzungsbedingungen). Die Website zeigt sie gelb als „OFFEN“ | 🔴 | Auftraggeberin, Anwältin | P-L8, P-L9, P-L4, P-R1 |
+| 1 | **Platzhalter `{{…}}` in den Rechtstexten**: Gewerbe und Landesgremium Handel laut GISA (Impressum, P-R70), Schlichtung ja/nein (Impressum), `{{EMAIL_PROVIDER}}` (Datenschutz), `{{BETRAG}}`, Rügefrist `{{14}}` (Nutzungsbedingungen). Die Website zeigt sie gelb als „OFFEN“ | 🔴 | Auftraggeberin, Anwältin | P-L8, P-L9, P-L4, P-R1 |
 | 2 | **Datenschutzerklärung veraltet**: `docs/legal/DATENSCHUTZ.md` (Fassung 2026-10-12) nennt ML Kit, Dokumentenscanner, EZB-Kurs, Link-QR, Mithelfer-Mailweg und Mail-Serversuche noch nicht; die Store-Formulare unten deklarieren sie. Beides muss übereinstimmen | 🔴 | Anwältin, Entwicklung (App-Asset, also Codeänderung mit Version) | **P-R68**, P-R6, P-L1 |
 | 3 | **Öffentliche URL** für Datenschutz und Support (beide Stores Pflicht) – Seite ist gebaut (`docs/site/`), aber noch nicht online | 🔴 | Auftraggeberin | Abschnitt 1, **P-D59** |
 | 4 | **Rechtstexte anwaltlich geprüft**, Entwurfsvermerk entfernt | 🔴 | Anwältin | P-L1, P-L4–P-L6, P-L10, P-R11, P-R67, P-L20 |
@@ -77,7 +77,14 @@ Instagram-Bio:    https://jenibucht.com/  und  https://jenibucht.com/impressum.h
 Nutzungsbed.:     https://jenibucht.com/nutzungsbedingungen.html
 ```
 
-`{{HOSTER}}` = Anbieter des Webspace von jenibucht.com (mit Auftragsverarbeitungsvertrag; Sitz in der EU erspart den Satz zur Übermittlung in die USA), `{{TAGE}}` = dessen Speicherdauer der Server-Protokolle (P-R74, P-L9).
+Hoster: **helloly GmbH**, Linz (Paket Webhosting SMART, Server
+cloud25.helloly.hosting in Österreich, gebucht 2026-10-22). In der
+Datenschutzerklärung eingetragen; Speicherdauer der Server-Protokolle
+höchstens 30 Tage laut Datenschutzerklärung von helloly – **vor dem
+Hochladen** den Auftragsverarbeitungsvertrag bei helloly anfordern und die
+30 Tage für den eigenen Webspace bestätigen lassen (P-R74). Hochladen:
+helloly-Kundenbereich → Paket → „in cPanel einloggen“ → Dateimanager →
+`public_html` → ZIP der Website hochladen → „Extract“.
 
 **Weg B: GitHub Pages** (Hoster GitHub Inc., USA – in der Datenschutzerklärung
 Abschnitt 8 die Übermittlung angeben, P-L9). Der Workflow
