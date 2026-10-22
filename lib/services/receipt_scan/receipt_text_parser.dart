@@ -547,7 +547,7 @@ class ReceiptTextParser {
     List<DetectedVat> lines,
     Detected<Money>? gross,
   ) {
-    if (gross == null) return lines;
+    if (gross == null || lines.isEmpty) return lines;
     if (lines.length > 1) {
       // Mehrere Sätze ergeben nicht den Gesamtbetrag, die sicheren Zeilen
       // (Steuerwort oder Rechenprobe) allein schon: die unsicheren

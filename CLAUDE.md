@@ -116,6 +116,20 @@ Git-Tags sind optional, weil die Entwicklungsumgebung keine Tags pushen kann.
 Änderungen zwischen zwei Versionen sammeln sich im Abschnitt *Unveröffentlicht*:
 jeder Commit mit Verhaltensänderung trägt dort eine Zeile ein.
 
+## Sammeln statt einzeln ausliefern
+
+Festgelegt vom Auftraggeber am 2026-10-22.
+
+- **App-Rückmeldungen sammeln**, nicht jede einzeln pushen oder releasen.
+  Korrekturen mit Test und Doku lokal committen und **einmal täglich**
+  gesammelt vorlegen. **Push erst nach OK** (jeder Push startet die CI);
+  spätestens am Tagesende pushen, weil nicht gepushte Commits beim Zurücksetzen
+  der Umgebung verloren gehen.
+- **Release (Versionssprung, Testbuild) nur nach ausdrücklicher Freigabe**;
+  mehrere Themen in ein größeres Release bündeln.
+- Entwicklung läuft in Claude Code; Marketing (Instagram, Persona, Videos)
+  bleibt im Claude-Projekt „JeNi bucht“. Übergaben als Markdown-Datei.
+
 ## Zusatzsicherung
 
 Code und Dokumente werden zusätzlich zu GitHub regelmäßig auf die lokale SSD
