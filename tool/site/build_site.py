@@ -18,6 +18,7 @@ Regeln (docs/LAUNCH.md, Abschnitt „Website“):
 from __future__ import annotations
 
 import html
+import json
 import re
 import sys
 from pathlib import Path
@@ -295,13 +296,53 @@ footer{border-top:1px solid var(--line);margin-top:32px;padding-bottom:24px;colo
 """
 
 
+# Store-Links: erst auf True stellen, wenn die App in BEIDEN Stores öffentlich
+# ist – vorher liefern die Links für Besucher eine Fehlerseite.
+STORES_LIVE = False
+APP_STORE_URL = "https://apps.apple.com/at/app/id6824914122"
+PLAY_URL = "https://play.google.com/store/apps/details?id=at.jenibarb.jenibucht"
+
+
+def produktseite(html: str) -> str:
+    """Produktseite: Store-Knöpfe (wenn live) und FAQ als strukturierte Daten."""
+    if STORES_LIVE:
+        html = re.sub(
+            r"<!-- STORES:START.*?<!-- STORES:END -->",
+            f'<a class="btn btn-ghost" href="{APP_STORE_URL}">Laden im App Store</a>\n'
+            f'      <a class="btn btn-ghost" href="{PLAY_URL}">Jetzt bei Google Play</a>',
+            html,
+            flags=re.S,
+        )
+        html = html.replace("Bald im App Store und bei Google Play", "Jetzt im App Store und bei Google Play")
+    # FAQ aus den <details>-Blöcken als FAQPage, damit Suche und Seite nie auseinanderlaufen.
+    fragen = re.findall(r"<details><summary>(.*?)</summary><p>(.*?)</p></details>", html, re.S)
+    if fragen:
+        def text(x: str) -> str:
+            return re.sub(r"<[^>]+>", "", x).replace("&nbsp;", " ").replace("&amp;", "&")
+        faq = {
+            "@context": "https://schema.org",
+            "@type": "FAQPage",
+            "mainEntity": [
+                {"@type": "Question", "name": text(q),
+                 "acceptedAnswer": {"@type": "Answer", "text": text(a)}}
+                for q, a in fragen
+            ],
+        }
+        html = html.replace(
+            "</head>",
+            '<script type="application/ld+json">' + json.dumps(faq, ensure_ascii=False) + "</script>\n</head>",
+            1,
+        )
+    return html
+
+
 def main() -> int:
     OUT.mkdir(parents=True, exist_ok=True)
     (OUT / "style.css").write_text(CSS, encoding="utf-8")
     # Produktseite (Ziel des Instagram-Bio-Links) wird unverändert übernommen;
     # Schriften und Bilder dazu liegen fest in docs/site/fonts und docs/site/img.
     (OUT / "index.html").write_text(
-        (ROOT / "tool" / "site" / "produktseite.html").read_text(encoding="utf-8"),
+        produktseite((ROOT / "tool" / "site" / "produktseite.html").read_text(encoding="utf-8")),
         encoding="utf-8",
     )
     (OUT / "support.html").write_text(page("support.html", "Support", INDEX), encoding="utf-8")
