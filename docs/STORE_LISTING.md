@@ -321,15 +321,59 @@ einlösen** oder direkt über diese Links (Bio, Story-Link):
 **Werbetext-Vorschlag** (Pflichtangaben im selben Beitrag, nicht nur im Link;
 Prüfpunkt P-R40):
 
+> Werbung · KI-Figur – JeNi ist keine echte Person.
 > 2 Monate JeNi bucht Pro gratis – mit dem Code JENIBUCHT2M. Für neue
 > Abonnentinnen und Abonnenten. Danach verlängert sich das Abo automatisch zu
 > 12,90 € pro Monat im ersten Jahr, danach 17,90 € pro Monat (Jahresabo
 > 129 € im ersten Jahr, danach 179 €; inkl. USt), bis du kündigst.
 > Kündigen oder auf Basis wechseln geht jederzeit vorher kostenlos in den
 > Abo-Einstellungen von Google Play bzw. App Store. Einlösen: Link in der Bio.
-> Keine Steuerberatung.
+> Belegerkennung ist Teil von Pro. Keine Steuerberatung.
 
 - Preise vor jeder Kampagne mit den im Store hinterlegten Preisen abgleichen.
+- Erst posten, wenn die App in beiden Stores live ist (P-R40, P-R63).
+
+## Instagram-Auftritt @jeni.bucht (Prüfinstanzen 2026-10-22)
+
+Werbung über die KI-Figur „JeNi“ in wechselnden Berufsrollen (erste Rolle
+Fitness-Coach), ein gemeinsames Konto für alle Rollen, Antworten in
+Kommentaren und Nachrichten durch eine KI (Entscheidungen Auftraggeber
+2026-10-21). Bio-Link auf die Produktseite (`docs/site/index.html`), zweiter
+Link „Impressum & Datenschutz“ auf `impressum.html` (P-R75).
+
+**Bio** (≤ 150 Zeichen): „KI-Influencerin von JeNi bucht 🤖 / Ich führe mein
+Business am Handy. / Beleg scannen – zack, gebucht. 📱 / Für Selbstständige in
+DE & AT 👇“, dazu die Zeile „Impressum: Link in Bio“.
+
+**Jeder Beitrag** (P-R71, P-R72):
+
+1. Einblendung in den ersten Sekunden und dauerhaft klein: „KI-generiert ·
+   Werbung für die App JeNi bucht“.
+2. Erste Zeile der Caption: „Werbung · KI-Figur – JeNi ist keine echte Person,
+   die Szene ist erfunden.“
+3. Meta-Kennzeichnung „KI-Info“ beim Posten einschalten; Metadaten der
+   KI-Ausgaben beim Schnitt nicht entfernen.
+4. Zeigt der Beitrag Belegerkennung oder Senden mit einem Tipp: „(Pro)“ in der
+   Caption.
+5. Musik nur aus der Meta Sound Collection (Business-Konto, P-L21).
+
+**Erste KI-Antwort** in Kommentar oder Nachricht (P-R77): „Hier antwortet eine
+KI von JeNi bucht. Keine Steuerberatung – für deinen Einzelfall frag deine
+Steuerberatung.“ Keine Belege, Steuernummern oder Bankdaten per Nachricht
+anfordern; Support, Beschwerden, Datenschutz und Kündigung an einen Menschen
+übergeben.
+
+**Botschaft Ersparnis** (P-S94): Zeit und Vorarbeit sparen, „deine
+Steuerberatung bekommt alles vollständig“. Nicht: „weniger
+Steuerberaterkosten“, bezifferte Ersparnis, „Buchhalter brauchst du nicht
+mehr“. Zulässig mit „oft“: „Die Vorarbeit machst du nebenbei – das spart dir
+Zeit und oft auch Aufwand bei der Kanzlei.“
+
+**Szenen** (P-S97, P-R76): keine Kassier-Szene am Termin (die App ist keine
+Registrierkasse); Musterbelege mit Händleranschrift und Kennzeichnung
+„Musterbeleg“ (P-S91); Bilder der KI-Figur erst nach Rückwärtssuche
+verwenden, Prompts und Seeds sichern, keine Fotos realer Personen als
+Referenz.
 
 ### Preise (Entscheidung Auftraggeber 2026-10-19, Lastenheft 5.10)
 

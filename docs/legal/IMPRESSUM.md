@@ -1,6 +1,6 @@
 # Impressum
 
-> **ENTWURF – nicht anwaltlich geprüft.** Stand 2026-10-12. Platzhalter `{{…}}`
+> **ENTWURF – nicht anwaltlich geprüft.** Stand 2026-10-22. Platzhalter `{{…}}`
 > vor Veröffentlichung ersetzen. Angaben müssen mit den öffentlichen
 > Händlerangaben in Google Play und App Store (DSA) übereinstimmen (L-22.15).
 
@@ -14,10 +14,11 @@ Sankt Leonhard bei Siebenbrünn 96, 9587 Arnoldstein, Österreich
 - Telefon: +43 660 3124252
 - E-Mail: office@jenibarb.com (schnelle, unmittelbare Kontaktaufnahme nach § 5 Abs 1 Z 3 ECG)
 - UID-Nummer: ATU81604346
-- Firmenbuch: FN 643550 y, Landesgericht Klagenfurt (eingetragenes Einzelunternehmen, e.U.)
-- Unternehmensgegenstand: Einzelhandel laut Firmenbuch; Entwicklung und Vertrieb von Software (von der bestehenden Gewerbeberechtigung gedeckt, bestätigt von der Inhaberin am 2026-10-12)
+- Firmenbuch: FN 643550 y, Landesgericht Klagenfurt (eingetragenes Einzelunternehmen, e.U.); Sitz: Arnoldstein
+- Unternehmensgegenstand: Einzelhandel; Entwicklung und Vertrieb von Software
+- Gewerbe: {{Wortlaut Handelsgewerbe laut GISA}}; Dienstleistungen in der automatischen Datenverarbeitung und Informationstechnik {{Anmeldung im GISA, P-R70}}
 - Gewerbebehörde / Aufsichtsbehörde: Bezirkshauptmannschaft Villach-Land
-- Kammer: Wirtschaftskammer Kärnten, Fachgruppe {{FACHGRUPPE}}
+- Kammer: Wirtschaftskammer Kärnten; Fachgruppe Unternehmensberatung, Buchhaltung und Informationstechnologie (UBIT) sowie {{Landesgremium Handel laut GISA}}
 - Berufsrecht: Gewerbeordnung, abrufbar unter www.ris.bka.gv.at
 
 ## Offenlegung nach § 25 MedienG
@@ -45,11 +46,15 @@ jeweilige Store. Fragen zur App selbst beantworten wir unter office@jenibarb.com
 Wir sind nicht verpflichtet und nicht bereit, an Streitbeilegungsverfahren vor
 einer Verbraucherschlichtungsstelle teilzunehmen.
 
-Hinweis: Die EU-Online-Streitbeilegungsplattform (OS-Plattform) wurde mit
-20. Juli 2025 eingestellt; ein Link darauf ist nicht mehr anzugeben.
-
 ## Keine Steuerberatung
 
 Die App rechnet und bereitet vor, prüft aber nichts steuerrechtlich und
 ersetzt keine Steuerberatung (Wirtschaftstreuhandberufsgesetz 2017,
 Steuerberatungsgesetz).
+
+## KI-Inhalte
+
+Bilder und Videos der Figur „JeNi“ auf Instagram (@jeni.bucht) und auf der
+Website sind mit künstlicher Intelligenz erstellt. JeNi ist keine reale
+Person, ihre Berufsrollen sind erfunden. Antworten von @jeni.bucht in
+Kommentaren und Nachrichten erstellt eine KI.

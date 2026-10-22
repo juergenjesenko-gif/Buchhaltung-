@@ -35,6 +35,7 @@ nächsten Versionssprung in den neuen Eintrag.
 | Art | Änderung | Bezug | Commit |
 |---|---|---|---|
 | Geändert | Rechtstexte: keine Verbraucherschlichtung (Impressum), E-Mail-Anbieter Google/Gmail (Datenschutz) | P-L8, P-L9, P-R69 | `0eeb233` |
+| Geändert | Impressum (auch in der App unter „Rechtliches“): Sitz, Gewerbe und Fachgruppe UBIT Kärnten (Platzhalter bis zur Anmeldung des IT-Gewerbes), Abschnitt „KI-Inhalte“, OS-Hinweis gestrichen; Website: Produktseite als Startseite, Support unter `support.html` | P-R70, P-R71, P-R73, P-L7 | *dieser Commit* |
 
 ---
 

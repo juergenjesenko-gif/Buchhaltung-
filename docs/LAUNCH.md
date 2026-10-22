@@ -1,6 +1,6 @@
 # Launch – Google Play und App Store
 
-**Stand:** 2026-10-21 · App 0.39.1 · Spezifikation 2.06 · Märkte: Österreich, Deutschland
+**Stand:** 2026-10-22 · App 0.39.1 · Spezifikation 2.07 · Märkte: Österreich, Deutschland
 
 Ein Dokument, von oben nach unten abarbeiten. Prüfinstanzen Softwareentwickler,
 Rechtsanwalt, Steuerberater und UX haben die Schritte am 2026-10-21 gemeinsam
@@ -26,7 +26,7 @@ Details zu den Abo-Produkten: `STORE_ANMELDUNG.md` Formular 4. Texte:
 
 | # | Punkt | Ampel | Wer | Verweis |
 |---|---|---|---|---|
-| 1 | **Platzhalter `{{…}}` in den Rechtstexten**: `{{FACHGRUPPE}}` (Impressum), Schlichtung ja/nein (Impressum), `{{DOMAIN}}`, `{{HOSTER}}`, `{{TAGE}}`, `{{EMAIL_PROVIDER}}` (Datenschutz), `{{BETRAG}}`, Rügefrist `{{14}}` (Nutzungsbedingungen). Die Website zeigt sie gelb als „OFFEN“ | 🔴 | Auftraggeberin, Anwältin | P-L8, P-L9, P-L4, P-R1 |
+| 1 | **Platzhalter `{{…}}` in den Rechtstexten**: Gewerbe und Landesgremium Handel laut GISA (Impressum, P-R70), Schlichtung ja/nein (Impressum), `{{DOMAIN}}`, `{{HOSTER}}`, `{{TAGE}}`, `{{EMAIL_PROVIDER}}` (Datenschutz), `{{BETRAG}}`, Rügefrist `{{14}}` (Nutzungsbedingungen). Die Website zeigt sie gelb als „OFFEN“ | 🔴 | Auftraggeberin, Anwältin | P-L8, P-L9, P-L4, P-R1 |
 | 2 | **Datenschutzerklärung veraltet**: `docs/legal/DATENSCHUTZ.md` (Fassung 2026-10-12) nennt ML Kit, Dokumentenscanner, EZB-Kurs, Link-QR, Mithelfer-Mailweg und Mail-Serversuche noch nicht; die Store-Formulare unten deklarieren sie. Beides muss übereinstimmen | 🔴 | Anwältin, Entwicklung (App-Asset, also Codeänderung mit Version) | **P-R68**, P-R6, P-L1 |
 | 3 | **Öffentliche URL** für Datenschutz und Support (beide Stores Pflicht) – Seite ist gebaut (`docs/site/`), aber noch nicht online | 🔴 | Auftraggeberin | Abschnitt 1, **P-D59** |
 | 4 | **Rechtstexte anwaltlich geprüft**, Entwurfsvermerk entfernt | 🔴 | Anwältin | P-L1, P-L4–P-L6, P-L10, P-R11, P-R67, P-L20 |
@@ -42,32 +42,38 @@ Details zu den Abo-Produkten: `STORE_ANMELDUNG.md` Formular 4. Texte:
 | 14 | **Altersfreigabe-Fragebogen Apple (neue Fassung)** und Google-Finanzfunktionen-Deklaration | 🟡 | Auftraggeberin | **P-D60** |
 | 15 | targetSdk ≥ 36 (Play-Pflicht für neue Apps ab 31.08.2026) im AAB bestätigt | 🟡 | Entwicklung | P-D6, P-D10 |
 | 16 | Konten Google (Organisation) und Apple (Einzelperson), D-U-N-S, Bundle-ID `at.jenibarb.jenibucht`, interner Test und TestFlight | 🟢 | – | `STORE_READINESS.md` |
+| 17 | **IT-Gewerbe anmelden**: „Dienstleistungen in der automatischen Datenverarbeitung und Informationstechnik“ (freies Gewerbe, GISA). Erst danach stimmt die Fachgruppe UBIT im Impressum; das Handelsgewerbe deckt die Herstellung von Software wohl nicht | 🔴 | Auftraggeber | **P-R70** |
+| 18 | **Vor der ersten Instagram-Werbung**: KI-Kennzeichnung je Beitrag (Einblendung, Caption, Meta-Label), Hinweis bei der ersten KI-Antwort, Bildrückwärtssuche der KI-Figur, Produktseite im Instagram-Browser getestet | 🔴 | Auftraggeber | P-R71, P-R72, P-R75, P-R76, P-R77, P-X32, `STORE_LISTING.md` „Instagram-Auftritt“ |
 
 ---
 
-## 1. Website für Datenschutz, Support, Impressum (beide Stores)
+## 1. Website: Produktseite, Datenschutz, Support, Impressum (beide Stores)
 
-Die Seiten entstehen aus `docs/legal/*.md` – dieselben Texte wie in der App:
+Die Rechtsseiten entstehen aus `docs/legal/*.md` – dieselben Texte wie in der
+App. Die Startseite ist die Produktseite (Ziel des Instagram-Bio-Links), Quelle
+`tool/site/produktseite.html`:
 
 ```bash
 python3 tool/site/build_site.py
 ```
 
-Ergebnis in `docs/site/`: `index.html` (Support), `datenschutz.html`,
-`impressum.html`, `nutzungsbedingungen.html`, `style.css`. Ohne Cookies,
-Skripte, Schriften oder Bilder von außen. Länderteile erscheinen als zwei
+Ergebnis in `docs/site/`: `index.html` (Produktseite), `support.html`,
+`datenschutz.html`, `impressum.html`, `nutzungsbedingungen.html`, `style.css`;
+fest abgelegt `fonts/` (WOFF2 mit OFL-Lizenzen, P-L21) und `img/` (Logo,
+KI-Szene). Ohne Cookies, Skripte, Schriften oder Bilder von außen. Länderteile erscheinen als zwei
 Kästen „Gilt in Österreich“ / „Gilt in Deutschland“. Offene Platzhalter
 stehen gelb als „OFFEN: …“ da – **so nicht veröffentlichen** (Ampel 1).
 
 **Weg A (empfohlen, ein Schritt weniger): auf die vorhandene Website
-jenibarb.com.** Die fünf Dateien in einen Ordner `jenibucht/` hochladen.
+jenibarb.com.** Den ganzen Inhalt von `docs/site/` (Dateien und die Ordner `fonts/`, `img/`) in einen Ordner `jenibucht/` hochladen.
 Vorteil: Impressum und Hoster sind schon die eigenen, keine Übermittlung in
 die USA. Adressen dann:
 
 ```
 Datenschutz-URL:  https://jenibarb.com/jenibucht/datenschutz.html
-Support-URL:      https://jenibarb.com/jenibucht/
+Support-URL:      https://jenibarb.com/jenibucht/support.html
 Marketing-URL:    https://jenibarb.com/jenibucht/
+Instagram-Bio:    https://jenibarb.com/jenibucht/  und  https://jenibarb.com/jenibucht/impressum.html
 Nutzungsbed.:     https://jenibarb.com/jenibucht/nutzungsbedingungen.html
 ```
 
@@ -91,7 +97,8 @@ von `docs/` (dort stehen Telefonnummer, Prüfmappen, Spezifikation).
 
 ```
 Datenschutz-URL:  https://juergenjesenko-gif.github.io/Buchhaltung-/datenschutz.html
-Support-URL:      https://juergenjesenko-gif.github.io/Buchhaltung-/
+Support-URL:      https://juergenjesenko-gif.github.io/Buchhaltung-/support.html
+Marketing-URL:    https://juergenjesenko-gif.github.io/Buchhaltung-/
 ```
 
 **Nicht** „Deploy from a branch → /docs“ wählen: das veröffentlicht alle

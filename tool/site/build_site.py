@@ -1,8 +1,10 @@
 #!/usr/bin/env python3
-"""Erzeugt die öffentliche Support- und Datenschutzseite unter docs/site/.
+"""Erzeugt die öffentliche Website unter docs/site/.
 
-Quelle sind die Rechtstexte in docs/legal/*.md (dieselben Dateien, die die App
-unter „Rechtliches“ zeigt). Ohne Abhängigkeiten, nur Standardbibliothek.
+index.html ist die Produktseite (Ziel des Instagram-Bio-Links), übernommen aus
+tool/site/produktseite.html. support.html, datenschutz.html, impressum.html und
+nutzungsbedingungen.html entstehen aus docs/legal/*.md (dieselben Dateien, die
+die App unter „Rechtliches“ zeigt). Ohne Abhängigkeiten, nur Standardbibliothek.
 
     python3 tool/site/build_site.py
 
@@ -189,8 +191,8 @@ def convert(md: str, source: str) -> str:
     return "\n".join(x for x in out if x)
 
 
-NAV = [("index.html", "Support"), ("datenschutz.html", "Datenschutz"),
-       ("impressum.html", "Impressum"), ("nutzungsbedingungen.html", "Nutzungsbedingungen")]
+NAV = [("index.html", "Startseite"), ("support.html", "Support"),
+       ("datenschutz.html", "Datenschutz"), ("impressum.html", "Impressum"), ("nutzungsbedingungen.html", "Nutzungsbedingungen")]
 
 
 def page(file: str, title: str, body: str) -> str:
@@ -290,7 +292,13 @@ footer{border-top:1px solid var(--line);margin-top:32px;padding-bottom:24px;colo
 def main() -> int:
     OUT.mkdir(parents=True, exist_ok=True)
     (OUT / "style.css").write_text(CSS, encoding="utf-8")
-    (OUT / "index.html").write_text(page("index.html", "Support", INDEX), encoding="utf-8")
+    # Produktseite (Ziel des Instagram-Bio-Links) wird unverändert übernommen;
+    # Schriften und Bilder dazu liegen fest in docs/site/fonts und docs/site/img.
+    (OUT / "index.html").write_text(
+        (ROOT / "tool" / "site" / "produktseite.html").read_text(encoding="utf-8"),
+        encoding="utf-8",
+    )
+    (OUT / "support.html").write_text(page("support.html", "Support", INDEX), encoding="utf-8")
     for file, md, title in PAGES:
         src = (LEGAL / md).read_text(encoding="utf-8")
         (OUT / file).write_text(page(file, title, convert(src, md)), encoding="utf-8")
