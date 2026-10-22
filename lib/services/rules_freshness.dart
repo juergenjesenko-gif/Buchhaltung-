@@ -12,7 +12,8 @@ class RulesFreshness {
   /// Freigabe im App Store (P-D57).
   static const androidStoreUrl =
       'https://play.google.com/store/apps/details?id=at.jenibarb.jenibucht';
-  static const iosStoreUrl = 'https://apps.apple.com/app/id0000000000';
+  // Apple-ID der App aus App Store Connect (Angebotscode-Link, 2026-10-22).
+  static const iosStoreUrl = 'https://apps.apple.com/app/id6824914122';
 
   /// Ob die Werte von [profile] am Tag [today] abgelaufen sind.
   static bool isOutdated(TaxProfile profile, DateTime today) {
