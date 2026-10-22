@@ -338,8 +338,9 @@ Prüfpunkt P-R40):
 Werbung über die KI-Figur „JeNi“ in wechselnden Berufsrollen (erste Rolle
 Fitness-Coach), ein gemeinsames Konto für alle Rollen, Antworten in
 Kommentaren und Nachrichten durch eine KI (Entscheidungen Auftraggeber
-2026-10-21). Bio-Link auf die Produktseite (`docs/site/index.html`), zweiter
-Link „Impressum & Datenschutz“ auf `impressum.html` (P-R75).
+2026-10-21). Bio-Link auf die Produktseite https://jenibucht.com/ (`docs/site/index.html`),
+zweiter Link „Impressum & Datenschutz“ auf https://jenibucht.com/impressum.html
+(P-R75).
 
 **Bio** (≤ 150 Zeichen): „KI-Influencerin von JeNi bucht 🤖 / Ich führe mein
 Business am Handy. / Beleg scannen – zack, gebucht. 📱 / Für Selbstständige in

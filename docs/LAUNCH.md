@@ -1,6 +1,6 @@
 # Launch – Google Play und App Store
 
-**Stand:** 2026-10-22 · App 0.39.1 · Spezifikation 2.07 · Märkte: Österreich, Deutschland
+**Stand:** 2026-10-22 · App 0.39.1 · Spezifikation 2.08 · Märkte: Österreich, Deutschland
 
 Ein Dokument, von oben nach unten abarbeiten. Prüfinstanzen Softwareentwickler,
 Rechtsanwalt, Steuerberater und UX haben die Schritte am 2026-10-21 gemeinsam
@@ -26,7 +26,7 @@ Details zu den Abo-Produkten: `STORE_ANMELDUNG.md` Formular 4. Texte:
 
 | # | Punkt | Ampel | Wer | Verweis |
 |---|---|---|---|---|
-| 1 | **Platzhalter `{{…}}` in den Rechtstexten**: Gewerbe und Landesgremium Handel laut GISA (Impressum, P-R70), Schlichtung ja/nein (Impressum), `{{DOMAIN}}`, `{{HOSTER}}`, `{{TAGE}}`, `{{EMAIL_PROVIDER}}` (Datenschutz), `{{BETRAG}}`, Rügefrist `{{14}}` (Nutzungsbedingungen). Die Website zeigt sie gelb als „OFFEN“ | 🔴 | Auftraggeberin, Anwältin | P-L8, P-L9, P-L4, P-R1 |
+| 1 | **Platzhalter `{{…}}` in den Rechtstexten**: Gewerbe und Landesgremium Handel laut GISA (Impressum, P-R70), Schlichtung ja/nein (Impressum), `{{HOSTER}}`, `{{TAGE}}`, `{{EMAIL_PROVIDER}}` (Datenschutz), `{{BETRAG}}`, Rügefrist `{{14}}` (Nutzungsbedingungen). Die Website zeigt sie gelb als „OFFEN“ | 🔴 | Auftraggeberin, Anwältin | P-L8, P-L9, P-L4, P-R1 |
 | 2 | **Datenschutzerklärung veraltet**: `docs/legal/DATENSCHUTZ.md` (Fassung 2026-10-12) nennt ML Kit, Dokumentenscanner, EZB-Kurs, Link-QR, Mithelfer-Mailweg und Mail-Serversuche noch nicht; die Store-Formulare unten deklarieren sie. Beides muss übereinstimmen | 🔴 | Anwältin, Entwicklung (App-Asset, also Codeänderung mit Version) | **P-R68**, P-R6, P-L1 |
 | 3 | **Öffentliche URL** für Datenschutz und Support (beide Stores Pflicht) – Seite ist gebaut (`docs/site/`), aber noch nicht online | 🔴 | Auftraggeberin | Abschnitt 1, **P-D59** |
 | 4 | **Rechtstexte anwaltlich geprüft**, Entwurfsvermerk entfernt | 🔴 | Anwältin | P-L1, P-L4–P-L6, P-L10, P-R11, P-R67, P-L20 |
@@ -64,20 +64,20 @@ KI-Szene). Ohne Cookies, Skripte, Schriften oder Bilder von außen. Länderteile
 Kästen „Gilt in Österreich“ / „Gilt in Deutschland“. Offene Platzhalter
 stehen gelb als „OFFEN: …“ da – **so nicht veröffentlichen** (Ampel 1).
 
-**Weg A (empfohlen, ein Schritt weniger): auf die vorhandene Website
-jenibarb.com.** Den ganzen Inhalt von `docs/site/` (Dateien und die Ordner `fonts/`, `img/`) in einen Ordner `jenibucht/` hochladen.
-Vorteil: Impressum und Hoster sind schon die eigenen, keine Übermittlung in
-die USA. Adressen dann:
+**Weg A (entschieden 2026-10-22): eigene Domain jenibucht.com.** Den ganzen
+Inhalt von `docs/site/` (Dateien und die Ordner `fonts/`, `img/`) direkt ins
+Hauptverzeichnis der Domain hochladen, Zugriff nur über https. Die E-Mail
+bleibt office@jenibarb.com. Adressen dann:
 
 ```
-Datenschutz-URL:  https://jenibarb.com/jenibucht/datenschutz.html
-Support-URL:      https://jenibarb.com/jenibucht/support.html
-Marketing-URL:    https://jenibarb.com/jenibucht/
-Instagram-Bio:    https://jenibarb.com/jenibucht/  und  https://jenibarb.com/jenibucht/impressum.html
-Nutzungsbed.:     https://jenibarb.com/jenibucht/nutzungsbedingungen.html
+Datenschutz-URL:  https://jenibucht.com/datenschutz.html
+Support-URL:      https://jenibucht.com/support.html
+Marketing-URL:    https://jenibucht.com/
+Instagram-Bio:    https://jenibucht.com/  und  https://jenibucht.com/impressum.html
+Nutzungsbed.:     https://jenibucht.com/nutzungsbedingungen.html
 ```
 
-`{{DOMAIN}}` = `jenibarb.com`, `{{HOSTER}}` = Anbieter von jenibarb.com.
+`{{HOSTER}}` = Anbieter des Webspace von jenibucht.com (mit Auftragsverarbeitungsvertrag; Sitz in der EU erspart den Satz zur Übermittlung in die USA), `{{TAGE}}` = dessen Speicherdauer der Server-Protokolle (P-R74, P-L9).
 
 **Weg B: GitHub Pages** (Hoster GitHub Inc., USA – in der Datenschutzerklärung
 Abschnitt 8 die Übermittlung angeben, P-L9). Der Workflow

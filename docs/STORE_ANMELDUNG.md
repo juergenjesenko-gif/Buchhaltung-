@@ -52,7 +52,7 @@ Impressum übereinstimmen – Abweichungen sind der häufigste Grund für Ablehn
 | Anschrift | Sankt Leonhard bei Siebenbrünn 96, 9587 Arnoldstein, Österreich | Firmen-ABC | ☐ |
 | Telefon | +43 660 3124252 | Auftraggeberin | ☐ muss erreichbar sein (Verifizierungsanruf/SMS) |
 | E-Mail geschäftlich | office@jenibarb.com | Impressum | ☐ Postfach existiert und wird gelesen? |
-| Website | https://jenibarb.com | Auftraggeberin | ☐ Seite erreichbar; Impressum dort sinnvoll |
+| Website | https://jenibucht.com (Produktseite mit Impressum, entschieden 2026-10-22) | Auftraggeberin | ☐ Seite erreichbar; Impressum unter /impressum.html |
 | Gründungsdatum der Rechtsform | 01.01.2025 | Firmen-ABC | ☐ |
 | Tätigkeit | Einzelhandel; Entwicklung und Vertrieb von Software | Firmenbuch/Impressum | ☐ |
 | Mitarbeiterzahl | 1 | – | ☐ |
@@ -133,7 +133,7 @@ E-Mail wie oben (erscheinen öffentlich im EU-App-Store).
 | Organization size | 1 |
 | Organization address | Sankt Leonhard bei Siebenbrünn 96, 9587 Arnoldstein, Austria |
 | Organization phone | +43 660 3124252 |
-| Organization website | https://jenibarb.com |
+| Organization website | https://jenibarb.com (bei der Kontoanlage so angegeben; Store-Eintrag nutzt https://jenibucht.com, LAUNCH.md Abschnitt 1) |
 | D-U-N-S number | 301138760 (erhalten 2026-10-15) |
 | Developer name (öffentlich) | Spirits by JeNiBarb (entschieden 2026-10-13) |
 | Contact name | Jürgen Jesenko |

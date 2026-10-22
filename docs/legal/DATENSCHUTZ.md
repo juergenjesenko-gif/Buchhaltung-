@@ -105,7 +105,7 @@ Google LLC ist unter dem EU-US Data Privacy Framework zertifiziert.
 Löschung: 3 Jahre nach Abschluss der Anfrage; soweit geschäftliche Unterlagen
 betroffen sind, nach Ablauf der Aufbewahrungsfrist (§ 132 BAO: 7 Jahre).
 
-## 8. Produktseite {{DOMAIN}}
+## 8. Produktseite jenibucht.com
 
 Ohne Cookies, ohne Tracking, ohne eingebundene Schriften oder Skripte Dritter.
 Der Hosting-Anbieter {{HOSTER}} verarbeitet beim Aufruf technisch die
@@ -162,4 +162,4 @@ App ihre Funktion nicht erfüllen.
 
 Ändert sich die App datenschutzrelevant, passen wir diese Erklärung an; die
 aktuelle Fassung findest du in der App unter „Rechtliches“ und auf
-{{DOMAIN}}/datenschutz.
+https://jenibucht.com/datenschutz.html.
