@@ -43,9 +43,7 @@ jeweilige Store. Fragen zur App selbst beantworten wir unter office@jenibarb.com
 ## Streitbeilegung
 
 Wir sind nicht verpflichtet und nicht bereit, an Streitbeilegungsverfahren vor
-einer Verbraucherschlichtungsstelle teilzunehmen. {{ODER: Wir nehmen an
-Verfahren der Schlichtungsstelle „Internet Ombudsstelle“ (www.ombudsstelle.at)
-teil – Entscheidung der Anbieterin.}}
+einer Verbraucherschlichtungsstelle teilzunehmen.
 
 Hinweis: Die EU-Online-Streitbeilegungsplattform (OS-Plattform) wurde mit
 20. Juli 2025 eingestellt; ein Link darauf ist nicht mehr anzugeben.

@@ -99,7 +99,9 @@ Das gilt auch für „Wunsch oder Idee senden“ in den Einstellungen: Die App
 füllt nur eine E-Mail in deiner Mail-App vor; auf Wunsch mit App-Version,
 Betriebssystem, Gerätemodell, Länderprofil und Abo-Stufe – nie mit
 Geschäftsdaten oder Belegen. Du siehst alles und schickst selbst ab.
-E-Mail-Anbieter: {{EMAIL_PROVIDER}} (Auftragsverarbeiter, Sitz Arnoldstein).
+E-Mail-Anbieter: Google (Gmail), Google Ireland Limited, Gordon House,
+Barrow Street, Dublin 4, Irland. Eine Übermittlung in die USA ist möglich;
+Google LLC ist unter dem EU-US Data Privacy Framework zertifiziert.
 Löschung: 3 Jahre nach Abschluss der Anfrage; soweit geschäftliche Unterlagen
 betroffen sind, nach Ablauf der Aufbewahrungsfrist (§ 132 BAO: 7 Jahre).
 
