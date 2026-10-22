@@ -42,7 +42,7 @@ nächsten Versionssprung in den neuen Eintrag.
 | Feld | Wert |
 |---|---|
 | Art | Interner Test (TestFlight, Google Play interner Track) über `release.yml` mit Eingabe **`abo=true`: Lizenzprüfung an**, Abo-Seite mit echten Store-Produkten, Käufe nur als Lizenztest/Sandbox; Test-APK aus `ci.yml` weiter ohne Lizenzprüfung |
-| Commit | `XXXXXXX` |
+| Commit | `b90b93d` |
 | Branch | `claude/agile-accounting-app-mobile-wa5j3h` |
 | Dokumentstände | Lastenheft 1.89, Spezifikation 2.11, REGELPFLEGE 2026-10-20, Benutzerhandbuch für 0.39.2, DESIGN_SPEC 1.7 |
 | Datenbankschema | 31 |
