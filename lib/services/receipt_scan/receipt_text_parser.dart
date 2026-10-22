@@ -217,6 +217,14 @@ class ReceiptTextParser {
       r'contactless|kontaktlos|\bbar\b|bargeld|\bcash\b|amex|american express|'
       r'apple pay|google pay|paypal';
 
+  /// Rabatt- und Gutscheinzeilen: ihr Prozentwert ist ein Nachlass, kein
+  /// Steuersatz („Gutscheincode NIGHT10 - 10.00% Einmalig Rabatt € -3,00“,
+  /// Hosting-Rechnung helloly, Gerätetest 2026-10-22, FA-2.63).
+  static final _discountRow = RegExp(
+    r'rabatt|gutschein|nachlass|skonto|discount|coupon|voucher|promo|'
+    r'sconto|popust|kedvezm',
+  );
+
   static bool _notGrossRow(String lower) =>
       _excludeForGross.hasMatch(lower) ||
       ReceiptKeywords.any(ReceiptKeywords.net, lower) ||
@@ -318,6 +326,7 @@ class ReceiptTextParser {
 
     for (final row in rows) {
       final lower = row.toLowerCase();
+      if (!_taxWord(lower) && _discountRow.hasMatch(lower)) continue;
       final rate = _rateIn(row, rates);
       if (rate == null) continue;
       final (p, rest) = rate;
@@ -538,7 +547,22 @@ class ReceiptTextParser {
     List<DetectedVat> lines,
     Detected<Money>? gross,
   ) {
-    if (lines.length != 1 || gross == null) return lines;
+    if (gross == null) return lines;
+    if (lines.length > 1) {
+      // Mehrere Sätze ergeben nicht den Gesamtbetrag, die sicheren Zeilen
+      // (Steuerwort oder Rechenprobe) allein schon: die unsicheren
+      // Positionssummen fallen weg (FA-2.63).
+      final sure = lines.where((l) => l.confidence >= 45).toList();
+      final all = lines.map((l) => l.gross).sum;
+      final sureSum = sure.map((l) => l.gross).sum;
+      if (sure.isNotEmpty &&
+          sure.length < lines.length &&
+          (all - gross.value).cents.abs() > lines.length &&
+          (sureSum - gross.value).cents.abs() <= sure.length) {
+        return sure;
+      }
+      return lines;
+    }
     final line = lines.single;
     if (line.gross == gross.value || line.confidence >= 85) return lines;
     final vat = _vatOfGross(gross.value.cents, line.permille);

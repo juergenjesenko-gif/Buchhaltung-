@@ -331,4 +331,42 @@ EFSTA.NET#266772751800917
     expect(r.vatLines.single.net, Money(833));
     _expectVatConsistent(r);
   });
+
+  test('Rabattzeile mit Prozent ist kein Steuersatz (helloly, FA-2.63)', () {
+    final r = _parse('''
+helloly
+Rechnung-22406770
+helloly GmbH - Rainerstrasse 25 - A-4020 Linz -
+Spirits by JeNiBarb
+Rechnungsdatum: 22/10/2026
+Rechnung # 22406770
+Leistungsbeschreibung Gesamtsumme
+Webhosting SMART - jenibucht.com (22/10/2026 - 21/10/2027) € 30,00
+Gutscheincode: NIGHT10 - 10.00% Einmalig Rabatt € -3,00
+Domainregistrierung - jenibucht.com - 1 Jahr/e (22/10/2026 - 21/10/2027) € 0,00
+Gutscheincode: NIGHT10 - 10% Einmalig Rabatt € 0,00
+Zwischensumme € 27,00
+USt. zzgl. 20.00% MwSt. € 5,40
+Guthaben € 0,00
+Gesamtsumme € 32,40
+''');
+    expect(r.gross?.value, Money(3240));
+    expect(r.vatLines.single.permille, 200);
+    expect(r.vatLines.single.vat, Money(540));
+    expect(r.vatLines.single.net, Money(2700));
+    _expectVatConsistent(r);
+  });
+
+  test('unsichere Positionssumme fällt weg, wenn sichere Sätze aufgehen', () {
+    final r = _parse('''
+Musterhandel GmbH
+Artikel 10% Aktion 3,00
+Zwischensumme 27,00
+MwSt 20% 5,40
+Summe EUR 32,40
+''');
+    expect(r.gross?.value, Money(3240));
+    expect(r.vatLines.map((l) => l.permille), [200]);
+    _expectVatConsistent(r);
+  });
 }

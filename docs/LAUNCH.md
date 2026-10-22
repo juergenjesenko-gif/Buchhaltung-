@@ -1,6 +1,6 @@
 # Launch – Google Play und App Store
 
-**Stand:** 2026-10-22 · App 0.39.1 · Spezifikation 2.09 · Märkte: Österreich, Deutschland
+**Stand:** 2026-10-22 · App 0.39.1 · Spezifikation 2.10 · Märkte: Österreich, Deutschland
 
 Ein Dokument, von oben nach unten abarbeiten. Prüfinstanzen Softwareentwickler,
 Rechtsanwalt, Steuerberater und UX haben die Schritte am 2026-10-21 gemeinsam
