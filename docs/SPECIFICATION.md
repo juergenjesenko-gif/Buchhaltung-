@@ -1,6 +1,6 @@
 # Spezifikation – Buchhaltung
 
-**Dokumentversion:** 2.10 · **App-Version:** 0.39.1 · **Stand:** 2026-10-22
+**Dokumentversion:** 2.11 · **App-Version:** 0.39.2 · **Stand:** 2026-10-22
 **Status:** Testbuild 0.21.0 (Schema 23); Store-Start offen, siehe Abschnitt 11 und 14
 
 > Das **Zielbild** des Produkts steht im [`LASTENHEFT.md`](LASTENHEFT.md); dieses
@@ -1622,6 +1622,7 @@ Vorsteuerabzug in Promille; Fundstelle Privatanteil; Fundstelle Vorsteuer.
 
 | Version | Datum | App-Version | Änderung |
 |---|---|---|---|
+| 2.11 | 2026-10-22 | 0.39.2 | App-Version 0.39.2: interner Test mit eingeschalteter Lizenzprüfung (Abo-Seite, Sandbox-/Lizenztest-Käufe); Abo-Produkte in Play Console und App Store Connect angelegt (P-D30). |
 | 2.10 | 2026-10-22 | 0.39.1 | FA-2.63: Rabatt- und Gutscheinzeilen mit Prozentangabe ergeben keinen Steuersatz; unsichere Positionssummen fallen weg, wenn die sicheren Sätze den Gesamtbetrag ergeben (Rückmeldung Auftraggeber, Hosting-Rechnung helloly). Neuer Prüfpunkt P-D61. Kein Schemawechsel. |
 | 2.09 | 2026-10-22 | 0.39.1 | Hoster der Website: helloly GmbH (Linz, Server in Österreich) in der Datenschutzerklärung Abschnitt 8, Speicherdauer 30 Tage, Satz zur US-Übermittlung entfällt; Hochladen über cPanel in `LAUNCH.md`. P-R74 ergänzt. |
 | 2.08 | 2026-10-22 | 0.39.1 | Website auf eigene Domain jenibucht.com (Entscheidung Auftraggeber): Datenschutzerklärung Abschnitte 8 und 13 ohne Platzhalter `{{DOMAIN}}`, `LAUNCH.md` Abschnitt 1 (Hochladen ins Hauptverzeichnis, URLs), `STORE_ANMELDUNG.md`, Instagram-Bio-Links; E-Mail bleibt office@jenibarb.com. P-R74 angepasst. |

@@ -1,6 +1,6 @@
 # Benutzerhandbuch – JeNi bucht
 
-**Für App-Version 0.39.1** · Stand 2026-10-20
+**Für App-Version 0.39.2** · Stand 2026-10-22
 
 Welche Version du hast, steht ganz unten in den **Einstellungen**, etwa „Version 0.35.0 (16)“; die Zahl in Klammern ist die Buildnummer.
 

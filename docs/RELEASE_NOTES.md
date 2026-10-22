@@ -29,8 +29,29 @@ gebaut, und was war darin geprüft?*
 
 ## Unveröffentlicht
 
-Änderungen seit 0.39.1+57, die noch in keinem Build stecken. Wandern beim
+Änderungen seit 0.39.2+58, die noch in keinem Build stecken. Wandern beim
 nächsten Versionssprung in den neuen Eintrag.
+
+| Art | Änderung | Bezug | Commit |
+|---|---|---|---|
+
+---
+
+## 0.39.2+58 — 2026-10-22
+
+| Feld | Wert |
+|---|---|
+| Art | Interner Test (TestFlight, Google Play interner Track) über `release.yml` mit Eingabe **`abo=true`: Lizenzprüfung an**, Abo-Seite mit echten Store-Produkten, Käufe nur als Lizenztest/Sandbox; Test-APK aus `ci.yml` weiter ohne Lizenzprüfung |
+| Commit | `XXXXXXX` |
+| Branch | `claude/agile-accounting-app-mobile-wa5j3h` |
+| Dokumentstände | Lastenheft 1.89, Spezifikation 2.11, REGELPFLEGE 2026-10-20, Benutzerhandbuch für 0.39.2, DESIGN_SPEC 1.7 |
+| Datenbankschema | 31 |
+| Prüfung | `flutter analyze` ohne Befund, alle Tests grün; Android/iOS-Build nur in der CI |
+| Steuerliche Kennwerte | unverändert |
+| Offene reale Prüfpunkte | P-D4, P-D30, P-D55 (Testkäufe am Gerät), P-R67, P-R68, P-R69 |
+| Bekannte Grenzen | unverändert (Spezifikation 11) |
+
+**Änderungen seit 0.39.1+57**
 
 | Art | Änderung | Bezug | Commit |
 |---|---|---|---|
