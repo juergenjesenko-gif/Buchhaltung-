@@ -313,8 +313,8 @@ Konsole: [App Store Connect – Apps](https://appstoreconnect.apple.com/apps)
 4. **Einführungsangebot** je Abo: AT, DE · **Kostenlos** · **2 Wochen** ·
    Start heute, kein Ende. Danach Grundpreis (Variante A, O-45).
 5. **Angebotscodes** (Variante A plus Codes) – je Abo „Angebotscode
-   erstellen“, Berechtigung **Neue Abonnenten**, „Bestehendes
-   Einführungsangebot“ **Nein**, benutzerdefinierter Code:
+   erstellen“, Berechtigung **Neue Abonnenten**, „Introductory Offers“ **Yes, eligible customers can get both** (erst
+   14 Tage gratis, dann Codepreis – wie bei Google Play; Entscheidung 2026-10-22), benutzerdefinierter Code:
 
    | Abo | Angebot | Code |
    |---|---|---|
