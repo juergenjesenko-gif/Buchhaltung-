@@ -1,6 +1,6 @@
 # Spezifikation – Buchhaltung
 
-**Dokumentversion:** 2.11 · **App-Version:** 0.39.2 · **Stand:** 2026-10-22
+**Dokumentversion:** 2.12 · **App-Version:** 0.39.2 · **Stand:** 2026-10-23
 **Status:** Testbuild 0.21.0 (Schema 23); Store-Start offen, siehe Abschnitt 11 und 14
 
 > Das **Zielbild** des Produkts steht im [`LASTENHEFT.md`](LASTENHEFT.md); dieses
@@ -1622,6 +1622,7 @@ Vorsteuerabzug in Promille; Fundstelle Privatanteil; Fundstelle Vorsteuer.
 
 | Version | Datum | App-Version | Änderung |
 |---|---|---|---|
+| 2.12 | 2026-10-23 | 0.39.2 | Prüfpunkte nachgeführt: Abo-Testkauf iPhone über TestFlight erfolgreich (P-D4 teilweise), Konsolen-Fragebögen ausgefüllt (P-D60 teilweise). Kein Codewechsel. |
 | 2.11 | 2026-10-22 | 0.39.2 | App-Version 0.39.2: interner Test mit eingeschalteter Lizenzprüfung (Abo-Seite, Sandbox-/Lizenztest-Käufe); Abo-Produkte in Play Console und App Store Connect angelegt (P-D30). |
 | 2.10 | 2026-10-22 | 0.39.1 | FA-2.63: Rabatt- und Gutscheinzeilen mit Prozentangabe ergeben keinen Steuersatz; unsichere Positionssummen fallen weg, wenn die sicheren Sätze den Gesamtbetrag ergeben (Rückmeldung Auftraggeber, Hosting-Rechnung helloly). Neuer Prüfpunkt P-D61. Kein Schemawechsel. |
 | 2.09 | 2026-10-22 | 0.39.1 | Hoster der Website: helloly GmbH (Linz, Server in Österreich) in der Datenschutzerklärung Abschnitt 8, Speicherdauer 30 Tage, Satz zur US-Übermittlung entfällt; Hochladen über cPanel in `LAUNCH.md`. P-R74 ergänzt. |
@@ -1912,7 +1913,7 @@ erzeugt `beispiele_erzeugen_test.dart` mit dem PDF-Generator der App.
 | P-D1 | Update einer echten v1-Installation auf Schema 2 und folgende | Upgrade-Test mit ffi vorhanden; echtes Gerät fehlt | Release | offen |
 | P-D2 | PDF mit Umlauten, CSV in Excel/Numbers | nicht verifiziert | Release | offen |
 | P-D3 | Datensicherung und Wiederherstellung über iCloud Drive / Google Drive | iCloud (FA-7.16) und Ordnerwahl gebaut, auf Gerät offen (P-B12, P-B14) | Release | offen |
-| P-D4 | Abo-Testkäufe in Sandbox beider Stores (Lizenztester Google, Sandbox-Konto Apple; Build mit `LICENSING=true`): Test 14 Tage Pro mit Übergang, Basis, Wechsel Basis↔Pro ohne Doppelabo, Jahresabo, Kündigung → Nur lesen mit Hinweis, Kauf wiederherstellen nach Neuinstallation, ausstehende Zahlung, Flugmodus (Stand bleibt), Grace Period | Logik mit Store-Ersatz getestet (`licensing_test.dart`, FA-13.1 bis FA-13.10); Adapter nur kompiliert | Store-Start | offen |
+| P-D4 | Abo-Testkäufe in Sandbox beider Stores (Lizenztester Google, Sandbox-Konto Apple; Build mit `LICENSING=true`): Test 14 Tage Pro mit Übergang, Basis, Wechsel Basis↔Pro ohne Doppelabo, Jahresabo, Kündigung → Nur lesen mit Hinweis, Kauf wiederherstellen nach Neuinstallation, ausstehende Zahlung, Flugmodus (Stand bleibt), Grace Period | Logik mit Store-Ersatz getestet (`licensing_test.dart`, FA-13.1 bis FA-13.10); Adapter nur kompiliert | Store-Start | teilweise erledigt: iPhone-Abo-Kauf in TestFlight (Build 26, 0.39.2) erfolgreich 2026-10-23; übrige Fälle und Android offen |
 | P-D5 | iOS Privacy Manifest, Data-Safety- und Privacy-Label-Angaben inkl. aller SDKs | Manifest fehlt | erster Upload | offen |
 | P-D6 | Android targetSdk-Vorgabe 2026, Signing, Bundle-ID `at.jenibarb.jenibucht` endgültig (Wechsel O-33 am 2026-10-19) | nach dem ersten Upload unveränderlich | erster Upload | offen |
 | P-D7 | Kamera, Fotoablage, Spracheingabe auf echten Geräten | — | Release | offen |
@@ -2130,7 +2131,7 @@ erzeugt `beispiele_erzeugen_test.dart` mit dem PDF-Generator der App.
 | P-D38 | iOS-Gerätetest VisionKit-Scanner (iPhone): mehrseitig, Abbrechen, Rückkehr; Kamera-Hinweistext | nur CI-Build | Release | offen |
 | P-D31 | Store-Abfrage auf Geräten (FA-13.6): StoreKit 2 ohne aktives Abo – kommt innerhalb 7 s eine Meldung oder gilt „leer“ zu Recht? Android mit Abo in Grace Period bzw. Kontosperre (on hold) – meldet Play den Kauf weiter? Kein falsches Herabstufen bei schlechtem Netz | Verlässlichkeit nur mit geladener Produktliste; sonst bleibt der Stand | Store-Start | offen |
 | P-D59 | Öffentliche Website (`docs/site/`, erzeugt mit `tool/site/build_site.py`, LAUNCH.md Abschnitt 1) nach dem Hochladen: Datenschutz-, Support- und Nutzungsbedingungen-URL ohne Login erreichbar (HTTPS), Inhalt gleich der Fassung in der App (Rechtliches), keine offenen „OFFEN:“-Markierungen, im Netzwerk-Tab des Browsers keine Aufrufe fremder Server; URLs in Play Console und App Store Connect eingetragen | Seite statisch, ohne Skript und externe Ressourcen; Hosting noch nicht gewählt (Weg A jenibarb.com oder B GitHub Pages, P-L9) | Store-Einreichung | offen |
-| P-D60 | Konsolen-Fragebögen live ausfüllen (LAUNCH.md 2.3, 2.4, 3.5): Apple-Altersfreigabe in der neuen Fassung (Stufen 4+/9+/13+/16+/18+, Pflicht seit 31.01.2026, Fragen zu In-App-Käufen, KI, Werbung) ergibt 4+; Google IARC PEGI 3/USK 0; Google-Deklaration „Finanzfunktionen“ = keine; Werbe-ID „nein“ trifft auch auf das **zusammengeführte** Manifest des Release-AAB zu (keine Bibliothek fügt `com.google.android.gms.permission.AD_ID` hinzu, prüfen mit `aapt dump permissions` bzw. Play „App-Bundle-Explorer“) | aus öffentlichen Hilfeseiten und Entwicklermitteilungen, Konsole nicht eingesehen | Store-Einreichung | offen |
+| P-D60 | Konsolen-Fragebögen live ausfüllen (LAUNCH.md 2.3, 2.4, 3.5): Apple-Altersfreigabe in der neuen Fassung (Stufen 4+/9+/13+/16+/18+, Pflicht seit 31.01.2026, Fragen zu In-App-Käufen, KI, Werbung) ergibt 4+; Google IARC PEGI 3/USK 0; Google-Deklaration „Finanzfunktionen“ = keine; Werbe-ID „nein“ trifft auch auf das **zusammengeführte** Manifest des Release-AAB zu (keine Bibliothek fügt `com.google.android.gms.permission.AD_ID` hinzu, prüfen mit `aapt dump permissions` bzw. Play „App-Bundle-Explorer“) | aus öffentlichen Hilfeseiten und Entwicklermitteilungen, Konsole nicht eingesehen | Store-Einreichung | teilweise erledigt 2026-10-22: Apple 4+, Google IARC eingereicht, Finanzfunktionen keine, Werbe-ID nein; zusammengeführtes Manifest offen |
 | P-D61 | Gerätetest Rabattzeile (FA-2.63): Rechnung helloly 22406770 (PDF und Screenshot über „Fotos“) erfassen; erwartet 32,40 € mit einem Satz 20 % (Netto 27,00, Steuer 5,40), keine Meldung „Die Teile ergeben …“ | `receipt_scan_parser_test.dart` | Release | offen |
 
 ### Ergebnisse der internen Prüfung (2026-10-16)

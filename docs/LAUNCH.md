@@ -28,21 +28,22 @@ Details zu den Abo-Produkten: `STORE_ANMELDUNG.md` Formular 4. Texte:
 |---|---|---|---|---|
 | 1 | **Platzhalter `{{…}}` in den Rechtstexten**: Gewerbe und Landesgremium Handel laut GISA (Impressum, P-R70), Schlichtung ja/nein (Impressum), `{{EMAIL_PROVIDER}}` (Datenschutz), `{{BETRAG}}`, Rügefrist `{{14}}` (Nutzungsbedingungen). Die Website zeigt sie gelb als „OFFEN“ | 🔴 | Auftraggeberin, Anwältin | P-L8, P-L9, P-L4, P-R1 |
 | 2 | **Datenschutzerklärung veraltet**: `docs/legal/DATENSCHUTZ.md` (Fassung 2026-10-12) nennt ML Kit, Dokumentenscanner, EZB-Kurs, Link-QR, Mithelfer-Mailweg und Mail-Serversuche noch nicht; die Store-Formulare unten deklarieren sie. Beides muss übereinstimmen | 🔴 | Anwältin, Entwicklung (App-Asset, also Codeänderung mit Version) | **P-R68**, P-R6, P-L1 |
-| 3 | **Öffentliche URL** für Datenschutz und Support (beide Stores Pflicht) – Seite ist gebaut (`docs/site/`), aber noch nicht online | 🔴 | Auftraggeberin | Abschnitt 1, **P-D59** |
+| 3 | **Öffentliche URL** für Datenschutz und Support (beide Stores Pflicht) – online unter jenibucht.com seit 2026-10-22 | 🟢 | Auftraggeberin | Abschnitt 1, **P-D59** |
 | 4 | **Rechtstexte anwaltlich geprüft**, Entwurfsvermerk entfernt | 🔴 | Anwältin | P-L1, P-L4–P-L6, P-L10, P-R11, P-R67, P-L20 |
-| 5 | **Abo-Produkte** in beiden Konsolen angelegt und aktiv | 🔴 | Auftraggeberin | Abschnitte 2.1, 3.1, P-D30 |
-| 6 | **Bank, Steuer, Vertrag kostenpflichtige Apps** (Apple), Zahlungsprofil (Google) | 🔴 | Auftraggeberin mit Steuerberatung | P-S11, P-S13 |
-| 7 | **Sandbox-Testkäufe** mit Build `abo=true` auf echten Geräten | 🔴 | Auftraggeberin | P-D4, P-D31, P-D46, P-D47, P-D55 |
-| 8 | **Screenshots** (separate Automatik): Play 2–8 × 1080×1920 + Feature-Grafik 1024×500; Apple 6,9" 1320×2868 (3–10) und iPad 13" 2064×2752 | 🔴 | Automatik | P-D34, `STORE_LISTING.md` |
+| 5 | **Abo-Produkte** in beiden Konsolen angelegt und aktiv; Apple: Gruppe und vier Abos mit Version 0.39.2 eingereicht 2026-10-23 | 🟢 | Auftraggeberin | Abschnitte 2.1, 3.1, P-D30 |
+| 6 | **Bank, Steuer, Vertrag kostenpflichtige Apps** (Apple), Zahlungsprofil (Google) | 🟢 | Auftraggeberin mit Steuerberatung | P-S11, P-S13 |
+| 7 | **Sandbox-Testkäufe** mit Build `abo=true` auf echten Geräten – iPhone (TestFlight, Build 26) Abo-Kauf erfolgreich 2026-10-23; Android nach Freigabe des geschlossenen Tests | 🟡 | Auftraggeberin | P-D4, P-D31, P-D46, P-D47, P-D55 |
+| 8 | **Screenshots** (separate Automatik): Play 2–8 × 1080×1920 + Feature-Grafik 1024×500; Apple verlangt in der neuen Konsole iPhone 1206×2622 (6,3", aus 1320×2868 verkleinert) und iPad 13" 2064×2752 – hochgeladen 2026-10-22/23 | 🟢 | Automatik | P-D34, `STORE_LISTING.md` |
 | 9 | **App-Symbol** endgültig (512×512 Play, 1024×1024 Apple ohne Alpha) | 🟡 | Entwicklung | RELEASE_PLAYBOOK „Was noch fehlt“ |
 | 10 | **Store-Texte** gegen Negativliste und UWG geprüft | 🟡 | Anwältin | P-R13, P-R60, P-R62 |
 | 11 | **Abo-Seite und Test-Wortlaut** rechtlich bestätigt | 🟡 | Anwältin | P-R12, P-R37, P-R38, P-R57 |
 | 12 | **Haftpflicht** (Vermögensschaden/Produkthaftung) – verschoben bis Launch, jetzt fällig | 🟡 | Auftraggeberin | P-R8 |
 | 13 | **Export-Compliance** iOS bestätigt | 🟡 | Entwicklung | P-D9 |
-| 14 | **Altersfreigabe-Fragebogen Apple (neue Fassung)** und Google-Finanzfunktionen-Deklaration | 🟡 | Auftraggeberin | **P-D60** |
+| 14 | **Altersfreigabe-Fragebogen Apple (neue Fassung)** und Google-Finanzfunktionen-Deklaration – erledigt 2026-10-22 (Apple 4+, Google PEGI/USK eingereicht, Finanzfunktionen keine, Werbe-ID nein) | 🟢 | Auftraggeberin | **P-D60** |
 | 15 | targetSdk ≥ 36 (Play-Pflicht für neue Apps ab 31.08.2026) im AAB bestätigt | 🟡 | Entwicklung | P-D6, P-D10 |
 | 16 | Konten Google (Organisation) und Apple (Einzelperson), D-U-N-S, Bundle-ID `at.jenibarb.jenibucht`, interner Test und TestFlight | 🟢 | – | `STORE_READINESS.md` |
 | 17 | **IT-Gewerbe anmelden**: „Dienstleistungen in der automatischen Datenverarbeitung und Informationstechnik“ (freies Gewerbe, GISA). Erst danach stimmt die Fachgruppe UBIT im Impressum; das Handelsgewerbe deckt die Herstellung von Software wohl nicht | 🔴 | Auftraggeber | **P-R70** |
+| 19 | **Einreichung**: Google geschlossener Test (Alpha) mit Store-Eintrag zur Prüfung 2026-10-22; Apple Version 0.39.2 (Build 26) mit Abos zur Prüfung 2026-10-23, Freigabe **manuell** – Release erst, wenn die roten Punkte 1, 2, 4 und 17 erledigt sind | 🟡 | Auftraggeber | – |
 | 18 | **Vor der ersten Instagram-Werbung**: KI-Kennzeichnung je Beitrag (Einblendung, Caption, Meta-Label), Hinweis bei der ersten KI-Antwort, Bildrückwärtssuche der KI-Figur, Produktseite im Instagram-Browser getestet | 🔴 | Auftraggeber | P-R71, P-R72, P-R75, P-R76, P-R77, P-X32, `STORE_LISTING.md` „Instagram-Auftritt“ |
 
 ---
