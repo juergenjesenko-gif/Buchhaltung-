@@ -12,9 +12,9 @@ Sankt Leonhard bei Siebenbrünn 96, 9587 Arnoldstein, Österreich
 - UID-Nummer: ATU81604346
 - Firmenbuch: FN 643550 y, Landesgericht Klagenfurt (eingetragenes Einzelunternehmen, e.U.); Sitz: Arnoldstein
 - Unternehmensgegenstand: Einzelhandel; Entwicklung und Vertrieb von Software
-- Gewerbe: {{Wortlaut Handelsgewerbe laut GISA}}; Dienstleistungen in der automatischen Datenverarbeitung und Informationstechnik {{Anmeldung im GISA, P-R70}}
+- Gewerbe: Handel mit Waren aller Art
 - Gewerbebehörde / Aufsichtsbehörde: Bezirkshauptmannschaft Villach-Land
-- Kammer: Wirtschaftskammer Kärnten; Fachgruppe Unternehmensberatung, Buchhaltung und Informationstechnologie (UBIT) sowie {{Landesgremium Handel laut GISA}}
+- Kammer: Wirtschaftskammer Kärnten, Bundessparte Handel
 - Berufsrecht: Gewerbeordnung, abrufbar unter www.ris.bka.gv.at
 
 ## Offenlegung nach § 25 MedienG

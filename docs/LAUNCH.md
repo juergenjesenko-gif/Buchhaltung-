@@ -26,7 +26,7 @@ Details zu den Abo-Produkten: `STORE_ANMELDUNG.md` Formular 4. Texte:
 
 | # | Punkt | Ampel | Wer | Verweis |
 |---|---|---|---|---|
-| 1 | **Platzhalter `{{…}}` in den Rechtstexten**: Gewerbe und Landesgremium Handel laut GISA (Impressum, P-R70), Schlichtung ja/nein (Impressum), `{{EMAIL_PROVIDER}}` (Datenschutz), `{{BETRAG}}`, Rügefrist `{{14}}` (Nutzungsbedingungen). Die Website zeigt sie gelb als „OFFEN“ | 🔴 | Auftraggeberin, Anwältin | P-L8, P-L9, P-L4, P-R1 |
+| 1 | **Platzhalter `{{…}}` in den Rechtstexten**: ersetzt 2026-10-23 (Gewerbe „Handel mit Waren aller Art“, Kammer WK Kärnten, Bundessparte Handel; Rügefrist 14 Tage; Mindesthaftung 250 €). UBIT und IT-Gewerbe stehen erst nach der Anmeldung im Impressum (Punkt 17) | 🟢 | Auftraggeber | P-L8, P-L9, P-L4, P-R1 |
 | 2 | **Datenschutzerklärung veraltet**: `docs/legal/DATENSCHUTZ.md` (Fassung 2026-10-12) nennt ML Kit, Dokumentenscanner, EZB-Kurs, Link-QR, Mithelfer-Mailweg und Mail-Serversuche noch nicht; die Store-Formulare unten deklarieren sie. Beides muss übereinstimmen | 🔴 | Anwältin, Entwicklung (App-Asset, also Codeänderung mit Version) | **P-R68**, P-R6, P-L1 |
 | 3 | **Öffentliche URL** für Datenschutz und Support (beide Stores Pflicht) – online unter jenibucht.com seit 2026-10-22 | 🟢 | Auftraggeberin | Abschnitt 1, **P-D59** |
 | 4 | **Rechtstexte anwaltlich geprüft**, Entwurfsvermerk entfernt | 🔴 | Anwältin | P-L1, P-L4–P-L6, P-L10, P-R11, P-R67, P-L20 |

@@ -118,7 +118,7 @@ bereitstellen. Diese Rechte werden nicht eingeschränkt.
 8.2 **Unternehmerinnen:** Wir stellen die App in dem Zustand bereit, der der
 Beschreibung in der App und im Store entspricht. Mängel beheben wir in
 angemessener Frist durch ein Update. Mängel sind uns unverzüglich, spätestens
-innerhalb von {{14}} Tagen nach Entdeckung mitzuteilen (§ 377 UGB
+innerhalb von 14 Tagen nach Entdeckung mitzuteilen (§ 377 UGB
 sinngemäß). Weitergehende Gewährleistung ist ausgeschlossen, soweit gesetzlich
 zulässig.
 <!-- /nur -->
@@ -126,7 +126,7 @@ zulässig.
 8.2 **Unternehmerinnen:** Wir stellen die App in dem Zustand bereit, der der
 Beschreibung in der App und im Store entspricht. Mängel beheben wir in
 angemessener Frist durch ein Update. Mängel sind uns unverzüglich, spätestens
-innerhalb von {{14}} Tagen nach Entdeckung mitzuteilen (§ 377 HGB
+innerhalb von 14 Tagen nach Entdeckung mitzuteilen (§ 377 HGB
 sinngemäß). Weitergehende Gewährleistung ist ausgeschlossen, soweit gesetzlich
 zulässig.
 <!-- /nur -->
@@ -163,7 +163,7 @@ Eingaben), beschränkt auf den vertragstypisch vorhersehbaren Schaden.
 
 9.3 **Gegenüber Unternehmerinnen** ist die Haftung für leichte Fahrlässigkeit
 zusätzlich je Schadensfall auf die von dir in den letzten 12 Monaten für die
-App gezahlten Entgelte, mindestens {{BETRAG}} Euro, begrenzt; entgangener
+App gezahlten Entgelte, mindestens 250 Euro, begrenzt; entgangener
 Gewinn ist bei leichter Fahrlässigkeit ausgeschlossen.
 
 9.4 Für Datenverlust haften wir – außer in den Fällen von 9.1 – nur in dem
