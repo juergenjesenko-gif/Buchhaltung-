@@ -50,7 +50,9 @@ void main() {
     expect(pubspec, contains('    - assets/fonts/OFL.txt'));
   });
 
-  testWidgets('Text öffnet offline mit Entwurfsvermerk', (tester) async {
+  testWidgets('Text öffnet offline, Entwurfsvermerk nur ohne Prüfstand', (
+    tester,
+  ) async {
     await tester.pumpWidget(
       MaterialApp(
         home: LegalDocumentScreen(
@@ -61,7 +63,10 @@ void main() {
     );
     await tester.runAsync(() => Future<void>.delayed(Duration.zero));
     await tester.pumpAndSettle();
-    expect(find.byKey(const Key('legal-draft')), findsOneWidget);
+    expect(
+      find.byKey(const Key('legal-draft')),
+      LegalDocument.reviewed ? findsNothing : findsOneWidget,
+    );
     expect(find.textContaining('Anbieterin', findRichText: true), findsWidgets);
   });
 

@@ -34,7 +34,8 @@ nächsten Versionssprung in den neuen Eintrag.
 
 | Art | Änderung | Bezug | Commit |
 |---|---|---|---|
-| Behoben | Belegformular: Auswahl „Umsatzsteuersatz“ kürzt lange Bezeichnungen statt rechts überzulaufen (schmale Handys, ~411 dp, beim Erzeugen der Store-Screenshots aufgefallen) | SPEC 7 | dieser Commit |
+| Behoben | Belegformular: Auswahl „Umsatzsteuersatz“ kürzt lange Bezeichnungen statt rechts überzulaufen (schmale Handys, ~411 dp, beim Erzeugen der Store-Screenshots aufgefallen) | SPEC 7 | 421fa9e |
+| Geändert | Rechtliches: Entwurfsvermerk „Entwurf – noch nicht anwaltlich geprüft“ entfällt in App und auf der Website (Entscheidung Auftraggeber vor Store-Start; P-L1 bleibt offen) | FA-11.5, P-L20 | dieser Commit |
 
 ---
 

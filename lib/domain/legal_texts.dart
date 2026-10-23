@@ -70,12 +70,13 @@ enum LegalDocument {
   final String title;
   final String asset;
 
-  /// `false`, solange P-L1 (anwaltliche Prüfung) offen ist. Dann zeigt die
-  /// App über jedem Text den Vermerk „Entwurf“ (Testbuild). Vor dem
-  /// Store-Build wird P-L1 erledigt, der Vermerk in den Dateien entfernt und
-  /// dieser Wert auf `true` gesetzt; `test/legal_documents_test.dart` hält
-  /// Wert und Dateien gleich (Spezifikation FA-11.5, P-L20).
-  static const reviewed = false;
+  /// `false`, solange die Dateien einen Entwurfsvermerk tragen. Dann zeigt
+  /// die App über jedem Text den Vermerk „Entwurf“ (Testbuild). Vermerk
+  /// entfernt auf Entscheidung des Auftraggebers am 2026-10-23 vor dem
+  /// Store-Start; die anwaltliche Prüfung P-L1 bleibt offen.
+  /// `test/legal_documents_test.dart` hält Wert und Dateien gleich
+  /// (Spezifikation FA-11.5, P-L20).
+  static const reviewed = true;
 
   /// Text ohne den einleitenden Entwurfs-Blockzitatblock der Datei; den
   /// Vermerk setzt die App selbst einheitlich darüber.

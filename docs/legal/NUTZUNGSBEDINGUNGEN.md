@@ -1,9 +1,5 @@
 # Nutzungsbedingungen (Endnutzer-Lizenzvertrag) für die App „JeNi bucht“
 
-> **ENTWURF – nicht anwaltlich geprüft.** Stand 2026-10-12, Fassung
-> 2026-10-12-entwurf (entspricht `LegalText.terms.version`). Gilt für Google
-> Play und Apple App Store; ersetzt bei Apple die Standard-EULA.
-
 ## 1. Wer wir sind und für wen die App ist
 
 1.1 Anbieterin ist Spirits by JeNiBarb e.U. (Inhaber: Jürgen Jesenko), Sankt Leonhard bei Siebenbrünn 96, 9587 Arnoldstein, Österreich, UID ATU81604346, E-Mail office@jenibarb.com („wir“).
@@ -234,3 +230,5 @@ dürfen nur dort verklagt werden (Art. 18 EuGVVO).
 Ist eine Bestimmung unwirksam, bleibt der Rest wirksam. Gegenüber
 Unternehmerinnen tritt an ihre Stelle eine wirksame Regelung, die dem Zweck
 am nächsten kommt; gegenüber Verbraucherinnen gilt das Gesetz.
+
+Stand: 23. Oktober 2026

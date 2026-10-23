@@ -1,9 +1,5 @@
 # Impressum
 
-> **ENTWURF – nicht anwaltlich geprüft.** Stand 2026-10-22. Platzhalter `{{…}}`
-> vor Veröffentlichung ersetzen. Angaben müssen mit den öffentlichen
-> Händlerangaben in Google Play und App Store (DSA) übereinstimmen (L-22.15).
-
 ## Angaben nach § 5 ECG, § 14 UGB und § 25 MedienG
 
 **Anbieterin der App „JeNi bucht“**

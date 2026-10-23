@@ -1,11 +1,5 @@
 # Datenschutzerklärung für die App „JeNi bucht“ und die Produktseite
 
-> **ENTWURF – nicht anwaltlich geprüft.** Stand 2026-10-12, Fassung
-> 2026-10-12-entwurf. Grundlage: `docs/PRIVACY.md` und Lastenheft 5.19.
-> Beschreibt nur Funktionen, die im Code tatsächlich vorhanden sind; das Abo
-> (L-22, Paket `in_app_purchase`) ist seit 0.14.0 beschrieben (Abschnitt 6),
-> eine KI-Funktion (L-21) ist **vor** ihrer Auslieferung zu ergänzen.
-
 ## 1. Das Wichtigste in Kürze
 
 - Deine Buchhaltungsdaten bleiben **auf deinem Gerät**. Wir betreiben keinen
@@ -164,3 +158,5 @@ App ihre Funktion nicht erfüllen.
 Ändert sich die App datenschutzrelevant, passen wir diese Erklärung an; die
 aktuelle Fassung findest du in der App unter „Rechtliches“ und auf
 https://jenibucht.com/datenschutz.html.
+
+Stand: 23. Oktober 2026
