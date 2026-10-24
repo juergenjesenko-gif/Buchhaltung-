@@ -5,8 +5,11 @@
 - Deine Buchhaltungsdaten bleiben **auf deinem Gerät**. Wir betreiben keinen
   Server, haben kein Nutzerkonto und sehen deine Daten nicht.
 - Keine Werbung, kein Tracking, keine Analyse- oder Absturz-Software Dritter.
-- Daten verlassen das Gerät nur, wenn du es auslöst oder einschaltest:
-  Teilen, Sicherung, UID-Prüfung über VIES.
+  Einzige Ausnahme auf Android: Googles Texterkennung meldet Nutzungs- und
+  Diagnosedaten an Google – nie Fotos oder Text (siehe 5).
+- Sonst verlassen Daten das Gerät nur, wenn du es auslöst oder einschaltest:
+  Teilen, Sicherung, UID-Prüfung, Wechselkurs, Rechnung per Link,
+  Belegversand zwischen Geräten.
 - Mit uns in Kontakt kommst du nur, wenn du uns schreibst (Support) – dann
   verarbeiten wir deine Nachricht.
 
@@ -42,7 +45,8 @@ Keystore (Android). Die Android-Systemsicherung und die
 Gerät-zu-Gerät-Übertragung sind für die App abgeschaltet.
 
 **Berechtigungen:** Kamera (Belege fotografieren), Fotobibliothek lesen
-(vorhandene Fotos hinzufügen), Fotobibliothek schreiben (Rechnung ablegen). Die
+(vorhandene Fotos hinzufügen), Fotobibliothek schreiben (Rechnung ablegen),
+Mikrofon und Spracherkennung (Diktat). Die
 App fragt erst, wenn du die Funktion nutzt; ablehnen schränkt nur diese
 Funktion ein.
 
@@ -64,11 +68,35 @@ und c DSGVO; § 147 AO).
 | Rechnung oder Export teilen | Ziel, das du im Teilen-Dialog wählst | PDF, CSV | nur auf Tippen |
 | Sicherung von Hand | Ziel, das du wählst | mit deinem Kennwort verschlüsselte Datei (AES-256-GCM) | nur auf Tippen |
 | Automatische Sicherung | einmal gewählter Ordner, z. B. iCloud Drive, Google Drive | verschlüsselte Datei; Upload durch Betriebssystem bzw. Cloud-Dienst | nur wenn eingeschaltet (Standard: aus) |
+| Rechnung als E-Rechnung senden | Mail-App oder Ziel, das du im Teilen-Dialog wählst (z. B. Rechnungsportal) | ZUGFeRD-PDF bzw. XRechnung- oder ebInterface-XML mit den Rechnungsdaten | nur auf Tippen |
 | UID-Prüfung | VIES der Europäischen Kommission, direkt vom Gerät | geprüfte UID, deine eigene UID, technisch deine IP-Adresse | auf Tippen oder wöchentlich, wenn eingeschaltet (Standard: aus) |
+| Wechselkurs abrufen | Europäische Zentralbank (ecb.europa.eu), direkt vom Gerät | nur Abruf einer öffentlichen Kursdatei: IP-Adresse, Zeitpunkt; keine Belegdaten, kein Betrag | nur auf Tippen „Kurs abrufen“ |
+| Rechnung über Link im QR-Code laden | Server der Domain, die im Hinweis angezeigt wird (Rechnungsaussteller bzw. sein Dienstleister) | die Adresse aus dem QR-Code (kann eine Rechnungs- oder Kundennummer enthalten), IP-Adresse; keine Daten aus der App | nur auf Tippen „Laden“ |
+| Belegerkennung, nur Android | Google (Google ML Kit, Text- und Barcode-Erkennung; Dokumentenscanner über die Google Play-Dienste) | Nutzungs- und Diagnosedaten (z. B. Gerätetyp, Leistung, Fehler); **keine Fotos, kein erkannter Text** – erkannt wird auf dem Gerät | beim Fotografieren und Erkennen; abschaltbar, indem du die Belegerkennung ausschaltest |
+| Beleg vom Mithelfer-Gerät senden | Messenger, Mail-App oder gemeinsamer Cloud-Ordner, den ihr wählt | Belegfotos und -werte, Ende-zu-Ende verschlüsselt (AES-256-GCM); der Dienst sieht nur Dateiname, Größe, Zeitpunkt | nur auf Tippen „Senden“ |
+| Belegversand per E-Mail (Mithelfer → Hauptgerät) | **eure eigenen Mailkonten**: Mailserver des Mithelfers (Versand, SMTP) und Mailserver der Empfangsadresse (Abruf, IMAP, nur lesend) | verschlüsseltes Belegpaket (wie oben); Absender, Empfänger, Betreff, Zeitpunkt, Größe; Anmeldename und Kennwort gehen nur verschlüsselt (TLS) an den eigenen Mailserver und liegen sonst nur im sicheren Speicher des Geräts | nach einmaliger Einrichtung automatisch: Versand täglich, Abruf etwa stündlich und beim Öffnen |
+| Mailserver suchen | Mozilla (autoconfig.thunderbird.net) bzw. Betreiber deiner Maildomain | nur die **Domain** deiner Adresse (z. B. „beispiel.at“), IP-Adresse; bei Gmail und iCloud keine Abfrage | nur beim Einrichten des Mailwegs |
+
+**Nicht** übertragen wird beim **Diktat**: Die Sprache erkennt der Dienst
+deines Telefons auf dem Gerät; die App sendet kein Audio und keinen Text.
+Gibt es keine Erkennung auf dem Gerät, bietet die App das Diktat nicht an.
 
 Wir erhalten in keinem dieser Fälle Daten oder Schlüssel. Ab Übergabe gelten
 die Bedingungen des jeweiligen Dienstes. Manche Cloud-Dienste speichern auch
 außerhalb der EU; das wählst du mit dem Dienst.
+
+**Rechtsgrundlagen:** Was du auslöst oder einschaltest, geschieht, um die von
+dir gewünschte Funktion zu erbringen (Art. 6 Abs 1 lit b DSGVO). Die
+Diagnosedaten an Google beruhen auf unserem berechtigten Interesse an einer
+zuverlässigen Belegerkennung ohne eigenen Server (Art. 6 Abs 1 lit f DSGVO);
+du kannst widersprechen, indem du die Belegerkennung ausschaltest (Art. 21
+DSGVO). Google verarbeitet diese Daten als Google Ireland Limited, Gordon
+House, Barrow Street, Dublin 4, Irland; eine Übermittlung in die USA ist
+möglich. Google LLC ist unter dem EU-US Data Privacy Framework zertifiziert
+(Art. 45 DSGVO), ergänzend verwendet Google Standardvertragsklauseln
+(Art. 46 DSGVO). Die EZB, VIES, Mozilla und die Server aus QR-Codes oder
+deiner Maildomain erhalten nur technische Verbindungsdaten bzw. die Domain;
+sie verarbeiten diese in eigener Verantwortung.
 
 ## 6. Abonnement über Google Play und App Store
 
@@ -159,4 +187,4 @@ App ihre Funktion nicht erfüllen.
 aktuelle Fassung findest du in der App unter „Rechtliches“ und auf
 https://jenibucht.com/datenschutz.html.
 
-Stand: 23. Oktober 2026
+Stand: 24. Oktober 2026

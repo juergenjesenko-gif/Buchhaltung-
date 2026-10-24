@@ -7,7 +7,7 @@
 | Datei | Zweck | Rechtsgrundlage | Fassung | Status |
 |---|---|---|---|---|
 | [IMPRESSUM.md](IMPRESSUM.md) | Anbieterkennzeichnung Produktseite, App „Rechtliches“, DSA-Händlerangaben | § 5 ECG, § 14 UGB, § 25 MedienG, Art. 30 DSA | 2026-10-12-entwurf | Entwurf, Platzhalter offen |
-| [DATENSCHUTZ.md](DATENSCHUTZ.md) | Datenschutzerklärung App und Produktseite (Store-Pflicht-URL) | Art. 13 DSGVO | 2026-10-12-entwurf | Entwurf; ersetzt nach Prüfung `docs/PRIVACY.md` |
+| [DATENSCHUTZ.md](DATENSCHUTZ.md) | Datenschutzerklärung App und Produktseite (Store-Pflicht-URL) | Art. 13 DSGVO | 2026-10-24 | Entwurf; ersetzt nach Prüfung `docs/PRIVACY.md` |
 | [NUTZUNGSBEDINGUNGEN.md](NUTZUNGSBEDINGUNGEN.md) | Eigene EULA für Google Play und Apple | ABGB, KSchG, VGG, BGB §§ 305 ff., 327 ff., Apple-Lizenzvertragsvorgaben | 2026-10-12-entwurf (= `LegalText.terms.version`) | Entwurf |
 
 ## Platzhalter

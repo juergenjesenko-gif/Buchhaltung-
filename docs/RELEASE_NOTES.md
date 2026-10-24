@@ -36,6 +36,7 @@ nächsten Versionssprung in den neuen Eintrag.
 |---|---|---|---|
 | Behoben | Belegformular: Auswahl „Umsatzsteuersatz“ kürzt lange Bezeichnungen statt rechts überzulaufen (schmale Handys, ~411 dp, beim Erzeugen der Store-Screenshots aufgefallen) | SPEC 7 | 421fa9e |
 | Geändert | Rechtliches: Entwurfsvermerk „Entwurf – noch nicht anwaltlich geprüft“ entfällt in App und auf der Website (Entscheidung Auftraggeber vor Store-Start; P-L1 bleibt offen) | FA-11.5, P-L20 | dieser Commit |
+| Geändert | Datenschutzerklärung (App-Asset und Website) nennt alle Datenflüsse: E-Rechnung, EZB-Kurs, Rechnung per Link-QR, Google ML Kit/Dokumentenscanner (Diagnosedaten, Android) mit Rechtsgrundlage und Drittland, Mithelfer- und Mailweg, Mailserversuche, Diktat auf dem Gerät | P-R68, L-19.5 | dieser Commit |
 
 ---
 
