@@ -43,7 +43,7 @@ Details zu den Abo-Produkten: `STORE_ANMELDUNG.md` Formular 4. Texte:
 | 15 | targetSdk ≥ 36 (Play-Pflicht für neue Apps ab 31.08.2026) im AAB bestätigt | 🟡 | Entwicklung | P-D6, P-D10 |
 | 16 | Konten Google (Organisation) und Apple (Einzelperson), D-U-N-S, Bundle-ID `at.jenibarb.jenibucht`, interner Test und TestFlight | 🟢 | – | `STORE_READINESS.md` |
 | 17 | **IT-Gewerbe anmelden**: „Dienstleistungen in der automatischen Datenverarbeitung und Informationstechnik“ (freies Gewerbe, GISA). Erst danach stimmt die Fachgruppe UBIT im Impressum; das Handelsgewerbe deckt die Herstellung von Software wohl nicht | 🔴 | Auftraggeber | **P-R70** |
-| 19 | **Einreichung**: Google geschlossener Test (Alpha) mit Store-Eintrag zur Prüfung 2026-10-22; Apple Version 0.39.2 (Build 26) mit Abos zur Prüfung 2026-10-23, Freigabe **manuell** – Release erst, wenn die roten Punkte 1, 2, 4 und 17 erledigt sind | 🟡 | Auftraggeber | – |
+| 19 | **Einreichung**: Google Ablehnung 2026-10-24 (Missing Source Link for Government Information) → 0.39.4 (Build 28) mit Quellen in Beschreibung und App neu eingereicht; Apple 0.39.2 zurückgezogen, 0.39.4 (Build 28) mit neuer Beschreibung eingereicht 2026-10-24; zuvor: Google geschlossener Test (Alpha) 2026-10-22, Apple Version 0.39.2 (Build 26) mit Abos zur Prüfung 2026-10-23, Freigabe **manuell** – Release erst, wenn die roten Punkte 1, 2, 4 und 17 erledigt sind | 🟡 | Auftraggeber | – |
 | 18 | **Vor der ersten Instagram-Werbung**: KI-Kennzeichnung je Beitrag (Einblendung, Caption, Meta-Label), Hinweis bei der ersten KI-Antwort, Bildrückwärtssuche der KI-Figur, Produktseite im Instagram-Browser getestet | 🔴 | Auftraggeber | P-R71, P-R72, P-R75, P-R76, P-R77, P-X32, `STORE_LISTING.md` „Instagram-Auftritt“ |
 
 ---
@@ -422,6 +422,14 @@ How to review without purchase:
    "Kauf wiederherstellen" and "Abo verwalten" are on the same screen.
 3. Promo codes are redeemed via Apple's offer code sheet
    (Abo -> "Promo-Code einlösen").
+
+Government information: the app is not affiliated with any authority.
+Legal texts and thresholds are linked to official sources in the app
+(Help -> "Quellen & Rechtsgrundlagen", Settings -> Rechtliches, and "Quelle"
+links next to the small-business limit and invoice checks) and in the
+App Store description (section "QUELLEN"): ris.bka.gv.at, bmf.gv.at,
+erb.gv.at, gesetze-im-internet.de, bundesfinanzministerium.de,
+e-rechnung-bund.de.
 
 Network use only on user action: EU VIES VAT check, ECB exchange rates,
 loading an invoice from a QR link, user's own mail server for helper devices.
