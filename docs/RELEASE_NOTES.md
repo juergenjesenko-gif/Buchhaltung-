@@ -35,6 +35,8 @@ nächsten Versionssprung in den neuen Eintrag.
 | Art | Änderung | Bezug | Commit |
 |---|---|---|---|
 | Behoben | Belegformular: Auswahl „Umsatzsteuersatz“ kürzt lange Bezeichnungen statt rechts überzulaufen (schmale Handys, ~411 dp, beim Erzeugen der Store-Screenshots aufgefallen) | SPEC 7 | 421fa9e |
+| Geändert | Rechnungsformular (AT, über 10.000 € brutto): fehlende UID des Kunden ist ein Hinweis statt Sperre, Ausstellen bleibt möglich, UID per Berichtigung nachreichbar (Rückmeldung Auftraggeber 2026-10-24) | FA-5.50, FA-1.4, P-S98 | dieser Commit |
+| Neu | Rechnungsentwurf: Knopf „Kunde bearbeiten“ unter der Anschrift öffnet das Kundenformular und übernimmt den neuen Stand; gestellte Rechnungen bleiben unverändert | FA-5.50, GR-8 | dieser Commit |
 | Geändert | Rechtliches: Entwurfsvermerk „Entwurf – noch nicht anwaltlich geprüft“ entfällt in App und auf der Website (Entscheidung Auftraggeber vor Store-Start; P-L1 bleibt offen) | FA-11.5, P-L20 | dieser Commit |
 | Geändert | Datenschutzerklärung (App-Asset und Website) nennt alle Datenflüsse: E-Rechnung, EZB-Kurs, Rechnung per Link-QR, Google ML Kit/Dokumentenscanner (Diagnosedaten, Android) mit Rechtsgrundlage und Drittland, Mithelfer- und Mailweg, Mailserversuche, Diktat auf dem Gerät | P-R68, L-19.5 | dieser Commit |
 

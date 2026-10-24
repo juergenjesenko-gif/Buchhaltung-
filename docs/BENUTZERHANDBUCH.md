@@ -127,7 +127,9 @@ Trag sie gleich vollständig ein, dann musst du später nicht nachbessern.
   Rechnung.
 - **UID-Nummer / USt-IdNr.** – freiwillig. Die App prüft beim Tippen, ob Format
   und Prüfziffer stimmen. In **Österreich** brauchst du sie für Rechnungen über
-  10.000 € brutto mit Umsatzsteuer – dann auch die UID deines Kunden.
+  10.000 € brutto mit Umsatzsteuer – dann auch die UID deines Kunden, wenn er
+  Unternehmer ist. Fehlt die Kunden-UID, kannst du trotzdem ausstellen und sie
+  per Berichtigung nachreichen.
 - **Jetzt prüfen** – fragt das EU-Prüfsystem VIES, ob die UID gültig ist. Dabei
   geht die Nummer an die EU-Kommission. „Nicht prüfbar" heißt nur, dass das
   System gerade nicht erreichbar war – nicht, dass die Nummer falsch ist.
@@ -807,7 +809,10 @@ Unter der Ampel steht immer im Klartext, was der Status für dich bedeutet.
 
 1. Bereich **Rechnungen** → unten in der Mitte **Neue Rechnung**
 2. **Empfänger** → *Wählen*. Noch kein Kunde da? Im Auswahlfenster unten auf
-   *Neuen Kunden anlegen*.
+   *Neuen Kunden anlegen*. Fehlt beim Kunden etwas (Anschrift, UID)? Tipp
+   unter der Anschrift auf **Kunde bearbeiten** – nach dem Speichern bist du
+   wieder in deiner Rechnung, mit den neuen Daten. Bei gestellten Rechnungen
+   gibt es den Knopf nicht; sie behalten die Kundendaten vom Ausstellungstag.
 3. **Zeitraum** prüfen:
    - *Rechnungsdatum* – heute
    - *Liefer-/Leistungsdatum* – **Pflichtangabe.** Wann hast du geliefert oder
@@ -1865,6 +1870,14 @@ Firmenbuch- bzw. Registergericht ein oder lass die Nummer leer.
 
 **„Eigene UID-Nummer (Rechnung über 10000 € brutto)"** – in Österreich braucht
 eine Rechnung über 10.000 € mit Umsatzsteuer deine UID und die deines Kunden.
+Deine eigene UID musst du vorher eintragen.
+
+**„UID-Nummer des Kunden fehlt (Rechnung über 10000 € brutto)"** – nur ein
+Hinweis, *Rechnung ausstellen* bleibt tippbar. Ist dein Kunde Unternehmer,
+trag seine UID über **Kunde bearbeiten** ein. Du kannst auch ohne sie
+ausstellen und die UID später per Berichtigung nachreichen; bis dahin kann
+dein Kunde die Vorsteuer nicht sicher abziehen. Bei Privatkunden entfällt die
+UID.
 
 **„Das Muster braucht eine laufende Nummer, z. B. {NNNN}"** – siehe
 [Rechnungsnummern](#rechnungsnummern).

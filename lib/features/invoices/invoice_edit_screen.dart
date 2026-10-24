@@ -232,6 +232,41 @@ class _InvoiceEditScreenState extends State<InvoiceEditScreen> {
     if (selected != null && mounted) setState(() => _customer = selected);
   }
 
+  /// Öffnet den gewählten Kunden im bestehenden Kundenformular und übernimmt
+  /// den neuen Stand in den Entwurf (FA-5.50). Nur bei Entwürfen; gestellte
+  /// Rechnungen behalten die eingefrorenen Stammdaten (GR-8).
+  Future<void> _editCustomer() async {
+    final current = _customer;
+    if (current == null || _isLocked) return;
+    final saved = await Navigator.of(context).push<Customer>(
+      MaterialPageRoute(builder: (_) => CustomerEditScreen(existing: current)),
+    );
+    if (!mounted) return;
+    if (saved != null) {
+      setState(() => _customer = saved);
+      return;
+    }
+    // Zurück ohne Speichern oder Kunde gelöscht: Stand aus der Datenbank.
+    final id = current.id;
+    if (id == null) return;
+    final fresh = await AppScope.read(context).repositories.customers.byId(id);
+    if (mounted) setState(() => _customer = fresh);
+  }
+
+  /// Hinweise, die das Ausstellen nicht sperren (FA-5.50).
+  List<String> _warnings() {
+    final profile = AppScope.read(context).profile;
+    final customer = _customer;
+    if (profile == null || customer == null) return const [];
+    return InvoiceRequirements.warnings(
+      profile: profile,
+      customer: customer,
+      gross: _totals.gross,
+      isSmallBusiness:
+          widget.existing?.isSmallBusiness ?? profile.isSmallBusiness,
+    );
+  }
+
   /// Übernimmt eine Position aus Artikeln oder früheren Positionen
   /// (L-11.5): ersetzt eine leere letzte Position, sonst anhängen.
   Future<void> _takePosition(int defaultVat) async {
@@ -412,12 +447,14 @@ class _InvoiceEditScreenState extends State<InvoiceEditScreen> {
                 logoAllowed: state.allows(Feature.invoiceLogo),
               ).toMap(),
             ),
-      customerSnapshot:
-          widget.existing?.customerSnapshot ??
-          jsonEncode({
-            ..._customer!.toMap(),
-            if (vatCheck != null) 'vat_check': vatCheck.toJson(),
-          }),
+      // Wie beim Aussteller: ein Entwurf übernimmt den aktuellen Kundenstand
+      // (FA-5.50, „Kunde bearbeiten“), gestellte Rechnungen bleiben (GR-8).
+      customerSnapshot: (widget.existing?.status.isLocked ?? false)
+          ? widget.existing!.customerSnapshot
+          : jsonEncode({
+              ..._customer!.toMap(),
+              if (vatCheck != null) 'vat_check': vatCheck.toJson(),
+            }),
       createdAt: widget.existing?.createdAt,
     );
 
@@ -501,6 +538,7 @@ class _InvoiceEditScreenState extends State<InvoiceEditScreen> {
   }
 
   Widget _scaffold(BuildContext context, TaxProfile tax, List<String> errors) {
+    final warnings = _initialized ? _warnings() : const <String>[];
     final state = AppScope.of(context);
     return Scaffold(
       appBar: AppBar(
@@ -550,6 +588,23 @@ class _InvoiceEditScreenState extends State<InvoiceEditScreen> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         for (final line in _customer!.addressLines) Text(line),
+                        if (!_isLocked) ...[
+                          const SizedBox(height: 8),
+                          // Volle Breite, 48 dp: mit dem Daumen sicher
+                          // treffbar, weit weg von Gefahrenknöpfen.
+                          SizedBox(
+                            width: double.infinity,
+                            child: OutlinedButton.icon(
+                              key: const Key('invoice-edit-customer'),
+                              style: OutlinedButton.styleFrom(
+                                minimumSize: const Size.fromHeight(48),
+                              ),
+                              onPressed: _editCustomer,
+                              icon: const Icon(Icons.edit_outlined),
+                              label: const Text('Kunde bearbeiten'),
+                            ),
+                          ),
+                        ],
                         if (!_customer!.hasCompleteAddress) ...[
                           const SizedBox(height: 8),
                           NoticeBanner(
@@ -705,6 +760,14 @@ class _InvoiceEditScreenState extends State<InvoiceEditScreen> {
               ),
             ),
 
+            if (!_isLocked && warnings.isNotEmpty) ...[
+              const SizedBox(height: 16),
+              NoticeBanner(
+                key: const Key('invoice-warning'),
+                icon: Icons.info_outline,
+                message: warnings.join(' '),
+              ),
+            ],
             if (!_isLocked && errors.isNotEmpty) ...[
               const SizedBox(height: 16),
               NoticeBanner(

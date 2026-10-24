@@ -210,7 +210,7 @@ void main() {
           gross: Money.fromEuro(10001),
           isSmallBusiness: false,
         ),
-        hasLength(2),
+        hasLength(1),
       );
       expect(
         InvoiceRequirements.missing(
@@ -218,6 +218,59 @@ void main() {
           customer: customer,
           gross: Money.fromEuro(20000),
           isSmallBusiness: true,
+        ),
+        isEmpty,
+      );
+    });
+
+    test('UID des Kunden sperrt nicht, sondern ist ein Hinweis (FA-5.50)', () {
+      const profile = CompanyProfile(
+        companyName: 'Test',
+        country: Country.at,
+        vatId: 'ATU13585627',
+      );
+      final big = Money.fromEuro(13200);
+      expect(
+        InvoiceRequirements.missing(
+          profile: profile,
+          customer: customer,
+          gross: big,
+          isSmallBusiness: false,
+        ),
+        isEmpty,
+      );
+      final hints = InvoiceRequirements.warnings(
+        profile: profile,
+        customer: customer,
+        gross: big,
+        isSmallBusiness: false,
+      );
+      expect(hints, hasLength(1));
+      expect(hints.single, contains('Berichtigung'));
+      expect(
+        InvoiceRequirements.warnings(
+          profile: profile,
+          customer: customer.copyWith(vatId: 'ATU13585627'),
+          gross: big,
+          isSmallBusiness: false,
+        ),
+        isEmpty,
+      );
+      expect(
+        InvoiceRequirements.warnings(
+          profile: profile,
+          customer: customer,
+          gross: Money.fromEuro(10000),
+          isSmallBusiness: false,
+        ),
+        isEmpty,
+      );
+      expect(
+        InvoiceRequirements.warnings(
+          profile: profile.copyWith(country: Country.de),
+          customer: customer,
+          gross: big,
+          isSmallBusiness: false,
         ),
         isEmpty,
       );
