@@ -9,6 +9,7 @@ import '../../app_state.dart';
 import '../../services/booking_rule_templates.dart';
 import '../../widgets/primary_action_bar.dart';
 import '../booking_rules/booking_rules_screen.dart';
+import 'sources_screen.dart';
 
 /// Asset-Pfad des Handbuchs. Das Handbuch selbst ist das Asset (pubspec.yaml),
 /// es gibt keine Kopie.
@@ -173,6 +174,18 @@ class _HelpScreenState extends State<HelpScreen> {
                               ),
                             ),
                           ),
+                        ListTile(
+                          key: const Key('help-sources'),
+                          minTileHeight: 56,
+                          leading: const Icon(Icons.gavel_outlined),
+                          title: const Text(SourcesScreen.title),
+                          trailing: const Icon(Icons.chevron_right),
+                          onTap: () => Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: (_) => const SourcesScreen(),
+                            ),
+                          ),
+                        ),
                       ],
                     )
                   : hits.isEmpty

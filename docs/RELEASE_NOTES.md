@@ -29,11 +29,35 @@ gebaut, und was war darin geprüft?*
 
 ## Unveröffentlicht
 
-Änderungen seit 0.39.3+59, die noch in keinem Build stecken. Wandern beim
+Änderungen seit 0.39.4+60, die noch in keinem Build stecken. Wandern beim
 nächsten Versionssprung in den neuen Eintrag.
 
 | Art | Änderung | Bezug | Commit |
 |---|---|---|---|
+
+---
+
+## 0.39.4+60 — 2026-10-24
+
+| Feld | Wert |
+|---|---|
+| Art | Store-Build nach Google-Play-Ablehnung „Missing Source Link for Government Information“ (2026-10-24) |
+| Commit | dieser Commit |
+| Branch | `claude/agile-accounting-app-mobile-wa5j3h` |
+| Dokumentstände | Lastenheft 1.89, Spezifikation 2.19, Benutzerhandbuch für 0.39.4 |
+| Datenbankschema | 32 |
+| Prüfung | `flutter analyze` ohne Befund, alle Tests grün; Android/iOS-Build nur in der CI |
+| Steuerliche Kennwerte | unverändert |
+| Offene reale Prüfpunkte | P-D4, P-D55, P-L1, P-R78, P-R79, P-S98, P-S99 |
+| Bekannte Grenzen | unverändert (Spezifikation 11) |
+
+**Änderungen seit 0.39.3+59**
+
+| Art | Änderung | Bezug | Commit |
+|---|---|---|---|
+| Neu | Bildschirm „Quellen & Rechtsgrundlagen“ (Hilfe-Übersicht und Einstellungen → Rechtliches) mit Hinweis „Kein Angebot einer Behörde“ und amtlichen Links AT/DE | FA-11.11, P-R79 | dieser Commit |
+| Neu | Link „Quelle: § …“ (≥ 48 dp) auf der Karte Kleinunternehmergrenze (§ 6 UStG AT / § 19 UStG DE) und beim Pflichtangaben-Hinweis im Rechnungsformular (§ 11 UStG AT / § 14 UStG DE), Adressen je Land in `TaxProfile` | FA-11.11 | dieser Commit |
+| Geändert | Store-Beschreibung: Abschnitt „QUELLEN (AMTLICHE INFORMATIONEN)“ mit Paragrafen-Links, gekürzt auf 3.957 Zeichen | FA-11.11, P-R79 | dieser Commit |
 
 ---
 

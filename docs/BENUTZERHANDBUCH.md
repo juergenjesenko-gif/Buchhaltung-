@@ -1,6 +1,6 @@
 # Benutzerhandbuch – JeNi bucht
 
-**Für App-Version 0.39.2** · Stand 2026-10-22
+**Für App-Version 0.39.4** · Stand 2026-10-24
 
 Welche Version du hast, steht ganz unten in den **Einstellungen**, etwa „Version 0.35.0 (16)“; die Zahl in Klammern ist die Buildnummer.
 
@@ -232,6 +232,20 @@ App nutzen.
 > **Tipp:** Speichere, bevor du das Tablet drehst oder die Fenstergröße
 > änderst. Ein gerade geöffneter, noch nicht gespeicherter Eintrag rechts wird
 > dabei sonst geschlossen.
+
+### Quellen und Rechtsgrundlagen
+
+JeNi bucht ist kein Angebot einer Behörde und mit keiner Behörde verbunden.
+Gesetzestexte und Grenzwerte stammen aus offiziellen Quellen. Die Liste findest
+du in der Hilfe ganz unten unter **Quellen & Rechtsgrundlagen** und in den
+**Einstellungen → Rechtliches**: Umsatzsteuergesetz (RIS bzw.
+gesetze-im-internet.de), Finanzministerium und E-Rechnung an den Bund, je für
+Österreich und Deutschland. Ein Tipp öffnet die Seite im Browser; dafür
+brauchst du Internet.
+
+Zusätzlich steht auf der Karte **Kleinunternehmergrenze** und unter der
+Checkliste einer Rechnung ein kleiner Link **Quelle: § …**, der direkt den
+passenden Paragrafen für dein Land öffnet.
 
 ### Wunsch oder Idee senden
 

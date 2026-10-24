@@ -18,6 +18,7 @@ import '../../theme.dart';
 import '../../widgets/capture_button.dart';
 import '../../widgets/scroll_auto_hide.dart';
 import '../../widgets/common.dart';
+import '../../widgets/source_link.dart';
 import 'backfill_section.dart';
 import '../backup/backup_screen.dart';
 import '../onboarding/company_setup_screen.dart';
@@ -833,6 +834,7 @@ class _SmallBusinessCard extends StatelessWidget {
       SmallBusinessStatus.notApplicable => (scheme.outline, Icons.remove),
     };
     final incomplete = assessment.status == SmallBusinessStatus.incomplete;
+    final tax = AppScope.of(context).profile?.taxProfile;
 
     final fraction = (assessment.utilizationPercent / 100).clamp(0.0, 1.0);
 
@@ -890,6 +892,15 @@ class _SmallBusinessCard extends StatelessWidget {
               context,
             ).textTheme.bodySmall?.copyWith(color: scheme.onSurfaceVariant),
           ),
+          if (tax != null)
+            Align(
+              alignment: Alignment.centerLeft,
+              child: SourceLinkButton(
+                key: const Key('small-business-source'),
+                url: tax.smallBusinessSourceUrl,
+                label: tax.smallBusinessLegalRef,
+              ),
+            ),
           if (incomplete) ...[
             const SizedBox(height: 8),
             Align(

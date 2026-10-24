@@ -4,6 +4,7 @@ import 'fixed_asset.dart';
 import 'holidays.dart';
 import 'levy_rules.dart';
 import 'money.dart';
+import 'official_sources.dart';
 
 /// Unterstützte Länder. Die App bildet Österreich und Deutschland ab; die
 /// Unterschiede stecken bewusst nur in dieser Datei, damit ein weiteres Land
@@ -88,6 +89,8 @@ class TaxProfile {
     required this.registerNumberLabel,
     required this.registerCourtLabel,
     required this.invoiceLegalRef,
+    required this.invoiceSourceUrl,
+    required this.smallBusinessSourceUrl,
     required this.fxRateLegalRef,
     required this.smallAmountInvoiceLimit,
     required this.currentYearTurnoverLimit,
@@ -189,6 +192,17 @@ class TaxProfile {
 
   /// Fundstelle für die Rechnungs-Pflichtangaben.
   final String invoiceLegalRef;
+
+  /// Amtliche Quelle zu [invoiceLegalRef] (Google-Play-Vorgabe „Missing
+  /// Source Link for Government Information“, Ablehnung 2026-10-24).
+  final String invoiceSourceUrl;
+
+  /// Amtliche Quelle zu [smallBusinessLegalRef].
+  final String smallBusinessSourceUrl;
+
+  /// Amtliche Quellen dieses Landes, siehe `official_sources.dart`.
+  List<OfficialSource> get officialSources =>
+      OfficialSource.forCountry(country);
 
   /// Fundstelle für den Umrechnungskurs fremder Währung in der
   /// Umsatzsteuer (Monatskurs; Tageskurs nur mit Genehmigung, L-2.25).
@@ -387,6 +401,9 @@ class TaxProfile {
     smallBusinessInvoiceNote:
         'Umsatzsteuerbefreit – Kleinunternehmer gemäß § 6 Abs 1 Z 27 UStG.',
     invoiceLegalRef: '§ 11 UStG',
+    // RIS, UStG 1994 (Gesetzesnummer 10004873), § 11 bzw. § 6.
+    invoiceSourceUrl: OfficialSource.risUstgAt11,
+    smallBusinessSourceUrl: OfficialSource.risUstgAt6,
     fxRateLegalRef: '§ 20 Abs 6 UStG',
     smallAmountInvoiceLimit: Money(40000), // 400,00 EUR brutto, § 11 Abs 6 UStG
     currentYearTurnoverLimit: Money(5500000), // 55.000,00 EUR
@@ -782,6 +799,9 @@ class TaxProfile {
         // Steuerbefreiung nach § 34a UStDV (Spezifikation 14, P-S8).
         'Steuerbefreiung nach § 19 UStG (Kleinunternehmer).',
     invoiceLegalRef: '§ 14 UStG',
+    // gesetze-im-internet.de, UStG 1980, § 14 bzw. § 19.
+    invoiceSourceUrl: OfficialSource.giiUstgDe14,
+    smallBusinessSourceUrl: OfficialSource.giiUstgDe19,
     fxRateLegalRef: '§ 16 Abs 6 UStG',
     smallAmountInvoiceLimit: Money(25000), // 250,00 EUR brutto, § 33 UStDV
     currentYearTurnoverLimit: Money(10000000), // 100.000,00 EUR

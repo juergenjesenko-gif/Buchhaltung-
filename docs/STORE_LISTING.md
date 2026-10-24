@@ -34,9 +34,17 @@ Belege scannen, Rechnungen und E-Rechnungen schreiben, an die Kanzlei übergeben
 
 ## Vollständige Beschreibung (max. 4000 Zeichen, beide Stores)
 
-Abgeglichen mit App-Version 0.39.1 am 2026-10-21 (neu: Beleg-Leseansicht
-FA-9.9, ZIP-Paket 8.9, Vertragsarchiv FA-16.x, Hilfe FA-11.x; gekürzt von
-4.200 auf 3.737 Zeichen). Preis fürs erste Jahr mit dem Zusatz „auf
+Abgeglichen mit App-Version 0.39.4 am 2026-10-24. Neu: Abschnitt „QUELLEN
+(AMTLICHE INFORMATIONEN)“ nach der Google-Play-Ablehnung vom 2026-10-24
+(„Misleading Claims – Missing Source Link for Government Information“,
+beanstandet war die Passage „§ 11 UStG bzw. § 14 UStG“): Hinweis „kein
+Angebot einer Behörde“ und amtliche Links, dazu direkte Links auf § 11 und § 6
+UStG (AT, RIS) und § 14 und § 19 UStG (DE, gesetze-im-internet.de); die
+Grenzwerte im Text tragen ihre Fundstelle. Dieselbe Liste zeigt die App unter
+„Quellen & Rechtsgrundlagen“ (`lib/domain/official_sources.dart`, FA-11.11).
+Dafür gekürzt: Abschnitte „Verträge und Fristen“, „Belege von der ganzen
+Familie“, „Hilfe in der App“ in andere Abschnitte gezogen. Prüfung der
+Adressen: Spezifikation 14, P-R79. Preis fürs erste Jahr mit dem Zusatz „auf
 Android bzw. mit Code im App Store“ (O-45, P-R62).
 
 ```
@@ -45,41 +53,27 @@ Deutschland. Ohne Konto beim Anbieter, deine Daten bleiben auf dem Gerät.
 
 BELEGE STATT SCHUHKARTON
 Beleg scannen – Betrag, Datum, Steuersatz und Händler schlägt die App vor, auch
-aus dem QR-Code der Registrierkasse. Mehrere Steuersätze auf einem Beleg,
-fremde Währung, PDF- und E-Rechnungen (XRechnung, ZUGFeRD, ebInterface) per
-Teilen übernehmen. Antippen zeigt den Beleg zum Lesen, bearbeiten mit einem
-Tipp. Nach Monaten geordnet und durchsuchbar.
+aus dem QR-Code der Registrierkasse. Mehrere Steuersätze, fremde Währung, PDF-
+und E-Rechnungen (XRechnung, ZUGFeRD, ebInterface) per Teilen übernehmen. Nach
+Monaten geordnet und durchsuchbar.
 
 RECHNUNGEN UND E-RECHNUNGEN
-Kunden einmal anlegen, Positionen erfassen, fertig. Die App prüft die
-Pflichtangaben nach § 11 UStG bzw. § 14 UStG mit, auch das Leistungsdatum.
-Kleinunternehmer bekommen automatisch den vorgeschriebenen Hinweistext.
-Rabatt, Skonto, Versandkosten, Zahlungserinnerung und Mahnung, Storno als
-Gutschrift. Jede Rechnung als ZUGFeRD-PDF (EN 16931), für Behörden XRechnung
-(mit Leitweg-ID) oder ebInterface (e-Rechnung.gv.at).
-
-VERTRÄGE UND FRISTEN
-Miete, Leasing, Versicherung: Verträge ablegen, Kündigungsfristen und Raten im
-Blick, Rate als Ausgabe vorschlagen lassen.
+Die App prüft die
+Pflichtangaben nach § 11 UStG (AT) bzw. § 14 UStG (DE) mit, auch das
+Leistungsdatum (Gesetzestexte: siehe QUELLEN unten). Kleinunternehmer bekommen
+automatisch den Hinweistext. Rabatt, Skonto, Mahnung, Storno. Jede Rechnung als ZUGFeRD-PDF (EN 16931), für Behörden
+XRechnung (mit Leitweg-ID) oder ebInterface.
 
 DEINE ZAHLEN JEDERZEIT
 Einnahmen, Ausgaben und Ergebnis für Monat, Quartal oder Jahr. Umsatzsteuer je
 Satz, Vorsteuer und Zahllast auf einen Blick. Die Kleinunternehmergrenze für
-Österreich (55.000 € mit Toleranz) und Deutschland (25.000 € Vorjahr,
-100.000 € laufendes Jahr) im Auge, mit Hinweis, bevor es eng wird.
+Österreich (55.000 € mit Toleranz, § 6 Abs 1 Z 27 UStG) und Deutschland
+(25.000 € Vorjahr, 100.000 € laufendes Jahr, § 19 UStG) im Auge, mit Hinweis,
+bevor es eng wird.
 
 ÜBERGABE AN DIE KANZLEI
 Belegliste als CSV, DATEV-Buchungsstapel, BMD-Format, Umsatzsteuer-
-Zusammenfassung, dazu alle Belege und Rechnungen eines Zeitraums als ZIP.
-Zeitraum wählen, Vorschau prüfen, teilen.
-
-BELEGE VON DER GANZEN FAMILIE
-Mithelfer-Geräte per QR-Code koppeln: Familie oder Team fotografieren Belege,
-die App schickt sie verschlüsselt in deinen Eingang. Mithelfer brauchen kein
-eigenes Abo.
-
-HILFE IN DER APP
-Fragezeichen antippen: Hilfe nach Themen, offline durchsuchbar.
+Zusammenfassung, alle Belege und Rechnungen eines Zeitraums als ZIP.
 
 DEINE DATEN BLEIBEN DEINE
 Kein Server, kein Nutzerkonto, keine Werbung, keine Analyse. Daten verlassen
@@ -88,15 +82,13 @@ lässt, einen Wechselkurs abrufst oder eine Rechnung über einen QR-Link lädst.
 Verschlüsselte Sicherung, App-Sperre mit PIN oder Fingerabdruck.
 
 BASIS UND PRO
-Basis: Belege, Rechnungen und E-Rechnungen ausstellen, Storno, Mahnungen
-erstellen, Kassabuch, Kunden, Übersicht, Kleinunternehmer-Ampel,
-Vertragsarchiv, Export, ZIP-Paket, Sicherung, PDF ansehen, speichern, teilen
-und drucken.
+Basis: Belege, Rechnungen und E-Rechnungen, Storno, Mahnungen, Kassabuch,
+Kunden, Kleinunternehmer-Ampel, Verträge, Export, ZIP, Sicherung, PDF.
 Pro zusätzlich: Belegerkennung, Import aus Amazon, PayPal, Shopify, Stripe und
-E-Rechnungen, PDF und Mahnungen mit einem Tipp senden, Logo auf Rechnungen,
-Wechselkurs abrufen, Anlagen mit Abschreibung, Saldenliste und vorläufiger
-Jahresabschluss, Abgaben & Rücklagen (Schätzung), Verträge auslesen,
-Mithelfer-Geräte.
+E-Rechnungen, Senden mit einem Tipp, Logo, Wechselkurs, Anlagen mit
+Abschreibung, Saldenliste und vorläufiger Jahresabschluss, Abgaben & Rücklagen
+(Schätzung), Verträge auslesen, Mithelfer-Geräte (Familie
+fotografiert Belege, ohne eigenes Abo).
 
 14 TAGE KOSTENLOS TESTEN
 14 Tage kostenlos testen – mit allen Pro-Funktionen, auch wenn du Basis
@@ -109,15 +101,28 @@ nichts. Der Test gilt einmal, beim ersten Abo. Das Abo verlängert sich
 automatisch und ist jederzeit im Store kündbar.
 
 ERST ANSEHEN
-Ohne Abo zeigt die Demo eine erfundene Musterfirma. In der Demo wird nichts
-gespeichert; Muster-PDFs tragen das Wasserzeichen „MUSTER – DEMO“. Ohne Abo
-bleiben deine Daten auf dem Gerät lesbar und exportierbar.
+Ohne Abo zeigt die Demo eine erfundene Musterfirma; nichts wird gespeichert,
+PDFs tragen „MUSTER – DEMO“. Ohne Abo bleiben deine Daten lesbar und
+exportierbar.
+
+QUELLEN (AMTLICHE INFORMATIONEN)
+JeNi bucht ist kein Angebot einer Behörde und mit keiner Behörde verbunden. Gesetzestexte und Grenzwerte stammen aus diesen offiziellen Quellen:
+Österreich – Umsatzsteuergesetz: https://www.ris.bka.gv.at
+§ 11 UStG (AT): https://www.ris.bka.gv.at/NormDokument.wxe?Abfrage=Bundesnormen&Gesetzesnummer=10004873&Paragraf=11
+§ 6 Abs 1 Z 27 UStG (AT): https://www.ris.bka.gv.at/NormDokument.wxe?Abfrage=Bundesnormen&Gesetzesnummer=10004873&Paragraf=6
+Österreich – Finanzministerium: https://www.bmf.gv.at
+Österreich – E-Rechnung an den Bund: https://www.erb.gv.at
+Deutschland – Umsatzsteuergesetz: https://www.gesetze-im-internet.de/ustg_1980/
+§ 14 UStG (DE): https://www.gesetze-im-internet.de/ustg_1980/__14.html
+§ 19 UStG (DE): https://www.gesetze-im-internet.de/ustg_1980/__19.html
+Deutschland – Bundesfinanzministerium: https://www.bundesfinanzministerium.de
+Deutschland – E-Rechnung (XRechnung): https://www.e-rechnung-bund.de
 
 Keine Steuerberatung – ersetzt keine steuerliche Beratung. Keine Registrierkasse
 nach RKSV.
 ```
 
-### Zeichenlimits (geprüft 2026-10-21)
+### Zeichenlimits (geprüft 2026-10-24)
 
 | Feld | Limit | Text | Länge |
 |---|---|---|---|
@@ -126,7 +131,7 @@ nach RKSV.
 | Untertitel (Apple) | 30 | Belege, Rechnungen, Export | 26 |
 | Werbetext (Apple) | 170 | siehe oben | 147 |
 | Suchbegriffe (Apple) | 100 | siehe unten | 81 |
-| Beschreibung (beide) | 4000 | siehe oben | 3.737 |
+| Beschreibung (beide) | 4000 | siehe oben (Zeilenumbrüche mitgezählt, Python `len`) | 3.957 |
 
 ## Kategorie
 

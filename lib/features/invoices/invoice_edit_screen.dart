@@ -12,6 +12,7 @@ import '../../services/invoice_logo.dart';
 import '../../services/invoice_numbering.dart';
 import '../../services/invoice_requirements.dart';
 import '../../services/invoice_texts.dart';
+import '../../widgets/source_link.dart';
 import '../../services/licensing/license_policy.dart';
 import '../licensing/feature_gate.dart';
 import '../../services/invoice_totals.dart';
@@ -774,6 +775,14 @@ class _InvoiceEditScreenState extends State<InvoiceEditScreen> {
                 icon: Icons.checklist_outlined,
                 color: AppTheme.warning,
                 message: 'Vor dem Ausstellen fehlt noch: ${errors.join(', ')}.',
+              ),
+              Align(
+                alignment: Alignment.centerLeft,
+                child: SourceLinkButton(
+                  key: const Key('invoice-requirements-source'),
+                  url: tax.invoiceSourceUrl,
+                  label: tax.invoiceLegalRef,
+                ),
               ),
             ],
           ],

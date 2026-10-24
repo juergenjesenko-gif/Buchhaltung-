@@ -8,6 +8,7 @@ import '../../services/help/support_mail.dart';
 import '../../widgets/adaptive.dart';
 import '../../widgets/common.dart';
 import '../help/help_screen.dart';
+import '../help/sources_screen.dart';
 
 /// Menü „Rechtliches“ (L-22.18, Store-Pflicht): Impressum,
 /// Datenschutzerklärung, Nutzungsbedingungen, Hinweis „keine
@@ -68,6 +69,15 @@ class LegalScreen extends StatelessWidget {
                   ],
                 ),
               ),
+            ),
+            ListTile(
+              key: const Key('legal-sources'),
+              leading: const Icon(Icons.gavel_outlined),
+              title: const Text(SourcesScreen.title),
+              trailing: const Icon(Icons.chevron_right),
+              onTap: () => Navigator.of(
+                context,
+              ).push(MaterialPageRoute(builder: (_) => const SourcesScreen())),
             ),
             ListTile(
               key: const Key('legal-support'),
