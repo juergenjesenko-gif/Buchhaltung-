@@ -41,7 +41,7 @@ nächsten Versionssprung in den neuen Eintrag.
 
 | Feld | Wert |
 |---|---|
-| Art | Store-Build nach Google-Play-Ablehnung „Missing Source Link for Government Information“ (2026-10-24) |
+| Art | Store-Build nach Google-Play-Ablehnung „Missing Source Link for Government Information“ (2026-10-24); `release.yml` Lauf 28 mit `abo=true`: AAB Build 28 für Google Play, IPA nach TestFlight |
 | Commit | `e896356` |
 | Branch | `claude/agile-accounting-app-mobile-wa5j3h` |
 | Dokumentstände | Lastenheft 1.89, Spezifikation 2.19, Benutzerhandbuch für 0.39.4 |
