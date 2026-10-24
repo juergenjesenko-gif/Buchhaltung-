@@ -42,7 +42,7 @@ nächsten Versionssprung in den neuen Eintrag.
 | Feld | Wert |
 |---|---|
 | Art | Testbuild (CI-APK) für den Auftraggeber; Store-Builds 0.39.2 (Build 26) bleiben in der Prüfung |
-| Commit | dieser Commit |
+| Commit | `d494d9d` |
 | Branch | `claude/agile-accounting-app-mobile-wa5j3h` |
 | Dokumentstände | Lastenheft 1.89, Spezifikation 2.18, Benutzerhandbuch für 0.39.3 |
 | Datenbankschema | 32 |
