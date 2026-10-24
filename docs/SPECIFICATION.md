@@ -1,6 +1,6 @@
 # Spezifikation – Buchhaltung
 
-**Dokumentversion:** 2.17 · **App-Version:** 0.39.2 · **Stand:** 2026-10-25
+**Dokumentversion:** 2.18 · **App-Version:** 0.39.3 · **Stand:** 2026-10-25
 **Status:** Testbuild 0.21.0 (Schema 23); Store-Start offen, siehe Abschnitt 11 und 14
 
 > Das **Zielbild** des Produkts steht im [`LASTENHEFT.md`](LASTENHEFT.md); dieses
@@ -1625,6 +1625,7 @@ Vorsteuerabzug in Promille; Fundstelle Privatanteil; Fundstelle Vorsteuer.
 
 | Version | Datum | App-Version | Änderung |
 |---|---|---|---|
+| 2.18 | 2026-10-25 | 0.39.3 | App-Version 0.39.3 (Testbuild) mit FA-4.16, FA-4.17, FA-5.50, FA-3.7; Wunsch Auftraggeber: jeder Testbuild mit neuer Versionsnummer. |
 | 2.17 | 2026-10-25 | 0.39.2 | FA-4.16 neu: Rechnungen vor dem App-Start als Einnahme nachtragen, Nachträge ersetzen den Eröffnungswert statt doppelt zu zählen, Frage „vollständig“ mit Zurücksetzen in den Stammdaten; Schema 32 `opening_turnover.backfill_confirmed` (4.1, 4.2 Schemaversion von veraltet 30 auf 32 nachgezogen); `spec.schema_version` 32 (12). FA-4.17 neu: Speichern der Stammdaten lädt die Übersicht samt Rücklage neu (Fehler: USt nach Wechsel zu Kleinunternehmer). Prüfpunkt P-S99 neu (14). Prüfinstanzen: Steuerberater (Datum = Zufluss; DE § 19 Abs 2 UStG hoch, AT § 6 Abs 1 Z 27 iVm § 17 UStG 1994 mittel), UX (Knöpfe ≥ 48 dp, Frage nur nach einem Nachtrag, ein Tipp zur Dateiauswahl), Softwareentwickler (Migration neu, `save` ohne REPLACE), Rechtsanwalt ohne Befund (keine neue Übertragung). |
 | 2.16 | 2026-10-25 | 0.39.2 | FA-3.7, FA-19.1: Übersicht – Rücklage für Steuern & SV und Umsatzsteuer ans Ende nach den Terminen (Rückmeldung Auftraggeber). |
 | 2.15 | 2026-10-24 | 0.39.2 | FA-5.50: fehlende Kunden-UID bei AT-Rechnungen über 10.000 € brutto ist ein Hinweis statt Sperre; „Kunde bearbeiten“ im Rechnungsentwurf, Kunden-Snapshot eines Entwurfs wird beim Speichern aktualisiert. FA-1.4 und P-S9 angepasst, Prüfpunkt P-S98 neu. |

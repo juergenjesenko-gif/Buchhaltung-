@@ -113,6 +113,10 @@ Datenbankschema, Prüfung; Änderungen jeweils mit Anforderungs-ID und Commit.
 Kurz-Hash des gebauten Commits direkt (Entscheidung Auftraggeber 2026-10-14);
 Git-Tags sind optional, weil die Entwicklungsumgebung keine Tags pushen kann.
 
+Jede Test-APK, die der Auftraggeber bekommt, trägt eine **neue Versionsnummer**
+(Patch-Stelle hochzählen, z. B. 0.39.2 → 0.39.3), damit er in den Einstellungen
+sieht, welcher Stand installiert ist (Entscheidung Auftraggeber 2026-10-25).
+
 Änderungen zwischen zwei Versionen sammeln sich im Abschnitt *Unveröffentlicht*:
 jeder Commit mit Verhaltensänderung trägt dort eine Zeile ein.
 

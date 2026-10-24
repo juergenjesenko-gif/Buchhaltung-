@@ -29,19 +29,40 @@ gebaut, und was war darin geprüft?*
 
 ## Unveröffentlicht
 
-Änderungen seit 0.39.2+58, die noch in keinem Build stecken. Wandern beim
+Änderungen seit 0.39.3+59, die noch in keinem Build stecken. Wandern beim
 nächsten Versionssprung in den neuen Eintrag.
 
 | Art | Änderung | Bezug | Commit |
 |---|---|---|---|
-| Neu | Übersicht: „davon € X geschätzt vor App-Start“ und Knopf „Rechnungen vor dem App-Start nachtragen“; Nachträge als Einnahme ersetzen die Schätzung statt doppelt zu zählen, Frage „Sind alle Rechnungen … erfasst?“ mit „Ja, vollständig“/„Später“, Zurücksetzen in den Stammdaten; Schema 32 | FA-4.16, P-S99 | dieser Commit |
-| Behoben | Übersicht: „Rücklage für Steuern & SV“ zeigte nach Wechsel zu Kleinunternehmer noch Umsatzsteuer; Speichern der Stammdaten lädt die Übersicht neu | FA-4.17, FA-19.1 | dieser Commit |
-| Geändert | Übersicht: „Rücklage für Steuern & SV“ und „Umsatzsteuer“ stehen am Ende, nach den Terminen | FA-3.7, FA-19.1 | dieser Commit |
-| Behoben | Belegformular: Auswahl „Umsatzsteuersatz“ kürzt lange Bezeichnungen statt rechts überzulaufen (schmale Handys, ~411 dp, beim Erzeugen der Store-Screenshots aufgefallen) | SPEC 7 | 421fa9e |
-| Geändert | Rechnungsformular (AT, über 10.000 € brutto): fehlende UID des Kunden ist ein Hinweis statt Sperre, Ausstellen bleibt möglich, UID per Berichtigung nachreichbar (Rückmeldung Auftraggeber 2026-10-24) | FA-5.50, FA-1.4, P-S98 | dieser Commit |
-| Neu | Rechnungsentwurf: Knopf „Kunde bearbeiten“ unter der Anschrift öffnet das Kundenformular und übernimmt den neuen Stand; gestellte Rechnungen bleiben unverändert | FA-5.50, GR-8 | dieser Commit |
-| Geändert | Rechtliches: Entwurfsvermerk „Entwurf – noch nicht anwaltlich geprüft“ entfällt in App und auf der Website (Entscheidung Auftraggeber vor Store-Start; P-L1 bleibt offen) | FA-11.5, P-L20 | dieser Commit |
-| Geändert | Datenschutzerklärung (App-Asset und Website) nennt alle Datenflüsse: E-Rechnung, EZB-Kurs, Rechnung per Link-QR, Google ML Kit/Dokumentenscanner (Diagnosedaten, Android) mit Rechtsgrundlage und Drittland, Mithelfer- und Mailweg, Mailserversuche, Diktat auf dem Gerät | P-R68, L-19.5 | dieser Commit |
+
+---
+
+## 0.39.3+59 — 2026-10-25
+
+| Feld | Wert |
+|---|---|
+| Art | Testbuild (CI-APK) für den Auftraggeber; Store-Builds 0.39.2 (Build 26) bleiben in der Prüfung |
+| Commit | dieser Commit |
+| Branch | `claude/agile-accounting-app-mobile-wa5j3h` |
+| Dokumentstände | Lastenheft 1.89, Spezifikation 2.18, Benutzerhandbuch für 0.39.3 |
+| Datenbankschema | 32 |
+| Prüfung | `flutter analyze` ohne Befund, alle Tests grün; Android/iOS-Build nur in der CI |
+| Steuerliche Kennwerte | unverändert |
+| Offene reale Prüfpunkte | P-D4, P-D55, P-L1, P-R78, P-S98, P-S99 |
+| Bekannte Grenzen | unverändert (Spezifikation 11) |
+
+**Änderungen seit 0.39.2+58**
+
+| Art | Änderung | Bezug | Commit |
+|---|---|---|---|
+| Neu | Übersicht: „davon € X geschätzt vor App-Start“ und Knopf „Rechnungen vor dem App-Start nachtragen“; Nachträge als Einnahme ersetzen die Schätzung statt doppelt zu zählen, Frage „Sind alle Rechnungen … erfasst?“ mit „Ja, vollständig“/„Später“, Zurücksetzen in den Stammdaten; Schema 32 | FA-4.16, P-S99 | `65da333` |
+| Behoben | Übersicht: „Rücklage für Steuern & SV“ zeigte nach Wechsel zu Kleinunternehmer noch Umsatzsteuer; Speichern der Stammdaten lädt die Übersicht neu | FA-4.17, FA-19.1 | `65da333` |
+| Geändert | Übersicht: „Rücklage für Steuern & SV“ und „Umsatzsteuer“ stehen am Ende, nach den Terminen | FA-3.7, FA-19.1 | `69c1779` |
+| Behoben | Belegformular: Auswahl „Umsatzsteuersatz“ kürzt lange Bezeichnungen statt rechts überzulaufen (schmale Handys, ~411 dp, beim Erzeugen der Store-Screenshots aufgefallen) | SPEC 7 | `421fa9e` |
+| Geändert | Rechnungsformular (AT, über 10.000 € brutto): fehlende UID des Kunden ist ein Hinweis statt Sperre, Ausstellen bleibt möglich, UID per Berichtigung nachreichbar (Rückmeldung Auftraggeber 2026-10-24) | FA-5.50, FA-1.4, P-S98 | `b5d468a` |
+| Neu | Rechnungsentwurf: Knopf „Kunde bearbeiten“ unter der Anschrift öffnet das Kundenformular und übernimmt den neuen Stand; gestellte Rechnungen bleiben unverändert | FA-5.50, GR-8 | `b5d468a` |
+| Geändert | Rechtliches: Entwurfsvermerk „Entwurf – noch nicht anwaltlich geprüft“ entfällt in App und auf der Website (Entscheidung Auftraggeber vor Store-Start; P-L1 bleibt offen) | FA-11.5, P-L20 | `5740ba3` |
+| Geändert | Datenschutzerklärung (App-Asset und Website) nennt alle Datenflüsse: E-Rechnung, EZB-Kurs, Rechnung per Link-QR, Google ML Kit/Dokumentenscanner (Diagnosedaten, Android) mit Rechtsgrundlage und Drittland, Mithelfer- und Mailweg, Mailserversuche, Diktat auf dem Gerät | P-R68, L-19.5 | `fa01a3f` |
 
 ---
 
