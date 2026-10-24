@@ -34,6 +34,7 @@ nächsten Versionssprung in den neuen Eintrag.
 
 | Art | Änderung | Bezug | Commit |
 |---|---|---|---|
+| Behoben | Belegerkennung: E-Mail-Belege („Receipt from Ubatuba Acai …“) erkannten „Google“ statt des Händlers; Händler kommt jetzt aus dem Betreff | FA-2.64 | dieser Commit |
 
 ---
 

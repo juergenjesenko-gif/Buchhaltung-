@@ -1465,6 +1465,8 @@ Store-Konto. Du findest alles unter **Einstellungen → Abo**.
 - **Pro** – zusätzlich:
   - **Belegerkennung**: Betrag, Datum und Händler kommen aus dem Foto. Ohne
     Pro tippst du sie selbst ein; beim Beleg steht **Automatisch auslesen (Pro)**.
+    Bei E-Mail-Belegen (z. B. „Receipt from …“ als PDF) nimmt die App den
+    Händler aus dem Betreff, nicht den Zahlungsdienst (Square, Google Pay).
   - **Import** aus Amazon, PayPal, Shopify, Stripe und das Auslesen von
     E-Rechnungen (ZUGFeRD, XRechnung, ebInterface). Ohne Pro bleibt die
     E-Rechnung als Datei am Beleg.

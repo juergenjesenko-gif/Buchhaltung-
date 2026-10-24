@@ -726,6 +726,11 @@ class ReceiptTextParser {
   }
 
   Detected<String>? _merchant(List<String> rows) {
+    // E-Mail-Beleg (FA-2.64): Betreff „Receipt from X #…“ / „Rechnung von X“
+    // nennt den Händler; Zahlungsdienst (Square, Google Pay …) und Mailkopf
+    // („Reply to:“, „To:“) sind nicht der Händler (Rückmeldung 2026-10-25).
+    final fromMail = mailReceiptMerchant(rows);
+    if (fromMail != null) return Detected(fromMail, 85);
     for (var i = 0; i < rows.length && i < 6; i++) {
       final chain = ReceiptClassifier.chainIn(rows[i], exactOnly: true);
       if (chain != null) return Detected(chain.$1, 85);
@@ -777,6 +782,33 @@ class ReceiptTextParser {
       }
     }
     return heuristic;
+  }
+
+  static final _mailSubject = RegExp(
+    r'^(?:fwd?:\s*|aw:\s*|wg:\s*)*(?:your\s+)?(?:receipt|order|invoice)\s+from\s+(.+)$|'
+    r'^(?:fwd?:\s*|aw:\s*|wg:\s*)*(?:ihre?\s+|deine?\s+)?(?:rechnung|beleg|quittung|bestellung)\s+(?:von|bei)\s+(.+)$',
+    caseSensitive: false,
+  );
+
+  /// Händler aus dem Betreff eines E-Mail-Belegs in den ersten Zeilen
+  /// („Receipt from Ubatuba Acai Sherman Oaks #cTpd“ → „Ubatuba Acai Sherman
+  /// Oaks“), sonst `null`. Belegnummer („#…“) und Datum fallen weg.
+  static String? mailReceiptMerchant(List<String> rows) {
+    for (var i = 0; i < rows.length && i < 4; i++) {
+      final m = _mailSubject.firstMatch(rows[i].trim());
+      if (m == null) continue;
+      var name = (m.group(1) ?? m.group(2))!
+          .replaceAll(RegExp(r'\s+#\S*.*$'), '')
+          .replaceAll(
+            RegExp(r'\s+(?:vom|from|on)\s+\d.*$', caseSensitive: false),
+            '',
+          )
+          .replaceAll(RegExp(r'\s{2,}'), ' ')
+          .trim();
+      final letters = RegExp(r'[A-Za-zÄÖÜäöüß]').allMatches(name).length;
+      if (letters >= 3) return name;
+    }
+    return null;
   }
 
   /// Häufige Wörter in Kopfzeilen, die ML Kit auf Thermopapier trennt.
