@@ -84,7 +84,16 @@ class ReceiptEditScreen extends StatefulWidget {
     this.start = ReceiptStart.none,
     this.sharedFiles = const [],
     this.helperEntry,
+    this.backfillBefore,
   });
+
+  /// Nachtragen von Rechnungen vor dem App-Start (FA-4.16): Erfassungsbeginn.
+  /// Das Datum startet am Vortag, die Auswahl endet dort, „Heute/Gestern“
+  /// entfallen. Bewusst ein Einnahmebeleg und keine App-Rechnung: die
+  /// Rechnung existiert schon (eigene Nummer, beim Kunden); eine neue
+  /// App-Rechnung bekäme eine zweite Nummer aus dem Nummernkreis und wäre
+  /// eine doppelte Rechnung (§ 11 Abs 1 UStG 1994, § 14 Abs 4 UStG).
+  final DateTime? backfillBefore;
 
   /// Beleg aus dem Eingang eines Mithelfer-Geräts (FA-17.5): Seiten und
   /// Werte vorbelegt, Vermerk „von ‹Gerät›“; kein erneutes Auslesen.
@@ -181,6 +190,10 @@ class _ReceiptEditScreenState extends State<ReceiptEditScreen> {
   void initState() {
     super.initState();
     _direction = widget.direction;
+    final backfillBefore = widget.backfillBefore;
+    if (backfillBefore != null && widget.existing == null) {
+      _date = _lastBackfillDay(backfillBefore);
+    }
     if (widget.helperEntry != null && widget.existing == null) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (mounted) _addHelperEntry(widget.helperEntry!);
@@ -1037,14 +1050,29 @@ class _ReceiptEditScreenState extends State<ReceiptEditScreen> {
     return _date.year == d.year && _date.month == d.month && _date.day == d.day;
   }
 
+  static DateTime _lastBackfillDay(DateTime before) =>
+      DateTime(before.year, before.month, before.day - 1);
+
+  /// Nachtrag mit Datum ab dem App-Start: zählt als normale Einnahme.
+  bool get _backfillDateAfterStart {
+    final before = widget.backfillBefore;
+    if (before == null) return false;
+    return !_date.isBefore(DateTime(before.year, before.month, before.day));
+  }
+
   Future<void> _pickDate() async {
+    final before = widget.backfillBefore;
+    final last = before == null
+        ? DateTime.now().add(const Duration(days: 1))
+        : _lastBackfillDay(before);
     final picked = await showDatePicker(
       context: context,
-      initialDate: _date,
+      // Erkanntes Datum nach dem Ende der Auswahl würde den Dialog sprengen.
+      initialDate: _date.isAfter(last) ? last : _date,
       // Belege aus der Zukunft sind kein sinnvoller Fall, ein paar Jahre
       // rückwärts dagegen schon – Nachbuchungen passieren.
       firstDate: DateTime(DateTime.now().year - 8),
-      lastDate: DateTime.now().add(const Duration(days: 1)),
+      lastDate: last,
       locale: const Locale('de'),
     );
     if (picked != null) setState(() => _date = picked);
@@ -1883,31 +1911,53 @@ class _ReceiptEditScreenState extends State<ReceiptEditScreen> {
                         trailing: const Icon(Icons.chevron_right),
                         onTap: _pickDate,
                       ),
-                      Wrap(
-                        spacing: 8,
-                        runSpacing: 8,
-                        children: [
-                          for (final (label, offset) in const [
-                            ('Heute', 0),
-                            ('Gestern', 1),
-                          ])
-                            ChoiceChip(
-                              key: Key('date-$label'),
-                              materialTapTargetSize:
-                                  MaterialTapTargetSize.padded,
-                              label: Text(label),
-                              selected: _isDaysAgo(offset),
-                              onSelected: (_) => setState(() {
-                                final now = DateTime.now();
-                                _date = DateTime(
-                                  now.year,
-                                  now.month,
-                                  now.day - offset,
-                                );
-                              }),
-                            ),
-                        ],
-                      ),
+                      if (widget.backfillBefore != null)
+                        Padding(
+                          padding: const EdgeInsets.only(bottom: 8),
+                          child: Text(
+                            _backfillDateAfterStart
+                                ? 'Das Datum liegt nicht vor dem '
+                                      '${Fmt.date(widget.backfillBefore!)} – '
+                                      'der Beleg zählt als normale Einnahme.'
+                                : 'Nachtrag vor dem App-Start: Datum, an dem '
+                                      'das Geld eingegangen ist (Zahlungseingang).',
+                            key: const Key('backfill-date-hint'),
+                            style: Theme.of(context).textTheme.bodySmall
+                                ?.copyWith(
+                                  color: _backfillDateAfterStart
+                                      ? AppTheme.warning
+                                      : Theme.of(
+                                          context,
+                                        ).colorScheme.onSurfaceVariant,
+                                ),
+                          ),
+                        ),
+                      if (widget.backfillBefore == null)
+                        Wrap(
+                          spacing: 8,
+                          runSpacing: 8,
+                          children: [
+                            for (final (label, offset) in const [
+                              ('Heute', 0),
+                              ('Gestern', 1),
+                            ])
+                              ChoiceChip(
+                                key: Key('date-$label'),
+                                materialTapTargetSize:
+                                    MaterialTapTargetSize.padded,
+                                label: Text(label),
+                                selected: _isDaysAgo(offset),
+                                onSelected: (_) => setState(() {
+                                  final now = DateTime.now();
+                                  _date = DateTime(
+                                    now.year,
+                                    now.month,
+                                    now.day - offset,
+                                  );
+                                }),
+                              ),
+                          ],
+                        ),
                       const Divider(height: 8),
                       const SizedBox(height: 8),
                       TextFormField(

@@ -34,6 +34,8 @@ nächsten Versionssprung in den neuen Eintrag.
 
 | Art | Änderung | Bezug | Commit |
 |---|---|---|---|
+| Neu | Übersicht: „davon € X geschätzt vor App-Start“ und Knopf „Rechnungen vor dem App-Start nachtragen“; Nachträge als Einnahme ersetzen die Schätzung statt doppelt zu zählen, Frage „Sind alle Rechnungen … erfasst?“ mit „Ja, vollständig“/„Später“, Zurücksetzen in den Stammdaten; Schema 32 | FA-4.16, P-S99 | dieser Commit |
+| Behoben | Übersicht: „Rücklage für Steuern & SV“ zeigte nach Wechsel zu Kleinunternehmer noch Umsatzsteuer; Speichern der Stammdaten lädt die Übersicht neu | FA-4.17, FA-19.1 | dieser Commit |
 | Geändert | Übersicht: „Rücklage für Steuern & SV“ und „Umsatzsteuer“ stehen am Ende, nach den Terminen | FA-3.7, FA-19.1 | dieser Commit |
 | Behoben | Belegformular: Auswahl „Umsatzsteuersatz“ kürzt lange Bezeichnungen statt rechts überzulaufen (schmale Handys, ~411 dp, beim Erzeugen der Store-Screenshots aufgefallen) | SPEC 7 | 421fa9e |
 | Geändert | Rechnungsformular (AT, über 10.000 € brutto): fehlende UID des Kunden ist ein Hinweis statt Sperre, Ausstellen bleibt möglich, UID per Berichtigung nachreichbar (Rückmeldung Auftraggeber 2026-10-24) | FA-5.50, FA-1.4, P-S98 | dieser Commit |

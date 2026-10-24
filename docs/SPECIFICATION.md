@@ -1,6 +1,6 @@
 # Spezifikation – Buchhaltung
 
-**Dokumentversion:** 2.16 · **App-Version:** 0.39.2 · **Stand:** 2026-10-25
+**Dokumentversion:** 2.17 · **App-Version:** 0.39.2 · **Stand:** 2026-10-25
 **Status:** Testbuild 0.21.0 (Schema 23); Store-Start offen, siehe Abschnitt 11 und 14
 
 > Das **Zielbild** des Produkts steht im [`LASTENHEFT.md`](LASTENHEFT.md); dieses
@@ -309,7 +309,7 @@ ein änderbarer Vorschlag.
 ## 4. Datenmodell
 
 **Speicher:** SQLite auf dem Gerät, Datei `buchhaltung.db` im
-Anwendungsdokumentenverzeichnis. Aktuelle Schemaversion: **30**
+Anwendungsdokumentenverzeichnis. Aktuelle Schemaversion: **32**
 (`spec.schema_version`). Bilder liegen als Dateien daneben: Belegseiten in
 `belege/`, Firmenlogos in `logo/`, Seiten im Eingang der Mithelfer-Geräte in
 `eingang/<uuid>/` (bis zur Übernahme, FA-17.5).
@@ -352,7 +352,7 @@ Anwendungsdokumentenverzeichnis. Aktuelle Schemaversion: **30**
 | `booking_rule_attachments` | Anhänge einer Regel (Fahrtenbuch, Grundriss): `rule_id`, `file_path` (Ordner `belege/`), `file_name`, `note`, `created_at` | Schema 31. Trigger verbietet Ändern |
 | `booking_rule_log` | Verlauf einer Regel: `rule_id`, `text`, `created_at` | Schema 31. Trigger verbietet Ändern; Einträge bei Anlegen, Ändern (mit Unterschied), Anhang, Ausnahme |
 | `booking_rule_exclusions` | Buchungen, die von einer Regel ausgenommen sind: `rule_id`, `receipt_id`, `created_at` | Schema 31. Schlüssel (`rule_id`, `receipt_id`) |
-| `opening_turnover` | Umsatz je Jahr vor Beginn der Erfassung (Eröffnungswert) | Ein Eintrag je Jahr; fehlend ≠ 0 € (seit Schema 2) |
+| `opening_turnover` | Umsatz je Jahr vor Beginn der Erfassung (Eröffnungswert) | Ein Eintrag je Jahr; fehlend ≠ 0 € (seit Schema 2). Seit Schema 32 `backfill_confirmed` (0/1): alle Rechnungen vor dem App-Start nachgetragen, Eröffnungswert zählt nicht mehr (FA-4.16) |
 
 ### 4.2 Datenwörterbuch – zentrale Felder
 
@@ -556,6 +556,8 @@ prüft `InvoiceRequirements` (FA-1.4).
 | FA-4.13 | **Gründungsjahr:** Ist das laufende Jahr das Gründungsjahr, gibt es keine Vorjahresprüfung und keinen Vorjahres-Eröffnungswert; Deutschland prüft gegen 25.000 € statt 100.000 € (`spec.de.founding_year_limit_cents`, § 19 Abs 1 UStG) |
 | FA-4.14 | **Anzeige je Land** (seit 0.31.0): Kennt das Land eine eigene Vorjahresgrenze unter der laufenden (DE: 25.000 € / 100.000 €, § 19 Abs 1 UStG), misst der Balken an 25.000 €, solange der Umsatz darunter liegt (`SmallBusinessAssessment.displayLimit`, `nextYearLimit`), danach an 100.000 €. Über 25.000 € Status *Grenze naht* mit „In diesem Jahr bleibt die Regelung bis 100.000 €, ab dem nächsten Jahr gilt die Regelbesteuerung“; ab 80 % von 25.000 € Vorwarnung. Unter dem Balken die Grenzen des Landes (`limitsNote`): DE „§ 19 UStG: 25.000 € Vorjahr · 100.000 € laufendes Jahr“ (Gründungsjahr: 25.000 €), AT „§ 6 Abs 1 Z 27 UStG: 55.000 € im Vorjahr und im laufenden Jahr, Toleranz bis 60.500 €“ (P-S85) | 
 | FA-4.15 | **Regelbesteuerung ohne Grenze** (seit 0.38.3, Rückmeldung 2026-10-21): Ist die Kleinunternehmerregelung aus, zeigt die Übersicht statt der Grenzwertampel die Karte „Umsatz <Jahr>“ mit dem Umsatz des laufenden Jahres – ohne Grenze; seit 0.39.1 mit Balken und Prozent **im Vergleich zum Vorjahr** („im Vergleich zum Vorjahr (<Jahr>: <Betrag>)“, `previousYearPercent`, gedeckelt 999 %), ohne bekanntes Vorjahr nur der Betrag. Die Rechtsform allein (z. B. GmbH) schaltet die Regelung nicht ab: auch eine GmbH kann Kleinunternehmerin sein (§ 6 Abs 1 Z 27 UStG 1994, § 19 UStG); maßgeblich ist der Schalter „Kleinunternehmer“ in den Stammdaten |
+| FA-4.16 | **Rechnungen vor dem App-Start nachtragen** (seit 2026-10-25, Freigabe Auftraggeber): Einnahmen mit Datum vor `tracking_start` (`ReceiptRepository.turnoverBefore`) ersetzen den Eröffnungswert Euro für Euro: je Jahr mit Eröffnungswert (laufendes Jahr und Vorjahr) Rest = max(0, Eröffnungswert − Nachträge), Umsatz = alle Einnahmen + Rest (`TurnoverBasis.forYear`, `BackfillStatus`); nach Bestätigung „vollständig“ (`opening_turnover.backfill_confirmed`, Schema 32) Rest 0. Übersicht (Grenzwertampel und „Umsatz <Jahr>“): Zeile „davon € X geschätzt vor App-Start“ solange der Rest des laufenden Jahres > 0; Knopf „Rechnungen vor dem App-Start nachtragen“ (volle Breite, 48 dp) solange ein Rest > 0 und nicht bestätigt – öffnet das Belegformular als **Einnahme** mit Dateiauswahl (Auslesen wie gewohnt), Datum am Vortag des App-Starts, Datumsauswahl endet dort, ohne „Heute/Gestern“, Hinweis „Datum, an dem das Geld eingegangen ist (Zahlungseingang)“ bzw. Warnung bei Datum ab App-Start. Keine App-Rechnung (zweite Nummer = doppelte Rechnung). Nach einem Nachtrag unter der Schätzung Frage „Du hast € A von geschätzten € B nachgetragen. Sind alle Rechnungen vor dem <Datum> erfasst?“ mit „Später“ und „Ja, vollständig“ (je halbe Breite, 48 dp, 12 dp Abstand; „Später“ bis zum nächsten Start); ab Nachtrag ≥ Schätzung Hinweis „Schätzung ersetzt durch nachgetragene Rechnungen“. Rückgängig: Stammdaten „Bestätigung zurücksetzen“. Datum = Zufluss (DE § 19 Abs 2 UStG vereinnahmte Entgelte; AT Istbesteuerung, P-S99) |
+| FA-4.17 | Speichern der Stammdaten lädt die Übersicht neu (`AppState.bookingsRevision`), auch Summen und „Rücklage für Steuern & SV“: nach Wechsel Regelbesteuerung → Kleinunternehmer keine Umsatzsteuer mehr in der Rücklage (Rückmeldung Auftraggeber 2026-10-25) |
 
 > **Erledigt in Dokumentversion 1.4: Vorjahresgrenze Österreich (O-1).** Auch
 > in Österreich darf der Vorjahresumsatz 55.000 € nicht überschritten haben
@@ -1419,7 +1421,7 @@ Offen benannt, weil eine Spezifikation, die ihre Lücken verschweigt, wertlos is
 > Das ist der Mechanismus, der dieses Dokument aktuell hält.
 
 ```properties
-spec.schema_version = 31
+spec.schema_version = 32
 # E-Rechnung erstellen (FA-5.49)
 spec.einvoice_guideline_en16931 = urn:cen.eu:en16931:2017
 spec.einvoice_guideline_xrechnung = urn:cen.eu:en16931:2017#compliant#urn:xeinkauf.de:kosit:xrechnung_3.0
@@ -1623,6 +1625,7 @@ Vorsteuerabzug in Promille; Fundstelle Privatanteil; Fundstelle Vorsteuer.
 
 | Version | Datum | App-Version | Änderung |
 |---|---|---|---|
+| 2.17 | 2026-10-25 | 0.39.2 | FA-4.16 neu: Rechnungen vor dem App-Start als Einnahme nachtragen, Nachträge ersetzen den Eröffnungswert statt doppelt zu zählen, Frage „vollständig“ mit Zurücksetzen in den Stammdaten; Schema 32 `opening_turnover.backfill_confirmed` (4.1, 4.2 Schemaversion von veraltet 30 auf 32 nachgezogen); `spec.schema_version` 32 (12). FA-4.17 neu: Speichern der Stammdaten lädt die Übersicht samt Rücklage neu (Fehler: USt nach Wechsel zu Kleinunternehmer). Prüfpunkt P-S99 neu (14). Prüfinstanzen: Steuerberater (Datum = Zufluss; DE § 19 Abs 2 UStG hoch, AT § 6 Abs 1 Z 27 iVm § 17 UStG 1994 mittel), UX (Knöpfe ≥ 48 dp, Frage nur nach einem Nachtrag, ein Tipp zur Dateiauswahl), Softwareentwickler (Migration neu, `save` ohne REPLACE), Rechtsanwalt ohne Befund (keine neue Übertragung). |
 | 2.16 | 2026-10-25 | 0.39.2 | FA-3.7, FA-19.1: Übersicht – Rücklage für Steuern & SV und Umsatzsteuer ans Ende nach den Terminen (Rückmeldung Auftraggeber). |
 | 2.15 | 2026-10-24 | 0.39.2 | FA-5.50: fehlende Kunden-UID bei AT-Rechnungen über 10.000 € brutto ist ein Hinweis statt Sperre; „Kunde bearbeiten“ im Rechnungsentwurf, Kunden-Snapshot eines Entwurfs wird beim Speichern aktualisiert. FA-1.4 und P-S9 angepasst, Prüfpunkt P-S98 neu. |
 | 2.14 | 2026-10-24 | 0.39.2 | P-R68 erledigt: Datenschutzerklärung (`docs/legal/DATENSCHUTZ.md`, Stand 2026-10-24) um alle Datenflüsse aus Lastenheft 5.19 ergänzt (E-Rechnung, EZB-Kurs, Link-QR, ML Kit/Dokumentenscanner mit Rechtsgrundlage und Drittlandübermittlung, Mithelfer-Weg, Mailweg SMTP/IMAP, Serversuche, Diktat auf dem Gerät), Website neu erzeugt; neuer Prüfpunkt P-R78. Kein Code- oder Schemawechsel. |
@@ -1847,6 +1850,7 @@ erzeugt `beispiele_erzeugen_test.dart` mit dem PDF-Generator der App.
 | P-S96 | Instagram-Werbung des Anbieters (Meta Platforms Ireland): Reverse Charge für die Kleinunternehmerin (§ 19 Abs 1 Satz 2, § 3a Abs 6 UStG 1994), UVA-Pflicht allein deswegen, UID auf der Meta-Rechnung, Buchung als Werbeaufwand | wie P-S52, P-S57: Steuerschuld ohne Vorsteuerabzug, UVA voraussichtlich nötig | erste bezahlte Werbung | offen – extern |
 | P-S97 | Werbeszenen mit Dienstleistern und Barzahlung (z. B. Fitness-Coach): Belegerteilungspflicht § 132a BAO, Registrierkasse (15.000 € Jahresumsatz und 7.500 € Barumsatz), DE § 146a AO; keine Darstellung der App als Kassenersatz | App ist keine Registrierkasse (FAQ der Produktseite); Rechnung per E-Mail unproblematisch, Kassier-Szene vermeiden | erste Werbung | intern geprüft 2026-10-22 (hoch) |
 | P-S98 | AT Rechnung über 10.000 € brutto ohne UID des Empfängers ausstellen (FA-5.50): (a) Reicht ein nicht sperrender Hinweis, oder soll die App bei als Unternehmer markierten Kunden stärker warnen? (b) Berichtigung durch Nachreichen der UID – genügt ein Berichtigungsschreiben mit Bezug auf die Rechnung, oder ist eine neue Rechnung (Storno + Neuausstellung) nötig? (c) Risiko für den Aussteller (Haftung, Finanzstrafrecht) bei fehlender Empfänger-UID | Interne Prüfung: Pflicht nur bei Unternehmer-Empfängern, Rechnung bleibt Beleg, Vorsteuerabzug des Kunden erst nach Berichtigung sicher (§ 11 Abs 1 Z 3 lit i UStG 1994, UStR Rz 1508a; EuGH C-518/14 Senatex; DE § 14 Abs 4 UStG kennt keine Empfänger-USt-IdNr. außer § 14a UStG) – Sicherheit mittel | Release | offen |
+| P-S99 | Nachtragen von Rechnungen vor dem App-Start (FA-4.16): Welches Datum zählt für die Kleinunternehmergrenze und den Jahresvergleich? (a) DE: vereinnahmte Entgelte (Zufluss) auch bei Rechnung im Vorjahr; (b) AT: Zufluss bei Istbesteuerung (§ 17 UStG 1994), Leistungs-/Rechnungszeitpunkt bei Sollbesteuerung – reicht der Vorschlag „Zahlungseingang“ für Einzelunternehmer ohne Buchführungspflicht? (c) Darf „Ja, vollständig“ die Schätzung ganz ersetzen, oder soll ein Restwert bleiben? | Interne Prüfung: DE § 19 Abs 2 Satz 1 UStG (idF JStG 2024, vorher Abs 3) „nach vereinnahmten Entgelten“ – Sicherheit hoch; AT § 6 Abs 1 Z 27 UStG 1994 (Umsätze des Veranlagungszeitraums), UStR 2000 Rz 994: Ermittlung nach der für den Unternehmer geltenden Soll- oder Istbesteuerung, Kleinunternehmer ohne Buchführungspflicht meist Ist – Sicherheit mittel; EAR Zuflussprinzip § 19 EStG 1988 / § 11 EStG stützt dasselbe Datum. App schlägt Zahlungseingang vor | Release | offen |
 
 ### Rechtsstand-Überwachung (Validierung, Lastenheft L-20)
 

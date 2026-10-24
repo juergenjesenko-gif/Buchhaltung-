@@ -570,6 +570,10 @@ class AppState extends ChangeNotifier {
     await repositories.company.save(profile);
     _profile = profile;
     Fmt.setCountry(profile.country);
+    // Besteuerung, Land oder Wirtschaftsjahr können sich geändert haben:
+    // Übersicht samt Rücklage (Umsatzsteuer!) neu laden (Rückmeldung
+    // 2026-10-25: nach Wechsel zu Kleinunternehmer stand dort noch USt).
+    _bookingsRevision++;
     await _refreshSmallBusiness();
     notifyListeners();
   }
@@ -596,6 +600,10 @@ class AppState extends ChangeNotifier {
     final now = DateTime.now();
     final current = await _yearTurnover(now.year, profile.trackingStart);
     final previous = await _yearTurnover(now.year - 1, profile.trackingStart);
+    _backfill = BackfillStatus.of(
+      trackingStart: profile.trackingStart,
+      years: [current, previous],
+    );
     _smallBusiness = SmallBusinessMonitor.assess(
       taxProfile: profile.taxProfile,
       isSmallBusiness: profile.isSmallBusiness,
@@ -674,15 +682,54 @@ class AppState extends ChangeNotifier {
   DeadlineOverview? get deadlines => _deadlines;
 
   Future<YearTurnover> _yearTurnover(int year, DateTime? trackingStart) async {
+    final includeVat = profile!.taxProfile.turnoverIncludesVat;
     return TurnoverBasis.forYear(
       year: year,
       fromReceipts: await repositories.receipts.turnoverForYear(
         year,
-        includeVat: profile!.taxProfile.turnoverIncludesVat,
+        includeVat: includeVat,
       ),
       opening: await repositories.openingTurnover.forYear(year),
       trackingStart: trackingStart,
+      backfilled: trackingStart == null
+          ? const Money.zero()
+          : await repositories.receipts.turnoverBefore(
+              year,
+              trackingStart,
+              includeVat: includeVat,
+            ),
+      confirmedComplete: await repositories.openingTurnover.backfillConfirmed(
+        year,
+      ),
     );
+  }
+
+  BackfillStatus? _backfill;
+
+  /// Nachtragen von Rechnungen vor dem App-Start (FA-4.16), `null` ohne
+  /// Profil.
+  BackfillStatus? get backfill => _backfill;
+
+  bool _backfillQuestionDeferred = false;
+
+  /// „Später“ auf der Frage „Sind alle Rechnungen … erfasst?“: bis zum
+  /// nächsten Start nicht mehr fragen.
+  bool get backfillQuestionDeferred => _backfillQuestionDeferred;
+
+  void deferBackfillQuestion() {
+    _backfillQuestionDeferred = true;
+    notifyListeners();
+  }
+
+  /// „Ja, vollständig“ bzw. Zurücksetzen im Firmenprofil (FA-4.16): gilt für
+  /// alle Jahre mit Eröffnungswert vor dem App-Start.
+  Future<void> setBackfillConfirmed(bool confirmed) async {
+    final now = DateTime.now().year;
+    for (final year in [now, now - 1]) {
+      await repositories.openingTurnover.setBackfillConfirmed(year, confirmed);
+    }
+    await _refreshSmallBusiness();
+    notifyListeners();
   }
 
   /// Eröffnungswert eines Jahres, `null` wenn nicht erfasst.

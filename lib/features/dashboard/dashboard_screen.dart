@@ -18,6 +18,7 @@ import '../../theme.dart';
 import '../../widgets/capture_button.dart';
 import '../../widgets/scroll_auto_hide.dart';
 import '../../widgets/common.dart';
+import 'backfill_section.dart';
 import '../backup/backup_screen.dart';
 import '../onboarding/company_setup_screen.dart';
 import '../receipts/receipt_edit_screen.dart';
@@ -165,6 +166,36 @@ class _DashboardScreenState extends State<DashboardScreen> {
     if (saved == true) await _load();
   }
 
+  /// Nachtragen von Rechnungen vor dem App-Start (FA-4.16), `null` wenn es
+  /// nichts zu zeigen gibt.
+  Widget? _backfillSection(AppState state) {
+    final status = state.backfill;
+    if (status == null || status.years.isEmpty) return null;
+    if (!status.canBackfill && !status.replacedByBackfill) return null;
+    return BackfillSection(
+      status: status,
+      askComplete: status.asksComplete && !state.backfillQuestionDeferred,
+      onBackfill: () => _backfill(status.trackingStart!),
+      onConfirm: () => state.setBackfillConfirmed(true),
+      onLater: state.deferBackfillQuestion,
+    );
+  }
+
+  /// Öffnet die Belegerfassung als Einnahme mit Datum vor dem App-Start.
+  /// Bewusst keine App-Rechnung (siehe `ReceiptEditScreen.backfillBefore`).
+  Future<void> _backfill(DateTime trackingStart) async {
+    final saved = await Navigator.of(context).push<bool>(
+      MaterialPageRoute(
+        builder: (_) => ReceiptEditScreen(
+          direction: BookingDirection.income,
+          start: ReceiptStart.file,
+          backfillBefore: trackingStart,
+        ),
+      ),
+    );
+    if (saved == true) await _load();
+  }
+
   @override
   Widget build(BuildContext context) {
     final state = AppScope.of(context);
@@ -265,8 +296,14 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 // Regelbesteuerung: Umsatz ja, Grenze nein (Rückmeldung
                 // 2026-10-21) – eine Kleinunternehmergrenze gibt es dort nicht.
                 state.smallBusiness!.status == SmallBusinessStatus.notApplicable
-                    ? _TurnoverCard(assessment: state.smallBusiness!)
-                    : _SmallBusinessCard(assessment: state.smallBusiness!),
+                    ? _TurnoverCard(
+                        assessment: state.smallBusiness!,
+                        backfill: _backfillSection(state),
+                      )
+                    : _SmallBusinessCard(
+                        assessment: state.smallBusiness!,
+                        backfill: _backfillSection(state),
+                      ),
                 const SizedBox(height: 16),
               ],
 
@@ -707,9 +744,12 @@ class _VatCard extends StatelessWidget {
 /// Umsatz des laufenden Jahres bei Regelbesteuerung: Balken am Vorjahr
 /// gemessen, ohne Grenze (FA-4.15, Rückmeldung 2026-10-21).
 class _TurnoverCard extends StatelessWidget {
-  const _TurnoverCard({required this.assessment});
+  const _TurnoverCard({required this.assessment, this.backfill});
 
   final SmallBusinessAssessment assessment;
+
+  /// Nachtragen vor dem App-Start (FA-4.16), sonst `null`.
+  final Widget? backfill;
 
   @override
   Widget build(BuildContext context) {
@@ -764,6 +804,7 @@ class _TurnoverCard extends StatelessWidget {
               ).textTheme.bodySmall?.copyWith(color: scheme.onSurfaceVariant),
             ),
           ],
+          ?backfill,
         ],
       ),
     );
@@ -771,9 +812,12 @@ class _TurnoverCard extends StatelessWidget {
 }
 
 class _SmallBusinessCard extends StatelessWidget {
-  const _SmallBusinessCard({required this.assessment});
+  const _SmallBusinessCard({required this.assessment, this.backfill});
 
   final SmallBusinessAssessment assessment;
+
+  /// Nachtragen vor dem App-Start (FA-4.16), sonst `null`.
+  final Widget? backfill;
 
   @override
   Widget build(BuildContext context) {
@@ -830,6 +874,7 @@ class _SmallBusinessCard extends StatelessWidget {
               valueColor: AlwaysStoppedAnimation(color),
             ),
           ),
+          ?backfill,
           if (assessment.limitsNote.isNotEmpty) ...[
             const SizedBox(height: 8),
             Text(

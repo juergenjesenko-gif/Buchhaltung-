@@ -905,6 +905,26 @@ class ReceiptRepository {
     return Money((rows.first['total'] as int?) ?? 0);
   }
 
+  /// Nachgetragene Einnahmen (FA-4.16): Umsatz des Jahres [year] mit Datum
+  /// vor [before] (Erfassungsbeginn), gleiche Abgrenzung wie
+  /// [turnoverForYear].
+  Future<Money> turnoverBefore(
+    int year,
+    DateTime before, {
+    required bool includeVat,
+  }) async {
+    final column = includeVat ? 'gross_cents' : 'net_cents';
+    final rows = await _db.rawQuery(
+      '''
+      SELECT SUM($column) AS total FROM receipts
+      WHERE direction = 'income' AND date >= ? AND date <= ? AND date < ?
+        AND cancelled_at IS NULL AND tax_registration_id IS NULL
+      ''',
+      ['$year-01-01', '$year-12-31', _day(before)],
+    );
+    return Money((rows.first['total'] as int?) ?? 0);
+  }
+
   static String _day(DateTime date) => date.toIso8601String().substring(0, 10);
 }
 
@@ -937,17 +957,63 @@ class OpeningTurnoverRepository {
         whereArgs: [year],
       );
     } else {
-      await _db.insert('opening_turnover', {
-        'year': year,
-        'net_cents': amount.cents,
-        'updated_at': DateTime.now().toIso8601String(),
-      }, conflictAlgorithm: ConflictAlgorithm.replace);
+      // Kein REPLACE: das würde die Bestätigung „vollständig“ (Schema 32)
+      // zurücksetzen.
+      final now = DateTime.now().toIso8601String();
+      final updated = await _db.update(
+        'opening_turnover',
+        {'net_cents': amount.cents, 'updated_at': now},
+        where: 'year = ?',
+        whereArgs: [year],
+      );
+      if (updated == 0) {
+        await _db.insert('opening_turnover', {
+          'year': year,
+          'net_cents': amount.cents,
+          'updated_at': now,
+        });
+      }
     }
     await AuditLog(_db).record(
       entity: 'opening_turnover',
       entityId: year,
       action: amount == null ? 'delete' : 'save',
       detail: amount?.toString() ?? '',
+    );
+  }
+}
+
+/// Bestätigung „alle Rechnungen vor dem App-Start nachgetragen“ (FA-4.16,
+/// Schema 32) in `opening_turnover`.
+extension OpeningBackfillConfirmation on OpeningTurnoverRepository {
+  Future<bool> backfillConfirmed(int year) async {
+    final rows = await _db.query(
+      'opening_turnover',
+      columns: ['backfill_confirmed'],
+      where: 'year = ?',
+      whereArgs: [year],
+      limit: 1,
+    );
+    return rows.isNotEmpty && rows.first['backfill_confirmed'] == 1;
+  }
+
+  /// Setzt oder löscht die Bestätigung; ohne Eröffnungswert ohne Wirkung.
+  Future<void> setBackfillConfirmed(int year, bool confirmed) async {
+    final changed = await _db.update(
+      'opening_turnover',
+      {
+        'backfill_confirmed': confirmed ? 1 : 0,
+        'updated_at': DateTime.now().toIso8601String(),
+      },
+      where: 'year = ?',
+      whereArgs: [year],
+    );
+    if (changed == 0) return;
+    await AuditLog(_db).record(
+      entity: 'opening_turnover',
+      entityId: year,
+      action: confirmed ? 'backfill_confirmed' : 'backfill_reset',
+      detail: '',
     );
   }
 }

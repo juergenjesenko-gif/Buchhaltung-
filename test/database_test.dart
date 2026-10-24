@@ -36,6 +36,8 @@ void main() {
           'year',
           'net_cents',
           'updated_at',
+          // Schema 32 (FA-4.16)
+          'backfill_confirmed',
         ]);
         expect(
           await columnsOf(db, 'company_profile'),

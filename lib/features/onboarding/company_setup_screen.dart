@@ -843,6 +843,33 @@ class _CompanySetupScreenState extends State<CompanySetupScreen> {
                         ),
                       ],
                     ],
+                    if (!widget.isOnboarding &&
+                        (AppScope.of(context).backfill?.confirmed ??
+                            false)) ...[
+                      const SizedBox(height: 12),
+                      // FA-4.16: „Ja, vollständig“ rückgängig machen.
+                      Text(
+                        'Du hast bestätigt, dass alle Rechnungen vor dem '
+                        '${Fmt.date(_trackingStart)} nachgetragen sind. Der '
+                        'geschätzte Umsatz vor Nutzung der App zählt nicht mehr.',
+                        key: const Key('backfill-confirmed-note'),
+                        style: Theme.of(context).textTheme.bodySmall,
+                      ),
+                      const SizedBox(height: 4),
+                      Align(
+                        alignment: Alignment.centerLeft,
+                        child: TextButton(
+                          key: const Key('backfill-reset'),
+                          style: TextButton.styleFrom(
+                            minimumSize: const Size(48, 48),
+                          ),
+                          onPressed: () => AppScope.read(
+                            context,
+                          ).setBackfillConfirmed(false),
+                          child: const Text('Bestätigung zurücksetzen'),
+                        ),
+                      ),
+                    ],
                   ],
                 ),
               ),

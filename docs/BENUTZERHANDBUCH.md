@@ -797,6 +797,39 @@ Unter dem Balken stehen immer die Grenzen deines Landes, z. B. „§ 19 UStG:
 
 Unter der Ampel steht immer im Klartext, was der Status für dich bedeutet.
 
+### Rechnungen vor dem App-Start nachtragen
+
+Hast du beim Einrichten einen **Umsatz vor Nutzung der App** eingetragen, ist
+das eine Schätzung. Auf der Karte steht dann „davon … geschätzt vor App-Start“
+und darunter der Knopf **Rechnungen vor dem App-Start nachtragen**. Das gilt
+auch bei Regelbesteuerung auf der Karte „Umsatz <Jahr>“.
+
+1. Auf **Rechnungen vor dem App-Start nachtragen** tippen.
+2. Die alte Rechnung als Datei (PDF, Foto) auswählen. Die App liest sie wie
+   jeden Beleg aus und legt sie als **Einnahme** an.
+3. Als Datum den Tag nehmen, an dem **das Geld eingegangen** ist. Das Datum
+   steht schon auf dem Tag vor deinem App-Start; später geht nicht. Liegt der
+   Zahlungseingang nach dem App-Start, ist es keine Nachtragung, sondern eine
+   normale Einnahme.
+4. Speichern. Der nachgetragene Betrag ersetzt die Schätzung – er zählt nicht
+   doppelt.
+
+Die App legt dafür **keine neue Rechnung** an: Die Rechnung gibt es schon, mit
+ihrer eigenen Nummer. Eine zweite Rechnung mit neuer Nummer wäre eine doppelte
+Rechnung.
+
+Hast du weniger nachgetragen als geschätzt, fragt die Karte: „Du hast € A von
+geschätzten € B nachgetragen. Sind alle Rechnungen vor dem <Datum> erfasst?“
+
+- **Ja, vollständig** – die Schätzung zählt nicht mehr, nur noch deine Belege.
+- **Später** – die Frage kommt beim nächsten Start wieder.
+
+Hast du mindestens so viel nachgetragen wie geschätzt, fällt die Schätzung von
+selbst weg („Schätzung ersetzt durch nachgetragene Rechnungen“).
+
+Versehentlich „Ja, vollständig“ getippt? In den **Stammdaten** unter
+„Umsatz vor Nutzung der App“ auf **Bestätigung zurücksetzen** tippen.
+
 > Die Ampel ist eine Hilfe, keine verbindliche Auskunft. Maßgeblich ist der
 > Umsatzbegriff des Umsatzsteuergesetzes, und der kann in Sonderfällen von der
 > Summe deiner erfassten Einnahmen abweichen.
@@ -1660,6 +1693,12 @@ deiner Steuerberatung.
 ---
 
 ## 13. Wenn etwas nicht geht
+
+**„Das Datum liegt nicht vor dem <Datum> – der Beleg zählt als normale
+Einnahme.“** (beim Nachtragen) — der Zahlungseingang liegt nach deinem
+App-Start. Das ist in Ordnung, der Beleg zählt dann ganz normal; nur ersetzt
+er keine Schätzung. Siehe
+[Rechnungen vor dem App-Start nachtragen](#rechnungen-vor-dem-app-start-nachtragen).
 
 **„Für 2027 gibt es neue Steuerwerte – bitte App aktualisieren.“** — die
 eingebauten Steuerwerte (Tarife, Grenzen, Beiträge) gelten bis Jahresende;

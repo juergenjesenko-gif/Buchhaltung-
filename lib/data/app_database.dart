@@ -18,7 +18,7 @@ class AppDatabase {
 
   /// Aktuelle Schemaversion. Öffentlich, weil docs/SPECIFICATION.md sie
   /// dokumentiert und test/specification_sync_test.dart beide vergleicht.
-  static const schemaVersion = 31;
+  static const schemaVersion = 32;
 
   Database? _db;
 
@@ -943,6 +943,12 @@ class AppDatabase {
         PRIMARY KEY (rule_id, receipt_id)
       )
       ''',
+    ],
+    // Schema 32 (FA-4.16): Bestätigung „alle Rechnungen vor dem App-Start
+    // nachgetragen“ je Jahr. Danach zählt der Eröffnungswert nicht mehr.
+    32: [
+      'ALTER TABLE opening_turnover '
+          'ADD COLUMN backfill_confirmed INTEGER NOT NULL DEFAULT 0',
     ],
   };
 
