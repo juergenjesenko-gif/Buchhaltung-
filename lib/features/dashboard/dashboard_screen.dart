@@ -285,7 +285,30 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   inputVatDeductible: state.inputVatDeductible,
                 ),
                 const SizedBox(height: 16),
-                // Rücklage für Steuern & SV (FA-19.1), direkt unter dem Ergebnis.
+                if (_trend.any(
+                  (bar) => !bar.income.isZero || !bar.expense.isZero,
+                )) ...[
+                  SectionCard(
+                    title: 'Letzte 6 Monate',
+                    child: _TrendChart(bars: _trend),
+                  ),
+                  const SizedBox(height: 16),
+                ],
+                _recentCard(),
+              ],
+
+              // Termine stehen am Ende: zuerst die Zahlen, dann der Ausblick
+              // (Gerätetest 0.6.0).
+              if (state.deadlines != null &&
+                  (state.deadlines!.upcoming.isNotEmpty ||
+                      state.deadlines!.advisorNote != null)) ...[
+                const SizedBox(height: 16),
+                _DeadlineCard(overview: state.deadlines!),
+              ],
+              if (totals != null) ...[
+                const SizedBox(height: 16),
+                // Rücklage für Steuern & SV (FA-19.1) und Umsatzsteuer stehen ganz am
+                // Ende, nach den Terminen (Rückmeldung Auftraggeber 2026-10-25).
                 // Nur Pro (O-43): ohne Pro ein Hinweis mit „(Pro)“ zur Abo-Seite.
                 if (!state.allows(Feature.levyReserve)) ...[
                   Card(
@@ -340,25 +363,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   ),
                   const SizedBox(height: 16),
                 ],
-                if (_trend.any(
-                  (bar) => !bar.income.isZero || !bar.expense.isZero,
-                )) ...[
-                  SectionCard(
-                    title: 'Letzte 6 Monate',
-                    child: _TrendChart(bars: _trend),
-                  ),
-                  const SizedBox(height: 16),
-                ],
-                _recentCard(),
-              ],
-
-              // Termine stehen am Ende: zuerst die Zahlen, dann der Ausblick
-              // (Gerätetest 0.6.0).
-              if (state.deadlines != null &&
-                  (state.deadlines!.upcoming.isNotEmpty ||
-                      state.deadlines!.advisorNote != null)) ...[
-                const SizedBox(height: 16),
-                _DeadlineCard(overview: state.deadlines!),
               ],
             ],
           ),

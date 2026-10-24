@@ -2199,7 +2199,7 @@ ersetzt keine Steuerberatung.**
 
 ### Die Karte auf der Übersicht
 
-Unter deinem Ergebnis steht **Rücklage für Steuern & SV** mit einem Betrag pro
+Ganz unten auf der Übersicht, nach den Terminen, steht **Rücklage für Steuern & SV** mit einem Betrag pro
 Monat und was je Abgabe noch offen ist. Leg diesen Betrag jeden Monat auf ein
 eigenes Konto. Tipp auf die Karte für die Einzelheiten.
 

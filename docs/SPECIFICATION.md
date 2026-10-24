@@ -1,6 +1,6 @@
 # Spezifikation – Buchhaltung
 
-**Dokumentversion:** 2.15 · **App-Version:** 0.39.2 · **Stand:** 2026-10-24
+**Dokumentversion:** 2.16 · **App-Version:** 0.39.2 · **Stand:** 2026-10-25
 **Status:** Testbuild 0.21.0 (Schema 23); Store-Start offen, siehe Abschnitt 11 und 14
 
 > Das **Zielbild** des Produkts steht im [`LASTENHEFT.md`](LASTENHEFT.md); dieses
@@ -534,7 +534,7 @@ prüft `InvoiceRequirements` (FA-1.4).
 | FA-3.3 | Bei Regelbesteuerung: Umsatz je Steuersatz, Umsatzsteuer, Vorsteuer, Zahllast oder Guthaben. **Reverse Charge** (0.11.0, FA-2.46): Belege mit `reverse_charge` zählen netto als Ausgabe; die Steuer rechnet die Auswertung je Beleg zum Normalsatz des Landes (`TaxProfile.standardVatPermille`) und zeigt sie mit Kennzahlen aus `TaxProfile.reverseCharge`: AT Kz 057 Steuer, Kz 066 Vorsteuer (§ 19 Abs 1 zweiter Satz iVm § 3a Abs 6 UStG 1994); DE Kz 46 Bemessungsgrundlage, Kz 47 Steuer, Kz 67 Vorsteuer (§ 13b Abs 1 und 5 UStG); P-S52. Zahllast = Umsatzsteuer − Vorsteuer + RC-Steuer − RC-Vorsteuer |
 | FA-3.4 | Bei Kleinunternehmern entfällt die Umsatzsteuerauswertung mit Erklärung – außer bei Reverse Charge: dann Karte mit RC-Kennzahlen, Vorsteuer 0 und Zahllast (Steuerschuld ohne Vorsteuerabzug, P-S52) |
 | FA-3.5 | Balkenverlauf über die letzten sechs Monate, Einnahmen und Ausgaben getrennt; ein Betrag > 0 ist mindestens 6 dp hoch, damit eine kleine Ausgabe neben einer großen Einnahme sichtbar bleibt |
-| FA-3.7 | Reihenfolge der Übersicht: Hinweise, Kleinunternehmergrenze, Zeitraum, Einnahmen/Ausgaben, Umsatzsteuer, Verlauf, Letzte Belege, **Termin-Box am Ende** (0.7.0). Nur der jüngste Ladevorgang zeigt sein Ergebnis an (kein Überschreiben neuer Summen durch einen älteren Lauf) |
+| FA-3.7 | Reihenfolge der Übersicht: Hinweise, Kleinunternehmergrenze bzw. Umsatzbalken, Zeitraum, Einnahmen/Ausgaben, Verlauf (6 Monate), Letzte Belege, Termin-Box, **danach Rücklage für Steuern & SV und Umsatzsteuer am Ende** (Rückmeldung Auftraggeber 2026-10-25; Termin-Box am Ende seit 0.7.0). Nur der jüngste Ladevorgang zeigt sein Ergebnis an (kein Überschreiben neuer Summen durch einen älteren Lauf) |
 | FA-3.6 | Die letzten fünf Belege sind als Schnellzugriff sichtbar |
 
 ### 5.4 Kleinunternehmer-Grenzwertüberwachung
@@ -922,7 +922,7 @@ Anspruch normale Buchungen (auch FA-19.4).
 
 | ID | Anforderung |
 |---|---|
-| FA-19.1 | **Karte „Rücklage für Steuern & SV“** auf der Übersicht direkt unter dem Ergebnis, sobald eine Abgabe > 0 geschätzt ist: empfohlene Rücklage pro Monat (offene Jahressumme / restliche Monate inkl. laufendem, auf volle Euro aufgerundet) und „offen“ je Abgabe; ganze Karte tippbar → Bildschirm „Abgaben & Rücklagen“. **Ohne Pro** statt der Karte eine Zeile „Abgaben & Rücklagen (Pro)“ (56 dp) zur Abo-Seite; ebenso der Einstieg in „Für das Finanzamt“ |
+| FA-19.1 | **Karte „Rücklage für Steuern & SV“** auf der Übersicht am Ende nach den Terminen (seit 2026-10-25, FA-3.7), sobald eine Abgabe > 0 geschätzt ist: empfohlene Rücklage pro Monat (offene Jahressumme / restliche Monate inkl. laufendem, auf volle Euro aufgerundet) und „offen“ je Abgabe; ganze Karte tippbar → Bildschirm „Abgaben & Rücklagen“. **Ohne Pro** statt der Karte eine Zeile „Abgaben & Rücklagen (Pro)“ (56 dp) zur Abo-Seite; ebenso der Einstieg in „Für das Finanzamt“ |
 | FA-19.2 | **Schätzung AT:** Gewinn bis heute (E/A, FA-19.4) plus gebuchte SVS-Beiträge, linear auf 12 Monate hochgerechnet = Beitragsgrundlage (Hinzurechnung § 25 Abs 2 Z 2 GSVG), begrenzt auf Mindest-/Höchstbeitragsgrundlage; PV 18,5 %, KV 6,8 %, Selbständigenvorsorge 1,53 %, UV fix 12,95 €/Monat. Erste drei Jahre ab Gründungsjahr: Hinweis „vorläufig vorgeschrieben … Nachbemessung später“ (§ 25a GSVG). KU-Ausnahme (§ 4 Abs 1 Z 7 GSVG): Hinweis, wenn Umsatz ≤ 55.000 € und Gewinn ≤ 6.613,20 €; Schalter „Ausnahme beantragt“ lässt nur UV. Einkommensteuer: Gewinn − SVS − Grundfreibetrag (15 % bis 33.000 €, § 10 EStG 1988) nach Stufentarif des Jahres (§ 33 EStG 1988, kaufmännisch auf Cent). Hinweis: Kommunalsteuer, DB, DZ nur mit Dienstnehmern |
 | FA-19.3 | **Schätzung DE:** Gewinn hochgerechnet; Gewerbesteuer außer bei Freiberuflerin (Schalter, Vorschlag aus Rechtsform): Gewinn auf 100 € abgerundet − 24.500 € × 3,5 % × Hebesatz (Eingabe, Vorschlag 400 %); zvE = Gewinn − Kranken-/Pflegeversicherung (Monatsbetrag laut Bescheid × 12, P-S83); ESt nach § 32a EStG (Grundtabelle, volle Euro) minus Anrechnung § 35 EStG (4,0 × Messbetrag, höchstens GewSt und ESt); Solidaritätszuschlag mit Freigrenze 20.350 € und Milderungszone 11,9 %; Kirchensteuer optional 8 % (BY, BW) bzw. 9 % nach Bundesland im Profil. Lohnsteuer/Sozialabgaben nur mit Arbeitnehmern (Hinweis) |
 | FA-19.4 | **Abgabenkategorien und E/A:** „Sozialversicherung“, „Einkommensteuer-Vorauszahlung“, „Gewerbesteuer“ (Kennung `categories.kind`). `ReceiptRepository.totals(nonDeductibleKinds:)` rechnet Buchungen der Kategorien aus `LevyRules.nonDeductibleKinds` dem Ergebnis wieder hinzu: Einkommensteuer immer (privat), Gewerbesteuer (§ 4 Abs 5b EStG), DE Kranken-/Pflegeversicherung (Sonderausgabe); AT SVS bleibt Betriebsausgabe. Saldenliste, vorläufiger Abschluss und Kennzahlen zeigen die Hinzurechnung. „Bisher bezahlt“ = Summe der Buchungen je Kennung im Kalenderjahr bis heute |
@@ -1623,6 +1623,7 @@ Vorsteuerabzug in Promille; Fundstelle Privatanteil; Fundstelle Vorsteuer.
 
 | Version | Datum | App-Version | Änderung |
 |---|---|---|---|
+| 2.16 | 2026-10-25 | 0.39.2 | FA-3.7, FA-19.1: Übersicht – Rücklage für Steuern & SV und Umsatzsteuer ans Ende nach den Terminen (Rückmeldung Auftraggeber). |
 | 2.15 | 2026-10-24 | 0.39.2 | FA-5.50: fehlende Kunden-UID bei AT-Rechnungen über 10.000 € brutto ist ein Hinweis statt Sperre; „Kunde bearbeiten“ im Rechnungsentwurf, Kunden-Snapshot eines Entwurfs wird beim Speichern aktualisiert. FA-1.4 und P-S9 angepasst, Prüfpunkt P-S98 neu. |
 | 2.14 | 2026-10-24 | 0.39.2 | P-R68 erledigt: Datenschutzerklärung (`docs/legal/DATENSCHUTZ.md`, Stand 2026-10-24) um alle Datenflüsse aus Lastenheft 5.19 ergänzt (E-Rechnung, EZB-Kurs, Link-QR, ML Kit/Dokumentenscanner mit Rechtsgrundlage und Drittlandübermittlung, Mithelfer-Weg, Mailweg SMTP/IMAP, Serversuche, Diktat auf dem Gerät), Website neu erzeugt; neuer Prüfpunkt P-R78. Kein Code- oder Schemawechsel. |
 | 2.13 | 2026-10-23 | 0.39.2 | FA-11.5: Entwurfsvermerk der Rechtstexte entfällt (Entscheidung Auftraggeber vor Store-Start), `LegalDocument.reviewed = true`; P-L1 bleibt offen. Kein Schemawechsel. |
