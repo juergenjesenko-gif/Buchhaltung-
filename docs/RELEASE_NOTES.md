@@ -42,7 +42,7 @@ nächsten Versionssprung in den neuen Eintrag.
 | Feld | Wert |
 |---|---|
 | Art | Store-Build nach Google-Play-Ablehnung „Missing Source Link for Government Information“ (2026-10-24) |
-| Commit | dieser Commit |
+| Commit | `e896356` |
 | Branch | `claude/agile-accounting-app-mobile-wa5j3h` |
 | Dokumentstände | Lastenheft 1.89, Spezifikation 2.19, Benutzerhandbuch für 0.39.4 |
 | Datenbankschema | 32 |
