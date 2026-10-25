@@ -1,0 +1,26 @@
+name: Website-Medien holen
+
+# Einmaliger Abruf der Marketing-Medien (Übergabe 2026-10-25) in den Runner,
+# weil die Entwicklungsumgebung das Ablage-CDN nicht erreicht. Die Dateien
+# werden verkleinert (WebP, 720p-MP4, Poster) und auf den Entwicklungsbranch
+# committet; die Website lädt danach nichts von Dritten.
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  holen:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Herunterladen und umwandeln
+        run: bash tool/site/medien_holen.sh
+      - name: Committen
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add docs/site/video docs/site/img
+          git commit -m "Website: Marketing-Medien (Videos, Rollen, Feature-Bilder, App-Screens) aus Übergabe 2026-10-25" || echo "nichts zu committen"
+          git push
