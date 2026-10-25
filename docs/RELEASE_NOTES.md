@@ -34,6 +34,7 @@ nächsten Versionssprung in den neuen Eintrag.
 
 | Art | Änderung | Bezug | Commit |
 |---|---|---|---|
+| Website | Produktseite: „In 15 Sekunden erklärt“ (3 Kurzvideos), „Für wen?“ (7 Rollen-Reels mit Player), App-Screens 7–12; Medien selbst gehostet, KI-Kennzeichnung an jedem Block (keine App-Änderung) | P-R80, P-D62 | dieser Commit |
 | Behoben | Belegerkennung: E-Mail-Belege („Receipt from Ubatuba Acai …“) erkannten „Google“ statt des Händlers; Händler kommt jetzt aus dem Betreff | FA-2.64 | dieser Commit |
 
 ---
