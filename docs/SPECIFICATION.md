@@ -1,6 +1,6 @@
 # Spezifikation – Buchhaltung
 
-**Dokumentversion:** 2.21 · **App-Version:** 0.39.4 · **Stand:** 2026-10-24
+**Dokumentversion:** 2.22 · **App-Version:** 0.39.4 · **Stand:** 2026-10-24
 **Status:** Testbuild 0.21.0 (Schema 23); Store-Start offen, siehe Abschnitt 11 und 14
 
 > Das **Zielbild** des Produkts steht im [`LASTENHEFT.md`](LASTENHEFT.md); dieses
@@ -1628,6 +1628,7 @@ Vorsteuerabzug in Promille; Fundstelle Privatanteil; Fundstelle Vorsteuer.
 
 | Version | Datum | App-Version | Änderung |
 |---|---|---|---|
+| 2.22 | 2026-10-26 | 0.39.4 | P-D62 erledigt (Website-Screens aus der echten App). |
 | 2.21 | 2026-10-25 | 0.39.4 | Produktseite ohne Codeänderung: Kurzvideos, Rollen-Galerie mit Player, App-Screens 7–12 (Marketing-Übergabe), Medien selbst gehostet über `tool/site/medien_holen.sh`; neue Prüfpunkte P-R80, P-D62. |
 | 2.20 | 2026-10-25 | 0.39.4 | FA-2.64: Händler aus dem Betreff von E-Mail-Belegen statt Zahlungsdienst (Rückmeldung Auftraggeber). |
 | 2.19 | 2026-10-24 | 0.39.4 | FA-11.11 Quellen & Rechtsgrundlagen, Quelle-Links auf Kleinunternehmer-Karte und Pflichtangaben-Hinweis nach Google-Play-Ablehnung „Missing Source Link for Government Information“; P-R79. Store-Build 0.39.4. |
@@ -2153,7 +2154,7 @@ erzeugt `beispiele_erzeugen_test.dart` mit dem PDF-Generator der App.
 | P-D59 | Öffentliche Website (`docs/site/`, erzeugt mit `tool/site/build_site.py`, LAUNCH.md Abschnitt 1) nach dem Hochladen: Datenschutz-, Support- und Nutzungsbedingungen-URL ohne Login erreichbar (HTTPS), Inhalt gleich der Fassung in der App (Rechtliches), keine offenen „OFFEN:“-Markierungen, im Netzwerk-Tab des Browsers keine Aufrufe fremder Server; URLs in Play Console und App Store Connect eingetragen | Seite statisch, ohne Skript und externe Ressourcen; Hosting noch nicht gewählt (Weg A jenibarb.com oder B GitHub Pages, P-L9) | Store-Einreichung | offen |
 | P-D60 | Konsolen-Fragebögen live ausfüllen (LAUNCH.md 2.3, 2.4, 3.5): Apple-Altersfreigabe in der neuen Fassung (Stufen 4+/9+/13+/16+/18+, Pflicht seit 31.01.2026, Fragen zu In-App-Käufen, KI, Werbung) ergibt 4+; Google IARC PEGI 3/USK 0; Google-Deklaration „Finanzfunktionen“ = keine; Werbe-ID „nein“ trifft auch auf das **zusammengeführte** Manifest des Release-AAB zu (keine Bibliothek fügt `com.google.android.gms.permission.AD_ID` hinzu, prüfen mit `aapt dump permissions` bzw. Play „App-Bundle-Explorer“) | aus öffentlichen Hilfeseiten und Entwicklermitteilungen, Konsole nicht eingesehen | Store-Einreichung | teilweise erledigt 2026-10-22: Apple 4+, Google IARC eingereicht, Finanzfunktionen keine, Werbe-ID nein; zusammengeführtes Manifest offen |
 | P-D61 | Gerätetest Rabattzeile (FA-2.63): Rechnung helloly 22406770 (PDF und Screenshot über „Fotos“) erfassen; erwartet 32,40 € mit einem Satz 20 % (Netto 27,00, Steuer 5,40), keine Meldung „Die Teile ergeben …“ | `receipt_scan_parser_test.dart` | Release | offen |
-| P-D62 | Website-Screens `img/app/7_…` bis `12_…` sind Nachbauten aus dem Marketing-Chat mit Demo-Daten: Beschriftungen gegen die aktuelle App prüfen (u. a. „Text erkennen und Kurzübersicht (Pro)“, Zahlungs-Einplanung aus dem Vertrag) und durch echte Screenshots aus `store_screenshots_test.dart` ersetzen | Nachbau, nicht gegen den Code geprüft | vor Werbestart | offen |
+| P-D62 | Website-Screens `img/app/7_…` bis `12_…` sind Nachbauten aus dem Marketing-Chat mit Demo-Daten: Beschriftungen gegen die aktuelle App prüfen (u. a. „Text erkennen und Kurzübersicht (Pro)“, Zahlungs-Einplanung aus dem Vertrag) und durch echte Screenshots aus `store_screenshots_test.dart` ersetzen | Nachbau, nicht gegen den Code geprüft | vor Werbestart | erledigt 2026-10-26: Auftraggeber hat die Screens selbst aus der echten App erstellt (Demo-Daten); Funktionen laut FA-16.3 bis FA-16.6 vorhanden |
 
 ### Ergebnisse der internen Prüfung (2026-10-16)
 
