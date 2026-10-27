@@ -336,22 +336,58 @@ def produktseite(html: str) -> str:
     return html
 
 
+# Sprachversionen (docs/maerkte/Marketing_Mehrsprachig.md Abschnitt 8)
+HREFLANG = (
+    '<link rel="alternate" hreflang="de" href="https://jenibucht.com/">\n'
+    '<link rel="alternate" hreflang="en" href="https://jenibucht.com/en/">\n'
+    '<link rel="alternate" hreflang="x-default" href="https://jenibucht.com/">\n'
+)
+
+
+def sprachumschalter(aktuell: str, prefix: str) -> str:
+    """Umschalter DE | EN in der Kopfnavigation, jeder Eintrag ≥ 48 px hoch (nav a)."""
+    ziele = [("de", "DE", prefix or "./", "Deutsch"), ("en", "EN", (prefix + "en/") if prefix == "" else "./", "English")]
+    teile = []
+    for code, kurz, href, name in ziele:
+        cur = ' aria-current="true"' if code == aktuell else ""
+        teile.append(f'<a style="min-width:48px;justify-content:center" href="{href}" hreflang="{code}" lang="{code}" aria-label="{name}"{cur}>{kurz}</a>')
+    return '<span class="lang" style="display:inline-flex;align-items:center">' + '<span aria-hidden="true">|</span>'.join(teile) + "</span>"
+
+
+def mehrsprachig(html: str, sprache: str) -> str:
+    html = html.replace('<link rel="canonical"', HREFLANG + '<link rel="canonical"', 1)
+    if sprache == "de":
+        html = html.replace('    <a href="impressum.html">Impressum</a>\n  </nav>',
+                            '    <a href="impressum.html">Impressum</a>\n    ' + sprachumschalter("de", "") + "\n  </nav>", 1)
+    else:
+        html = html.replace("<!-- LANG:SWITCH -->", sprachumschalter("en", "../"), 1)
+    return html
+
+
+def produktseite_en(de: str) -> str:
+    """Englische Produktseite: CSS der deutschen Seite übernehmen, Pfade für /en/ anpassen."""
+    style = re.search(r"<style>.*?</style>", de, re.S).group(0).replace('url("fonts/', 'url("../fonts/')
+    en = (ROOT / "tool" / "site" / "produktseite_en.html").read_text(encoding="utf-8")
+    en = en.replace("<!-- STYLE:DE -->", style, 1)
+    return mehrsprachig(produktseite(en), "en")
+
+
 def main() -> int:
     OUT.mkdir(parents=True, exist_ok=True)
     (OUT / "style.css").write_text(CSS, encoding="utf-8")
     # Produktseite (Ziel des Instagram-Bio-Links) wird unverändert übernommen;
     # Schriften und Bilder dazu liegen fest in docs/site/fonts und docs/site/img.
-    (OUT / "index.html").write_text(
-        produktseite((ROOT / "tool" / "site" / "produktseite.html").read_text(encoding="utf-8")),
-        encoding="utf-8",
-    )
+    de = (ROOT / "tool" / "site" / "produktseite.html").read_text(encoding="utf-8")
+    (OUT / "index.html").write_text(mehrsprachig(produktseite(de), "de"), encoding="utf-8")
+    (OUT / "en").mkdir(exist_ok=True)
+    (OUT / "en" / "index.html").write_text(produktseite_en(de), encoding="utf-8")
     (OUT / "support.html").write_text(page("support.html", "Support", INDEX), encoding="utf-8")
     for file, md, title in PAGES:
         src = (LEGAL / md).read_text(encoding="utf-8")
         (OUT / file).write_text(page(file, title, convert(src, md)), encoding="utf-8")
     (OUT / ".nojekyll").write_text("", encoding="utf-8")
     # Suchmaschinen: robots.txt und Sitemap mit allen Seiten.
-    seiten = ["", "support.html"] + [f for f, _, _ in PAGES]
+    seiten = ["", "en/", "support.html"] + [f for f, _, _ in PAGES]
     (OUT / "robots.txt").write_text(
         "User-agent: *\nAllow: /\nSitemap: https://jenibucht.com/sitemap.xml\n",
         encoding="utf-8",

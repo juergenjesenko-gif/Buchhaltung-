@@ -1,6 +1,6 @@
 # Spezifikation – Buchhaltung
 
-**Dokumentversion:** 2.24 · **App-Version:** 0.39.5 · **Stand:** 2026-10-24
+**Dokumentversion:** 2.25 · **App-Version:** 0.39.5 · **Stand:** 2026-10-24
 **Status:** Testbuild 0.21.0 (Schema 23); Store-Start offen, siehe Abschnitt 11 und 14
 
 > Das **Zielbild** des Produkts steht im [`LASTENHEFT.md`](LASTENHEFT.md); dieses
@@ -1629,6 +1629,7 @@ Vorsteuerabzug in Promille; Fundstelle Privatanteil; Fundstelle Vorsteuer.
 
 | Version | Datum | App-Version | Änderung |
 |---|---|---|---|
+| 2.25 | 2026-10-27 | 0.39.4 | Ohne Codeänderung: englische Produktseite `jenibucht.com/en/` (JeNi books) aus `tool/site/produktseite_en.html`, Medien als Platzhalter, hreflang de/en/x-default und Sprachumschalter DE \| EN auf beiden Seiten, Warteliste nur per mailto (kein Formular, kein neuer Datenfluss). |
 | 2.24 | 2026-10-27 | 0.39.4 | FA-2.65: Trinkgeld-Tabelle auf US-Belegen ist kein Steuersatz, „Your order #“ kein Händler. |
 | 2.23 | 2026-10-27 | 0.39.4 | Ohne Codeänderung: Marktentscheidungen in `docs/MAERKTE.md` (UK als nächster Markt, JeNi books, Super PDP als Favorit FR); Prüfpunkte P-UK-01 bis P-UK-05, P-FR-01. |
 | 2.22 | 2026-10-26 | 0.39.4 | P-D62 erledigt (Website-Screens aus der echten App). |

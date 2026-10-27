@@ -1,0 +1,248 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="index, follow">
+<meta name="description" content="JeNi books: the bookkeeping app for the self-employed, in preparation for the UK. Snap a receipt, check it, done. Join the waiting list.">
+<!-- Source of the English product page. tool/site/build_site.py writes it to docs/site/en/index.html,
+     takes over the shared CSS from tool/site/produktseite.html (marker STYLE:DE) and adds hreflang links.
+     Rules: docs/maerkte/Marketing_Mehrsprachig.md (name "JeNi books", British English, no UK feature claims,
+     no German sample receipts, AI labels in English). All paths relative to /en/ (../).
+     MEDIA PLACEHOLDERS: every <div class="ph"> names its future file in data-src (and data-track / data-poster).
+     Swap = replace the <div class="ph" …> with the <img>/<video> shown in its comment. -->
+<link rel="icon" href="../favicon.ico" sizes="any">
+<link rel="icon" type="image/png" sizes="32x32" href="../favicon-32.png">
+<link rel="icon" type="image/png" sizes="192x192" href="../icon-192.png">
+<link rel="apple-touch-icon" href="../apple-touch-icon.png">
+<link rel="canonical" href="https://jenibucht.com/en/">
+<title>JeNi books – the bookkeeping app for the self-employed (coming to the UK)</title>
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="JeNi books">
+<meta property="og:locale" content="en_GB">
+<meta property="og:url" content="https://jenibucht.com/en/">
+<meta property="og:title" content="JeNi books – Snap the receipt. Done.">
+<meta property="og:description" content="Bookkeeping on your phone for the self-employed. Coming to the UK – join the waiting list.">
+<!-- TODO og:image: img/og-jenibooks.png (1200×630, English) once delivered; the German og image is not reused. -->
+<meta name="theme-color" content="#0B3A67">
+<meta name="claude:viewport-fit-sides" content="cover">
+<!-- STYLE:DE -->
+<style>
+/* Additions for /en/ only */
+.wordmark{font:800 clamp(2rem,5vw,2.8rem)/1 var(--display);letter-spacing:-.02em;color:var(--ink);text-decoration:none;display:inline-flex;align-items:center;min-height:48px}
+.wordmark em{font-style:italic;font-weight:600;margin-left:.25em}
+.ph{position:relative;display:grid;place-content:center;justify-items:center;gap:8px;text-align:center;padding:16px;
+  background:repeating-linear-gradient(135deg,var(--tint) 0 14px,var(--surface) 14px 28px);border:2px dashed var(--line);border-radius:18px;color:var(--ink-soft);font:500 .85rem/1.35 var(--mono)}
+.ph svg{color:var(--ink-soft)}
+.ph-916{aspect-ratio:9/16}
+.ph-913{aspect-ratio:9/13}
+.reel .ph{border-radius:0;border-width:0 0 2px}
+.shots .ph{border:6px solid var(--ink);border-radius:22px}
+.role .ph{border-radius:18px}
+.steps-en li::before{content:"Step " counter(s)}
+.lang a[aria-current]{color:var(--ink);text-decoration:underline;text-underline-offset:4px}
+@media (max-width:760px){.hero>.ph{aspect-ratio:4/3}}
+.wait{color:var(--paper);opacity:.85;font-size:.95rem}
+</style>
+</head>
+<body>
+<a class="skip" href="#content">Skip to content</a>
+<div class="wrap">
+<header>
+  <!-- The image logo contains "bucht"; until an English logo exists (img/logo_en.png), a text wordmark is used. -->
+  <a class="wordmark" href="./" aria-label="JeNi books – home">JeNi<em>books</em></a>
+  <nav aria-label="Page navigation">
+    <a href="#explained">How it works</a>
+    <a href="#pricing">Pricing</a>
+    <a href="#faq">FAQ</a>
+    <!-- LANG:SWITCH -->
+  </nav>
+</header>
+
+<main id="content">
+<div class="hero">
+  <div>
+    <span class="eyebrow">Bookkeeping on your phone · Coming to the UK</span>
+    <h1>Snap the receipt. Done.</h1>
+    <p class="lead">JeNi books is a bookkeeping app for the self-employed. Receipts, quotes, invoices and contracts – sorted on your phone, right when they happen. No shoebox, no Sunday-night catch-up.</p>
+    <p class="pro-note">JeNi books is already available in German for Austria and Germany. The English version for the UK is in preparation.</p>
+    <div class="cta-row">
+      <a class="btn btn-primary" href="mailto:office@jenibarb.com?subject=JeNi%20books%20waiting%20list">Join the waiting list</a>
+      <a class="btn btn-ghost" href="#how">How it works</a>
+    </div>
+  </div>
+  <!-- Hero visual: British sample receipt or app screenshot in English.
+       Future file: img/app/2_beleg_en.webp → <img src="../img/app/2_beleg_en.webp" alt="…" width="1080" height="1920"> -->
+  <div class="ph ph-913" data-src="img/app/2_beleg_en.webp" role="img" aria-label="Image coming soon">
+    <svg width="40" height="40" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h3l2-2h6l2 2h3v12H4z M12 10a3.5 3.5 0 1 0 0 7a3.5 3.5 0 0 0 0-7z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg>
+    <span>Image coming soon<br>Receipt scanned in the app</span>
+  </div>
+</div>
+
+<section class="ki" aria-labelledby="ki-h">
+  <figure>
+    <img src="../img/jeni-auto.jpg" alt="AI-generated scene: the fictional character JeNi scans a till receipt with her phone in the car; old receipts lie in the glovebox" width="720" height="1290" loading="lazy">
+    <span class="overlay">AI-generated · Advertisement</span>
+    <figcaption>AI-generated scene. JeNi is not a real person.</figcaption>
+  </figure>
+  <div>
+    <span class="eyebrow" id="ki-h">Meet JeNi</span>
+    <blockquote>“Every receipt used to end up in the glovebox. Now I scan it before I start the engine.”</blockquote>
+    <p>JeNi is the AI character behind JeNi books on Instagram. Her job roles, from fitness coach to florist, are fictional. She shows how receipts and invoices can be handled on your phone. Replies from @jeni.books.app in comments and messages are written by AI.</p>
+    <p><a class="btn btn-ghost" href="https://www.instagram.com/jeni.books.app/">@jeni.books.app on Instagram</a></p>
+    <p><span class="ki-tag">Advertisement · AI character</span></p>
+  </div>
+</section>
+
+<section id="explained" aria-labelledby="reels-h">
+  <span class="eyebrow">Explained in 15 seconds</span>
+  <h2 id="reels-h">Three things JeNi books takes off your plate</h2>
+  <div class="reels">
+    <!-- <video src="../video/reel_belege_automatisch.mp4" poster="../video/reel_belege_automatisch.webp" muted playsinline loop preload="none" controls><track kind="subtitles" srclang="en" label="English" src="../video/reel_belege_automatisch.en.vtt" default></video> -->
+    <figure class="reel"><div class="ph ph-916" data-src="video/reel_belege_automatisch.mp4" data-poster="video/reel_belege_automatisch.webp" data-track="video/reel_belege_automatisch.en.vtt" role="img" aria-label="Video coming soon: Receipts in 15 seconds"><svg width="40" height="40" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M10 8l6 4-6 4z" fill="currentColor"/></svg><span>Video coming soon<br>Receipts in 15 seconds</span></div><figcaption><h3>Receipts, automatically</h3><p>Take a photo – amount, date and VAT are already filled in.</p></figcaption></figure>
+    <!-- <video src="../video/reel_e-rechnung.mp4" poster="../video/reel_e-rechnung.webp" …><track … src="../video/reel_e-rechnung.en.vtt" default></video> -->
+    <figure class="reel"><div class="ph ph-916" data-src="video/reel_e-rechnung.mp4" data-poster="video/reel_e-rechnung.webp" data-track="video/reel_e-rechnung.en.vtt" role="img" aria-label="Video coming soon: Quotes and invoices"><svg width="40" height="40" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M10 8l6 4-6 4z" fill="currentColor"/></svg><span>Video coming soon<br>Quotes and invoices</span></div><figcaption><h3>Quotes &amp; invoices</h3><p>From quote to invoice in one tap, shared as a PDF.</p></figcaption></figure>
+    <!-- <video src="../video/reel_vertraege.mp4" poster="../video/reel_vertraege.webp" …><track … src="../video/reel_vertraege.en.vtt" default></video> -->
+    <figure class="reel"><div class="ph ph-916" data-src="video/reel_vertraege.mp4" data-poster="video/reel_vertraege.webp" data-track="video/reel_vertraege.en.vtt" role="img" aria-label="Video coming soon: Contracts"><svg width="40" height="40" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M10 8l6 4-6 4z" fill="currentColor"/></svg><span>Video coming soon<br>Contracts</span></div><figcaption><h3>Contracts<span class="pro">PRO</span></h3><p>Scan a contract, find the key points, plan the payments.</p></figcaption></figure>
+  </div>
+  <p class="ki-note">Videos with subtitles, muted at start. JeNi is an AI character. Images and videos made with AI.</p>
+</section>
+
+<section id="inside" aria-labelledby="shots-h">
+  <span class="eyebrow">Inside the app</span>
+  <h2 id="shots-h">What JeNi books looks like</h2>
+  <!-- Future files: img/app/<name>_en.webp (1080×1920, English UI, British sample data in £).
+       Swap: <img src="../img/app/0_uebersicht_oben_en.webp" alt="…" width="1080" height="1920" loading="lazy"> -->
+  <div class="shots">
+    <figure><div class="ph ph-916" data-src="img/app/0_uebersicht_oben_en.webp" role="img" aria-label="Screenshot coming soon: Overview"><span>Screenshot coming soon</span></div><figcaption>Income and spending at a glance</figcaption></figure>
+    <figure><div class="ph ph-916" data-src="img/app/2_beleg_en.webp" role="img" aria-label="Screenshot coming soon: New receipt"><span>Screenshot coming soon</span></div><figcaption>Photo in, amount and VAT read</figcaption></figure>
+    <figure><div class="ph ph-916" data-src="img/app/4_belegliste_en.webp" role="img" aria-label="Screenshot coming soon: Receipt list"><span>Screenshot coming soon</span></div><figcaption>All receipts, sorted by month</figcaption></figure>
+    <figure><div class="ph ph-916" data-src="img/app/7_angebot_en.webp" role="img" aria-label="Screenshot coming soon: Quote"><span>Screenshot coming soon</span></div><figcaption>A quote becomes an invoice in one tap</figcaption></figure>
+    <figure><div class="ph ph-916" data-src="img/app/9_rechnungen_en.webp" role="img" aria-label="Screenshot coming soon: Invoices"><span>Screenshot coming soon</span></div><figcaption>Invoices with paid status</figcaption></figure>
+    <figure><div class="ph ph-916" data-src="img/app/6_vertraege_en.webp" role="img" aria-label="Screenshot coming soon: Contracts"><span>Screenshot coming soon</span></div><figcaption>Contracts and deadlines</figcaption></figure>
+  </div>
+  <p class="shots-note">Screenshots will show made-up sample data. Swipe sideways for more.</p>
+</section>
+
+<section id="how" aria-labelledby="steps-h">
+  <span class="eyebrow">How it works</span>
+  <h2 id="steps-h">From till receipt to tidy books</h2>
+  <ol class="steps steps-en">
+    <li><h3>Snap the receipt</h3><p>After the shop, when you open the post or after an online order: point your phone at it, done.</p></li>
+    <li><h3>Check and save</h3><p>Amount, VAT rate, date and supplier are read and suggested (Pro). You take a quick look and save with one tap. The app keeps the receipt.</p></li>
+    <li><h3>Stay on top of it</h3><p>Income, spending, unpaid invoices and upcoming dates at a glance. At year end you hand everything over to your accountant in one export.</p></li>
+  </ol>
+</section>
+
+<section aria-labelledby="feat-h">
+  <span class="eyebrow">What the app does</span>
+  <h2 id="feat-h">Your office in one app</h2>
+  <!-- Features describe the current app (AT/DE). UK-specific features (MTD, Self Assessment) are NOT claimed until built and approved. -->
+  <div class="feat">
+    <div><svg width="22" height="22" viewBox="0 0 22 22" aria-hidden="true"><path d="M5 9.5l4 4 8-8.5" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg><h3>Capture receipts <span class="pro">PRO</span></h3><p>Till receipts, bills and PDFs are read for you. You check the suggestion and save with one tap. Entering by hand works on every plan.</p></div>
+    <div><svg width="22" height="22" viewBox="0 0 22 22" aria-hidden="true"><path d="M5 9.5l4 4 8-8.5" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg><h3>Quotes and invoices</h3><p>Create them on your phone and share them as a PDF. Mistakes are corrected with a cancellation, so your records stay clean.</p></div>
+    <div><svg width="22" height="22" viewBox="0 0 22 22" aria-hidden="true"><path d="M5 9.5l4 4 8-8.5" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg><h3>Keep contracts</h3><p>Store contracts and keep an eye on notice periods. A short summary via text recognition in Pro; regular payments are suggested as entries.</p></div>
+    <div><svg width="22" height="22" viewBox="0 0 22 22" aria-hidden="true"><path d="M5 9.5l4 4 8-8.5" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg><h3>Year overview for your accountant</h3><p>Totals by category and a list of your equipment, ready to export. Your accountant takes it from there.</p></div>
+    <div><svg width="22" height="22" viewBox="0 0 22 22" aria-hidden="true"><path d="M5 9.5l4 4 8-8.5" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg><h3>Dates at a glance</h3><p>Upcoming deadlines and your figures for the year on one screen, so nothing sneaks up on you.</p></div>
+    <div><svg width="22" height="22" viewBox="0 0 22 22" aria-hidden="true"><path d="M5 9.5l4 4 8-8.5" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg><h3>Your data stays with you</h3><p>Your books live on your phone, not on our servers. Backups are encrypted with your password; the app can be locked with a PIN, fingerprint or Face ID.</p></div>
+  </div>
+</section>
+
+<section id="who" aria-labelledby="roles-h">
+  <span class="eyebrow">Who is it for?</span>
+  <h2 id="roles-h">For everyone who works for themselves</h2>
+  <p>JeNi shows in short reels what everyday life looks like. Tap to play once the videos are here.</p>
+  <!-- Future files per role: poster img/social/<motiv>_en.png or video/reel_<rolle>.webp (no text),
+       video video/reel_<rolle>.mp4 + video/reel_<rolle>.en.vtt.
+       Swap: replace <div class="ph"> with <img src="../video/reel_<rolle>.webp" …> and set data-video on the button.
+       Buttons stay disabled until data-video is set. -->
+  <div class="roles">
+    <button class="role" type="button" disabled data-video="" data-src="video/reel_fitness.mp4" data-track="video/reel_fitness.en.vtt" data-title="Fitness coach"><span class="ph ph-916" data-src="img/social/fitness_1_en.png"><span>Video coming soon</span></span><strong>Fitness coach</strong><span class="s">Between two classes: receipt snapped, done.</span></button>
+    <button class="role" type="button" disabled data-video="" data-src="video/reel_floristin.mp4" data-track="video/reel_floristin.en.vtt" data-title="Florist"><span class="ph ph-916" data-src="img/social/floristin_1_en.png"><span>Video coming soon</span></span><strong>Florist</strong><span class="s">Flower market at 5 am – the receipt is already in.</span></button>
+    <button class="role" type="button" disabled data-video="" data-src="video/reel_elektrikerin.mp4" data-track="video/reel_elektrikerin.en.vtt" data-title="Electrician"><span class="ph ph-916" data-src="img/social/elektrikerin_1_en.png"><span>Video coming soon</span></span><strong>Electrician</strong><span class="s">Parts from the trade counter, logged right on site.</span></button>
+    <button class="role" type="button" disabled data-video="" data-src="video/reel_hundetrainerin.mp4" data-track="video/reel_hundetrainerin.en.vtt" data-title="Dog trainer"><span class="ph ph-916" data-src="img/social/hundetrainerin_1_en.png"><span>Video coming soon</span></span><strong>Dog trainer</strong><span class="s">Invoice written before leaving the training field.</span></button>
+    <button class="role" type="button" disabled data-video="" data-src="video/reel_friseurin.mp4" data-track="video/reel_friseurin.en.vtt" data-title="Hairdresser"><span class="ph ph-916" data-src="img/social/friseurin_1_en.png"><span>Video coming soon</span></span><strong>Hairdresser</strong><span class="s">The invoice is out between two clients.</span></button>
+    <button class="role" type="button" disabled data-video="" data-src="video/reel_beraterin.mp4" data-track="video/reel_beraterin.en.vtt" data-title="Consultant"><span class="ph ph-916" data-src="img/social/beraterin_1_en.png"><span>Video coming soon</span></span><strong>Consultant</strong><span class="s">Quote in the morning, invoice in the afternoon.</span></button>
+    <button class="role" type="button" disabled data-video="" data-src="video/reel_assistentin.mp4" data-track="video/reel_assistentin.en.vtt" data-title="Virtual assistant"><span class="ph ph-916" data-src="img/social/assistentin_1_en.png"><span>Video coming soon</span></span><strong>Virtual assistant</strong><span class="s">Receipts collected from everyone, the accountant gets the lot.</span></button>
+  </div>
+  <p class="ki-note">JeNi is an AI character; her job roles are fictional. Images and videos made with AI.</p>
+</section>
+
+<dialog class="player" id="player" aria-label="Reel">
+  <video id="player-video" playsinline controls></video>
+  <div class="bar"><span id="player-title"></span><span>AI character · fictional role</span><button type="button" id="player-close" aria-label="Close">✕</button></div>
+</dialog>
+<script>
+(function(){var d=document.getElementById('player'),v=document.getElementById('player-video'),t=document.getElementById('player-title');
+if(!d||!d.showModal)return;
+document.querySelectorAll('.role').forEach(function(b){if(!b.dataset.video)return;b.disabled=false;b.addEventListener('click',function(){v.innerHTML='';if(b.dataset.track){var tr=document.createElement('track');tr.kind='subtitles';tr.srclang='en';tr.label='English';tr.default=true;tr.src=b.dataset.track;v.appendChild(tr);}v.poster=b.dataset.poster||'';v.src=b.dataset.video;t.textContent=b.dataset.title;d.showModal();v.play().catch(function(){});});});
+function zu(){v.pause();v.removeAttribute('src');v.load();d.close();}
+document.getElementById('player-close').addEventListener('click',zu);
+d.addEventListener('cancel',function(e){e.preventDefault();zu();});
+d.addEventListener('click',function(e){if(e.target===d)zu();});})();
+</script>
+
+<section id="pricing" aria-labelledby="pricing-h">
+  <span class="eyebrow">Pricing</span>
+  <h2 id="pricing-h">UK pricing will be announced at launch</h2>
+  <div class="price-notes">
+    <p>JeNi books will come with a free trial and two plans, Basic and Pro. Prices in pounds and all terms will be published here before the app is available in the UK.</p>
+    <p>Purchases and billing will run through Google Play or the App Store.</p>
+  </div>
+</section>
+
+<section id="download" class="dl-section" aria-labelledby="dl-h">
+  <div class="dl">
+    <span class="eyebrow">Coming to the UK</span>
+    <h2 id="dl-h">Join the waiting list</h2>
+    <p>JeNi books is coming to iPhone and Android in English. Drop us a line and we will let you know when it is ready – or follow @jeni.books.app on Instagram.</p>
+    <!-- Waiting list via the visitor's own mail client (mailto): no form, no data stored by the website. -->
+    <div class="cta-row">
+      <a class="btn btn-primary" href="mailto:office@jenibarb.com?subject=JeNi%20books%20waiting%20list">Email to join the waiting list</a>
+      <a class="btn btn-ghost" style="color:var(--paper);border-color:var(--paper)" href="https://www.instagram.com/jeni.books.app/">Follow @jeni.books.app</a>
+    </div>
+    <p class="wait">Opens your email app. We only use your address to tell you about the launch; ask us anytime and we delete it.</p>
+  </div>
+</section>
+
+<section id="faq" aria-labelledby="faq-h">
+  <span class="eyebrow">FAQ</span>
+  <h2 id="faq-h">Frequently asked questions</h2>
+  <div class="faq">
+    <details><summary>Is JeNi a real person?</summary><p>No. JeNi is an AI-generated character from JeNi books, and her roles on Instagram are fictional. Replies from @jeni.books.app in comments and messages are written by AI. The app behind her is real.</p></details>
+    <details><summary>Can I use JeNi books in the UK today?</summary><p>Not yet. The app is currently available in German for sole traders in Austria and Germany. The English version for the UK is in preparation. Join the waiting list and we will tell you when it is ready.</p></details>
+    <details><summary>Does the app replace my accountant?</summary><p>No. The app does the sums and gets things ready, but it does not give tax advice. It takes the collecting, entering and filing off your hands, so your accountant gets everything complete.</p></details>
+    <details><summary>Will it work with Making Tax Digital?</summary><p>We are working on the UK version and will only say more once it is built and checked. Until then, please do not rely on JeNi books for anything you have to send to HMRC.</p></details>
+    <details><summary>Where is my data stored?</summary><p>On your phone. There is no user account and no server holding your books. Backups go where you choose and are encrypted with your password.</p></details>
+    <details><summary>What will it cost?</summary><p>UK prices in pounds will be announced before launch, together with the free trial and all terms.</p></details>
+  </div>
+</section>
+
+<section id="sources" aria-labelledby="sources-h">
+  <span class="eyebrow">Sources</span>
+  <h2 id="sources-h">Official information</h2>
+  <p>JeNi books is not affiliated with HMRC or any government body. For official guidance on working for yourself, see:</p>
+  <ul>
+    <li><a href="https://www.gov.uk/working-for-yourself" rel="noopener">GOV.UK – Working for yourself</a></li>
+    <li><a href="https://www.gov.uk/self-assessment-tax-returns" rel="noopener">GOV.UK – Self Assessment tax returns</a></li>
+    <li><a href="https://www.gov.uk/government/collections/making-tax-digital-for-income-tax" rel="noopener">GOV.UK – Making Tax Digital for Income Tax</a></li>
+    <li><a href="https://www.gov.uk/vat-registration" rel="noopener">GOV.UK – VAT registration</a></li>
+    <li><a href="https://www.gov.uk/self-employed-records" rel="noopener">GOV.UK – Business records if you're self-employed</a></li>
+  </ul>
+</section>
+</main>
+
+<footer>
+  <p>JeNi books is offered by Spirits by JeNiBarb e.U., Arnoldstein, Austria. Not tax advice. Images and videos of the character JeNi are made with AI.</p>
+  <!-- TODO: English legal pages (en/imprint.html, en/privacy.html, en/terms.html) – until then link the German pages. -->
+  <nav aria-label="Legal">
+    <a href="../impressum.html" hreflang="de">Imprint (in German)</a>
+    <a href="../datenschutz.html" hreflang="de">Privacy (in German)</a>
+    <a href="../nutzungsbedingungen.html" hreflang="de">Terms (in German)</a>
+    <a href="mailto:office@jenibarb.com?subject=JeNi%20books">Contact</a>
+  </nav>
+  <p>This page uses no cookies, no tracking and no external resources.</p>
+</footer>
+</div>
+</body>
+</html>

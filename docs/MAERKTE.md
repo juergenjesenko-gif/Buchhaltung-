@@ -30,6 +30,7 @@ Details: `docs/maerkte/UK_Anforderungen.md`, `docs/maerkte/Englisch_Name_Marketi
 - HMRC MTD for Income Tax: Schnittstellen, Pflicht-Header zur Betrugsprävention, Zulassung (längster Vorlauf).
 - **Offene Entscheidung des Auftraggebers:** kleiner Anmeldedienst (OAuth-Tokentausch, sieht keine Buchhaltungsdaten) – erster Serverdienst der App; derselbe Baustein dient Frankreich (Super PDP, OAuth „authorization code“).
 - Mehrsprachigkeit der App, TaxProfile UK (Steuerjahr 6.4.–5.4., SA103-Zuordnung).
+- Website `/en/` steht seit 2026-10-27 als Gerüst (`tool/site/produktseite_en.html` → `docs/site/en/index.html`): englische Texte ohne UK-Funktions-, MTD- oder Preisversprechen, Medien als Platzhalter, Warteliste per mailto, Rechtstexte vorerst deutsch verlinkt.
 - Website `/en/` aus zweiter Textdatei, Reels künftig ohne eingebrannte Untertitel (WebVTT je Sprache).
 
 ## Frankreich – Kernpunkte
