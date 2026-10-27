@@ -42,7 +42,7 @@ nächsten Versionssprung in den neuen Eintrag.
 | Feld | Wert |
 |---|---|
 | Art | Testbuild (CI-APK) für den Auftraggeber |
-| Commit | dieser Commit |
+| Commit | `a0e6e94` |
 | Branch | `claude/agile-accounting-app-mobile-wa5j3h` |
 | Dokumentstände | Lastenheft 1.89, Spezifikation 2.24, Benutzerhandbuch für 0.39.5 |
 | Datenbankschema | 32 |
