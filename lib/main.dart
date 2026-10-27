@@ -7,6 +7,7 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:intl/date_symbol_data_local.dart';
 
 import 'app_state.dart';
+import 'l10n/l10n.dart';
 import 'features/app_lock/lock_screen.dart';
 import 'features/demo/demo_screens.dart';
 import 'features/demo/demo_sheet.dart';
@@ -98,11 +99,18 @@ class BuchhaltungApp extends StatelessWidget {
         theme: AppTheme.light,
         darkTheme: AppTheme.dark,
         localizationsDelegates: const [
+          AppLocalizations.delegate,
           GlobalMaterialLocalizations.delegate,
           GlobalWidgetsLocalizations.delegate,
           GlobalCupertinoLocalizations.delegate,
         ],
-        supportedLocales: const [Locale('de', 'AT'), Locale('de', 'DE')],
+        supportedLocales: const [
+          Locale('de', 'AT'),
+          Locale('de', 'DE'),
+          Locale('en', 'GB'),
+          Locale('en', 'US'),
+        ],
+        // Bis zur Länderwahl (L-34.1) bleibt die App deutsch.
         locale: const Locale('de'),
         navigatorKey: appNavigatorKey,
         home: const _Root(),

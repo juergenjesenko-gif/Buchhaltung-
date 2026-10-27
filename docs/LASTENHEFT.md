@@ -1,6 +1,6 @@
 # Lastenheft – JeNi bucht, Buchhaltungsapp für Österreich und Deutschland
 
-**Dokumentversion:** 1.90 · **Stand:** 2026-10-27 · **Status:** Entwurf zur Abstimmung
+**Dokumentversion:** 1.91 · **Stand:** 2026-10-27 · **Status:** Entwurf zur Abstimmung
 **Auftraggeber:** Jürgen Jesenko (privates Vorhaben) · **Umsetzung:** Claude Code
 
 > Ein Lastenheft beschreibt, **was** das Produkt leisten soll und **warum** — nicht,
@@ -1145,10 +1145,10 @@ Produktname „JeNi books“ (Schreibweise klein), Website `/en/`, Social Media
 
 | ID | Anforderung | Priorität | Stufe | Stand |
 |---|---|---|---|---|
-| L-34.1 | Mehrsprachigkeit der App (de, en-GB, en-US, später fr), Länderwahl bei der Einrichtung | MUSS | D | geplant |
+| L-34.1 | Mehrsprachigkeit der App (de, en-GB, en-US, später fr), Länderwahl bei der Einrichtung | MUSS | D | in Arbeit (Spez. FA-1.20) |
 | L-34.2 | TaxProfile UK (Steuerjahr 6.4.–5.4., SA103-Kategorien, VAT-Grenze, Vorauszahlungen) | MUSS | D | geplant, P-UK-03 |
 | L-34.3 | Making Tax Digital for Income Tax: Quartalsmeldungen und Jahresabschluss direkt an HMRC, Pflicht-Header zur Betrugsprävention, Zulassung und Eintrag in der HMRC-Softwareliste | MUSS | D | geplant, P-UK-01, P-UK-02 |
-| L-34.4 | Anmeldedienst für OAuth (Tokentausch, sieht keine Buchhaltungsdaten) – erster Serverdienst; Datenfluss in 5.19, PRIVACY, STORE_LISTING | MUSS | D | Entscheidung offen |
+| L-34.4 | Anmeldedienst für OAuth (Tokentausch, sieht keine Buchhaltungsdaten) – erster Serverdienst; Datenfluss in 5.19, PRIVACY, STORE_LISTING | MUSS | D | entschieden: ja (Auftraggeber 2026-10-27) |
 | L-34.5 | TaxProfile IE (Kalenderjahr, VAT-Grenzen, Kategorien Form 11), Export statt Behördenanbindung | MUSS | D | geplant |
 | L-34.6 | TaxProfile US (Kalenderjahr, Kategorien Schedule C, keine USt), Export | MUSS | D | geplant |
 | L-34.7 | Englische Rechtstexte und Store-Einträge je Land | MUSS | D | geplant, P-UK-04 |
@@ -1583,6 +1583,7 @@ Historie stehen. Die Einzelheiten stehen an der genannten Stelle.
 
 | Version | Datum | Änderung |
 |---|---|---|
+| 1.91 | 2026-10-27 | L-34.4 Anmeldedienst beschlossen; L-34.1 in Arbeit. |
 | 1.90 | 2026-10-27 | Neu 5.34 (UK, Irland, USA gleichzeitig, JeNi books) und 5.35 (Frankreich mit Super PDP, nach der englischen Fassung); Grundlage `docs/MAERKTE.md`. |
 | 1.89 | 2026-10-20 | Entscheidungen Auftraggeber 2026-10-20 (14a): Buchungsregeln gebaut (Spez. 5.16), KI-Chat als L-21.13 (Stufe C), O-47 Buchungsregeln Pro, Regelstand mit Aktualisieren-Hinweis und `REGELPFLEGE.md` (Spez. 5.17). |
 | 1.88 | 2026-10-19 | 14a: Logo endgültig (DESIGN_SPEC 10a), Instagram-Text zum 20-%-Code ohne „statt“-Preis. |

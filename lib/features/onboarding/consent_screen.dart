@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../app_state.dart';
 import '../../domain/legal_texts.dart';
+import '../../l10n/l10n.dart';
 import '../../widgets/adaptive.dart';
 import '../settings/legal_screen.dart';
 
@@ -24,7 +25,7 @@ class ConsentScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Bevor es losgeht'),
+        title: Text(context.l10n.consentTitle),
         automaticallyImplyLeading: false,
       ),
       body: ConsentPanel(texts: texts, onAccepted: () {}),
@@ -46,8 +47,6 @@ class ConsentPanel extends StatefulWidget {
 
   /// Zeile über dem Inhalt, z. B. „Schritt 1 von 5“.
   final Widget? header;
-
-  static const buttonLabel = 'Akzeptieren und weiter';
 
   @override
   State<ConsentPanel> createState() => _ConsentPanelState();
@@ -77,6 +76,7 @@ class _ConsentPanelState extends State<ConsentPanel> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = context.l10n;
     final terms = widget.texts.where((t) => t.kind != 'disclaimer');
     return Column(
       children: [
@@ -129,7 +129,7 @@ class _ConsentPanelState extends State<ConsentPanel> {
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      'Mit „${ConsentPanel.buttonLabel}“: ${text.confirmation}',
+                      l10n.consentWith(l10n.consentAccept, text.confirmation),
                       style: theme.textTheme.bodySmall,
                     ),
                   ],
@@ -151,9 +151,7 @@ class _ConsentPanelState extends State<ConsentPanel> {
                 onPressed: _complete && !_saving ? _accept : null,
                 icon: const Icon(Icons.check),
                 label: Text(
-                  terms.isEmpty
-                      ? 'Bestätigen und weiter'
-                      : ConsentPanel.buttonLabel,
+                  terms.isEmpty ? l10n.consentConfirm : l10n.consentAccept,
                 ),
               ),
             ),

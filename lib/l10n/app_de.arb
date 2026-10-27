@@ -1,0 +1,10 @@
+{
+  "@@locale": "de",
+  "consentTitle": "Bevor es losgeht",
+  "consentAccept": "Akzeptieren und weiter",
+  "consentConfirm": "Bestätigen und weiter",
+  "consentWith": "Mit „{button}“: {confirmation}",
+  "@consentWith": {
+    "placeholders": {"button": {"type": "String"}, "confirmation": {"type": "String"}}
+  }
+}

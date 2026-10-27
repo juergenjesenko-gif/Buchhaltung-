@@ -1,0 +1,7 @@
+# Mehrsprachigkeit (L-34.1): Deutsch ist die Vorlage, jede andere Sprache
+# muss dieselben Schlüssel tragen (test/l10n_test.dart).
+arb-dir: lib/l10n
+template-arb-file: app_de.arb
+output-localization-file: app_localizations.dart
+output-class: AppLocalizations
+nullable-getter: false

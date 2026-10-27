@@ -1,0 +1,7 @@
+{
+  "@@locale": "en",
+  "consentTitle": "Before you start",
+  "consentAccept": "Accept and continue",
+  "consentConfirm": "Confirm and continue",
+  "consentWith": "By tapping “{button}”: {confirmation}"
+}

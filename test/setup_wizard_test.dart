@@ -7,7 +7,6 @@ import 'package:buchhaltung/domain/country.dart';
 import 'package:buchhaltung/domain/tax_registration.dart';
 import 'package:buchhaltung/features/helper/helper_help_sheet.dart';
 import 'package:buchhaltung/features/settings/tax_registration_screen.dart';
-import 'package:buchhaltung/features/onboarding/consent_screen.dart';
 import 'package:buchhaltung/features/onboarding/setup_wizard.dart';
 import 'package:buchhaltung/services/licensing/fake_store_billing.dart';
 import 'package:buchhaltung/services/licensing/license_cache.dart';
@@ -111,7 +110,7 @@ void main() {
     expect(tester.widget<FilledButton>(accept).onPressed, isNull);
     expect(find.byKey(const Key('consent-open-terms')), findsOneWidget);
     expect(find.byKey(const Key('consent-open-privacy')), findsOneWidget);
-    expect(find.text(ConsentPanel.buttonLabel), findsOneWidget);
+    expect(find.text('Akzeptieren und weiter'), findsOneWidget);
     await tester.tap(find.byKey(const Key('consent-disclaimer')));
     await tester.pump();
     await tapAndWait(tester, accept);

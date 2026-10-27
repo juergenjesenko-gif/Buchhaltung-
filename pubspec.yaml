@@ -71,6 +71,8 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
+  # Übersetzungen aus lib/l10n/*.arb (L-34.1), siehe l10n.yaml.
+  generate: true
 
   # Hilfe Stufe 1 (FA-11.1): das Handbuch selbst ist die Hilfe-Quelle,
   # keine Kopie. test/help_test.dart prüft die Einbindung.
