@@ -45,3 +45,34 @@ Details: `docs/maerkte/Frankreich_Markteintritt.md`.
 
 - **AT:** Direktübermittlung UVA an FinanzOnline (Webservice) ohne eigenen Server, ca. 2–3 Wochen – nach UK.
 - **DE:** ELSTER braucht ERiC (keine Mobilbibliothek bekannt) – zurückgestellt bis geklärt.
+
+## Englischsprachiger Start: UK, Irland, USA gleichzeitig (Entscheidung 2026-10-27)
+
+Ein englischer Build, drei Ländereinstellungen. Ziel: Start in allen drei Ländern vor dem 6. April 2027.
+
+| | UK | Irland | USA |
+|---|---|---|---|
+| Sprache/Format | en-GB, £, 27/10/2026 | en-GB/en-IE, €, 27/10/2026 | en-US, $, 10/27/2026 |
+| Steuerprofil | TaxProfile UK (Steuerjahr 6.4.–5.4., SA103-Kategorien, VAT 90.000 £) | TaxProfile IE (Kalenderjahr, VAT-Grenzen €42.500/€85.000, Kategorien Form 11) | TaxProfile US (Kalenderjahr, Kategorien Schedule C, keine USt) |
+| Behördenanbindung | **HMRC MTD** direkt (Quartalsmeldung) | keine (ROS ohne offene Schnittstelle) → Export | keine → Export für Steuerberater/Schedule C |
+| Rechnungen | VAT-Rechnung für Registrierte | VAT-Rechnung, EN 16931 wiederverwendbar | einfache Invoice, Sales Tax nur als Feld |
+| Besonders | Anmeldedienst (OAuth) nötig | – | Meilen-Erfassung erwartet (später) |
+| Store | UK | IE | US |
+
+Reihenfolge der Arbeit: Mehrsprachigkeit und Länderwahl (gemeinsam) → TaxProfile IE und US (einfach, ohne Behörde) → UK mit HMRC (längster Vorlauf) → gemeinsamer Start. Fällt die HMRC-Zulassung zu spät, starten IE und US trotzdem, UK folgt.
+
+Prüfpunkte: P-UK-01 bis P-UK-05; für IE und US neue Prüfpunkte vor Entwicklungsbeginn (Steuerwerte, Rechtstexte, US-Bundesstaaten-Datenschutz).
+
+## Frankreich – Angebot B2Brouter (Antwort 2026-10-27)
+
+| | Super PDP | B2Brouter |
+|---|---|---|
+| Modell | OAuth je Kundin (Kundin verbindet sich selbst) | „graue Marke“, wir sind Direktkunde, Kundinnen per API angelegt |
+| Preis | 0,01 €/Rechnung, 2 € KYC je Kundin, min. 10 €/Jahr | 99 €/Monat fix + Stufe (z. B. 100 aktive Kundinnen = 198 €/Monat, 500 Transaktionen) |
+| Kosten je Kundin (100 Kundinnen, 30 Rechn./Mon.) | ca. 0,30 € + 2 € einmalig | ca. 2,97 € (297 €/100) |
+| Vertrag | monatlich kündbar | 1 Jahr, 30 Tage Frist (laut Antwort derzeit keine Austrittsgebühr) |
+| Hosting | EU | Deutschland und Frankreich |
+| Datenschutz-Unterlagen | AGB mit Anhang A (öffentlich) | nur nach NDA |
+| Technik | App spricht mit Plattform im Namen der Kundin | API-Schlüssel ist unserer → Aufrufe müssen über **unseren Server** laufen, Rechnungsdaten aller Kundinnen gehen durch ihn |
+
+Bewertung: Super PDP bleibt Favorit (günstiger, kein Jahresvertrag, Daten nicht über unseren Server). B2Brouter als Ausweichlösung.
