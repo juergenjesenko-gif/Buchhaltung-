@@ -39,7 +39,7 @@ void main() {
     ).parse(OcrDocument.fromText(_usKiosk));
     expect(r.vatLines, isEmpty);
     expect(r.gross?.value.cents, 1595);
-    expect(r.currency?.value, 'USD');
+    expect(r.currency.value, 'USD');
     expect(r.merchant?.value, 'DEVIL & ANGEL DESSERT');
     expect(r.date?.value, DateTime(2026, 10, 26));
   });
