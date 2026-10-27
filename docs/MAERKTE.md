@@ -7,10 +7,10 @@ Stand: 2026-10-27. Entscheidungsgrundlagen (Recherche der Prüfinstanzen, Sicher
 | Datum | Entscheidung |
 |---|---|
 | 2026-10-26 | **UK ist der nächste Markt**, Start vor dem 6. April 2027 (Making Tax Digital ab 30.000 £). Englische Fassung dient später Irland und USA. |
-| 2026-10-26 | Englischer Produktname **„JeNi Books“**; eine App, Store-Name je Land (de: „JeNi bucht“, en: „JeNi Books“). |
+| 2026-10-26 | Englischer Produktname **„JeNi books“**; eine App, Store-Name je Land (de: „JeNi bucht“, en: „JeNi books“). |
 | 2026-10-26 | Domain **jenibooks.com** gesichert (später 301 auf jenibucht.com/en/). |
 | 2026-10-27 | Instagram **@jeni.books.app** gesichert (TikTok gleicher Name anstreben). |
-| 2026-10-27 | **Frankreich:** App und Website auf **Französisch**, Produktname dort ebenfalls **„JeNi Books“** (kein „JeNi compta“, keine eigene FR-Domain). |
+| 2026-10-27 | **Frankreich:** App und Website auf **Französisch**, Produktname dort ebenfalls **„JeNi books“** (kein „JeNi compta“, keine eigene FR-Domain). |
 | 2026-10-27 | **Social Media nur Deutsch und Englisch** (@jeni.bucht, @jeni.books.app); keine dritte Sprache – zu viel Pflegeaufwand. |
 | 2026-10-27 | **Eine Master-Domain jenibucht.com** mit Sprachversionen `/en/` und `/fr/`; **jenibooks.com leitet nur weiter** (301 auf `/en/`, später sprachabhängig `/fr/`). |
 
@@ -36,7 +36,7 @@ Details: `docs/maerkte/UK_Anforderungen.md`, `docs/maerkte/Englisch_Name_Marketi
 
 Details: `docs/maerkte/Frankreich_Markteintritt.md`.
 
-- Produktname **„JeNi Books“** (Entscheidung 2026-10-27); App, Store-Texte und Website französisch (Loi Toubon), Social Media bleibt DE/EN.
+- Produktname **„JeNi books“** (Entscheidung 2026-10-27); App, Store-Texte und Website französisch (Loi Toubon), Social Media bleibt DE/EN.
 - Plattform (Plateforme Agréée): **Favorit Super PDP** – 0,01 € je Rechnung über API, 2 € KYC/KYB je Kundin, Mindestumsatz 10 €/Jahr, Abrechnung nur an uns; AGB: Server in der EU, Auftragsverarbeitung (Anhang A), monatlich kündbar, kostenlose Reversibilität, Gerichtsstand Paris (gelesen 2026-10-26, Antwort Support #9374993). Angebote Iopole und B2Brouter angefragt.
 - Kosten im Abo einrechnen, keine eigene Gebühr (Marktüblich: Indy, Tiime, Abby, Qonto gratis).
 

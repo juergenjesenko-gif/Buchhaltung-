@@ -20,24 +20,24 @@ natürliche Name, den Nutzer ohnehin hören.
 
 | Option | Pro | Contra |
 |---|---|---|
-| **JeNi Books** | 1:1-Übersetzung von „bucht“ (to book = buchen), „books“ = Buchhaltung („keep the books“), Doppelsinn Verb/Nomen wie im Deutschen; Google übersetzt schon so | „Books“ auch Bücher/E-Books → Store-Suche verwechselt evtl. mit Lese-Apps; Namensnähe zu QuickBooks, FreshBooks, Zoho Books (kein Konflikt durch „JeNi“, aber generisch) |
+| **JeNi books** | 1:1-Übersetzung von „bucht“ (to book = buchen), „books“ = Buchhaltung („keep the books“), Doppelsinn Verb/Nomen wie im Deutschen; Google übersetzt schon so | „Books“ auch Bücher/E-Books → Store-Suche verwechselt evtl. mit Lese-Apps; Namensnähe zu QuickBooks, FreshBooks, Zoho Books (kein Konflikt durch „JeNi“, aber generisch) |
 | JeNi Receipts | Trifft Kernfunktion und Suchbegriff „receipts“ | Klingt nach reinem Scanner, schmal; Wortspiel geht verloren |
 | JeNi Bookkeeping | Klar, SEO-stark | Lang, sperrig, kein Charme |
 | JeNi Tax | Suchbegriff „tax“ | Verspricht Steuerberatung → Konflikt mit Werbe-Negativliste („ersetzt den Steuerberater“) |
 | JeNi (allein) | Kürzeste Marke, sprachneutral | Schwach unterscheidungskräftig, viele „Jeni/Jenny“-Marken, null Funktionshinweis |
-| JeNi books (klein, analog „JeNi bucht“) | Konsistent zur DE-Schreibweise | Wie JeNi Books; im Englischen wirkt Kleinschreibung als Satz („JeNi books.“) – kann gewollt sein |
+| JeNi books (klein, analog „JeNi bucht“) | Konsistent zur DE-Schreibweise | Wie JeNi books; im Englischen wirkt Kleinschreibung als Satz („JeNi books.“) – kann gewollt sein |
 
 **Aussprache:** „JeNi“ wird im UK als „Jenny“ gelesen – passt, freundlich.
 
 **Store-Suchbegriffe:** Name kurz halten, Suchbegriffe in Untertitel/Kurzbeschreibung:
-„JeNi Books – Receipts & MTD“ (App Store Name ≤ 30 Zeichen) bzw. Untertitel
+„JeNi books – Receipts & MTD“ (App Store Name ≤ 30 Zeichen) bzw. Untertitel
 „Receipts, invoices, self assessment“. Keywords: receipts, bookkeeping,
 sole trader, self employed, MTD, self assessment, invoice, expenses.
 Achtung: „MTD“ nur nutzen, wenn die App wirklich HMRC-anerkannte MTD-Software
 ist (HMRC-Liste) – sonst irreführend (CAP Code 3.1) → 14.
 
 **Kurze Markenrecherche (Websuche, geringe Sicherheit):** Suche nach
-„JeNi Books“/„Jeni Books“ fand keinen exakt gleichen Eintrag; nächste Treffer
+„JeNi books“/„Jeni Books“ fand keinen exakt gleichen Eintrag; nächste Treffer
 USPTO: „JENNI B.“ (Serial 98268166, Buchverlag, Kl. 41) und „JB JENNI B.“
 (98794963), „CLEVER JENNY BOOKS“ (97636837) – andere Klassen (41 statt 9/36/42),
 wohl kein Konflikt. UKIPO/EUIPO wurden nicht direkt abgefragt.
@@ -53,11 +53,11 @@ jenibooks.com, jenibooks.co.uk, jenibooks.app, getjenibooks.com. Minimalweg:
 **jenibucht.com/en/** als Hauptadresse, jenibooks.com nur kaufen und per 301
 auf /en/ umleiten (eine Seite, eine Pflege, Domain-Authority gebündelt).
 
-**Empfehlung:** **„JeNi Books“**, Schreibweise analog „JeNi bucht“.
+**Empfehlung:** **„JeNi books“**, Schreibweise analog „JeNi bucht“.
 
 **Eine App oder zwei?** Eine App, lokalisiert. Play Console und App Store
 Connect erlauben je Sprache/Locale eigenen Titel, Untertitel, Beschreibung,
-Screenshots: de-DE/de-AT „JeNi bucht“, en-GB (später en-IE, en-US) „JeNi Books“.
+Screenshots: de-DE/de-AT „JeNi bucht“, en-GB (später en-IE, en-US) „JeNi books“.
 Ein Code, eine Bewertungshistorie, ein Abo-System; Länderlogik bleibt im
 `TaxProfile`. Paketname bleibt. Preise je Land im Store.
 
@@ -80,7 +80,7 @@ Ein Code, eine Bewertungshistorie, ein Abo-System; Länderlogik bleibt im
      Text dann im JSON übersetzbar, barrierefrei, durchsuchbar.
    - Bestandsvideos: für die EN-Seite nur 1–2 Videos neu rendern (ohne Text)
      oder vorläufig Standbild + englischer Text. Kein Doppel-Untertitel.
-   - Ausnahme: KI-Hinweis „AI-generated · Ad for JeNi Books“ bleibt eingebrannt
+   - Ausnahme: KI-Hinweis „AI-generated · Ad for JeNi books“ bleibt eingebrannt
      (Kennzeichnung darf nicht abschaltbar sein) – sprachneutral lösbar mit
      Icon „AI“ + kurzem Text je Sprache im Rendering-Schritt.
 
@@ -114,13 +114,13 @@ Dann getrennte Konten, gleiche Rohvideos.
 5. Zwei Exporte, je mit Kennzeichnungs-Overlay in der Sprache.
 
 **Checkliste je EN-Post:**
-- [ ] Overlay erste Sekunden + dauerhaft: „AI-generated · Ad for JeNi Books“
+- [ ] Overlay erste Sekunden + dauerhaft: „AI-generated · Ad for JeNi books“
 - [ ] Caption Zeile 1: „Ad · AI character – JeNi is not a real person, scene is fictional.“
 - [ ] Meta „AI info“ / TikTok „AI-generated content“-Schalter an; C2PA-Metadaten nicht entfernen
 - [ ] Bei Bezahlwerbung: Instagram „Paid partnership“/TikTok „Promotional content“
 - [ ] Werbe-Negativliste auf Englisch: kein „HMRC-approved“ (außer wirklich gelistet), „replaces your accountant“, „tax advice“, „100 % accurate“, „free“ ohne Folgepreis
 - [ ] Musik aus lizenzfreier Plattformbibliothek (Business-Konto)
-- [ ] Erste KI-Antwort in DMs/Kommentaren: „This is an AI reply from JeNi Books. Not tax advice – for your situation ask an accountant.“
+- [ ] Erste KI-Antwort in DMs/Kommentaren: „This is an AI reply from JeNi books. Not tax advice – for your situation ask an accountant.“
 
 **KI-Kennzeichnung (Rechtsanwalt):**
 - **EU AI Act Art. 50 Abs. 4** gilt seit 2.8.2026: Deepfakes (realistisch
@@ -155,15 +155,15 @@ nur Skript-Übersetzung (Claude), zweiter Voice-Export, Upload, Checkliste
 
 ## Übergabe an den Marketing-Chat (Claude-Projekt „JeNi bucht“)
 
-- Markenname EN: **JeNi Books** (Vorschlag, Freigabe Auftraggeber offen).
+- Markenname EN: **JeNi books** (Vorschlag, Freigabe Auftraggeber offen).
   Handle **@jeni.books** – erst sichern, aktiv erst ab UK-Funktion.
 - Ab sofort Videos **ohne eingebrannten Text** produzieren; Untertitel als
   Plattform-Caption oder WebVTT. Szenen sprachneutral (keine DE-Schilder).
 - Je Video: Skript DE + EN (britisches Englisch), gleiche KI-Stimme in beiden
   Sprachen, Overlay je Sprache „KI-generiert · Werbung für die App JeNi bucht“ /
-  „AI-generated · Ad for JeNi Books“.
+  „AI-generated · Ad for JeNi books“.
 - EN-Caption Zeile 1: „Ad · AI character – JeNi is not a real person, scene is fictional.“
-- EN-Bio-Entwurf: „AI influencer for JeNi Books 🤖 / Running my business from my
+- EN-Bio-Entwurf: „AI influencer for JeNi books 🤖 / Running my business from my
   phone. / Snap a receipt – done. 📱 / For UK sole traders 👇“ + „Contact & privacy: link in bio“.
 - Englische Negativliste: kein „tax advice“, „replaces your accountant“,
   „HMRC-approved/MTD-compatible“ (bis bestätigt), „100 % accurate“, „free“ ohne Folgepreis.
