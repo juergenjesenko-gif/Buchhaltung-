@@ -75,4 +75,4 @@ Prüfpunkte: P-UK-01 bis P-UK-05; für IE und US neue Prüfpunkte vor Entwicklun
 | Datenschutz-Unterlagen | AGB mit Anhang A (öffentlich) | nur nach NDA |
 | Technik | App spricht mit Plattform im Namen der Kundin | API-Schlüssel ist unserer → Aufrufe müssen über **unseren Server** laufen, Rechnungsdaten aller Kundinnen gehen durch ihn |
 
-Bewertung: Super PDP bleibt Favorit (günstiger, kein Jahresvertrag, Daten nicht über unseren Server). B2Brouter als Ausweichlösung.
+**Entscheidung des Auftraggebers 2026-10-27: Super PDP.** B2Brouter als Ausweichlösung. Anforderungen: LASTENHEFT 5.35; Umsetzung nach der englischen Fassung.

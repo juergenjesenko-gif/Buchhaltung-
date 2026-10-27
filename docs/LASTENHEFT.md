@@ -1,6 +1,6 @@
 # Lastenheft – JeNi bucht, Buchhaltungsapp für Österreich und Deutschland
 
-**Dokumentversion:** 1.89 · **Stand:** 2026-10-20 · **Status:** Entwurf zur Abstimmung
+**Dokumentversion:** 1.90 · **Stand:** 2026-10-27 · **Status:** Entwurf zur Abstimmung
 **Auftraggeber:** Jürgen Jesenko (privates Vorhaben) · **Umsetzung:** Claude Code
 
 > Ein Lastenheft beschreibt, **was** das Produkt leisten soll und **warum** — nicht,
@@ -1136,6 +1136,42 @@ doppelt bucht. Dafür die Standardformate der Kanzleien unterstützen.
 | L-33.5 | Generische CSV-Belegliste | MUSS | B | vorhanden (8.2) |
 | L-33.6 | Vorgabe **„Für Kapitalgesellschaft / doppelte Buchführung“**: Saldenliste PDF + Buchungsliste + Belegkopien ZIP | MUSS | B | 0.29.0 (FA-15.12), P-S84, P-D53 |
 
+### 5.34 Englischsprachige Länder: UK, Irland, USA (Stufe D)
+
+**Entscheidung des Auftraggebers vom 2026-10-26/27:** UK, Irland und USA
+starten gleichzeitig mit einem englischen Build vor dem 6. April 2027;
+Produktname „JeNi books“ (Schreibweise klein), Website `/en/`, Social Media
+@jeni.books.app. Grundlage: `docs/MAERKTE.md`, `docs/maerkte/`.
+
+| ID | Anforderung | Priorität | Stufe | Stand |
+|---|---|---|---|---|
+| L-34.1 | Mehrsprachigkeit der App (de, en-GB, en-US, später fr), Länderwahl bei der Einrichtung | MUSS | D | geplant |
+| L-34.2 | TaxProfile UK (Steuerjahr 6.4.–5.4., SA103-Kategorien, VAT-Grenze, Vorauszahlungen) | MUSS | D | geplant, P-UK-03 |
+| L-34.3 | Making Tax Digital for Income Tax: Quartalsmeldungen und Jahresabschluss direkt an HMRC, Pflicht-Header zur Betrugsprävention, Zulassung und Eintrag in der HMRC-Softwareliste | MUSS | D | geplant, P-UK-01, P-UK-02 |
+| L-34.4 | Anmeldedienst für OAuth (Tokentausch, sieht keine Buchhaltungsdaten) – erster Serverdienst; Datenfluss in 5.19, PRIVACY, STORE_LISTING | MUSS | D | Entscheidung offen |
+| L-34.5 | TaxProfile IE (Kalenderjahr, VAT-Grenzen, Kategorien Form 11), Export statt Behördenanbindung | MUSS | D | geplant |
+| L-34.6 | TaxProfile US (Kalenderjahr, Kategorien Schedule C, keine USt), Export | MUSS | D | geplant |
+| L-34.7 | Englische Rechtstexte und Store-Einträge je Land | MUSS | D | geplant, P-UK-04 |
+
+### 5.35 Frankreich: E-Rechnung über Plateforme Agréée Super PDP (Stufe E)
+
+**Entscheidung des Auftraggebers vom 2026-10-27:** Plattform **Super PDP**
+(SUPER G, Paris; 0,01 € je Rechnung, 2 € KYC/KYB je Kundin, monatlich
+kündbar, Server in der EU, Auftragsverarbeitung Anhang A der AGB). B2Brouter
+bleibt Ausweichlösung. Umsetzung **nach** der englischen Fassung; Start vor
+der Ausstellungspflicht 1. 9. 2027. Produktname „JeNi books“, App und Website
+französisch, kein eigener Social-Media-Kanal.
+
+| ID | Anforderung | Priorität | Stufe | Stand |
+|---|---|---|---|---|
+| L-35.1 | TaxProfile FR (micro-entrepreneur, franchise en base, Pflichtangaben inkl. „TVA non applicable, art. 293 B du CGI“, SIREN/SIRET) | MUSS | E | geplant, P-FR-01 |
+| L-35.2 | Factur-X mit französischen Zusatzfeldern (Generator EN 16931 wiederverwenden) | MUSS | E | geplant |
+| L-35.3 | Anbindung Super PDP: Kundin verbindet ihr Konto per OAuth 2.1 „authorization code“ (je Kundin selbst), Ausstellen, Empfangen, Status, E-Reporting | MUSS | E | geplant |
+| L-35.4 | Kosten im Abo enthalten (keine Gebühr je Rechnung für die Kundin) | SOLL | E | geplant |
+| L-35.5 | Rechnungen werden bei fehlender Verbindung gesammelt und später gesendet (Notfallplan laut AGB) | MUSS | E | geplant |
+| L-35.6 | Neuer Datenfluss zu Super PDP in 5.19, PRIVACY und STORE_LISTING; Anmeldedienst aus L-34.4 mitnutzen | MUSS | E | geplant |
+| L-35.7 | Französische Rechtstexte, Store-Einträge, Website `/fr/` | MUSS | E | geplant |
+
 ## 6. Nichtfunktionale Anforderungen
 
 | ID | Anforderung |
@@ -1547,6 +1583,7 @@ Historie stehen. Die Einzelheiten stehen an der genannten Stelle.
 
 | Version | Datum | Änderung |
 |---|---|---|
+| 1.90 | 2026-10-27 | Neu 5.34 (UK, Irland, USA gleichzeitig, JeNi books) und 5.35 (Frankreich mit Super PDP, nach der englischen Fassung); Grundlage `docs/MAERKTE.md`. |
 | 1.89 | 2026-10-20 | Entscheidungen Auftraggeber 2026-10-20 (14a): Buchungsregeln gebaut (Spez. 5.16), KI-Chat als L-21.13 (Stufe C), O-47 Buchungsregeln Pro, Regelstand mit Aktualisieren-Hinweis und `REGELPFLEGE.md` (Spez. 5.17). |
 | 1.88 | 2026-10-19 | 14a: Logo endgültig (DESIGN_SPEC 10a), Instagram-Text zum 20-%-Code ohne „statt“-Preis. |
 | 1.87 | 2026-10-19 | Entscheidungen Auftraggeber 2026-10-19 (14a): O-44 (E-Rechnung ausstellen ab Basis), O-45 (Apple Variante A plus Codes), O-46 (Pro-Code `JENIBUCHT20PRO`, parallel) erledigt. |
