@@ -34,6 +34,7 @@ nächsten Versionssprung in den neuen Eintrag.
 
 | Art | Änderung | Bezug | Commit |
 |---|---|---|---|
+| Webseite | Google-Play-Knopf auf jenibucht.com aktiv, App Store weiter „bald verfügbar“ (Store-Schalter je Store getrennt) | LAUNCH 19 | – |
 | Website | Englische Produktseite `/en/` (JeNi books, britisches Englisch): Struktur und Texte, Bilder/Videos als Platzhalter mit künftigen Dateinamen, Warteliste per mailto, hreflang und Sprachumschalter DE \| EN (≥ 48 px) auf beiden Seiten, `/en/` in der Sitemap | `docs/maerkte/Marketing_Mehrsprachig.md` | siehe Git-Log |
 
 ---

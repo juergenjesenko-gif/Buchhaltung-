@@ -296,24 +296,45 @@ footer{border-top:1px solid var(--line);margin-top:32px;padding-bottom:24px;colo
 """
 
 
-# Store-Links: erst auf True stellen, wenn die App in BEIDEN Stores öffentlich
-# ist – vorher liefern die Links für Besucher eine Fehlerseite.
-STORES_LIVE = False
+# Store-Links je Store: erst auf True stellen, wenn die App dort öffentlich ist –
+# vorher liefert der Link für Besucher eine Fehlerseite. Google zuerst
+# (Entscheidung Auftraggeber 2026-10-27: nicht auf Apple warten).
+PLAY_LIVE = True
+APP_STORE_LIVE = False
 APP_STORE_URL = "https://apps.apple.com/at/app/id6824914122"
 PLAY_URL = "https://play.google.com/store/apps/details?id=at.jenibarb.jenibucht"
 
 
 def produktseite(html: str) -> str:
-    """Produktseite: Store-Knöpfe (wenn live) und FAQ als strukturierte Daten."""
-    if STORES_LIVE:
+    """Produktseite: Store-Knöpfe (je Store, wenn live) und FAQ als strukturierte Daten."""
+    if PLAY_LIVE or APP_STORE_LIVE:
+        knoepfe = [
+            f'<a class="btn btn-ghost" href="{APP_STORE_URL}">Laden im App Store</a>'
+            if APP_STORE_LIVE else '<span class="soon">App Store · bald verfügbar</span>',
+            f'<a class="btn btn-ghost" href="{PLAY_URL}">Jetzt bei Google Play</a>'
+            if PLAY_LIVE else '<span class="soon">Google Play · bald verfügbar</span>',
+        ]
         html = re.sub(
             r"<!-- STORES:START.*?<!-- STORES:END -->",
-            f'<a class="btn btn-ghost" href="{APP_STORE_URL}">Laden im App Store</a>\n'
-            f'      <a class="btn btn-ghost" href="{PLAY_URL}">Jetzt bei Google Play</a>',
+            "\n      ".join(knoepfe),
             html,
             flags=re.S,
         )
-        html = html.replace("Bald im App Store und bei Google Play", "Jetzt im App Store und bei Google Play")
+        if PLAY_LIVE and APP_STORE_LIVE:
+            titel = "Jetzt im App Store und bei Google Play"
+        elif PLAY_LIVE:
+            titel = "Jetzt bei Google Play, bald im App Store"
+        else:
+            titel = "Jetzt im App Store, bald bei Google Play"
+        html = html.replace("Bald im App Store und bei Google Play", titel)
+        html = html.replace(
+            "JeNi bucht kommt für iPhone und Android. Folge @jeni.bucht auf Instagram, dort erfährst du zuerst, wann es losgeht.",
+            "Für Android jetzt zum Download. Die iPhone-Version folgt, auf @jeni.bucht erfährst du zuerst, wann."
+            if not APP_STORE_LIVE else
+            "Für iPhone jetzt zum Download. Die Android-Version folgt, auf @jeni.bucht erfährst du zuerst, wann."
+            if not PLAY_LIVE else
+            "Für iPhone und Android. Auf @jeni.bucht gibt es Tipps und Neuigkeiten.",
+        )
     # FAQ aus den <details>-Blöcken als FAQPage, damit Suche und Seite nie auseinanderlaufen.
     fragen = re.findall(r"<details><summary>(.*?)</summary><p>(.*?)</p></details>", html, re.S)
     if fragen:
