@@ -1,6 +1,6 @@
 # Spezifikation – Buchhaltung
 
-**Dokumentversion:** 2.23 · **App-Version:** 0.39.4 · **Stand:** 2026-10-24
+**Dokumentversion:** 2.24 · **App-Version:** 0.39.4 · **Stand:** 2026-10-24
 **Status:** Testbuild 0.21.0 (Schema 23); Store-Start offen, siehe Abschnitt 11 und 14
 
 > Das **Zielbild** des Produkts steht im [`LASTENHEFT.md`](LASTENHEFT.md); dieses
@@ -524,6 +524,7 @@ prüft `InvoiceRequirements` (FA-1.4).
 | FA-2.62 | **Betrag und Sätze in fester Rangfolge** (Gerätetest 0.23.1, OMV-Beleg: 7,96 € zu 20 % statt 8,96 € mit 7,96 € zu 20 % und 1,00 € Pfand zu 0 %): (1) **Kassen-QR** (RKSV/TSE) mit Betrag je Satz, (2) **gedruckte Steuertabelle** mit einer Zeile je Satz („20,0 6,64 1,32 7,96“ / „0,0 1,00 0,00 1,00“, auch 0 %; Zeile gilt nur mit Rechenprobe Netto + Steuer = Brutto, bei 0 % Steuer 0,00), (3) Schlüsselwörter Gesamtbetrag/Summe/Total/Zu zahlen, (4) übrige Heuristik. Ein eindeutiger Gesamtbetrag größer als die lesbaren Tabellenzeilen bleibt stehen (fehlende Zeile). **Zahlungszeilen** (Wertbon, Gutschein, Karte, Mastercard, Maestro, Visa, Bankomat, Bar, Cash, kontaktlos, Rückgeld …) sind nie der Gesamtbetrag. Gedruckte Netto/Steuer je Satz werden in die Aufteilung übernommen, wenn Netto + Steuer = Teilbetrag und die Steuer höchstens 2 Cent + 1 Cent je 10 € von der Rechnung abweicht (Rundung je Position); sonst wird gerechnet (GR-2). **Codes auf jeder Seite** in jedem Weg (Kamera, Scanner, Datei/Teilen, Mithelfer-Eingang): bei PDF mit Textebene werden die Seitenbilder zusätzlich nach Codes durchsucht, beim Dokumentenscanner auch das unverbesserte Original vor der Kontrastverstärkung. **Händler**: kurze Kopfzeile, die mit einer bekannten Kette beginnt, ist der Name; OCR-Trennungen bekannter Wörter werden geschlossen („OMV Tankstel le“ → „OMV Tankstelle“). **Tankstelle ohne Treibstoff**: Kfz-Kosten und „Treibstoff“ nur bei Treibstoffzeile (Diesel, Super, Benzin, AdBlue, Liter/Literpreis); sonst Beschreibung aus den Artikeln (Kassenkürzel wie „VÖSL.MIN“ ausgeschrieben) und neutrale Kategorie. Korpusbeleg `omv_kaiserwald_20260519.jpg`, Prüfpunkt P-D43 |
 | FA-2.63 | **Rabatt- und Gutscheinzeilen sind keine Steuersätze** (Gerätetest 2026-10-22, Hosting-Rechnung helloly: „Gutscheincode NIGHT10 - 10.00% Einmalig Rabatt € -3,00“ wurde als 10 % mit 3,00 € gelesen, Aufteilung 35,40 € statt 32,40 €): Zeilen mit Rabatt, Gutschein, Nachlass, Skonto, Discount, Coupon, Voucher, Promo, Sconto, Popust, Kedvezmény und ohne Steuerwort liefern keinen Satz. Ergeben mehrere erkannte Sätze nicht den Gesamtbetrag, die sicheren (Steuerwort oder Rechenprobe) allein aber schon, fallen die unsicheren Positionssummen weg. Tests `receipt_scan_parser_test.dart`, Gerätetest P-D61 |
 | FA-2.64 | **E-Mail-Belege:** Steht in den ersten Zeilen ein Betreff „Receipt/Order/Invoice from X“ bzw. „Rechnung/Beleg/Quittung/Bestellung von X“ (auch mit „Fwd:“, „AW:“), ist X der Händler (Belegnummer „#…“ fällt weg). Zahlungsdienste und Mailkopf (Square, Google Pay, „Reply to:“) gelten nicht als Händler. Test `receipt_mail_merchant_test.dart` (Rückmeldung Auftraggeber 2026-10-25, Square-Beleg als Gmail-PDF) |
+| FA-2.65 | **Trinkgeld-Tabelle ignorieren:** Ab einer Überschrift „Tip guide“, „Suggested tip“, „Gratuity guide“ bzw. „Trinkgeldvorschlag“ liest die Erkennung nichts mehr; die Prozentzeilen (15 %/18 %/20 %) sind keine Steuersätze. „Your order #“ bzw. „Bestellung“ ist kein Händlername. Test `receipt_us_tip_guide_test.dart` (Rückmeldung Auftraggeber 2026-10-27, US-Kioskbeleg) |
 | FA-2.18 | **Stornierte Belege lesbar**: Filter „Storniert“ in der Belegliste; die Ansicht ist schreibgeschützt (Hinweisbanner, kein Speichern), Kommentare bleiben anhängbar |
 
 ### 5.3 Kassabuch und Auswertung
@@ -1628,6 +1629,7 @@ Vorsteuerabzug in Promille; Fundstelle Privatanteil; Fundstelle Vorsteuer.
 
 | Version | Datum | App-Version | Änderung |
 |---|---|---|---|
+| 2.24 | 2026-10-27 | 0.39.4 | FA-2.65: Trinkgeld-Tabelle auf US-Belegen ist kein Steuersatz, „Your order #“ kein Händler. |
 | 2.23 | 2026-10-27 | 0.39.4 | Ohne Codeänderung: Marktentscheidungen in `docs/MAERKTE.md` (UK als nächster Markt, JeNi Books, Super PDP als Favorit FR); Prüfpunkte P-UK-01 bis P-UK-05, P-FR-01. |
 | 2.22 | 2026-10-26 | 0.39.4 | P-D62 erledigt (Website-Screens aus der echten App). |
 | 2.21 | 2026-10-25 | 0.39.4 | Produktseite ohne Codeänderung: Kurzvideos, Rollen-Galerie mit Player, App-Screens 7–12 (Marketing-Übergabe), Medien selbst gehostet über `tool/site/medien_holen.sh`; neue Prüfpunkte P-R80, P-D62. |

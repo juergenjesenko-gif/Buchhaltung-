@@ -113,7 +113,9 @@ class ReceiptTextParser {
   }
 
   ReceiptScanResult parse(OcrDocument document) {
-    final rows = [for (final r in document.rows) _fixDigits(r)];
+    final rows = withoutTipGuide([
+      for (final r in document.rows) _fixDigits(r),
+    ]);
     final currency = _currency(rows);
     final vatLines = _vat(rows);
     var gross = _gross(rows);
@@ -691,7 +693,7 @@ class ReceiptTextParser {
   // Händler, UID, Rechnungsnummer, Währung
 
   static final _notMerchant = RegExp(
-    r'rechnung|invoice|receipt|quittung|beleg|kassa|kasse|\bbon\b|datum|date|'
+    r'rechnung|invoice|receipt|quittung|beleg|kassa|kasse|\bbon\b|datum|date|\border\b|bestellung|'
     r'\btel\b|\bfax\b|www|http|@|\buid\b|\bust\b|steuer|str\.|straße\b|strasse\b|gasse\b|platz\b|weg\b|'
     r'filiale|willkommen|welcome|danke|kopie|duplikat|zweitschrift|storno|original|seite|page',
   );
@@ -809,6 +811,20 @@ class ReceiptTextParser {
       if (letters >= 3) return name;
     }
     return null;
+  }
+
+  static final _tipGuide = RegExp(
+    r'tip\s*guide|suggested\s*tips?|tip\s*suggestions?|gratuity\s*guide|trinkgeld(?:vorschlag|-?empfehlung)',
+    caseSensitive: false,
+  );
+
+  /// US-Belege drucken unter der Summe eine Trinkgeld-Tabelle („TIP GUIDE:
+  /// 15 %: $2.09 … 20 %: $2.79“). Diese Prozentzeilen sind keine Steuersätze
+  /// und keine Beträge des Belegs; ab der Überschrift wird der Rest ignoriert
+  /// (FA-2.65, Rückmeldung Auftraggeber 2026-10-27).
+  static List<String> withoutTipGuide(List<String> rows) {
+    final i = rows.indexWhere(_tipGuide.hasMatch);
+    return i < 0 ? rows : rows.sublist(0, i);
   }
 
   /// Häufige Wörter in Kopfzeilen, die ML Kit auf Thermopapier trennt.
