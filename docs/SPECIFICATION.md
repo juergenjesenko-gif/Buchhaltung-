@@ -1,6 +1,6 @@
 # Spezifikation – Buchhaltung
 
-**Dokumentversion:** 2.24 · **App-Version:** 0.39.4 · **Stand:** 2026-10-24
+**Dokumentversion:** 2.24 · **App-Version:** 0.39.5 · **Stand:** 2026-10-24
 **Status:** Testbuild 0.21.0 (Schema 23); Store-Start offen, siehe Abschnitt 11 und 14
 
 > Das **Zielbild** des Produkts steht im [`LASTENHEFT.md`](LASTENHEFT.md); dieses

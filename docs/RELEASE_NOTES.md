@@ -29,14 +29,35 @@ gebaut, und was war darin geprüft?*
 
 ## Unveröffentlicht
 
-Änderungen seit 0.39.4+60, die noch in keinem Build stecken. Wandern beim
+Änderungen seit 0.39.5+61, die noch in keinem Build stecken. Wandern beim
 nächsten Versionssprung in den neuen Eintrag.
 
 | Art | Änderung | Bezug | Commit |
 |---|---|---|---|
-| Behoben | Belegerkennung: US-Beleg mit Trinkgeld-Tabelle („TIP GUIDE … 20%: $2.79“) ergab falsche Steuersätze und keinen Betrag; Händler „YOUR ORDER #“ statt Geschäftsname | FA-2.65 | dieser Commit |
-| Website | Produktseite: „In 15 Sekunden erklärt“ (3 Kurzvideos), „Für wen?“ (7 Rollen-Reels mit Player), App-Screens 7–12; Medien selbst gehostet, KI-Kennzeichnung an jedem Block (keine App-Änderung) | P-R80, P-D62 | dieser Commit |
-| Behoben | Belegerkennung: E-Mail-Belege („Receipt from Ubatuba Acai …“) erkannten „Google“ statt des Händlers; Händler kommt jetzt aus dem Betreff | FA-2.64 | dieser Commit |
+
+---
+
+## 0.39.5+61 — 2026-10-27
+
+| Feld | Wert |
+|---|---|
+| Art | Testbuild (CI-APK) für den Auftraggeber |
+| Commit | dieser Commit |
+| Branch | `claude/agile-accounting-app-mobile-wa5j3h` |
+| Dokumentstände | Lastenheft 1.89, Spezifikation 2.24, Benutzerhandbuch für 0.39.5 |
+| Datenbankschema | 32 |
+| Prüfung | `flutter analyze` ohne Befund, alle Tests grün; Android/iOS-Build nur in der CI |
+| Steuerliche Kennwerte | unverändert |
+| Offene reale Prüfpunkte | P-R78, P-R79, P-R80, P-S98, P-S99, P-UK-01 bis P-UK-05, P-FR-01 |
+| Bekannte Grenzen | unverändert (Spezifikation 11) |
+
+**Änderungen seit 0.39.4+60**
+
+| Art | Änderung | Bezug | Commit |
+|---|---|---|---|
+| Behoben | Belegerkennung: US-Beleg mit Trinkgeld-Tabelle („TIP GUIDE … 20%: $2.79“) ergab falsche Steuersätze und keinen Betrag; Händler „YOUR ORDER #“ statt Geschäftsname | FA-2.65 | siehe Git-Log |
+| Website | Produktseite: „In 15 Sekunden erklärt“ (3 Kurzvideos), „Für wen?“ (7 Rollen-Reels mit Player), App-Screens 7–12; Medien selbst gehostet, KI-Kennzeichnung an jedem Block (keine App-Änderung) | P-R80, P-D62 | siehe Git-Log |
+| Behoben | Belegerkennung: E-Mail-Belege („Receipt from Ubatuba Acai …“) erkannten „Google“ statt des Händlers; Händler kommt jetzt aus dem Betreff | FA-2.64 | siehe Git-Log |
 
 ---
 
