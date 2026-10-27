@@ -11,6 +11,7 @@ Stand: 2026-10-27. Entscheidungsgrundlagen (Recherche der Prüfinstanzen, Sicher
 | 2026-10-26 | Domain **jenibooks.com** gesichert (später 301 auf jenibucht.com/en/). |
 | 2026-10-27 | Instagram **@jeni.books.app** gesichert (TikTok gleicher Name anstreben). |
 | 2026-10-27 | **Frankreich:** App und Website auf **Französisch**, Produktname dort ebenfalls **„JeNi books“** (kein „JeNi compta“, keine eigene FR-Domain). |
+| 2026-10-27 | **UK, Irland, USA starten gemeinsam** an einem Tag; vorbereitet wird ein Land nach dem anderen: **Irland, dann UK, dann USA** (kleinster Umbau zuerst, `docs/maerkte/Umbauplan_Laender.md`). |
 | 2026-10-27 | **Social Media nur Deutsch und Englisch** (@jeni.bucht, @jeni.books.app); keine dritte Sprache – zu viel Pflegeaufwand. |
 | 2026-10-27 | **Eine Master-Domain jenibucht.com** mit Sprachversionen `/en/` und `/fr/`; **jenibooks.com leitet nur weiter** (301 auf `/en/`, später sprachabhängig `/fr/`). |
 
