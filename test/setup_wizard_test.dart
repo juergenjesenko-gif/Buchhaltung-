@@ -144,7 +144,7 @@ void main() {
     expect(find.text('Schritt 3 von 4'), findsOneWidget);
     final skip = find.byKey(const Key('setup-skip'));
     expectThumbButton(tester, skip);
-    expect(find.text(SetupWizard.skipLabel), findsOneWidget);
+    expect(find.text('Später hinzufügen'), findsOneWidget);
     expect(
       tester.getTopLeft(next).dy - tester.getBottomLeft(skip).dy,
       greaterThanOrEqualTo(SetupWizard.gap),

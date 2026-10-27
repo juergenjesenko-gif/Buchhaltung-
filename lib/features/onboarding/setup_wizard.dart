@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 
 import '../../app_state.dart';
+import '../../l10n/l10n.dart';
 import '../../core/formatting.dart';
 import '../../core/window_size.dart';
 import '../../domain/company_profile.dart';
@@ -56,17 +57,16 @@ enum _Intent { setup, demo, restore, helper }
 /// Bearbeiten (unverändert).
 class SetupWizard extends StatefulWidget {
   /// Unterzeile der Willkommensseite (Entscheidung 2026-10-19).
-  static const welcomeSubline =
-      'Rechnungswesen und Buchhaltung leicht gemacht. Ohne Vorwissen, nach '
-      'den Regeln, die auch Profis anwenden.';
+  static String welcomeSubline(AppLocalizations l10n) =>
+      l10n.setupWelcomeSubline;
 
   /// Was die App kann – nur Gebautes (UWG). Jede Zeile passt auf 360 dp in
   /// eine Zeile (Rückmeldung Auftraggeber zu 0.30.0).
-  static const welcomePoints = [
-    (Icons.document_scanner_outlined, 'Belege scannen und auslesen'),
-    (Icons.receipt_long_outlined, 'Rechnungen & E-Rechnungen schreiben'),
-    (Icons.event_note_outlined, 'Verträge und Fristen im Blick'),
-    (Icons.table_chart_outlined, 'Saldenliste und Jahresübersicht'),
+  static List<(IconData, String)> welcomePoints(AppLocalizations l10n) => [
+    (Icons.document_scanner_outlined, l10n.setupPointReceipts),
+    (Icons.receipt_long_outlined, l10n.setupPointInvoices),
+    (Icons.event_note_outlined, l10n.setupPointContracts),
+    (Icons.table_chart_outlined, l10n.setupPointReports),
   ];
 
   const SetupWizard({super.key});
@@ -76,8 +76,6 @@ class SetupWizard extends StatefulWidget {
 
   /// Abstand zwischen „Später hinzufügen“ und dem Hauptknopf.
   static const gap = 12.0;
-
-  static const skipLabel = 'Später hinzufügen';
 
   /// Schritte mit Abo-Auswahl (`spec.setup_steps`); ohne sie einer weniger.
   static const steps = 5;
@@ -298,7 +296,7 @@ class _SetupWizardState extends State<SetupWizard> {
           final state = AppScope.read(context);
           await startDemo(context, fromSettings: !state.license.enabled);
         } on Object {
-          if (mounted) showSnack(context, 'Die Demo ließ sich nicht öffnen.');
+          if (mounted) showSnack(context, context.l10n.setupDemoFailed);
         } finally {
           if (mounted) setState(() => _busy = false);
         }
@@ -330,10 +328,10 @@ class _SetupWizardState extends State<SetupWizard> {
 
   String? _validateOpening(String? value) {
     final text = (value ?? '').trim();
-    if (text.isEmpty) return 'Bitte angeben – 0, wenn es keinen Umsatz gab';
+    if (text.isEmpty) return context.l10n.setupOpeningRequired;
     final money = Money.tryParse(text);
-    if (money == null) return 'Bitte einen Betrag eingeben';
-    if (money.isNegative) return 'Der Umsatz kann nicht negativ sein';
+    if (money == null) return context.l10n.setupAmountInvalid;
+    if (money.isNegative) return context.l10n.setupTurnoverNegative;
     return null;
   }
 
@@ -422,7 +420,7 @@ class _SetupWizardState extends State<SetupWizard> {
       await state.saveProfile(state.profile!.copyWith(logoPath: relative));
     } on Exception catch (error) {
       if (mounted) {
-        showSnack(context, 'Logo konnte nicht übernommen werden: $error');
+        showSnack(context, context.l10n.setupLogoFailed(error.toString()));
       }
     }
   }
@@ -441,7 +439,7 @@ class _SetupWizardState extends State<SetupWizard> {
         SetupPage.welcome => _welcome(context),
         SetupPage.consent => _scaffold(
           context,
-          title: 'Bestätigungen',
+          title: context.l10n.setupStepConsent,
           body: ConsentPanel(
             texts: state.missingConsents,
             header: _progress(context),
@@ -450,36 +448,39 @@ class _SetupWizardState extends State<SetupWizard> {
         ),
         SetupPage.company => _scaffold(
           context,
-          title: 'Dein Unternehmen',
+          title: context.l10n.setupStepCompany,
           body: _companyStep(context),
-          primaryLabel: 'Weiter',
+          primaryLabel: context.l10n.commonNext,
           primaryKey: const Key('setup-next'),
           onPrimary: _saveCompany,
         ),
         SetupPage.details => _scaffold(
           context,
-          title: 'Zusatzdaten',
+          title: context.l10n.setupStepDetails,
           body: _detailsStep(context),
-          primaryLabel: 'Weiter',
+          primaryLabel: context.l10n.commonNext,
           primaryKey: const Key('setup-next'),
           onPrimary: _saveDetails,
           onSkip: () => _go(SetupPage.extras),
         ),
         SetupPage.extras => _scaffold(
           context,
-          title: 'Extras',
+          title: context.l10n.setupStepExtras,
           body: _extrasStep(context),
-          primaryLabel: _hasSubscriptionStep ? 'Weiter' : 'Fertig',
+          primaryLabel: _hasSubscriptionStep
+              ? context.l10n.commonNext
+              : context.l10n.commonDone,
           primaryKey: const Key('setup-next'),
           onPrimary: _afterExtras,
           onSkip: _afterExtras,
         ),
         SetupPage.subscription => _scaffold(
           context,
-          title: 'Abo wählen',
+          title: context.l10n.setupStepSubscription,
           body: _subscriptionStep(context),
-          primaryLabel:
-              'Abo wählen – ${LicensePolicy.trialDays} Tage kostenlos',
+          primaryLabel: context.l10n.setupSubscribeTrial(
+            LicensePolicy.trialDays,
+          ),
           primaryKey: const Key('setup-subscribe'),
           onPrimary: () async {
             await openPaywall(context);
@@ -488,7 +489,7 @@ class _SetupWizardState extends State<SetupWizard> {
               await _finish();
             }
           },
-          skipLabel: 'Später entscheiden',
+          skipLabel: context.l10n.setupDecideLater,
           onSkip: _finish,
         ),
       },
@@ -503,7 +504,7 @@ class _SetupWizardState extends State<SetupWizard> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Schritt $step von $_totalSteps',
+            context.l10n.setupStepOf(step, _totalSteps),
             key: const Key('setup-progress'),
             style: Theme.of(context).textTheme.labelLarge,
           ),
@@ -521,7 +522,7 @@ class _SetupWizardState extends State<SetupWizard> {
     String? primaryLabel,
     Key? primaryKey,
     Future<void> Function()? onPrimary,
-    String skipLabel = SetupWizard.skipLabel,
+    String? skipLabel,
     Future<void> Function()? onSkip,
   }) {
     return Scaffold(
@@ -529,7 +530,7 @@ class _SetupWizardState extends State<SetupWizard> {
         title: Text(title),
         leading: IconButton(
           key: const Key('setup-back'),
-          tooltip: 'Zurück',
+          tooltip: context.l10n.commonBack,
           constraints: const BoxConstraints(minWidth: 48, minHeight: 48),
           onPressed: _back,
           icon: const BackButtonIcon(),
@@ -554,7 +555,7 @@ class _SetupWizardState extends State<SetupWizard> {
                             minimumSize: const Size.fromHeight(48),
                           ),
                           onPressed: _busy ? null : onSkip,
-                          child: Text(skipLabel),
+                          child: Text(skipLabel ?? context.l10n.setupLater),
                         ),
                         const SizedBox(height: SetupWizard.gap),
                       ],
@@ -609,7 +610,7 @@ class _SetupWizardState extends State<SetupWizard> {
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
                         Text(
-                          'Willkommen bei JeNi bucht',
+                          context.l10n.setupWelcomeTitle,
                           textAlign: TextAlign.center,
                           style: theme.textTheme.headlineMedium,
                         ),
@@ -632,13 +633,15 @@ class _SetupWizardState extends State<SetupWizard> {
                         // unbelegbares Qualitätsversprechen („Qualität von
                         // Profis“), nur nachprüfbare Arbeitsweise.
                         Text(
-                          SetupWizard.welcomeSubline,
+                          SetupWizard.welcomeSubline(context.l10n),
                           key: const Key('welcome-subline'),
                           textAlign: TextAlign.center,
                           style: theme.textTheme.bodyLarge,
                         ),
                         const SizedBox(height: 40),
-                        for (final (icon, text) in SetupWizard.welcomePoints)
+                        for (final (icon, text) in SetupWizard.welcomePoints(
+                          context.l10n,
+                        ))
                           Padding(
                             padding: const EdgeInsets.symmetric(vertical: 5),
                             child: Row(
@@ -667,7 +670,7 @@ class _SetupWizardState extends State<SetupWizard> {
                         link(
                           const Key('welcome-restore'),
                           Icons.restore,
-                          'Sicherung wiederherstellen',
+                          context.l10n.setupRestore,
                           _Intent.restore,
                         ),
                         const SizedBox(height: 16),
@@ -687,7 +690,7 @@ class _SetupWizardState extends State<SetupWizard> {
                                   ),
                                 )
                               : const Icon(Icons.visibility_outlined),
-                          label: const Text('Erst ansehen (Demo)'),
+                          label: Text(context.l10n.setupDemo),
                         ),
                         const SizedBox(height: SetupWizard.gap),
                         FilledButton(
@@ -700,7 +703,7 @@ class _SetupWizardState extends State<SetupWizard> {
                           onPressed: _busy
                               ? null
                               : () => _choose(_Intent.setup),
-                          child: const Text('Los geht\'s'),
+                          child: Text(context.l10n.setupStart),
                         ),
                       ],
                     ),
@@ -769,19 +772,14 @@ class _SetupWizardState extends State<SetupWizard> {
                     ),
                     onPressed: _busy ? null : () => _choose(_Intent.helper),
                     icon: const Icon(Icons.qr_code_scanner),
-                    label: const Text(
-                      'Dieses Gerät ist ein Mithelfer-Gerät (koppeln)',
-                    ),
+                    label: Text(context.l10n.setupHelperDevice),
                   ),
                 ),
                 const HelperHelpButton(),
               ],
             ),
             const SizedBox(height: 8),
-            Text(
-              'Land des Unternehmenssitzes',
-              style: theme.textTheme.labelLarge,
-            ),
+            Text(context.l10n.setupCountry, style: theme.textTheme.labelLarge),
             const SizedBox(height: 8),
             SegmentedButton<Country>(
               key: const Key('setup-country'),
@@ -799,17 +797,17 @@ class _SetupWizardState extends State<SetupWizard> {
             const SizedBox(height: 16),
             _field(
               'companyName',
-              'Name oder Firma *',
-              hint: 'z. B. Max Mustermann e.U.',
+              context.l10n.setupCompanyName,
+              hint: context.l10n.setupCompanyNameHint,
               caps: TextCapitalization.words,
               draft: true,
               validator: (v) => (v ?? '').trim().isEmpty
-                  ? 'Bitte gib einen Namen oder eine Firma an'
+                  ? context.l10n.setupCompanyNameRequired
                   : null,
             ),
             _field(
               'ownerName',
-              'Inhaber:in',
+              context.l10n.setupOwner,
               caps: TextCapitalization.words,
               draft: true,
             ),
@@ -819,7 +817,9 @@ class _SetupWizardState extends State<SetupWizard> {
                 key: const Key('setup-legal-form'),
                 isExpanded: true,
                 initialValue: _legalForm,
-                decoration: const InputDecoration(labelText: 'Rechtsform'),
+                decoration: InputDecoration(
+                  labelText: context.l10n.setupLegalForm,
+                ),
                 items: [
                   for (final form in LegalForm.values)
                     DropdownMenuItem(value: form, child: Text(form.label)),
@@ -832,7 +832,7 @@ class _SetupWizardState extends State<SetupWizard> {
             ),
             _field(
               'street',
-              'Straße und Hausnummer',
+              context.l10n.setupStreet,
               caps: TextCapitalization.words,
               draft: true,
             ),
@@ -843,7 +843,7 @@ class _SetupWizardState extends State<SetupWizard> {
                   width: 110,
                   child: _field(
                     'postalCode',
-                    'PLZ',
+                    context.l10n.setupPostalCode,
                     keyboard: TextInputType.number,
                     draft: true,
                   ),
@@ -852,7 +852,7 @@ class _SetupWizardState extends State<SetupWizard> {
                 Expanded(
                   child: _field(
                     'city',
-                    'Ort',
+                    context.l10n.setupCity,
                     caps: TextCapitalization.words,
                     draft: true,
                   ),
@@ -860,14 +860,20 @@ class _SetupWizardState extends State<SetupWizard> {
               ],
             ),
             const SizedBox(height: 4),
-            Text('Besteuerung', style: theme.textTheme.labelLarge),
+            Text(context.l10n.setupTaxation, style: theme.textTheme.labelLarge),
             const SizedBox(height: 8),
             SegmentedButton<bool>(
               key: const Key('setup-scheme'),
               style: SegmentedButton.styleFrom(minimumSize: const Size(0, 48)),
-              segments: const [
-                ButtonSegment(value: true, label: Text('Kleinunternehmer')),
-                ButtonSegment(value: false, label: Text('Regelbesteuerung')),
+              segments: [
+                ButtonSegment(
+                  value: true,
+                  label: Text(context.l10n.setupSmallBusiness),
+                ),
+                ButtonSegment(
+                  value: false,
+                  label: Text(context.l10n.setupStandardTaxation),
+                ),
               ],
               selected: {_smallBusiness},
               onSelectionChanged: (s) {
@@ -878,20 +884,18 @@ class _SetupWizardState extends State<SetupWizard> {
             const SizedBox(height: 6),
             Text(
               _smallBusiness
-                  ? 'Rechnungen ohne Umsatzsteuer, mit dem Hinweis nach '
-                        '${tax.smallBusinessLegalRef}. Nicht sicher? Lass es '
-                        'so – du kannst es in den Stammdaten ändern.'
-                  : 'Umsatzsteuer wird ausgewiesen, Vorsteuer ist abziehbar.',
+                  ? context.l10n.setupSmallBusinessHelp(
+                      tax.smallBusinessLegalRef,
+                    )
+                  : context.l10n.setupStandardTaxationHelp,
               style: theme.textTheme.bodySmall,
             ),
             if (_smallBusiness) ...[
               const SizedBox(height: 12),
               _field(
                 'foundingYear',
-                'Gründungsjahr',
-                helper:
-                    'Im Jahr der Gründung gelten eigene Regeln für die '
-                    'Umsatzgrenze.',
+                context.l10n.setupFoundingYear,
+                helper: context.l10n.setupFoundingYearHelp,
                 keyboard: TextInputType.number,
                 draft: true,
                 onChanged: (_) => setState(() {}),
@@ -900,20 +904,19 @@ class _SetupWizardState extends State<SetupWizard> {
                   if (text.isEmpty) return null;
                   final year = int.tryParse(text);
                   if (year == null || year < 1900 || year > _year) {
-                    return 'Bitte ein Jahr bis $_year eingeben';
+                    return context.l10n.setupYearMax(_year);
                   }
                   return null;
                 },
               ),
               if (_asksPrevious || _asksCurrent) ...[
                 Text(
-                  'Umsatz vor Nutzung der App',
+                  context.l10n.setupOpeningTitle,
                   style: theme.textTheme.titleSmall,
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  'Für die Kleinunternehmergrenze braucht die App auch die '
-                  'Zeit vor dem ${Fmt.date(_trackingStart)}.',
+                  context.l10n.setupOpeningHelp(Fmt.date(_trackingStart)),
                   style: theme.textTheme.bodySmall,
                 ),
                 if (_asksPrevious) ...[
@@ -921,7 +924,7 @@ class _SetupWizardState extends State<SetupWizard> {
                   MoneyField(
                     key: const Key('setup-opening-previous'),
                     controller: _f['openingPrevious']!,
-                    label: 'Umsatz ${_year - 1} gesamt *',
+                    label: context.l10n.setupOpeningPrevious(_year - 1),
                     validator: _validateOpening,
                   ),
                 ],
@@ -930,13 +933,15 @@ class _SetupWizardState extends State<SetupWizard> {
                   MoneyField(
                     key: const Key('setup-opening-current'),
                     controller: _f['openingCurrent']!,
-                    label: 'Umsatz $_year vor dem ${Fmt.date(_trackingStart)}',
+                    label: context.l10n.setupOpeningCurrent(
+                      _year,
+                      Fmt.date(_trackingStart),
+                    ),
                     validator: _validateOptionalOpening,
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    'Kannst du leer lassen. Buch dann die Belege seit '
-                    '1.1.$_year nach, damit Umsatz und Grenze stimmen.',
+                    context.l10n.setupOpeningCurrentHelp(_year),
                     key: const Key('setup-opening-current-hint'),
                     style: theme.textTheme.bodySmall,
                   ),
@@ -960,8 +965,10 @@ class _SetupWizardState extends State<SetupWizard> {
           children: [
             _progress(context),
             Text(
-              'Alles optional – für Rechnungen brauchst du später '
-              '${tax.taxNumberLabel} oder ${tax.vatIdLabel}.',
+              context.l10n.setupDetailsIntro(
+                tax.taxNumberLabel,
+                tax.vatIdLabel,
+              ),
               style: theme.textTheme.bodyMedium,
             ),
             const SizedBox(height: 16),
@@ -976,7 +983,7 @@ class _SetupWizardState extends State<SetupWizard> {
             _field(
               'registerNumber',
               tax.registerNumberLabel,
-              helper: 'Nur wenn du eingetragen bist',
+              helper: context.l10n.setupRegisterHelp,
               onChanged: (_) => setState(() {}),
             ),
             if (_t('registerNumber').isNotEmpty)
@@ -984,24 +991,26 @@ class _SetupWizardState extends State<SetupWizard> {
                 'registerCourt',
                 '${tax.registerCourtLabel} *',
                 validator: (v) => (v ?? '').trim().isEmpty
-                    ? 'Mit ${tax.registerNumberLabel} ist auch das Gericht Pflicht'
+                    ? context.l10n.setupRegisterCourtRequired(
+                        tax.registerNumberLabel,
+                      )
                     : null,
               ),
             _field(
               'email',
-              'E-Mail',
+              context.l10n.commonEmail,
               keyboard: TextInputType.emailAddress,
               validator: (v) => ContactFormat.checkEmail(v ?? ''),
             ),
             _field(
               'phone',
-              'Telefon',
+              context.l10n.commonPhone,
               keyboard: TextInputType.phone,
               validator: (v) => ContactFormat.checkPhone(v ?? ''),
             ),
             _field(
               'iban',
-              'IBAN (für Rechnungen)',
+              context.l10n.setupIban,
               caps: TextCapitalization.characters,
             ),
             Row(
@@ -1016,7 +1025,7 @@ class _SetupWizardState extends State<SetupWizard> {
                   ),
                 ),
                 const SizedBox(width: 12),
-                Expanded(child: _field('bankName', 'Bank')),
+                Expanded(child: _field('bankName', context.l10n.setupBank)),
               ],
             ),
           ],
@@ -1051,27 +1060,26 @@ class _SetupWizardState extends State<SetupWizard> {
         children: [
           _progress(context),
           Text(
-            'Jedes davon kannst du überspringen und später in den '
-            'Einstellungen nachholen.',
+            context.l10n.setupExtrasIntro,
             style: theme.textTheme.bodyMedium,
           ),
           const SizedBox(height: 8),
           tile(
             key: const Key('setup-logo'),
             icon: Icons.image_outlined,
-            title: profile?.logoPath == null ? 'Logo wählen' : 'Logo ändern',
+            title: profile?.logoPath == null
+                ? context.l10n.setupLogoChoose
+                : context.l10n.setupLogoChange,
             subtitle: state.allows(Feature.invoiceLogo)
-                ? 'Erscheint oben rechts auf Rechnungen und Angeboten.'
+                ? context.l10n.setupLogoHelp
                 : logoBasisHint,
             onTap: _pickLogo,
           ),
           tile(
             key: const Key('setup-backup'),
             icon: Icons.cloud_upload_outlined,
-            title: 'Datensicherung einrichten',
-            subtitle:
-                'Automatisch sichern und Wiederherstellungscode notieren – '
-                'falls das Handy verloren geht.',
+            title: context.l10n.setupBackup,
+            subtitle: context.l10n.setupBackupHelp,
             onTap: () => Navigator.of(context).push(
               MaterialPageRoute<void>(builder: (_) => const BackupScreen()),
             ),
@@ -1079,12 +1087,13 @@ class _SetupWizardState extends State<SetupWizard> {
           tile(
             key: const Key('setup-registrations'),
             icon: Icons.add_location_alt_outlined,
-            title: 'Weitere Länder',
+            title: context.l10n.setupMoreCountries,
             subtitle: state.registrations.isEmpty
-                ? 'Nur nötig bei Registrierung im Ausland, z. B. '
-                      'Amazon-Lager oder EU-Kleinunternehmer-Verfahren.'
-                : '${state.registrations.length} angelegt: '
-                      '${state.registrations.map((r) => r.shortLabel).join(', ')}',
+                ? context.l10n.setupMoreCountriesHelp
+                : context.l10n.setupRegistrationsCount(
+                    state.registrations.length,
+                    state.registrations.map((r) => r.shortLabel).join(', '),
+                  ),
             onTap: () => TaxRegistrationsSection.addRegistration(context),
           ),
         ],
@@ -1100,22 +1109,16 @@ class _SetupWizardState extends State<SetupWizard> {
         children: [
           _progress(context),
           Text(
-            '${LicensePolicy.trialDays} Tage kostenlos testen',
+            context.l10n.setupTrialTitle(LicensePolicy.trialDays),
             style: theme.textTheme.titleLarge,
           ),
           const SizedBox(height: 8),
           Text(
             key: const Key('setup-trial-terms'),
-            '${LicensePolicy.trialDays} Tage kostenlos testen – mit allen '
-            'Pro-Funktionen. Danach gilt dein gewähltes Abo (Preis aus dem '
-            'Store). Jederzeit vorher im Store kündbar.',
+            context.l10n.setupTrialText(LicensePolicy.trialDays),
           ),
           const SizedBox(height: 8),
-          Text(
-            'Ohne Abo bleiben deine Angaben gespeichert; Buchen geht erst '
-            'mit Abo.',
-            style: theme.textTheme.bodySmall,
-          ),
+          Text(context.l10n.setupNoPlan, style: theme.textTheme.bodySmall),
         ],
       ),
     );

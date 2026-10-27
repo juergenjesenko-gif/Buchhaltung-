@@ -5,6 +5,191 @@
   "consentConfirm": "Bestätigen und weiter",
   "consentWith": "Mit „{button}“: {confirmation}",
   "@consentWith": {
-    "placeholders": {"button": {"type": "String"}, "confirmation": {"type": "String"}}
+    "placeholders": {
+      "button": {
+        "type": "String"
+      },
+      "confirmation": {
+        "type": "String"
+      }
+    }
+  },
+  "setupDemoFailed": "Die Demo ließ sich nicht öffnen.",
+  "setupOpeningRequired": "Bitte angeben – 0, wenn es keinen Umsatz gab",
+  "setupAmountInvalid": "Bitte einen Betrag eingeben",
+  "setupTurnoverNegative": "Der Umsatz kann nicht negativ sein",
+  "setupLogoFailed": "Logo konnte nicht übernommen werden: {error}",
+  "@setupLogoFailed": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "setupStepConsent": "Bestätigungen",
+  "setupStepCompany": "Dein Unternehmen",
+  "commonNext": "Weiter",
+  "setupStepDetails": "Zusatzdaten",
+  "setupStepExtras": "Extras",
+  "commonDone": "Fertig",
+  "setupSubscribeTrial": "Abo wählen – {days} Tage kostenlos",
+  "@setupSubscribeTrial": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "setupStepSubscription": "Abo wählen",
+  "setupDecideLater": "Später entscheiden",
+  "setupStepOf": "Schritt {step} von {total}",
+  "@setupStepOf": {
+    "placeholders": {
+      "step": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "commonBack": "Zurück",
+  "setupWelcomeTitle": "Willkommen bei JeNi bucht",
+  "setupRestore": "Sicherung wiederherstellen",
+  "setupDemo": "Erst ansehen (Demo)",
+  "setupStart": "Los geht's",
+  "setupHelperDevice": "Dieses Gerät ist ein Mithelfer-Gerät (koppeln)",
+  "setupCountry": "Land des Unternehmenssitzes",
+  "setupCompanyName": "Name oder Firma *",
+  "setupCompanyNameHint": "z. B. Max Mustermann e.U.",
+  "setupCompanyNameRequired": "Bitte gib einen Namen oder eine Firma an",
+  "setupOwner": "Inhaber:in",
+  "setupLegalForm": "Rechtsform",
+  "setupStreet": "Straße und Hausnummer",
+  "setupPostalCode": "PLZ",
+  "setupCity": "Ort",
+  "setupTaxation": "Besteuerung",
+  "setupSmallBusiness": "Kleinunternehmer",
+  "setupStandardTaxation": "Regelbesteuerung",
+  "setupSmallBusinessHelp": "Rechnungen ohne Umsatzsteuer, mit dem Hinweis nach {ref}. Nicht sicher? Lass es so – du kannst es in den Stammdaten ändern.",
+  "@setupSmallBusinessHelp": {
+    "placeholders": {
+      "ref": {
+        "type": "String"
+      }
+    }
+  },
+  "setupStandardTaxationHelp": "Umsatzsteuer wird ausgewiesen, Vorsteuer ist abziehbar.",
+  "setupFoundingYear": "Gründungsjahr",
+  "setupFoundingYearHelp": "Im Jahr der Gründung gelten eigene Regeln für die Umsatzgrenze.",
+  "setupYearMax": "Bitte ein Jahr bis {year} eingeben",
+  "@setupYearMax": {
+    "placeholders": {
+      "year": {
+        "type": "int"
+      }
+    }
+  },
+  "setupOpeningTitle": "Umsatz vor Nutzung der App",
+  "setupOpeningHelp": "Für die Kleinunternehmergrenze braucht die App auch die Zeit vor dem {date}.",
+  "@setupOpeningHelp": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "setupOpeningPrevious": "Umsatz {year} gesamt *",
+  "@setupOpeningPrevious": {
+    "placeholders": {
+      "year": {
+        "type": "int"
+      }
+    }
+  },
+  "setupOpeningCurrent": "Umsatz {year} vor dem {date}",
+  "@setupOpeningCurrent": {
+    "placeholders": {
+      "year": {
+        "type": "int"
+      },
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "setupOpeningCurrentHelp": "Kannst du leer lassen. Buch dann die Belege seit 1.1.{year} nach, damit Umsatz und Grenze stimmen.",
+  "@setupOpeningCurrentHelp": {
+    "placeholders": {
+      "year": {
+        "type": "int"
+      }
+    }
+  },
+  "setupDetailsIntro": "Alles optional – für Rechnungen brauchst du später {taxNumber} oder {vatId}.",
+  "@setupDetailsIntro": {
+    "placeholders": {
+      "taxNumber": {
+        "type": "String"
+      },
+      "vatId": {
+        "type": "String"
+      }
+    }
+  },
+  "setupRegisterHelp": "Nur wenn du eingetragen bist",
+  "setupRegisterCourtRequired": "Mit {register} ist auch das Gericht Pflicht",
+  "@setupRegisterCourtRequired": {
+    "placeholders": {
+      "register": {
+        "type": "String"
+      }
+    }
+  },
+  "commonEmail": "E-Mail",
+  "commonPhone": "Telefon",
+  "setupIban": "IBAN (für Rechnungen)",
+  "setupBank": "Bank",
+  "setupExtrasIntro": "Jedes davon kannst du überspringen und später in den Einstellungen nachholen.",
+  "setupLogoChoose": "Logo wählen",
+  "setupLogoChange": "Logo ändern",
+  "setupLogoHelp": "Erscheint oben rechts auf Rechnungen und Angeboten.",
+  "setupBackup": "Datensicherung einrichten",
+  "setupBackupHelp": "Automatisch sichern und Wiederherstellungscode notieren – falls das Handy verloren geht.",
+  "setupMoreCountries": "Weitere Länder",
+  "setupMoreCountriesHelp": "Nur nötig bei Registrierung im Ausland, z. B. Amazon-Lager oder EU-Kleinunternehmer-Verfahren.",
+  "setupTrialText": "{days} Tage kostenlos testen – mit allen Pro-Funktionen. Danach gilt dein gewähltes Abo (Preis aus dem Store). Jederzeit vorher im Store kündbar.",
+  "@setupTrialText": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "setupTrialTitle": "{days} Tage kostenlos testen",
+  "@setupTrialTitle": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "setupNoPlan": "Ohne Abo bleiben deine Angaben gespeichert; Buchen geht erst mit Abo.",
+  "setupLater": "Später hinzufügen",
+  "setupWelcomeSubline": "Rechnungswesen und Buchhaltung leicht gemacht. Ohne Vorwissen, nach den Regeln, die auch Profis anwenden.",
+  "setupPointReceipts": "Belege scannen und auslesen",
+  "setupPointInvoices": "Rechnungen & E-Rechnungen schreiben",
+  "setupPointContracts": "Verträge und Fristen im Blick",
+  "setupPointReports": "Saldenliste und Jahresübersicht",
+  "setupRegistrationsCount": "{count} angelegt: {list}",
+  "@setupRegistrationsCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "list": {
+        "type": "String"
+      }
+    }
   }
 }
