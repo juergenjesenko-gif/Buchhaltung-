@@ -34,6 +34,7 @@ nächsten Versionssprung in den neuen Eintrag.
 
 | Art | Änderung | Bezug | Commit |
 |---|---|---|---|
+| Korrektur | Krumme Steuersätze mit Komma („10,7 %“ statt „10.7 %“); Formate für en_GB/en_IE/en_US vorbereitet | FA-1.20 | – |
 | Neu | Gerüst für Mehrsprachigkeit (Deutsch/Englisch), Bestätigungen und Ersteinrichtung umgestellt; Oberfläche bleibt deutsch | FA-1.20, L-34.1 | – |
 | Webseite | Offizielles Google-Play-Badge auf jenibucht.com (Apple-Badge folgt mit Freigabe), App Store weiter „bald verfügbar“ (Store-Schalter je Store getrennt) | LAUNCH 19 | – |
 | Website | Englische Produktseite `/en/` (JeNi books, britisches Englisch): Struktur und Texte, Bilder/Videos als Platzhalter mit künftigen Dateinamen, Warteliste per mailto, hreflang und Sprachumschalter DE \| EN (≥ 48 px) auf beiden Seiten, `/en/` in der Sitemap | `docs/maerkte/Marketing_Mehrsprachig.md` | siehe Git-Log |

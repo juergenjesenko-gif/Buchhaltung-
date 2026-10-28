@@ -22,7 +22,8 @@ import 'theme.dart';
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   // Ohne die Locale-Daten wirft DateFormat('dd.MM.yyyy', 'de_AT') zur Laufzeit.
-  await initializeDateFormatting('de');
+  // Alle Locales, damit auch en_GB/en_IE/en_US formatieren (FA-1.20).
+  await initializeDateFormatting();
   registerFontLicense();
   final state = await AppState.open();
   installDemoGuards();

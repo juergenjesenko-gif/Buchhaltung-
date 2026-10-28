@@ -10,15 +10,28 @@ class Fmt {
   Fmt._();
 
   static String _locale = 'de_AT';
+  static String _symbol = '€';
+
+  /// Aktuelles Format-Locale, z. B. `de_AT` oder `en_GB`.
+  static String get locale => _locale;
 
   /// Setzt das Locale anhand des Firmensitzes. Die Unterschiede sind klein
   /// (Trennzeichen, Position des Eurozeichens), fallen aber auf.
-  static void setCountry(Country country) {
-    _locale = country == Country.de ? 'de_DE' : 'de_AT';
+  static void setCountry(Country country) =>
+      configure(locale: country == Country.de ? 'de_DE' : 'de_AT');
+
+  /// Format-Locale (Sprache und Land, z. B. `en_GB`) und Währungszeichen
+  /// (Umbauplan AP1, `docs/maerkte/Umbauplan_Laender.md`). Das Locale muss
+  /// mit `initializeDateFormatting` geladen sein.
+  static void configure({required String locale, String symbol = '€'}) {
+    _locale = locale;
+    _symbol = symbol;
   }
 
+  static bool get _german => _locale.startsWith('de');
+
   static NumberFormat get _currency =>
-      NumberFormat.currency(locale: _locale, symbol: '€');
+      NumberFormat.currency(locale: _locale, symbol: _symbol);
   static NumberFormat get _decimal => NumberFormat('#,##0.00', _locale);
 
   /// "1.234,56 €"
@@ -43,8 +56,11 @@ class Fmt {
     return '${s ~/ 60} min $rest s';
   }
 
-  static String date(DateTime value) =>
-      DateFormat('dd.MM.yyyy', _locale).format(value);
+  /// Deutsch „16.08.2026“, sonst das Kurzformat des Locales
+  /// (en_GB „16/08/2026“, en_US „8/16/2026“).
+  static String date(DateTime value) => _german
+      ? DateFormat('dd.MM.yyyy', _locale).format(value)
+      : DateFormat.yMd(_locale).format(value);
 
   /// Datum mit Uhrzeit, z. B. für Kommentare: „12.10.2026, 14:05“.
   static String dateTime(DateTime value) {
@@ -70,10 +86,13 @@ class Fmt {
     return NumberFormat('#,##0.###', _locale).format(quantityMilli / 1000);
   }
 
-  /// "20 %" bzw. "10,7 %"
-  static String vatRate(int permille) => permille % 10 == 0
-      ? '${permille ~/ 10} %'
-      : '${(permille / 10).toStringAsFixed(1)} %';
+  /// "20 %" bzw. "10,7 %"; englisch "20%" bzw. "13.5%".
+  static String vatRate(int permille) {
+    final number = permille % 10 == 0
+        ? '${permille ~/ 10}'
+        : NumberFormat('0.0', _locale).format(permille / 10);
+    return _german ? '$number %' : '$number%';
+  }
 }
 
 /// Erster und letzter Tag eines Monats bzw. Jahres – überall dort gebraucht,
