@@ -6,6 +6,10 @@ name: Website-Medien holen
 # committet; die Website lädt danach nichts von Dritten.
 on:
   workflow_dispatch:
+    inputs:
+      skript:
+        description: Skript in tool/site/
+        default: medien_holen.sh
 
 permissions:
   contents: write
@@ -18,11 +22,11 @@ jobs:
       - name: ffmpeg installieren
         run: sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg
       - name: Herunterladen und umwandeln
-        run: bash tool/site/medien_holen.sh
+        run: bash tool/site/${{ inputs.skript }}
       - name: Committen
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add docs/site/video docs/site/img
-          git commit -m "Website: Marketing-Medien (Videos, Rollen, Feature-Bilder, App-Screens) aus Übergabe 2026-10-25" || echo "nichts zu committen"
+          git commit -m "Website: Medien aus tool/site/${{ inputs.skript }}" || echo "nichts zu committen"
           git push
