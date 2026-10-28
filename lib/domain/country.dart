@@ -5,6 +5,7 @@ import 'holidays.dart';
 import 'levy_rules.dart';
 import 'money.dart';
 import 'official_sources.dart';
+import 'currency.dart';
 
 /// Unterstützte Länder. Die App bildet Österreich und Deutschland ab; die
 /// Unterschiede stecken bewusst nur in dieser Datei, damit ein weiteres Land
@@ -128,6 +129,7 @@ class TaxProfile {
     required this.levies,
     required this.rulesAsOf,
     required this.rulesValidUntil,
+    this.currency = Currency.eur,
   });
 
   /// Regelstand (FA-21.1, docs/REGELPFLEGE.md): Stichtag der eingebauten
@@ -135,6 +137,9 @@ class TaxProfile {
   /// Jahrespaket erhöht, erst wenn alle Werte geprüft sind.
   final DateTime rulesAsOf;
   final DateTime rulesValidUntil;
+
+  /// Hauswährung der Unternehmen dieses Landes (Umbauplan AP2).
+  final Currency currency;
 
   /// Gemischt genutzte Ausgaben mit Buchungsregel (FA-20.x). P-S88.
   final MixedUseRules mixedUse;

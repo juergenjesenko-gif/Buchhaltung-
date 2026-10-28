@@ -27,6 +27,7 @@ import '../../widgets/primary_action_bar.dart';
 import '../../widgets/adaptive.dart';
 import '../help/help_screen.dart';
 import '../../services/help/help_index.dart';
+import '../../domain/currency.dart';
 
 /// Rechnung erstellen und bearbeiten.
 ///
@@ -943,9 +944,9 @@ class _InvoiceEditScreenState extends State<InvoiceEditScreen> {
                 decimal: true,
               ),
               textAlign: TextAlign.right,
-              decoration: const InputDecoration(
+              decoration: InputDecoration(
                 labelText: 'Versandkosten netto',
-                suffixText: '€',
+                suffixText: Currency.home.symbol,
               ),
               onChanged: (_) => setState(() {}),
             ),
@@ -1248,9 +1249,9 @@ class ItemEditor extends StatelessWidget {
                   decimal: true,
                 ),
                 textAlign: TextAlign.right,
-                decoration: const InputDecoration(
+                decoration: InputDecoration(
                   labelText: 'Einzelpreis netto',
-                  suffixText: '€',
+                  suffixText: Currency.home.symbol,
                 ),
                 onChanged: (_) => onChanged(),
               ),
@@ -1477,9 +1478,9 @@ Future<({bool isPercent, String text})?> showDiscountSheet(
             const SizedBox(height: 12),
             SegmentedButton<bool>(
               showSelectedIcon: false,
-              segments: const [
+              segments: [
                 ButtonSegment(value: true, label: Text('%')),
-                ButtonSegment(value: false, label: Text('€')),
+                ButtonSegment(value: false, label: Text(Currency.home.symbol)),
               ],
               selected: {percent},
               onSelectionChanged: (selection) =>
@@ -1496,7 +1497,7 @@ Future<({bool isPercent, String text})?> showDiscountSheet(
               textAlign: TextAlign.right,
               decoration: InputDecoration(
                 labelText: 'Rabatt',
-                suffixText: percent ? '%' : '€',
+                suffixText: percent ? '%' : Currency.home.symbol,
               ),
             ),
             const SizedBox(height: 16),

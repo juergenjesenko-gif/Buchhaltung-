@@ -6,6 +6,7 @@ import '../../domain/article.dart';
 import '../../domain/money.dart';
 import '../../widgets/common.dart';
 import '../../widgets/primary_action_bar.dart';
+import '../../domain/currency.dart';
 
 /// Artikelliste (L-11.1, L-11.9). Erreichbar über Rechnungen → Artikel.
 class ArticleListScreen extends StatefulWidget {
@@ -243,9 +244,9 @@ class _ArticleEditScreenState extends State<ArticleEditScreen> {
                       decimal: true,
                     ),
                     textAlign: TextAlign.right,
-                    decoration: const InputDecoration(
+                    decoration: InputDecoration(
                       labelText: 'Einzelpreis netto',
-                      suffixText: '€',
+                      suffixText: Currency.home.symbol,
                     ),
                     validator: (v) {
                       final m = Money.tryParse((v ?? '').trim());

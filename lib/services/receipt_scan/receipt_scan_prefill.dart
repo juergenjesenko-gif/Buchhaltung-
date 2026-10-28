@@ -6,6 +6,7 @@ import '../receipt_vat_split.dart';
 import 'ocr_text.dart';
 import 'receipt_classifier.dart';
 import 'receipt_text_parser.dart';
+import '../../domain/currency.dart';
 
 /// Unter dieser Konfidenz wird ein Feld nicht vorbelegt.
 const receiptScanMinConfidence = 40;
@@ -49,14 +50,14 @@ class ReceiptScanPrefill {
     // Ausgangsseite bleibt in Euro; Fremdwährung nur bei Eingangsbelegen.
     final foreign =
         direction == BookingDirection.expense &&
-        r.currency.value != 'EUR' &&
+        Currency.isForeign(r.currency.value) &&
         r.currency.confidence >= 60;
     final hints = <String>[];
 
     // Mehrdeutige Währung („$“, „kr“): weder ins Euro-Feld noch als
     // Fremdwährung vorbelegen, die Nutzerin muss sie bestätigen.
     final unclearCurrency =
-        r.currency.value != 'EUR' && r.currency.confidence < 60;
+        Currency.isForeign(r.currency.value) && r.currency.confidence < 60;
     if (unclearCurrency && ok(r.gross)) {
       hints.add(
         'Betrag ${Fmt.amount(r.gross!.value)} erkannt, Währung aber unklar '
@@ -194,7 +195,7 @@ class ReceiptScanPrefill {
       counterparty: ok(r.merchant) ? r.merchant!.value : null,
       documentNumber: ok(r.invoiceNumber) ? r.invoiceNumber!.value : null,
       issuerVatId: ok(r.vatId) ? r.vatId!.value : null,
-      currency: foreign ? r.currency.value : 'EUR',
+      currency: foreign ? r.currency.value : Currency.home.code,
       originalGross: foreign && ok(r.gross) ? r.gross!.value : null,
       hints: hints,
       description: classification?.description,

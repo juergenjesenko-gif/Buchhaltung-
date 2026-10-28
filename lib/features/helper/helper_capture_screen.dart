@@ -19,6 +19,7 @@ import '../../services/share_service.dart';
 import '../../widgets/common.dart';
 import '../../widgets/dictation_button.dart';
 import '../../widgets/primary_action_bar.dart';
+import '../../domain/currency.dart';
 
 /// Kurz bestätigen und senden (FA-17.3): Betrag, Lieferant, Datum,
 /// Kategorie als Vorschläge aus der Texterkennung, Kommentar optional.
@@ -77,7 +78,8 @@ class _HelperCaptureScreenState extends State<HelperCaptureScreen> {
       final c = ReceiptClassifier.classify(doc.rows, r);
       if (!mounted) return;
       setState(() {
-        if ((r.gross?.confidence ?? 0) >= 40 && r.currency.value == 'EUR') {
+        if ((r.gross?.confidence ?? 0) >= 40 &&
+            !Currency.isForeign(r.currency.value)) {
           _gross.text = Fmt.amount(r.gross!.value);
         }
         if ((r.merchant?.confidence ?? 0) >= 40) {

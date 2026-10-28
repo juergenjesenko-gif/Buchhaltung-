@@ -7,6 +7,7 @@ import '../../domain/receipt.dart';
 import '../entertainment_deduction.dart';
 import '../fx/currency_converter.dart';
 import 'csv.dart';
+import '../../domain/currency.dart';
 
 /// Verfügbare Exportformate.
 enum ExportFormat {
@@ -220,10 +221,10 @@ class Exporter {
       'Brutto',
       'Währung',
       'Originalbetrag',
-      'Kurs (je EUR)',
+      'Kurs (je ${Currency.home.code})',
       'Kursquelle',
       'Kursdatum',
-      'Bankbetrag EUR',
+      'Bankbetrag ${Currency.home.code}',
       'Beleg vorhanden',
       'Notiz',
       'Seiten',

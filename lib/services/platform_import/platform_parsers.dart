@@ -1,6 +1,7 @@
 import '../../domain/money.dart';
 import '../../domain/platform_import.dart';
 import 'platform_csv.dart';
+import '../../domain/currency.dart';
 
 /// Erkennt das Format eines Plattformexports und liest die Zeilen (L-28.1,
 /// L-28.2). Gelesen werden **nur** die unten benannten Spalten; Käuferdaten
@@ -168,7 +169,7 @@ class PlatformImportParser {
     for (final r in rows) {
       final settlement = c.get(r, _Amz.settlementId).trim();
       final currency = c.get(r, _Amz.currency).trim().toUpperCase();
-      if (currency.isNotEmpty && currency != 'EUR') {
+      if (Currency.isForeign(currency)) {
         out.foreign++;
         continue;
       }
@@ -248,7 +249,7 @@ class PlatformImportParser {
       final status = normalizeHeader(c.get(r, _PayPal.status));
       if (status.isNotEmpty && !_isAny(status, _PayPal.completed)) continue;
       final currency = c.get(r, _PayPal.currency).trim().toUpperCase();
-      if (currency.isNotEmpty && currency != 'EUR') {
+      if (Currency.isForeign(currency)) {
         out.foreign++;
         continue;
       }
@@ -287,7 +288,7 @@ class PlatformImportParser {
     final out = _Collector(PlatformFormat.stripeBalance);
     for (final r in rows) {
       final currency = c.get(r, _Stripe.currency).trim().toUpperCase();
-      if (currency.isNotEmpty && currency != 'EUR') {
+      if (Currency.isForeign(currency)) {
         out.foreign++;
         continue;
       }
@@ -332,7 +333,7 @@ class PlatformImportParser {
     final payouts = <String, (DateTime, int)>{};
     for (final r in rows) {
       final currency = c.get(r, _Shop.currency).trim().toUpperCase();
-      if (currency.isNotEmpty && currency != 'EUR') {
+      if (Currency.isForeign(currency)) {
         out.foreign++;
         continue;
       }
@@ -393,7 +394,7 @@ class PlatformImportParser {
         continue;
       }
       final currency = c.get(r, _Shop.currency).trim().toUpperCase();
-      if (currency.isNotEmpty && currency != 'EUR') {
+      if (Currency.isForeign(currency)) {
         out.foreign++;
         continue;
       }

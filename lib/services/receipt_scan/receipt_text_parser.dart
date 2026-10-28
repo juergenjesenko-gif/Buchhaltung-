@@ -4,6 +4,7 @@ import '../vat_id/vat_id_format.dart';
 import 'ocr_text.dart';
 import 'receipt_classifier.dart';
 import 'receipt_keywords.dart';
+import '../../domain/currency.dart';
 
 /// Ein erkannter Wert mit Konfidenz 0 bis 100. Die Konfidenz ist eine
 /// Heuristik des Parsers, keine Wahrscheinlichkeit der Engine.
@@ -1033,7 +1034,7 @@ class ReceiptTextParser {
       if (dollar && usSignals(rows)) return const Detected('USD', 60);
       if (dollar) return const Detected('USD', 30);
       if (kronor) return const Detected('DKK', 30);
-      return const Detected('EUR', 40);
+      return Detected(Currency.home.code, 40);
     }
     final sorted = counts.entries.toList()
       ..sort((a, b) => b.value.compareTo(a.value));

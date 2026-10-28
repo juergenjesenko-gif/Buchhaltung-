@@ -7,6 +7,7 @@ import 'e_invoice_parser.dart';
 import 'receipt_codes.dart';
 import 'receipt_scan_prefill.dart';
 import 'receipt_text_parser.dart';
+import '../../domain/currency.dart';
 
 /// Führt Codes vom Foto mit der Texterkennung zusammen (L-27.2, L-27.3).
 ///
@@ -209,7 +210,8 @@ class ReceiptCodePrefill {
   }) {
     final hints = <String>[];
     final foreignCurrency =
-        inv.currency != 'EUR' && direction == BookingDirection.expense;
+        Currency.isForeign(inv.currency) &&
+        direction == BookingDirection.expense;
     final day = inv.date;
     final expense = direction == BookingDirection.expense;
     final ownPrefix = profile.country == Country.at ? 'AT' : 'DE';
@@ -255,7 +257,7 @@ class ReceiptCodePrefill {
     return ReceiptScanPrefill(
       date: day,
       gross: foreignCurrency ? null : inv.gross,
-      currency: foreignCurrency ? inv.currency : 'EUR',
+      currency: foreignCurrency ? inv.currency : Currency.home.code,
       originalGross: foreignCurrency ? inv.gross : null,
       vatPermille: normalized.isEmpty ? null : normalized.first.permille,
       vatParts: normalized.length > 1 ? normalized : const [],

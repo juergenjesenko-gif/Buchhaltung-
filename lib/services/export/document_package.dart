@@ -14,6 +14,7 @@ import '../../domain/receipt.dart';
 import '../contracts/contract_csv.dart';
 import '../reports/report_package.dart';
 import 'csv.dart';
+import '../../domain/currency.dart';
 
 /// Datei eines Belegs (Seite oder Original) mit Inhalt.
 class ReceiptFile {
@@ -63,7 +64,8 @@ class DocumentPackage {
   static String _iso(DateTime d) => d.toIso8601String().substring(0, 10);
 
   /// Betrag im Dateinamen: `12,50EUR`, negativ mit Minus.
-  static String _amount(Money m) => '${csvAmount(m.cents)}EUR';
+  static String _amount(Money m) =>
+      '${csvAmount(m.cents)}${Currency.home.code}';
 
   /// Sprechender Name einer Belegdatei: `Belege/Datum_Partner_Betrag`, bei
   /// mehreren Seiten `_S2`, Original mit `_Original`.

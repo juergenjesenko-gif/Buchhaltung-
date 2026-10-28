@@ -21,8 +21,8 @@ Prüfinstanz Softwareentwickler, 2026-10-27. Grundlage für Lastenheft 5.34
 
 | AP | Inhalt | Aufwand | Risiko |
 |---|---|---|---|
-| AP1 | `Fmt` nach Locale und Währung, Datumsauswahl entkoppeln, Parser 1,234.56 / 1.234,56 | 2 PT | Parser, Golden-Tests |
-| AP2 | Migration v33 `base_currency`, `CurrencyCode`, Währung in E-Rechnung, Export, PDF, Kursen; Basiswährung nach erster Buchung gesperrt | 3 PT | Fremdwährung, Sicherung |
+| AP1 | **erledigt 2026-10-28:** `Fmt` nach Locale und Währung, Datumsauswahl entkoppeln, Parser 1,234.56 / 1.234,56 | 2 PT | Parser, Golden-Tests |
+| AP2 | **erledigt 2026-10-28** ohne Migration: Hauswährung folgt dem Land (`TaxProfile.currency`). Ursprünglich: Migration v33 `base_currency`, `CurrencyCode`, Währung in E-Rechnung, Export, PDF, Kursen; Basiswährung nach erster Buchung gesperrt | 3 PT | Fremdwährung, Sicherung |
 | AP3 | `YearSpec` (Monat + Tag), `taxYear`/`vatYear` im Profil, alle Zeiträume umstellen | 3 PT | Fristen, Grenze, AfA |
 | AP4 | `TaxProfile` in optionale Teile (`VatRegime?`, EU-Regeln, Register, Sozialversicherung), Null-Weichen | 5 PT | stille Fehler AT/DE |
 | AP5 | Fachtexte aus Domain/Services in ARB, Dokumentsprache als eigener Parameter | 4 PT | Umfang |

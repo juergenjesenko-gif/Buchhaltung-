@@ -3,6 +3,7 @@ import 'package:intl/intl.dart';
 
 import '../domain/country.dart';
 import '../domain/money.dart';
+import '../domain/currency.dart';
 
 /// Zentrale Formatierung. Beträge und Datumsangaben sollen in der ganzen App
 /// identisch aussehen – und zwar so, wie es ein Steuerberater erwartet.
@@ -17,8 +18,13 @@ class Fmt {
 
   /// Setzt das Locale anhand des Firmensitzes. Die Unterschiede sind klein
   /// (Trennzeichen, Position des Eurozeichens), fallen aber auf.
-  static void setCountry(Country country) =>
-      configure(locale: country == Country.de ? 'de_DE' : 'de_AT');
+  static void setCountry(Country country) {
+    Currency.home = country.taxProfile.currency;
+    configure(
+      locale: country == Country.de ? 'de_DE' : 'de_AT',
+      symbol: Currency.home.symbol,
+    );
+  }
 
   /// Format-Locale (Sprache und Land, z. B. `en_GB`) und Währungszeichen
   /// (Umbauplan AP1, `docs/maerkte/Umbauplan_Laender.md`). Das Locale muss

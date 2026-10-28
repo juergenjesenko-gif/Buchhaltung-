@@ -29,6 +29,7 @@ import '../../services/turnover_basis.dart';
 import '../../widgets/common.dart';
 import '../../widgets/adaptive.dart';
 import '../licensing/feature_gate.dart';
+import '../../domain/currency.dart';
 
 /// Firmenprofil anlegen und bearbeiten.
 ///
@@ -1054,9 +1055,9 @@ class _CompanySetupScreenState extends State<CompanySetupScreen> {
                         Expanded(
                           child: TextFormField(
                             controller: _fields['dunningFee'],
-                            decoration: const InputDecoration(
+                            decoration: InputDecoration(
                               labelText: 'Mahnkosten je Mahnung',
-                              suffixText: '€',
+                              suffixText: Currency.home.symbol,
                             ),
                             keyboardType: const TextInputType.numberWithOptions(
                               decimal: true,

@@ -1,6 +1,7 @@
 import '../../domain/money.dart';
 import '../../domain/receipt.dart';
 import 'receipt_scan_prefill.dart';
+import '../../domain/currency.dart';
 
 /// Was sich die App je Lieferant gemerkt hat (FA-2.50, Schema 20
 /// `supplier_memory`). Nur Werte, die die Nutzerin beim Speichern bestätigt
@@ -159,8 +160,8 @@ class SupplierLearning {
     Money? original = p.originalGross;
     if (!currencyConfident &&
         direction == BookingDirection.expense &&
-        learned.currency != 'EUR' &&
-        currency == 'EUR' &&
+        Currency.isForeign(learned.currency) &&
+        !Currency.isForeign(currency) &&
         original == null) {
       currency = learned.currency;
       original = gross;

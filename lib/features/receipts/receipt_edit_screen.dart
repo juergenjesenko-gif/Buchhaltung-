@@ -56,6 +56,7 @@ import '../help/help_screen.dart';
 import '../booking_rules/booking_rule_strip.dart';
 import '../../domain/booking_rule.dart' show BookingFacts;
 import '../../services/help/help_index.dart';
+import '../../domain/currency.dart';
 
 /// Beleg erfassen oder bearbeiten.
 ///
@@ -263,7 +264,7 @@ class _ReceiptEditScreenState extends State<ReceiptEditScreen> {
   }
 
   void _applyForeign(String currency, Money? original) {
-    _foreign = currency != 'EUR';
+    _foreign = Currency.isForeign(currency);
     if (!_foreign) return;
     _currencyController.text = currency;
     if (original != null) _originalController.text = Fmt.amount(original);
@@ -1131,7 +1132,9 @@ class _ReceiptEditScreenState extends State<ReceiptEditScreen> {
       issuerVatId: _issuerVatIdController.text.trim(),
       entertainmentOccasion: _occasionController.text.trim(),
       entertainmentParticipants: _participantsController.text.trim(),
-      currency: foreign ? _currencyController.text.trim().toUpperCase() : 'EUR',
+      currency: foreign
+          ? _currencyController.text.trim().toUpperCase()
+          : Currency.home.code,
       originalGross: foreign ? _originalAmount : null,
       fxRateMicros: foreign ? _rateMicros : null,
       fxRateDate: foreign ? _rateDate : null,

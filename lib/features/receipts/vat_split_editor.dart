@@ -6,6 +6,7 @@ import '../../domain/money.dart';
 import '../../services/receipt_vat_split.dart';
 import '../../services/vat_calculator.dart';
 import '../../widgets/common.dart';
+import '../../domain/currency.dart';
 
 /// Ein Teil der Aufteilung im Formular: Satz, Bruttobetrag als Text und ob
 /// der Betrag noch der automatische Rest ist.
@@ -207,7 +208,7 @@ class VatSplitEditor extends StatelessWidget {
                             controller.parts[i].auto
                         ? 'Rest brutto'
                         : 'Brutto',
-                    suffixText: '€',
+                    suffixText: Currency.home.symbol,
                   ),
                   onChanged: (_) {
                     controller.edited(i, total);

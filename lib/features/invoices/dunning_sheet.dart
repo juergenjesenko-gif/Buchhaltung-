@@ -17,6 +17,7 @@ import '../licensing/feature_gate.dart';
 import '../../theme.dart';
 import '../../widgets/common.dart';
 import '../../widgets/primary_action_bar.dart';
+import '../../domain/currency.dart';
 
 /// Zahlungserinnerung bzw. Mahnung als Bottom-Sheet (L-3.10, L-3.27 bis
 /// L-3.30): Vorschau mit Stufe, Frist, Kosten, Zinsen, Gesamt; ein Tipp auf
@@ -282,7 +283,7 @@ class _DunningSheetState extends State<_DunningSheet> {
                     textAlign: TextAlign.right,
                     decoration: InputDecoration(
                       labelText: 'Mahnkosten (nicht umsatzsteuerbar)',
-                      suffixText: '€',
+                      suffixText: Currency.home.symbol,
                       helperText: _level <= 1
                           ? 'Die Zahlungserinnerung ist üblicherweise kostenlos'
                           : null,

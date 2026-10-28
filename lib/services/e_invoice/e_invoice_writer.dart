@@ -5,6 +5,7 @@ import '../../domain/customer.dart';
 import '../../domain/invoice.dart';
 import '../../domain/money.dart';
 import '../invoice_totals.dart';
+import '../../domain/currency.dart';
 
 /// Eingabe für eine E-Rechnung (FA-5.49): gestellte Rechnung oder
 /// Stornorechnung mit den eingefrorenen Absenderangaben (GR-8) und der
@@ -375,7 +376,7 @@ class EInvoiceWriter {
 
           node('ram:ApplicableHeaderTradeSettlement', () {
             if (!input.isCreditNote) el('ram:PaymentReference', inv.number);
-            el('ram:InvoiceCurrencyCode', 'EUR');
+            el('ram:InvoiceCurrencyCode', Currency.home.code);
             if (s.iban.trim().isNotEmpty) {
               node('ram:SpecifiedTradeSettlementPaymentMeans', () {
                 el('ram:TypeCode', '58');
@@ -435,7 +436,7 @@ class EInvoiceWriter {
               el(
                 'ram:TaxTotalAmount',
                 _amount(totals.vat),
-                attrs: const {'currencyID': 'EUR'},
+                attrs: {'currencyID': Currency.home.code},
               );
               el('ram:GrandTotalAmount', _amount(totals.gross));
               el('ram:TotalPrepaidAmount', _amount(const Money.zero()));
@@ -537,7 +538,7 @@ class EInvoiceWriter {
           'DocumentType',
           input.isCreditNote ? 'CreditMemo' : 'Invoice',
         );
-        x.attribute('InvoiceCurrency', 'EUR');
+        x.attribute('InvoiceCurrency', Currency.home.code);
         x.attribute('Language', 'de');
         el('InvoiceNumber', inv.number);
         el('InvoiceDate', _isoDate(inv.issueDate));
