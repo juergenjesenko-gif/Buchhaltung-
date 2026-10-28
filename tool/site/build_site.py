@@ -311,12 +311,12 @@ def produktseite(html: str) -> str:
         # Offizielle Badges unverändert, gleiche Höhe (Markenrichtlinien
         # Google Play und Apple); App Store erst als Badge, wenn live.
         knoepfe = [
-            f'<a class="store-badge" href="{APP_STORE_URL}"><img src="img/badges/app-store-de.svg" '
-            'alt="Laden im App Store" height="48"></a>'
-            if APP_STORE_LIVE else '<span class="soon">App Store · bald verfügbar</span>',
             f'<a class="store-badge" href="{PLAY_URL}"><img src="img/badges/google-play-de.png" '
             'alt="Jetzt bei Google Play" height="70"></a>'
             if PLAY_LIVE else '<span class="soon">Google Play · bald verfügbar</span>',
+            f'<a class="store-badge" href="{APP_STORE_URL}"><img src="img/badges/app-store-de.svg" '
+            'alt="Laden im App Store" height="48"></a>'
+            if APP_STORE_LIVE else '<span class="soon">App Store · bald verfügbar</span>',
         ]
         html = re.sub(
             r"<!-- STORES:START.*?<!-- STORES:END -->",
