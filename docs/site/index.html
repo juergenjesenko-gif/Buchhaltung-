@@ -150,6 +150,9 @@ nav a:hover{color:var(--ink)}
 .dl{background:var(--ink);color:var(--paper);border-radius:22px;padding:clamp(28px,5vw,52px);display:grid;gap:18px;justify-items:start}
 .dl p{color:var(--paper);opacity:.85}
 .dl .btn-ghost{color:var(--paper);border-color:var(--paper)}
+.store-badge{display:inline-flex;align-items:center;min-height:52px}
+.store-badge img{display:block;height:70px;width:auto;margin:-11px -9px}
+.store-badge img[src$=".svg"]{height:48px;margin:0}
 .dl .eyebrow{color:var(--paper);opacity:.75}
 .dl-section{border-top:0}
 
@@ -386,7 +389,7 @@ d.addEventListener('click',function(e){if(e.target===d)zu();});})();
     <div class="cta-row">
       <a class="btn btn-primary" href="https://www.instagram.com/jeni.bucht/">@jeni.bucht folgen</a>
 <span class="soon">App Store · bald verfügbar</span>
-      <a class="btn btn-ghost" href="https://play.google.com/store/apps/details?id=at.jenibarb.jenibucht">Jetzt bei Google Play</a>
+      <a class="store-badge" href="https://play.google.com/store/apps/details?id=at.jenibarb.jenibucht"><img src="img/badges/google-play-de.png" alt="Jetzt bei Google Play" height="70"></a>
     </div>
   </div>
 </section>
