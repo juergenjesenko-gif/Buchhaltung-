@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Invoice xmlns="http://www.ebinterface.at/schema/6p1/" GeneratingSystem="JeNi bucht" DocumentType="Invoice" InvoiceCurrency="EUR" Language="de">
+  <InvoiceNumber>RE-2026-0042</InvoiceNumber>
+  <InvoiceDate>2026-10-19</InvoiceDate>
+  <Delivery>
+    <Date>2026-10-15</Date>
+  </Delivery>
+  <Biller>
+    <VATIdentificationNumber>ATU00000000</VATIdentificationNumber>
+    <Address>
+      <Name>Muster Handel</Name>
+      <Street>Musterweg 7</Street>
+      <Town>Wien</Town>
+      <ZIP>1010</ZIP>
+      <Country CountryCode="AT">Österreich</Country>
+      <Email>post@muster-handel.example</Email>
+    </Address>
+    <InvoiceRecipientsBillerID>0000123456</InvoiceRecipientsBillerID>
+  </Biller>
+  <InvoiceRecipient>
+    <VATIdentificationNumber>ATU12345678</VATIdentificationNumber>
+    <OrderReference>
+      <OrderID>4500012345</OrderID>
+    </OrderReference>
+    <Address>
+      <Name>Beispiel Werkstatt GmbH</Name>
+      <Street>Industriestraße 12</Street>
+      <Town>Linz</Town>
+      <ZIP>4020</ZIP>
+      <Country CountryCode="AT">Österreich</Country>
+      <Email>rechnung@beispiel.example</Email>
+    </Address>
+  </InvoiceRecipient>
+  <Details>
+    <ItemList>
+      <ListLineItem>
+        <PositionNumber>1</PositionNumber>
+        <Description>Lagerregal Montage</Description>
+        <Quantity Unit="C62">3.000</Quantity>
+        <UnitPrice>1200.00</UnitPrice>
+        <TaxItem>
+          <TaxableAmount>3600.00</TaxableAmount>
+          <TaxPercent TaxCategoryCode="S">20.00</TaxPercent>
+          <TaxAmount>720.00</TaxAmount>
+        </TaxItem>
+        <LineItemAmount>3600.00</LineItemAmount>
+      </ListLineItem>
+      <ListLineItem>
+        <PositionNumber>2</PositionNumber>
+        <Description>Fachbuch</Description>
+        <Quantity Unit="C62">1.000</Quantity>
+        <UnitPrice>29.90</UnitPrice>
+        <TaxItem>
+          <TaxableAmount>29.90</TaxableAmount>
+          <TaxPercent TaxCategoryCode="S">10.00</TaxPercent>
+          <TaxAmount>2.99</TaxAmount>
+        </TaxItem>
+        <LineItemAmount>29.90</LineItemAmount>
+      </ListLineItem>
+      <ListLineItem>
+        <PositionNumber>3</PositionNumber>
+        <Description>Tagesmenü Schulung</Description>
+        <Quantity Unit="C62">4.000</Quantity>
+        <UnitPrice>14.50</UnitPrice>
+        <TaxItem>
+          <TaxableAmount>58.00</TaxableAmount>
+          <TaxPercent TaxCategoryCode="S">10.00</TaxPercent>
+          <TaxAmount>5.80</TaxAmount>
+        </TaxItem>
+        <LineItemAmount>58.00</LineItemAmount>
+      </ListLineItem>
+    </ItemList>
+  </Details>
+  <Tax>
+    <TaxItem>
+      <TaxableAmount>3600.00</TaxableAmount>
+      <TaxPercent TaxCategoryCode="S">20.00</TaxPercent>
+      <TaxAmount>720.00</TaxAmount>
+    </TaxItem>
+    <TaxItem>
+      <TaxableAmount>87.90</TaxableAmount>
+      <TaxPercent TaxCategoryCode="S">10.00</TaxPercent>
+      <TaxAmount>8.79</TaxAmount>
+    </TaxItem>
+  </Tax>
+  <TotalGrossAmount>4416.69</TotalGrossAmount>
+  <PayableAmount>4416.69</PayableAmount>
+  <PaymentMethod>
+    <UniversalBankTransaction>
+      <BeneficiaryAccount>
+        <BIC>BKAUATWW</BIC>
+        <IBAN>AT611904300234573201</IBAN>
+        <BankAccountOwner>Muster Handel</BankAccountOwner>
+      </BeneficiaryAccount>
+      <PaymentReference>RE-2026-0042</PaymentReference>
+    </UniversalBankTransaction>
+  </PaymentMethod>
+  <PaymentConditions>
+    <DueDate>2026-11-02</DueDate>
+    <Discount>
+      <PaymentDate>2026-10-29</PaymentDate>
+      <BaseAmount>4416.69</BaseAmount>
+      <Percentage>3.00</Percentage>
+    </Discount>
+  </PaymentConditions>
+</Invoice>

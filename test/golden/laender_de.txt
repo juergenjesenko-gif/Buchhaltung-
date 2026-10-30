@@ -1,0 +1,154 @@
+# Profil DE
+currency: EUR
+rulesAsOf: 2026-01-01 bis 2026-12-31
+vatRate: 190 Regelsteuersatz default=true ab=–
+vatRate: 70 Ermäßigt (z. B. Lebensmittel, Bücher) default=false ab=–
+vatRate: 0 Steuerfrei / 0 % default=false ab=–
+vatIdLabel: USt-IdNr.
+vatIdExample: DE123456789
+taxNumberLabel: Steuernummer
+smallBusinessLabel: Kleinunternehmerregelung
+smallBusinessLegalRef: § 19 UStG
+smallBusinessInvoiceNote: Steuerbefreiung nach § 19 UStG (Kleinunternehmer).
+invoiceRequiresTaxId: true
+largeInvoiceVatIdLimit: –
+registerNumberLabel: Handelsregisternummer
+registerCourtLabel: Registergericht
+invoiceLegalRef: § 14 UStG
+invoiceSourceUrl: https://www.gesetze-im-internet.de/ustg_1980/__14.html
+smallBusinessSourceUrl: https://www.gesetze-im-internet.de/ustg_1980/__19.html
+fxRateLegalRef: § 16 Abs 6 UStG
+smallAmountInvoiceLimit: 25000
+currentYearTurnoverLimit: 10000000
+previousYearTurnoverLimit: 2500000
+toleranceLimit: –
+turnoverIncludesVat: false
+foundingYearTurnoverLimit: 2500000
+retentionYears: 8
+foreignVatHint: Ausländische Umsatzsteuer (z. B. SI 22 %, DK 25 %) ist in der Umsatzsteuer-Voranmeldung nicht als Vorsteuer abziehbar. Sie wird brutto als Ausgabe erfasst. Eine Erstattung ist nur über das Vorsteuer-Vergütungsverfahren beim BZSt (Frist 30.09. des Folgejahres, Mindestbetrag 50 €/400 €) möglich – nicht für Kleinunternehmer.
+noVatShownHint: Beleg ohne Steuerausweis – kein Vorsteuerabzug. Für den Abzug Rechnung mit Steuersatz beim Aussteller anfordern (Kleinbetragsrechnung § 33 UStDV).
+monthNames: Januar,Februar,März,April,Mai,Juni,Juli,August,September,Oktober,November,Dezember
+fiscalYearLegalRef: § 4a EStG
+holidayCalendar: HolidayCalendar
+asksFederalState: true
+deadlineShiftLegalRef: § 108 Abs 3 AO
+vatReturnLabel: UStVA
+monthlyVatReturnThreshold: 900000
+vatIntervalBasis: VatIntervalBasis.previousYearVat
+vatIntervalLegalRef: § 18 Abs 2 UStG
+hasPermanentExtension: true
+asksSocialInsurance: false
+deadlineRules: 6
+registrationDeadlineRules: 2
+foreignTaxOffices: 1
+vatReturnForm: Instance of 'VatReturnForm'
+annualReturnForm: Instance of 'AnnualReturnForm'
+
+# Fristen DE 2027 klein=true monthly steuerberatung=false
+2027-03-10 | ESt-Vorauszahlung Q1/2027 | § 37 Abs 1 EStG
+2027-06-10 | ESt-Vorauszahlung Q2/2027 | § 37 Abs 1 EStG
+2027-09-10 | ESt-Vorauszahlung Q3/2027 | § 37 Abs 1 EStG
+2027-12-10 | ESt-Vorauszahlung Q4/2027 | § 37 Abs 1 EStG
+2028-07-31 | Steuererklärungen 2027 | § 149 Abs 2 AO
+# Fristen DE 2027 klein=true monthly steuerberatung=true
+2027-03-10 | ESt-Vorauszahlung Q1/2027 | § 37 Abs 1 EStG
+2027-06-10 | ESt-Vorauszahlung Q2/2027 | § 37 Abs 1 EStG
+2027-09-10 | ESt-Vorauszahlung Q3/2027 | § 37 Abs 1 EStG
+2027-12-10 | ESt-Vorauszahlung Q4/2027 | § 37 Abs 1 EStG
+# Fristen DE 2027 klein=true quarterly steuerberatung=false
+2027-03-10 | ESt-Vorauszahlung Q1/2027 | § 37 Abs 1 EStG
+2027-06-10 | ESt-Vorauszahlung Q2/2027 | § 37 Abs 1 EStG
+2027-09-10 | ESt-Vorauszahlung Q3/2027 | § 37 Abs 1 EStG
+2027-12-10 | ESt-Vorauszahlung Q4/2027 | § 37 Abs 1 EStG
+2028-07-31 | Steuererklärungen 2027 | § 149 Abs 2 AO
+# Fristen DE 2027 klein=true quarterly steuerberatung=true
+2027-03-10 | ESt-Vorauszahlung Q1/2027 | § 37 Abs 1 EStG
+2027-06-10 | ESt-Vorauszahlung Q2/2027 | § 37 Abs 1 EStG
+2027-09-10 | ESt-Vorauszahlung Q3/2027 | § 37 Abs 1 EStG
+2027-12-10 | ESt-Vorauszahlung Q4/2027 | § 37 Abs 1 EStG
+# Fristen DE 2027 klein=false monthly steuerberatung=false
+2027-02-10 | UStVA Januar 2027 | § 18 Abs 1 UStG, § 46 UStDV
+2027-03-10 | UStVA Februar 2027 | § 18 Abs 1 UStG, § 46 UStDV
+2027-04-12 | UStVA März 2027 | § 18 Abs 1 UStG, § 46 UStDV
+2027-05-10 | UStVA April 2027 | § 18 Abs 1 UStG, § 46 UStDV
+2027-06-10 | UStVA Mai 2027 | § 18 Abs 1 UStG, § 46 UStDV
+2027-07-12 | UStVA Juni 2027 | § 18 Abs 1 UStG, § 46 UStDV
+2027-08-10 | UStVA Juli 2027 | § 18 Abs 1 UStG, § 46 UStDV
+2027-09-10 | UStVA August 2027 | § 18 Abs 1 UStG, § 46 UStDV
+2027-10-11 | UStVA September 2027 | § 18 Abs 1 UStG, § 46 UStDV
+2027-11-10 | UStVA Oktober 2027 | § 18 Abs 1 UStG, § 46 UStDV
+2027-12-10 | UStVA November 2027 | § 18 Abs 1 UStG, § 46 UStDV
+2028-01-10 | UStVA Dezember 2027 | § 18 Abs 1 UStG, § 46 UStDV
+2027-02-25 | ZM Januar 2027 | § 18a Abs 1 UStG
+2027-03-25 | ZM Februar 2027 | § 18a Abs 1 UStG
+2027-04-26 | ZM März 2027 | § 18a Abs 1 UStG
+2027-05-25 | ZM April 2027 | § 18a Abs 1 UStG
+2027-06-25 | ZM Mai 2027 | § 18a Abs 1 UStG
+2027-07-26 | ZM Juni 2027 | § 18a Abs 1 UStG
+2027-08-25 | ZM Juli 2027 | § 18a Abs 1 UStG
+2027-09-27 | ZM August 2027 | § 18a Abs 1 UStG
+2027-10-25 | ZM September 2027 | § 18a Abs 1 UStG
+2027-11-25 | ZM Oktober 2027 | § 18a Abs 1 UStG
+2027-12-27 | ZM November 2027 | § 18a Abs 1 UStG
+2028-01-25 | ZM Dezember 2027 | § 18a Abs 1 UStG
+2027-03-10 | ESt-Vorauszahlung Q1/2027 | § 37 Abs 1 EStG
+2027-06-10 | ESt-Vorauszahlung Q2/2027 | § 37 Abs 1 EStG
+2027-09-10 | ESt-Vorauszahlung Q3/2027 | § 37 Abs 1 EStG
+2027-12-10 | ESt-Vorauszahlung Q4/2027 | § 37 Abs 1 EStG
+2028-07-31 | Steuererklärungen 2027 | § 149 Abs 2 AO
+# Fristen DE 2027 klein=false monthly steuerberatung=true
+2027-02-10 | UStVA Januar 2027 | § 18 Abs 1 UStG, § 46 UStDV
+2027-03-10 | UStVA Februar 2027 | § 18 Abs 1 UStG, § 46 UStDV
+2027-04-12 | UStVA März 2027 | § 18 Abs 1 UStG, § 46 UStDV
+2027-05-10 | UStVA April 2027 | § 18 Abs 1 UStG, § 46 UStDV
+2027-06-10 | UStVA Mai 2027 | § 18 Abs 1 UStG, § 46 UStDV
+2027-07-12 | UStVA Juni 2027 | § 18 Abs 1 UStG, § 46 UStDV
+2027-08-10 | UStVA Juli 2027 | § 18 Abs 1 UStG, § 46 UStDV
+2027-09-10 | UStVA August 2027 | § 18 Abs 1 UStG, § 46 UStDV
+2027-10-11 | UStVA September 2027 | § 18 Abs 1 UStG, § 46 UStDV
+2027-11-10 | UStVA Oktober 2027 | § 18 Abs 1 UStG, § 46 UStDV
+2027-12-10 | UStVA November 2027 | § 18 Abs 1 UStG, § 46 UStDV
+2028-01-10 | UStVA Dezember 2027 | § 18 Abs 1 UStG, § 46 UStDV
+2027-02-25 | ZM Januar 2027 | § 18a Abs 1 UStG
+2027-03-25 | ZM Februar 2027 | § 18a Abs 1 UStG
+2027-04-26 | ZM März 2027 | § 18a Abs 1 UStG
+2027-05-25 | ZM April 2027 | § 18a Abs 1 UStG
+2027-06-25 | ZM Mai 2027 | § 18a Abs 1 UStG
+2027-07-26 | ZM Juni 2027 | § 18a Abs 1 UStG
+2027-08-25 | ZM Juli 2027 | § 18a Abs 1 UStG
+2027-09-27 | ZM August 2027 | § 18a Abs 1 UStG
+2027-10-25 | ZM September 2027 | § 18a Abs 1 UStG
+2027-11-25 | ZM Oktober 2027 | § 18a Abs 1 UStG
+2027-12-27 | ZM November 2027 | § 18a Abs 1 UStG
+2028-01-25 | ZM Dezember 2027 | § 18a Abs 1 UStG
+2027-03-10 | ESt-Vorauszahlung Q1/2027 | § 37 Abs 1 EStG
+2027-06-10 | ESt-Vorauszahlung Q2/2027 | § 37 Abs 1 EStG
+2027-09-10 | ESt-Vorauszahlung Q3/2027 | § 37 Abs 1 EStG
+2027-12-10 | ESt-Vorauszahlung Q4/2027 | § 37 Abs 1 EStG
+# Fristen DE 2027 klein=false quarterly steuerberatung=false
+2027-04-12 | UStVA Q1/2027 | § 18 Abs 1 UStG, § 46 UStDV
+2027-07-12 | UStVA Q2/2027 | § 18 Abs 1 UStG, § 46 UStDV
+2027-10-11 | UStVA Q3/2027 | § 18 Abs 1 UStG, § 46 UStDV
+2028-01-10 | UStVA Q4/2027 | § 18 Abs 1 UStG, § 46 UStDV
+2027-04-26 | ZM Q1/2027 | § 18a Abs 1 UStG
+2027-07-26 | ZM Q2/2027 | § 18a Abs 1 UStG
+2027-10-25 | ZM Q3/2027 | § 18a Abs 1 UStG
+2028-01-25 | ZM Q4/2027 | § 18a Abs 1 UStG
+2027-03-10 | ESt-Vorauszahlung Q1/2027 | § 37 Abs 1 EStG
+2027-06-10 | ESt-Vorauszahlung Q2/2027 | § 37 Abs 1 EStG
+2027-09-10 | ESt-Vorauszahlung Q3/2027 | § 37 Abs 1 EStG
+2027-12-10 | ESt-Vorauszahlung Q4/2027 | § 37 Abs 1 EStG
+2028-07-31 | Steuererklärungen 2027 | § 149 Abs 2 AO
+# Fristen DE 2027 klein=false quarterly steuerberatung=true
+2027-04-12 | UStVA Q1/2027 | § 18 Abs 1 UStG, § 46 UStDV
+2027-07-12 | UStVA Q2/2027 | § 18 Abs 1 UStG, § 46 UStDV
+2027-10-11 | UStVA Q3/2027 | § 18 Abs 1 UStG, § 46 UStDV
+2028-01-10 | UStVA Q4/2027 | § 18 Abs 1 UStG, § 46 UStDV
+2027-04-26 | ZM Q1/2027 | § 18a Abs 1 UStG
+2027-07-26 | ZM Q2/2027 | § 18a Abs 1 UStG
+2027-10-25 | ZM Q3/2027 | § 18a Abs 1 UStG
+2028-01-25 | ZM Q4/2027 | § 18a Abs 1 UStG
+2027-03-10 | ESt-Vorauszahlung Q1/2027 | § 37 Abs 1 EStG
+2027-06-10 | ESt-Vorauszahlung Q2/2027 | § 37 Abs 1 EStG
+2027-09-10 | ESt-Vorauszahlung Q3/2027 | § 37 Abs 1 EStG
+2027-12-10 | ESt-Vorauszahlung Q4/2027 | § 37 Abs 1 EStG

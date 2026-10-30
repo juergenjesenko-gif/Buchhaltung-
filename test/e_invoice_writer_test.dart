@@ -549,4 +549,28 @@ void main() {
       expect(PdfEmbeddedFiles.xml(pdf), isEmpty);
     });
   });
+
+  // Regressionsnetz vor dem Länderumbau (Umbauplan AP3/AP4): die erzeugte
+  // XML je Fall und Format als Vergleichsdatei. Bewusste Änderung mit
+  // UPDATE_GOLDEN=1 neu schreiben und im Commit begründen.
+  test('E-Rechnungen AT/DE unverändert (Vergleichsdateien)', () {
+    final update = Platform.environment['UPDATE_GOLDEN'] == '1';
+    final dir = Directory('test/golden/e_invoice')..createSync(recursive: true);
+    for (final entry in cases.entries) {
+      final at = entry.value.seller.country == Country.at;
+      final formate = <String, String>{
+        'cii': EInvoiceWriter.cii(entry.value),
+        'xrechnung': EInvoiceWriter.cii(entry.value, xrechnung: true),
+        if (at) 'ebinterface': EInvoiceWriter.ebInterface(entry.value),
+      };
+      formate.forEach((format, xml) {
+        final datei = File('${dir.path}/${entry.key}.$format.xml');
+        if (update || !datei.existsSync()) {
+          datei.writeAsStringSync(xml);
+        } else {
+          expect(xml, datei.readAsStringSync(), reason: datei.path);
+        }
+      });
+    }
+  });
 }

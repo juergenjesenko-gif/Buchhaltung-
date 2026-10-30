@@ -1,0 +1,188 @@
+# Profil AT
+currency: EUR
+rulesAsOf: 2026-01-01 bis 2026-12-31
+vatRate: 200 Normalsteuersatz default=true ab=–
+vatRate: 130 Ermäßigt (z. B. Wein ab Hof, Kunst) default=false ab=–
+vatRate: 100 Ermäßigt (z. B. Lebensmittel, Bücher, Miete) default=false ab=–
+vatRate: 49 4,9 % (ermäßigt, Grundnahrungsmittel) default=false ab=2026-07-01
+vatRate: 0 Steuerfrei / 0 % default=false ab=–
+vatIdLabel: UID-Nummer
+vatIdExample: ATU12345678
+taxNumberLabel: Steuernummer
+smallBusinessLabel: Kleinunternehmerregelung
+smallBusinessLegalRef: § 6 Abs 1 Z 27 UStG
+smallBusinessInvoiceNote: Umsatzsteuerbefreit – Kleinunternehmer gemäß § 6 Abs 1 Z 27 UStG.
+invoiceRequiresTaxId: false
+largeInvoiceVatIdLimit: 1000000
+registerNumberLabel: Firmenbuchnummer
+registerCourtLabel: Firmenbuchgericht
+invoiceLegalRef: § 11 UStG
+invoiceSourceUrl: https://www.ris.bka.gv.at/NormDokument.wxe?Abfrage=Bundesnormen&Gesetzesnummer=10004873&Paragraf=11
+smallBusinessSourceUrl: https://www.ris.bka.gv.at/NormDokument.wxe?Abfrage=Bundesnormen&Gesetzesnummer=10004873&Paragraf=6
+fxRateLegalRef: § 20 Abs 6 UStG
+smallAmountInvoiceLimit: 40000
+currentYearTurnoverLimit: 5500000
+previousYearTurnoverLimit: 5500000
+toleranceLimit: 6050000
+turnoverIncludesVat: true
+foundingYearTurnoverLimit: –
+retentionYears: 7
+foreignVatHint: Ausländische Umsatzsteuer (z. B. SI 22 %, DK 25 %) ist in der UVA nicht als Vorsteuer abziehbar. Sie wird brutto als Ausgabe erfasst. Eine Erstattung ist nur über das EU-Vorsteuer-Erstattungsverfahren (FinanzOnline, Frist 30.09. des Folgejahres, Mindestbetrag 50 €/400 €) möglich – nicht für Kleinunternehmer.
+noVatShownHint: Beleg ohne Steuerausweis – kein Vorsteuerabzug. Für den Abzug Rechnung mit Steuersatz beim Aussteller anfordern (Kleinbetragsrechnung § 11 Abs. 6 UStG).
+monthNames: Jänner,Februar,März,April,Mai,Juni,Juli,August,September,Oktober,November,Dezember
+fiscalYearLegalRef: § 2 Abs 5 EStG
+holidayCalendar: HolidayCalendar
+asksFederalState: false
+deadlineShiftLegalRef: § 108 Abs 3 BAO
+vatReturnLabel: UVA
+monthlyVatReturnThreshold: 10000000
+vatIntervalBasis: VatIntervalBasis.previousYearTurnover
+vatIntervalLegalRef: § 21 Abs 2 UStG
+hasPermanentExtension: false
+asksSocialInsurance: true
+deadlineRules: 7
+registrationDeadlineRules: 2
+foreignTaxOffices: 1
+vatReturnForm: Instance of 'VatReturnForm'
+annualReturnForm: Instance of 'AnnualReturnForm'
+
+# Fristen AT 2027 klein=true monthly steuerberatung=false
+2027-02-15 | ESt-Vorauszahlung Q1/2027 | § 45 Abs 2 EStG
+2027-05-18 | ESt-Vorauszahlung Q2/2027 | § 45 Abs 2 EStG
+2027-08-16 | ESt-Vorauszahlung Q3/2027 | § 45 Abs 2 EStG
+2027-11-15 | ESt-Vorauszahlung Q4/2027 | § 45 Abs 2 EStG
+2028-06-30 | ESt-/USt-Erklärung (FinanzOnline) 2027 | § 134 Abs 1 BAO
+2027-02-28 ca. | SVS-Beitrag Q1/2027 | § 35 Abs 1 GSVG
+2027-05-31 ca. | SVS-Beitrag Q2/2027 | § 35 Abs 1 GSVG
+2027-08-31 ca. | SVS-Beitrag Q3/2027 | § 35 Abs 1 GSVG
+2027-11-30 ca. | SVS-Beitrag Q4/2027 | § 35 Abs 1 GSVG
+# Fristen AT 2027 klein=true monthly steuerberatung=true
+2027-02-15 | ESt-Vorauszahlung Q1/2027 | § 45 Abs 2 EStG
+2027-05-18 | ESt-Vorauszahlung Q2/2027 | § 45 Abs 2 EStG
+2027-08-16 | ESt-Vorauszahlung Q3/2027 | § 45 Abs 2 EStG
+2027-11-15 | ESt-Vorauszahlung Q4/2027 | § 45 Abs 2 EStG
+2027-02-28 ca. | SVS-Beitrag Q1/2027 | § 35 Abs 1 GSVG
+2027-05-31 ca. | SVS-Beitrag Q2/2027 | § 35 Abs 1 GSVG
+2027-08-31 ca. | SVS-Beitrag Q3/2027 | § 35 Abs 1 GSVG
+2027-11-30 ca. | SVS-Beitrag Q4/2027 | § 35 Abs 1 GSVG
+# Fristen AT 2027 klein=true quarterly steuerberatung=false
+2027-02-15 | ESt-Vorauszahlung Q1/2027 | § 45 Abs 2 EStG
+2027-05-18 | ESt-Vorauszahlung Q2/2027 | § 45 Abs 2 EStG
+2027-08-16 | ESt-Vorauszahlung Q3/2027 | § 45 Abs 2 EStG
+2027-11-15 | ESt-Vorauszahlung Q4/2027 | § 45 Abs 2 EStG
+2028-06-30 | ESt-/USt-Erklärung (FinanzOnline) 2027 | § 134 Abs 1 BAO
+2027-02-28 ca. | SVS-Beitrag Q1/2027 | § 35 Abs 1 GSVG
+2027-05-31 ca. | SVS-Beitrag Q2/2027 | § 35 Abs 1 GSVG
+2027-08-31 ca. | SVS-Beitrag Q3/2027 | § 35 Abs 1 GSVG
+2027-11-30 ca. | SVS-Beitrag Q4/2027 | § 35 Abs 1 GSVG
+# Fristen AT 2027 klein=true quarterly steuerberatung=true
+2027-02-15 | ESt-Vorauszahlung Q1/2027 | § 45 Abs 2 EStG
+2027-05-18 | ESt-Vorauszahlung Q2/2027 | § 45 Abs 2 EStG
+2027-08-16 | ESt-Vorauszahlung Q3/2027 | § 45 Abs 2 EStG
+2027-11-15 | ESt-Vorauszahlung Q4/2027 | § 45 Abs 2 EStG
+2027-02-28 ca. | SVS-Beitrag Q1/2027 | § 35 Abs 1 GSVG
+2027-05-31 ca. | SVS-Beitrag Q2/2027 | § 35 Abs 1 GSVG
+2027-08-31 ca. | SVS-Beitrag Q3/2027 | § 35 Abs 1 GSVG
+2027-11-30 ca. | SVS-Beitrag Q4/2027 | § 35 Abs 1 GSVG
+# Fristen AT 2027 klein=false monthly steuerberatung=false
+2027-03-15 | UVA Jänner 2027 | § 21 Abs 1 UStG
+2027-04-15 | UVA Februar 2027 | § 21 Abs 1 UStG
+2027-05-18 | UVA März 2027 | § 21 Abs 1 UStG
+2027-06-15 | UVA April 2027 | § 21 Abs 1 UStG
+2027-07-15 | UVA Mai 2027 | § 21 Abs 1 UStG
+2027-08-16 | UVA Juni 2027 | § 21 Abs 1 UStG
+2027-09-15 | UVA Juli 2027 | § 21 Abs 1 UStG
+2027-10-15 | UVA August 2027 | § 21 Abs 1 UStG
+2027-11-15 | UVA September 2027 | § 21 Abs 1 UStG
+2027-12-15 | UVA Oktober 2027 | § 21 Abs 1 UStG
+2028-01-17 | UVA November 2027 | § 21 Abs 1 UStG
+2028-02-15 | UVA Dezember 2027 | § 21 Abs 1 UStG
+2027-03-01 | ZM Jänner 2027 | Art. 21 Abs 10 UStG
+2027-03-31 | ZM Februar 2027 | Art. 21 Abs 10 UStG
+2027-04-30 | ZM März 2027 | Art. 21 Abs 10 UStG
+2027-05-31 | ZM April 2027 | Art. 21 Abs 10 UStG
+2027-06-30 | ZM Mai 2027 | Art. 21 Abs 10 UStG
+2027-08-02 | ZM Juni 2027 | Art. 21 Abs 10 UStG
+2027-08-31 | ZM Juli 2027 | Art. 21 Abs 10 UStG
+2027-09-30 | ZM August 2027 | Art. 21 Abs 10 UStG
+2027-11-02 | ZM September 2027 | Art. 21 Abs 10 UStG
+2027-11-30 | ZM Oktober 2027 | Art. 21 Abs 10 UStG
+2027-12-31 | ZM November 2027 | Art. 21 Abs 10 UStG
+2028-01-31 | ZM Dezember 2027 | Art. 21 Abs 10 UStG
+2027-02-15 | ESt-Vorauszahlung Q1/2027 | § 45 Abs 2 EStG
+2027-05-18 | ESt-Vorauszahlung Q2/2027 | § 45 Abs 2 EStG
+2027-08-16 | ESt-Vorauszahlung Q3/2027 | § 45 Abs 2 EStG
+2027-11-15 | ESt-Vorauszahlung Q4/2027 | § 45 Abs 2 EStG
+2028-06-30 | ESt-/USt-Erklärung (FinanzOnline) 2027 | § 134 Abs 1 BAO
+2027-02-28 ca. | SVS-Beitrag Q1/2027 | § 35 Abs 1 GSVG
+2027-05-31 ca. | SVS-Beitrag Q2/2027 | § 35 Abs 1 GSVG
+2027-08-31 ca. | SVS-Beitrag Q3/2027 | § 35 Abs 1 GSVG
+2027-11-30 ca. | SVS-Beitrag Q4/2027 | § 35 Abs 1 GSVG
+# Fristen AT 2027 klein=false monthly steuerberatung=true
+2027-03-15 | UVA Jänner 2027 | § 21 Abs 1 UStG
+2027-04-15 | UVA Februar 2027 | § 21 Abs 1 UStG
+2027-05-18 | UVA März 2027 | § 21 Abs 1 UStG
+2027-06-15 | UVA April 2027 | § 21 Abs 1 UStG
+2027-07-15 | UVA Mai 2027 | § 21 Abs 1 UStG
+2027-08-16 | UVA Juni 2027 | § 21 Abs 1 UStG
+2027-09-15 | UVA Juli 2027 | § 21 Abs 1 UStG
+2027-10-15 | UVA August 2027 | § 21 Abs 1 UStG
+2027-11-15 | UVA September 2027 | § 21 Abs 1 UStG
+2027-12-15 | UVA Oktober 2027 | § 21 Abs 1 UStG
+2028-01-17 | UVA November 2027 | § 21 Abs 1 UStG
+2028-02-15 | UVA Dezember 2027 | § 21 Abs 1 UStG
+2027-03-01 | ZM Jänner 2027 | Art. 21 Abs 10 UStG
+2027-03-31 | ZM Februar 2027 | Art. 21 Abs 10 UStG
+2027-04-30 | ZM März 2027 | Art. 21 Abs 10 UStG
+2027-05-31 | ZM April 2027 | Art. 21 Abs 10 UStG
+2027-06-30 | ZM Mai 2027 | Art. 21 Abs 10 UStG
+2027-08-02 | ZM Juni 2027 | Art. 21 Abs 10 UStG
+2027-08-31 | ZM Juli 2027 | Art. 21 Abs 10 UStG
+2027-09-30 | ZM August 2027 | Art. 21 Abs 10 UStG
+2027-11-02 | ZM September 2027 | Art. 21 Abs 10 UStG
+2027-11-30 | ZM Oktober 2027 | Art. 21 Abs 10 UStG
+2027-12-31 | ZM November 2027 | Art. 21 Abs 10 UStG
+2028-01-31 | ZM Dezember 2027 | Art. 21 Abs 10 UStG
+2027-02-15 | ESt-Vorauszahlung Q1/2027 | § 45 Abs 2 EStG
+2027-05-18 | ESt-Vorauszahlung Q2/2027 | § 45 Abs 2 EStG
+2027-08-16 | ESt-Vorauszahlung Q3/2027 | § 45 Abs 2 EStG
+2027-11-15 | ESt-Vorauszahlung Q4/2027 | § 45 Abs 2 EStG
+2027-02-28 ca. | SVS-Beitrag Q1/2027 | § 35 Abs 1 GSVG
+2027-05-31 ca. | SVS-Beitrag Q2/2027 | § 35 Abs 1 GSVG
+2027-08-31 ca. | SVS-Beitrag Q3/2027 | § 35 Abs 1 GSVG
+2027-11-30 ca. | SVS-Beitrag Q4/2027 | § 35 Abs 1 GSVG
+# Fristen AT 2027 klein=false quarterly steuerberatung=false
+2027-05-18 | UVA Q1/2027 | § 21 Abs 1 UStG
+2027-08-16 | UVA Q2/2027 | § 21 Abs 1 UStG
+2027-11-15 | UVA Q3/2027 | § 21 Abs 1 UStG
+2028-02-15 | UVA Q4/2027 | § 21 Abs 1 UStG
+2027-04-30 | ZM Q1/2027 | Art. 21 Abs 10 UStG
+2027-08-02 | ZM Q2/2027 | Art. 21 Abs 10 UStG
+2027-11-02 | ZM Q3/2027 | Art. 21 Abs 10 UStG
+2028-01-31 | ZM Q4/2027 | Art. 21 Abs 10 UStG
+2027-02-15 | ESt-Vorauszahlung Q1/2027 | § 45 Abs 2 EStG
+2027-05-18 | ESt-Vorauszahlung Q2/2027 | § 45 Abs 2 EStG
+2027-08-16 | ESt-Vorauszahlung Q3/2027 | § 45 Abs 2 EStG
+2027-11-15 | ESt-Vorauszahlung Q4/2027 | § 45 Abs 2 EStG
+2028-06-30 | ESt-/USt-Erklärung (FinanzOnline) 2027 | § 134 Abs 1 BAO
+2027-02-28 ca. | SVS-Beitrag Q1/2027 | § 35 Abs 1 GSVG
+2027-05-31 ca. | SVS-Beitrag Q2/2027 | § 35 Abs 1 GSVG
+2027-08-31 ca. | SVS-Beitrag Q3/2027 | § 35 Abs 1 GSVG
+2027-11-30 ca. | SVS-Beitrag Q4/2027 | § 35 Abs 1 GSVG
+# Fristen AT 2027 klein=false quarterly steuerberatung=true
+2027-05-18 | UVA Q1/2027 | § 21 Abs 1 UStG
+2027-08-16 | UVA Q2/2027 | § 21 Abs 1 UStG
+2027-11-15 | UVA Q3/2027 | § 21 Abs 1 UStG
+2028-02-15 | UVA Q4/2027 | § 21 Abs 1 UStG
+2027-04-30 | ZM Q1/2027 | Art. 21 Abs 10 UStG
+2027-08-02 | ZM Q2/2027 | Art. 21 Abs 10 UStG
+2027-11-02 | ZM Q3/2027 | Art. 21 Abs 10 UStG
+2028-01-31 | ZM Q4/2027 | Art. 21 Abs 10 UStG
+2027-02-15 | ESt-Vorauszahlung Q1/2027 | § 45 Abs 2 EStG
+2027-05-18 | ESt-Vorauszahlung Q2/2027 | § 45 Abs 2 EStG
+2027-08-16 | ESt-Vorauszahlung Q3/2027 | § 45 Abs 2 EStG
+2027-11-15 | ESt-Vorauszahlung Q4/2027 | § 45 Abs 2 EStG
+2027-02-28 ca. | SVS-Beitrag Q1/2027 | § 35 Abs 1 GSVG
+2027-05-31 ca. | SVS-Beitrag Q2/2027 | § 35 Abs 1 GSVG
+2027-08-31 ca. | SVS-Beitrag Q3/2027 | § 35 Abs 1 GSVG
+2027-11-30 ca. | SVS-Beitrag Q4/2027 | § 35 Abs 1 GSVG
