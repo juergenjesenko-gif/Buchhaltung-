@@ -1,6 +1,6 @@
 # Spezifikation – Buchhaltung
 
-**Dokumentversion:** 2.28 · **App-Version:** 0.39.5 · **Stand:** 2026-10-28
+**Dokumentversion:** 2.29 · **App-Version:** 0.39.5 · **Stand:** 2026-10-28
 **Status:** Testbuild 0.21.0 (Schema 23); Store-Start offen, siehe Abschnitt 11 und 14
 
 > Das **Zielbild** des Produkts steht im [`LASTENHEFT.md`](LASTENHEFT.md); dieses
@@ -1630,6 +1630,7 @@ Vorsteuerabzug in Promille; Fundstelle Privatanteil; Fundstelle Vorsteuer.
 
 | Version | Datum | App-Version | Änderung |
 |---|---|---|---|
+| 2.29 | 2026-10-30 | 0.39.5 | Ohne Codeänderung: Prüfpunkte P-IE-01 bis P-IE-04 (Steuerwerte Irland). |
 | 2.28 | 2026-10-28 | 0.39.5 | FA-1.20: Hauswährung aus dem Land (AP2), ohne Verhaltensänderung für AT/DE. |
 | 2.27 | 2026-10-28 | 0.39.5 | FA-1.20: Formate je Locale und Währung (AP1); krumme Steuersätze deutsch mit Komma. |
 | 2.26 | 2026-10-27 | 0.39.5 | FA-1.20: Gerüst für Mehrsprachigkeit (de, en), Bestätigungen als erster Bildschirm umgestellt; App bleibt deutsch. |
@@ -2104,6 +2105,10 @@ erzeugt `beispiele_erzeugen_test.dart` mit dem PDF-Generator der App.
 | P-UK-03 | UK-Steuerwerte für TaxProfile UK (Trading Allowance, Cash Basis, Kilometer- und Home-Office-Pauschalen, Class 2/4 NIC, VAT-Grenze 90.000 £) an GOV.UK prüfen | aus Vorwissen | vor UK-Entwicklung | offen |
 | P-UK-04 | UK-Recht: ICO-Gebühr, UK-Vertreter nach Art. 27 UK GDPR für ein EU-Unternehmen, Abo-Regeln DMCC Act 2024 (Inkrafttreten), englische Rechtstexte | Recherche mittel | vor UK-Start | offen |
 | P-UK-05 | Marke „JeNi“ in UK und EU (später US) anmelden; Namenskonflikt „JeNi books“ durch Anwältin prüfen | Suche ohne direkten Treffer, Sicherheit niedrig | vor UK-Werbung | offen |
+| P-IE-01 | Irland: Wortlaut der rollierenden 12-Monats-Regel für die VAT-Registrierung (s.6 VATCA 2010; €85.000 Waren / €42.500 Dienstleistungen) an irishstatutebook.ie bestätigen | Websuche auf amtliche Domains, Seiten nicht abrufbar (`docs/maerkte/Steuerwerte_UK_IE_US.md`) | vor IE-Profil | offen |
+| P-IE-02 | Irland: Frist der Jahresmeldung RTD (19. oder 23.) und künftige Perioden bei VAT-Lastschrift (VDD) | Quellen widersprüchlich | vor IE-Profil | offen |
+| P-IE-03 | Irland: gibt es eine Kleinbetragsrechnung mit Betragsgrenze? | nichts Amtliches gefunden, Sicherheit niedrig | vor IE-Rechnungen | offen |
+| P-IE-04 | Irland: Verschiebung von Fristen bei Wochenende/Feiertag (bei Revenue keine allgemeine Regel gefunden); irische Steuerberatung fragen | Websuche | vor IE-Fristen | offen |
 | P-FR-01 | Frankreich: Termine der E-Rechnungs-Pflicht (Ausstellung micro/PME 1. 9. 2027) und Grenzen der franchise en base 2026/27 an DGFiP/impots.gouv.fr bestätigen; AGB Super PDP (Haftung, Anhang A) durch Anwältin prüfen; Marke „JeNi books“ auch für Frankreich (INPI/EUIPO) prüfen; Markenname auf Englisch zulässig, Store-Texte und Beschreibungen französisch (Loi Toubon) | `docs/maerkte/Frankreich_Markteintritt.md` | vor FR-Entwicklung | offen |
 | P-R45 | „Wunsch oder Idee senden“ (FA-11.6): bestätigen, dass eine von der Nutzerin selbst aus ihrer Mail-App gesendete E-Mail mit technischen Angaben für Google Play („Datensicherheit“) und Apple („App-Datenschutz“) nicht als Erheben durch die App gilt; sonst Angaben in STORE_LISTING anpassen | Rechtsanwalt intern: nicht erhoben (wie Teilen/Export), mittel | Release | offen |
 | P-R39 | Angebots-PDF: „Dieses Angebot ist gültig bis <Datum>“ bindet die Unternehmerin bis zu diesem Tag (§ 148 BGB Annahmefrist; AT § 862 ABGB). Reicht das, oder braucht es eine Option „freibleibend“/„unverbindlich“? | Vorbefund Rechtsanwalt: Fristsetzung ist zulässig und schafft Klarheit; „freibleibend“ wäre nur eine Aufforderung zur Angebotsabgabe. Frage, ob Nutzerinnen das wählen können sollen. Mittlere Sicherheit | Release | intern geprüft 2026-10-16 (hoch) |
