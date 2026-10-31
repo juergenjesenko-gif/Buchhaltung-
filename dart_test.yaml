@@ -1,3 +1,4 @@
 tags:
-  # Store-Screenshots (P-D34): nur mit SCREENSHOTS=1, siehe tool/screenshots.
+  # Store-Screenshots (P-D34) und Erklärvideo: nur mit SCREENSHOTS=1 bzw.
+  # ERKLAERVIDEO=1, siehe tool/screenshots.
   screenshots:

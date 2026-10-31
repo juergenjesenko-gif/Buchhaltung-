@@ -98,3 +98,62 @@ Zu einzelnen Aufnahmen:
 **Nächster Schritt:** Wer nimmt auf? Der Auftraggeber entscheidet; die
 Entwicklung liefert dazu eine Klick-für-Klick-Liste je Aufnahme und einen
 Testbuild mit erfundener Firma.
+
+### Umsetzung Variante B (Entscheidung Auftraggeber 2026-10-31)
+
+Aufgenommen wird **automatisch, ohne echtes Gerät**: ein Widget-Test
+(`test/screenshots/erklaervideo_test.dart`) bedient die echte App nach
+Skript und schreibt Einzelbilder, die der Workflow zu MP4 zusammensetzt
+(1080×2340 hochkant, 30 fps, H.264, ohne Ton). Jeder Tipp zeigt einen
+halbtransparenten Kreis, vor und nach jedem Schritt ~1 s Ruhe;
+Statusleiste „9:41“, voller Akku. Daten: erfundene Musterfirma
+„Grafikdesign Muster“, Wien, Kleinunternehmerin, in einer beschreibbaren
+Datenbank – **Speichern funktioniert, kein Demo-Band, kein Wasserzeichen**.
+Pro-Funktionen mit Pro-Abo (Einblendung „Pro“ bei A4, A6, A8 nötig).
+
+| # | Aufnahme | Länge ca. |
+|---|---|---|
+| A1 | Erststart: Willkommen → „Los geht's“ → 5 Schritte → Übersicht (ohne Abo) | 30 s |
+| A2 | Übersicht → Beleg-Knopf → Felder füllen sich („erkannt – bitte prüfen“) → langsam durchs Formular → Speichern → Belegliste | 30 s |
+| A3 | slowenischer Beleg (DDV 22 %, Skupaj): ausgelesen, Hinweis „nicht als Vorsteuer abziehbar“, Speichern | 25 s |
+| A4 | Rechnung in USD → Fremdwährung erkannt → „Kurs abrufen“ (Pro) → Euro-Betrag → Speichern | 15 s |
+| A6 | Verträge → „Vertrag ablegen“ → 3 Seiten scannen → „Text erkennen und Kurzübersicht“ (Pro) → Werte per Tipp übernehmen → Speichern → „Rate … buchen (Vorschlag)“ → „Buchen“ | 60 s |
+| A7 | Übersicht mit Kleinunternehmer-Ampel → Beleg scannen und speichern → Ausgaben-Zahl ändert sich | 16 s |
+| A8 | Export → Anlagen und Jahresabschluss → Jahr → Saldenliste (Pro) als PDF | 15 s |
+| A9 | Angebot → „Zur Rechnung machen“ → Entwurf ansehen → „Rechnung ausstellen“ → PDF mit Hinweis „Mit E-Rechnung (ZUGFeRD)“ | 25 s |
+| A10 | Export → Für das Finanzamt: als Kleinunternehmerin „keine U30“, Kennzahlen E1a, Kennzahl kopieren | 20 s |
+| A11 | Belegliste → Jahr 2025 → Beleg → Bearbeiten → „Belege sind 7 Jahre aufzubewahren“ → Vertrag „Aufbewahren …“ → Einstellungen → Datensicherung | 40 s |
+
+**Weggelassen:**
+
+- **A5 (Teilen aus einer anderen App):** die fremde App und das
+  Teilen-Blatt des Systems gibt es ohne echtes Gerät nicht. Nur das Ende
+  („Beleg angelegt“) wäre zeigbar, das sieht aus wie A2.
+- **A2b (Zeitlupe/Nahaufnahme):** keine eigene Aufnahme; im Schnitt aus A2
+  vergrößern und verlangsamen (volle Auflösung vorhanden).
+- **U30-Datei (A10) und „an Steuerberatung teilen“:** die Musterfirma ist
+  Kleinunternehmerin und braucht keine U30 – die App sagt das selbst. Eine
+  U30-Aufnahme braucht eine eigene Musterfirma mit Regelbesteuerung; auf
+  Wunsch nachziehbar. Das Teilen-Blatt des Systems ist nicht aufnehmbar.
+
+**Simuliert – bitte bei den Einblendungen beachten:**
+
+- Kamera: die Kameraansicht fehlt; der Scanner liefert direkt ein
+  gezeichnetes Musterbild (Kassabon bzw. Vertragsseiten).
+- Texterkennung: liefert den Text, der auf dem Musterbild steht. Das
+  **Auslesen selbst ist echt** (dieselbe Logik wie auf dem Handy).
+- „Kurs abrufen“: erfundene Kurse liegen schon im Gerät, kein Netzabruf.
+- PDF-Ansicht: Seiten werden im Test gerastert, Inhalt ist das echte PDF.
+- Bildschirmtastatur erscheint nicht; Text erscheint Zeichen für Zeichen.
+- Einzelne Sonderzeichen („⋮“, „→“) erscheinen als Kästchen, z. B. im
+  Hinweis der gestellten Rechnung (A9) – im Schnitt überdecken oder kurz
+  halten.
+
+**Starten (Auftraggeber):**
+
+1. GitHub → Actions → „Erklärvideo-Aufnahmen“ → „Run workflow“ (Feld leer
+   lassen = alle Aufnahmen; oder z. B. `A2,A6`).
+2. Nach dem Lauf (ca. 30–40 Minuten) das Artefakt `erklaervideo` öffnen –
+   eine ZIP-Datei mit `erklaer_A1.mp4` … `erklaer_A11.mp4`.
+
+Technik: `tool/screenshots/README.md`, Abschnitt „Erklärvideo-Aufnahmen“.

@@ -1,0 +1,61 @@
+# Bildschirmaufnahmen für das Erklärvideo (Variante B), ohne Emulator.
+# Widget-Test schreibt Einzelbilder (30 fps, 1080×2340), ffmpeg setzt sie zu
+# erklaer_<Aufnahme>.mp4 zusammen (H.264, yuv420p, ohne Ton).
+# Ergebnis: ein Artefakt „erklaervideo“ (ZIP) mit allen MP4-Dateien.
+name: Erklärvideo-Aufnahmen
+
+on:
+  workflow_dispatch:
+    inputs:
+      nur:
+        description: "Nur diese Aufnahmen, z. B. A1,A7 (leer = alle)"
+        required: false
+        default: ""
+
+env:
+  FLUTTER_VERSION: "3.47.0"
+
+jobs:
+  aufnahmen:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: stable
+          cache: true
+
+      - name: PDF-Rasterung (pdftoppm), SQLite, ffmpeg
+        run: sudo apt-get update && sudo apt-get install -y poppler-utils libsqlite3-dev ffmpeg
+
+      - name: Abhängigkeiten
+        run: flutter pub get
+
+      - name: Einzelbilder erzeugen
+        env:
+          ERKLAERVIDEO: "1"
+          ERKLAERVIDEO_NUR: ${{ inputs.nur }}
+        run: flutter test --tags screenshots test/screenshots/erklaervideo_test.dart
+
+      - name: Zu MP4 zusammensetzen
+        run: |
+          set -e
+          mkdir -p build/erklaervideo_mp4
+          for dir in build/erklaervideo/*/; do
+            id=$(basename "$dir")
+            ffmpeg -loglevel error -y -framerate 30 -i "$dir/frame_%05d.png" \
+              -c:v libx264 -preset slow -crf 18 -pix_fmt yuv420p -r 30 -an \
+              -movflags +faststart "build/erklaervideo_mp4/erklaer_${id}.mp4"
+          done
+          ls -l build/erklaervideo_mp4
+
+      - name: Als ein ZIP hochladen
+        uses: actions/upload-artifact@v4
+        with:
+          name: erklaervideo
+          path: build/erklaervideo_mp4/
+          if-no-files-found: error
+          retention-days: 30
