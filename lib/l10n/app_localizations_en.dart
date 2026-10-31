@@ -261,4 +261,269 @@ class AppLocalizationsEn extends AppLocalizations {
   String setupRegistrationsCount(int count, String list) {
     return '$count added: $list';
   }
+
+  @override
+  String get commonCancel => 'Cancel';
+
+  @override
+  String invDunningHistoryTitle(String number) {
+    return 'Reminder history $number';
+  }
+
+  @override
+  String invInvoiceOf(String date) {
+    return 'Invoice of $date';
+  }
+
+  @override
+  String invDueOn(String date) {
+    return 'due $date';
+  }
+
+  @override
+  String invNoticeOf(String title, String date) {
+    return '$title of $date';
+  }
+
+  @override
+  String invCancelledReason(String reason) {
+    return 'Cancelled: $reason';
+  }
+
+  @override
+  String invNoticeNewDue(String amount, String date) {
+    return '$amount, new due date $date';
+  }
+
+  @override
+  String get invCustomerMissing => 'Customer details are missing.';
+
+  @override
+  String invCreditNoteCreated(String number) {
+    return 'Credit note $number created.';
+  }
+
+  @override
+  String get commonView => 'View';
+
+  @override
+  String invCorrectTitle(String number) {
+    return 'Correct $number';
+  }
+
+  @override
+  String invCancelTitle(String number) {
+    return 'Cancel $number';
+  }
+
+  @override
+  String get invCancelReasonLabel => 'Reason (shown on the credit note)';
+
+  @override
+  String get invCancelRefundOn => 'Cancellation and refund on';
+
+  @override
+  String get invCancelOn => 'Cancellation on';
+
+  @override
+  String invCancelPaidHint(String amount) {
+    return 'The invoice is paid: $amount will be booked as a refund on this day (income and VAT go down). Transfer the amount back to the customer.';
+  }
+
+  @override
+  String get invCancelOpenHint =>
+      'The invoice is unpaid: nothing is booked. Open reminders are cancelled too.';
+
+  @override
+  String get invCancelAndRewrite => 'Cancel and rewrite';
+
+  @override
+  String get invCreateCreditNote => 'Create credit note';
+
+  @override
+  String invPaidTitle(String number) {
+    return '$number paid';
+  }
+
+  @override
+  String get invPaymentDate => 'Payment received';
+
+  @override
+  String get invPaidWithDiscount => 'Paid with early payment discount?';
+
+  @override
+  String invDiscountDetail(String rate, String amount, String date) {
+    return '$rate = $amount, until $date';
+  }
+
+  @override
+  String get invCostsPaid => 'Reminder fees and interest paid too?';
+
+  @override
+  String invCostsDetail(String amount, String title) {
+    return '$amount from the $title, not subject to VAT';
+  }
+
+  @override
+  String get invBookAsPaid => 'Book as paid';
+
+  @override
+  String get invOnlyDraftsDeletable => 'Only drafts can be deleted.';
+
+  @override
+  String get invTitle => 'Invoices';
+
+  @override
+  String get invCustomers => 'Customers';
+
+  @override
+  String get invPickCustomerLeft => 'Pick a customer on the left.';
+
+  @override
+  String get invNew => 'New invoice';
+
+  @override
+  String get invEmptyTitle => 'No invoices';
+
+  @override
+  String get invEmptyText =>
+      'Write your first invoice – the app checks the required details for you.';
+
+  @override
+  String get invWrite => 'Write invoice';
+
+  @override
+  String get invOpenHint => 'Issued and not yet paid';
+
+  @override
+  String invOverdueCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count invoices overdue – send reminders?',
+      one: '1 invoice overdue – send a reminder?',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get invQuotes => 'Quotes';
+
+  @override
+  String get invArticles => 'Items';
+
+  @override
+  String get invStatusOverdue => 'Overdue';
+
+  @override
+  String get invStatusPaid => 'Paid';
+
+  @override
+  String get invStatusCancelled => 'Cancelled';
+
+  @override
+  String get invStatusCreditNote => 'Credit note';
+
+  @override
+  String get invUnknownCustomer => 'Unknown customer';
+
+  @override
+  String invCreditNoteFor(String number) {
+    return 'Credit note for $number';
+  }
+
+  @override
+  String invCancelledBy(String number) {
+    return 'cancelled by $number';
+  }
+
+  @override
+  String get commonMoreActions => 'More actions';
+
+  @override
+  String get invMarkPaid => 'Mark as paid';
+
+  @override
+  String get invCorrect => 'Correct';
+
+  @override
+  String get invCancel => 'Cancel invoice';
+
+  @override
+  String get invDeleteDraft => 'Delete draft';
+
+  @override
+  String get invRemind => 'Remind';
+
+  @override
+  String get invDun => 'Send reminder';
+
+  @override
+  String get invShowDunningHistory => 'Show reminder history';
+
+  @override
+  String get custEmptyTitle => 'No customers';
+
+  @override
+  String get custEmptyText =>
+      'Add your customers once – then one tap is enough when writing an invoice.';
+
+  @override
+  String get custAdd => 'Add customer';
+
+  @override
+  String get custNew => 'New customer';
+
+  @override
+  String get invDraft => 'Draft';
+
+  @override
+  String get invStatusOpen => 'Unpaid';
+
+  @override
+  String get invDelete => 'Delete';
+
+  @override
+  String invPositions(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count lines',
+      one: '1 line',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String invConfirmTitle(String subject, String verb) {
+    return '$verb $subject?';
+  }
+
+  @override
+  String invInvoiceNumber(String number) {
+    return 'Invoice $number';
+  }
+
+  @override
+  String invConfirmText(String subject, String amount) {
+    return '$subject for $amount. This cannot be undone.';
+  }
+
+  @override
+  String invCancelExplain(String amount, String number) {
+    return 'The app creates a credit note with its own number for $amount. Invoice $number stays unchanged and is marked as cancelled.';
+  }
+
+  @override
+  String get invCorrectExplain => ' A copy then opens as a new draft.';
+
+  @override
+  String invPaymentBooked(String amount) {
+    return '$amount will be booked as income on the day of payment. Please do not record it again as an income receipt.';
+  }
+
+  @override
+  String invNoticeBadgeDue(String badge, String date) {
+    return '$badge · due $date';
+  }
 }

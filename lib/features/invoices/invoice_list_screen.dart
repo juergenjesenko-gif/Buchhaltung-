@@ -21,6 +21,7 @@ import '../help/help_screen.dart';
 import '../../services/help/help_index.dart';
 import '../../services/invoice_cancellation.dart';
 import '../../services/invoice_numbering.dart';
+import '../../l10n/l10n.dart';
 
 /// Rechnungsübersicht mit PDF-Versand und Zahlungsstatus.
 class InvoiceListScreen extends StatefulWidget {
@@ -94,16 +95,25 @@ class _InvoiceListScreenState extends State<InvoiceListScreen> {
       context: context,
       builder: (context) => AlertDialog(
         title: Text(
-          '${invoice.status == InvoiceStatus.draft ? 'Entwurf' : invoice.number} $verb?',
+          context.l10n.invConfirmTitle(
+            invoice.status == InvoiceStatus.draft
+                ? context.l10n.invDraft
+                : invoice.number,
+            verb,
+          ),
         ),
         content: Text(
-          '${invoice.status == InvoiceStatus.draft ? 'Entwurf' : 'Rechnung ${invoice.number}'} '
-          'über ${Fmt.money(invoice.grossTotal)}. Das lässt sich nicht rückgängig machen.',
+          context.l10n.invConfirmText(
+            invoice.status == InvoiceStatus.draft
+                ? context.l10n.invDraft
+                : context.l10n.invInvoiceNumber(invoice.number),
+            Fmt.money(invoice.grossTotal),
+          ),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(false),
-            child: const Text('Abbrechen'),
+            child: Text(context.l10n.commonCancel),
           ),
           FilledButton(
             key: const Key('confirmDestructive'),
@@ -153,15 +163,19 @@ class _InvoiceListScreenState extends State<InvoiceListScreen> {
           padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
           children: [
             Text(
-              'Mahnverlauf ${invoice.number}',
+              context.l10n.invDunningHistoryTitle(invoice.number),
               style: Theme.of(context).textTheme.titleMedium,
             ),
             if (invoice.dueDate != null)
               ListTile(
                 contentPadding: EdgeInsets.zero,
                 leading: const Icon(Icons.description_outlined),
-                title: Text('Rechnung vom ${Fmt.date(invoice.issueDate)}'),
-                subtitle: Text('fällig ${Fmt.date(invoice.dueDate!)}'),
+                title: Text(
+                  context.l10n.invInvoiceOf(Fmt.date(invoice.issueDate)),
+                ),
+                subtitle: Text(
+                  context.l10n.invDueOn(Fmt.date(invoice.dueDate!)),
+                ),
               ),
             for (final notice in notices)
               ListTile(
@@ -172,16 +186,21 @@ class _InvoiceListScreenState extends State<InvoiceListScreen> {
                       : Icons.mark_email_read_outlined,
                 ),
                 title: Text(
-                  '${notice.title} vom ${Fmt.date(notice.issuedOn)}',
+                  context.l10n.invNoticeOf(
+                    notice.title,
+                    Fmt.date(notice.issuedOn),
+                  ),
                   style: notice.isCancelled
                       ? const TextStyle(decoration: TextDecoration.lineThrough)
                       : null,
                 ),
                 subtitle: Text(
                   notice.isCancelled
-                      ? 'Storniert: ${notice.cancelReason}'
-                      : '${Fmt.money(notice.total)}, neue Frist '
-                            '${Fmt.date(notice.newDueDate)}',
+                      ? context.l10n.invCancelledReason(notice.cancelReason)
+                      : context.l10n.invNoticeNewDue(
+                          Fmt.money(notice.total),
+                          Fmt.date(notice.newDueDate),
+                        ),
                 ),
               ),
           ],
@@ -195,7 +214,7 @@ class _InvoiceListScreenState extends State<InvoiceListScreen> {
   Future<void> _remind(Invoice invoice) async {
     final customer = _customers[invoice.customerId];
     if (customer == null || AppScope.read(context).profile == null) {
-      showSnack(context, 'Kundendaten fehlen.');
+      showSnack(context, context.l10n.invCustomerMissing);
       return;
     }
     final changed = await showDunningSheet(
@@ -275,9 +294,9 @@ class _InvoiceListScreenState extends State<InvoiceListScreen> {
       ..hideCurrentSnackBar()
       ..showSnackBar(
         SnackBar(
-          content: Text('Stornorechnung ${storno.number} erstellt.'),
+          content: Text(context.l10n.invCreditNoteCreated(storno.number)),
           action: SnackBarAction(
-            label: 'Ansehen',
+            label: context.l10n.commonView,
             onPressed: () => _sharePdf(storno),
           ),
         ),
@@ -319,17 +338,17 @@ class _InvoiceListScreenState extends State<InvoiceListScreen> {
                 children: [
                   Text(
                     correct
-                        ? '${invoice.number} korrigieren'
-                        : '${invoice.number} stornieren',
+                        ? context.l10n.invCorrectTitle(invoice.number)
+                        : context.l10n.invCancelTitle(invoice.number),
                     style: Theme.of(context).textTheme.titleMedium,
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    'Die App erstellt eine Stornorechnung mit eigener Nummer '
-                    'über ${Fmt.money(-invoice.grossTotal)}. Die Rechnung '
-                    '${invoice.number} bleibt unverändert erhalten und wird '
-                    'als storniert markiert.'
-                    '${correct ? ' Danach öffnet sich eine Kopie als neuer Entwurf.' : ''}',
+                    context.l10n.invCancelExplain(
+                          Fmt.money(-invoice.grossTotal),
+                          invoice.number,
+                        ) +
+                        (correct ? context.l10n.invCorrectExplain : ''),
                   ),
                   const SizedBox(height: 12),
                   Wrap(
@@ -352,8 +371,8 @@ class _InvoiceListScreenState extends State<InvoiceListScreen> {
                     key: const Key('cancelReason'),
                     controller: reason,
                     textInputAction: TextInputAction.done,
-                    decoration: const InputDecoration(
-                      labelText: 'Grund (steht auf der Stornorechnung)',
+                    decoration: InputDecoration(
+                      labelText: context.l10n.invCancelReasonLabel,
                     ),
                     onChanged: (_) => setSheetState(() {}),
                   ),
@@ -361,7 +380,9 @@ class _InvoiceListScreenState extends State<InvoiceListScreen> {
                     contentPadding: EdgeInsets.zero,
                     leading: const Icon(Icons.event_outlined),
                     title: Text(
-                      paid ? 'Storno und Rückzahlung am' : 'Storno am',
+                      paid
+                          ? context.l10n.invCancelRefundOn
+                          : context.l10n.invCancelOn,
                     ),
                     subtitle: Text(Fmt.date(date)),
                     trailing: const Icon(Icons.chevron_right),
@@ -377,12 +398,10 @@ class _InvoiceListScreenState extends State<InvoiceListScreen> {
                   ),
                   Text(
                     paid
-                        ? 'Die Rechnung ist bezahlt: ${Fmt.money(invoice.grossTotal - invoice.skontoTaken)} '
-                              'werden an diesem Tag als Rückzahlung gebucht '
-                              '(Einnahme und Umsatzsteuer sinken). Überweise '
-                              'den Betrag an den Kunden zurück.'
-                        : 'Die Rechnung ist offen: es wird nichts gebucht. '
-                              'Laufende Mahnungen werden mit storniert.',
+                        ? context.l10n.invCancelPaidHint(
+                            Fmt.money(invoice.grossTotal - invoice.skontoTaken),
+                          )
+                        : context.l10n.invCancelOpenHint,
                     style: Theme.of(context).textTheme.bodySmall,
                   ),
                   const SizedBox(height: 16),
@@ -399,8 +418,8 @@ class _InvoiceListScreenState extends State<InvoiceListScreen> {
                           ).pop((reason: reason.text.trim(), date: date)),
                     child: Text(
                       correct
-                          ? 'Stornieren und neu schreiben'
-                          : 'Stornorechnung erstellen',
+                          ? context.l10n.invCancelAndRewrite
+                          : context.l10n.invCreateCreditNote,
                     ),
                   ),
                 ],
@@ -444,13 +463,13 @@ class _InvoiceListScreenState extends State<InvoiceListScreen> {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 Text(
-                  '${invoice.number} bezahlt',
+                  context.l10n.invPaidTitle(invoice.number),
                   style: Theme.of(context).textTheme.titleMedium,
                 ),
                 ListTile(
                   contentPadding: EdgeInsets.zero,
                   leading: const Icon(Icons.event_outlined),
-                  title: const Text('Zahlungseingang'),
+                  title: Text(context.l10n.invPaymentDate),
                   subtitle: Text(Fmt.date(date)),
                   trailing: const Icon(Icons.chevron_right),
                   onTap: () async {
@@ -474,11 +493,13 @@ class _InvoiceListScreenState extends State<InvoiceListScreen> {
                   SwitchListTile(
                     key: const Key('paidWithSkonto'),
                     contentPadding: EdgeInsets.zero,
-                    title: const Text('Mit Skonto bezahlt?'),
+                    title: Text(context.l10n.invPaidWithDiscount),
                     subtitle: Text(
-                      '${Fmt.vatRate(invoice.skontoPermille)} = '
-                      '${Fmt.money(invoice.skontoAmount)}, '
-                      'Frist bis ${Fmt.date(invoice.skontoDate!)}',
+                      context.l10n.invDiscountDetail(
+                        Fmt.vatRate(invoice.skontoPermille),
+                        Fmt.money(invoice.skontoAmount),
+                        Fmt.date(invoice.skontoDate!),
+                      ),
                     ),
                     value: withSkonto,
                     onChanged: (value) =>
@@ -488,10 +509,12 @@ class _InvoiceListScreenState extends State<InvoiceListScreen> {
                   SwitchListTile(
                     key: const Key('paidWithCosts'),
                     contentPadding: EdgeInsets.zero,
-                    title: const Text('Mahnkosten und Zinsen mitbezahlt?'),
+                    title: Text(context.l10n.invCostsPaid),
                     subtitle: Text(
-                      '${Fmt.money(costs)} aus der ${notice!.title}, '
-                      'nicht umsatzsteuerbar',
+                      context.l10n.invCostsDetail(
+                        Fmt.money(costs),
+                        notice!.title,
+                      ),
                     ),
                     value: withCosts,
                     onChanged: (value) =>
@@ -499,9 +522,14 @@ class _InvoiceListScreenState extends State<InvoiceListScreen> {
                   ),
                 const SizedBox(height: 8),
                 Text(
-                  '${Fmt.money((withSkonto ? invoice.grossTotal - invoice.skontoAmount : invoice.grossTotal) + (withCosts ? costs : const Money.zero()))} '
-                  'werden als Einnahme am Tag des Zahlungseingangs gebucht. '
-                  'Bitte nicht zusätzlich als Einnahmebeleg erfassen.',
+                  context.l10n.invPaymentBooked(
+                    Fmt.money(
+                      (withSkonto
+                              ? invoice.grossTotal - invoice.skontoAmount
+                              : invoice.grossTotal) +
+                          (withCosts ? costs : const Money.zero()),
+                    ),
+                  ),
                 ),
                 const SizedBox(height: 16),
                 FilledButton(
@@ -514,7 +542,7 @@ class _InvoiceListScreenState extends State<InvoiceListScreen> {
                     withSkonto: withSkonto,
                     withCosts: withCosts,
                   )),
-                  child: const Text('Als bezahlt buchen'),
+                  child: Text(context.l10n.invBookAsPaid),
                 ),
               ],
             ),
@@ -527,14 +555,14 @@ class _InvoiceListScreenState extends State<InvoiceListScreen> {
   Future<void> _deleteDraft(Invoice invoice) async {
     final id = invoice.id;
     if (id == null) return;
-    if (!await _confirmDestructive(invoice, 'Löschen')) return;
+    if (!await _confirmDestructive(invoice, context.l10n.invDelete)) return;
     if (!mounted) return;
     final deleted = await AppScope.read(
       context,
     ).repositories.invoices.deleteDraft(id);
     if (!mounted) return;
     if (!deleted) {
-      showSnack(context, 'Nur Entwürfe können gelöscht werden.');
+      showSnack(context, context.l10n.invOnlyDraftsDeletable);
       return;
     }
     await _load();
@@ -544,18 +572,18 @@ class _InvoiceListScreenState extends State<InvoiceListScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Rechnungen'),
+        title: Text(context.l10n.invTitle),
         actions: [
           const HelpButton(context: HelpTopic.invoices),
           IconButton(
-            tooltip: 'Kunden',
+            tooltip: context.l10n.invCustomers,
             icon: const Icon(Icons.people_outline),
             onPressed: () async {
               await Navigator.of(context).push(
                 MaterialPageRoute(
-                  builder: (_) => const ListDetail(
+                  builder: (_) => ListDetail(
                     list: _CustomerListScreen(),
-                    placeholder: 'Wähle links einen Kunden aus.',
+                    placeholder: context.l10n.invPickCustomerLeft,
                   ),
                 ),
               );
@@ -573,7 +601,7 @@ class _InvoiceListScreenState extends State<InvoiceListScreen> {
         heroTag: 'invoice-new',
         onPressed: () => _openEditor(),
         icon: const Icon(Icons.add),
-        label: const Text('Neue Rechnung'),
+        label: Text(context.l10n.invNew),
       ),
     );
   }
@@ -609,14 +637,12 @@ class _InvoiceListScreenState extends State<InvoiceListScreen> {
   Widget _empty() {
     return EmptyState(
       icon: Icons.description_outlined,
-      title: 'Keine Rechnungen',
-      message:
-          'Schreibe deine erste Rechnung – die Pflichtangaben '
-          'prüft die App für dich mit.',
+      title: context.l10n.invEmptyTitle,
+      message: context.l10n.invEmptyText,
       action: FilledButton.icon(
         onPressed: () => _openEditor(),
         icon: const Icon(Icons.add),
-        label: const Text('Rechnung schreiben'),
+        label: Text(context.l10n.invWrite),
       ),
     );
   }
@@ -625,9 +651,9 @@ class _InvoiceListScreenState extends State<InvoiceListScreen> {
     return [
       if (!_openAmount.isZero) ...[
         SectionCard(
-          title: 'Offen',
+          title: context.l10n.invStatusOpen,
           child: LabeledValue(
-            label: 'Gestellt und noch nicht bezahlt',
+            label: context.l10n.invOpenHint,
             value: Fmt.money(_openAmount),
             emphasize: true,
           ),
@@ -640,8 +666,8 @@ class _InvoiceListScreenState extends State<InvoiceListScreen> {
           icon: Icons.notification_important_outlined,
           color: AppTheme.expense,
           message: _overdue.length == 1
-              ? '1 Rechnung überfällig – mahnen?'
-              : '${_overdue.length} Rechnungen überfällig – mahnen?',
+              ? context.l10n.invOverdueCount(1)
+              : context.l10n.invOverdueCount(_overdue.length),
           onTap: () => _remind(_overdue.first),
         ),
         const SizedBox(height: 16),
@@ -702,7 +728,7 @@ class _CatalogShortcuts extends StatelessWidget {
             style: OutlinedButton.styleFrom(minimumSize: const Size(0, 48)),
             onPressed: () => _push(context, const OfferListScreen()),
             icon: const Icon(Icons.request_quote_outlined),
-            label: const Text('Angebote'),
+            label: Text(context.l10n.invQuotes),
           ),
         ),
         const SizedBox(width: 12),
@@ -712,7 +738,7 @@ class _CatalogShortcuts extends StatelessWidget {
             style: OutlinedButton.styleFrom(minimumSize: const Size(0, 48)),
             onPressed: () => _push(context, const ArticleListScreen()),
             icon: const Icon(Icons.inventory_2_outlined),
-            label: const Text('Artikel'),
+            label: Text(context.l10n.invArticles),
           ),
         ),
       ],
@@ -759,14 +785,20 @@ class _InvoiceTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
     final (statusColor, statusLabel) = switch (invoice.status) {
-      InvoiceStatus.draft => (scheme.outline, 'Entwurf'),
+      InvoiceStatus.draft => (scheme.outline, context.l10n.invDraft),
       InvoiceStatus.issued =>
         overdue
-            ? (AppTheme.expense, 'Überfällig')
-            : (AppTheme.warning, 'Offen'),
-      InvoiceStatus.paid => (AppTheme.income, 'Bezahlt'),
-      InvoiceStatus.cancelled => (scheme.outline, 'Storniert'),
-      InvoiceStatus.cancellation => (scheme.outline, 'Storno'),
+            ? (AppTheme.expense, context.l10n.invStatusOverdue)
+            : (AppTheme.warning, context.l10n.invStatusOpen),
+      InvoiceStatus.paid => (AppTheme.income, context.l10n.invStatusPaid),
+      InvoiceStatus.cancelled => (
+        scheme.outline,
+        context.l10n.invStatusCancelled,
+      ),
+      InvoiceStatus.cancellation => (
+        scheme.outline,
+        context.l10n.invStatusCreditNote,
+      ),
     };
 
     return Card(
@@ -783,7 +815,7 @@ class _InvoiceTile extends StatelessWidget {
                   Expanded(
                     child: Text(
                       invoice.status == InvoiceStatus.draft
-                          ? 'Entwurf'
+                          ? context.l10n.invDraft
                           : invoice.number,
                       style: const TextStyle(fontWeight: FontWeight.w700),
                     ),
@@ -811,7 +843,7 @@ class _InvoiceTile extends StatelessWidget {
               ),
               const SizedBox(height: 4),
               Text(
-                customer?.name ?? 'Unbekannter Kunde',
+                customer?.name ?? context.l10n.invUnknownCustomer,
                 style: Theme.of(context).textTheme.bodyMedium,
               ),
               const SizedBox(height: 2),
@@ -819,8 +851,8 @@ class _InvoiceTile extends StatelessWidget {
                 [
                   Fmt.date(invoice.issueDate),
                   if (invoice.dueDate != null)
-                    'fällig ${Fmt.date(invoice.dueDate!)}',
-                  '${invoice.items.length} ${invoice.items.length == 1 ? 'Position' : 'Positionen'}',
+                    context.l10n.invDueOn(Fmt.date(invoice.dueDate!)),
+                  context.l10n.invPositions(invoice.items.length),
                 ].join(' · '),
                 style: Theme.of(
                   context,
@@ -830,8 +862,8 @@ class _InvoiceTile extends StatelessWidget {
                 const SizedBox(height: 2),
                 Text(
                   invoice.isCancellation
-                      ? 'Storno zu $relatedNumber'
-                      : 'storniert durch $relatedNumber',
+                      ? context.l10n.invCreditNoteFor(relatedNumber!)
+                      : context.l10n.invCancelledBy(relatedNumber!),
                   key: Key('related-${invoice.id}'),
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
                     color: scheme.onSurfaceVariant,
@@ -858,31 +890,34 @@ class _InvoiceTile extends StatelessWidget {
                   ),
                   const Spacer(),
                   PopupMenuButton<String>(
-                    tooltip: 'Weitere Aktionen',
+                    tooltip: context.l10n.commonMoreActions,
                     itemBuilder: (context) {
                       final error = TextStyle(color: scheme.error);
                       return [
                         if (onMarkPaid != null)
-                          const PopupMenuItem(
+                          PopupMenuItem(
                             value: 'paid',
-                            child: Text('Als bezahlt markieren'),
+                            child: Text(context.l10n.invMarkPaid),
                           ),
                         if (onCorrect != null)
-                          const PopupMenuItem(
+                          PopupMenuItem(
                             value: 'correct',
-                            child: Text('Korrigieren'),
+                            child: Text(context.l10n.invCorrect),
                           ),
                         if (onCancel != null || onDelete != null)
                           const PopupMenuDivider(),
                         if (onCancel != null)
                           PopupMenuItem(
                             value: 'cancel',
-                            child: Text('Stornieren', style: error),
+                            child: Text(context.l10n.invCancel, style: error),
                           ),
                         if (onDelete != null)
                           PopupMenuItem(
                             value: 'delete',
-                            child: Text('Entwurf löschen', style: error),
+                            child: Text(
+                              context.l10n.invDeleteDraft,
+                              style: error,
+                            ),
                           ),
                       ];
                     },
@@ -910,7 +945,11 @@ class _InvoiceTile extends StatelessWidget {
                       ),
                       onPressed: onRemind,
                       icon: const Icon(Icons.mark_email_unread_outlined),
-                      label: Text(dunning == null ? 'Erinnern' : 'Mahnen'),
+                      label: Text(
+                        dunning == null
+                            ? context.l10n.invRemind
+                            : context.l10n.invDun,
+                      ),
                     ),
                   if (onMarkPaid != null)
                     FilledButton.tonalIcon(
@@ -920,7 +959,7 @@ class _InvoiceTile extends StatelessWidget {
                       ),
                       onPressed: onMarkPaid,
                       icon: const Icon(Icons.check),
-                      label: const Text('Bezahlt'),
+                      label: Text(context.l10n.invStatusPaid),
                     ),
                   OutlinedButton.icon(
                     key: Key('share-${invoice.id}'),
@@ -929,7 +968,7 @@ class _InvoiceTile extends StatelessWidget {
                     ),
                     onPressed: onShare,
                     icon: const Icon(Icons.picture_as_pdf_outlined),
-                    label: const Text('Ansehen'),
+                    label: Text(context.l10n.commonView),
                   ),
                 ],
               ),
@@ -990,7 +1029,7 @@ class _DunningBadge extends StatelessWidget {
     final color = overdue ? AppTheme.expense : AppTheme.warning;
     return Semantics(
       button: true,
-      label: 'Mahnverlauf anzeigen',
+      label: context.l10n.invShowDunningHistory,
       child: InkWell(
         onTap: onTap,
         borderRadius: BorderRadius.circular(20),
@@ -1012,8 +1051,10 @@ class _DunningBadge extends StatelessWidget {
                   const SizedBox(width: 6),
                   Flexible(
                     child: Text(
-                      '${dunningBadge(notice.level)} · Frist '
-                      '${Fmt.date(notice.newDueDate)}',
+                      context.l10n.invNoticeBadgeDue(
+                        dunningBadge(notice.level),
+                        Fmt.date(notice.newDueDate),
+                      ),
                       style: TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.w600,
@@ -1079,20 +1120,18 @@ class _CustomerListScreenState extends State<_CustomerListScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Kunden')),
+      appBar: AppBar(title: Text(context.l10n.invCustomers)),
       body: _loading
           ? const Center(child: CircularProgressIndicator())
           : _customers.isEmpty
           ? EmptyState(
               icon: Icons.people_outline,
-              title: 'Keine Kunden',
-              message:
-                  'Lege deine Kunden einmal an – danach genügt beim '
-                  'Rechnungschreiben ein Tipp.',
+              title: context.l10n.custEmptyTitle,
+              message: context.l10n.custEmptyText,
               action: FilledButton.icon(
                 onPressed: () => _open(),
                 icon: const Icon(Icons.person_add_alt),
-                label: const Text('Kunde anlegen'),
+                label: Text(context.l10n.custAdd),
               ),
             )
           : ListView.separated(
@@ -1125,7 +1164,7 @@ class _CustomerListScreenState extends State<_CustomerListScreen> {
         heroTag: 'customer-new',
         onPressed: () => _open(),
         icon: const Icon(Icons.person_add_alt),
-        label: const Text('Neuer Kunde'),
+        label: Text(context.l10n.custNew),
       ),
     );
   }

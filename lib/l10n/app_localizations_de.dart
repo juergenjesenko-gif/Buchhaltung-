@@ -264,4 +264,270 @@ class AppLocalizationsDe extends AppLocalizations {
   String setupRegistrationsCount(int count, String list) {
     return '$count angelegt: $list';
   }
+
+  @override
+  String get commonCancel => 'Abbrechen';
+
+  @override
+  String invDunningHistoryTitle(String number) {
+    return 'Mahnverlauf $number';
+  }
+
+  @override
+  String invInvoiceOf(String date) {
+    return 'Rechnung vom $date';
+  }
+
+  @override
+  String invDueOn(String date) {
+    return 'fällig $date';
+  }
+
+  @override
+  String invNoticeOf(String title, String date) {
+    return '$title vom $date';
+  }
+
+  @override
+  String invCancelledReason(String reason) {
+    return 'Storniert: $reason';
+  }
+
+  @override
+  String invNoticeNewDue(String amount, String date) {
+    return '$amount, neue Frist $date';
+  }
+
+  @override
+  String get invCustomerMissing => 'Kundendaten fehlen.';
+
+  @override
+  String invCreditNoteCreated(String number) {
+    return 'Stornorechnung $number erstellt.';
+  }
+
+  @override
+  String get commonView => 'Ansehen';
+
+  @override
+  String invCorrectTitle(String number) {
+    return '$number korrigieren';
+  }
+
+  @override
+  String invCancelTitle(String number) {
+    return '$number stornieren';
+  }
+
+  @override
+  String get invCancelReasonLabel => 'Grund (steht auf der Stornorechnung)';
+
+  @override
+  String get invCancelRefundOn => 'Storno und Rückzahlung am';
+
+  @override
+  String get invCancelOn => 'Storno am';
+
+  @override
+  String invCancelPaidHint(String amount) {
+    return 'Die Rechnung ist bezahlt: $amount werden an diesem Tag als Rückzahlung gebucht (Einnahme und Umsatzsteuer sinken). Überweise den Betrag an den Kunden zurück.';
+  }
+
+  @override
+  String get invCancelOpenHint =>
+      'Die Rechnung ist offen: es wird nichts gebucht. Laufende Mahnungen werden mit storniert.';
+
+  @override
+  String get invCancelAndRewrite => 'Stornieren und neu schreiben';
+
+  @override
+  String get invCreateCreditNote => 'Stornorechnung erstellen';
+
+  @override
+  String invPaidTitle(String number) {
+    return '$number bezahlt';
+  }
+
+  @override
+  String get invPaymentDate => 'Zahlungseingang';
+
+  @override
+  String get invPaidWithDiscount => 'Mit Skonto bezahlt?';
+
+  @override
+  String invDiscountDetail(String rate, String amount, String date) {
+    return '$rate = $amount, Frist bis $date';
+  }
+
+  @override
+  String get invCostsPaid => 'Mahnkosten und Zinsen mitbezahlt?';
+
+  @override
+  String invCostsDetail(String amount, String title) {
+    return '$amount aus der $title, nicht umsatzsteuerbar';
+  }
+
+  @override
+  String get invBookAsPaid => 'Als bezahlt buchen';
+
+  @override
+  String get invOnlyDraftsDeletable => 'Nur Entwürfe können gelöscht werden.';
+
+  @override
+  String get invTitle => 'Rechnungen';
+
+  @override
+  String get invCustomers => 'Kunden';
+
+  @override
+  String get invPickCustomerLeft => 'Wähle links einen Kunden aus.';
+
+  @override
+  String get invNew => 'Neue Rechnung';
+
+  @override
+  String get invEmptyTitle => 'Keine Rechnungen';
+
+  @override
+  String get invEmptyText =>
+      'Schreibe deine erste Rechnung – die Pflichtangaben prüft die App für dich mit.';
+
+  @override
+  String get invWrite => 'Rechnung schreiben';
+
+  @override
+  String get invOpenHint => 'Gestellt und noch nicht bezahlt';
+
+  @override
+  String invOverdueCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count Rechnungen überfällig – mahnen?',
+      one: '1 Rechnung überfällig – mahnen?',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get invQuotes => 'Angebote';
+
+  @override
+  String get invArticles => 'Artikel';
+
+  @override
+  String get invStatusOverdue => 'Überfällig';
+
+  @override
+  String get invStatusPaid => 'Bezahlt';
+
+  @override
+  String get invStatusCancelled => 'Storniert';
+
+  @override
+  String get invStatusCreditNote => 'Storno';
+
+  @override
+  String get invUnknownCustomer => 'Unbekannter Kunde';
+
+  @override
+  String invCreditNoteFor(String number) {
+    return 'Storno zu $number';
+  }
+
+  @override
+  String invCancelledBy(String number) {
+    return 'storniert durch $number';
+  }
+
+  @override
+  String get commonMoreActions => 'Weitere Aktionen';
+
+  @override
+  String get invMarkPaid => 'Als bezahlt markieren';
+
+  @override
+  String get invCorrect => 'Korrigieren';
+
+  @override
+  String get invCancel => 'Stornieren';
+
+  @override
+  String get invDeleteDraft => 'Entwurf löschen';
+
+  @override
+  String get invRemind => 'Erinnern';
+
+  @override
+  String get invDun => 'Mahnen';
+
+  @override
+  String get invShowDunningHistory => 'Mahnverlauf anzeigen';
+
+  @override
+  String get custEmptyTitle => 'Keine Kunden';
+
+  @override
+  String get custEmptyText =>
+      'Lege deine Kunden einmal an – danach genügt beim Rechnungschreiben ein Tipp.';
+
+  @override
+  String get custAdd => 'Kunde anlegen';
+
+  @override
+  String get custNew => 'Neuer Kunde';
+
+  @override
+  String get invDraft => 'Entwurf';
+
+  @override
+  String get invStatusOpen => 'Offen';
+
+  @override
+  String get invDelete => 'Löschen';
+
+  @override
+  String invPositions(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count Positionen',
+      one: '1 Position',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String invConfirmTitle(String subject, String verb) {
+    return '$subject $verb?';
+  }
+
+  @override
+  String invInvoiceNumber(String number) {
+    return 'Rechnung $number';
+  }
+
+  @override
+  String invConfirmText(String subject, String amount) {
+    return '$subject über $amount. Das lässt sich nicht rückgängig machen.';
+  }
+
+  @override
+  String invCancelExplain(String amount, String number) {
+    return 'Die App erstellt eine Stornorechnung mit eigener Nummer über $amount. Die Rechnung $number bleibt unverändert erhalten und wird als storniert markiert.';
+  }
+
+  @override
+  String get invCorrectExplain =>
+      ' Danach öffnet sich eine Kopie als neuer Entwurf.';
+
+  @override
+  String invPaymentBooked(String amount) {
+    return '$amount werden als Einnahme am Tag des Zahlungseingangs gebucht. Bitte nicht zusätzlich als Einnahmebeleg erfassen.';
+  }
+
+  @override
+  String invNoticeBadgeDue(String badge, String date) {
+    return '$badge · Frist $date';
+  }
 }

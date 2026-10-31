@@ -529,6 +529,414 @@ abstract class AppLocalizations {
   /// In de, this message translates to:
   /// **'{count} angelegt: {list}'**
   String setupRegistrationsCount(int count, String list);
+
+  /// No description provided for @commonCancel.
+  ///
+  /// In de, this message translates to:
+  /// **'Abbrechen'**
+  String get commonCancel;
+
+  /// No description provided for @invDunningHistoryTitle.
+  ///
+  /// In de, this message translates to:
+  /// **'Mahnverlauf {number}'**
+  String invDunningHistoryTitle(String number);
+
+  /// No description provided for @invInvoiceOf.
+  ///
+  /// In de, this message translates to:
+  /// **'Rechnung vom {date}'**
+  String invInvoiceOf(String date);
+
+  /// No description provided for @invDueOn.
+  ///
+  /// In de, this message translates to:
+  /// **'fällig {date}'**
+  String invDueOn(String date);
+
+  /// No description provided for @invNoticeOf.
+  ///
+  /// In de, this message translates to:
+  /// **'{title} vom {date}'**
+  String invNoticeOf(String title, String date);
+
+  /// No description provided for @invCancelledReason.
+  ///
+  /// In de, this message translates to:
+  /// **'Storniert: {reason}'**
+  String invCancelledReason(String reason);
+
+  /// No description provided for @invNoticeNewDue.
+  ///
+  /// In de, this message translates to:
+  /// **'{amount}, neue Frist {date}'**
+  String invNoticeNewDue(String amount, String date);
+
+  /// No description provided for @invCustomerMissing.
+  ///
+  /// In de, this message translates to:
+  /// **'Kundendaten fehlen.'**
+  String get invCustomerMissing;
+
+  /// No description provided for @invCreditNoteCreated.
+  ///
+  /// In de, this message translates to:
+  /// **'Stornorechnung {number} erstellt.'**
+  String invCreditNoteCreated(String number);
+
+  /// No description provided for @commonView.
+  ///
+  /// In de, this message translates to:
+  /// **'Ansehen'**
+  String get commonView;
+
+  /// No description provided for @invCorrectTitle.
+  ///
+  /// In de, this message translates to:
+  /// **'{number} korrigieren'**
+  String invCorrectTitle(String number);
+
+  /// No description provided for @invCancelTitle.
+  ///
+  /// In de, this message translates to:
+  /// **'{number} stornieren'**
+  String invCancelTitle(String number);
+
+  /// No description provided for @invCancelReasonLabel.
+  ///
+  /// In de, this message translates to:
+  /// **'Grund (steht auf der Stornorechnung)'**
+  String get invCancelReasonLabel;
+
+  /// No description provided for @invCancelRefundOn.
+  ///
+  /// In de, this message translates to:
+  /// **'Storno und Rückzahlung am'**
+  String get invCancelRefundOn;
+
+  /// No description provided for @invCancelOn.
+  ///
+  /// In de, this message translates to:
+  /// **'Storno am'**
+  String get invCancelOn;
+
+  /// No description provided for @invCancelPaidHint.
+  ///
+  /// In de, this message translates to:
+  /// **'Die Rechnung ist bezahlt: {amount} werden an diesem Tag als Rückzahlung gebucht (Einnahme und Umsatzsteuer sinken). Überweise den Betrag an den Kunden zurück.'**
+  String invCancelPaidHint(String amount);
+
+  /// No description provided for @invCancelOpenHint.
+  ///
+  /// In de, this message translates to:
+  /// **'Die Rechnung ist offen: es wird nichts gebucht. Laufende Mahnungen werden mit storniert.'**
+  String get invCancelOpenHint;
+
+  /// No description provided for @invCancelAndRewrite.
+  ///
+  /// In de, this message translates to:
+  /// **'Stornieren und neu schreiben'**
+  String get invCancelAndRewrite;
+
+  /// No description provided for @invCreateCreditNote.
+  ///
+  /// In de, this message translates to:
+  /// **'Stornorechnung erstellen'**
+  String get invCreateCreditNote;
+
+  /// No description provided for @invPaidTitle.
+  ///
+  /// In de, this message translates to:
+  /// **'{number} bezahlt'**
+  String invPaidTitle(String number);
+
+  /// No description provided for @invPaymentDate.
+  ///
+  /// In de, this message translates to:
+  /// **'Zahlungseingang'**
+  String get invPaymentDate;
+
+  /// No description provided for @invPaidWithDiscount.
+  ///
+  /// In de, this message translates to:
+  /// **'Mit Skonto bezahlt?'**
+  String get invPaidWithDiscount;
+
+  /// No description provided for @invDiscountDetail.
+  ///
+  /// In de, this message translates to:
+  /// **'{rate} = {amount}, Frist bis {date}'**
+  String invDiscountDetail(String rate, String amount, String date);
+
+  /// No description provided for @invCostsPaid.
+  ///
+  /// In de, this message translates to:
+  /// **'Mahnkosten und Zinsen mitbezahlt?'**
+  String get invCostsPaid;
+
+  /// No description provided for @invCostsDetail.
+  ///
+  /// In de, this message translates to:
+  /// **'{amount} aus der {title}, nicht umsatzsteuerbar'**
+  String invCostsDetail(String amount, String title);
+
+  /// No description provided for @invBookAsPaid.
+  ///
+  /// In de, this message translates to:
+  /// **'Als bezahlt buchen'**
+  String get invBookAsPaid;
+
+  /// No description provided for @invOnlyDraftsDeletable.
+  ///
+  /// In de, this message translates to:
+  /// **'Nur Entwürfe können gelöscht werden.'**
+  String get invOnlyDraftsDeletable;
+
+  /// No description provided for @invTitle.
+  ///
+  /// In de, this message translates to:
+  /// **'Rechnungen'**
+  String get invTitle;
+
+  /// No description provided for @invCustomers.
+  ///
+  /// In de, this message translates to:
+  /// **'Kunden'**
+  String get invCustomers;
+
+  /// No description provided for @invPickCustomerLeft.
+  ///
+  /// In de, this message translates to:
+  /// **'Wähle links einen Kunden aus.'**
+  String get invPickCustomerLeft;
+
+  /// No description provided for @invNew.
+  ///
+  /// In de, this message translates to:
+  /// **'Neue Rechnung'**
+  String get invNew;
+
+  /// No description provided for @invEmptyTitle.
+  ///
+  /// In de, this message translates to:
+  /// **'Keine Rechnungen'**
+  String get invEmptyTitle;
+
+  /// No description provided for @invEmptyText.
+  ///
+  /// In de, this message translates to:
+  /// **'Schreibe deine erste Rechnung – die Pflichtangaben prüft die App für dich mit.'**
+  String get invEmptyText;
+
+  /// No description provided for @invWrite.
+  ///
+  /// In de, this message translates to:
+  /// **'Rechnung schreiben'**
+  String get invWrite;
+
+  /// No description provided for @invOpenHint.
+  ///
+  /// In de, this message translates to:
+  /// **'Gestellt und noch nicht bezahlt'**
+  String get invOpenHint;
+
+  /// No description provided for @invOverdueCount.
+  ///
+  /// In de, this message translates to:
+  /// **'{count, plural, =1{1 Rechnung überfällig – mahnen?} other{{count} Rechnungen überfällig – mahnen?}}'**
+  String invOverdueCount(int count);
+
+  /// No description provided for @invQuotes.
+  ///
+  /// In de, this message translates to:
+  /// **'Angebote'**
+  String get invQuotes;
+
+  /// No description provided for @invArticles.
+  ///
+  /// In de, this message translates to:
+  /// **'Artikel'**
+  String get invArticles;
+
+  /// No description provided for @invStatusOverdue.
+  ///
+  /// In de, this message translates to:
+  /// **'Überfällig'**
+  String get invStatusOverdue;
+
+  /// No description provided for @invStatusPaid.
+  ///
+  /// In de, this message translates to:
+  /// **'Bezahlt'**
+  String get invStatusPaid;
+
+  /// No description provided for @invStatusCancelled.
+  ///
+  /// In de, this message translates to:
+  /// **'Storniert'**
+  String get invStatusCancelled;
+
+  /// No description provided for @invStatusCreditNote.
+  ///
+  /// In de, this message translates to:
+  /// **'Storno'**
+  String get invStatusCreditNote;
+
+  /// No description provided for @invUnknownCustomer.
+  ///
+  /// In de, this message translates to:
+  /// **'Unbekannter Kunde'**
+  String get invUnknownCustomer;
+
+  /// No description provided for @invCreditNoteFor.
+  ///
+  /// In de, this message translates to:
+  /// **'Storno zu {number}'**
+  String invCreditNoteFor(String number);
+
+  /// No description provided for @invCancelledBy.
+  ///
+  /// In de, this message translates to:
+  /// **'storniert durch {number}'**
+  String invCancelledBy(String number);
+
+  /// No description provided for @commonMoreActions.
+  ///
+  /// In de, this message translates to:
+  /// **'Weitere Aktionen'**
+  String get commonMoreActions;
+
+  /// No description provided for @invMarkPaid.
+  ///
+  /// In de, this message translates to:
+  /// **'Als bezahlt markieren'**
+  String get invMarkPaid;
+
+  /// No description provided for @invCorrect.
+  ///
+  /// In de, this message translates to:
+  /// **'Korrigieren'**
+  String get invCorrect;
+
+  /// No description provided for @invCancel.
+  ///
+  /// In de, this message translates to:
+  /// **'Stornieren'**
+  String get invCancel;
+
+  /// No description provided for @invDeleteDraft.
+  ///
+  /// In de, this message translates to:
+  /// **'Entwurf löschen'**
+  String get invDeleteDraft;
+
+  /// No description provided for @invRemind.
+  ///
+  /// In de, this message translates to:
+  /// **'Erinnern'**
+  String get invRemind;
+
+  /// No description provided for @invDun.
+  ///
+  /// In de, this message translates to:
+  /// **'Mahnen'**
+  String get invDun;
+
+  /// No description provided for @invShowDunningHistory.
+  ///
+  /// In de, this message translates to:
+  /// **'Mahnverlauf anzeigen'**
+  String get invShowDunningHistory;
+
+  /// No description provided for @custEmptyTitle.
+  ///
+  /// In de, this message translates to:
+  /// **'Keine Kunden'**
+  String get custEmptyTitle;
+
+  /// No description provided for @custEmptyText.
+  ///
+  /// In de, this message translates to:
+  /// **'Lege deine Kunden einmal an – danach genügt beim Rechnungschreiben ein Tipp.'**
+  String get custEmptyText;
+
+  /// No description provided for @custAdd.
+  ///
+  /// In de, this message translates to:
+  /// **'Kunde anlegen'**
+  String get custAdd;
+
+  /// No description provided for @custNew.
+  ///
+  /// In de, this message translates to:
+  /// **'Neuer Kunde'**
+  String get custNew;
+
+  /// No description provided for @invDraft.
+  ///
+  /// In de, this message translates to:
+  /// **'Entwurf'**
+  String get invDraft;
+
+  /// No description provided for @invStatusOpen.
+  ///
+  /// In de, this message translates to:
+  /// **'Offen'**
+  String get invStatusOpen;
+
+  /// No description provided for @invDelete.
+  ///
+  /// In de, this message translates to:
+  /// **'Löschen'**
+  String get invDelete;
+
+  /// No description provided for @invPositions.
+  ///
+  /// In de, this message translates to:
+  /// **'{count, plural, =1{1 Position} other{{count} Positionen}}'**
+  String invPositions(int count);
+
+  /// No description provided for @invConfirmTitle.
+  ///
+  /// In de, this message translates to:
+  /// **'{subject} {verb}?'**
+  String invConfirmTitle(String subject, String verb);
+
+  /// No description provided for @invInvoiceNumber.
+  ///
+  /// In de, this message translates to:
+  /// **'Rechnung {number}'**
+  String invInvoiceNumber(String number);
+
+  /// No description provided for @invConfirmText.
+  ///
+  /// In de, this message translates to:
+  /// **'{subject} über {amount}. Das lässt sich nicht rückgängig machen.'**
+  String invConfirmText(String subject, String amount);
+
+  /// No description provided for @invCancelExplain.
+  ///
+  /// In de, this message translates to:
+  /// **'Die App erstellt eine Stornorechnung mit eigener Nummer über {amount}. Die Rechnung {number} bleibt unverändert erhalten und wird als storniert markiert.'**
+  String invCancelExplain(String amount, String number);
+
+  /// No description provided for @invCorrectExplain.
+  ///
+  /// In de, this message translates to:
+  /// **' Danach öffnet sich eine Kopie als neuer Entwurf.'**
+  String get invCorrectExplain;
+
+  /// No description provided for @invPaymentBooked.
+  ///
+  /// In de, this message translates to:
+  /// **'{amount} werden als Einnahme am Tag des Zahlungseingangs gebucht. Bitte nicht zusätzlich als Einnahmebeleg erfassen.'**
+  String invPaymentBooked(String amount);
+
+  /// No description provided for @invNoticeBadgeDue.
+  ///
+  /// In de, this message translates to:
+  /// **'{badge} · Frist {date}'**
+  String invNoticeBadgeDue(String badge, String date);
 }
 
 class _AppLocalizationsDelegate

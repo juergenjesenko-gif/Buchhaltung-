@@ -191,5 +191,261 @@
         "type": "String"
       }
     }
+  },
+  "commonCancel": "Abbrechen",
+  "invDunningHistoryTitle": "Mahnverlauf {number}",
+  "@invDunningHistoryTitle": {
+    "placeholders": {
+      "number": {
+        "type": "String"
+      }
+    }
+  },
+  "invInvoiceOf": "Rechnung vom {date}",
+  "@invInvoiceOf": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "invDueOn": "fällig {date}",
+  "@invDueOn": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "invNoticeOf": "{title} vom {date}",
+  "@invNoticeOf": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      },
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "invCancelledReason": "Storniert: {reason}",
+  "@invCancelledReason": {
+    "placeholders": {
+      "reason": {
+        "type": "String"
+      }
+    }
+  },
+  "invNoticeNewDue": "{amount}, neue Frist {date}",
+  "@invNoticeNewDue": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      },
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "invCustomerMissing": "Kundendaten fehlen.",
+  "invCreditNoteCreated": "Stornorechnung {number} erstellt.",
+  "@invCreditNoteCreated": {
+    "placeholders": {
+      "number": {
+        "type": "String"
+      }
+    }
+  },
+  "commonView": "Ansehen",
+  "invCorrectTitle": "{number} korrigieren",
+  "@invCorrectTitle": {
+    "placeholders": {
+      "number": {
+        "type": "String"
+      }
+    }
+  },
+  "invCancelTitle": "{number} stornieren",
+  "@invCancelTitle": {
+    "placeholders": {
+      "number": {
+        "type": "String"
+      }
+    }
+  },
+  "invCancelReasonLabel": "Grund (steht auf der Stornorechnung)",
+  "invCancelRefundOn": "Storno und Rückzahlung am",
+  "invCancelOn": "Storno am",
+  "invCancelPaidHint": "Die Rechnung ist bezahlt: {amount} werden an diesem Tag als Rückzahlung gebucht (Einnahme und Umsatzsteuer sinken). Überweise den Betrag an den Kunden zurück.",
+  "@invCancelPaidHint": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "invCancelOpenHint": "Die Rechnung ist offen: es wird nichts gebucht. Laufende Mahnungen werden mit storniert.",
+  "invCancelAndRewrite": "Stornieren und neu schreiben",
+  "invCreateCreditNote": "Stornorechnung erstellen",
+  "invPaidTitle": "{number} bezahlt",
+  "@invPaidTitle": {
+    "placeholders": {
+      "number": {
+        "type": "String"
+      }
+    }
+  },
+  "invPaymentDate": "Zahlungseingang",
+  "invPaidWithDiscount": "Mit Skonto bezahlt?",
+  "invDiscountDetail": "{rate} = {amount}, Frist bis {date}",
+  "@invDiscountDetail": {
+    "placeholders": {
+      "rate": {
+        "type": "String"
+      },
+      "amount": {
+        "type": "String"
+      },
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "invCostsPaid": "Mahnkosten und Zinsen mitbezahlt?",
+  "invCostsDetail": "{amount} aus der {title}, nicht umsatzsteuerbar",
+  "@invCostsDetail": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      },
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "invBookAsPaid": "Als bezahlt buchen",
+  "invOnlyDraftsDeletable": "Nur Entwürfe können gelöscht werden.",
+  "invTitle": "Rechnungen",
+  "invCustomers": "Kunden",
+  "invPickCustomerLeft": "Wähle links einen Kunden aus.",
+  "invNew": "Neue Rechnung",
+  "invEmptyTitle": "Keine Rechnungen",
+  "invEmptyText": "Schreibe deine erste Rechnung – die Pflichtangaben prüft die App für dich mit.",
+  "invWrite": "Rechnung schreiben",
+  "invOpenHint": "Gestellt und noch nicht bezahlt",
+  "invOverdueCount": "{count, plural, =1{1 Rechnung überfällig – mahnen?} other{{count} Rechnungen überfällig – mahnen?}}",
+  "@invOverdueCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "invQuotes": "Angebote",
+  "invArticles": "Artikel",
+  "invStatusOverdue": "Überfällig",
+  "invStatusPaid": "Bezahlt",
+  "invStatusCancelled": "Storniert",
+  "invStatusCreditNote": "Storno",
+  "invUnknownCustomer": "Unbekannter Kunde",
+  "invCreditNoteFor": "Storno zu {number}",
+  "@invCreditNoteFor": {
+    "placeholders": {
+      "number": {
+        "type": "String"
+      }
+    }
+  },
+  "invCancelledBy": "storniert durch {number}",
+  "@invCancelledBy": {
+    "placeholders": {
+      "number": {
+        "type": "String"
+      }
+    }
+  },
+  "commonMoreActions": "Weitere Aktionen",
+  "invMarkPaid": "Als bezahlt markieren",
+  "invCorrect": "Korrigieren",
+  "invCancel": "Stornieren",
+  "invDeleteDraft": "Entwurf löschen",
+  "invRemind": "Erinnern",
+  "invDun": "Mahnen",
+  "invShowDunningHistory": "Mahnverlauf anzeigen",
+  "custEmptyTitle": "Keine Kunden",
+  "custEmptyText": "Lege deine Kunden einmal an – danach genügt beim Rechnungschreiben ein Tipp.",
+  "custAdd": "Kunde anlegen",
+  "custNew": "Neuer Kunde",
+  "invDraft": "Entwurf",
+  "invStatusOpen": "Offen",
+  "invDelete": "Löschen",
+  "invPositions": "{count, plural, =1{1 Position} other{{count} Positionen}}",
+  "@invPositions": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "invConfirmTitle": "{subject} {verb}?",
+  "@invConfirmTitle": {
+    "placeholders": {
+      "subject": {
+        "type": "String"
+      },
+      "verb": {
+        "type": "String"
+      }
+    }
+  },
+  "invInvoiceNumber": "Rechnung {number}",
+  "@invInvoiceNumber": {
+    "placeholders": {
+      "number": {
+        "type": "String"
+      }
+    }
+  },
+  "invConfirmText": "{subject} über {amount}. Das lässt sich nicht rückgängig machen.",
+  "@invConfirmText": {
+    "placeholders": {
+      "subject": {
+        "type": "String"
+      },
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "invCancelExplain": "Die App erstellt eine Stornorechnung mit eigener Nummer über {amount}. Die Rechnung {number} bleibt unverändert erhalten und wird als storniert markiert.",
+  "@invCancelExplain": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      },
+      "number": {
+        "type": "String"
+      }
+    }
+  },
+  "invCorrectExplain": " Danach öffnet sich eine Kopie als neuer Entwurf.",
+  "invPaymentBooked": "{amount} werden als Einnahme am Tag des Zahlungseingangs gebucht. Bitte nicht zusätzlich als Einnahmebeleg erfassen.",
+  "@invPaymentBooked": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "invNoticeBadgeDue": "{badge} · Frist {date}",
+  "@invNoticeBadgeDue": {
+    "placeholders": {
+      "badge": {
+        "type": "String"
+      },
+      "date": {
+        "type": "String"
+      }
+    }
   }
 }
