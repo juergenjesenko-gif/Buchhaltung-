@@ -55,7 +55,8 @@ Die App hilft dir bei vier Dingen:
 - **Rechnungen schreiben**, die alle Pflichtangaben enthalten
 - **Daten übergeben** an deine Steuerberatung, in einem Format, das sie einlesen kann
 
-Kein Konto, keine Anmeldung, kein Abo. Alles liegt auf deinem Telefon.
+Kein Konto, keine Anmeldung. Alles liegt auf deinem Telefon. Nach 14 Tagen
+Test brauchst du zum Buchen ein Abo (Basis oder Pro, siehe „Abo: Basis und Pro“).
 
 ---
 
@@ -997,8 +998,7 @@ PDF. E-Rechnungen ausstellen und über das Teilen-Blatt zustellen geht ab
 
 Fehlt etwas, das die E-Rechnung braucht, steht im Betrachter z. B. „Ohne
 XRechnung – es fehlt: Leitweg-ID der Kundin“. Ergänze es in den Stammdaten
-oder bei der Kundin und schau die Rechnung noch einmal an. E-Rechnungen
-ausstellen gehört zu **Pro**; ohne Pro bleibt es beim normalen PDF.
+oder bei der Kundin und schau die Rechnung noch einmal an.
 
 ### Rechnung versenden
 

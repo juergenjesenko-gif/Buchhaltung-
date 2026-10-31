@@ -31,6 +31,8 @@ PAGES = [
     ("datenschutz.html", "DATENSCHUTZ.md", "Datenschutz"),
     ("impressum.html", "IMPRESSUM.md", "Impressum"),
     ("nutzungsbedingungen.html", "NUTZUNGSBEDINGUNGEN.md", "Nutzungsbedingungen"),
+    # Anleitung der wichtigsten Funktionen (Wunsch Auftraggeber 2026-10-31).
+    ("anleitung.html", "../ANLEITUNG.md", "Anleitung"),
 ]
 COUNTRY = {"AT": "Österreich", "DE": "Deutschland"}
 
@@ -107,7 +109,10 @@ def blocks(lines: list[str], source: str) -> str:
         m = re.match(r"^(#{1,4})\s+(.*)$", s)
         if m:
             level = min(len(m.group(1)) + 0, 4)
-            out.append(f"<h{level}>{inline(m.group(2), source)}</h{level}>")
+            # Sprungmarke wie bei GitHub („## 1. Erste Einrichtung“ →
+            # „1-erste-einrichtung“), damit Inhaltsverzeichnisse funktionieren.
+            anker = re.sub(r"[^\w\- ]", "", m.group(2).lower()).strip().replace(" ", "-")
+            out.append(f'<h{level} id="{anker}">{inline(m.group(2), source)}</h{level}>')
             i += 1
             continue
         if s.startswith("|"):
@@ -192,7 +197,7 @@ def convert(md: str, source: str) -> str:
     return "\n".join(x for x in out if x)
 
 
-NAV = [("index.html", "Startseite"), ("support.html", "Support"),
+NAV = [("index.html", "Startseite"), ("anleitung.html", "Anleitung"), ("support.html", "Support"),
        ("datenschutz.html", "Datenschutz"), ("impressum.html", "Impressum"), ("nutzungsbedingungen.html", "Nutzungsbedingungen")]
 
 

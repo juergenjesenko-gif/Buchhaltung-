@@ -1,6 +1,6 @@
 # Spezifikation – Buchhaltung
 
-**Dokumentversion:** 2.30 · **App-Version:** 0.39.5 · **Stand:** 2026-10-28
+**Dokumentversion:** 2.31 · **App-Version:** 0.39.5 · **Stand:** 2026-10-28
 **Status:** Testbuild 0.21.0 (Schema 23); Store-Start offen, siehe Abschnitt 11 und 14
 
 > Das **Zielbild** des Produkts steht im [`LASTENHEFT.md`](LASTENHEFT.md); dieses
@@ -1632,6 +1632,7 @@ Vorsteuerabzug in Promille; Fundstelle Privatanteil; Fundstelle Vorsteuer.
 
 | Version | Datum | App-Version | Änderung |
 |---|---|---|---|
+| 2.31 | 2026-10-31 | 0.39.5 | Ohne Codeänderung: Anleitung der wichtigsten Funktionen als `docs/ANLEITUNG.md` → jenibucht.com/anleitung.html (Wunsch Auftraggeber); Handbuch: „kein Abo“ und „E-Rechnung nur Pro“ berichtigt. |
 | 2.30 | 2026-10-31 | 0.39.5 | FA-13.2: Basis liest 5 Belege je Monat gratis aus (`spec.basis_free_scans`). |
 | 2.29 | 2026-10-30 | 0.39.5 | Ohne Codeänderung: Prüfpunkte P-IE-01 bis P-IE-04 (Steuerwerte Irland). |
 | 2.28 | 2026-10-28 | 0.39.5 | FA-1.20: Hauswährung aus dem Land (AP2), ohne Verhaltensänderung für AT/DE. |

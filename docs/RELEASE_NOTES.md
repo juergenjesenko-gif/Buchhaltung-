@@ -34,6 +34,7 @@ nächsten Versionssprung in den neuen Eintrag.
 
 | Art | Änderung | Bezug | Commit |
 |---|---|---|---|
+| Webseite | Neue Seite „Anleitung“ mit den wichtigsten Funktionen (jenibucht.com/anleitung.html), verlinkt in Kopf und Fuß | – | – |
 | Neu | Basis: 5 Belege je Monat gratis automatisch auslesen, Zähler unter dem Knopf | FA-13.2 | – |
 | Korrektur | Krumme Steuersätze mit Komma („10,7 %“ statt „10.7 %“); Formate für en_GB/en_IE/en_US vorbereitet | FA-1.20 | – |
 | Neu | Gerüst für Mehrsprachigkeit (Deutsch/Englisch), Bestätigungen und Ersteinrichtung umgestellt; Oberfläche bleibt deutsch | FA-1.20, L-34.1 | – |
