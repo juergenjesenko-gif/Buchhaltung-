@@ -526,4 +526,265 @@ class AppLocalizationsEn extends AppLocalizations {
   String invNoticeBadgeDue(String badge, String date) {
     return '$badge · due $date';
   }
+
+  @override
+  String get ieErrCustomer => 'Choose a customer';
+
+  @override
+  String get ieErrAddress => 'Customer\'s full address';
+
+  @override
+  String get ieErrOneLine => 'At least one line';
+
+  @override
+  String get ieErrDescription => 'A description for every line';
+
+  @override
+  String get ieDeliveryDate => 'Date of supply';
+
+  @override
+  String get ieErrDiscountMax => 'Discount at most 100%';
+
+  @override
+  String get ieErrSkonto => 'Early payment discount needs days and percent';
+
+  @override
+  String ieErrProfile(String field) {
+    return 'Business details: $field';
+  }
+
+  @override
+  String ieMissing(String items) {
+    return 'Still missing: $items';
+  }
+
+  @override
+  String get ieVatIdUnconfirmed => 'Customer\'s VAT number not confirmed';
+
+  @override
+  String get ieIssueAnyway => 'Issue anyway';
+
+  @override
+  String get ieDraftNotSavable => 'Draft cannot be saved yet';
+
+  @override
+  String ieDraftMissing(String items) {
+    return 'Still missing: $items. The invoice cannot be saved without these details.';
+  }
+
+  @override
+  String get commonDiscard => 'Discard';
+
+  @override
+  String get commonKeepEditing => 'Keep editing';
+
+  @override
+  String ieCreditNoteInfo(String number) {
+    return 'Credit note for $number: amounts with reversed sign, cannot be changed.';
+  }
+
+  @override
+  String get ieIssuedInfo =>
+      'This invoice has been issued and cannot be changed. To change it, tap ⋮ → Correct in the invoice list.';
+
+  @override
+  String get ieRecipient => 'Recipient';
+
+  @override
+  String get commonChoose => 'Choose';
+
+  @override
+  String get ieNoCustomer => 'No customer chosen yet.';
+
+  @override
+  String get ieEditCustomer => 'Edit customer';
+
+  @override
+  String ieAddressNeeded(String limit) {
+    return 'For an invoice above the small-amount limit of $limit the customer needs a full address.';
+  }
+
+  @override
+  String get iePeriod => 'Dates';
+
+  @override
+  String get ieInvoiceDate => 'Invoice date';
+
+  @override
+  String ieRequiredBy(String ref) {
+    return 'Required under $ref';
+  }
+
+  @override
+  String get ieDueDate => 'Due on';
+
+  @override
+  String get ieLines => 'Lines';
+
+  @override
+  String get ieAddLine => 'Add line';
+
+  @override
+  String get ieFromItems => 'From items and suggestions';
+
+  @override
+  String get ieNotes => 'Notes';
+
+  @override
+  String get ieNotesHint => 'Shown below the lines on the invoice';
+
+  @override
+  String ieMissingBeforeIssue(String items) {
+    return 'Still missing before issuing: $items.';
+  }
+
+  @override
+  String get ieFinish => 'Close';
+
+  @override
+  String get iePdfView => 'View PDF';
+
+  @override
+  String get ieIssue => 'Issue invoice';
+
+  @override
+  String get ieTotal => 'Total';
+
+  @override
+  String get ieLinesTotal => 'Lines total';
+
+  @override
+  String ieDiscountSuffix(String suffix) {
+    return 'Discount$suffix';
+  }
+
+  @override
+  String ieShippingSuffix(String suffix) {
+    return 'Shipping$suffix';
+  }
+
+  @override
+  String get ieNet => 'Net';
+
+  @override
+  String ieVatOn(String rate, String net) {
+    return 'VAT $rate on $net';
+  }
+
+  @override
+  String get ieGrandTotal => 'Total amount';
+
+  @override
+  String ieSkontoPercent(String percent) {
+    return 'Early payment discount $percent';
+  }
+
+  @override
+  String ieNoteOnInvoice(String note) {
+    return 'The invoice shows: \"$note\"';
+  }
+
+  @override
+  String get ieExtras => 'Discount, shipping, early payment';
+
+  @override
+  String get ieWholeDiscount => 'Discount on the whole invoice';
+
+  @override
+  String get ieWholeDiscountHelp =>
+      'Split proportionally across several VAT rates.';
+
+  @override
+  String get ieAddShipping => 'Add shipping';
+
+  @override
+  String get ieShippingNet => 'Shipping net';
+
+  @override
+  String get ieShippingVat => 'VAT on shipping';
+
+  @override
+  String get ieShippingVatHelp =>
+      'Automatically like the goods – proportional for several rates';
+
+  @override
+  String get ieLikeMain => 'like main supply (automatic)';
+
+  @override
+  String get ieOfferSkonto => 'Offer early payment discount';
+
+  @override
+  String get ieOfferSkontoHelp => 'A reduction if your customer pays quickly';
+
+  @override
+  String get ieSkonto => 'Discount';
+
+  @override
+  String get ieWithin => 'within';
+
+  @override
+  String get ieDays => 'days';
+
+  @override
+  String get ieNotSet => 'Not set';
+
+  @override
+  String ieLineN(int index) {
+    return 'Line $index';
+  }
+
+  @override
+  String get ieRemoveLine => 'Remove line';
+
+  @override
+  String get ieDescription => 'Description';
+
+  @override
+  String get ieQuantity => 'Quantity';
+
+  @override
+  String get ieUnit => 'Unit';
+
+  @override
+  String get ieUnitPrice => 'Unit price net';
+
+  @override
+  String get ieAddDiscount => 'Add discount';
+
+  @override
+  String ieLineDiscount(int index) {
+    return 'Discount on line $index';
+  }
+
+  @override
+  String get ieLineDiscountHelp => 'Reduces only this line.';
+
+  @override
+  String get ieVatRate => 'VAT rate';
+
+  @override
+  String get ieChooseCustomer => 'Choose customer';
+
+  @override
+  String get ieNoCustomers => 'No customers yet.';
+
+  @override
+  String get ieNewCustomer => 'Add new customer';
+
+  @override
+  String get ieChangeDiscount => 'Change discount';
+
+  @override
+  String get ieDiscount => 'Discount';
+
+  @override
+  String get commonRemove => 'Remove';
+
+  @override
+  String get commonApply => 'Apply';
+
+  @override
+  String ieDiscountLine(String percent, String amount) {
+    return 'Discount $percent= $amount';
+  }
 }

@@ -937,6 +937,462 @@ abstract class AppLocalizations {
   /// In de, this message translates to:
   /// **'{badge} · Frist {date}'**
   String invNoticeBadgeDue(String badge, String date);
+
+  /// No description provided for @ieErrCustomer.
+  ///
+  /// In de, this message translates to:
+  /// **'Kunde auswählen'**
+  String get ieErrCustomer;
+
+  /// No description provided for @ieErrAddress.
+  ///
+  /// In de, this message translates to:
+  /// **'Vollständige Anschrift des Kunden'**
+  String get ieErrAddress;
+
+  /// No description provided for @ieErrOneLine.
+  ///
+  /// In de, this message translates to:
+  /// **'Mindestens eine Position'**
+  String get ieErrOneLine;
+
+  /// No description provided for @ieErrDescription.
+  ///
+  /// In de, this message translates to:
+  /// **'Bezeichnung für jede Position'**
+  String get ieErrDescription;
+
+  /// No description provided for @ieDeliveryDate.
+  ///
+  /// In de, this message translates to:
+  /// **'Liefer-/Leistungsdatum'**
+  String get ieDeliveryDate;
+
+  /// No description provided for @ieErrDiscountMax.
+  ///
+  /// In de, this message translates to:
+  /// **'Rabatt höchstens 100 %'**
+  String get ieErrDiscountMax;
+
+  /// No description provided for @ieErrSkonto.
+  ///
+  /// In de, this message translates to:
+  /// **'Skonto mit Tagen und Prozent'**
+  String get ieErrSkonto;
+
+  /// No description provided for @ieErrProfile.
+  ///
+  /// In de, this message translates to:
+  /// **'Stammdaten: {field}'**
+  String ieErrProfile(String field);
+
+  /// No description provided for @ieMissing.
+  ///
+  /// In de, this message translates to:
+  /// **'Es fehlt noch: {items}'**
+  String ieMissing(String items);
+
+  /// No description provided for @ieVatIdUnconfirmed.
+  ///
+  /// In de, this message translates to:
+  /// **'UID des Kunden nicht bestätigt'**
+  String get ieVatIdUnconfirmed;
+
+  /// No description provided for @ieIssueAnyway.
+  ///
+  /// In de, this message translates to:
+  /// **'Trotzdem ausstellen'**
+  String get ieIssueAnyway;
+
+  /// No description provided for @ieDraftNotSavable.
+  ///
+  /// In de, this message translates to:
+  /// **'Entwurf noch nicht speicherbar'**
+  String get ieDraftNotSavable;
+
+  /// No description provided for @ieDraftMissing.
+  ///
+  /// In de, this message translates to:
+  /// **'Es fehlt noch: {items}. Ohne diese Angaben kann die Rechnung nicht gespeichert werden.'**
+  String ieDraftMissing(String items);
+
+  /// No description provided for @commonDiscard.
+  ///
+  /// In de, this message translates to:
+  /// **'Verwerfen'**
+  String get commonDiscard;
+
+  /// No description provided for @commonKeepEditing.
+  ///
+  /// In de, this message translates to:
+  /// **'Weiter bearbeiten'**
+  String get commonKeepEditing;
+
+  /// No description provided for @ieCreditNoteInfo.
+  ///
+  /// In de, this message translates to:
+  /// **'Stornorechnung zu {number}: Beträge mit umgekehrtem Vorzeichen, unveränderlich.'**
+  String ieCreditNoteInfo(String number);
+
+  /// No description provided for @ieIssuedInfo.
+  ///
+  /// In de, this message translates to:
+  /// **'Diese Rechnung ist gestellt und kann nicht mehr geändert werden. Zum Ändern in der Rechnungsliste ⋮ → Korrigieren tippen.'**
+  String get ieIssuedInfo;
+
+  /// No description provided for @ieRecipient.
+  ///
+  /// In de, this message translates to:
+  /// **'Empfänger'**
+  String get ieRecipient;
+
+  /// No description provided for @commonChoose.
+  ///
+  /// In de, this message translates to:
+  /// **'Wählen'**
+  String get commonChoose;
+
+  /// No description provided for @ieNoCustomer.
+  ///
+  /// In de, this message translates to:
+  /// **'Noch kein Kunde ausgewählt.'**
+  String get ieNoCustomer;
+
+  /// No description provided for @ieEditCustomer.
+  ///
+  /// In de, this message translates to:
+  /// **'Kunde bearbeiten'**
+  String get ieEditCustomer;
+
+  /// No description provided for @ieAddressNeeded.
+  ///
+  /// In de, this message translates to:
+  /// **'Für eine Rechnung über der Kleinbetragsgrenze von {limit} braucht der Kunde eine vollständige Anschrift.'**
+  String ieAddressNeeded(String limit);
+
+  /// No description provided for @iePeriod.
+  ///
+  /// In de, this message translates to:
+  /// **'Zeitraum'**
+  String get iePeriod;
+
+  /// No description provided for @ieInvoiceDate.
+  ///
+  /// In de, this message translates to:
+  /// **'Rechnungsdatum'**
+  String get ieInvoiceDate;
+
+  /// No description provided for @ieRequiredBy.
+  ///
+  /// In de, this message translates to:
+  /// **'Pflichtangabe nach {ref}'**
+  String ieRequiredBy(String ref);
+
+  /// No description provided for @ieDueDate.
+  ///
+  /// In de, this message translates to:
+  /// **'Fällig am'**
+  String get ieDueDate;
+
+  /// No description provided for @ieLines.
+  ///
+  /// In de, this message translates to:
+  /// **'Positionen'**
+  String get ieLines;
+
+  /// No description provided for @ieAddLine.
+  ///
+  /// In de, this message translates to:
+  /// **'Position hinzufügen'**
+  String get ieAddLine;
+
+  /// No description provided for @ieFromItems.
+  ///
+  /// In de, this message translates to:
+  /// **'Aus Artikeln und Vorschlägen'**
+  String get ieFromItems;
+
+  /// No description provided for @ieNotes.
+  ///
+  /// In de, this message translates to:
+  /// **'Anmerkungen'**
+  String get ieNotes;
+
+  /// No description provided for @ieNotesHint.
+  ///
+  /// In de, this message translates to:
+  /// **'Erscheint unter den Positionen auf der Rechnung'**
+  String get ieNotesHint;
+
+  /// No description provided for @ieMissingBeforeIssue.
+  ///
+  /// In de, this message translates to:
+  /// **'Vor dem Ausstellen fehlt noch: {items}.'**
+  String ieMissingBeforeIssue(String items);
+
+  /// No description provided for @ieFinish.
+  ///
+  /// In de, this message translates to:
+  /// **'Beenden'**
+  String get ieFinish;
+
+  /// No description provided for @iePdfView.
+  ///
+  /// In de, this message translates to:
+  /// **'PDF ansehen'**
+  String get iePdfView;
+
+  /// No description provided for @ieIssue.
+  ///
+  /// In de, this message translates to:
+  /// **'Rechnung ausstellen'**
+  String get ieIssue;
+
+  /// No description provided for @ieTotal.
+  ///
+  /// In de, this message translates to:
+  /// **'Summe'**
+  String get ieTotal;
+
+  /// No description provided for @ieLinesTotal.
+  ///
+  /// In de, this message translates to:
+  /// **'Summe Positionen'**
+  String get ieLinesTotal;
+
+  /// No description provided for @ieDiscountSuffix.
+  ///
+  /// In de, this message translates to:
+  /// **'Rabatt{suffix}'**
+  String ieDiscountSuffix(String suffix);
+
+  /// No description provided for @ieShippingSuffix.
+  ///
+  /// In de, this message translates to:
+  /// **'Versand{suffix}'**
+  String ieShippingSuffix(String suffix);
+
+  /// No description provided for @ieNet.
+  ///
+  /// In de, this message translates to:
+  /// **'Netto'**
+  String get ieNet;
+
+  /// No description provided for @ieVatOn.
+  ///
+  /// In de, this message translates to:
+  /// **'USt {rate} auf {net}'**
+  String ieVatOn(String rate, String net);
+
+  /// No description provided for @ieGrandTotal.
+  ///
+  /// In de, this message translates to:
+  /// **'Gesamtbetrag'**
+  String get ieGrandTotal;
+
+  /// No description provided for @ieSkontoPercent.
+  ///
+  /// In de, this message translates to:
+  /// **'Skonto {percent}'**
+  String ieSkontoPercent(String percent);
+
+  /// No description provided for @ieNoteOnInvoice.
+  ///
+  /// In de, this message translates to:
+  /// **'Auf der Rechnung erscheint: \"{note}\"'**
+  String ieNoteOnInvoice(String note);
+
+  /// No description provided for @ieExtras.
+  ///
+  /// In de, this message translates to:
+  /// **'Rabatt, Versand, Skonto'**
+  String get ieExtras;
+
+  /// No description provided for @ieWholeDiscount.
+  ///
+  /// In de, this message translates to:
+  /// **'Rabatt auf die ganze Rechnung'**
+  String get ieWholeDiscount;
+
+  /// No description provided for @ieWholeDiscountHelp.
+  ///
+  /// In de, this message translates to:
+  /// **'Wird bei mehreren Steuersätzen anteilig aufgeteilt.'**
+  String get ieWholeDiscountHelp;
+
+  /// No description provided for @ieAddShipping.
+  ///
+  /// In de, this message translates to:
+  /// **'Versandkosten hinzufügen'**
+  String get ieAddShipping;
+
+  /// No description provided for @ieShippingNet.
+  ///
+  /// In de, this message translates to:
+  /// **'Versandkosten netto'**
+  String get ieShippingNet;
+
+  /// No description provided for @ieShippingVat.
+  ///
+  /// In de, this message translates to:
+  /// **'Umsatzsteuer auf Versand'**
+  String get ieShippingVat;
+
+  /// No description provided for @ieShippingVatHelp.
+  ///
+  /// In de, this message translates to:
+  /// **'Automatisch wie die Waren – bei mehreren Sätzen anteilig'**
+  String get ieShippingVatHelp;
+
+  /// No description provided for @ieLikeMain.
+  ///
+  /// In de, this message translates to:
+  /// **'wie Hauptleistung (automatisch)'**
+  String get ieLikeMain;
+
+  /// No description provided for @ieOfferSkonto.
+  ///
+  /// In de, this message translates to:
+  /// **'Skonto anbieten'**
+  String get ieOfferSkonto;
+
+  /// No description provided for @ieOfferSkontoHelp.
+  ///
+  /// In de, this message translates to:
+  /// **'Nachlass, wenn deine Kundin schnell zahlt'**
+  String get ieOfferSkontoHelp;
+
+  /// No description provided for @ieSkonto.
+  ///
+  /// In de, this message translates to:
+  /// **'Skonto'**
+  String get ieSkonto;
+
+  /// No description provided for @ieWithin.
+  ///
+  /// In de, this message translates to:
+  /// **'innerhalb'**
+  String get ieWithin;
+
+  /// No description provided for @ieDays.
+  ///
+  /// In de, this message translates to:
+  /// **'Tage'**
+  String get ieDays;
+
+  /// No description provided for @ieNotSet.
+  ///
+  /// In de, this message translates to:
+  /// **'Nicht gesetzt'**
+  String get ieNotSet;
+
+  /// No description provided for @ieLineN.
+  ///
+  /// In de, this message translates to:
+  /// **'Position {index}'**
+  String ieLineN(int index);
+
+  /// No description provided for @ieRemoveLine.
+  ///
+  /// In de, this message translates to:
+  /// **'Position entfernen'**
+  String get ieRemoveLine;
+
+  /// No description provided for @ieDescription.
+  ///
+  /// In de, this message translates to:
+  /// **'Bezeichnung'**
+  String get ieDescription;
+
+  /// No description provided for @ieQuantity.
+  ///
+  /// In de, this message translates to:
+  /// **'Menge'**
+  String get ieQuantity;
+
+  /// No description provided for @ieUnit.
+  ///
+  /// In de, this message translates to:
+  /// **'Einheit'**
+  String get ieUnit;
+
+  /// No description provided for @ieUnitPrice.
+  ///
+  /// In de, this message translates to:
+  /// **'Einzelpreis netto'**
+  String get ieUnitPrice;
+
+  /// No description provided for @ieAddDiscount.
+  ///
+  /// In de, this message translates to:
+  /// **'Rabatt hinzufügen'**
+  String get ieAddDiscount;
+
+  /// No description provided for @ieLineDiscount.
+  ///
+  /// In de, this message translates to:
+  /// **'Rabatt auf Position {index}'**
+  String ieLineDiscount(int index);
+
+  /// No description provided for @ieLineDiscountHelp.
+  ///
+  /// In de, this message translates to:
+  /// **'Mindert nur diese Position.'**
+  String get ieLineDiscountHelp;
+
+  /// No description provided for @ieVatRate.
+  ///
+  /// In de, this message translates to:
+  /// **'Umsatzsteuersatz'**
+  String get ieVatRate;
+
+  /// No description provided for @ieChooseCustomer.
+  ///
+  /// In de, this message translates to:
+  /// **'Kunde wählen'**
+  String get ieChooseCustomer;
+
+  /// No description provided for @ieNoCustomers.
+  ///
+  /// In de, this message translates to:
+  /// **'Noch keine Kunden angelegt.'**
+  String get ieNoCustomers;
+
+  /// No description provided for @ieNewCustomer.
+  ///
+  /// In de, this message translates to:
+  /// **'Neuen Kunden anlegen'**
+  String get ieNewCustomer;
+
+  /// No description provided for @ieChangeDiscount.
+  ///
+  /// In de, this message translates to:
+  /// **'Rabatt ändern'**
+  String get ieChangeDiscount;
+
+  /// No description provided for @ieDiscount.
+  ///
+  /// In de, this message translates to:
+  /// **'Rabatt'**
+  String get ieDiscount;
+
+  /// No description provided for @commonRemove.
+  ///
+  /// In de, this message translates to:
+  /// **'Entfernen'**
+  String get commonRemove;
+
+  /// No description provided for @commonApply.
+  ///
+  /// In de, this message translates to:
+  /// **'Übernehmen'**
+  String get commonApply;
+
+  /// No description provided for @ieDiscountLine.
+  ///
+  /// In de, this message translates to:
+  /// **'Rabatt {percent}= {amount}'**
+  String ieDiscountLine(String percent, String amount);
 }
 
 class _AppLocalizationsDelegate

@@ -447,5 +447,192 @@
         "type": "String"
       }
     }
+  },
+  "ieErrCustomer": "Kunde auswählen",
+  "ieErrAddress": "Vollständige Anschrift des Kunden",
+  "ieErrOneLine": "Mindestens eine Position",
+  "ieErrDescription": "Bezeichnung für jede Position",
+  "ieDeliveryDate": "Liefer-/Leistungsdatum",
+  "ieErrDiscountMax": "Rabatt höchstens 100 %",
+  "ieErrSkonto": "Skonto mit Tagen und Prozent",
+  "ieErrProfile": "Stammdaten: {field}",
+  "@ieErrProfile": {
+    "placeholders": {
+      "field": {
+        "type": "String"
+      }
+    }
+  },
+  "ieMissing": "Es fehlt noch: {items}",
+  "@ieMissing": {
+    "placeholders": {
+      "items": {
+        "type": "String"
+      }
+    }
+  },
+  "ieVatIdUnconfirmed": "UID des Kunden nicht bestätigt",
+  "ieIssueAnyway": "Trotzdem ausstellen",
+  "ieDraftNotSavable": "Entwurf noch nicht speicherbar",
+  "ieDraftMissing": "Es fehlt noch: {items}. Ohne diese Angaben kann die Rechnung nicht gespeichert werden.",
+  "@ieDraftMissing": {
+    "placeholders": {
+      "items": {
+        "type": "String"
+      }
+    }
+  },
+  "commonDiscard": "Verwerfen",
+  "commonKeepEditing": "Weiter bearbeiten",
+  "ieCreditNoteInfo": "Stornorechnung zu {number}: Beträge mit umgekehrtem Vorzeichen, unveränderlich.",
+  "@ieCreditNoteInfo": {
+    "placeholders": {
+      "number": {
+        "type": "String"
+      }
+    }
+  },
+  "ieIssuedInfo": "Diese Rechnung ist gestellt und kann nicht mehr geändert werden. Zum Ändern in der Rechnungsliste ⋮ → Korrigieren tippen.",
+  "ieRecipient": "Empfänger",
+  "commonChoose": "Wählen",
+  "ieNoCustomer": "Noch kein Kunde ausgewählt.",
+  "ieEditCustomer": "Kunde bearbeiten",
+  "ieAddressNeeded": "Für eine Rechnung über der Kleinbetragsgrenze von {limit} braucht der Kunde eine vollständige Anschrift.",
+  "@ieAddressNeeded": {
+    "placeholders": {
+      "limit": {
+        "type": "String"
+      }
+    }
+  },
+  "iePeriod": "Zeitraum",
+  "ieInvoiceDate": "Rechnungsdatum",
+  "ieRequiredBy": "Pflichtangabe nach {ref}",
+  "@ieRequiredBy": {
+    "placeholders": {
+      "ref": {
+        "type": "String"
+      }
+    }
+  },
+  "ieDueDate": "Fällig am",
+  "ieLines": "Positionen",
+  "ieAddLine": "Position hinzufügen",
+  "ieFromItems": "Aus Artikeln und Vorschlägen",
+  "ieNotes": "Anmerkungen",
+  "ieNotesHint": "Erscheint unter den Positionen auf der Rechnung",
+  "ieMissingBeforeIssue": "Vor dem Ausstellen fehlt noch: {items}.",
+  "@ieMissingBeforeIssue": {
+    "placeholders": {
+      "items": {
+        "type": "String"
+      }
+    }
+  },
+  "ieFinish": "Beenden",
+  "iePdfView": "PDF ansehen",
+  "ieIssue": "Rechnung ausstellen",
+  "ieTotal": "Summe",
+  "ieLinesTotal": "Summe Positionen",
+  "ieDiscountSuffix": "Rabatt{suffix}",
+  "@ieDiscountSuffix": {
+    "placeholders": {
+      "suffix": {
+        "type": "String"
+      }
+    }
+  },
+  "ieShippingSuffix": "Versand{suffix}",
+  "@ieShippingSuffix": {
+    "placeholders": {
+      "suffix": {
+        "type": "String"
+      }
+    }
+  },
+  "ieNet": "Netto",
+  "ieVatOn": "USt {rate} auf {net}",
+  "@ieVatOn": {
+    "placeholders": {
+      "rate": {
+        "type": "String"
+      },
+      "net": {
+        "type": "String"
+      }
+    }
+  },
+  "ieGrandTotal": "Gesamtbetrag",
+  "ieSkontoPercent": "Skonto {percent}",
+  "@ieSkontoPercent": {
+    "placeholders": {
+      "percent": {
+        "type": "String"
+      }
+    }
+  },
+  "ieNoteOnInvoice": "Auf der Rechnung erscheint: \"{note}\"",
+  "@ieNoteOnInvoice": {
+    "placeholders": {
+      "note": {
+        "type": "String"
+      }
+    }
+  },
+  "ieExtras": "Rabatt, Versand, Skonto",
+  "ieWholeDiscount": "Rabatt auf die ganze Rechnung",
+  "ieWholeDiscountHelp": "Wird bei mehreren Steuersätzen anteilig aufgeteilt.",
+  "ieAddShipping": "Versandkosten hinzufügen",
+  "ieShippingNet": "Versandkosten netto",
+  "ieShippingVat": "Umsatzsteuer auf Versand",
+  "ieShippingVatHelp": "Automatisch wie die Waren – bei mehreren Sätzen anteilig",
+  "ieLikeMain": "wie Hauptleistung (automatisch)",
+  "ieOfferSkonto": "Skonto anbieten",
+  "ieOfferSkontoHelp": "Nachlass, wenn deine Kundin schnell zahlt",
+  "ieSkonto": "Skonto",
+  "ieWithin": "innerhalb",
+  "ieDays": "Tage",
+  "ieNotSet": "Nicht gesetzt",
+  "ieLineN": "Position {index}",
+  "@ieLineN": {
+    "placeholders": {
+      "index": {
+        "type": "int"
+      }
+    }
+  },
+  "ieRemoveLine": "Position entfernen",
+  "ieDescription": "Bezeichnung",
+  "ieQuantity": "Menge",
+  "ieUnit": "Einheit",
+  "ieUnitPrice": "Einzelpreis netto",
+  "ieAddDiscount": "Rabatt hinzufügen",
+  "ieLineDiscount": "Rabatt auf Position {index}",
+  "@ieLineDiscount": {
+    "placeholders": {
+      "index": {
+        "type": "int"
+      }
+    }
+  },
+  "ieLineDiscountHelp": "Mindert nur diese Position.",
+  "ieVatRate": "Umsatzsteuersatz",
+  "ieChooseCustomer": "Kunde wählen",
+  "ieNoCustomers": "Noch keine Kunden angelegt.",
+  "ieNewCustomer": "Neuen Kunden anlegen",
+  "ieChangeDiscount": "Rabatt ändern",
+  "ieDiscount": "Rabatt",
+  "commonRemove": "Entfernen",
+  "commonApply": "Übernehmen",
+  "ieDiscountLine": "Rabatt {percent}= {amount}",
+  "@ieDiscountLine": {
+    "placeholders": {
+      "percent": {
+        "type": "String"
+      },
+      "amount": {
+        "type": "String"
+      }
+    }
   }
 }

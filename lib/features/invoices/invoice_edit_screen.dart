@@ -28,6 +28,7 @@ import '../../widgets/adaptive.dart';
 import '../help/help_screen.dart';
 import '../../services/help/help_index.dart';
 import '../../domain/currency.dart';
+import '../../l10n/l10n.dart';
 
 /// Rechnung erstellen und bearbeiten.
 ///
@@ -304,31 +305,33 @@ class _InvoiceEditScreenState extends State<InvoiceEditScreen> {
   List<String> _validationErrors() {
     final errors = <String>[];
     if (_customer == null) {
-      errors.add('Kunde auswählen');
+      errors.add(context.l10n.ieErrCustomer);
     } else if (!_customer!.hasCompleteAddress) {
-      errors.add('Vollständige Anschrift des Kunden');
+      errors.add(context.l10n.ieErrAddress);
     }
     if (_items.isEmpty || _items.every((item) => item.isEmpty)) {
-      errors.add('Mindestens eine Position');
+      errors.add(context.l10n.ieErrOneLine);
     }
     if (_items.any(
       (item) => !item.isEmpty && item.description.text.trim().isEmpty,
     )) {
-      errors.add('Bezeichnung für jede Position');
+      errors.add(context.l10n.ieErrDescription);
     }
     if (_deliveryDate == null) {
-      errors.add('Liefer-/Leistungsdatum');
+      errors.add(context.l10n.ieDeliveryDate);
     }
     if (_discountIsPercent && _discountPermille > 1000) {
-      errors.add('Rabatt höchstens 100 %');
+      errors.add(context.l10n.ieErrDiscountMax);
     }
     if ((_skontoDays > 0) != (_skontoPermille > 0)) {
-      errors.add('Skonto mit Tagen und Prozent');
+      errors.add(context.l10n.ieErrSkonto);
     }
     final profile = AppScope.read(context).profile;
     if (profile != null) {
       errors.addAll(
-        profile.missingInvoiceFields.map((field) => 'Stammdaten: $field'),
+        profile.missingInvoiceFields.map(
+          (field) => context.l10n.ieErrProfile(field),
+        ),
       );
       if (_customer != null) {
         final gross = _totals.gross;
@@ -349,7 +352,7 @@ class _InvoiceEditScreenState extends State<InvoiceEditScreen> {
   Future<void> _save({required bool issue}) async {
     final errors = _validationErrors();
     if (errors.isNotEmpty) {
-      showSnack(context, 'Es fehlt noch: ${errors.join(', ')}');
+      showSnack(context, context.l10n.ieMissing(errors.join(', ')));
       return;
     }
     // Demo (FA-13.14): zusammenstellen ja, speichern nein.
@@ -385,16 +388,16 @@ class _InvoiceEditScreenState extends State<InvoiceEditScreen> {
         final proceed = await showDialog<bool>(
           context: context,
           builder: (context) => AlertDialog(
-            title: const Text('UID des Kunden nicht bestätigt'),
+            title: Text(context.l10n.ieVatIdUnconfirmed),
             content: Text(vatCheckMessage(vatCheck!)),
             actions: [
               TextButton(
                 onPressed: () => Navigator.of(context).pop(false),
-                child: const Text('Abbrechen'),
+                child: Text(context.l10n.commonCancel),
               ),
               FilledButton(
                 onPressed: () => Navigator.of(context).pop(true),
-                child: const Text('Trotzdem ausstellen'),
+                child: Text(context.l10n.ieIssueAnyway),
               ),
             ],
           ),
@@ -502,19 +505,16 @@ class _InvoiceEditScreenState extends State<InvoiceEditScreen> {
     final discard = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Entwurf noch nicht speicherbar'),
-        content: Text(
-          'Es fehlt noch: ${errors.join(', ')}. '
-          'Ohne diese Angaben kann die Rechnung nicht gespeichert werden.',
-        ),
+        title: Text(context.l10n.ieDraftNotSavable),
+        content: Text(context.l10n.ieDraftMissing(errors.join(', '))),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(true),
-            child: const Text('Verwerfen'),
+            child: Text(context.l10n.commonDiscard),
           ),
           FilledButton(
             onPressed: () => Navigator.of(context).pop(false),
-            child: const Text('Weiter bearbeiten'),
+            child: Text(context.l10n.commonKeepEditing),
           ),
         ],
       ),
@@ -546,10 +546,10 @@ class _InvoiceEditScreenState extends State<InvoiceEditScreen> {
       appBar: AppBar(
         title: Text(
           _issued != null
-              ? 'Rechnung ${_issued!.number}'
+              ? context.l10n.invInvoiceNumber(_issued!.number)
               : (_isEditing
-                    ? 'Rechnung ${widget.existing!.number}'
-                    : 'Neue Rechnung'),
+                    ? context.l10n.invInvoiceNumber(widget.existing!.number)
+                    : context.l10n.invNew),
         ),
 
         actions: const [HelpButton(context: HelpTopic.invoices)],
@@ -562,26 +562,25 @@ class _InvoiceEditScreenState extends State<InvoiceEditScreen> {
               NoticeBanner(
                 icon: Icons.lock_outline,
                 message: (widget.existing?.isCancellation ?? false)
-                    ? 'Stornorechnung zu ${widget.existing!.cancelsNumber}: '
-                          'Beträge mit umgekehrtem Vorzeichen, unveränderlich.'
-                    : 'Diese Rechnung ist gestellt und kann nicht mehr '
-                          'geändert werden. Zum Ändern in der Rechnungsliste '
-                          '⋮ → Korrigieren tippen.',
+                    ? context.l10n.ieCreditNoteInfo(
+                        widget.existing!.cancelsNumber,
+                      )
+                    : context.l10n.ieIssuedInfo,
               ),
               const SizedBox(height: 16),
             ],
 
             SectionCard(
-              title: 'Empfänger',
+              title: context.l10n.ieRecipient,
               action: _isLocked
                   ? null
                   : TextButton(
                       onPressed: _pickCustomer,
-                      child: const Text('Wählen'),
+                      child: Text(context.l10n.commonChoose),
                     ),
               child: _customer == null
                   ? Text(
-                      'Noch kein Kunde ausgewählt.',
+                      context.l10n.ieNoCustomer,
                       style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                         color: Theme.of(context).colorScheme.onSurfaceVariant,
                       ),
@@ -603,7 +602,7 @@ class _InvoiceEditScreenState extends State<InvoiceEditScreen> {
                               ),
                               onPressed: _editCustomer,
                               icon: const Icon(Icons.edit_outlined),
-                              label: const Text('Kunde bearbeiten'),
+                              label: Text(context.l10n.ieEditCustomer),
                             ),
                           ),
                         ],
@@ -612,10 +611,9 @@ class _InvoiceEditScreenState extends State<InvoiceEditScreen> {
                           NoticeBanner(
                             icon: Icons.warning_amber_rounded,
                             color: AppTheme.warning,
-                            message:
-                                'Für eine Rechnung über der Kleinbetragsgrenze von '
-                                '${Fmt.money(tax.smallAmountInvoiceLimit)} braucht der Kunde '
-                                'eine vollständige Anschrift.',
+                            message: context.l10n.ieAddressNeeded(
+                              Fmt.money(tax.smallAmountInvoiceLimit),
+                            ),
                           ),
                         ],
                       ],
@@ -624,11 +622,11 @@ class _InvoiceEditScreenState extends State<InvoiceEditScreen> {
             const SizedBox(height: 16),
 
             SectionCard(
-              title: 'Zeitraum',
+              title: context.l10n.iePeriod,
               child: Column(
                 children: [
                   _dateTile(
-                    label: 'Rechnungsdatum',
+                    label: context.l10n.ieInvoiceDate,
                     value: _issueDate,
                     onTap: _isLocked
                         ? null
@@ -638,9 +636,9 @@ class _InvoiceEditScreenState extends State<InvoiceEditScreen> {
                           ),
                   ),
                   _dateTile(
-                    label: 'Liefer-/Leistungsdatum',
+                    label: context.l10n.ieDeliveryDate,
                     value: _deliveryDate,
-                    helper: 'Pflichtangabe nach ${tax.invoiceLegalRef}',
+                    helper: context.l10n.ieRequiredBy(tax.invoiceLegalRef),
                     onTap: _isLocked
                         ? null
                         : () => _pickDate(
@@ -674,7 +672,7 @@ class _InvoiceEditScreenState extends State<InvoiceEditScreen> {
                       ),
                     ),
                   _dateTile(
-                    label: 'Fällig am',
+                    label: context.l10n.ieDueDate,
                     value: _dueDate,
                     onTap: _isLocked
                         ? null
@@ -689,7 +687,7 @@ class _InvoiceEditScreenState extends State<InvoiceEditScreen> {
             const SizedBox(height: 16),
 
             SectionCard(
-              title: 'Positionen',
+              title: context.l10n.ieLines,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
@@ -725,7 +723,7 @@ class _InvoiceEditScreenState extends State<InvoiceEditScreen> {
                         ),
                       ),
                       icon: const Icon(Icons.add),
-                      label: const Text('Position hinzufügen'),
+                      label: Text(context.l10n.ieAddLine),
                     ),
                     const SizedBox(height: 8),
                     OutlinedButton.icon(
@@ -735,7 +733,7 @@ class _InvoiceEditScreenState extends State<InvoiceEditScreen> {
                       ),
                       onPressed: () => _takePosition(state.defaultVatPermille),
                       icon: const Icon(Icons.inventory_2_outlined),
-                      label: const Text('Aus Artikeln und Vorschlägen'),
+                      label: Text(context.l10n.ieFromItems),
                     ),
                   ],
                 ],
@@ -750,13 +748,11 @@ class _InvoiceEditScreenState extends State<InvoiceEditScreen> {
             const SizedBox(height: 16),
 
             SectionCard(
-              title: 'Anmerkungen',
+              title: context.l10n.ieNotes,
               child: TextFormField(
                 controller: _notesController,
                 readOnly: _isLocked,
-                decoration: const InputDecoration(
-                  hintText: 'Erscheint unter den Positionen auf der Rechnung',
-                ),
+                decoration: InputDecoration(hintText: context.l10n.ieNotesHint),
                 maxLines: 3,
                 textCapitalization: TextCapitalization.sentences,
               ),
@@ -775,7 +771,7 @@ class _InvoiceEditScreenState extends State<InvoiceEditScreen> {
               NoticeBanner(
                 icon: Icons.checklist_outlined,
                 color: AppTheme.warning,
-                message: 'Vor dem Ausstellen fehlt noch: ${errors.join(', ')}.',
+                message: context.l10n.ieMissingBeforeIssue(errors.join(', ')),
               ),
               Align(
                 alignment: Alignment.centerLeft,
@@ -795,13 +791,13 @@ class _InvoiceEditScreenState extends State<InvoiceEditScreen> {
               // die Rechnung offen (Gerätetest 0.13.0, FA-5.34).
               secondary: PrimaryActionBar.outlined(
                 key: const Key('invoice-done'),
-                label: 'Beenden',
+                label: context.l10n.ieFinish,
                 icon: Icons.done_all,
                 onPressed: () => Navigator.of(context).pop(true),
               ),
               primary: PrimaryActionBar.filled(
                 key: const Key('invoice-share'),
-                label: 'PDF ansehen',
+                label: context.l10n.iePdfView,
                 icon: Icons.send_outlined,
                 onPressed: () =>
                     shareInvoicePdf(context, _issued ?? widget.existing!),
@@ -810,13 +806,13 @@ class _InvoiceEditScreenState extends State<InvoiceEditScreen> {
           : PrimaryActionBar(
               secondary: PrimaryActionBar.outlined(
                 key: const Key('invoice-draft'),
-                label: 'Beenden',
+                label: context.l10n.ieFinish,
                 icon: Icons.save_outlined,
                 onPressed: _saving ? null : _leave,
               ),
               primary: PrimaryActionBar.filled(
                 key: const Key('invoice-issue'),
-                label: 'Rechnung ausstellen',
+                label: context.l10n.ieIssue,
                 icon: Icons.check,
                 busy: _saving,
                 onPressed: errors.isNotEmpty ? null : () => _save(issue: true),
@@ -832,54 +828,57 @@ class _InvoiceEditScreenState extends State<InvoiceEditScreen> {
         multiRate ? ' (${Fmt.vatRate(permille)})' : '';
     final skonto = totals.skontoAmount(_skontoDays > 0 ? _skontoPermille : 0);
     return SectionCard(
-      title: 'Summe',
+      title: context.l10n.ieTotal,
       child: Column(
         children: [
           if (totals.discountLines.isNotEmpty ||
               totals.shippingLines.isNotEmpty) ...[
             LabeledValue(
-              label: 'Summe Positionen',
+              label: context.l10n.ieLinesTotal,
               value: Fmt.money(totals.itemsNet),
             ),
             for (final line in totals.discountLines)
               LabeledValue(
-                label: 'Rabatt${suffix(line.vatPermille)}',
+                label: context.l10n.ieDiscountSuffix(suffix(line.vatPermille)),
                 value: Fmt.money(line.net),
               ),
             for (final line in totals.shippingLines)
               LabeledValue(
-                label: 'Versand${suffix(line.vatPermille)}',
+                label: context.l10n.ieShippingSuffix(suffix(line.vatPermille)),
                 value: Fmt.money(line.net),
               ),
           ],
-          LabeledValue(label: 'Netto', value: Fmt.money(totals.net)),
+          LabeledValue(label: context.l10n.ieNet, value: Fmt.money(totals.net)),
           if (!_isSmallBusiness) ...[
             for (final entry in totals.breakdown.entries)
               LabeledValue(
-                label:
-                    'USt ${Fmt.vatRate(entry.key)} auf '
-                    '${Fmt.amount(entry.value.net)}',
+                label: context.l10n.ieVatOn(
+                  Fmt.vatRate(entry.key),
+                  Fmt.amount(entry.value.net),
+                ),
                 value: Fmt.money(entry.value.vat),
               ),
           ],
           const Divider(height: 20),
           LabeledValue(
-            label: 'Gesamtbetrag',
+            label: context.l10n.ieGrandTotal,
             value: Fmt.money(totals.gross),
             emphasize: true,
           ),
           if (!skonto.isZero)
             LabeledValue(
-              label: 'Skonto ${InvoiceTexts.percent(_skontoPermille)}',
+              label: context.l10n.ieSkontoPercent(
+                InvoiceTexts.percent(_skontoPermille),
+              ),
               value: Fmt.money(skonto),
             ),
           if (_isSmallBusiness) ...[
             const SizedBox(height: 12),
             NoticeBanner(
               icon: Icons.receipt_outlined,
-              message:
-                  'Auf der Rechnung erscheint: '
-                  '"${tax.smallBusinessInvoiceNote}"',
+              message: context.l10n.ieNoteOnInvoice(
+                tax.smallBusinessInvoiceNote,
+              ),
             ),
           ],
         ],
@@ -897,24 +896,25 @@ class _InvoiceEditScreenState extends State<InvoiceEditScreen> {
     final totals = _totals;
     final hasDiscount = _discountController.text.trim().isNotEmpty;
     return SectionCard(
-      title: 'Rabatt, Versand, Skonto',
+      title: context.l10n.ieExtras,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           DiscountTile(
             key: const Key('invoiceDiscount'),
-            addLabel: 'Rabatt auf die ganze Rechnung',
+            addLabel: context.l10n.ieWholeDiscount,
             summary: hasDiscount
-                ? 'Rabatt ${_discountIsPercent ? '${_discountController.text} % ' : ''}'
-                      '= ${Fmt.money(totals.discount)}'
+                ? context.l10n.ieDiscountLine(
+                    _discountIsPercent ? '${_discountController.text} % ' : '',
+                    Fmt.money(totals.discount),
+                  )
                 : null,
             readOnly: _isLocked,
             onEdit: () async {
               final result = await showDiscountSheet(
                 context,
-                title: 'Rabatt auf die ganze Rechnung',
-                explanation:
-                    'Wird bei mehreren Steuersätzen anteilig aufgeteilt.',
+                title: context.l10n.ieWholeDiscount,
+                explanation: context.l10n.ieWholeDiscountHelp,
                 isPercent: _discountIsPercent,
                 text: _discountController.text,
               );
@@ -929,7 +929,7 @@ class _InvoiceEditScreenState extends State<InvoiceEditScreen> {
           if (!_showShipping)
             _AddButton(
               key: const Key('addShipping'),
-              label: 'Versandkosten hinzufügen',
+              label: context.l10n.ieAddShipping,
               icon: Icons.local_shipping_outlined,
               onPressed: _isLocked
                   ? null
@@ -945,7 +945,7 @@ class _InvoiceEditScreenState extends State<InvoiceEditScreen> {
               ),
               textAlign: TextAlign.right,
               decoration: InputDecoration(
-                labelText: 'Versandkosten netto',
+                labelText: context.l10n.ieShippingNet,
                 suffixText: Currency.home.symbol,
               ),
               onChanged: (_) => setState(() {}),
@@ -954,15 +954,14 @@ class _InvoiceEditScreenState extends State<InvoiceEditScreen> {
               const SizedBox(height: 10),
               DropdownButtonFormField<int?>(
                 initialValue: _shippingVatPermille,
-                decoration: const InputDecoration(
-                  labelText: 'Umsatzsteuer auf Versand',
-                  helperText:
-                      'Automatisch wie die Waren – bei mehreren Sätzen anteilig',
+                decoration: InputDecoration(
+                  labelText: context.l10n.ieShippingVat,
+                  helperText: context.l10n.ieShippingVatHelp,
                 ),
                 items: [
-                  const DropdownMenuItem<int?>(
+                  DropdownMenuItem<int?>(
                     value: null,
-                    child: Text('wie Hauptleistung (automatisch)'),
+                    child: Text(context.l10n.ieLikeMain),
                   ),
                   for (final rate in rates)
                     DropdownMenuItem<int?>(
@@ -980,8 +979,8 @@ class _InvoiceEditScreenState extends State<InvoiceEditScreen> {
           SwitchListTile(
             key: const Key('skontoSwitch'),
             contentPadding: EdgeInsets.zero,
-            title: const Text('Skonto anbieten'),
-            subtitle: const Text('Nachlass, wenn deine Kundin schnell zahlt'),
+            title: Text(context.l10n.ieOfferSkonto),
+            subtitle: Text(context.l10n.ieOfferSkontoHelp),
             value: _skontoOn,
             onChanged: _isLocked
                 ? null
@@ -999,8 +998,8 @@ class _InvoiceEditScreenState extends State<InvoiceEditScreen> {
                       decimal: true,
                     ),
                     textAlign: TextAlign.right,
-                    decoration: const InputDecoration(
-                      labelText: 'Skonto',
+                    decoration: InputDecoration(
+                      labelText: context.l10n.ieSkonto,
                       suffixText: '%',
                     ),
                     onChanged: (_) => setState(() {}),
@@ -1014,9 +1013,9 @@ class _InvoiceEditScreenState extends State<InvoiceEditScreen> {
                     readOnly: _isLocked,
                     keyboardType: TextInputType.number,
                     textAlign: TextAlign.right,
-                    decoration: const InputDecoration(
-                      labelText: 'innerhalb',
-                      suffixText: 'Tage',
+                    decoration: InputDecoration(
+                      labelText: context.l10n.ieWithin,
+                      suffixText: context.l10n.ieDays,
                     ),
                     onChanged: (_) => setState(() {}),
                   ),
@@ -1066,7 +1065,7 @@ class _InvoiceEditScreenState extends State<InvoiceEditScreen> {
       title: Text(label),
       subtitle: Text(
         [
-          value == null ? 'Nicht gesetzt' : Fmt.date(value),
+          value == null ? context.l10n.ieNotSet : Fmt.date(value),
           if (helper != null) helper,
         ].join(' · '),
       ),
@@ -1184,7 +1183,7 @@ class ItemEditor extends StatelessWidget {
         Row(
           children: [
             Text(
-              'Position $index',
+              context.l10n.ieLineN(index),
               style: Theme.of(context).textTheme.labelMedium,
             ),
             const Spacer(),
@@ -1199,7 +1198,7 @@ class ItemEditor extends StatelessWidget {
                 constraints: const BoxConstraints(minWidth: 48, minHeight: 48),
                 icon: const Icon(Icons.delete_outline),
                 onPressed: onRemove,
-                tooltip: 'Position entfernen',
+                tooltip: context.l10n.ieRemoveLine,
               ),
             ],
           ],
@@ -1208,7 +1207,7 @@ class ItemEditor extends StatelessWidget {
         TextField(
           controller: draft.description,
           readOnly: readOnly,
-          decoration: const InputDecoration(labelText: 'Bezeichnung'),
+          decoration: InputDecoration(labelText: context.l10n.ieDescription),
           textCapitalization: TextCapitalization.sentences,
           maxLines: 2,
           minLines: 1,
@@ -1226,7 +1225,7 @@ class ItemEditor extends StatelessWidget {
                   decimal: true,
                 ),
                 textAlign: TextAlign.right,
-                decoration: const InputDecoration(labelText: 'Menge'),
+                decoration: InputDecoration(labelText: context.l10n.ieQuantity),
                 onChanged: (_) => onChanged(),
               ),
             ),
@@ -1236,7 +1235,7 @@ class ItemEditor extends StatelessWidget {
               child: TextField(
                 controller: draft.unit,
                 readOnly: readOnly,
-                decoration: const InputDecoration(labelText: 'Einheit'),
+                decoration: InputDecoration(labelText: context.l10n.ieUnit),
                 onChanged: (_) => onChanged(),
               ),
             ),
@@ -1250,7 +1249,7 @@ class ItemEditor extends StatelessWidget {
                 ),
                 textAlign: TextAlign.right,
                 decoration: InputDecoration(
-                  labelText: 'Einzelpreis netto',
+                  labelText: context.l10n.ieUnitPrice,
                   suffixText: Currency.home.symbol,
                 ),
                 onChanged: (_) => onChanged(),
@@ -1261,18 +1260,19 @@ class ItemEditor extends StatelessWidget {
         const SizedBox(height: 8),
         DiscountTile(
           key: Key('itemDiscount$index'),
-          addLabel: 'Rabatt hinzufügen',
+          addLabel: context.l10n.ieAddDiscount,
           summary: draft.discount.text.trim().isEmpty
               ? null
-              : 'Rabatt '
-                    '${draft.discountIsPercent ? '${draft.discount.text} % ' : ''}'
-                    '= ${Fmt.money(draft.toItem().discount)}',
+              : context.l10n.ieDiscountLine(
+                  draft.discountIsPercent ? '${draft.discount.text} % ' : '',
+                  Fmt.money(draft.toItem().discount),
+                ),
           readOnly: readOnly,
           onEdit: () async {
             final result = await showDiscountSheet(
               context,
-              title: 'Rabatt auf Position $index',
-              explanation: 'Mindert nur diese Position.',
+              title: context.l10n.ieLineDiscount(index),
+              explanation: context.l10n.ieLineDiscountHelp,
               isPercent: draft.discountIsPercent,
               text: draft.discount.text,
             );
@@ -1286,7 +1286,7 @@ class ItemEditor extends StatelessWidget {
           const SizedBox(height: 10),
           DropdownButtonFormField<int>(
             initialValue: draft.vatPermille,
-            decoration: const InputDecoration(labelText: 'Umsatzsteuersatz'),
+            decoration: InputDecoration(labelText: context.l10n.ieVatRate),
             items: [
               for (final rate in vatRates)
                 DropdownMenuItem(
@@ -1323,7 +1323,7 @@ class CustomerPicker extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Text(
-              'Kunde wählen',
+              context.l10n.ieChooseCustomer,
               style: Theme.of(context).textTheme.titleMedium,
             ),
             const SizedBox(height: 12),
@@ -1331,7 +1331,7 @@ class CustomerPicker extends StatelessWidget {
               Padding(
                 padding: const EdgeInsets.symmetric(vertical: 16),
                 child: Text(
-                  'Noch keine Kunden angelegt.',
+                  context.l10n.ieNoCustomers,
                   style: Theme.of(context).textTheme.bodyMedium,
                 ),
               )
@@ -1368,7 +1368,7 @@ class CustomerPicker extends StatelessWidget {
                 }
               },
               icon: const Icon(Icons.person_add_alt),
-              label: const Text('Neuen Kunden anlegen'),
+              label: Text(context.l10n.ieNewCustomer),
             ),
           ],
         ),
@@ -1436,7 +1436,7 @@ class DiscountTile extends StatelessWidget {
         if (!readOnly)
           IconButton(
             constraints: const BoxConstraints(minWidth: 48, minHeight: 48),
-            tooltip: 'Rabatt ändern',
+            tooltip: context.l10n.ieChangeDiscount,
             icon: const Icon(Icons.edit_outlined),
             onPressed: onEdit,
           ),
@@ -1496,7 +1496,7 @@ Future<({bool isPercent, String text})?> showDiscountSheet(
               ),
               textAlign: TextAlign.right,
               decoration: InputDecoration(
-                labelText: 'Rabatt',
+                labelText: context.l10n.ieDiscount,
                 suffixText: percent ? '%' : Currency.home.symbol,
               ),
             ),
@@ -1512,7 +1512,7 @@ Future<({bool isPercent, String text})?> showDiscountSheet(
                       onPressed: () => Navigator.of(
                         context,
                       ).pop((isPercent: percent, text: '')),
-                      child: const Text('Entfernen'),
+                      child: Text(context.l10n.commonRemove),
                     ),
                   ),
                   const SizedBox(width: 12),
@@ -1526,7 +1526,7 @@ Future<({bool isPercent, String text})?> showDiscountSheet(
                     onPressed: () => Navigator.of(
                       context,
                     ).pop((isPercent: percent, text: controller.text.trim())),
-                    child: const Text('Übernehmen'),
+                    child: Text(context.l10n.commonApply),
                   ),
                 ),
               ],

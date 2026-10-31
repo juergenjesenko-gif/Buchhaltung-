@@ -530,4 +530,265 @@ class AppLocalizationsDe extends AppLocalizations {
   String invNoticeBadgeDue(String badge, String date) {
     return '$badge · Frist $date';
   }
+
+  @override
+  String get ieErrCustomer => 'Kunde auswählen';
+
+  @override
+  String get ieErrAddress => 'Vollständige Anschrift des Kunden';
+
+  @override
+  String get ieErrOneLine => 'Mindestens eine Position';
+
+  @override
+  String get ieErrDescription => 'Bezeichnung für jede Position';
+
+  @override
+  String get ieDeliveryDate => 'Liefer-/Leistungsdatum';
+
+  @override
+  String get ieErrDiscountMax => 'Rabatt höchstens 100 %';
+
+  @override
+  String get ieErrSkonto => 'Skonto mit Tagen und Prozent';
+
+  @override
+  String ieErrProfile(String field) {
+    return 'Stammdaten: $field';
+  }
+
+  @override
+  String ieMissing(String items) {
+    return 'Es fehlt noch: $items';
+  }
+
+  @override
+  String get ieVatIdUnconfirmed => 'UID des Kunden nicht bestätigt';
+
+  @override
+  String get ieIssueAnyway => 'Trotzdem ausstellen';
+
+  @override
+  String get ieDraftNotSavable => 'Entwurf noch nicht speicherbar';
+
+  @override
+  String ieDraftMissing(String items) {
+    return 'Es fehlt noch: $items. Ohne diese Angaben kann die Rechnung nicht gespeichert werden.';
+  }
+
+  @override
+  String get commonDiscard => 'Verwerfen';
+
+  @override
+  String get commonKeepEditing => 'Weiter bearbeiten';
+
+  @override
+  String ieCreditNoteInfo(String number) {
+    return 'Stornorechnung zu $number: Beträge mit umgekehrtem Vorzeichen, unveränderlich.';
+  }
+
+  @override
+  String get ieIssuedInfo =>
+      'Diese Rechnung ist gestellt und kann nicht mehr geändert werden. Zum Ändern in der Rechnungsliste ⋮ → Korrigieren tippen.';
+
+  @override
+  String get ieRecipient => 'Empfänger';
+
+  @override
+  String get commonChoose => 'Wählen';
+
+  @override
+  String get ieNoCustomer => 'Noch kein Kunde ausgewählt.';
+
+  @override
+  String get ieEditCustomer => 'Kunde bearbeiten';
+
+  @override
+  String ieAddressNeeded(String limit) {
+    return 'Für eine Rechnung über der Kleinbetragsgrenze von $limit braucht der Kunde eine vollständige Anschrift.';
+  }
+
+  @override
+  String get iePeriod => 'Zeitraum';
+
+  @override
+  String get ieInvoiceDate => 'Rechnungsdatum';
+
+  @override
+  String ieRequiredBy(String ref) {
+    return 'Pflichtangabe nach $ref';
+  }
+
+  @override
+  String get ieDueDate => 'Fällig am';
+
+  @override
+  String get ieLines => 'Positionen';
+
+  @override
+  String get ieAddLine => 'Position hinzufügen';
+
+  @override
+  String get ieFromItems => 'Aus Artikeln und Vorschlägen';
+
+  @override
+  String get ieNotes => 'Anmerkungen';
+
+  @override
+  String get ieNotesHint => 'Erscheint unter den Positionen auf der Rechnung';
+
+  @override
+  String ieMissingBeforeIssue(String items) {
+    return 'Vor dem Ausstellen fehlt noch: $items.';
+  }
+
+  @override
+  String get ieFinish => 'Beenden';
+
+  @override
+  String get iePdfView => 'PDF ansehen';
+
+  @override
+  String get ieIssue => 'Rechnung ausstellen';
+
+  @override
+  String get ieTotal => 'Summe';
+
+  @override
+  String get ieLinesTotal => 'Summe Positionen';
+
+  @override
+  String ieDiscountSuffix(String suffix) {
+    return 'Rabatt$suffix';
+  }
+
+  @override
+  String ieShippingSuffix(String suffix) {
+    return 'Versand$suffix';
+  }
+
+  @override
+  String get ieNet => 'Netto';
+
+  @override
+  String ieVatOn(String rate, String net) {
+    return 'USt $rate auf $net';
+  }
+
+  @override
+  String get ieGrandTotal => 'Gesamtbetrag';
+
+  @override
+  String ieSkontoPercent(String percent) {
+    return 'Skonto $percent';
+  }
+
+  @override
+  String ieNoteOnInvoice(String note) {
+    return 'Auf der Rechnung erscheint: \"$note\"';
+  }
+
+  @override
+  String get ieExtras => 'Rabatt, Versand, Skonto';
+
+  @override
+  String get ieWholeDiscount => 'Rabatt auf die ganze Rechnung';
+
+  @override
+  String get ieWholeDiscountHelp =>
+      'Wird bei mehreren Steuersätzen anteilig aufgeteilt.';
+
+  @override
+  String get ieAddShipping => 'Versandkosten hinzufügen';
+
+  @override
+  String get ieShippingNet => 'Versandkosten netto';
+
+  @override
+  String get ieShippingVat => 'Umsatzsteuer auf Versand';
+
+  @override
+  String get ieShippingVatHelp =>
+      'Automatisch wie die Waren – bei mehreren Sätzen anteilig';
+
+  @override
+  String get ieLikeMain => 'wie Hauptleistung (automatisch)';
+
+  @override
+  String get ieOfferSkonto => 'Skonto anbieten';
+
+  @override
+  String get ieOfferSkontoHelp => 'Nachlass, wenn deine Kundin schnell zahlt';
+
+  @override
+  String get ieSkonto => 'Skonto';
+
+  @override
+  String get ieWithin => 'innerhalb';
+
+  @override
+  String get ieDays => 'Tage';
+
+  @override
+  String get ieNotSet => 'Nicht gesetzt';
+
+  @override
+  String ieLineN(int index) {
+    return 'Position $index';
+  }
+
+  @override
+  String get ieRemoveLine => 'Position entfernen';
+
+  @override
+  String get ieDescription => 'Bezeichnung';
+
+  @override
+  String get ieQuantity => 'Menge';
+
+  @override
+  String get ieUnit => 'Einheit';
+
+  @override
+  String get ieUnitPrice => 'Einzelpreis netto';
+
+  @override
+  String get ieAddDiscount => 'Rabatt hinzufügen';
+
+  @override
+  String ieLineDiscount(int index) {
+    return 'Rabatt auf Position $index';
+  }
+
+  @override
+  String get ieLineDiscountHelp => 'Mindert nur diese Position.';
+
+  @override
+  String get ieVatRate => 'Umsatzsteuersatz';
+
+  @override
+  String get ieChooseCustomer => 'Kunde wählen';
+
+  @override
+  String get ieNoCustomers => 'Noch keine Kunden angelegt.';
+
+  @override
+  String get ieNewCustomer => 'Neuen Kunden anlegen';
+
+  @override
+  String get ieChangeDiscount => 'Rabatt ändern';
+
+  @override
+  String get ieDiscount => 'Rabatt';
+
+  @override
+  String get commonRemove => 'Entfernen';
+
+  @override
+  String get commonApply => 'Übernehmen';
+
+  @override
+  String ieDiscountLine(String percent, String amount) {
+    return 'Rabatt $percent= $amount';
+  }
 }
