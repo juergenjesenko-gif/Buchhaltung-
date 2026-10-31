@@ -57,6 +57,7 @@ import '../booking_rules/booking_rule_strip.dart';
 import '../../domain/booking_rule.dart' show BookingFacts;
 import '../../services/help/help_index.dart';
 import '../../domain/currency.dart';
+import '../../services/licensing/scan_quota.dart';
 
 /// Beleg erfassen oder bearbeiten.
 ///
@@ -132,6 +133,14 @@ class _ReceiptEditScreenState extends State<ReceiptEditScreen> {
 
   /// Erkennung wäre da, ist aber nicht im Abo (Hinweis statt stiller Lücke).
   bool _scanLocked = false;
+
+  /// Basis: verbleibende Gratis-Auslesungen dieses Monats (FA-13.2);
+  /// `null` in Pro, Demo und ohne Abo.
+  int? _freeScansLeft;
+
+  /// Dieser Beleg hat schon eine Gratis-Auslesung verbraucht; „Erneut
+  /// auslesen“ zählt nicht noch einmal.
+  bool _freeScanUsed = false;
   bool _scanning = false;
   OcrDocument? _scanDocument;
   ReceiptScanResult? _scanResult;
@@ -411,10 +420,15 @@ class _ReceiptEditScreenState extends State<ReceiptEditScreen> {
     final available = enabled && await _recognizer.isAvailable();
     if (!mounted) return;
     // Tarifschnitt (L-2.4 nur Pro): einzige Abfrage über den Anspruch.
-    final allowed = AppScope.read(context).allows(Feature.receiptRecognition);
+    final state = AppScope.read(context);
+    final allowed = state.allows(Feature.receiptRecognition);
+    final free = allowed ? null : await state.freeScansLeft();
+    if (!mounted) return;
+    final viaQuota = !allowed && (_freeScanUsed || (free ?? 0) > 0);
     setState(() {
-      _scanEnabled = available && allowed;
-      _scanLocked = available && !allowed;
+      _freeScansLeft = free;
+      _scanEnabled = available && (allowed || viaQuota);
+      _scanLocked = available && !allowed && !viaQuota;
     });
   }
 
@@ -427,6 +441,12 @@ class _ReceiptEditScreenState extends State<ReceiptEditScreen> {
     if (_pages.isEmpty || _scanning) return;
     final state = AppScope.read(context);
     final tax = state.profile?.taxProfile ?? TaxProfile.austria;
+    if (_freeScansLeft != null && !_freeScanUsed) {
+      _freeScanUsed = true;
+      await state.consumeFreeScan();
+      _freeScansLeft = _freeScansLeft! - 1;
+    }
+    if (!mounted) return;
     setState(() => _scanning = true);
     try {
       final files = [
@@ -1372,6 +1392,12 @@ class _ReceiptEditScreenState extends State<ReceiptEditScreen> {
                 label: const Text('Automatisch auslesen (Pro)'),
               ),
             ),
+          if (_scanLocked && _pages.isNotEmpty && _freeScansLeft == 0)
+            Text(
+              'Die ${ScanQuota.freePerMonth} Gratis-Auslesungen dieses Monats '
+              'sind genutzt. Ab dem 1. geht es wieder – oder unbegrenzt mit Pro.',
+              style: muted,
+            ),
           if (_scanEnabled && _pages.isNotEmpty)
             Align(
               alignment: Alignment.centerLeft,
@@ -1387,6 +1413,12 @@ class _ReceiptEditScreenState extends State<ReceiptEditScreen> {
                   _scanning ? 'Wird ausgelesen …' : 'Erneut auslesen',
                 ),
               ),
+            ),
+          if (_scanEnabled && _pages.isNotEmpty && _freeScansLeft != null)
+            Text(
+              'Basis: noch $_freeScansLeft von ${ScanQuota.freePerMonth} '
+              'Gratis-Auslesungen in diesem Monat. Unbegrenzt mit Pro.',
+              style: muted,
             ),
           for (final hint in _scanHints)
             Padding(

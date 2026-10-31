@@ -83,8 +83,9 @@ Verschlüsselte Sicherung, App-Sperre mit PIN oder Fingerabdruck.
 
 BASIS UND PRO
 Basis: Belege, Rechnungen und E-Rechnungen, Storno, Mahnungen, Kassabuch,
-Kunden, Kleinunternehmer-Ampel, Verträge, Export, ZIP, Sicherung, PDF.
-Pro zusätzlich: Belegerkennung, Import aus Amazon, PayPal, Shopify, Stripe und
+Kunden, Kleinunternehmer-Ampel, Verträge, Export, ZIP, Sicherung, PDF,
+5 Belege im Monat auslesen.
+Pro zusätzlich: Belegerkennung ohne Grenze, Import aus Amazon, PayPal, Shopify, Stripe und
 E-Rechnungen, Senden mit einem Tipp, Logo, Wechselkurs, Anlagen mit
 Abschreibung, Saldenliste und vorläufiger Jahresabschluss, Abgaben & Rücklagen
 (Schätzung), Verträge auslesen, Mithelfer-Geräte (Familie

@@ -34,6 +34,7 @@ nächsten Versionssprung in den neuen Eintrag.
 
 | Art | Änderung | Bezug | Commit |
 |---|---|---|---|
+| Neu | Basis: 5 Belege je Monat gratis automatisch auslesen, Zähler unter dem Knopf | FA-13.2 | – |
 | Korrektur | Krumme Steuersätze mit Komma („10,7 %“ statt „10.7 %“); Formate für en_GB/en_IE/en_US vorbereitet | FA-1.20 | – |
 | Neu | Gerüst für Mehrsprachigkeit (Deutsch/Englisch), Bestätigungen und Ersteinrichtung umgestellt; Oberfläche bleibt deutsch | FA-1.20, L-34.1 | – |
 | Webseite | Offizielles Google-Play-Badge auf jenibucht.com (Apple-Badge folgt mit Freigabe), App Store weiter „bald verfügbar“ (Store-Schalter je Store getrennt) | LAUNCH 19 | – |

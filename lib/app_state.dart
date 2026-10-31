@@ -42,6 +42,7 @@ import 'dart:io';
 import 'package:path/path.dart' as p;
 import 'package:sqflite/sqflite.dart' show Database;
 import 'services/demo/demo_mode.dart';
+import 'services/licensing/scan_quota.dart';
 
 /// Anwendungszustand. Bewusst ein einziger [ChangeNotifier] statt eines
 /// State-Management-Pakets: der Zustand dieser App ist klein und
@@ -72,6 +73,26 @@ class AppState extends ChangeNotifier {
   Entitlement get entitlement => _demo ? Entitlement.demo : license.entitlement;
 
   bool allows(Feature feature) => entitlement.allows(feature);
+
+  /// Gratis-Belegerkennung in Basis (FA-13.2, [ScanQuota]): verbleibende
+  /// Auslesungen in diesem Monat; `null`, wenn kein Kontingent gilt (Pro und
+  /// Demo lesen ohne Grenze, ohne Abo gibt es keins).
+  Future<int?> freeScansLeft() async {
+    if (entitlement != Entitlement.basis) return null;
+    return ScanQuota.remaining(
+      await repositories.helpers.setting(ScanQuota.settingKey),
+      DateTime.now(),
+    );
+  }
+
+  /// Verbraucht eine Gratis-Auslesung des laufenden Monats.
+  Future<void> consumeFreeScan() async {
+    final stored = await repositories.helpers.setting(ScanQuota.settingKey);
+    await repositories.helpers.setSetting(
+      ScanQuota.settingKey,
+      ScanQuota.consume(stored, DateTime.now()),
+    );
+  }
 
   void _onLicenseChanged() {
     // Abo abgeschlossen, während die Demo vom ersten Start aus lief: Demo

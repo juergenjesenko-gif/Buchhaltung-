@@ -1463,8 +1463,11 @@ Store-Konto. Du findest alles unter **Einstellungen → Abo**.
   zustellen über **Teilen**, Speichern oder Drucken), Kassabuch, Kunden, Übersicht, Kleinunternehmer-Ampel, Export,
   Sicherung.
 - **Pro** – zusätzlich:
-  - **Belegerkennung**: Betrag, Datum und Händler kommen aus dem Foto. Ohne
-    Pro tippst du sie selbst ein; beim Beleg steht **Automatisch auslesen (Pro)**.
+  - **Belegerkennung**: Betrag, Datum und Händler kommen aus dem Foto. Mit
+    Basis liest die App **5 Belege im Monat gratis** aus; unter dem Knopf
+    steht, wie viele noch übrig sind. Danach tippst du die Werte bis zum 1.
+    des nächsten Monats selbst ein, beim Beleg steht dann **Automatisch
+    auslesen (Pro)**. „Erneut auslesen“ beim selben Beleg zählt nicht doppelt.
     Bei E-Mail-Belegen (z. B. „Receipt from …“ als PDF) nimmt die App den
     Händler aus dem Betreff, nicht den Zahlungsdienst (Square, Google Pay).
   - **Import** aus Amazon, PayPal, Shopify, Stripe und das Auslesen von

@@ -1,5 +1,7 @@
 import 'dart:io';
 
+import 'package:buchhaltung/services/licensing/scan_quota.dart';
+
 import 'package:buchhaltung/services/helper/helper_mail_schedule.dart';
 import 'package:buchhaltung/core/window_size.dart';
 import 'package:buchhaltung/data/app_database.dart';
@@ -173,6 +175,10 @@ void main() {
     test('Ersteinrichtung und EU-KU-Nummer (FA-1.13, FA-18.10)', () {
       expect(intValue('spec.setup_steps'), SetupWizard.steps);
       expect(value('spec.eu_sme_id_suffix'), EuSmeIdFormat.suffix);
+    });
+
+    test('Gratis-Belegerkennung in Basis (FA-13.2)', () {
+      expect(intValue('spec.basis_free_scans'), ScanQuota.freePerMonth);
     });
 
     test('App-Sperre stimmt', () {
